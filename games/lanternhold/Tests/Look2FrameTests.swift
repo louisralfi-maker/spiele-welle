@@ -63,9 +63,11 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(old.filter { $0.sprite == .weltmauer }.count, 0)
     }
 
-    /// The castle's tiers as drawn (SPRITES.md "The castle grows"): tier 1 is the scene as it was; tiers 2 and 3
-    /// swap the keep's top, add the rise behind the back gate and the far castle's overlays in the Weltmauer's two
-    /// slots; tier 3 rebuilds the front 14 px wider on the left with every flame and light where it was.
+    /// The castle's tiers as drawn (SPRITES.md "The castle grows", world-2 "One castle"): one keep on the mistBand
+    /// plane, centred over the hall door, its sprite and lit panes by tier (two, then six; none of the new storey while
+    /// it is built); the curtain gains hoardings and braziers at tier 2, a second tower and banners at tier 3; the
+    /// postern grows with the gatehouse; tier 3 rebuilds the front 14 px wider on the left with every flame and light
+    /// where it was. No far castle, no keep copy, no cut-away room in look 2.
     func testTheCastleTiers() {
         XCTAssertEqual(PlaceholderScene.world(look: .two, castle: CastleStage(tier: 1)), Look2FrameTests.world)
         XCTAssertEqual(PlaceholderScene.world(look: .one, castle: CastleStage(tier: 3)), GameFrameSupport.world,
@@ -76,44 +78,41 @@ final class Look2FrameTests: XCTestCase {
             XCTAssertEqual(found.count, 1, "\(sprite)")
             return found.first
         }
-        func none(_ props: [Prop], _ sprite: SpriteID) {
-            XCTAssertEqual(props.filter { $0.sprite == sprite }.count, 0, "\(sprite)")
+        func count(_ props: [Prop], _ sprite: SpriteID) -> Int { props.filter { $0.sprite == sprite }.count }
+        guard let keep = only(first, .keepT1, .near), let front = only(first, .castleFront),
+              let wall = only(first, .weltmauer, .far) else { return }
+        XCTAssertEqual(keep.movesWith, .mistBand)
+        XCTAssertEqual(keep.x, 1118, "REVIEW-look-2.md 2.4: centred over the hall door at 1830")
+        XCTAssertEqual(keep.masks.count, 2, "tier 1: two lit windows at night")
+        XCTAssertEqual(wall.emissive.count, 0)
+        for gone in [SpriteID.keepTop, .castleBackGate, .hallInterior, .throne, .hearth, .chapel, .kitchen, .castleWall,
+                     .keepFar] {
+            XCTAssertEqual(count(first, gone), 0, "\(gone) is gone from look 2")
         }
-        guard let keep = only(first, .keepTop), let front = only(first, .castleFront),
-              let gate = only(first, .castleBackGate), let wall = only(first, .weltmauer, .far),
-              let pane = only(first, .farCastlePane, .far) else { return }
+        XCTAssertEqual(only(first, .posternT1)?.x, SceneLayout.castlePosternX)
+        XCTAssertEqual(count(first, .curtainHoard), 0)
 
         let scaffold = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 1, building: true)).props
         XCTAssertEqual(scaffold.count, first.count + 1)
         XCTAssertEqual(only(scaffold, .castleFrontScaffold)?.x, front.x)
 
         let second = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2)).props
-        XCTAssertEqual(second.count, first.count + 2, "the back rise and the valley's far overlay")
-        none(second, .keepTop)
-        XCTAssertEqual(only(second, .keepTop2)?.x, keep.x)
-        XCTAssertEqual(only(second, .keepTop2)?.masks.count, 4)
+        XCTAssertEqual(only(second, .keepT2, .near)?.x, keep.x)
+        XCTAssertEqual(only(second, .keepT2, .near)?.masks.count, 6)
         XCTAssertEqual(only(second, .castleFront), front, "tier 2 keeps the gatehouse")
-        XCTAssertEqual(only(second, .backTop2)?.x, gate.x + 50)
-        XCTAssertEqual(only(second, .backTop2)?.y, 40)
-        // World rebuild (2.5): no far castle in the Weltmauer's first slot, at any tier.
-        none(second, .farCastle2)
-        XCTAssertEqual(wall.emissive.count, 0)
-        XCTAssertEqual(only(second, .farCastleBack2, .far)?.x, pane.x - 4)
-        XCTAssertEqual(only(second, .farCastleBack2, .far)?.fade, pane.fade)
-        XCTAssertEqual(only(second, .weltmauer, .far)?.emissive.count, 0)
-        XCTAssertEqual(only(second, .farCastlePane, .far)?.emissive.map(\.sprite),
-                       [.farCleftGlowBack2, .farCastlePane])
+        XCTAssertNotNil(only(second, .posternT2))
+        XCTAssertEqual(count(second, .curtainHoard), 4)
 
         let building = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2, building: true)).props
-        XCTAssertEqual(only(building, .keepTop2Build)?.masks.count, 0, "no lit panes while it is built")
-        none(building, .farCastle2Build)
-        XCTAssertEqual(only(building, .weltmauer, .far)?.emissive.count, 0)
+        XCTAssertEqual(only(building, .keepT2Build, .near)?.masks.count, 2, "the new storey has no lit panes yet")
+        XCTAssertNotNil(only(building, .posternT1), "the postern grows when the builders are done")
 
         let third = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3)).props
-        XCTAssertEqual(third.count, first.count + 2)
-        none(third, .keepTop)
-        none(third, .castleFront)
-        XCTAssertEqual(only(third, .keepTop3)?.masks.count, 3)
+        XCTAssertEqual(count(third, .castleFront), 0)
+        XCTAssertEqual(only(third, .keepT3, .near)?.masks.count, 6)
+        XCTAssertEqual(count(third, .curtainTower), 2, "tier 3: a second wall tower")
+        XCTAssertEqual(count(third, .castleBanner), 3)
+        XCTAssertNotNil(only(third, .posternT3))
         guard let drums = only(third, .castleFront3) else { return }
         XCTAssertEqual(drums.x, front.x - 14)
         XCTAssertEqual(drums.width, 268)
@@ -121,8 +120,6 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(drums.emissive.map(\.sprite), front.emissive.map(\.sprite))
         XCTAssertEqual(drums.emissive.map { drums.x + $0.dx }, front.emissive.map { front.x + $0.dx })
         XCTAssertEqual(drums.masks.count, 4)
-        XCTAssertEqual(only(third, .backTop3)?.masks.count, 3)
-        none(third, .farCastle3)
         // The gate's rock moves out with the drums.
         XCTAssertEqual(only(third, .gateRockL)?.x, (only(first, .gateRockL)?.x ?? 0) - 11)
         XCTAssertEqual(only(third, .gateRockR)?.x, (only(first, .gateRockR)?.x ?? 0) + 12)
@@ -130,7 +127,7 @@ final class Look2FrameTests: XCTestCase {
             XCTAssertGreaterThan(prop.width * prop.height, 0, "\(prop.sprite) has a size")
         }
 
-        // The game's scene keeps the tier's keep (its rooms dim its panes as they dim tier 1's).
+        // The game's scene keeps the tier's keep.
         let state = GameFrameSupport.demoDay(hour: 19.2)
         for stage in [CastleStage(tier: 2), CastleStage(tier: 3, building: true)] {
             let world = PlaceholderScene.world(look: .two, castle: stage)
@@ -148,11 +145,18 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertTrue(moor.contains(SceneLayout.look2LaneTile(index: 6)), "x 416: still the moor")
         XCTAssertTrue(scree.contains(SceneLayout.look2LaneTile(index: 7)), "x 480: the Throat's scree")
         XCTAssertTrue(scree.contains(SceneLayout.look2LaneTile(index: 18)), "x 1184: before the castle")
-        XCTAssertTrue(cobble.contains(SceneLayout.look2LaneTile(index: 20)), "x 1312: the castle's cobbles")
-        XCTAssertTrue(cobble.contains(SceneLayout.look2LaneTile(index: 37)), "x 2400")
-        // World rebuild, fix round 2: the cobbles give way to the earth stone by stone over the tile past the castle.
-        XCTAssertEqual(SceneLayout.look2LaneTile(index: 38), .laneCobbleEnd, "x 2464: the cobbles end in the earth")
-        XCTAssertTrue(earth.contains(SceneLayout.look2LaneTile(index: 39)), "x 2528: the valley's earth lane")
+        XCTAssertTrue(scree.contains(SceneLayout.look2LaneTile(index: 20)), "x 1312: before the gateway")
+        // World-2 (2.8): the lane changes under the gates, stone by stone, never in the open.
+        XCTAssertEqual(SceneLayout.look2LaneTile(index: 21), .laneScreeCobble, "x 1376: under the gatehouse's gateway")
+        XCTAssertTrue(cobble.contains(SceneLayout.look2LaneTile(index: 22)), "x 1440: the bailey's cobbles")
+        XCTAssertTrue(cobble.contains(SceneLayout.look2LaneTile(index: 35)), "x 2272")
+        XCTAssertEqual(SceneLayout.look2LaneTile(index: 36), .laneCobbleEnd, "x 2336: under the postern's passage")
+        XCTAssertTrue(earth.contains(SceneLayout.look2LaneTile(index: 37)), "x 2400: the valley's earth lane")
+        for passage in SceneLayout.castlePassages {
+            let middle = Int((passage.lowerBound + passage.upperBound) / 2) / SceneLayout.laneTileWidth
+            let joins: Set<SpriteID> = [.laneScreeCobble, .laneCobbleEnd]
+            XCTAssertTrue(joins.contains(SceneLayout.look2LaneTile(index: middle)), "a join under \(passage)")
+        }
         var variants = Set<SpriteID>()
         for index in 0..<7 {
             variants.insert(SceneLayout.look2LaneTile(index: index))
@@ -260,8 +264,8 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(lane.count, 6, "the moor track under the ground line")
         XCTAssertEqual(lane.first?.rect.y, Float(shadow.groundRow))
 
-        // The cut-away hall is a room (the scene alone, as the probe shows it: no front wall); look 1 has none and
-        // nothing on look 2's planes.
+        // World-2 (B1: exteriors only): the hall is no cut-away room in the world any more (the scene alone has no
+        // room); look 1 has none and nothing on look 2's planes.
         var options = FrameOptions(flickerTime: 1.5)
         options.look = .two
         let pixelScale = options.pixelScale(physicalWidth: Look2FrameTests.screen.0,
@@ -271,12 +275,7 @@ final class Look2FrameTests: XCTestCase {
         let court = FrameBuilder.build(scene: Look2FrameTests.world, clock: clock,
                                        camera: Camera(focusX: 1700, pixelScale: pixelScale), pixelScale: pixelScale,
                                        options: options)
-        XCTAssertEqual(court.rooms.count, 1, "the great hall, cut away")
-        for room in court.rooms {
-            XCTAssertEqual(room.z - room.x, 212, "the hall's room is 212 px wide")
-            XCTAssertEqual(room.w - room.y, 77)
-            XCTAssertEqual(room.w, Float(court.groundRow), "it stands on the ground line")
-        }
+        XCTAssertTrue(court.rooms.isEmpty, "no cut-away hall in the world")
         let old = frame(day, focus: 1560, look: .one)
         XCTAssertEqual(old.look, .one)
         XCTAssertTrue(old.rooms.isEmpty)

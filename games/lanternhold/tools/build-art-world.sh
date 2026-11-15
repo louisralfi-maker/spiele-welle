@@ -36,7 +36,9 @@ PLANTS="d2FgFerns d2FgMeadow d2FgReeds d2BushA d2BushB d2TreeBelt d2FirBeltFar l
 # darkness bank's sheets, the rock of the Throat and the cleft and the gate's granite (tools/cleftart.py, rockfield.py)
 # Fix round 1: the world's end, the bank's eyes (one pair, four frames) and the cloud deck over the Weltmauer
 FOG="d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC bankEnd darknessBankGlow cloudDeck"
-ROCK="throatStepA throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftShaft gateRockL gateRockR cleftWater cleftGraze laneCobbleEnd"
+ROCK="throatStepA throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftShaft gateRockL gateRockR cleftWater laneCobbleEnd"
+# World-2 (14.11.2026): one castle, exteriors only (tools/keepart.py); the gatehouse's lane join (tools/lanejoin.py)
+CASTLE="keepT1 keepT2 keepT3 keepT2Build keepT3Build curtainA curtainB curtainC curtainStair curtainTower curtainHoard castleBanner forebuilding hallDoorGlow hallDoorWedge chapelTower bakehouse bakeHatchGlow posternT1 posternT2 posternT3 gateArchFg laneScreeCobble"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -73,9 +75,17 @@ build() { # name: one sprite (or one group of small ones)
         python3 -I -B games/lanternhold/tools/cleftart.py noslot $A/weltmauer.png; cool
         # fix round 2: the masses (arêtes, lit and shaded flanks, gullies) over the smoothed streaks
         python3 -I -B games/lanternhold/tools/cleftart.py ridges $A/weltmauer.png; cool
-        python3 -I -B games/lanternhold/tools/cleftart.py mistleft $A/weltmauer.png ;;
-    castleTiers) # the castle's tiers 2 and 3 with their building states (the art pass; from castleFront, keepTop, castleBackGate and the slots' glow)
+        python3 -I -B games/lanternhold/tools/cleftart.py mistleft $A/weltmauer.png; cool
+        # world-2 (one castle): no far castle in the second slot either (the valley's view); no patch, no pane
+        python3 -I -B games/lanternhold/tools/cleftart.py noslot2 $A/weltmauer.png ;;
+    castleTiers) # the gatehouse's tier 3 and its scaffold (the art pass; castleart.py also wrote the keep's copies and
+                 # the far castles, retired by world-2 into tools/retired-art)
         python3 -I -B $CA tiers $A ;;
+    keepT1|keepT2|keepT3|keepT2Build|keepT3Build|curtainA|curtainB|curtainC|curtainStair|curtainTower|curtainHoard|castleBanner|forebuilding|hallDoorGlow|hallDoorWedge|chapelTower|bakehouse|bakeHatchGlow|posternT1|posternT2|posternT3|gateArchFg)
+        # world-2 (14.11.2026): one castle, exteriors only (tools/keepart.py, ART-look2.md section 23)
+        python3 -I -B games/lanternhold/tools/keepart.py build $1 --out $A ;;
+    laneScreeCobble)   # world-2: the scree gives way to the cobbles under the gatehouse's gateway (after `plants`)
+        python3 -I -B games/lanternhold/tools/lanejoin.py build laneScreeCobble --out $A ;;
     gorgeRock)   # the gorge's wall of the look-2 port: since the world rebuild (14.11.2026) not in the game, kept in
                  # tools/retired-art as the granite of the old walls (throatart.py); gorgeCrags with it
         px convert $W/gorge-1.png $P/gorge.png --size 448x211 --box 0,48,1536,768 --key none --only $GRANITE --match new --gamma 0.7; cool
@@ -89,7 +99,7 @@ build() { # name: one sprite (or one group of small ones)
         python3 -I -B games/lanternhold/tools/fogart.py build $1 --out $A ;;
     # cleftFace, cleftFaceEnd, cleftFlank, cleftFlankB, cleftThroat: retired by the world rebuild (REVIEW-look-2.md
     # B6, H1); the files lie in tools/retired-art, their recipe in git before 14.11.2026
-    throatStepA|throatStepB|throatStepC|cleftWallA|cleftWallB|cleftWallC|cleftShaft|gateRockL|gateRockR|cleftWater|cleftGraze)
+    throatStepA|throatStepB|throatStepC|cleftWallA|cleftWallB|cleftWallC|cleftShaft|gateRockL|gateRockR|cleftWater)
         python3 -I -B games/lanternhold/tools/cleftart.py build $1 --out $A ;;
     laneCobbleEnd)   # fix round 2: the cobbles give way to the earth lane stone by stone (after `plants`)
         python3 -I -B games/lanternhold/tools/lanejoin.py build laneCobbleEnd --out $A ;;
@@ -121,6 +131,6 @@ build() { # name: one sprite (or one group of small ones)
     esac
 }
 
-ALL="weltmauer castleTiers gorgeRock oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor bastionAnchor moorRuin gloomFogBack gloomFogMid gloomFogFront gloomWisp gloomFogEyes $ROCK shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants $FOG"
+ALL="weltmauer castleTiers gorgeRock oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor bastionAnchor moorRuin gloomFogBack gloomFogMid gloomFogFront gloomWisp gloomFogEyes $ROCK shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants $FOG $CASTLE"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do cool; build "$name"; done

@@ -191,10 +191,9 @@ enum FrameBuilder {
                 // Fix round 1: the threads of water falling down the cleft wall, in front of it.
                 planeSprites[plane.rawValue] += cleftWater(animTime: animTime, reduceMotion: options.reduceMotion,
                                                            geometry: geometry)
-                // Fix round 2: the castle's warm light on the wall's foot, behind the buildings (they hide its glow).
-                for item in cleftGraze(ambient: ambient, geometry: geometry) {
-                    glow.add(item)
-                }
+                // World-2 (the critic of world-1, look 3: "the warm graze paints the wall's foot as pale lilac drips"):
+                // no band of glow along the wall's foot any more; the castle's fires warm the wall over the roofs as the
+                // cleft wall's backdrop lights, pools where light really burns.
             }
             if rains && plane == .near {
                 planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: animTime, ambient: ambient,
@@ -843,34 +842,6 @@ enum FrameBuilder {
             let rect = SIMD4<Float>(Float(left), Float(thread.row + 1), Float(size.width), Float(size.height))
             list.append(SpriteInstance(sprite: .cleftWater, frame: index * cleftWaterFrames + step, rect: rect,
                                        tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
-        }
-        return list
-    }
-
-    /// The warm graze (fix round 2, tools/cleftart.py `graze`): frames of `cleftGraze` side by side (the west end, the
-    /// middle three times, the east end) on the mid plane, placed by the world's x so they always lie behind the
-    /// castle's own buildings (world 1490 to 2330, between the gatehouse and the back gate, both taller than the
-    /// graze): the warmth shows in the gaps between the buildings and as a rim over their roofs, never on the open rock
-    /// of the Throat or the cleft's mouth (round lh-w1f2-4: there it lay as bands of haze with a hard edge). The fire's
-    /// colour at the torches' strength.
-    static let cleftGrazeWorldX = 1490.0
-    static let cleftGrazeFrames = [0, 1, 1, 1, 2]
-    static let cleftGrazeGain: Float = 0.8
-
-    private static func cleftGraze(ambient: AmbientSample, geometry: Geometry) -> [EmissiveInstance] {
-        let torch = min(1, max(0, ambient.torchStrength))
-        guard torch > 0.02 else { return [] }
-        let size = SpriteID.cleftGraze.size
-        let whole = geometry.whole(.world)
-        let top = geometry.top(y: 0, height: Double(size.height))
-        let tone = GamePalette.fireOrange * (torch * cleftGrazeGain)
-        var list: [EmissiveInstance] = []
-        for (index, frame) in cleftGrazeFrames.enumerated() {
-            let left = cleftGrazeWorldX + Double(index * size.width) - whole
-            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
-            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-            list.append(EmissiveInstance(sprite: .cleftGraze, plane: .mid, rect: rect,
-                                         color: SIMD4<Float>(tone.x, tone.y, tone.z, 1), frame: frame))
         }
         return list
     }

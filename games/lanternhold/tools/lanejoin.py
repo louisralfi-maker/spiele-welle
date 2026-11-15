@@ -10,6 +10,7 @@ it; stones near the line sink (their lit top goes, they take the earth's darkest
 thin out stone by stone into the mud, never along a column.
 
   lanejoin.py build laneCobbleEnd --out <Art dir>
+  lanejoin.py build laneScreeCobble --out <Art dir>   (world-2: scree to cobbles under the gatehouse's gateway)
 """
 import math
 import os
@@ -103,8 +104,27 @@ def join(cobble, earth):
     return out
 
 
+def flipped(img):
+    out = PA.Image(img.w, img.h)
+    for y in range(img.h):
+        for x in range(img.w):
+            out.set(img.w - 1 - x, y, img.get(x, y))
+    return out
+
+
 def main():
     a = sys.argv[1:]
+    if len(a) == 4 and a[0] == "build" and a[1] == "laneScreeCobble" and a[2] == "--out":
+        # World-2 (2.8: the lane changes under the gates, never in the open): under the gatehouse's gateway the Throat's
+        # scree gives way to the castle's cobbles, stone by stone: the same join, mirrored (the cobbles to the east).
+        art = a[3]
+        cobble = flipped(PA.read_png(os.path.join(art, "laneCobbleA.png"))[0])
+        scree = flipped(PA.read_png(os.path.join(art, "laneScreeC.png"))[0])
+        img = flipped(join(cobble, scree))
+        path = os.path.join(art, "laneScreeCobble.png")
+        PA.write_png(path, img)
+        print("wrote", path, img.w, "x", img.h)
+        return
     if len(a) == 4 and a[0] == "build" and a[1] == "laneCobbleEnd" and a[2] == "--out":
         art = a[3]
         cobble = PA.read_png(os.path.join(art, "laneCobbleB.png"))[0]

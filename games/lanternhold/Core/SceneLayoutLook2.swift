@@ -14,6 +14,13 @@ extension SceneLayout {
     /// far behind as a vertical band); the ground's and the gatehouse's own shadows stay.
     static let look1Cliffs: Set<SpriteID> = [.cliffFlank, .cliffFlankB, .throatRock, .castleShadow, .castleShadowLong]
 
+    /// World rebuild, step world-2 (docs/REVIEW-look-2.md B1, B2, 2.2 "Go"): one castle, exteriors only. Look 2 leaves
+    /// out look 1's castle inside the walls: the keep's copy over the gatehouse, the cut-away hall with its throne,
+    /// hearth and candles, the chapel's and the kitchen's fronts, the courtyard's wall tiles and the two-tower back
+    /// gate; the closed exteriors of `look2CastleExteriors` stand in their place.
+    static let look1Castle: Set<SpriteID> = [.keepTop, .castleBackGate, .hallInterior, .throne, .hearth, .candleStand,
+                                             .chapel, .kitchen, .castleWall]
+
     /// Look-1 sprites look 2 leaves out on the mid plane (the old gorge walls, the far keep, the valley's hills and
     /// the statue at its old place) and on the far plane.
     private static let look2DroppedMid: Set<SpriteID> = [
@@ -34,7 +41,7 @@ extension SceneLayout {
         case .sky: return look1HighClouds.contains(sprite)
         case .mid: return look2DroppedMid.contains(sprite)
         case .far: return look2DroppedFar.contains(sprite)
-        case .world: return look1Cliffs.contains(sprite)
+        case .world: return look1Cliffs.contains(sprite) || look1Castle.contains(sprite)
         case .foreground:
             // The rock lips along the top edge; the valley's rocks (the meadow replaces them).
             return look2Overhangs.contains(sprite) || (look2Rocks.contains(sprite) && x > 2900)
@@ -42,21 +49,17 @@ extension SceneLayout {
         }
     }
 
-    /// The instances look 2 adds, in the mock's order (`WORLD`, then `DEPTH`).
+    /// The instances look 2 adds, in the mock's order (`WORLD`, then `DEPTH`); the castle's exteriors follow by stage
+    /// (`look2CastleExteriors`).
     static let look2: [(plane: Plane, entry: Entry)] = look2World + look2Depth
 
     private static let look2World: [(plane: Plane, entry: Entry)] = [
         // The far plane: the wall (888 x 190, its ridge 135 to 173 px above its foot). World rebuild (step world-1,
         // H6, 2.5): it stands `look2WallRise` higher, so over the shadow land and the Throat its peaks are cut by the
-        // screen's top (a wall of Everests, not a backdrop); the far castle is gone from its first slot (the shadow
-        // land shows the Weltmauer and the fog only, the castle stands behind the player's back), so it has no
-        // glow there. The patch and the pane of the second slot (the view from the valley) rise with it.
+        // screen's top (a wall of Everests, not a backdrop). Step world-2 (B2: one castle): no far castle in either of
+        // its slots (tools/cleftart.py `noslot`), so no patch, pane or glow; the castle stands beside the player, never
+        // in the background.
         (.far, Entry(sprite: .weltmauer, x: -44, y: -17 + look2WallRise, z: -3)),
-        (.far, Entry(sprite: .weltmauerPatch, x: 580, y: -17 + look2WallRise, z: -2, fadeOut: 2330...2520)),
-        (.far, Entry(sprite: .farCastlePane, x: 586, y: 75 + look2WallRise, z: -1,
-                     emitters: [.sprite(.farCleftGlowBack, dx: -2, dy: 0, glow: .cleft, fades: true),
-                                .sprite(.farCastlePane, dx: 0, dy: 0, glow: .window, fades: true)],
-                     fade: 2330...2520)),
         // A cloud deck before the wall: the peaks stand above the clouds. No cloud before the two slots. World rebuild
         // (H6): over the shadow land and the Throat the deck lies across the wall at half the screen's height (rows
         // 40 to 90 on the runner's phone), so the wall rises out of it and past the screen's top. Fix round 1 (the
@@ -256,11 +259,11 @@ extension SceneLayout {
     /// The cottages whose chimneys smoke in look 2 (`layout_look2.SMOKE`): the house's x and whether it is mirrored.
     static let look2Smoke: [(x: Double, flipped: Bool)] = [(2480, false), (2800, true), (3090, false)]
 
-    /// The cut-away rooms of look 2 (`layout_look2.INTERIORS`): inside this part of the sprite (x from its left edge,
-    /// rows from its bottom) the picture takes a warm interior ambient instead of the sky's.
+    /// The open forge of look 2 (`layout_look2.INTERIORS`): inside this part of the sprite (x from its left edge, rows
+    /// from its bottom) the picture takes a warm interior ambient instead of the sky's. (World-2: the cut-away hall is
+    /// gone; the hall is the stage lane's own scene.)
     static func look2Interior(_ sprite: SpriteID) -> (x0: Int, x1: Int, y0: Int, y1: Int)? {
         switch sprite {
-        case .hallInterior: return (24, 236, 0, 77)
         case .smithy: return (10, 34, 0, 31)
         default: return nil
         }
@@ -270,8 +273,12 @@ extension SceneLayout {
     /// ruts in the Throat (from the tile edge before the beacon to the castle), cobbles from the cleft through the
     /// castle, the earth lane in the valley. 64 px tiles, the variant A to D by a hash of the tile's index.
     static let laneTileWidth = 64
-    /// The west edge of the tile where the cobbles end (fix round 2; the castle's cobbles ran to 2430 before).
-    static let look2CobbleEnd = 2432.0
+    /// The west edge of the tile where the cobbles end, under the postern's passage (world-2, 2.8: the lane changes
+    /// under the gates, never in the open; fix round 2 had it at 2432, the cobbles ran to 2430 before).
+    static let look2CobbleEnd = 2304.0
+    /// The west edge of the tile where the Throat's scree gives way to the castle's cobbles, under the gatehouse's
+    /// gateway (world-2, 2.8; tools/lanejoin.py `laneScreeCobble`).
+    static let look2CobbleStart = 1344.0
     static func look2LaneTile(index: Int) -> SpriteID {
         let x = Double(index * laneTileWidth + laneTileWidth / 2)
         var h = UInt32(truncatingIfNeeded: index) &* 0x9E37_79B1
@@ -280,12 +287,13 @@ extension SceneLayout {
         // World rebuild, fix round 2: the cobbles give way to the earth stone by stone over one tile past the castle's
         // end (the critic: "the cobble lane ends in a straight vertical seam"), never at a tile's edge.
         if x >= look2CobbleEnd, x < look2CobbleEnd + Double(laneTileWidth) { return .laneCobbleEnd }
+        if x >= look2CobbleStart, x < look2CobbleStart + Double(laneTileWidth) { return .laneScreeCobble }
         let family: [SpriteID]
         if x >= -64, x < 448 {
             family = [.laneMoorA, .laneMoorB, .laneMoorC, .laneMoorD]
-        } else if x >= 448, x < WorldLayout.castleFrontX {
+        } else if x >= 448, x < look2CobbleStart {
             family = [.laneScreeA, .laneScreeB, .laneScreeC, .laneScreeD]
-        } else if x >= WorldLayout.castleFrontX, x < look2CobbleEnd {
+        } else if x >= look2CobbleStart, x < look2CobbleEnd {
             family = [.laneCobbleA, .laneCobbleB, .laneCobbleC, .laneCobbleD]
         } else {
             family = [.laneEarthA, .laneEarthB, .laneEarthC, .laneEarthD]
@@ -320,15 +328,9 @@ struct CastleStage: Sendable, Equatable {
 }
 
 extension SceneLayout {
-    /// The lit panes of the tiers' sprites (dx, dy from the sprite's bottom-left, width, height), as
+    /// The lit panes of the gatehouse's tier 3 (dx, dy from the sprite's bottom-left, width, height), as
     /// tools/scenemock/scene_look2.py `RISE_MASKS`.
     private static let castleMasks: [SpriteID: [(Double, Double, Int, Int)]] = [
-        .keepTop2: [(71, 93, 6, 10), (120, 94, 5, 9), (139, 94, 5, 9), (23, 109, 2, 7)],
-        .keepTop3: [(71, 93, 6, 10), (20, 108, 3, 8), (122, 108, 3, 8)],
-        .keepTop3Build: [(71, 93, 6, 10), (23, 109, 2, 7)],
-        .backTop2: [(22, 94, 5, 9), (36, 93, 6, 10), (52, 94, 5, 9), (79, 109, 2, 7)],
-        .backTop3: [(46, 93, 6, 10), (19, 108, 3, 8), (77, 108, 3, 8)],
-        .backTop3Build: [(36, 93, 6, 10), (79, 109, 2, 7)],
         .castleFront3: [(39, 127, 4, 12), (39, 93, 4, 12), (223, 127, 4, 12), (223, 93, 4, 12)],
         .castleFront3Build: [(39, 127, 4, 12), (39, 93, 4, 12)],
     ]
@@ -337,100 +339,31 @@ extension SceneLayout {
         (castleMasks[sprite] ?? []).map { Emitter.glass(dx: $0.0, dy: $0.1, width: $0.2, height: $0.3) }
     }
 
-    /// The sprites of a stage: the rise behind the gatehouse and behind the back gate, the far castle from the shadow
-    /// land and from the valley with their lit panes (none while building), and the slot's glow cut around them.
-    private struct CastleSprites {
-        let keep: SpriteID
-        let back: SpriteID
-        let far: SpriteID
-        let farBack: SpriteID
-        let farGlow: SpriteID?
-        let farBackGlow: SpriteID?
-        let cleft: SpriteID
-        let cleftBack: SpriteID
-    }
-
-    /// Nil at tier 1.
-    private static func castleSprites(_ stage: CastleStage) -> CastleSprites? {
-        switch (stage.tier, stage.building) {
-        case (2, false):
-            return CastleSprites(keep: .keepTop2, back: .backTop2, far: .farCastle2, farBack: .farCastleBack2,
-                                 farGlow: .farCastle2Glow, farBackGlow: .farCastleBack2Glow,
-                                 cleft: .farCleftGlow2, cleftBack: .farCleftGlowBack2)
-        case (2, true):
-            return CastleSprites(keep: .keepTop2Build, back: .backTop2Build, far: .farCastle2Build,
-                                 farBack: .farCastleBack2Build, farGlow: nil, farBackGlow: nil,
-                                 cleft: .farCleftGlow2Build, cleftBack: .farCleftGlowBack2Build)
-        case (3, false):
-            return CastleSprites(keep: .keepTop3, back: .backTop3, far: .farCastle3, farBack: .farCastleBack3,
-                                 farGlow: .farCastle3Glow, farBackGlow: .farCastleBack3Glow,
-                                 cleft: .farCleftGlow3, cleftBack: .farCleftGlowBack3)
-        case (3, true):
-            return CastleSprites(keep: .keepTop3Build, back: .backTop3Build, far: .farCastle3Build,
-                                 farBack: .farCastleBack3Build, farGlow: nil, farBackGlow: nil,
-                                 cleft: .farCleftGlow3Build, cleftBack: .farCleftGlowBack3Build)
-        default:
-            return nil
-        }
-    }
-
-    /// A far castle's lit panes as an emitter over its sprite (none for nil).
-    private static func castleGlow(_ sprite: SpriteID?) -> [Emitter] {
-        guard let sprite else { return [] }
-        return [Emitter.sprite(sprite, dx: 0, dy: 0, glow: .fireGold, fades: true)]
-    }
-
-    /// The keep's sprites behind the gatehouse, at every tier (the keep's windows go dark with its rooms).
-    static let keepTops: Set<SpriteID> = [.keepTop, .keepTop2, .keepTop2Build, .keepTop3, .keepTop3Build]
+    /// The keep's sprites at every tier (look 1's copy behind the gatehouse and look 2's one keep; a world change
+    /// darkens one of its windows).
+    static let keepTops: Set<SpriteID> = [.keepTop, .keepT1, .keepT2, .keepT2Build, .keepT3, .keepT3Build]
 
     /// Look 2: what stands for `entry` on `plane` at the castle's `stage` (SPRITES.md "The castle grows"; the mock's
-    /// `castle_tier`). Tier 1 as built returns the entry as it is. Tier 2 swaps the keep's top for the taller keep,
-    /// tier 3 for the inner wall and rebuilds the front's towers as drums (the sprite is 14 px wider on the left, so
-    /// every emitter and light keeps its world x); both add the rise behind the back gate, the far castle's overlay
-    /// in each slot of the Weltmauer and the slot's glow cut around it. Tier 1 building adds the front's scaffold.
+    /// `castle_tier`). Tier 1 as built returns the entry as it is; the gatehouse grows: tier 3 rebuilds the front's
+    /// towers as drums (the sprite is 14 px wider on the left, so every emitter and light keeps its world x), tier 1
+    /// building adds the front's scaffold. The keep, the curtain and the postern grow in `look2CastleExteriors`.
     static func look2Castle(_ stage: CastleStage, plane: Plane, entry: Entry) -> [Entry] {
-        let tiers = castleSprites(stage)
-        switch (plane, entry.sprite) {
-        case (.world, .keepTop):
-            guard let tiers else { return [entry] }
-            return [Entry(sprite: tiers.keep, x: entry.x, y: entry.y, z: entry.z, emitters: castleGlass(tiers.keep))]
-        case (.world, .castleFront):
-            let rock = look2GateRock(front: entry.x, tier: stage.tier)
-            if stage.tier == 1 {
-                // The scaffold stands before the front (and before the gate's leaves, which are drawn earlier).
-                return (stage.building ? [entry, Entry(sprite: .castleFrontScaffold, x: entry.x, y: 0, z: entry.z)]
-                                       : [entry]) + rock
-            }
-            guard stage.tier == 3 else { return [entry] + rock }
-            let sprite: SpriteID = stage.building ? .castleFront3Build : .castleFront3
-            var emitters: [Emitter] = []
-            for emitter in entry.emitters {
-                if case let .sprite(id, dx, dy, glow, fades) = emitter {
-                    emitters.append(Emitter.sprite(id, dx: dx + 14, dy: dy, glow: glow, fades: fades))
-                }
-            }
-            return [Entry(sprite: sprite, x: entry.x - 14, y: entry.y, z: entry.z,
-                          emitters: emitters + castleGlass(sprite), lights: entry.lights)] + rock
-        case (.world, .castleBackGate):
-            guard let tiers else { return [entry] }
-            return [Entry(sprite: tiers.back, x: entry.x + 50, y: 40, z: -4, emitters: castleGlass(tiers.back)), entry]
-        case (.far, .farCastlePane):
-            guard let tiers else { return [entry] }
-            var pane = entry
-            pane.emitters = swapped(entry.emitters, .farCleftGlowBack, for: tiers.cleftBack)
-            return [pane, Entry(sprite: tiers.farBack, x: entry.x - 4, y: entry.y, z: entry.z,
-                                emitters: castleGlow(tiers.farBackGlow), fade: entry.fade)]
-        default:
-            return [entry]
+        guard plane == .world, entry.sprite == .castleFront else { return [entry] }
+        let rock = look2GateRock(front: entry.x, tier: stage.tier)
+        if stage.tier == 1 {
+            // The scaffold stands before the front (and before the gate's leaves, which are drawn earlier).
+            return (stage.building ? [entry, Entry(sprite: .castleFrontScaffold, x: entry.x, y: 0, z: entry.z)]
+                                   : [entry]) + rock
         }
-    }
-
-    private static func swapped(_ emitters: [Emitter], _ old: SpriteID, for new: SpriteID) -> [Emitter] {
-        emitters.map { (emitter: Emitter) -> Emitter in
-            if case let .sprite(id, dx, dy, glow, fades) = emitter, id == old {
-                return Emitter.sprite(new, dx: dx, dy: dy, glow: glow, fades: fades)
+        guard stage.tier == 3 else { return [entry] + rock }
+        let sprite: SpriteID = stage.building ? .castleFront3Build : .castleFront3
+        var emitters: [Emitter] = []
+        for emitter in entry.emitters {
+            if case let .sprite(id, dx, dy, glow, fades) = emitter {
+                emitters.append(Emitter.sprite(id, dx: dx + 14, dy: dy, glow: glow, fades: fades))
             }
-            return emitter
         }
+        return [Entry(sprite: sprite, x: entry.x - 14, y: entry.y, z: entry.z,
+                      emitters: emitters + castleGlass(sprite), lights: entry.lights)] + rock
     }
 }

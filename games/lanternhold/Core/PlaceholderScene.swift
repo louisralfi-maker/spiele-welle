@@ -304,6 +304,10 @@ struct PlaceholderScene: Sendable, Equatable {
                     builder.add(staged, plane: item.plane)
                 }
             }
+            // World rebuild, step world-2 (SceneLayoutCastle.swift): one castle, exteriors only, at its stage.
+            for item in SceneLayout.look2CastleExteriors(castle) {
+                builder.add(item.entry, plane: item.plane)
+            }
         } else {
             for cycle in SceneLayout.cycles {
                 builder.add(cycle)

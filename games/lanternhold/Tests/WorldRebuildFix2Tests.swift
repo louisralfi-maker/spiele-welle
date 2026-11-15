@@ -126,18 +126,17 @@ final class WorldRebuildFix2Tests: XCTestCase {
                           "outside the walls the dusk sky is the hour's own")
     }
 
-    /// The castle's warm light grazes the cleft wall's foot at dusk and at night, behind the buildings; none by day.
-    func testTheCastleWarmsTheWallsFootAtDuskAndNight() {
+    /// World-2 (the critic of world-1, look 3: "the warm graze paints the wall's foot as pale lilac drips"): the
+    /// castle's fires warm the cleft wall as backdrop pools over the roofs at dusk and night, never as a band of glow
+    /// along the wall's foot.
+    func testTheCastleWarmsTheWallInPoolsNotABand() {
         for timeOfDay in [19.2 / 24, 0.97] {
-            let graze = frame(timeOfDay: timeOfDay, focus: 1800).emissives.filter { $0.sprite == .cleftGraze }
-            XCTAssertFalse(graze.isEmpty, "at \(timeOfDay * 24) h")
-            XCTAssertTrue(graze.allSatisfy { $0.plane == .mid && $0.color.x > $0.color.z }, "warm, on the wall")
+            let desc = frame(timeOfDay: timeOfDay, focus: 1800)
+            let pools = desc.lights.filter { $0.plane == .mid && $0.kind == .lantern }
+            XCTAssertGreaterThanOrEqual(pools.count, 2, "at \(timeOfDay * 24) h")
+            XCTAssertTrue(pools.allSatisfy { $0.color.x > $0.color.z }, "warm")
+            XCTAssertTrue(desc.emissives.allSatisfy { !($0.plane == .mid && $0.rect.z > 100) }, "no band of glow")
         }
-        XCTAssertTrue(frame(timeOfDay: 0.5, focus: 1800).emissives.allSatisfy { $0.sprite != .cleftGraze })
-        XCTAssertTrue(frame(timeOfDay: 0.97, focus: 400).emissives.allSatisfy { $0.sprite != .cleftGraze },
-                      "not on the moor")
-        XCTAssertTrue(frame(timeOfDay: 5.8 / 24, focus: 1000).emissives.allSatisfy { $0.sprite != .cleftGraze },
-                      "never on the open rock of the Throat (it lies behind the castle's buildings only)")
     }
 
     /// The critic: "one eye pair" on the night frames. With the bank's edge at world 520 and the camera at the world's

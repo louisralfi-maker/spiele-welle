@@ -839,7 +839,7 @@ extension FrameBuilderTests {
 
     /// The backdrop pieces of the far and the mid plane whose ends could stand in the view as a vertical seam.
     static let backdrops: Set<SpriteID> = [.shadowForest, .throatStepA, .throatStepB, .throatStepC, .cleftWallA,
-                                           .cleftWallB, .cleftWallC, .weltmauer, .weltmauerPatch, .valleyVista,
+                                           .cleftWallB, .cleftWallC, .weltmauer, .valleyVista,
                                            .d2FirBeltFar, .d2TreeBelt]
 
     /// B5 (and B6, H1): from the Throat through the castle to the valley (camera centres 1200 to 2500 in 20 px steps)
@@ -878,9 +878,12 @@ extension FrameBuilderTests {
         options.look = .two
         let world = PlaceholderScene.world(look: .two)
         var checked = 0
-        var focus = 1200.0
-        while focus <= 2500 {
-            let desc = frame(timeOfDay: 0.5, focus: focus, options: options, scene: world)
+        // World-2 (the critic of world-1, look 3: "a far-plane mountain ends in a vertical seam at the back gate"):
+        // the sweep runs on to camera 2600, at noon and at dusk, the far plane included.
+        for (timeOfDay, focusStart) in [(0.5, 1200.0), (0.8, 1200.0)] {
+        var focus = focusStart
+        while focus <= 2600 {
+            let desc = frame(timeOfDay: timeOfDay, focus: focus, options: options, scene: world)
             let mid = desc.layer(.mid).sprites
             let nearer = desc.layer(.mistBand).sprites + desc.layer(.near).sprites + desc.layer(.world).sprites
             if focus >= 1400 && focus <= 2300 {
@@ -928,6 +931,7 @@ extension FrameBuilderTests {
                 }
             }
             focus += 20
+        }
         }
         XCTAssertGreaterThan(checked, 20, "ends were checked")
     }

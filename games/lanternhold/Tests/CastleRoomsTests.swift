@@ -2,11 +2,11 @@ import Foundation
 import XCTest
 @testable import Lanternhold
 
-/// The castle's rooms cut away and the court drawn in them (M3 step 3): a front fades over 0.25 s when the king steps
-/// in and returns when he leaves (at once with Reduce Motion); a shut room hides its figures, its furniture and its warm
-/// lights, an open one shows its interior lit; the court walks its rounds as actors with talk frames and speech
-/// marks, petitioners wait on the benches, Marek's cart on his days, the castle's world changes; the frame stays inside
-/// its budget.
+/// The castle's exteriors and the court drawn at them. M3 step 3 cut the rooms away; world-2 (REVIEW-look-2.md B1)
+/// draws the castle closed: no fade, no front, no interior; the hall door opens for the lord, the gate passage's arch
+/// frames him, the chapel's bell and the keep's dark window follow the realm; the court walks its rounds as actors with
+/// talk frames and speech marks, petitioners wait on the benches, Marek's cart on his days, the castle's world
+/// changes; the frame stays inside its budget.
 final class CastleRoomsTests: XCTestCase {
     private let balance = Balance.standard
 
@@ -52,90 +52,109 @@ final class CastleRoomsTests: XCTestCase {
         desc.layer(.world).sprites.map(\.sprite)
     }
 
-    func testAFrontFadesInAQuarterSecondAndSwapsAtOnceWithReduceMotion() {
+    /// World-2 (REVIEW-look-2.md B1: exteriors only): no room fades, no front and no interior is drawn; whoever stands
+    /// in the castle is seen where he stands.
+    func testNoRoomIsCutAwaySinceWorldTwo() {
         var rooms = RoomFades(kingX: 1650)
-        XCTAssertEqual(rooms.openness(.greatHall), 0, "the king in the courtyard: the hall is shut")
-        XCTAssertEqual(rooms.front(.greatHall), 1)
+        XCTAssertTrue(RoomFades.rooms.isEmpty)
+        for room in WorldLayout.RoomID.allCases {
+            XCTAssertEqual(rooms.openness(room), 1)
+            XCTAssertEqual(rooms.front(room), 0)
+        }
         rooms.step(kingX: 1830, dt: 0.1, reduceMotion: false)
-        XCTAssertEqual(rooms.openness(.greatHall), 0.4, accuracy: 1e-9)
-        XCTAssertFalse(rooms.isSettled)
-        rooms.step(kingX: 1830, dt: 0.2, reduceMotion: false)
-        XCTAssertEqual(rooms.openness(.greatHall), 1, "open after 0.25 s")
-        XCTAssertEqual(rooms.openness(.chapel), 0)
-        rooms.step(kingX: 2040, dt: 0.125, reduceMotion: false)
-        XCTAssertEqual(rooms.openness(.greatHall), 0.5, accuracy: 1e-9, "the hall shuts while the chapel opens")
-        XCTAssertEqual(rooms.openness(.chapel), 0.5, accuracy: 1e-9)
-        rooms.step(kingX: 2180, dt: 0.01, reduceMotion: true)
-        XCTAssertEqual(rooms.openness(.kitchen), 1, "Reduce Motion: an instant swap")
-        XCTAssertEqual(rooms.openness(.chapel), 0)
-        XCTAssertEqual(rooms.openness(.greatHall), 0)
         XCTAssertTrue(rooms.isSettled)
-        XCTAssertEqual(rooms.visibility(x: 1500), 1, "the courtyard has no front")
-        XCTAssertEqual(rooms.visibility(x: 2190), 1)
-        XCTAssertEqual(rooms.visibility(x: 1850), 0)
-        XCTAssertEqual(RoomFades(kingX: 1830).openness(.greatHall), 1, "no fade at the start")
-    }
-
-    func testTheShutHallHidesItsCourtAndTheOpenHallShowsIt() {
+        XCTAssertEqual(rooms.visibility(x: 1830), 1)
+        XCTAssertEqual(rooms.visibility(x: 2040), 1)
+        let additions = CastleRooms.additions(rooms: rooms, animTime: 1, reduceMotion: false, torch: 1, idBase: 9000)
+        XCTAssertTrue(additions.props.isEmpty && additions.glows.isEmpty && additions.lights.isEmpty)
         let outside = realm(kingX: 1650)
-        let shut = Self.frame(outside, focus: 1650, court: CourtScene(rooms: RoomFades(kingX: 1650)))
-        XCTAssertTrue(sprites(shut.desc).contains(.hallFront), "the hall's front from the courtyard")
-        XCTAssertFalse(shut.desc.actors.contains { $0.sprite == .odile }, "Odile is inside the shut hall")
-        XCTAssertFalse(sprites(shut.desc).contains(.bench), "the benches are inside")
-        let inside = realm(kingX: 1830)
-        let open = Self.frame(inside, focus: 1830, court: CourtScene(rooms: RoomFades(kingX: 1830)))
-        XCTAssertFalse(sprites(open.desc).contains(.hallFront), "a front that is gone is not drawn")
-        XCTAssertTrue(open.desc.actors.contains { $0.sprite == .odile }, "Odile by the throne")
-        XCTAssertTrue(sprites(open.desc).contains(.bench))
-        XCTAssertTrue(sprites(open.desc).contains(.taxLectern))
-        let waiting = AudienceRules.hall(inside, catalog: .standard).count
-        XCTAssertGreaterThan(waiting, 0)
-        let bodies: Set<SpriteID> = [.citizen, .citizenB, .citizenC, .petitionerD, .petitionerE, .guardsman, .builder,
-                                     .serLudo, .bard, .envoy, .herald]
-        let inHall = open.desc.actors.filter { bodies.contains($0.sprite) }.count
-        XCTAssertGreaterThanOrEqual(inHall, 1, "today's petitioners wait in the hall")
-        // The king stays in front of the court.
-        let kingIndex = open.desc.actors.lastIndex { $0.sprite == .king } ?? -1
-        let odileIndex = open.desc.actors.firstIndex { $0.sprite == .odile } ?? Int.max
-        XCTAssertLessThan(odileIndex, kingIndex)
-        // Halfway through the fade the front is translucent.
-        var half = RoomFades(kingX: 1650)
-        half.step(kingX: 1830, dt: 0.125, reduceMotion: false)
-        let fading = Self.frame(inside, focus: 1830, court: CourtScene(rooms: half))
-        let front = fading.desc.layer(.world).sprites.first { $0.sprite == .hallFront }
-        XCTAssertEqual(front?.tint.w ?? 0, 0.5, accuracy: 1e-6)
-        let odile = fading.desc.actors.first { $0.sprite == .odile }
-        XCTAssertEqual(odile?.tint.w ?? 0, 0.5, accuracy: 1e-6, "the court fades in with the room")
+        let frame = Self.frame(outside, focus: 1830, court: CourtScene(rooms: RoomFades(kingX: 1650)))
+        for gone in [SpriteID.hallFront, .chapelInterior, .kitchenInterior] {
+            XCTAssertFalse(sprites(frame.desc).contains(gone), "\(gone) is not drawn")
+        }
+        XCTAssertTrue(frame.desc.actors.contains { $0.sprite == .odile }, "the court stands where it stands")
+        let kingIndex = frame.desc.actors.lastIndex { $0.sprite == .king } ?? -1
+        let odileIndex = frame.desc.actors.firstIndex { $0.sprite == .odile } ?? Int.max
+        XCTAssertLessThan(odileIndex, kingIndex, "the king stays in front of the court")
     }
 
-    func testTheChapelAndTheKitchenOpenWithTheirInteriorsLit() {
-        let night = realm(day: 2, hour: 22, kingX: 2040)
-        let chapel = Self.frame(night, focus: 2040, court: CourtScene(rooms: RoomFades(kingX: 2040)))
-        XCTAssertTrue(sprites(chapel.desc).contains(.chapelInterior))
-        XCTAssertFalse(sprites(chapel.desc).contains(.chapel), "the chapel's front is gone")
-        XCTAssertTrue(sprites(chapel.desc).contains(.kitchen), "the kitchen stays shut")
-        XCTAssertFalse(sprites(chapel.desc).contains(.kitchenInterior))
-        XCTAssertTrue(chapel.layer.glows.contains { $0.sprite == .brazierFlame && abs($0.x - (CastleRooms.chapelX + 112)) < 0.5 },
-                      "the Flame burns in its bowl")
-        XCTAssertTrue(chapel.layer.lights.contains { $0.source.kind == .brazier && abs($0.source.x - 2076) < 0.5 },
-                      "and lights the chapel")
-        XCTAssertLessThan(chapel.desc.counts.lights, 40)
-        let shutHall = chapel.layer.lights.first { $0.source.kind == .hearth && abs($0.source.x - (Realm.hearthX + 13)) < 0.5 }
-        XCTAssertEqual(shutHall?.source.intensity ?? 0, 0, accuracy: 1e-9, "the shut hall's hearth paints no pool outside")
+    /// World-2: the hall door opens while the lord stands at it: the open frame, the hall's warm light in it (dim by
+    /// day), its wedge on the cobbles and a warm pool at dusk and night; shut, a thin line of light under the door.
+    func testTheHallDoorOpensForTheLordAndThrowsItsLight() {
+        let world = PlaceholderScene.world(look: .two)
+        func door(_ kingX: Double, hour: Double) -> Prop? {
+            let s = realm(day: 2, hour: hour, kingX: kingX)
+            return CastleRooms.scene(world, state: s, rooms: RoomFades(kingX: kingX)).props
+                .first { $0.sprite == .forebuilding }
+        }
+        let gap = SceneLayout.castleDoorGap
+        guard let shut = door(1700, hour: 22), let open = door(1830, hour: 22) else {
+            return XCTFail("the forebuilding stands in look 2")
+        }
+        XCTAssertEqual(shut.frame, 0)
+        XCTAssertTrue(shut.masks.contains { $0.dx == gap.dx && $0.dy == gap.dy }, "the line under the shut door")
+        XCTAssertFalse(shut.emissive.contains { $0.sprite == .hallDoorGlow || $0.sprite == .hallDoorWedge })
+        XCTAssertEqual(open.frame, 1)
+        XCTAssertFalse(open.masks.contains { $0.dx == gap.dx && $0.dy == gap.dy })
+        XCTAssertTrue(open.emissive.contains { $0.sprite == .hallDoorGlow && !$0.fadesByDay }, "the hall's light by day")
+        XCTAssertTrue(open.emissive.contains { $0.sprite == .hallDoorWedge && $0.fadesByDay && $0.dy < 0 },
+                      "the wedge on the cobbles, at dusk and night")
+        XCTAssertTrue(open.lights.contains { $0.kind == .lantern && $0.x == SceneLayout.castleHallDoorX })
+        XCTAssertEqual(door(1830 + CastleRooms.doorReach + 1, hour: 22)?.frame, 0)
+        // At night the wedge lies on the lane before the door.
+        let night = realm(day: 2, hour: 22, kingX: 1830)
+        var options = FrameOptions(flickerTime: 1.5)
+        options.look = .two
+        let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        let camera = Camera(focusX: 1830, pixelScale: pixelScale)
+        let scene = CastleRooms.scene(world, state: night, rooms: RoomFades(kingX: 1830))
+        let desc = FrameBuilder.build(scene: scene, clock: DayClock(hour: 22, day: 2), camera: camera,
+                                      pixelScale: pixelScale, options: options)
+        let wedge = desc.emissives.first { $0.sprite == .hallDoorWedge }
+        XCTAssertNotNil(wedge)
+        if let wedge {
+            XCTAssertGreaterThanOrEqual(Int(wedge.rect.y), Camera.groundRow(targetHeight: desc.targetHeight),
+                                        "under the ground line")
+        }
+        let day = FrameBuilder.build(scene: scene, clock: DayClock(hour: 12, day: 2), camera: camera,
+                                     pixelScale: pixelScale, options: options)
+        XCTAssertNil(day.emissives.first { $0.sprite == .hallDoorWedge }, "no wedge by day")
+        XCTAssertNotNil(day.emissives.first { $0.sprite == .hallDoorGlow }, "the hall's light shows by day too")
+    }
 
-        let kitchenDay = realm(day: 2, hour: 11, kingX: 2183)
-        let kitchen = Self.frame(kitchenDay, focus: 2183, court: CourtScene(rooms: RoomFades(kingX: 2183)))
-        XCTAssertTrue(sprites(kitchen.desc).contains(.kitchenInterior))
-        XCTAssertFalse(sprites(kitchen.desc).contains(.kitchen))
-        XCTAssertTrue(kitchen.desc.actors.contains { $0.sprite == .tamsin }, "Tamsin in her kitchen")
-        XCTAssertTrue(kitchen.layer.glows.contains { $0.sprite == .hearthFire && abs($0.x - (CastleRooms.kitchenX + 95)) < 0.5 },
-                      "the oven-hearth burns")
-
-        let scene = CastleRooms.scene(GameFrameSupport.world, state: kitchenDay, rooms: RoomFades(kingX: 1650))
-        let chapelFront = scene.props.first { $0.sprite == .chapel }
-        XCTAssertEqual(chapelFront?.alpha, 1)
-        XCTAssertEqual(chapelFront?.masks.count, CastleRooms.chapelMasks.count, "glowing through its real panes")
-        XCTAssertTrue(chapelFront?.emissive.isEmpty ?? false)
+    /// World-2 (2.8): the gate passage's dark arch frames the lord in the foreground while he passes through either
+    /// gate, fading in and out at the passage's ends; none elsewhere. The chapel's belfry stands empty once the bell is
+    /// melted; a world change darkens one of the keep's windows.
+    func testTheGateArchTheBellAndTheKeepsWindow() {
+        let world = PlaceholderScene.world(look: .two)
+        func arches(_ kingX: Double) -> [Prop] {
+            let s = realm(kingX: kingX)
+            return CastleRooms.scene(world, state: s, rooms: RoomFades(kingX: kingX)).props
+                .filter { $0.sprite == .gateArchFg }
+        }
+        XCTAssertTrue(arches(1600).isEmpty)
+        XCTAssertTrue(arches(1300).isEmpty)
+        for (index, passage) in SceneLayout.castlePassages.enumerated() {
+            let middle = (passage.lowerBound + passage.upperBound) / 2
+            let inside = arches(middle)
+            XCTAssertEqual(inside.count, 1, "passage \(index)")
+            XCTAssertEqual(inside.first?.alpha ?? 0, 1, accuracy: 1e-6)
+            XCTAssertEqual(inside.first?.plane, .foreground)
+            XCTAssertEqual(inside.first?.movesWith, .world, "it stands with the gate's masonry")
+            XCTAssertEqual((inside.first?.x ?? 0) + 32, middle, accuracy: 0.5)
+            let edge = arches(passage.upperBound + CastleRooms.archFade / 2)
+            XCTAssertLessThan(edge.first?.alpha ?? 0, 1, "fading out past the passage")
+        }
+        let bell = CastleRooms.scene(world, state: realm(kingX: 1600, world: ["castle.chapel.bell.missing"]),
+                                     rooms: RoomFades(kingX: 1600))
+        XCTAssertEqual(bell.props.first { $0.sprite == .chapelTower }?.frame, 1, "the empty belfry")
+        XCTAssertEqual(CastleRooms.scene(world, state: realm(kingX: 1600), rooms: RoomFades(kingX: 1600))
+            .props.first { $0.sprite == .chapelTower }?.frame, 0)
+        let lit = CastleRooms.scene(world, state: realm(kingX: 1600), rooms: RoomFades(kingX: 1600))
+        let dark = CastleRooms.scene(world, state: realm(kingX: 1600, world: ["castle.keep.window.dark"]),
+                                     rooms: RoomFades(kingX: 1600))
+        let litPanes = lit.props.first { $0.sprite == .keepT1 }?.masks.count ?? 0
+        XCTAssertEqual(dark.props.first { $0.sprite == .keepT1 }?.masks.count, litPanes - 1, "one keep window dark")
     }
 
     func testTheCourtWalksTalksAndCarriesItsMarks() {
@@ -231,8 +250,6 @@ final class CastleRoomsTests: XCTestCase {
         let unhung = hall(world: ["castle.banners.new"], flags: all)
         XCTAssertFalse(unhung.contains { houses.contains($0.sprite) }, "the lord holds alone")
         XCTAssertEqual(unhung.filter { $0.sprite == .hallBanner }.count, CourtFrames.bannerXs.count)
-        let shut = hall(world: ["castle.banners.new", hung], flags: all, kingX: 1500)
-        XCTAssertFalse(shut.contains { houses.contains($0.sprite) }, "the hall is shut")
     }
 
     func testTheCastlesWorldChangesAreDrawn() {
@@ -292,6 +309,24 @@ final class CastleRoomsTests: XCTestCase {
                     XCTAssertLessThan(desc.counts.lights, 40, "\(place): \(desc.counts.lights) lights")
                 }
             }
+        }
+    }
+
+    /// World-2: the closed castle of look 2 at its third tier at night stays inside the frame's budget everywhere
+    /// from the gatehouse to the postern.
+    func testTheClosedCastleKeepsItsBudget() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        var options = FrameOptions(flickerTime: 1.5)
+        options.look = .two
+        let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        for focus in stride(from: 1300.0, through: 2500, by: 100) {
+            let s = realm(day: 9, hour: 21.5, kingX: focus)
+            let scene = CastleRooms.scene(world, state: s, rooms: RoomFades(kingX: focus))
+            let desc = FrameBuilder.build(scene: scene, clock: DayClock(hour: 21.5, day: 9),
+                                          camera: Camera(focusX: focus, pixelScale: pixelScale),
+                                          pixelScale: pixelScale, options: options)
+            XCTAssertLessThan(desc.counts.instances, 300, "focus \(Int(focus)): \(desc.counts.instances) instances")
+            XCTAssertLessThan(desc.counts.lights, 40, "focus \(Int(focus)): \(desc.counts.lights) lights")
         }
     }
 }

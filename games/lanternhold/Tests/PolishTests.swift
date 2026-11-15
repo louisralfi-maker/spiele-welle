@@ -554,11 +554,11 @@ final class CastleGrowthModelTests: XCTestCase {
     }
 
     func testTheSceneStandsAsTheRealmBuiltIt() {
-        XCTAssertEqual(keeps(model([:])), [.keepTop], "a new realm: the first tier")
-        XCTAssertEqual(keeps(model(["GWBuild": "demo"])), [.keepTop2], "the iron gate: the second tier")
-        XCTAssertEqual(keeps(model(["GWBuild": "raise"])), [.keepTop3Build], "the great gate under way")
-        XCTAssertEqual(keeps(model(["GWBuild": "demo", "GWCastle": "1"])), [.keepTop], "-GWCastle fixes the stage")
-        XCTAssertEqual(keeps(model(["GWBuild": "demo", "GWCastle": "3"])), [.keepTop3])
+        XCTAssertEqual(keeps(model([:])), [.keepT1], "a new realm: the first tier")
+        XCTAssertEqual(keeps(model(["GWBuild": "demo"])), [.keepT2], "the iron gate: the second tier")
+        XCTAssertEqual(keeps(model(["GWBuild": "raise"])), [.keepT3Build], "the great gate under way")
+        XCTAssertEqual(keeps(model(["GWBuild": "demo", "GWCastle": "1"])), [.keepT1], "-GWCastle fixes the stage")
+        XCTAssertEqual(keeps(model(["GWBuild": "demo", "GWCastle": "3"])), [.keepT3])
         let old = model(["GWBuild": "raise", "GWLook": "1"])
         XCTAssertEqual(old.scene.props, PlaceholderScene.world(seed: old.args.seed, look: .one).props,
                        "look 1 has no tiers")
@@ -566,9 +566,9 @@ final class CastleGrowthModelTests: XCTestCase {
 
     func testTheCastleGrowsWhileThePlayBuildsTheGatehouse() throws {
         let game = model(["GWCameraX": "1255", "GWGold": "300"])
-        XCTAssertEqual(keeps(game), [.keepTop])
+        XCTAssertEqual(keeps(game), [.keepT1])
         _ = game.frame(physicalWidth: 2622, physicalHeight: 1206)
-        XCTAssertEqual(keeps(game), [.keepTop])
+        XCTAssertEqual(keeps(game), [.keepT1])
         // The hammer at the first brazier's plot opens the build card; the gatehouse is its neighbour.
         game.performAction()
         game.showPlot(Realm.lines[0].wall)
@@ -576,10 +576,10 @@ final class CastleGrowthModelTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(game.buildCard).options.map(\.item), [.ironGate])
         game.order(.ironGate)
         XCTAssertNil(game.overlay, "the order stands")
-        XCTAssertEqual(keeps(game), [.keepTop], "the scene is laid out again with the next frame")
+        XCTAssertEqual(keeps(game), [.keepT1], "the scene is laid out again with the next frame")
         let kingX = game.scene.king.x
         _ = game.frame(physicalWidth: 2622, physicalHeight: 1206)
-        XCTAssertEqual(keeps(game), [.keepTop2Build], "the second tier under scaffolding")
+        XCTAssertEqual(keeps(game), [.keepT2Build], "the second tier under scaffolding")
         XCTAssertEqual(game.scene.king.x, kingX, "the lord stays where he is")
     }
 }

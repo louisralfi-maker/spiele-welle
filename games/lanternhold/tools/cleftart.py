@@ -651,6 +651,24 @@ def noslot(path):
     print("wrote", path)
 
 
+SLOT2 = (626, 676)  # world-2: the second slot's columns (the far castle seen from the valley; the patch covered them)
+
+
+def noslot2(path):
+    """World-2 (B2: one castle): fills the second slot as `noslot` fills the first, so the valley sees the Weltmauer
+    whole and no far castle; the patch, the pane and the slot's glow are gone with it."""
+    img = PA.read_png(path)[0]
+    span = SLOT2[1] - SLOT2[0]
+    out = PA.Image(img.w, img.h, list(img.px))
+    for y in range(img.h):
+        lo = SLOT2[0] + int(round(6 * (vnoise(941, y / 7.0) - 0.5)))
+        hi = SLOT2[1] + int(round(6 * (vnoise(943, y / 7.0) - 0.5)))
+        for x in range(lo, hi):
+            out.set(x, y, img.get(x - span, y))
+    PA.write_png(path, out)
+    print("wrote", path)
+
+
 # Fix round 2 (the critic: "the Weltmauer reads as a grey curtain of vertical streaks with no mass or ridgelines"):
 # the arêtes that come down from the summits, (far x at the snow line, lean in px per row: + leans east going down)
 def aretes():
@@ -835,6 +853,9 @@ def build(name, out):
 
 def main():
     a = sys.argv[1:]
+    if len(a) >= 2 and a[0] == "noslot2":
+        noslot2(a[1])
+        return
     if len(a) >= 2 and a[0] == "noslot":
         noslot(a[1])
         return
