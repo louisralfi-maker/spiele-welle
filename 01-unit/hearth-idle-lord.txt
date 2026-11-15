@@ -1,0 +1,6 @@
+idle lord (T2's bot) x1.0, seeds 1-3: old rules fell 3 (nights 3 3 3); the rule: broke 3, went out playing on thin 3 (nights after the first broken night: 1 1 2), the morning before the trouble kept 3 of 3; played well from the first broken dawn: mended within 3 days 3 of 3, fell 0
+
+thin realms: seed cap xN | old fell | first broken night (purse, walls lost/raised) | broken nights | the fire at each dawn | out, eve kept | played well: mended after, broken, fell
+  1 cap -1 x1.0 | night 3 | night 3 (purse 132, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 1, 0, stood
+  2 cap -1 x1.0 | night 3 | night 3 (purse 132, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  3 cap -1 x1.0 | night 3 | night 3 (purse 132, walls 0/1) | 3 5 | embers > low > out | out night 5, eve kept yes | 1, 0, stood

@@ -1,0 +1,19 @@
+base normal: taxes 2550 happiness 2270 killed 1495 fallen 1 walls 4 buildings 26
+base high: taxes 990 happiness 745 killed 1504
+fletcher (pitch, fireArrowStrike 0.04): what a fire arrow strikes for in a fight at the gate 4.0 → 4.2 (fire arrows 9/9, their damage 36.0/37.4, stopped 28/28): 40‰; run from dawn 5: taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 nights held 28/28
+founder (bell, rallyReach 0.04): soldier-seconds within the rally on a walk of the walls 124.4 → 129.5: 41‰; run from dawn 8: taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 nights held 28/28
+glazier (glass, lightRadius 0.05): pixels of ground the braziers light 187.5 → 194.5: 37‰; run from dawn 5: taxes 0‰ happiness 0‰ killed -1‰ fallen 1/1 nights held 28/28
+ironwright (gateBands, gateStrength 0.04): seconds the gate holds against four brutes 50.4 → 52.4: 40‰; run from dawn 8: taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 nights held 28/28
+lampmaker (lanterns, unrestLine 3.0): taxes while it stands 411 → 614: 494‰; run from dawn 7: taxes 494‰ happiness -74‰ killed 3‰ fallen 1/1 nights held 28/28
+limeburner (mortar, patchShare 0.01): wall strength one patch restores 1000.0 → 1040.0: 40‰; run from dawn 5: taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 nights held 28/28
+mason (statue, houseCoin 1.0): taxes while it stands 1685 → 1759: 44‰; run from dawn 8: taxes 44‰ happiness 0‰ killed 0‰ fallen 1/1 nights held 28/28
+painter (portrait, happinessOnce 3.0): happiness while it stands 1586 → 1628: 26‰; run from dawn 6: taxes 5‰ happiness 26‰ killed 19‰ fallen 0/1 nights held 28/28
+weaver (banners, guardHold 0.05): seconds a breach holds against a brute (2, 3, 4 guards) 10.9 → 11.3: 41‰; run from dawn 5: taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 nights held 28/28
+wheelwright (carts, builderWalk 0.08): seconds to finish three mornings' orders 347.0 → 334.3: 37‰; run from dawn 5: taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 nights held 28/28
+hard nights (soldierShare 0.8), base: killed 1487 fallen 4 walls 7 hearth lost 0 nights held 28
+hard nights, fletcher (pitch): killed 0‰ fallen 4/4 walls 7/7 hearth lost 0/0 nights held 28/28
+hard nights, founder (bell): killed 0‰ fallen 4/4 walls 7/7 hearth lost 0/0 nights held 28/28
+hard nights, glazier (glass): killed 1‰ fallen 2/4 walls 4/7 hearth lost 0/0 nights held 28/28
+hard nights, ironwright (gateBands): killed 0‰ fallen 4/4 walls 7/7 hearth lost 0/0 nights held 28/28
+hard nights, limeburner (mortar): killed 1‰ fallen 4/4 walls 7/7 hearth lost 0/0 nights held 28/28
+hard nights, weaver (banners): killed 0‰ fallen 4/4 walls 7/7 hearth lost 0/0 nights held 28/28
