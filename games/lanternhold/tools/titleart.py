@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Lanternhold "First light" (docs/TITLE.md sections 1, 2, 3 and 5): the launch image, the loading lantern, the title
+"""Lanternhold "First light" (round 4: stone in volume, solid steps on surfaces, a quieter dither in the air, a
+crisp dark front with claws). (docs/TITLE.md sections 1, 2, 3 and 5): the launch image, the loading lantern, the title
 picture in five layers, its small sprites and the lettering LANTERNHOLD. Pure numpy + PIL, every pixel placed from
 the game's palette (tools/palette.txt) or a stepped blend of the eternal light's gold over it; no randomness but
 hashes of positions, so a run writes the same bytes every time.
@@ -163,7 +164,7 @@ def t_air(x, y):
 
 
 def t_face(x, y):
-    return max(0.0, 1.0 - ell(x, y, FACE_R)) ** 1.3
+    return max(0.0, 1.0 - ell(x, y, FACE_R)) ** 1.1
 
 
 def pick(x, y, cols, p):
@@ -174,6 +175,25 @@ def pick(x, y, cols, p):
     if i >= len(cols) - 1:
         return cols[-1]
     return cols[i + 1] if BAYER[y % 4][x % 4] < int((p - i) * 16) else cols[i]
+
+
+def pick_air(x, y, cols, p):
+    """Round 4: each step keeps 60 % of its band solid; the rest mixes in three densities (25, 50, 75 %)."""
+    if p <= 0:
+        return cols[0]
+    i = int(p)
+    if i >= len(cols) - 1:
+        return cols[-1]
+    f = p - i
+    if f < 0.6:
+        return cols[i]
+    level = (4, 8, 12)[min(2, int((f - 0.6) / 0.4 * 3))]
+    return cols[i + 1] if BAYER[y % 4][x % 4] < level else cols[i]
+
+
+def pick_solid(cols, p):
+    """Solid steps for stone, cliffs and the ledge: no dither on surfaces."""
+    return cols[max(0, min(len(cols) - 1, int(p)))]
 
 
 def dist(x, y):
@@ -209,7 +229,7 @@ def draw_sky():
     L = Layer()
     for y in range(H):
         for x in range(W):
-            L.px(x, y, pick(x, y, [sky_base(x, y)] + AIR, t_air(x, y) * 6.2))
+            L.px(x, y, pick_air(x, y, [sky_base(x, y)] + AIR, t_air(x, y) * 6.2))
     for lst, kind in ((STARS_SMALL, 1), (STARS_MID, 2), (STARS_BIG, 3)):
         for (x, y) in lst:
             if t_air(x, y) > 0.01:
@@ -229,7 +249,7 @@ def draw_sky():
                 if e > 1.0 or (e > 0.8 and BAYER[y % 4][x % 4] < 8):
                     continue
                 p = t_air(x, y) * 6.2 + (1.6 if y >= cy else -0.8)
-                L.px(x, y, pick(x, y, ["nightSlate"] + AIR, p))
+                L.px(x, y, pick_air(x, y, ["nightSlate"] + AIR, p))
     return L
 
 
@@ -239,13 +259,13 @@ def draw_far():
     for x in range(W):
         for y in range(HORIZON + 1, H):
             base = "mistDark" if y < HORIZON + 4 else ("far" if y < HORIZON + 12 else "nightHaze")
-            L.px(x, y, pick(x, y, [base] + AIR, t_air(x, y) * 4.0))
+            L.px(x, y, pick_air(x, y, [base] + AIR, t_air(x, y) * 4.0))
     for (cx, w_, hh) in ((300, 46, 7), (338, 34, 5), (366, 26, 4)):
         for x in range(cx - w_ // 2, cx + w_ // 2 + 1):
             t = (x - cx) / (w_ / 2.0)
             top = int(round(HORIZON - hh * (1 - t * t)))
             for y in range(top, HORIZON + 1):
-                L.px(x, y, pick(x, y, ["far"] + AIR, t_air(x, y) * 4.0))
+                L.px(x, y, pick_air(x, y, ["far"] + AIR, t_air(x, y) * 4.0))
     # the dawn, two steps and a little taller: two rows of dawnRose under two of dusk, breaking up to the left
     for x in range(360, W):
         if x >= 398:
@@ -264,8 +284,8 @@ def draw_far():
 FACE_SET = {"nightSlate", "night2", "nightBlue", "stoneMid", "stoneDark", "farDeep", "roofDeep", "roofLight"}
 
 
-def light_faces(L, front=("nightSlate", "night2"), shade=("nightBlue",), joints=("nightDeep",), k_front=0.5,
-                k_shade=0.1, keep=("fireGold", "fireOrange", "ember", "emberDim", "gold", "night0", "banner")):
+def light_faces(L, front=("nightSlate", "night2"), shade=("nightBlue",), joints=("nightDeep",), k_front=0.75,
+                k_shade=0.2, keep=("fireGold", "fireOrange", "ember", "emberDim", "gold", "night0", "banner")):
     """Every face turned to the flame takes the stone ramp by distance over its whole area. Facing: a step toward the
     flame leaves the shape (or meets a joint) within 3 px: the face is turned to it (k 1); front faces k 0.75; faces
     turned away (shade) k 0.2. Joints follow the ramp two steps lower."""
@@ -309,7 +329,6 @@ FLOOR = 178
 
 
 def left_edge(y):
-    """The left cliff's inner face: out of the frame's top near x 128, standing at x 156 by the wall."""
     return int(128 + min(y, 130) * 0.22) + (1 if (y // 11) % 3 == 1 else 0)
 
 
@@ -317,145 +336,157 @@ def right_edge(y):
     return 418 + int(y * 0.2) + (2 if (y // 9) % 3 == 1 else 0)
 
 
+def rock_px(L, x, y, base, k):
+    """Round 4: the cliffs step by surface (solid steps of the stone ramp, no checker)."""
+    L.px(x, y, pick_solid([base] + STONE, t_face(x, (y // 8) * 8 + 4) * 6.0 * k))
+
+
 def draw_rock():
     L = Layer()
     for x in range(W):
         for y in range(FLOOR, H):
             L.px(x, y, "nightBlue")
-    # the left cliff: granite columns with joints; its inner face (turned to the flame) takes the light
     joints_x = [118, 104, 88, 70, 50, 30, 12]
     for y in range(0, FLOOR):
         e = left_edge(y)
         for x in range(0, e + 1):
             L.px(x, y, "nightBlue")
-        for x in range(e - 5, e + 1):
-            L.px(x, y, "nightSlate")                     # the inner face
-        L.px(e - 6, y, "nightDeep")
         for i, jx in enumerate(joints_x):
             if h(i, y // 26, 51) < 0.85:
                 L.px(jx, y, "nightDeep"); L.px(jx + 1, y, "nightSlate")
+        # the inner face turned to the flame: two lit steps, the edge brighter
+        for x in range(e - 6, e + 1):
+            rock_px(L, x, y, "nightSlate", 0.95 if x >= e - 2 else 0.6)
+        L.px(e - 7, y, "nightDeep")
         if y % 26 == 25:
-            for x in range(e - 5, e + 1):
-                L.px(x, y, "nightDeep")
-    # the far shoulder on the right, a step lighter; its inner face turned to the light
+            for x in range(e - 6, e + 1):
+                L.px(x, y, "nightBlue")
+    # the far shoulder on the right: its inner face in two lit steps, then the mass
     for y in range(0, FLOOR):
         e = right_edge(y)
         for x in range(e, W):
             L.px(x, y, "nightSlate")
-        for x in range(e, min(W, e + 4)):
-            L.px(x, y, "night2")
-        for k, jx in enumerate((e + 12, e + 27, e + 44)):
+        for x in range(e, min(W, e + 7)):
+            rock_px(L, x, y, "night2", 1.0 if x < e + 3 else 0.6)
+        for k, jx in enumerate((e + 14, e + 29, e + 46)):
             if jx < W and h(k, y // 23, 41) < 0.8:
                 L.px(jx, y, "nightBlue"); L.px(jx + 1, y, "night2")
-    light_faces(L, front=("nightSlate", "night2"), shade=("nightBlue",), k_front=0.55, k_shade=0.15)
+        if y % 23 == 22:
+            for x in range(e, min(W, e + 7)):
+                L.px(x, y, "nightBlue")
     return L
 
 
-# ------------------------------------------------------------------- the dark: the frame of the left third (round 3)
-DARK_T = 0.20         # where the air's light passes this, the dark is gone; it frays into dither before it
-DARK_FRAY = 0.10
-TENDRILS = [  # start, angle (degrees), length: long, reaching for the castle
-    ((128, 40), 12, 60), ((134, 96), -4, 56), ((126, 128), 6, 70), ((120, 152), -2, 80), ((132, 70), 18, 44),
-    ((110, 174), 0, 110), ((118, 20), 20, 54)]
-EYES = [  # (x, y, size): three big pairs near the front, many small deep in
-    (110, 84, 3), (92, 134, 3), (104, 110, 2), (30, 30, 1), (52, 62, 1), (20, 96, 1), (66, 120, 1), (40, 150, 1),
-    (78, 40, 1), (86, 160, 2), (14, 128, 1), (58, 90, 1), (92, 70, 1), (36, 172, 1), (70, 14, 1)]
+# ------------------------------------------------------------------- the dark: the frame of the left third (round 4)
+DARK_T = 0.18          # the dark is cut sharply where the air's light passes this
+CLAWS = [  # (start, angle in degrees, length, root thickness): long, distinct, reaching for the castle
+    ((128, 62), 8, 64, 5),      # over the outer left tower
+    ((118, 170), 1, 86, 5),     # along the ground fog toward the gate
+    ((132, 112), -6, 46, 4),
+    ((124, 28), 18, 50, 4),
+    ((130, 140), 6, 40, 3)]
+EYES = [  # (x, y, size 1..4): the two largest near the front, many small deep in
+    (112, 80, 4), (104, 124, 4), (90, 100, 3), (70, 60, 2), (60, 140, 2), (30, 30, 1), (48, 84, 1), (20, 104, 1),
+    (78, 22, 1), (36, 160, 1), (14, 130, 1), (84, 152, 2), (54, 112, 1), (24, 66, 1)]
+HEADS = [(112, 80), (104, 124)]
 
 
 def dark_front(y):
-    """The dark's front: ragged, leaning in at the top corner and creeping along the ground."""
-    f = 122 + 8 * math.sin(y / 13.0) + 5 * math.sin(y / 5.3 + 1.0) + 3 * math.sin(y / 2.1)
+    f = 124 + 7 * math.sin(y / 13.0) + 4 * math.sin(y / 5.3 + 1.0)
     if y < 26:
         f += (26 - y) * 0.8
     if y > 160:
-        f += (y - 160) * 3.2          # it creeps along the ground fog toward the gate
+        f += (y - 160) * 3.2
     return f
+
+
+def claw_px(m, sx, sy, ang, ln, th0):
+    for k in range(ln):
+        a = math.radians(ang + 12.0 * math.sin(k / 10.0 + sx * 0.1))
+        px_ = sx + k * math.cos(a)
+        py_ = sy + k * math.sin(a)
+        th = max(1, int(round(th0 * (1 - k / float(ln)) + 0.5)))
+        for dy in range(th):
+            X, Y = int(round(px_)), int(round(py_)) + dy - th // 2
+            if 0 <= X < W and 0 <= Y < H:
+                m[Y, X] = True
+    # the claw's hooked tip: three px curling down
+    X, Y = int(round(px_)), int(round(py_))
+    for (dx, dy) in ((1, 1), (1, 2), (0, 3)):
+        if 0 <= X + dx < W and 0 <= Y + dy < H:
+            m[Y + dy, X + dx] = True
 
 
 def dark_mask():
     m = np.zeros((H, W), bool)
     for y in range(H):
         f = dark_front(y)
-        for x in range(0, min(W, int(f) + 6)):
-            edge = f - x                        # px inside the front
-            if edge >= 0 or (edge > -5 and BAYER[y % 4][x % 4] < int((5 + edge) * 3)):
+        for x in range(0, min(W, int(f) + 1)):
+            if t_air(x, y) < DARK_T:          # a crisp cut against the lit air, no fray
                 m[y, x] = True
-    for (sx, sy), ang, ln in TENDRILS:
-        for k in range(ln):
-            a = math.radians(ang + 16.0 * math.sin(k / 8.0 + sx * 0.1))
-            px_ = sx + k * math.cos(a)
-            py_ = sy + k * math.sin(a)
-            th = 3 if k < ln * 0.3 else (2 if k < ln * 0.65 else 1)
-            for dy in range(th):
-                X, Y = int(round(px_)), int(round(py_)) + dy - th // 2
-                if 0 <= X < W and 0 <= Y < H:
-                    if k > ln * 0.85 and BAYER[Y % 4][X % 4] < 8:
-                        continue           # the tip frays
-                    m[Y, X] = True
-    # the light eats it: gone past DARK_T, frayed in dither over DARK_FRAY before
-    for y in range(H):
-        for x in range(W):
-            if m[y, x]:
-                t = t_air(x, y)
-                if t >= DARK_T or (t > DARK_T - DARK_FRAY and
-                                   BAYER[y % 4][x % 4] < int((t - DARK_T + DARK_FRAY) / DARK_FRAY * 16)):
-                    m[y, x] = False
+    for (sx, sy), ang, ln, th in CLAWS:       # the claws reach into the light
+        claw_px(m, sx, sy, ang, ln, th)
     return m
+
+
+HORN = [(30, 58), (34, 52), (38, 47), (43, 43), (49, 40), (55, 39), (60, 40), (63, 42), (60, 41), (55, 41),
+        (50, 43), (45, 47), (41, 52), (38, 58), (35, 63)]
+HAND = [(118, 98), (124, 96), (128, 92), (130, 88), (132, 90), (130, 95), (134, 92), (137, 90), (138, 92),
+        (134, 97), (139, 96), (141, 95), (141, 98), (136, 101), (140, 102), (138, 105), (130, 106), (120, 108)]
 
 
 def draw_dark(L, m, ground=False):
     for y in range(H):
         for x in range(W):
-            if not m[y, x]:
+            if not m[y, x] or (ground and y < 160):
                 continue
-            if ground and y < 160:
-                continue
-            # near black with a cold violet breath: slow folds, crossed in dither, never noise
-            v = 0.5 + 0.5 * math.sin(x / 17.0 + y / 23.0) * math.sin(y / 11.0 - x / 31.0)
-            t = t_air(x, y)
-            p = v * 1.4 + t * 9.0               # the light's last steps tint the fray toward plum
-            L.px(x, y, pick(x, y, ["night0", "nightDeep", "night1", "plumDeep"], p))
+            L.px(x, y, "night0")      # one near black; the violet lives in the forms and the heads
     if ground:
         return
-    # two barely seen forms in violet on black: a horn, a hand on the rock
-    horn = [(40, 52), (42, 50), (44, 48), (46, 47), (48, 46), (50, 46), (52, 45), (54, 43), (55, 41), (56, 39),
-            (41, 53), (43, 51), (45, 49), (47, 48), (49, 47)]
-    for (x, y) in horn:
-        if m[y, x]:
-            L.px(x, y, "night1")
-    for (x, y) in ((44, 50), (48, 47), (52, 46), (55, 42), (56, 40)):
-        if m[y, x]:
-            L.px(x, y, "violetDim")
-    hand = [(96, 100), (97, 100), (98, 100), (99, 100), (96, 101), (97, 101), (98, 101), (99, 101), (100, 101),
-            (96, 102), (97, 102), (98, 102), (99, 102), (100, 99), (101, 98), (102, 97), (99, 98), (100, 97),
-            (98, 97), (99, 96), (97, 98), (97, 97), (95, 99), (94, 98), (95, 103), (96, 104)]
-    for (x, y) in hand:
-        if m[y, x]:
-            L.px(x, y, "night1")
-    for (x, y) in ((101, 98), (100, 97), (99, 96), (94, 98)):
-        if m[y, x]:
-            L.px(x, y, "violetDim")
+    # the horn and the hand: shapes read at phone size, violet on black
+    for poly, fill in ((HORN, "night1"), (HAND, "night1")):
+        pm = poly_mask(poly) & m
+        L.mask(pm, fill)
+        edge = pm & ~(np.roll(pm, 1, 0) & np.roll(pm, -1, 0) & np.roll(pm, 1, 1) & np.roll(pm, -1, 1))
+        ys, xs = np.where(edge)
+        for y, x in zip(ys, xs):
+            if y < 60 or x > 120 or (x + y) % 3:
+                L.px(x, y, "violetDim")
+    # heads: a faint violet outline round the two largest pairs of eyes
+    for (hx, hy) in HEADS:
+        for a in range(0, 360, 6):
+            r = math.radians(a)
+            x = int(round(hx + 4 + 9 * math.cos(r)))
+            y = int(round(hy + 1 + 7 * math.sin(r)))
+            if 0 <= x < W and 0 <= y < H and m[y, x] and a % 48 < 36:
+                L.px(x, y, "violetDim")
     for (x, y, sz) in EYES:
         if not m[y, x]:
             continue
-        gap = (2, 2, 3)[sz - 1]
-        col = ("wraithDim", "wraithGlow", "wraithWhite")[sz - 1]     # small eyes deep in are dim
-        for ex in (x, x + gap + (1 if sz >= 2 else 0) + (1 if sz == 3 else 0)):
-            L.px(ex, y, col)
-            if sz >= 2:
-                L.px(ex + 1, y, col)
-            if sz == 3:
-                L.px(ex, y + 1, "wraithGlow"); L.px(ex + 1, y + 1, "wraithGlow")
-                L.px(ex - 1, y, "wraithDim"); L.px(ex + 2, y, "wraithDim")
+        col = ("wraithDim", "wraithGlow", "wraithWhite", "wraithWhite")[sz - 1]
+        w_ = (1, 1, 2, 3)[sz - 1]
+        gap = (2, 3, 3, 4)[sz - 1]
+        for ex in (x, x + w_ + gap):
+            for dx in range(w_):
+                L.px(ex + dx, y, col)
+                if sz == 4:
+                    L.px(ex + dx, y + 1, "wraithGlow")
+            if sz >= 3:
+                L.px(ex - 1, y, "wraithDim"); L.px(ex + w_, y, "wraithDim")
 
 
 # ----------------------------------------------------------------------------- layer 4: the wall, the keep, the town
 GROUND = 178
-WALK = 132                 # the wall walk (left and middle)
-WALK_LOW = 158             # the low wall toward the town
-KEEP = (232, 286)          # 55 px wide, centre 259
+WALK = 132
+WALK_LOW = 158
+KEEP = (232, 286)
 FACE, RIM, SHADE, JOINT = "nightSlate", "night2", "nightBlue", "nightDeep"
+COURSE = 6
 WINDOWS = []
+KM = np.zeros((H, W))          # how much of the light each castle px takes (its face: lit, front, shadow)
+JM = np.zeros((H, W), bool)    # joints (drawn one step darker, never on shadow faces)
+LM = np.zeros((H, W), bool)    # single lighter stones
+QX = np.zeros((H, W))          # the x where a px samples the light (its body's), so steps follow the courses
 
 
 def lit(L, x, y, n):
@@ -463,43 +494,58 @@ def lit(L, x, y, n):
     WINDOWS.append((x, y, n))
 
 
-def courses(L, x0, y0, x1, y1, seed, course=5):
+def body(L, x0, x1, y0, y1, seed, faces, qx=None):
+    """A body of stone in courses of 6 px. faces: [(xa, xb, k)] spans of its faces (lit, front, shadow)."""
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             L.px(x, y, FACE)
-    for row, y in enumerate(range(y0 + course, y1 + 1, course)):
+            QX[y, x] = qx if qx is not None else (x // 12) * 12 + 6
+            for (xa, xb, k) in faces:
+                if xa <= x <= xb:
+                    KM[y, x] = k
+    # joints: about a third, broken, big blocks; a few single lighter stones
+    for row, y in enumerate(range(y0 + COURSE, y1 + 1, COURSE)):
         for x in range(x0, x1 + 1):
-            if h(x // 4, y, seed) < 0.7:
-                L.px(x, y, JOINT)
-        off = (row * 5 + seed) % 9
-        for x in range(x0 + off, x1, 9 + (row % 3)):
-            if h(x, y, seed + 3) < 0.7:
-                for yy in range(y - course + 1, y):
-                    if yy >= y0:
-                        L.px(x, yy, JOINT)
+            if h(x // 5, y, seed) < 0.36:
+                JM[y, x] = True
+        off = (row * 7 + seed) % 11
+        for x in range(x0 + off, x1, 11 + (row % 3) * 2):
+            if h(x, y, seed + 3) < 0.4:
+                for yy in range(y - COURSE + 1, y):
+                    JM[yy, x] = True
+            if h(x, y, seed + 5) < 0.045:
+                for yy in range(y - COURSE + 1, y):
+                    for xx in range(x + 1, min(x1, x + 6)):
+                        LM[yy, xx] = True
 
 
-def merlons(L, x0, x1, ytop, w_=3, gap=2, phase=0):
+def merlons(L, x0, x1, ytop, k, w_=3, gap=2, phase=0, qx=None):
     x = x0 + phase
     while x + w_ - 1 <= x1:
         for xx in range(x, x + w_):
             for yy in range(ytop, ytop + 3):
-                L.px(xx, yy, FACE)
-            L.px(xx, ytop, RIM)
-        L.px(x + w_ - 1, ytop + 1, SHADE); L.px(x + w_ - 1, ytop + 2, SHADE)
+                L.px(xx, yy, RIM if yy == ytop else FACE)
+                KM[yy, xx] = 1.15 if yy == ytop else k
+                QX[yy, xx] = qx if qx is not None else xx
         x += w_ + gap
 
 
-def tower(L, x0, x1, ytop, seed, ybot=GROUND, roof=True):
-    courses(L, x0, ytop + 3, x1, ybot, seed)
-    merlons(L, x0, x1, ytop)
-    for y in range(ytop + 3, ybot + 1):
-        L.px(x0, y, RIM)
-        L.px(x1, y, SHADE); L.px(x1 - 1, y, SHADE)
+def cast(x0, x1, y, rows=2):
+    """The cast shadow under a battlement: 1 to 2 px a few steps darker."""
+    for yy in range(y, y + rows):
+        for x in range(x0, x1 + 1):
+            KM[yy, x] *= 0.35
+
+
+def tower(L, x0, x1, ytop, seed, lit_side):
+    mid = (x0 + x1) // 2
+    faces = [(x0, mid, 1.0), (mid + 1, x1, 0.4)] if lit_side == "left" else [(x0, mid, 0.4), (mid + 1, x1, 1.0)]
+    body(L, x0, x1, ytop + 3, GROUND, seed, faces, qx=(x0 + x1) // 2)
+    merlons(L, x0, x1, ytop, 0.9, qx=(x0 + x1) // 2)
     for x in range(x0, x1 + 1):
         L.px(x, ytop + 3, RIM)
-    if not roof:
-        return
+        KM[ytop + 3, x] = 1.1
+    cast(x0, x1, ytop + 4)
     cx = (x0 + x1) / 2.0
     hgt = int((x1 - x0) * 1.05)
     for d in range(hgt):
@@ -507,16 +553,27 @@ def tower(L, x0, x1, ytop, seed, ybot=GROUND, roof=True):
         y = ytop + 2 - hgt + d
         a, b = int(round(cx - half)), int(round(cx + half))
         for x in range(a, b + 1):
-            L.px(x, y, "roofDeep" if x <= cx else SHADE)
-        L.px(a, y, "roofLight" if d > 1 else "roofDeep")
+            L.px(x, y, "roofDeep")
+            lit_half = (x <= cx) == (lit_side == "left")
+            KM[y, x] = 1.0 if lit_half else 0.35
+            QX[y, x] = cx
+        L.px(a, y, "roofLight")
+        KM[y, a] = 1.1 if lit_side == "left" else 0.5
     L.px(int(round(cx)), ytop + 1 - hgt, RIM)
+    KM[ytop + 1 - hgt, int(round(cx))] = 1.2
+    QX[ytop + 1 - hgt, int(round(cx))] = cx
 
 
-def house(L, x0, base, w_, wall_h, roof_h, lights, chimney=None):
-    for y in range(base - wall_h, base + 1):
-        for x in range(x0, x0 + w_):
-            L.px(x, y, FACE)
-        L.px(x0 + w_ - 1, y, SHADE)
+def window(L, x, y):
+    """A larger window: 2 x 3, warm."""
+    for dx in (0, 1):
+        lit(L, x + dx, y, "fireGold")
+        lit(L, x + dx, y + 1, "fireOrange")
+        lit(L, x + dx, y + 2, "ember")
+
+
+def house(L, x0, base, w_, wall_h, roof_h, lights):
+    body(L, x0, x0 + w_ - 1, base - wall_h, base, x0, [(x0, x0 + w_ - 1, 0.55)])
     for d in range(roof_h):
         y = base - wall_h - 1 - d
         a, b = x0 - 1 + d, x0 + w_ - d
@@ -524,11 +581,9 @@ def house(L, x0, base, w_, wall_h, roof_h, lights, chimney=None):
             break
         for x in range(a, b + 1):
             L.px(x, y, SHADE)
+            KM[y, x] = 0.5
+            QX[y, x] = x0
         L.px(a, y, RIM)
-    if chimney is not None:
-        cx = x0 + chimney
-        for y in range(base - wall_h - roof_h - 2, base - wall_h - 1):
-            L.px(cx, y, FACE); L.px(cx + 1, y, SHADE)
     for (dx, dy, kind) in lights:
         x, y = x0 + dx, base - wall_h + dy
         if kind == "w2":
@@ -540,79 +595,102 @@ def house(L, x0, base, w_, wall_h, roof_h, lights, chimney=None):
 
 
 def town(L):
-    """Home: roofs and upper windows behind the low wall, smaller and fewer toward the lowland."""
-    for (x, w_, wh, rh, li, ch) in ((354, 11, 24, 7, [(3, 4, "w2"), (7, 4, "w2")], 2),
-                                    (367, 8, 22, 6, [(4, 4, "w2")], None),
-                                    (377, 10, 25, 7, [(2, 3, "w2"), (6, 3, "w1")], 6),
-                                    (389, 7, 21, 5, [(3, 4, "w1")], None),
-                                    (398, 9, 22, 6, [(2, 4, "w1"), (6, 4, "e")], 2),
-                                    (409, 7, 20, 5, [(3, 4, "e")], None),
-                                    (418, 8, 21, 5, [(4, 4, "e")], 4),
-                                    (428, 6, 19, 4, [], None),
-                                    (436, 7, 19, 4, [(3, 4, "e")], None)):
-        house(L, x, 176, w_, wh, rh, li, chimney=ch)
-    # the chapel's little bell tower among them
+    for (x, w_, wh, rh, li) in ((354, 11, 24, 7, [(3, 4, "w2"), (7, 4, "w2")]), (367, 8, 22, 6, [(4, 4, "w2")]),
+                                (377, 10, 25, 7, [(2, 3, "w2"), (6, 3, "w1")]), (389, 7, 21, 5, [(3, 4, "w1")]),
+                                (398, 9, 22, 6, [(2, 4, "w1"), (6, 4, "e")]), (409, 7, 20, 5, [(3, 4, "e")]),
+                                (418, 8, 21, 5, [(4, 4, "e")]), (428, 6, 19, 4, []), (436, 7, 19, 4, [(3, 4, "e")])):
+        house(L, x, 176, w_, wh, rh, li)
     cx = 384
-    for y in range(140, 176):
-        for x in range(cx, cx + 5):
-            L.px(x, y, FACE if x < cx + 4 else SHADE)
+    body(L, cx, cx + 4, 140, 175, 9, [(cx, cx + 3, 0.55), (cx + 4, cx + 4, 0.3)])
     for d in range(7):
         y = 139 - d
         a, b = cx + d // 3, cx + 4 - d // 3
         for x in range(a, b + 1):
-            L.px(x, y, SHADE)
+            L.px(x, y, SHADE); KM[y, x] = 0.5; QX[y, x] = cx
         L.px(a, y, RIM)
     lit(L, cx + 2, 144, "fireGold"); lit(L, cx + 2, 145, "fireOrange")
 
 
+def light_castle(L):
+    """Volume first: each px takes the stone ramp in solid steps, sampled at its body's x and its course's middle,
+    times its face's share; the base sinks dark into the fog. Joints one step darker, lighter stones one up."""
+    a = L.a
+    keep = {C(n) for n in ("fireGold", "fireOrange", "ember", "emberDim", "gold", "night0", "banner", "roofDeep",
+                           "fireWhite")}
+    for y in range(H):
+        yq = (y // COURSE) * COURSE + COURSE // 2
+        sink = max(0.25, min(1.0, (GROUND - y) / 28.0))
+        for x in range(W):
+            if not a[y, x, 3]:
+                continue
+            c = tuple(int(v) for v in a[y, x, :3])
+            base = {C(RIM): RIM, C(FACE): FACE, C(SHADE): SHADE, C("roofLight"): "roofLight"}.get(c)
+            if c == C("roofDeep") and KM[y, x] > 0:
+                base = "roofDeep"
+            if base is None:
+                continue
+            k = (KM[y, x] or 0.55) * sink
+            i = int(t_face(QX[y, x] or x, yq) * 6.0 * k)
+            if LM[y, x]:
+                i += 1
+            if JM[y, x] and KM[y, x] >= 0.6 and base == FACE:
+                if i == 0:
+                    continue
+                i -= 1
+            L.px(x, y, pick_solid([base] + STONE, i))
+
+
 def draw_castle():
     del WINDOWS[:]
+    for arr in (KM, JM, LM, QX):
+        arr[:] = 0
     L = Layer()
     town(L)
-    # the curtain wall from cliff to cliff: high on the left and middle, low toward the town
-    courses(L, 150, WALK, 336, GROUND, 5)
+    body(L, 150, 336, WALK, GROUND, 5, [(150, 336, 0.6)])
+    merlons(L, 150, 336, WALK - 3, 0.7, phase=1)
     for x in range(150, 337):
-        L.px(x, WALK, RIM)
-    merlons(L, 150, 336, WALK - 3, phase=1)
-    courses(L, 336, WALK_LOW, 452, GROUND, 7)
+        L.px(x, WALK, RIM); KM[WALK, x] = 1.05
+    cast(150, 336, WALK + 1)
+    body(L, 336, 452, WALK_LOW, GROUND, 7, [(336, 452, 0.55)])
+    merlons(L, 336, 452, WALK_LOW - 3, 0.6, phase=2)
     for x in range(336, 453):
-        L.px(x, WALK_LOW, RIM)
-    merlons(L, 336, 452, WALK_LOW - 3, phase=2)
-    # the gatehouse: two towers above the wall, the gate between
-    tower(L, 174, 191, 104, 11)
-    tower(L, 205, 222, 104, 12)
-    courses(L, 192, 112, 204, GROUND, 13)
-    merlons(L, 192, 204, 109, phase=1)
-    for x in range(192, 205):
-        L.px(x, 112, RIM)
-    gate = poly_mask([(193.5, GROUND + 1), (193.5, 160), (196, 156.5), (198.5, 155.5), (201, 156.5), (203.5, 160),
+        L.px(x, WALK_LOW, RIM); KM[WALK_LOW, x] = 0.9
+    cast(336, 452, WALK_LOW + 1)
+    tower(L, 174, 191, 104, 11, "right")
+    tower(L, 205, 222, 104, 12, "right")
+    body(L, 192, 204, 112, GROUND, 13, [(192, 204, 0.7)], qx=198)
+    merlons(L, 192, 204, 109, 0.8, phase=1, qx=198)
+    cast(192, 204, 113)
+    # the gate: a dark arch, a portcullis, a warm slit of the gate hall behind it
+    gate = poly_mask([(193.5, GROUND + 1), (193.5, 158), (196, 154.5), (198.5, 153.5), (201, 154.5), (203.5, 158),
                       (203.5, GROUND + 1)])
-    L.mask(gate, "nightDeep")
-    for x in range(194, 204, 2):
-        for y in range(158, GROUND + 1):
+    L.mask(gate, "night0")
+    for y in range(160, GROUND + 1):
+        lit(L, 198, y, "ember" if y > 163 else "emberDim")
+    lit(L, 198, 170, "fireOrange"); lit(L, 198, 171, "fireOrange")
+    for x in (195, 197, 199, 201):
+        for y in range(156, GROUND + 1):
             if gate[y, x]:
-                L.px(x, y, "nightBlue")          # the portcullis
-    for (x, y) in ((182, 120), (213, 120), (182, 138), (213, 138)):
-        for k in range(4):
-            L.px(x, y + k, "nightDeep")
-    # the right tower, and the town's tower where the wall steps down
-    tower(L, 300, 315, 106, 31)
-    tower(L, 336, 349, 124, 33)
-    # the keep: tall above everything, its crown under the beacon
+                L.px(x, y, "nightDeep")
+    for y in (160, 166, 172):
+        for x in range(194, 203):
+            if gate[y, x]:
+                L.px(x, y, "nightDeep")
+    tower(L, 300, 315, 106, 31, "left")
+    tower(L, 336, 349, 124, 33, "left")
+    # the keep: a front face falling off down the courses, its side face turned away from the light
     k0, k1 = KEEP
-    courses(L, k0, 94, k1, GROUND, 21)
-    for y in range(94, GROUND + 1):
-        L.px(k0, y, RIM)
-        L.px(k1, y, SHADE); L.px(k1 - 1, y, SHADE)
+    body(L, k0, k1, 94, GROUND, 21, [(k0, k1 - 10, 0.95), (k1 - 9, k1, 0.4)], qx=LX)
     for x in range(k0 - 2, k1 + 3):
-        L.px(x, 89, RIM); L.px(x, 90, FACE); L.px(x, 91, FACE); L.px(x, 92, JOINT)
+        for y, n in ((89, RIM), (90, FACE), (91, FACE)):
+            L.px(x, y, n); KM[y, x] = 1.1 if n == RIM else 0.95; QX[y, x] = LX
     for x in range(k0, k1 + 1):
-        L.px(x, 93, JOINT if (x - k0) % 3 == 2 else FACE)
-        L.px(x, 94, JOINT if (x - k0) % 3 == 2 else SHADE)
-    merlons(L, k0 - 2, k1 + 2, 86)
+        L.px(x, 92, SHADE if (x - k0) % 3 == 2 else FACE); KM[92, x] = 0.5; QX[92, x] = LX
+    cast(k0, k1, 93, 2)
+    merlons(L, k0 - 2, k1 + 2, 86, 1.0, qx=LX)
     for x in range(LX - 7, LX + 8):
-        L.px(x, 84, RIM); L.px(x, 85, FACE)
-    # the house banner
+        L.px(x, 84, RIM); L.px(x, 85, FACE); KM[84, x] = 1.2; KM[85, x] = 1.0; QX[84, x] = QX[85, x] = LX
+    # the house banner, readable: realm teal with our lantern in gold
     for y in range(98, 124):
         for x in range(255, 264):
             L.px(x, y, "roofDeep")
@@ -621,13 +699,16 @@ def draw_castle():
         L.px(x, 124, "roofDeep")
     for x in (256, 258, 260, 262):
         L.px(x, 125, "roofDeep")
-    for (x, y) in ((259, 103), (258, 104), (260, 104), (259, 105), (258, 106), (260, 106), (259, 107), (259, 108)):
-        L.px(x, y, "gold")
-    for (x, y) in ((241, 102), (277, 102), (241, 120), (277, 126), (245, 146), (272, 150)):
-        lit(L, x, y, "fireGold"); lit(L, x, y + 1, "fireOrange")
-    lit(L, 307, 116, "fireGold"); lit(L, 307, 117, "fireOrange")
-    lit(L, 342, 134, "fireOrange")
-    light_faces(L, front=(FACE, RIM), shade=(SHADE,), joints=(JOINT,))
+    KM[98:126, 255:264] = 0            # the banner is cloth: it keeps its own colours
+    lantern_mark = ["..g..", ".ggg.", "ggggg", "g.f.g", "gfffg", "g.f.g", "ggggg", ".g.g."]
+    for r, row in enumerate(lantern_mark):
+        for q, ch in enumerate(row):
+            if ch != ".":
+                L.px(257 + q, 102 + r, "gold" if ch == "g" else "fireOrange")
+    for (x, y) in ((240, 100), (276, 104), (240, 128), (184, 120), (306, 118)):
+        window(L, x, y)
+    lit(L, 342, 136, "fireOrange"); lit(L, 342, 137, "ember")
+    light_castle(L)
     return L
 
 
@@ -647,7 +728,7 @@ def draw_fog(dark=None):
             t = int(round(base - amp * abs(math.sin(x / 9.0 + ph)) - 1.2 * abs(math.sin(x / 4.0 + ph * 2))))
             for y in range(t, H):
                 n = rim if y < t + 2 else body
-                L.px(x, y, pick(x, y, [n] + FOGR, t_face(x, y) * (5.0 if y < t + 2 else 3.6)))
+                L.px(x, y, pick_air(x, y, [n] + FOGR, t_face(x, y) * (5.0 if y < t + 2 else 3.6)))
     if dark is not None:
         draw_dark(L, dark, ground=True)
     top = profile(LEDGE)
@@ -780,7 +861,7 @@ def lantern_glow(step, w=WIN_W, hh=H, cx=None, cy=None):
             if e >= 1:
                 continue
             p = (1 - e) ** 1.35 * 6.2
-            c = pick(x, y, [None] + LOAD, p)
+            c = pick_air(x, y, [None] + LOAD, p)
             if c:
                 a[y, x, :3] = C(c)
                 a[y, x, 3] = 255
@@ -826,7 +907,7 @@ def lord_light(frame):
         for x in range(15):
             d = math.hypot(x - 7, (y - 7.5) * 1.1) / big
             p = max(0.0, 1 - d / 4.5) * 3.2
-            c = pick(x, y, [None, "tile", "tileLight", "gold"], p)
+            c = pick_air(x, y, [None, "tile", "tileLight", "gold"], p)
             if c:
                 a[y, x, :3] = C(c)
                 a[y, x, 3] = 255
@@ -834,23 +915,27 @@ def lord_light(frame):
 
 
 def sentry(rim_side):
-    """5 x 15: a spear silhouette on the wall walk, facing left; one warm px toward the flame."""
-    L = Layer(5, 15)
-    for (x, y) in ((2, 2), (3, 2), (1, 3), (2, 3), (3, 3), (4, 3)):
-        L.px(x, y, "nightDeep")
-    L.px(2, 4, "nightDeep"); L.px(3, 4, "nightDeep")
-    for y in range(5, 12):
-        for x in (2, 3, 4) if y < 11 else (2, 4):
-            L.px(x, y, "nightDeep")
-    for y in (12, 13, 14):
-        L.px(2, y, "nightDeep"); L.px(4, y, "nightDeep")
-    for y in range(1, 15):
-        L.px(0, y, "nightDeep")
-    L.px(0, 0, "stonePale")
-    if rim_side == "right":
-        L.px(4, 3, "tileLight"); L.px(4, 6, "tile"); L.px(4, 7, "tile")
-    else:
-        L.px(1, 3, "tileLight"); L.px(2, 6, "tile"); L.px(2, 7, "tile")
+    """7 x 14: a small guard, 8 px from helmet to boots, with a spear taller than he is; facing left. The helmet and
+    the side toward the flame catch it."""
+    L = Layer(7, 14)
+    L.px(1, 0, "stonePale"); L.px(1, 1, "stoneLight")
+    for y in range(2, 14):
+        L.px(1, y, "woodDark")
+    for x in (3, 4):
+        L.px(x, 6, "stoneMid")
+    for x in (2, 3, 4, 5):
+        L.px(x, 7, "stoneMid")
+    L.px(2 if rim_side == "left" else 5, 7, "stoneLight")
+    L.px(3, 8, "tileLight"); L.px(4, 8, "nightDeep")
+    for y in (9, 10, 11):
+        for x in (2, 3, 4, 5):
+            if not (y == 9 and x in (2, 5)):
+                L.px(x, y, "roofDeep" if x < 5 else "nightDeep")
+    L.px(2, 10, "tileLight")                                 # the hand on the spear
+    rim = 5 if rim_side == "right" else 2
+    L.px(rim, 10, "tile"); L.px(rim, 11, "tile")
+    for y in (12, 13):
+        L.px(3, y, "nightDeep"); L.px(5, y, "nightDeep")
     return L
 
 
@@ -1105,7 +1190,7 @@ def write_art(outdir=OUT):
         "lanternGlow": {"size": [WIN_W, H], "origin": "window (0, 0)", "scaleOfAirGlow": GLOW_SCALE},
         "lord": {"feet": list(LORD_POS), "size": [9, 16], "lanternPixel": {"x": 0, "y": LORD_LANTERN_Y},
                  "light": {"size": [15, 15], "centre": [7, 7]}},
-        "sentries": [{"feet": list(p), "size": [5, 15], "sprite": "titleSentryA" if s == "right" else "titleSentryB"}
+        "sentries": [{"feet": list(p), "size": [7, 14], "sprite": "titleSentryA" if s == "right" else "titleSentryB"}
                      for p, s in SENTRIES],
         "drift": DRIFT, "windows": WINDOWS,
     }
@@ -1181,7 +1266,7 @@ def gear(big):
     return over(big, g, big.width - g.width - 54, 42)
 
 
-def write_proofs(proofdir=PROOF, sfx="-r3", which="all"):
+def write_proofs(proofdir=PROOF, sfx="-r4", which="title"):
     os.makedirs(proofdir, exist_ok=True)
     layers, sprites, unlit, litl, boxes = build_all()
     if which in ("loading", "all"):
@@ -1207,4 +1292,4 @@ if __name__ == "__main__":
     if what in ("art", "all"):
         write_art()
     if what in ("proof", "all"):
-        write_proofs(which=sys.argv[2] if len(sys.argv) > 2 else "all")
+        write_proofs(which=sys.argv[2] if len(sys.argv) > 2 else "title")
