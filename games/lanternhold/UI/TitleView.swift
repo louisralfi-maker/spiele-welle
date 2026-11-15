@@ -49,9 +49,9 @@ enum TitleLayout {
         ("titleSentryA", CGRect(x: 223, y: 119, width: 7, height: 14)),
         ("titleSentryB", CGRect(x: 321, y: 119, width: 7, height: 14)),
     ]
-    /// The reveal: R (long axis) from 116 to 260 game px over 1.4 s, the short axis × 120 / 170.
+    /// The reveal: R (long axis) from 116 to 300 game px over 1.4 s (past the corners at 282), the short axis × 120 / 170.
     static let revealFrom: CGFloat = 116
-    static let revealTo: CGFloat = 260
+    static let revealTo: CGFloat = 300
     static let revealSeconds = 1.4
     static let shortAxis: CGFloat = 120.0 / 170.0
     /// The slow sway (game px at its peak, period 40 s): the castle and the light are the pivot.
