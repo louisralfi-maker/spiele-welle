@@ -254,7 +254,8 @@ struct TitleView: View {
         // The lantern catches: six steps, at least 0.2 s each, the last waiting for the game.
         for next in 1...6 {
             try? await Task.sleep(nanoseconds: 200_000_000)
-            if revealing { return }
+            // Build 2 review, app-ui-7: a touch skipped ahead; the hint still comes after the 3 s below.
+            if revealing { break }
             step = next
             if TitleView.hold == "loading" && next == 3 { return }
         }

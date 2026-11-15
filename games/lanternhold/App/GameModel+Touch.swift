@@ -98,6 +98,8 @@ extension GameModel {
             return
         }
         guard overlay == nil else { return }
+        // Build 2 review, app-ui-1: a touch the system cancelled never ended; a new start point is a new touch.
+        if let down = touch.down, down != start { resetTouch() }
         if touch.down == nil {
             touch.down = start
             touch.dragging = false
@@ -143,6 +145,19 @@ extension GameModel {
         tap(at: start, in: size)
     }
 
+    /// Build 2 review, app-ui-1: forgets the finger, for a touch the system cancelled (the notification shade, Control
+    /// Center, the home edge), which never ends: nothing down, pressed or held on the lord, and a drag's walk stops.
+    /// Called on a new start point, when the scene is not active, when a card opens and when the lantern moment opens.
+    func resetTouch() {
+        let dragged = touch.dragging
+        touch.down = nil
+        touch.dragging = false
+        touch.pressed = nil
+        touch.onLord = false
+        touch.raised = false
+        if dragged { setDrag(offset: nil) }
+    }
+
     /// The thing under a point of the screen, nil for the ground.
     func thingAt(_ point: CGPoint, in size: CGSize) -> TouchThing? {
         guard let place = stagePoint(point, in: size) else { return nil }
@@ -178,6 +193,12 @@ extension GameModel {
         // The join: a touch on a town door knocks (town-2, `GameModel.touchTown`); the doors are not things.
         if stage != .hall, touchTown(at: point, in: size) {
             touch.lastTap = "door"
+            return
+        }
+        // Build 2 review, app-ui-3: Marek's cart stands before the barracks; while his offer is open a touch on it opens
+        // his gift card, else it is the barracks' touch as before.
+        if stage == .world, picked?.kind == .recruit, isOnMarekCart(place), merchantTouch?() == true {
+            touch.lastTap = "merchant"
             return
         }
         if let thing = picked {
@@ -230,6 +251,13 @@ extension GameModel {
         // fell half a pixel nearer the site's middle and opened its card): on his body the lord wins unless the
         // finger is clearly nearer the thing (3 px); the rest of the site's wide area still opens the site.
         return abs(x - stageLordX) <= abs(x - thing.x) + 3
+    }
+
+    /// True for a point on Marek's cart as drawn (`CourtLayout.marekCartX` its left edge, its sprite's size).
+    func isOnMarekCart(_ place: (x: Double, lift: Double, minimum: Double)) -> Bool {
+        let size = SpriteID.marekCart.size
+        return place.x >= CourtLayout.marekCartX && place.x <= CourtLayout.marekCartX + Double(size.width)
+            && place.lift <= Double(size.height)
     }
 
     /// True for a point on the lord's body.
@@ -385,12 +413,15 @@ extension GameModel {
         guard kind == .world else { return }
         // The lantern moment's side (stage-3-interface): the purse, the notes, the strip's call.
         stepLanternHUD()
-        stepFirstSlip()
+        stepFirstSlip(seconds)
         stepLordHint()
         if touch.down != nil, touch.onLord, !touch.dragging, !touch.raised,
            clock.elapsed - touch.downAt >= LanternRaise.holdSeconds {
-            touch.raised = true
+            let raises = driver?.state.king.raises
             raiseLantern()
+            // Build 2 review, app-ui-2: a hold that raised nothing (by day, the lantern resting, in the hall) is a tap
+            // on the lord when it lifts: it opens the lantern moment.
+            if driver?.state.king.raises != raises { touch.raised = true } else { touch.onLord = false }
         }
         guard var errand = touch.errand else { return }
         if overlay != nil || errand.stage != stage {
@@ -424,7 +455,13 @@ extension GameModel {
 
     /// The first minute's slip "Touch what the lord shall do.", once: on a new realm's first day, when no card covers
     /// the world, for 10 s or until the first touch.
-    private func stepFirstSlip() {
+    private func stepFirstSlip(_ seconds: Double) {
+        // Build 2 review, core-state-2: under the slides (the prologue after the name entry) the slip neither starts
+        // nor runs out; its 10 s begin when the world shows.
+        if slides.coversWorld {
+            if firstTouchSlip { touch.firstSlipUntil += seconds }
+            return
+        }
         if touch.firstSlipPending, overlay == nil, stageChange == nil, let state = driver?.state, driver?.bot == nil {
             let fresh = state.day == 1 && !args.skipOnboarding && !isShowcase
             if fresh || args.touchHint {
@@ -458,7 +495,7 @@ extension GameModel {
             if !touch.firstSlipPending && !firstTouchSlip { touch.lordHintAt = now + 5 }
         }
         let clear = overlay == nil && stageChange == nil && lanternMoment == nil && touch.errand == nil
-            && !firstTouchSlip
+            && !firstTouchSlip && !slides.coversWorld
         if touch.lordHintOn {
             if !clear || (now >= touch.lordHintUntil && !args.lordHint) {
                 touch.lordHintOn = false

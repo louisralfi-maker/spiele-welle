@@ -8,6 +8,11 @@ struct LanternholdApp: App {
             SweepHost { RootView() }
                 .statusBarHidden(true)
                 .persistentSystemOverlays(.hidden)
+                // Build 2 review, app-ui-5: a walk drag along the top or bottom edge stays the game's.
+                .defersSystemGestures(on: [.top, .bottom])
+                // Build 2 review, app-ui-6: the screen stays on in the game (a night mostly plays itself); `GameView`
+                // follows the scene's phase from there.
+                .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
         }
     }
 }

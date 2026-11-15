@@ -414,6 +414,128 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertTrue(game.sceneStatus.contains("lantern:raised"), game.sceneStatus)
     }
 
+    /// Build 2 review, app-ui-3: while Marek's offer is open a touch on his cart opens his gift card (no debug argument,
+    /// so in Release too); with no offer open the touch goes to the barracks as before.
+    func testATouchOnMareksCartOpensHisCardWhileTheOfferIsOpen() throws {
+        let game = model(["GWDay": "3", "GWStage": "world", "GWCameraX": "1430"])
+        let stub = StubAdProvider()
+        let ads = AdDirector(mode: .stub, provider: stub, clock: CountedClock())
+        ads.attach(game)
+        XCTAssertNotNil(ads.merchantOffer, "his cart stands on day 3")
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let cart = CGPoint(x: framing.deviceX(stageX: CourtLayout.marekCartX + 14) / 3,
+                           y: framing.deviceY(lift: 12) / 3)
+        XCTAssertEqual(game.thingAt(cart, in: proPoints)?.kind, .recruit, "the cart stands in the barracks' area")
+        game.tap(at: cart, in: proPoints)
+        XCTAssertTrue(ads.merchantCardOpen, "the touch on the cart opens his card")
+        XCTAssertEqual(game.touch.lastTap, "merchant")
+        XCTAssertNil(game.touch.errand, "no walk to the barracks")
+        ads.closeMerchantCard()
+        // No offer open (no video ready): the barracks' touch as before.
+        stub.rewardedReady = false
+        XCTAssertNil(ads.merchantOffer)
+        game.tap(at: cart, in: proPoints)
+        XCTAssertFalse(ads.merchantCardOpen)
+        XCTAssertEqual(game.touch.lastTap, "touch-recruit-barracks")
+        XCTAssertEqual(game.touch.errand?.id, "touch-recruit-barracks", "he sets off to the barracks")
+    }
+
+    /// Build 2 fix A's review: the background under Marek's card raises the lantern moment behind it; closing the card
+    /// leaves the world standing under that moment.
+    func testClosingMareksCardKeepsTheWorldUnderALanternMoment() throws {
+        let game = model(["GWDay": "3", "GWStage": "world", "GWCameraX": "1430"])
+        let ads = AdDirector(mode: .stub, provider: StubAdProvider(), clock: CountedClock())
+        ads.attach(game)
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        ads.openMerchantCard()
+        XCTAssertTrue(ads.merchantCardOpen)
+        game.pauseForBackground()
+        XCTAssertNotNil(game.lanternMoment, "the background raised the moment behind the card")
+        ads.closeMerchantCard()
+        XCTAssertNotNil(game.lanternMoment)
+        XCTAssertTrue(game.isPaused, "the moment still holds the world")
+    }
+
+    /// Build 2 review, app-ui-2: by day a press on the lord held 0.35 s or longer opens the lantern moment like a short
+    /// tap (the hold raises no lantern by day).
+    func testALongPressOnTheLordByDayOpensTheLanternMoment() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "2900"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let on = CGPoint(x: framing.deviceX(stageX: game.stageLordX) / 3, y: framing.deviceY(lift: 15) / 3)
+        // Nothing offers under the finger, so the press is on the lord alone (the steps below draw no frame).
+        game.touch.things = []
+        game.touchChanged(start: on, at: on, translation: .zero, in: proPoints)
+        XCTAssertTrue(game.touch.onLord, "the press is on the lord")
+        for _ in 0..<30 { game.advance(by: 1.0 / 60) }
+        XCTAssertNil(game.lanternMoment, "nothing before the finger lifts")
+        game.touchEnded(at: on, translation: .zero, in: proPoints)
+        XCTAssertNotNil(game.lanternMoment, "the long press opened the lantern moment")
+        XCTAssertEqual(game.touch.lastTap, "moment")
+    }
+
+    /// Build 2 review, app-ui-1: a touch the system cancels (the notification shade, Control Center, the home edge)
+    /// never ends. A new start point is a new touch; the scene going inactive (`GameView` calls `resetTouch`), a card
+    /// and the lantern moment forget the finger.
+    func testACancelledTouchLeavesNoStaleFinger() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "2900"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let x = try XCTUnwrap(game.driver?.state.king.x)
+        // A drag the system cancels: no end comes.
+        game.touchChanged(start: CGPoint(x: 400, y: 300), at: CGPoint(x: 380, y: 300),
+                          translation: CGSize(width: -20, height: 0), in: proPoints)
+        XCTAssertTrue(game.touch.dragging)
+        // The next touch starts elsewhere: a tap of its own, not the end of the dead drag.
+        let p = CGPoint(x: framing.deviceX(stageX: x + 60) / 3, y: framing.deviceY(lift: -3) / 3)
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        XCTAssertFalse(game.touch.dragging, "a new touch")
+        XCTAssertEqual(game.touch.down, p)
+        game.touchEnded(at: p, translation: .zero, in: proPoints)
+        XCTAssertNotEqual(game.touch.lastTap, "none", "the tap counted")
+
+        // The scene goes inactive during a drag: the finger is forgotten and he stops.
+        game.touchChanged(start: CGPoint(x: 500, y: 300), at: CGPoint(x: 470, y: 300),
+                          translation: CGSize(width: -30, height: 0), in: proPoints)
+        XCTAssertLessThan(try XCTUnwrap(game.driver?.state.king.velocity), 0, "walking toward the drag")
+        game.resetTouch()
+        XCTAssertNil(game.touch.down)
+        XCTAssertFalse(game.touch.dragging)
+        XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.velocity), 0, "he stops")
+
+        // A card opens under a finger.
+        game.touchChanged(start: CGPoint(x: 600, y: 300), at: CGPoint(x: 570, y: 300),
+                          translation: CGSize(width: -30, height: 0), in: proPoints)
+        game.openPause()
+        XCTAssertEqual(game.overlay, .pause)
+        XCTAssertNil(game.touch.down, "the card takes the finger's state")
+        XCTAssertFalse(game.touch.dragging)
+        game.resume()
+
+        // The lantern moment opens under a finger (the app goes to the background mid-touch).
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        XCTAssertNotNil(game.touch.down)
+        game.pauseForBackground()
+        XCTAssertNotNil(game.lanternMoment)
+        XCTAssertNil(game.touch.down, "no finger under the moment")
+        XCTAssertNil(game.touch.pressed)
+    }
+
+    /// Build 2 review, app-ui-1: a hold on the lord at night that the system cancels raises nothing by itself.
+    func testACancelledHoldOnTheLordAtNightRaisesNothing() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWNight": "1", "GWHour": "22", "GWCameraX": "2600"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let x = try XCTUnwrap(game.driver?.state.king.x)
+        let on = CGPoint(x: framing.deviceX(stageX: x) / 3, y: framing.deviceY(lift: 15) / 3)
+        game.touchChanged(start: on, at: on, translation: .zero, in: proPoints)
+        XCTAssertTrue(game.touch.onLord)
+        game.resetTouch()
+        run(game, seconds: 0.5)
+        XCTAssertNotEqual(LanternRaise.phase(since: game.driver?.state.king.lanternSince), .raised, "nothing raised")
+    }
+
     func testTheSceneValueCarriesTheLordAndTheErrand() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1700"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)

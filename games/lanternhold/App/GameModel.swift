@@ -123,6 +123,9 @@ final class GameModel {
     /// The ads (`Ads/AdDirector.attach`): asked on the dawn report's Continue; it may show an interstitial first and
     /// calls back when the day may begin (at once when no ad comes). Nil: the day begins at once.
     @ObservationIgnored var adGate: (@MainActor (DawnReport, @escaping @MainActor () -> Void) -> Void)?
+    /// Build 2 review, app-ui-3: a touch on Marek's cart (`Ads/AdDirector.attach`): opens his gift card and answers
+    /// true while his offer is open; false (or nil) leaves the touch to the barracks.
+    @ObservationIgnored var merchantTouch: (@MainActor () -> Bool)?
     @ObservationIgnored private var events: [SimEvent] = []
     @ObservationIgnored private var shake = ScreenShake()
     @ObservationIgnored private var thinner = FeedbackThinner()
@@ -254,16 +257,27 @@ final class GameModel {
         var start = min(WorldLayout.walkEnd, max(0, args.cameraX ?? world.king.x))
         var dayClock: DayClock
         var loadedSettings = SaveSettings()
+        var beforeTown = false
         if kind == .world {
             let store = saveStore
             if args.reset { store?.reset() }
             var saved: GameState?
             switch store?.read() {
             case .loaded(let save)?:
-                saved = save.state
+                // Build 2 review, core-state-1: a save from before the taxes went on foot (no town, TestFlight build
+                // 86) starts a new realm with the title, the name entry, the prologue and the first morning; the old
+                // file is kept beside it, the Chronicle and the settings go on, and of the ad pacing only the clock
+                // between ads (its days count the old realm's, as at `restartChapter`).
+                if save.state.town == nil {
+                    store?.keepBeforeTown()
+                    beforeTown = true
+                } else {
+                    saved = save.state
+                }
                 chronicle = args.reset ? nil : save.chronicle
                 loadedSettings = save.settings ?? SaveSettings()
                 adPacing = save.adPacing ?? AdPacing()
+                if beforeTown { adPacing = AdPacing(lastAdAt: save.adPacing?.lastAdAt) }
             case .corrupt?:
                 store?.keepCorrupt()
             case nil:
@@ -322,6 +336,8 @@ final class GameModel {
         // The lantern moment (stage-3-interface): the purse and the notes start from the realm as it is.
         resetLanternHUD()
         refreshHUD()
+        // Core-state-1: the new realm replaces the old save at once (the old file was moved aside).
+        if beforeTown { writeSave() }
     }
 
     /// The debug values (`debug-king-x`, `debug-camera-x`, the scene value's `king:` and `cam:`) show while the king
@@ -372,6 +388,9 @@ final class GameModel {
     /// The app went to the background: the game comes back paused (unless a screen is already open).
     func pauseForBackground() {
         guard kind == .world, overlay == nil, !isShowcase, driver?.state.defeated == false else { return }
+        // Build 2 review, core-state-3 and app-ui-4: the slides already hold the world and come back as they were; a
+        // lantern moment raised behind them would stand over a running world once they end.
+        guard !slides.coversWorld else { return }
         // HUD.md section 2 (stage-3-interface): the app going to the background raises the lantern by itself; the
         // pause sheet only where the moment cannot stand (no frame drawn yet).
         if lanternMoment != nil { return }
@@ -689,6 +708,8 @@ final class GameModel {
     // MARK: - The screens (DESIGN.md "Screens")
 
     func setOverlay(_ next: Overlay?) {
+        // Build 2 review, app-ui-1: a card takes the finger's state with it.
+        if next != nil { resetTouch() }
         if next != nil && next != .audience { closeTalk() }
         // The lantern moment (stage-3-interface) goes down under any card.
         if next != nil && lanternMoment != nil { lanternMoment = nil }

@@ -35,6 +35,14 @@ struct SaveStore: Sendable {
         try? FileManager.default.moveItem(at: fileURL, to: backup)
     }
 
+    /// Moves a save from before the taxes went on foot (no town; build 2 review, core-state-1) aside as
+    /// `save-before-town-<seconds>.json`: the game starts a new realm and never deletes the old one.
+    func keepBeforeTown() {
+        let stamp = Int(Date().timeIntervalSince1970)
+        let backup = directory.appendingPathComponent("save-before-town-\(stamp).json")
+        try? FileManager.default.moveItem(at: fileURL, to: backup)
+    }
+
     /// `-GWReset YES`: no save any more.
     func reset() {
         try? FileManager.default.removeItem(at: fileURL)

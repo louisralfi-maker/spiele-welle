@@ -112,6 +112,12 @@ final class AdDirector {
             }
             self.reportContinues(report, proceed: proceed)
         }
+        // Build 2 review, app-ui-3: the lord's touch on Marek's cart opens his card while the offer is open.
+        model.merchantTouch = { [weak self] in
+            guard let self, self.merchantOffer != nil else { return false }
+            self.openMerchantCard()
+            return self.merchantCardOpen
+        }
         consent?.refreshAtLaunch()
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "GWMerchant") { openMerchantCard() }
@@ -313,10 +319,11 @@ final class AdDirector {
     }
 
     /// The world stands still under Marek's card, the consent form and any ad on screen (the dawn report's screens
-    /// hold it already).
+    /// hold it already), and under a lantern moment raised behind them (as `GameModel.setOverlay`).
     private func holdWorld() {
         guard let model else { return }
         let hold = formShowing || merchantCardOpen || provider.isShowingAd || model.overlay != nil
+            || model.lanternMoment != nil
         model.withDriver { $0.isPaused = hold }
     }
 
