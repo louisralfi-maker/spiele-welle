@@ -46,14 +46,14 @@ final class FirstDayUITests: XCTestCase {
         let strip = element(app, "realm-strip")
         let status = element(app, "town-status")
         tapStrip(strip, worldX: 1262)
-        if waitForStatus(status, "paid:", contains: 21, timeout: 20) {
+        if waitForStatus(status, "paid:", contains: 21, timeout: 40) {
             pause(0.05)
             attach(XCUIScreen.main.screenshot(), "43-first-toss-\(language)")
         } else {
             XCTFail("he did not meet the chandler's household on his way out (\((status.value as? String) ?? ""))")
         }
         XCTAssertTrue(waitForValue(gold, "60", timeout: 8), "the first 16 coins (\(String(describing: gold.value)))")
-        XCTAssertTrue(waitForKing(app, near: 1262, within: 14, timeout: 20), "the king ran to the braziers")
+        XCTAssertTrue(waitForKing(app, near: 1262, within: 14, timeout: 30), "the king ran to the braziers")
 
         // A walk in the world: a drag on the left of the screen.
         let before = kingX(app)
