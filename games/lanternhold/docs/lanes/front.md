@@ -736,3 +736,248 @@ changed), the gate one round of `build unit` with the sweep as an `sh` step.
 - **The six other languages** of the 18 hearth keys in the i18n pass.
 - **`tools/frontsweep` and `tools/simtune`** got the hearth's files in their lists; `tools/hearthsweep` shares
   frontsweep's stand-in for `LordIdentity`. Keep the lists in step with Core at the join.
+
+## front-2, fix round 1 (15.11.2026, night)
+
+The critic's first look (`ci-out/director/front-2-hearth-critic1.md`): 7 of 10, no blocker, three highs. All three are
+fixed in Core, and each leaves the director one value to turn. Made in the scratch clone as before (the worktree
+guard), committed as Louis' noreply identity, pushed to `origin/claude/lh-front`.
+
+**Read these over the older lines of "front-2" above:**
+- At out the fall card offers no video (`videoAtOut` off). "The defeat card's second chance brings the dawn with the
+  fire at embers" and "the ads lane's second chance stays on the card" no longer hold; the video moved to a broken
+  night's dawn.
+- A frail fire (the next breach puts it out) gets a stake line after the fire's line, and `HearthPicture.frail`.
+- A realm's first broken night orders the rebuild of its walls in rubble at no cost.
+
+### High 1: the looks and the lines tell the stake
+
+- **Two steps a breach stay** (the critic's option a). Option b, "a breach drops the fire to embers; at embers it goes
+  out", is built as one value and measured beside it: `breachCeiling` .embers with `breachSteps` 1
+  (`HearthRule.toEmbers`). It fails T14b and brings back the stuck slide of round lh-f2-1. A lord who feeds every
+  morning stays at embers while every night breaks. Round lh-f2f1-3, doubles of seeds 1 to 5 from nights 7, 9, 11
+  and 13:
+  - with wood, two broken nights in a row ended the realm in 5 of 20; the other 15 stood at embers ("embers > embers");
+  - with one held night between, 0 of 20 ended, with wood or without.
+  T14a is the same under both rules (90 of 90). So under b a realm that breaks every night goes out only when its
+  purse is empty, and by then the three kept dawns all lie inside the slide. Under a, two breaches with less than two
+  steps of mending between always end the realm, and the morning before the trouble is always kept.
+- **The words.** `HearthDawnReport.lastStand` (saved, default false) is set at every dawn whose fire is frail. Then
+  `lines()` ends with `front.hearth.last`: "If the Gloom reaches the hearth again, it goes out." (de "Erreicht die
+  Düsternis den Herd noch einmal, erlischt das Feuer."). With two steps that is every dawn at low or embers:
+  - after a broken night: "Only embers glow in the hearth." and the stake;
+  - after a held night that raised embers to low: "The hearth burns low." and the stake;
+  - after the video at out, if the director turns it back on.
+  It is a line of its own, not folded into "The hearth burns low.": after a held night "another such night" would be
+  false, while the condition is true in both cases.
+- **The fire.** `HearthPicture.frail` (and `Hearth.frail(level, tuning:)`): the next breach would put it out. For the
+  picture lane: a frail fire sputters, and only a fire that is not frail burns steady. With the chosen values:
+  - bright burns steady (a full fire);
+  - low sputters (a small flame that gutters and throws few sparks);
+  - embers sputters (a red glow without flame, a spark now and then);
+  - out is cold ash.
+  The hearth light keeps `glow`; a frail fire's light wavers a little (Reduce Motion: no waver, only the dimmer light).
+  So only bright looks safe.
+- Both follow the rule (`Hearth.afterBreach`), so neither can lie under another value: with one step, or under
+  option b, only embers is frail. No number, no bar, no other look changes.
+
+### High 2: the first broken night of a young, a thin and an idle realm
+
+Measured in rounds lh-f2f1-2 and -3 (`tools/hearthsweep`, seeds 1 to 10, with and without the new value):
+
+- **Young realms caught short** (the reference realm's eve of nights 2 to 5, the night bigger, the lord at the
+  throne). A young realm with its gate and first soldiers hardly breaks:
+  - x2 and x3: 0 of 40;
+  - x6: 9 of 40 (all on night 5);
+  - x10: 18 of 40 (nights 3 and 5);
+  - x15: 29 of 40.
+  Its purse at the broken dawn is small: 64 to 77 on average, against 139 for nights 6 to 14. The reference spends as
+  it goes.
+- **Some of them spiral.** Without help, 7 of 9 were mended within three days at x6, 16 of 18 at x10, 27 of 29 at x15.
+  Each time seeds 1 and 5 on night 5 broke again the next night and fell: the gate's 50 was out of reach, the gate
+  stood open, and the fire went out.
+- **Thin realms.** This is the T14 bot whose build order stops after 0, 2, 4, 6 or 9 steps. It still rebuilds rubble,
+  hears petitions, patrols, feeds the fire and rebuilds burnt places. An active lord holds a thin realm a long time:
+  - at the game's own nights only cap 0 broke (3 of 10, on nights 13 and 14);
+  - at x1.5 caps 0 to 6 broke on nights 11 to 14 (20 realms).
+  A thin realm hoards (about 700 in the purse at its first broken night), so it never lacks the gate's coin.
+  - Played on thin, it went out the next night in 8 of 20 (two in a row). The morning before the trouble was kept 8
+    of 8 times.
+  - Played well from the first broken dawn, 19 of 20 were mended within three days, and 2 broke again and fell later.
+    At x1.5, nights 14 to 16 are beyond a thin realm's walls. Without the value the totals are the same, on other
+    seeds.
+- **The idle lord** (T2's bot: it builds nothing and stands where it is; under the old rules it falls on night 3 in
+  every seed). It broke on night 3 in 10 of 10.
+  - Played on idle, the fire went out within two nights. With the walls raised, 7 of 10 lasted to night 5; without,
+    all went out on night 4. The morning before the trouble was kept 10 of 10 times.
+  - Played well from its first broken dawn: mended within three days in 10 of 10, none fell.
+
+**The one value: `firstBreachRaisesWalls` (true).**
+- **What it does.** A realm's first broken night orders the rebuild of every wall in rubble at no cost, the gatehouse
+  first (`Hearth.raiseWalls`). The order is placed at the breach, so the builders are at it at first light, with half
+  the work as every rebuild. The report says "Your people raise the walls again. They ask no coin."
+  (`front.hearth.walls`; de "Eure Leute richten die Mauern wieder auf. Ohne Lohn."). Later broken nights pay for their
+  rubble as today.
+- **Why the walls and not a purse floor.** The gold a broken night takes from a young realm is tiny (3.6 to 6.4 on
+  average). What kills it is the open gate.
+- **With it:**
+  - Early careless nights mended: x6 9 of 9, x10 18 of 18, x15 29 of 29, and none fell.
+  - Careless nights 6 to 14: 90 of 90 mended (84 before). The fire is bright again after 1.2 dawns (1.6 before). The
+    six young misses of front-2 are all mended.
+  - T14b holds as before.
+  - Three days later the realm is about 19 gold, 7 happiness and 3 people poorer than its costless twin (16, 7 and 3
+    before). The twin raises its walls for nothing too.
+
+The brief's question, for a young realm: the first broken night of a new player now ends at first light with:
+- a burnt house;
+- names;
+- embers;
+- the stake;
+- the town already at the gate.
+
+What is left to do is wood (25), the house (10) and one held night. That is a morning to build in, not a reason to put
+the phone away.
+
+### High 3: the video at out
+
+- **`videoAtOut` false (the critic's option a).** Under the rule a fire out is the end Louis named ("Ganz vorbei ist es
+  nur, wenn das Herdfeuer ausgeht, und dann startet man am Morgen davor neu"). So the fall card offers the kept
+  mornings and a new realm, never the video.
+  - `Hearth.secondChanceOffered(state, balance:)` says whether the card may offer it. It is true without the rule and
+    on the Lightless King's night, as today.
+  - `SimDriver.secondChance` refuses the video too (hook below).
+  - T14b ("two in three end the realm") now holds for every player.
+- **The video moves to a broken night's dawn, where it pays the day's wood.**
+  - `Hearth.woodGiftOffered`: the dawn after a broken night, the fire low or embers, not yet fed or gifted today.
+  - `Hearth.giveWood` sets `HearthState.woodGiftDay`. `feedOffer` then asks 0 coins (`HearthFeedOffer.gift`).
+  - The deed is the same: the lord walks to the hearth and throws the log on. Wood is still once a day and one step,
+    so T14b with wood is what it was.
+  - The button's words: `front.hearth.gift` "Wood for the hearth" (de "Holz für den Herd").
+- **For the director.** This is a product decision; the critic is right that it was missing from my list.
+  - Built: option a.
+  - One value away: option b. `videoAtOut` true makes the video at out bring the dawn with the fire at embers and the
+    cost standing; T14b then holds only for a player who does not watch it.
+
+### Kept from the critic (the smaller points)
+
+- **The banner.** `ReportCard.make` no longer adds the "second chance" banner on a broken night's dawn, unless the video
+  at out brought it (hook below).
+- **The names.** After forty deaths the name of the one who died longest ago comes round again: never one of tonight's
+  dead, never a living soldier's. A number comes only if even that fails. The stream draws once either way, so every
+  earlier run names the same people.
+- **The Ash Giant.** Nothing expects him slain. `petition.hesper_giant` is on day 10, before his night, and sets
+  `vigil_kept`, `town_vigil` or `giant_unwarned`; no flag, petition or line reads his death. A breach on night 10
+  burns him away with the rest, as the old second chance did.
+- **Endless mode (for the director).** The rule applies wherever the join turns it on. My advice: on in endless too,
+  since Louis' rule has no exception. The endless record then counts nights until the fire goes out, and endless runs
+  last longer. T7 itself plays without the rule and does not move.
+- **Waking as an eraser (for the director: known).** A player who hates a breach's cost can throw the next night and
+  wake a morning before the breach, and the names come back. That follows from Louis' rule and the three dawns.
+- **The lanterns.** With the default lanterns one house burns outside unrest; "Two houses burnt down." appears only in
+  unrest. Kept.
+- **The sting.** The material sting stays small; the names and the embers carry the pain. Kept.
+- **Taxes.** On this branch the sheltering households still pay the old dawn taxes, so T14 is a little kind until the
+  join's ledger leaves them out ("How the hearth meets the town lane" above).
+
+### New hooks of this round (apply them again at the join)
+
+| File | Place | Hook | Why |
+|---|---|---|---|
+| `Core/SimDriver.swift` `secondChance` | after `guard state.defeated else { return }` | `guard Hearth.secondChanceOffered(state, balance: balance) else { return }` | no video at out |
+| `Core/ReportCard.swift` `make` | the `.secondChance` banner | `if !report.held && (report.hearth?.broken != true \|\| report.hearth?.rekindled == true)` | a broken night's dawn is the hearth's, not the video's |
+
+### New values, saved fields and strings
+
+- **Values** (all in `HearthTuning`):
+  - `breachCeiling` nil (option b: .embers with `breachSteps` 1);
+  - `videoAtOut` false;
+  - `firstBreachRaisesWalls` true.
+- **Saved fields** (each decodes with a default; unit tests):
+  - `HearthBreak.wallsRaised` []; `HearthBreak` now decodes field by field like the rest;
+  - `HearthState.woodGiftDay` 0;
+  - `HearthDawnReport.lastStand` false and `.wallsRaised` false.
+- **Strings** (Front.xcstrings, English and German): `front.hearth.last`, `front.hearth.walls`, `front.hearth.gift`.
+  There are 21 hearth keys now.
+- **Tuning code only:** `HearthRule` (the doubles compare rules), `HearthBot.buildCap` and `playWell` (the thin realm),
+  `HearthThin` and `HearthTuningRun.thin` (the thin and idle realms).
+
+### For the join: what changes
+
+- **The hearth's picture:** draw `frail` (above).
+- **The dawn report:** up to six hearth lines on a realm's first broken night (what burnt, the dead, the coin, the
+  walls, the fire, the stake), usually four or five.
+- **The first broken night:** at first light there is scaffolding at every wall that lay in rubble
+  (`lastBreak.wallsRaised` lists the plots; the job is already ordered), and no coins are asked.
+- **The fall card** (the fire out, not night 20): the title, the kept mornings and "Begin a new realm". Show no video
+  button while `Hearth.secondChanceOffered` is false.
+- **The broken night's dawn:** the ads lane's card may offer the video "Wood for the hearth" while
+  `Hearth.woodGiftOffered` is true, with its own pacing. On the reward:
+  - call `Hearth.giveWood(&state, balance:)` (a one-line wrapper on `SimDriver`);
+  - a bundle of wood lies at the hearth;
+  - the touch on the hearth feeds the fire at no coin (`feed.gift`, price 0: the count asks nothing and the log goes
+    on).
+
+### T1 to T8 before and after (rounds lh-f2f1-4 and -5)
+
+The reference bots still play without `GameState.hearthFire`, so none of this round's rule runs for them.
+- `tuning-report.txt` is the same as round lh-f2-4's and lh-f1f1-6's (md5 f919a8fdb355f32441b5879cc12e7324). So are
+  `night-twenty-steps.txt` (1ab8adf6...) and T13's `front-t13-report.txt` (e358924d...).
+- `hearth-loss-table.txt` is unchanged: 15 runs in lockstep, differences none.
+- The T-lines, before and after alike:
+  - T1 nights 1-10 held, hearth 100, losses 0;
+  - T2 falls on nights 3, 3, 3;
+  - T3 the beacon on days 17, 16, 17;
+  - T4 27 and 83;
+  - T5 49 gold, 3 builds, 11 buildings;
+  - T6 20 of 20 won, 20 of 20 slain, 10 of 20 without;
+  - T7 17 of 20 in the band;
+  - T8 79.9 s, 39 entities, 11 lights.
+
+### T14 (rounds lh-f2f1-2 to -4)
+
+- **T14a, careless nights 6 to 14** (x6, seeds 1 to 10): 90 of 90 broke and 90 mended within three days (84 before
+  this round). The fire was bright again after 1.2 dawns, the burnt place standing after 1.0. x4: 69 of 69; x8 and
+  x10: 90 of 90. Unit test (seeds 1 to 4, nights 7 to 13): 28 of 28.
+- **T14a, a young realm's first broken night** (new). Nights 2 to 5: x10 18 of 18, x15 29 of 29 (without the walls
+  raised 16 of 18 and 27 of 29). Unit test (seeds 1 to 6, nights 3 to 5, x10): 10 of 10 broke and mended, none fell;
+  8 of 10 without the value.
+- **T14b, two steps** (the chosen rule):
+  - no wood between: two in a row ended the realm 20 of 20, one held night between 20 of 20;
+  - with wood: in a row 20 of 20; with a held night between 4 of 20 (the other 16 fed the fire back to bright and
+    stood at embers).
+  - One step: 0 of 20 and 0 of 20. The other rule (down to embers at most): unfed in a row 20 of 20, with a held night
+    between 0 of 20; fed in a row 5 of 20. Both fail.
+- **The idle lord** (unit test, seeds 1 to 3): breaks on night 3 as T2 falls; played idle, out within two nights with
+  the morning before kept; played well from the first broken dawn, mended within three days, none fell.
+
+### Rounds of the fix round
+
+| Round | Commit | Steps | Result |
+|---|---|---|---|
+| lh-f2f1-1 | c109d2f | sh hearthsweep | FAIL (exit 127): my step gave the path from the repo's root, but the runner stands in the game's folder; nothing measured |
+| lh-f2f1-2 | c109d2f | sh hearthsweep | ALL PASSED: careless nights 6-14 now 90 of 90 mended; option b fails T14b; early careless nights break only at x6 on night 5 (9 of 40), all mended with the walls raised, 7 of 9 without; thin realms hold to night 13 |
+| lh-f2f1-3 | 7a67597 | sh hearthsweep | ALL PASSED: early x10 18 of 18 and x15 29 of 29 mended (16 and 27 without); the idle lord breaks on night 3, out within two nights played idle with the morning before kept 10 of 10, mended within three days played well 10 of 10 |
+| lh-f2f1-4 | e748696 | build, unit (all), sh | build PASS; unit 474 passed, 1 failed (a garbage `pending` in a save decoded to a breach on night 0; fixed in 0378d79); sh PASS; T1 to T8, T13 and the night-twenty steps identical (md5) |
+| lh-f2f1-5 | 0378d79 | build, unit (all), sh | **ALL PASSED**: 475 unit tests, none failed; T1 to T8, T13, the night-twenty steps and the loss table identical (md5); the sweep's T14 the same as lh-f2f1-3 |
+
+Rounds follow the director's notes of 14.11. 18:46 and 19:35. No screen and no UI test changed, so the gate is
+`build unit` with the sweep as an `sh` step; there was no `ui`, `ui-de` or `release` step.
+
+### Open, and waiting for the join (fix round 1)
+
+- **For the director:**
+  1. Two steps a breach. Kept; the stake is now legible in words and in the fire. Option b is one value away
+     (`breachCeiling`), measured above.
+  2. The video at out. Built: option a (no video at out, the video pays a broken night's wood). Option b is one value
+     away (`videoAtOut`).
+  3. A realm's first broken night raises its walls for nothing (`firstBreachRaisesWalls`, one value).
+  4. Endless mode: rule on or off (my advice: on).
+  5. Waking as an eraser: known, follows from the rule.
+  6. Wood at any hour (from front-2): still open.
+- **The ads lane:** the wood card at a broken night's dawn and its pacing; the fall card without the video when the
+  fire is out.
+- **The picture lane:** `frail` (sputtering against steady); the scaffolding of the walls raised at first light.
+- **Unchanged from front-2:** the town's ledger (the sheltering households), the Chronicle (the townspeople a broken
+  night took), the six other languages of the hearth keys (now 21), `Hearth.adopt` beside `FrontNight.adopt`, and the
+  save writing `dawns`.
+- German is not judged before the store pass (the director's note of 14.11. 19:35).
