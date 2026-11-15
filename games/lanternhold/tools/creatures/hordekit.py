@@ -101,6 +101,9 @@ def fall(src, k, seed):
             if k == 2:
                 body = ("stoneDark", "night0", "nightDeep")[(x * 7 + y * 3) % 3]
             f.put(x, y, body)
+        eye = [j for j, (_, glow) in enumerate(col) if glow == "wraithWhite"]
+        if k == 0 and eye:                                   # the socket, dimmed, wherever the squash put its row
+            f.put(x, CELL - n + min(n - 1, int(eye[0] * n / len(col))), "stoneMid", "wraithDim")
     for i in range((2, 4, 5)[k]):                            # grains of ash lifting off, no outline
         gx = int(2 + hsh(i, k, seed) * 10)
         gy = int(CELL - 3 - (k + 1) * 2 - hsh(i, k + 7, seed) * 3)
