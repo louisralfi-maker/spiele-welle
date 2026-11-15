@@ -107,12 +107,20 @@ shot() { # <seconds since launch> <file name>
     fi
 }
 
+# The launch call itself can take 15 s on the runner (lh-pf-1, lh-pf-2): it runs beside the shots, so they count from
+# the moment the app was asked to start.
 START=$(date +%s)
-LAUNCHED=$(xcrun simctl launch "$SIM" "$BUNDLE")
-PID=${LAUNCHED##*: }
-echo "== $(date +%H:%M:%S) launched with no arguments: $LAUNCHED"
+xcrun simctl launch "$SIM" "$BUNDLE" >"$OUT/launch.txt" 2>&1 &
+LAUNCHER=$!
 shot 3 proof-release-03s.png
 shot 10 proof-release-10s.png
+if ! wait "$LAUNCHER"; then
+    echo "FAIL: simctl launch failed: $(cat "$OUT/launch.txt")"
+    exit 1
+fi
+LAUNCHED=$(tail -1 "$OUT/launch.txt")
+PID=${LAUNCHED##*: }
+echo "== launched with no arguments: $LAUNCHED (the call returned by $(($(date +%s) - START)) s)"
 shot 25 proof-release-25s.png
 if ps -p "$PID" >/dev/null 2>&1; then
     echo "PASS: the Release app runs at 25 s (pid $PID)"

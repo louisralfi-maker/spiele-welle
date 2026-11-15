@@ -398,12 +398,19 @@ final class ProofUITests: XCTestCase {
         while Date() < deadline {
             if reportFree(app) { return true }
             // The first close control that can be pressed (lh-pf-1: the video's own "Close" beside a disabled
-            // "Close Advertisement"); never "Resume video" of the early-close question.
+            // "Close Advertisement"); never "Resume video" of the early-close question. The video's "Close" lives in
+            // the ad's web content and never reports itself hittable (lh-pf-2: "Reward granted" with its X stood
+            // 40 s untouched), so an enabled one is touched at the middle of its frame.
             let closes = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@ AND NOT (label CONTAINS[c] %@)",
                                                           "close", "resume")).allElementsBoundByIndex
-            if let close = closes.first(where: { $0.exists && $0.isEnabled && $0.isHittable }) {
+            let enabled = closes.filter { $0.exists && $0.isEnabled && !$0.frame.isEmpty }
+            if let close = enabled.first(where: { $0.isHittable }) {
                 proof("tapping the ad's \"\(close.label)\"")
                 close.tap()
+            } else if let close = enabled.first {
+                let frame = close.frame
+                proof("touching the ad's \"\(close.label)\" at its frame \(frame)")
+                app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: frame.midX, dy: frame.midY)).tap()
             }
             pause(2)
             foreground(app, "closing the ad")
