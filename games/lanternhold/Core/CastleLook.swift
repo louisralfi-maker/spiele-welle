@@ -48,7 +48,13 @@ extension SceneLayout {
     /// The chapel's lancets no brighter than the keep's windows (the open hall door stays the brightest thing in the
     /// court): the same share the keep's glass takes (`FrameBuilder.keepGlass`).
     static func castleGlassShare(_ sprite: SpriteID) -> Float {
-        sprite == .chapelTower ? FrameBuilder.keepGlass : 1
+        switch sprite {
+        case .chapelTower: return FrameBuilder.keepGlass
+        // world-3 (the critic's medium of world-2 look 3: "the gate slits' pale core"): a step lower, so the bloom
+        // stays amber to the slit's middle
+        case .castleFront, .castleFront3, .castleFront3Build: return 0.8
+        default: return 1
+        }
     }
 
     // MARK: The valley's warmth (the critic's high 9: "the reveal stays cold purple on the lane and the houses")

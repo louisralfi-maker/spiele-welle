@@ -806,6 +806,10 @@ enum FrameBuilder {
             // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm.
             strength *= keepRimShare(ambient)
         }
+        if SceneLayout.beaconRims.contains(part.sprite) {
+            // World-3 (M2): the beacon's moon rim rises with the night's moon, not with the torches.
+            strength *= wedgeMoonShare(ambient)
+        }
         if part.sprite == .moon && options.look == .two {
             // World rebuild, fix round 2: the moon in the cleft's wedge rises with the night's moon, not with the
             // torches (the critic: "dusk looks the same as night: the same full moon in the same place").

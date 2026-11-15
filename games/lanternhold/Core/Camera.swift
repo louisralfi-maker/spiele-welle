@@ -165,9 +165,16 @@ struct Camera: Sendable, Equatable {
             danger = dangerTarget
             dangerVelocity = 0
         } else if step > 0 {
-            Camera.ease(&lead, &leadVelocity, toward: leadTarget, omega: CameraFraming.leadOmega, dt: step)
-            Camera.ease(&danger, &dangerVelocity, toward: dangerTarget, omega: CameraFraming.dangerOmega, dt: step)
-            danger = min(1, max(0, danger))
+            var value = lead
+            var speed = leadVelocity
+            Camera.ease(&value, &speed, toward: leadTarget, omega: CameraFraming.leadOmega, dt: step)
+            lead = value
+            leadVelocity = speed
+            value = danger
+            speed = dangerVelocity
+            Camera.ease(&value, &speed, toward: dangerTarget, omega: CameraFraming.dangerOmega, dt: step)
+            danger = min(1, max(0, value))
+            dangerVelocity = speed
         }
         let goal = CameraFraming.goal(lordX: input.lordX, lead: lead, danger: danger)
         var goalVelocity = input.velocity

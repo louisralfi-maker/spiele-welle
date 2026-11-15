@@ -52,6 +52,7 @@ extension SceneLayout {
     /// The instances look 2 adds, in the mock's order (`WORLD`, then `DEPTH`); the castle's exteriors follow by stage
     /// (`look2CastleExteriors`).
     static let look2: [(plane: Plane, entry: Entry)] = look2World + look2Depth
+        + look2WorldThree   // world-3: the town's back row, the river end's skiff and lantern, the valley's verge
 
     private static let look2World: [(plane: Plane, entry: Entry)] = [
         // The far plane: the wall (888 x 190, its ridge 135 to 173 px above its foot). World rebuild (step world-1,
@@ -81,9 +82,9 @@ extension SceneLayout {
         (.mid, Entry(sprite: .shadowForest, x: 96, y: -4, z: 1, flipped: true)),
         (.mid, Entry(sprite: .shadowForest, x: 320, y: -4, z: 1)),
         // The warden statue, cut into the Throat's wall (in the niche of its second step): 34 px low as before, its
-        // bowl fire burning all night.
+        // bowl fire burning all night. World-3 (M5): the fire sits in the bowl now painted in its hands (dy 156).
         (.mid, Entry(sprite: .wardenStatue, x: 520, y: -34, z: 4, shade: 0.88, region: .gorge,
-                     emitters: [.sprite(.hearthFire, dx: 40, dy: 153, glow: .fireOrange, fades: false)],
+                     emitters: [.sprite(.hearthFire, dx: 40, dy: 156, glow: .fireOrange, fades: false)],
                      lights: [Light(kind: .hearth, x: 568, y: 124, radius: 70)])),
     ] + look2Rock + [
         // Stage 7 (ART-look2.md 19.1), the old walls in the Throat, on the world plane behind everything built: the
@@ -353,7 +354,8 @@ extension SceneLayout {
     /// towers as drums (the sprite is 14 px wider on the left, so every emitter and light keeps its world x), tier 1
     /// building adds the front's scaffold. The keep, the curtain and the postern grow in `look2CastleExteriors`.
     static func look2Castle(_ stage: CastleStage, plane: Plane, entry: Entry) -> [Entry] {
-        guard plane == .world, entry.sprite == .castleFront else { return [entry] }
+        // World-3: every other entry takes look 2's dressing (the beacon ruin's moon rim, `look2Dressed`).
+        guard plane == .world, entry.sprite == .castleFront else { return [look2Dressed(entry, plane: plane)] }
         let rock = look2GateRock(front: entry.x, tier: stage.tier)
         if stage.tier == 1 {
             // The scaffold stands before the front (and before the gate's leaves, which are drawn earlier).

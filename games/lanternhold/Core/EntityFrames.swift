@@ -143,7 +143,7 @@ enum EntityFrames {
 
         defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
                      look: options.look, props: &props)
-        beacon(s, props: &props)
+        beacon(s, look: options.look, props: &props)
         courtyard(s, props: &props)
         town(s, look: options.look, props: &props)
         if isDay { markers(s, layouts: layouts, time: animTime, reduceMotion: options.reduceMotion, props: &props) }
@@ -515,7 +515,7 @@ enum EntityFrames {
 
     // MARK: - The beacon, the courtyard, the town
 
-    private static func beacon(_ s: GameState, props: inout PropList) {
+    private static func beacon(_ s: GameState, look: LookVersion = .one, props: inout PropList) {
         let plot = s.plots[Realm.beaconPlot]
         if let item = plot.item {
             let sprite: SpriteID
@@ -532,7 +532,13 @@ enum EntityFrames {
             let blaze = sprite == .greatBeacon && s.beaconLit
                 ? [LightSource(kind: .brazier, x: Realm.beaconX, y: 140, radius: 90, intensity: 0.9,
                                flickerSeed: 0x4245_4143)] : []
-            props.add(sprite, x: beaconLeft, z: -1, masks: masks, lights: blaze)
+            // World-3 (M2, look 2): every stage catches the moon on its right and upper edges.
+            var rim: [EmissivePart] = []
+            if look == .two, let id = SceneLayout.beaconRim(sprite) {
+                rim.append(EmissivePart(sprite: id, dx: 0, dy: 0, color: GamePalette.moon, intensity: 1,
+                                        flickerSeed: nil, fadesByDay: true, isFire: false))
+            }
+            props.add(sprite, x: beaconLeft, z: -1, emissive: rim, masks: masks, lights: blaze)
         }
         if plot.job != nil {
             scaffold(&props, centre: Realm.beaconX, width: 64)
