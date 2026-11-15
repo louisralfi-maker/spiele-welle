@@ -3908,6 +3908,18 @@ passes over earlier sprites in `tools/w3f2src`); ids: SPRITES.md "World-3, fix r
   to `rockLight`), the same cream cut line up their slopes as the buttress had (t-3-1360, w-1200-noon).
 - **Smaller.** The Throat's end (`oldWall1`): the stepped blocks rounded into rubble, tops chipped, heaps at the foot.
   The verge: gaps of 3 to 17 px drawn from a hash, never one rhythm.
+- **Rounds** (world-3's gate: `build unit "ui …"` with WorldSweepUITests, Look2UITests and WorldStoryUITests, English
+  only, the director's notes): lh-w3f2-1 on db5b8d9 (build and UI passed; unit: look 1's six goldens, the fog test's
+  slices with the ground fog, the bank's eyes at the beacon), lh-w3f2-2 on 6df1728 (build and UI passed; unit: the
+  goldens with the clouds' second painting), lh-w3f2-3 on 8aabfe7 ALL PASSED. Its upright sweep (133 frames):
+  `ci-out/lh-w3f2-3/sweep-upright`. Proof frames: `w-1200-noon`, `w-1000-dusk` (the buttress, the rubble at the
+  Throat's end), `w-0400-night`, `w-0600-night`, `78` (the broken tower and its bowl, no eyes on or over it),
+  `w-1400-night`, `t-3-1360` (the slits, the tower foot without a box), `w-2400-night` (the postern's dark view),
+  `w-3900-night`, `w-3900-noon`, `76` (the lantern, the streak, the skiff), `w-0000-night` (bodies in the bank),
+  `w-3200-noon`, `w-3900-night` (the clouds), `w-1000-fog-b` against `w-1000-night` (the ground fog).
+- **Open:** the far lantern's glass reads warm peach rather than deep fire-gold at night and its streak is faint under
+  the reeds; `oldWall1` is rounder but still pale and blocky at noon (`w-1200-noon`); the bank's pairs moved off the
+  beacon can stand beside its middle (56 rows) in the fog; the gate rocks' edge is a lit face now, still a broken line.
 <!-- END world lane: World rebuild (14.11.2026) -->
 ### The hall stage and touch the world (14.11.2026)
 
