@@ -740,3 +740,15 @@ schneller geht."
   - After each lens an independent refuter attacks every blocker and high (not confirmed from the code means refuted) and writes `ci-out/director/review-b2/<lens>.md`. A completeness critic names what no lens covered. 17 agents, two at a time (the Mac), all Opus 5.5.
   - No fix phase in it: the rolling join is the only writer on `claude/lh-join`. The director reads the result and then orders the fix lane.
   - The join meanwhile: the stage's 3d00e5c is merged (906f57c); `lh-rj-19` (the lanes' other classes) sent 17:45; `lh-rj-18` still runs.
+
+- **The review's first half is in; fix lane A runs (15.11.2026, 18:06).**
+  - `lh-rj-18` (the person rule on 8d8ef3c) is ALL PASSED, checked on origin. `lh-rj-19`, `lh-rj-20` (the join) and `lh-w3f3-1` (the world's fix round 3, sent 18:01) run.
+  - The review after four of eight lenses (`ci-out/director/review-b2/`), nothing refuted: 1 blocker, 7 highs.
+    - `core-state-1` (blocker): a save of build 86 has no town, so it resumes on its old day with no name entry, no prologue and doors that give no coin. **Decision:** such a save starts a new realm; the old file is moved aside, chronicle, settings and ad pacing are kept.
+    - `core-state-2`: the first slip runs out behind the prologue. `app-ui-1`: stale finger state after a cancelled touch. `app-ui-2`: a slow press on the lord by day does nothing. `app-ui-3`: Marek's cart never opens his gift card in Release.
+    - `render-1`: the atlas and 11 pipelines are built on the main thread at the title's touch. `render-2`: fixed steps on jittery callback time make the walk hitch.
+    - `core-night`: no blocker, no high.
+  - Fix lane A: workflow `lanternhold-fix-a` (fix, an independent diff review, then the gate `lh-fx-1` and the push), worktree `.claude/worktrees/lh-fix`, branch `claude/lh-fix` off 906f57c; scope: the five findings above without the render ones, plus four small ones if safe (system gestures at the edges, the idle timer, the title's hint after an early tap, no lantern moment behind the slides). Report: `ci-out/director/fix-a.md`.
+  - Lane B (`claude/lh-fix2`: render and the remaining lenses) follows when the review ends.
+  - After build 2: `core-state-4` (only the last dawn is saved, a kill rolls back a day), `core-state-5` (hint flags are not saved).
+  - D now needs the world's fix-3 delta and the fix lanes merged (note to the join, 18:06); about 21:30 to 22:00. Quota 53 %.
