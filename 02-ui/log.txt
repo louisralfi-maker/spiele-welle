@@ -1,0 +1,11 @@
+Test Case '-[LanternholdUITests.TableUITests testTheLongestAndTheLostReportFit]' passed (35.784 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheMiddleOfTheChapterFillsTheHooks]' passed (33.513 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheRailTellsWhoIsAway]' passed (14.450 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TableUITests.swift:95: error: -[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport] : XCTAssertLessThanOrEqual failed: ("874.0") is greater than ("834.0") - Back stays inside the safe area
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TableUITests.swift:96: error: -[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport] : XCTAssertLessThanOrEqual failed: ("874.0") is greater than ("834.0") - the column stays inside the safe area
+Test Case '-[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport]' failed (41.197 seconds).
+Test Suite 'TableUITests' failed at 2026-11-15 01:39:45.240.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 01:39:45.244.
+Test Suite 'Selected tests' failed at 2026-11-15 01:39:45.245.
+exit=65
+screenshots: 11
