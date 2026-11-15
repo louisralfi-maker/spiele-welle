@@ -675,3 +675,19 @@ schneller geht."
   - Orders: the join merges 9c37df8 now and sends its gate on the merged head at once, with the Title class folded in (no Title round of its own). The stage's critic takes its second look; a fix round 2 only on a blocker, 60 minutes, one gate.
   - The world's fix round 2: two unbuilt commits (db5b8d9 the buttress and the critic's list, 1001351 the cubes at the Throat's end), round lh-w3f2-1 sent 15:40.
   - Louis got the name entry frame (91) at 15:55: the lady was his own complaint.
+- **The critic's second look on the stage: 7.5/10, no blocker, five highs; a timed fix round 2 runs on all five (15.11.2026, 16:06).**
+  - The critic judged lh-s3f1-5 (`stage-3-interface-critic2.md`). I looked at 163's crop, 42 and 96 myself and agree.
+  - The five highs, all met in the first ten minutes:
+    - Three glyphs say the wrong thing: the horn reads as a key, play as a horn, the flame as a fist, the breach tag as paper.
+    - `SeparatedText` drops the " · " at a line break, so "room on the walls for 1 more / guards 2" reads as one sentence.
+    - The audience plaques stand 5 to 7 pt from the screen's edge, in the home bar's zone.
+    - The lord's portrait is under the lady's new bar (a broad band across the brow, a boy's face).
+    - On day 1 the call's strip and the first hint slip stack at the top centre.
+  - My decisions for fix round 2 (replacing "only on a blocker" in my 15:55 note):
+    - 70 minutes of work, then one gate round in lh-s3f1-5's shape. The critic's look 3 is the last.
+    - The order: glyphs, plaques, line breaks, the day-1 top centre, the lord's portrait. What the time does not reach goes on the list for after build 2.
+    - Glyphs stay one colour. A glyph that does not name itself at 14 pt goes, and the label stands in words only. The horn is on its third try.
+    - Day 1: the call's strip waits until the hint slip has gone. The hint stays at the top centre, because a slip with a tail to the lord would say "touch the lord".
+    - The barracks' head: "Archers 3 · Guards 2", then "Room on the walls for 1 more." on its own line.
+  - The join merges the delta when origin moves and gives it one short round. It does not hold the gate or D for it.
+  - State at 16:04: lh-w3f2-1, lh-rj-14 and lh-rj-15 run. The join's gate on the merged head (8116e03) is not sent yet.
