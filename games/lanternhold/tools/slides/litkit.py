@@ -263,15 +263,17 @@ def mountain(pic, outer_l, inner_l, inner_r, outer_r, facets_l, facets_r, light=
         if h(y // 7, 3, 91) < 0.62:                    # a broken cold rim on the slope that faces home
             for x in range(max(0, d - 2), min(W, d + 1)):
                 pic.px(x, y, "night2" if x == d else "nightSlate")
-        # sparse strata: short cold steps across the big planes, a tone between the plane and its edge
-        if y % 9 == 4:
-            for (x0, x1, s_) in ((a, b, 11), (c, d, 23)):
-                for q in range(3):
-                    if h(y, q, s_) < 0.7:
-                        sx0 = int(x0 + (x1 - x0) * (0.15 + 0.3 * q + 0.1 * h(y, q, s_ + 1)))
-                        for xx in range(sx0, min(x1 - 3, sx0 + 5 + int(h(y, q, s_ + 2) * 9))):
-                            if pic.get(xx, y) in ("nightBlue", "nightDeep", "night0"):
-                                pic.px(xx, y, "nightSlate" if pic.get(xx, y) == "nightBlue" else "nightBlue")
+        # few, uneven ledges and cracks that lean with the slope (round 4), never regular courses
+        for (x0, x1, s_, lean) in ((a, b, 11, -0.55), (c, d, 23, 0.55)):
+            if x1 - x0 > 24 and h(y, 0, s_) < 0.045:
+                sx0 = int(x0 + 6 + (x1 - x0 - 18) * h(y, 1, s_))
+                n = 7 + int(h(y, 2, s_) * 10)
+                for k in range(n):
+                    xx, yy = sx0 + int(round(k * lean)), y + k
+                    if pic.get(xx, yy) in ("nightBlue", "nightDeep", "night0"):
+                        pic.px(xx, yy, "nightSlate" if pic.get(xx, yy) == "nightBlue" else "nightBlue")
+                        if pic.get(xx + 1, yy) in ("nightBlue", "nightDeep"):
+                            pic.px(xx + 1, yy, "night0")
         for x in range(max(0, a), min(W, a + 2)):
             pic.px(x, y, "nightBlue")
         if light is not None:

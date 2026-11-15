@@ -10,7 +10,7 @@ import numpy as np
 
 from litkit import (W, H, Pic, BAYER, core_glow, falloff, lit_figure, mountain, poly_mask, ellipse_mask, eyes, h)
 
-SPARK = (149, 100)
+SPARK = (149, 96)
 FLOOR = 140
 
 
@@ -52,8 +52,8 @@ def slide2():
     outer_r = poly([(0, 216), (16, 224), (24, 220), (44, 234), (56, 230), (76, 246), (90, 242), (112, 258),
                     (FLOOR, 266)])
     mountain(p, outer_l, inner_l, inner_r, outer_r,
-             facets_l=[(122, 84)], facets_r=[(200, 232)], light=SPARK, reach=48, lip=14, y1=FLOOR,
-             warm=("tileLight", "tile", "emberDim"))
+             facets_l=[(122, 84)], facets_r=[(200, 232)], light=SPARK, reach=40, lip=7, y1=FLOOR,
+             warm=("gold", "tile", "crimsonDeep"))
     # a few short cracks across the planes, so the rock has volume and the light is broken by it
     for (x0, y0, x1, y1) in ((96, 40, 104, 62), (110, 90, 118, 112), (204, 30, 210, 54), (214, 96, 222, 120),
                              (128, 70, 134, 84), (180, 62, 186, 80), (126, 112, 132, 124), (182, 108, 188, 122)):
@@ -76,6 +76,13 @@ def slide2():
         for x in range(x0, min(W, x0 + 96 - (y - FLOOR) * 16)):
             if p.get(x, y) in ("tile", "plum", "plumDeep", "nightDeep", "nightBlue"):
                 p.px(x, y, "night0")
+    # a low step of rock under him, its top lit
+    for y in range(FLOOR - 4, FLOOR + 1):
+        for x in range(140, 172):
+            if y == FLOOR - 4 and 142 <= x <= 169:
+                p.px(x, y, "tile" if abs(x - SPARK[0]) < 12 else "crimsonDeep")
+            elif y > FLOOR - 4 and 140 + (FLOOR - y) // 2 <= x <= 171 - (FLOOR - y) // 2:
+                p.px(x, y, "nightDeep" if x < 160 else "night0")
     # the ancestor: a hand-set grid, hood, the raised arm, the hand; the spark above the hand
     lit_grid_fig(p)
     # the point of gold: small and hard, the stars' four rays drawn in gold
@@ -142,4 +149,4 @@ ANCESTOR_LEGEND = {"C": ("night0", "tileLight", "tile"), "A": ("night0", "tileLi
 
 def lit_grid_fig(p):
     from litkit import grid_parts, light_grid
-    light_grid(p, grid_parts(ANCESTOR, SPARK[0] - 1, FLOOR - len(ANCESTOR), ANCESTOR_LEGEND), SPARK[0], SPARK[1])
+    light_grid(p, grid_parts(ANCESTOR, SPARK[0] - 1, FLOOR - 4 - len(ANCESTOR), ANCESTOR_LEGEND), SPARK[0], SPARK[1])
