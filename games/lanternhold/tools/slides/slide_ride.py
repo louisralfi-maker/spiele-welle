@@ -9,7 +9,8 @@ import math
 
 import numpy as np
 
-from litkit import (W, H, Pic, BAYER, core_glow, falloff, lit_figure, poly_mask, ellipse_mask, edge_of, h)
+from litkit import (W, H, Pic, BAYER, core_glow, falloff, lit_figure, poly_mask, ellipse_mask, edge_of, h,
+                    grid_parts, light_grid)
 
 MOON = (66, 60)
 MOON_R = 21
@@ -92,80 +93,97 @@ def slide3():
     for (x, y, c) in ((308, 104, "fireGold"), (309, 104, "fireGold"), (308, 105, "fireOrange"), (309, 105, "fireOrange"),
                       (308, 106, "fireOrange"), (309, 106, "ember"), (308, 107, "ember"), (309, 107, "ember")):
         p.px(x, y, c)
-    # the lantern's pool on the ground's own planes: two steps, broken by tufts and a rut, a dithered edge
-    for y in range(110, H):
-        for x in range(50, 210):
-            if not gm[y, x]:
-                continue
-            t = falloff(x, y, 120, ground_y(120) + 3, 52, 13, 1.0)
-            rut = abs((y - ground_y(x)) - 5 - (x - 120) * 0.03) < 0.8
-            c = "tile" if t > 0.5 else ("plum" if t > 0.18 else None)
-            if c is None:
-                if t > 0.08 and BAYER[y % 4][x % 4] < 6:
-                    c = "plumDeep"
-                else:
-                    continue
-            p.px(x, y, "plumDeep" if rut and c else c)
-    # four bearers, 15 px each, hooded, each with a pole and its dim light, going down behind him
-    for (x, hgt, carry) in ((196, 16, "pole"), (220, 15, "sack"), (244, 15, "pole"), (268, 14, "sack")):
-        g = ground_y(x)
-        body = P([(x - 3, g - hgt + 6), (x + 3, g - hgt + 6), (x + 5, g), (x - 5, g)])
-        hood = P([(x - 3, g - hgt + 6), (x - 2, g - hgt + 1), (x + 1, g - hgt), (x + 3, g - hgt + 3), (x + 3, g - hgt + 6)])
-        parts = [(body, "night0"), (hood, "night0")]
-        if carry == "sack":
-            parts.append((E(x + 4, g - hgt + 6, 3.5, 3), "nightDeep"))
-        lit_figure(p, parts, LAMP[0], LAMP[1], depth=2, tones_near=("nightSlate", "nightBlue"),
-                   tones_far=("nightSlate", "nightBlue"))
-        if carry == "pole":
-            for k in range(8):
-                p.px(x - 3 - k // 2, g - hgt + 7 - k, "woodDark")
-            p.px(x - 7, g - hgt - 2, "fireOrange"); p.px(x - 7, g - hgt - 1, "ember")
-    # Aldric: horse and rider as masses
-    g = ground_y(150)
-    barrel = E(154, g - 24, 15, 8)
-    chest = E(140, g - 25, 7, 8)
-    croup = E(167, g - 25, 8, 8.5)
-    neck = P([(135, g - 30), (145, g - 28), (137, g - 44), (130, g - 47), (127, g - 41)])
-    head = P([(126, g - 49), (133, g - 50), (135, g - 45), (128, g - 37), (121, g - 38), (121, g - 42)])
-    ear = P([(130, g - 49), (132, g - 54), (134, g - 49)])
-    tail = P([(173, g - 29), (177, g - 27), (181, g - 12), (177, g - 10), (174, g - 18)])
-    legs = np.zeros((H, W), bool)
-    leg(legs, [(138, g - 19), (131, g - 9), (133, g)], 3)           # the near foreleg reaching
-    leg(legs, [(145, g - 18), (147, g - 9), (145, g)], 2)
-    leg(legs, [(161, g - 19), (167, g - 9), (164, g)], 3)
-    leg(legs, [(169, g - 18), (174, g - 8), (176, g)], 2)
-    rider = P([(146, g - 54), (156, g - 54), (159, g - 34), (144, g - 34)])
-    rhead = E(150.5, g - 58, 3.6, 4)
-    arm = P([(145, g - 50), (149, g - 49), (139, g - 44), (137, g - 47)])
-    cloak = P([(153, g - 55), (166, g - 50), (180, g - 36), (183, g - 30), (172, g - 28), (157, g - 34)])
-    horse = [(tail, "night0"), (legs, "night0"), (barrel, "night0"), (croup, "night0"), (chest, "night0"),
-             (neck, "night0"), (head, "night0"), (ear, "night0"), (cloak, "night0"), (rider, "night0"),
-             (arm, "night0"), (rhead, "crimsonDeep")]
-    # the moon first: one cold tone on his back and the croup (tops turned up and back)
-    lit_figure(p, horse, MOON[0] + 140, MOON[1] - 200, depth=2, tones_near=("nightSlate", "nightSlate"),
-               tones_far=("nightSlate", "nightSlate"), near=1, lit_part={"crimsonDeep": ("nightSlate", "nightSlate")})
-    # then his lantern: the horse's neck and chest, his front, in two warm tones, 2 to 3 px
+    # a few short ember dashes on the ground under and before the horse: all that is left of his light down there
+    g0 = ground_y(130)
+    for (x, dy, n, c) in ((100, 2, 3, "emberDim"), (108, 1, 4, "ember"), (116, 3, 3, "emberDim"), (122, 1, 5, "tile"),
+                          (130, 2, 3, "ember"), (138, 4, 2, "emberDim"), (112, 5, 2, "emberDim"), (146, 1, 3, "tile"),
+                          (154, 3, 2, "emberDim")):
+        for k in range(n):
+            p.px(x + k, ground_y(x + k) + dy, c)
+    # Aldric and his horse: one hand-set grid, about 60 px, walking west
+    ox = 104
+    oy = ground_y(130) - 58
+    parts = grid_parts(RIDER, ox, oy, RIDER_LEGEND)
+    # the moon first: one cold tone on his back, the cloak's top and the croup
     U = np.zeros((H, W), bool)
-    for m, _ in horse:
+    for m, _ in parts:
         U |= m
     for y, x in zip(*np.where(U)):
-        d = math.hypot(x - LAMP[0], y - LAMP[1]) or 1.0
-        if d > 44:
-            continue
-        vx, vy = (LAMP[0] - x) / d, (LAMP[1] - y) / d
-        for k in (1, 2, 3):
-            qx, qy = int(round(x + vx * k)), int(round(y + vy * k))
-            if not U[qy, qx]:
-                p.px(x, y, ("tileLight" if d < 24 else "tile") if k == 1 else ("tile" if d < 24 else "plum"))
-                break
-    p.px(149, g - 61, "gold")                                        # the circlet's glint
-    for k in range(18):                                              # the lantern pole, forward and up
-        p.px(round(138 - k * 0.85), round(g - 46 - k * 0.6), "woodDark")
-    core_glow(p, LAMP[0], LAMP[1], r=7, tones=("fireOrange", "emberDim"), keep=("woodDark",))
-    for (x, y, c) in ((LAMP[0], LAMP[1] - 3, "nightDeep"), (LAMP[0] - 1, LAMP[1] - 2, "nightDeep"),
-                      (LAMP[0] + 1, LAMP[1] - 2, "nightDeep"), (LAMP[0] - 1, LAMP[1] - 1, "fireGold"),
-                      (LAMP[0], LAMP[1] - 1, "fireWhite"), (LAMP[0] + 1, LAMP[1] - 1, "fireGold"),
-                      (LAMP[0] - 1, LAMP[1], "fireGold"), (LAMP[0], LAMP[1], "fireWhite"),
-                      (LAMP[0] + 1, LAMP[1], "fireGold"), (LAMP[0], LAMP[1] + 1, "nightDeep")):
-        p.px(x, y, c)
+        if not U[y - 1, x] and x > ox + 24:
+            p.px(x, y, "nightSlate")
+    for m, spec in parts:
+        for y, x in zip(*np.where(m)):
+            if p.get(x, y) != "nightSlate":
+                p.px(x, y, spec[0])
+    lamp = (ox + 7, oy + 6)
+    light_grid(p, [(m & ~(np.roll(U, 1, 0) == False), spec) for m, spec in parts], lamp[0], lamp[1], depth=3)
+    # his lantern: the small sister of the hall's lantern, hanging from the pole's hook, a small core glow
+    core_glow(p, lamp[0], lamp[1] + 1, r=4, tones=("emberDim", "emberDim"))
+    for r, row in enumerate(SMALL_LANTERN):
+        for q, ch in enumerate(row):
+            if ch != ".":
+                p.px(lamp[0] - 3 + q, lamp[1] - 4 + r, {"i": "nightDeep", "b": "gold", "W": "fireWhite",
+                                                      "F": "fireGold", "f": "fireOrange", "s": "straw"}[ch])
     return p
+
+
+SMALL_LANTERN = ["...i...", "..iii..", ".bbbbs.", ".i.F.i.", ".iFWFi.", ".ifFfi.", ".bbbbs.", "..iii.."]
+
+
+def _spans_to_rows(spans, width=60, height=60):
+    rows = [["."] * width for _ in range(height)]
+    for (r, a, b, ch) in spans:
+        for c in range(a, b + 1):
+            if 0 <= c < width:
+                rows[r][c] = ch
+    return ["".join(r) for r in rows]
+
+
+# the rider and the horse, set span by span (row, first col, last col, region); walking west, the near foreleg
+# reaching, the cloak one mass over the croup
+_S = []
+_S += [(1, 28, 31, "G"), (2, 27, 32, "H"), (3, 28, 32, "H"), (3, 27, 27, "F"), (4, 29, 32, "H"), (4, 27, 28, "F"),
+       (5, 29, 31, "H"), (5, 28, 28, "F")]
+_S += [(6, 27, 32, "R"), (7, 26, 33, "R"), (8, 25, 34, "R")] + [(r, 25, 34, "R") for r in range(9, 13)]
+_S += [(r, 24, 35, "R") for r in range(13, 23)] + [(r, 23, 36, "R") for r in range(23, 27)]
+_S += [(7, 24, 25, "A"), (8, 22, 24, "A"), (9, 20, 22, "A"), (10, 18, 20, "A"), (11, 16, 18, "F")]
+for r, b in zip(range(7, 29), (35, 37, 38, 40, 41, 43, 44, 45, 46, 47, 48, 49, 50, 50, 51, 51, 52, 52, 52, 51, 50, 49)):
+    a = 34 if r < 13 else (36 if r < 23 else (37 + (r - 23)))
+    _S.append((r, max(a, 34), b, "C"))
+_S += [(r, 27 + (r > 32), 31, "B") for r in range(27, 37)]
+_S += [(10, 6, 7, "e"), (11, 5, 7, "e"), (12, 5, 8, "e")]
+for r, (a, b) in zip(range(13, 24), ((4, 9), (3, 10), (2, 11), (1, 12), (0, 12), (0, 12), (0, 12), (1, 13), (3, 14),
+                                     (6, 15), (8, 16))):
+    _S.append((r, a, b, "N"))
+for r, (a, b) in zip(range(14, 25), ((10, 12), (11, 13), (12, 14), (13, 15), (13, 16), (14, 17), (14, 18), (15, 19),
+                                     (16, 20), (17, 21), (18, 22))):
+    _S.append((r, a, b, "M"))
+for r, (a, b) in zip(range(24, 31), ((10, 17), (11, 19), (12, 21), (13, 23), (14, 25), (14, 26), (15, 27))):
+    _S.append((r, a, b, "N"))
+for r, (a, b) in zip(range(27, 43), ((24, 40), (26, 44), (27, 46), (15, 48), (15, 50), (15, 51), (15, 52), (16, 52),
+                                     (16, 52), (16, 52), (16, 52), (16, 52), (17, 52), (18, 51), (19, 50), (20, 49))):
+    _S.append((r, a, b, "N"))
+_S += [(43, 21, 30, "N"), (43, 40, 48, "N"), (44, 21, 26, "N"), (44, 42, 48, "N")]
+for r, (a, b) in zip(range(29, 49), ((52, 54), (53, 55), (53, 56)) + tuple((54, 56) for _ in range(13)) +
+                     ((54, 57), (55, 57), (55, 57), (56, 57))):
+    _S.append((r, a, b, "T"))
+for r, (a, b) in zip(range(44, 59), ((21, 23), (20, 22), (19, 21), (19, 21), (18, 20), (18, 20), (17, 19), (17, 19),
+                                     (17, 19), (16, 18), (16, 18), (16, 18), (16, 18), (15, 18), (15, 18))):
+    _S.append((r, a, b, "L"))
+for r in range(44, 59):
+    _S.append((r, 24 if r == 44 else 25, 28 if r == 58 else 27, "L"))
+for r, (a, b) in zip(range(44, 59), ((44, 47), (45, 47), (46, 48), (46, 48), (47, 49), (46, 48), (45, 47), (45, 47),
+                                     (45, 47), (45, 47), (45, 47), (45, 47), (45, 47), (45, 47), (44, 47))):
+    _S.append((r, a, b, "L"))
+for r, (a, b) in zip(range(44, 59), ((47, 49),) + tuple((48, 50) for _ in range(6)) + tuple((49, 51) for _ in range(7))
+                     + ((49, 52),)):
+    _S.append((r, a, b, "K"))
+for k, (c, r) in enumerate(((15, 10), (14, 9), (13, 8), (12, 7), (11, 6), (10, 5), (9, 4), (8, 3), (7, 2), (7, 1))):
+    _S.append((r, c, c, "P"))
+RIDER = _spans_to_rows(_S)
+RIDER_LEGEND = {"N": ("night0", "tileLight", "tile"), "M": ("night0", "tile", "plum"), "e": ("night0", "tile", "plum"),
+                "L": ("night0", "tile", "plum"), "K": ("night0", "plum", "night0"), "T": ("night0", "plum", "night0"),
+                "C": ("nightDeep", "tile", "plum"), "R": ("night0", "tileLight", "tile"), "B": ("night0", "tile", "plum"),
+                "A": ("night0", "tileLight", "tile"), "F": ("crimsonDeep", "dawnRose", "tileLight"),
+                "H": ("woodDark", "woodLight", "wood"), "G": ("gold", "fireGold", "gold"),
+                "P": ("woodDark", "woodLight", "wood")}
