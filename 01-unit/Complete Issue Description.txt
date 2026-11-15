@@ -1,0 +1,1 @@
+XCTAssertTrue failed - T12 FAIL the grower's taxes at the dawn after night 14 over the old town's: +39.6 % (target +25 to +35 %), seeds [1, 2, 3]: ["+34.5 %", "+43.0 %", "+41.2 %"]; grower [230, 256, 240], old town [171, 179, 170]; held [14, 14, 14] (target 14); the skipper fell on [0, 0, 0] (target before night 14; 0 = held)
