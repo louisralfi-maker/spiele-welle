@@ -19,8 +19,10 @@ final class TitleUITests: XCTestCase {
     /// lit, and the hint after 3 s without a touch.
     func testTheTitlesStates() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        for (hold, name, wait) in [("loading", "00a-title-loading", 2.0), ("half", "00b-title-half", 3.0),
-                                   ("lit", "00c-title-lit", 5.0), ("hint", "00d-title-hint", 5.5)] {
+        // render-1: "half", "lit" and "hint" wait for the game's ready, which now includes the warm-up (about 3 s in
+        // Debug on the runner); each hold stays in its state, so the longer waits only make sure it has been reached.
+        for (hold, name, wait) in [("loading", "00a-title-loading", 2.0), ("half", "00b-title-half", 8.0),
+                                   ("lit", "00c-title-lit", 10.0), ("hint", "00d-title-hint", 10.5)] {
             let app = XCUIApplication()
             app.launchArguments = ["-GWTitle", "YES", "-GWTitleHold", hold, "-GWReset", "YES", "-GWSeed", "1"]
             app.launch()
@@ -44,9 +46,12 @@ final class TitleUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "lord-entry-root").firstMatch.exists,
                        "nothing of the game before the touch")
         title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
-        // A touch before the picture stands only skips ahead; the next one starts.
-        RunLoop.current.run(until: Date().addingTimeInterval(1.5))
-        if title.exists { title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap() }
+        // A touch before the picture stands only skips ahead; the next one starts. render-1: one before the game is
+        // ready (the atlas and the pipelines are made under the title) does nothing, so touch again while it stands.
+        for _ in 0..<6 where title.exists {
+            RunLoop.current.run(until: Date().addingTimeInterval(1.5))
+            if title.exists { title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap() }
+        }
         let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: title)
         XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 10), .completed, "the touch starts the game")
         let entry = app.descendants(matching: .any).matching(identifier: "lord-entry-root").firstMatch

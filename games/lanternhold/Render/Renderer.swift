@@ -116,6 +116,87 @@ final class RenderTargets {
     }
 }
 
+/// render-1 (review of build 2): the renderer's eleven pipelines, compiled off the main thread by `RenderWarmup`
+/// while the title stands, or by `Renderer.init` when no warm-up made them. Pipeline states are immutable and may be
+/// made and used on any thread (as `AtlasTexture`, the class is `@unchecked Sendable` for its Metal objects).
+final class RenderPipelines: @unchecked Sendable {
+    let context: MetalContext
+    let outputFormat: MTLPixelFormat
+    let plane: any MTLRenderPipelineState
+    let sky: any MTLRenderPipelineState
+    let emissive: any MTLRenderPipelineState
+    let light: any MTLRenderPipelineState
+    let prefilter: any MTLRenderPipelineState
+    let blur: any MTLRenderPipelineState
+    let composite: any MTLRenderPipelineState
+    let actor: any MTLRenderPipelineState
+    let light2: any MTLRenderPipelineState
+    let composite2: any MTLRenderPipelineState
+    let actor2: any MTLRenderPipelineState
+
+    private enum Blend {
+        case none, over, additive
+    }
+
+    init(context: MetalContext, outputFormat: MTLPixelFormat) throws {
+        self.context = context
+        self.outputFormat = outputFormat
+        plane = try RenderPipelines.pipeline(context, "lh_sprite_vertex", "lh_sprite_fragment", .rgba8Unorm, .over)
+        sky = try RenderPipelines.pipeline(context, "lh_sprite_vertex", "lh_sprite_fragment", .rgba8Unorm, .additive)
+        // Premultiplied over: glow quads carry alpha 0 and add up; occluder quads (alpha 1) clear what is under them.
+        emissive = try RenderPipelines.pipeline(context, "lh_sprite_vertex", "lh_emissive_fragment", .rgba16Float,
+                                                .over)
+        light = try RenderPipelines.pipeline(context, "lh_pool_vertex", "lh_pool_fragment", .rgba16Float, .additive)
+        prefilter = try RenderPipelines.pipeline(context, "lh_fullscreen_vertex", "lh_bloom_prefilter_fragment",
+                                                 .rgba16Float, .none)
+        blur = try RenderPipelines.pipeline(context, "lh_fullscreen_vertex", "lh_blur_fragment", .rgba16Float, .none)
+        composite = try RenderPipelines.pipeline(context, "lh_fullscreen_vertex", "lh_composite_fragment",
+                                                 outputFormat, .none)
+        actor = try RenderPipelines.pipeline(context, "lh_actor_vertex", "lh_actor_fragment", outputFormat, .none)
+        light2 = try RenderPipelines.pipeline(context, "lh_pool2_vertex", "lh_pool2_fragment", .rgba16Float,
+                                              .additive)
+        composite2 = try RenderPipelines.pipeline(context, "lh_fullscreen_vertex", "lh_composite2_fragment",
+                                                  outputFormat, .none)
+        actor2 = try RenderPipelines.pipeline(context, "lh_actor_vertex", "lh_actor2_fragment", outputFormat, .none)
+    }
+
+    private static func pipeline(_ context: MetalContext, _ vertex: String, _ fragment: String,
+                                 _ format: MTLPixelFormat, _ blend: Blend) throws -> any MTLRenderPipelineState {
+        guard let vertexFunction = context.library.makeFunction(name: vertex) else {
+            throw MetalContextError.missingFunction(vertex)
+        }
+        guard let fragmentFunction = context.library.makeFunction(name: fragment) else {
+            throw MetalContextError.missingFunction(fragment)
+        }
+        let descriptor = MTLRenderPipelineDescriptor()
+        descriptor.vertexFunction = vertexFunction
+        descriptor.fragmentFunction = fragmentFunction
+        let attachment = descriptor.colorAttachments[0]
+        attachment?.pixelFormat = format
+        switch blend {
+        case .none:
+            break
+        case .over:
+            attachment?.isBlendingEnabled = true
+            attachment?.rgbBlendOperation = .add
+            attachment?.alphaBlendOperation = .add
+            attachment?.sourceRGBBlendFactor = .one
+            attachment?.destinationRGBBlendFactor = .oneMinusSourceAlpha
+            attachment?.sourceAlphaBlendFactor = .one
+            attachment?.destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        case .additive:
+            attachment?.isBlendingEnabled = true
+            attachment?.rgbBlendOperation = .add
+            attachment?.alphaBlendOperation = .add
+            attachment?.sourceRGBBlendFactor = .one
+            attachment?.destinationRGBBlendFactor = .one
+            attachment?.sourceAlphaBlendFactor = .one
+            attachment?.destinationAlphaBlendFactor = .one
+        }
+        return try context.device.makeRenderPipelineState(descriptor: descriptor)
+    }
+}
+
 /// The custom Metal renderer (DESIGN.md "Rendering: a small custom Metal renderer"). It consumes a `FrameDesc` and
 /// holds no game rules. Per frame: the eight planes as instanced atlas quads into their own low-res targets, the
 /// light pools, the emissive pass (glow, window glass and occluders in draw order, then embers), bloom at half
@@ -157,10 +238,6 @@ final class Renderer {
     private let gpuTimer = GPUTimer()
     private(set) var stats = RenderStats()
 
-    private enum Blend {
-        case none, over, additive
-    }
-
     private struct Batch {
         var offset = 0
         var count = 0
@@ -180,62 +257,27 @@ final class Renderer {
         self.context = context
         self.atlas = atlas
         self.outputFormat = outputFormat
-        planePipeline = try Renderer.pipeline(context, "lh_sprite_vertex", "lh_sprite_fragment", .rgba8Unorm, .over)
-        skyPipeline = try Renderer.pipeline(context, "lh_sprite_vertex", "lh_sprite_fragment", .rgba8Unorm, .additive)
-        // Premultiplied over: glow quads carry alpha 0 and add up; occluder quads (alpha 1) clear what is under them.
-        emissivePipeline = try Renderer.pipeline(context, "lh_sprite_vertex", "lh_emissive_fragment", .rgba16Float,
-                                                 .over)
-        lightPipeline = try Renderer.pipeline(context, "lh_pool_vertex", "lh_pool_fragment", .rgba16Float, .additive)
-        prefilterPipeline = try Renderer.pipeline(context, "lh_fullscreen_vertex", "lh_bloom_prefilter_fragment",
-                                                  .rgba16Float, .none)
-        blurPipeline = try Renderer.pipeline(context, "lh_fullscreen_vertex", "lh_blur_fragment", .rgba16Float, .none)
-        compositePipeline = try Renderer.pipeline(context, "lh_fullscreen_vertex", "lh_composite_fragment",
-                                                  outputFormat, .none)
-        actorPipeline = try Renderer.pipeline(context, "lh_actor_vertex", "lh_actor_fragment", outputFormat, .none)
-        lightPipeline2 = try Renderer.pipeline(context, "lh_pool2_vertex", "lh_pool2_fragment", .rgba16Float,
-                                               .additive)
-        compositePipeline2 = try Renderer.pipeline(context, "lh_fullscreen_vertex", "lh_composite2_fragment",
-                                                   outputFormat, .none)
-        actorPipeline2 = try Renderer.pipeline(context, "lh_actor_vertex", "lh_actor2_fragment", outputFormat, .none)
+        // render-1: the warm-up's pipelines when it compiled them for this context and format, else compiled here.
+        let made: RenderPipelines
+        if let prepared = RenderWarmup.pipelines(context: context, outputFormat: outputFormat) {
+            made = prepared
+        } else {
+            made = try RenderPipelines(context: context, outputFormat: outputFormat)
+        }
+        planePipeline = made.plane
+        skyPipeline = made.sky
+        emissivePipeline = made.emissive
+        lightPipeline = made.light
+        prefilterPipeline = made.prefilter
+        blurPipeline = made.blur
+        compositePipeline = made.composite
+        actorPipeline = made.actor
+        lightPipeline2 = made.light2
+        compositePipeline2 = made.composite2
+        actorPipeline2 = made.actor2
         for _ in 0..<Renderer.framesInFlight {
             inFlight.signal()
         }
-    }
-
-    private static func pipeline(_ context: MetalContext, _ vertex: String, _ fragment: String,
-                                 _ format: MTLPixelFormat, _ blend: Blend) throws -> any MTLRenderPipelineState {
-        guard let vertexFunction = context.library.makeFunction(name: vertex) else {
-            throw MetalContextError.missingFunction(vertex)
-        }
-        guard let fragmentFunction = context.library.makeFunction(name: fragment) else {
-            throw MetalContextError.missingFunction(fragment)
-        }
-        let descriptor = MTLRenderPipelineDescriptor()
-        descriptor.vertexFunction = vertexFunction
-        descriptor.fragmentFunction = fragmentFunction
-        let attachment = descriptor.colorAttachments[0]
-        attachment?.pixelFormat = format
-        switch blend {
-        case .none:
-            break
-        case .over:
-            attachment?.isBlendingEnabled = true
-            attachment?.rgbBlendOperation = .add
-            attachment?.alphaBlendOperation = .add
-            attachment?.sourceRGBBlendFactor = .one
-            attachment?.destinationRGBBlendFactor = .oneMinusSourceAlpha
-            attachment?.sourceAlphaBlendFactor = .one
-            attachment?.destinationAlphaBlendFactor = .oneMinusSourceAlpha
-        case .additive:
-            attachment?.isBlendingEnabled = true
-            attachment?.rgbBlendOperation = .add
-            attachment?.alphaBlendOperation = .add
-            attachment?.sourceRGBBlendFactor = .one
-            attachment?.destinationRGBBlendFactor = .one
-            attachment?.sourceAlphaBlendFactor = .one
-            attachment?.destinationAlphaBlendFactor = .one
-        }
-        return try context.device.makeRenderPipelineState(descriptor: descriptor)
     }
 
     // MARK: - Frames

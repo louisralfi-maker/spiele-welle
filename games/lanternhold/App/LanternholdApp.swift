@@ -26,6 +26,8 @@ struct RootView: View {
     @State private var model: GameModel? = nil
     /// The first light (item 12, `TitleView`): on a real launch the title stands before the game.
     @State private var titleDone = !TitleGate.shows
+    /// render-1: the atlas and the pipelines are made off the main thread while the title stands (`RenderWarmup`).
+    @State private var warmedUp = false
 
     var body: some View {
         if MetalContext.shared == nil {
@@ -48,13 +50,21 @@ struct RootView: View {
                 if titleDone {
                     Color.black.ignoresSafeArea()
                 } else {
-                    TitleView(ready: model != nil) {
+                    TitleView(ready: RenderWarmup.titleReady(modelMade: model != nil, warmedUp: warmedUp)) {
                         withAnimation(.easeInOut(duration: 0.4)) { titleDone = true }
                     }
                 }
             }
                 .onAppear {
                     guard model == nil else { return }
+                    // render-1: under the title only; a launch that skips it builds the renderer on demand, as before.
+                    if !titleDone {
+                        RenderWarmup.start()
+                        Task { @MainActor in
+                            await RenderWarmup.prepare()
+                            warmedUp = true
+                        }
+                    }
                     let made = GameModel(args: args, kind: RootView.kind(of: args.scene))
                     // Sound and haptics (DESIGN.md "Sound and haptics"): the game only, never in tests.
                     if made.kind == .world,

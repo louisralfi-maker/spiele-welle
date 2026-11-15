@@ -33,6 +33,10 @@ struct SimDriver: Sendable {
     static let step = Sim.frameStep
     /// A stalled frame never fast-forwards the world by more than this.
     static let maxCatchUp = 0.25
+    /// render-2 (review of build 2): the accumulator starts at half a step and returns to it at every reset, so the
+    /// display's 1/60 s frames land mid-step: a callback jitter under half a frame never gives a frame without a step or
+    /// one with two (the walk and the scroll judder). Game time stays within half a step of real time.
+    static let startPhase = step / 2
 
     var state: GameState
     let balance: Balance
@@ -52,7 +56,7 @@ struct SimDriver: Sendable {
     var isInBackground = false
     /// `-GWFreezeTime YES`: the clock stands still.
     var isFrozen = false
-    private(set) var accumulator = 0.0
+    private(set) var accumulator = SimDriver.startPhase
     /// Steps run so far.
     private(set) var steps = 0
     /// The realm at its last dawn (what the save writes).
@@ -82,10 +86,11 @@ struct SimDriver: Sendable {
     /// True while the simulation may step.
     var canStep: Bool { !isPaused && !isInBackground && !isFrozen && !state.defeated }
 
-    /// Adds real seconds (at most `maxCatchUp` at once); while stepping is not allowed nothing is kept.
+    /// Adds real seconds (at most `maxCatchUp` at once); while stepping is not allowed nothing is kept (the accumulator
+    /// rests at `startPhase`).
     mutating func accumulate(_ seconds: Double) {
         guard canStep else {
-            accumulator = 0
+            accumulator = SimDriver.startPhase
             return
         }
         guard seconds > 0 else { return }
@@ -165,7 +170,7 @@ struct SimDriver: Sendable {
             Sim.step(&state, dt: dt, balance: balance, events: &events)
             remaining -= dt
         }
-        accumulator = 0
+        accumulator = SimDriver.startPhase
         return true
     }
 
@@ -209,7 +214,7 @@ struct SimDriver: Sendable {
         guard Hearth.secondChanceOffered(state, balance: balance) else { return }  // front lane hook ("front-2")
         Sim.secondChance(&state, balance: balance, events: &events)
         PetitionEngine.prepare(&state, catalog: petitions)
-        accumulator = 0
+        accumulator = SimDriver.startPhase
         dawnSnapshot = state
         dawnRing.record(state, keep: balance.front.hearth.dawnsKept)
     }
@@ -219,7 +224,7 @@ struct SimDriver: Sendable {
         state = dawnSnapshot
         state.king.velocity = 0
         dawnSnapshot = state
-        accumulator = 0
+        accumulator = SimDriver.startPhase
         travelTarget = nil
     }
 
@@ -234,7 +239,7 @@ struct SimDriver: Sendable {
         PetitionEngine.prepare(&state, catalog: petitions)
         dawnSnapshot = state
         dawnRing = DawnRing(state, keep: balance.front.hearth.dawnsKept)
-        accumulator = 0
+        accumulator = SimDriver.startPhase
         bot = nil
         walker = nil
         travelTarget = nil
@@ -258,7 +263,7 @@ struct SimDriver: Sendable {
         state = dawn
         state.king.velocity = 0
         dawnSnapshot = state
-        accumulator = 0
+        accumulator = SimDriver.startPhase
         travelTarget = nil
         return true
     }

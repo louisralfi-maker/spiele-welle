@@ -518,5 +518,15 @@ final class AtlasTexture: @unchecked Sendable {
         return made
     }
 
+    /// render-1: the page `RenderWarmup` uploaded off the main thread becomes the shared one; if one was made meanwhile,
+    /// that one stays and this one is dropped, so the page is never held twice.
+    @MainActor
+    @discardableResult
+    static func adopt(_ made: AtlasTexture) -> AtlasTexture {
+        if let cached = cache { return cached }
+        cache = made
+        return made
+    }
+
     @MainActor private static var cache: AtlasTexture?
 }
