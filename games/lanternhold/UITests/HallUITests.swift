@@ -1,0 +1,350 @@
+import UIKit
+import XCTest
+
+/// The great hall as a stage of its own (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world"): in
+/// by a touch on the hall's door (touch the world, step stage-2; fix round 1: where the facade paints it), the hall answering its lord, a drag down the
+/// nave, a touch on the throne and the audience with the letter in the upper left and the choices along the floor band, the horn's
+/// slip at the door, out by walking past the door, and Reduce Motion's cut; stills of the hall by day, in the
+/// afternoon's shafts, at dusk and at night, and the longest German letter in the hall's card. Every button is
+/// checked for 44 pt. Saves `<nn>-hall-<what>-<lang>`: 130 to 145 (fix round 1 added the proofs: 131a the dark half
+/// way, 131b and 131c the greeting and the room settled again, 143 out past the door, 144a and 144b the low hearth and
+/// the embers, 145 Reduce Motion; fix round 2 132b, the lord passing the first bench).
+@MainActor
+final class HallUITests: XCTestCase {
+    override func setUp() async throws {
+        continueAfterFailure = true
+    }
+
+    private var language: String {
+        ProcessInfo.processInfo.environment["GW_LANG"] ?? "en"
+    }
+
+    private static let base = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear"]
+    private static let day3 = ["-GWDay", "3", "-GWSeed", "2"]
+
+    func testHallStage() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        intoTheHallAndAnAudience()
+        stills()
+        theHorn()
+        reduceMotion()
+        proofs()
+    }
+
+    /// Day 3 at 10:00 (seed 2: three wait on the benches): to the hall's door in the world, in, a walk down the nave,
+    /// the audience, out past the door.
+    private func intoTheHallAndAnAudience() {
+        let app = XCUIApplication()
+        app.launchArguments = HallUITests.base + HallUITests.day3
+            + ["-GWClock", "10", "-GWStage", "world", "-GWCameraX", "hallDoor+80"]
+        app.launch()
+        guard waitUntilReady(app, name: "hall-door") else { return }
+        let strip = element(app, "realm-strip")
+        XCTAssertTrue(strip.waitForExistence(timeout: 10))
+        // Touch the world (step stage-2): a touch on the hall's door; he walks to it and goes in.
+        XCTAssertFalse(element(app, "action-button").exists, "no action button")
+        guard let door = waitForThing(app, "touch-door-hall", timeout: 8) else {
+            XCTFail("no door at the hall")
+            return
+        }
+        checkTarget(door, "hall door")
+        pause(0.5)
+        attach(XCUIScreen.main.screenshot(), "130-hall-door-\(language)")
+        touchThing(door)
+        XCTAssertTrue(waitForField(app, "stage:hall", timeout: 10), "in by the door")
+        // The hall answers its lord: the guards stand straight, the waiting turn their heads (131b); a few seconds
+        // later they stand easy and look to the throne again (131c).
+        pause(0.5)
+        attach(XCUIScreen.main.screenshot(), "131-hall-enter-\(language)")
+        XCTAssertEqual(field(app, "hx:"), 68, "he stands inside at the door")
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "131b-hall-greet-\(language)")
+        pause(2.6)
+        attach(XCUIScreen.main.screenshot(), "131c-hall-settled-\(language)")
+
+        // A drag still walks him anywhere on the screen: down the nave.
+        let scene = element(app, "world-scene")
+        let from = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.52, dy: 0.62))
+        let to = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.66, dy: 0.62))
+        from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .default, thenHoldForDuration: 2.2)
+        pause(0.4)
+        attach(XCUIScreen.main.screenshot(), "132-hall-walk-\(language)")
+        let walked = field(app, "hx:") ?? 0
+        XCTAssertGreaterThan(walked, 150, "the drag walked him down the nave (\(walked))")
+        // A touch on the throne: he walks up and sits, and the audience begins.
+        guard let throne = waitForThing(app, "touch-throne", timeout: 6) else {
+            XCTFail("no mark at the throne")
+            return
+        }
+        checkTarget(throne, "throne")
+        touchThing(throne)
+        let card = element(app, "audience-root")
+        guard card.waitForExistence(timeout: 16) else {
+            attach(XCUIScreen.main.screenshot(), "hall-audience-missing-\(language)")
+            XCTFail("the audience card did not open in the hall")
+            return
+        }
+        pause(0.8)
+        attach(XCUIScreen.main.screenshot(), "133-hall-audience-\(language)")
+        checkTarget(element(app, "audience-choice-0"), "plaque 1")
+        checkTarget(element(app, "audience-choice-1"), "plaque 2")
+        checkTarget(element(app, "audience-leave"), "leave")
+        checkLetter(app)
+        let counsel = element(app, "audience-counsel")
+        if counsel.exists {
+            checkTarget(counsel, "counsel")
+            counsel.tap()
+            XCTAssertTrue(element(app, "audience-counsel-line").waitForExistence(timeout: 6), "Odile's line")
+            pause(0.5)
+            attach(XCUIScreen.main.screenshot(), "134-hall-counsel-\(language)")
+        }
+        element(app, "audience-choice-0").tap()
+        let next = element(app, "audience-next")
+        if next.waitForExistence(timeout: 6) {
+            checkTarget(next, "next")
+            pause(0.6)
+            attach(XCUIScreen.main.screenshot(), "135-hall-reaction-\(language)")
+            next.tap()
+            if element(app, "audience-choice-0").waitForExistence(timeout: 10) {
+                pause(0.6)
+                attach(XCUIScreen.main.screenshot(), "133b-hall-audience-next-\(language)")
+            }
+            let leave = element(app, "audience-leave")
+            if leave.waitForExistence(timeout: 6) { leave.tap() }
+            XCTAssertTrue(waitForGone(card, timeout: 6), "Leave ends the audience")
+        } else {
+            XCTFail("no reaction after the choice")
+        }
+        // Out by the strip: through the door and on into the bailey.
+        pause(0.8)
+        tapStrip(strip, worldX: 1600)
+        XCTAssertTrue(waitForField(app, "stage:world", timeout: 12), "out by the door")
+        XCTAssertTrue(waitForKing(app, near: 1600, within: 14, timeout: 20), "and on to the bailey")
+        app.terminate()
+    }
+
+    /// The hall as it looks at its hours, held still.
+    private func stills() {
+        let frozen = ["-GWFreezeTime", "YES", "-GWStage", "hall"]
+        let shots: [(name: String, arguments: [String])] = [
+            ("136-hall-day-benches", HallUITests.day3 + ["-GWClock", "9.5", "-GWHallX", "240"] + frozen),
+            // Fix round 2: the lord at the first bench's end: the two nearest turn to him (the nearest bows), the third
+            // still looks to the throne.
+            ("132b-hall-pass-bench", HallUITests.day3 + ["-GWClock", "10", "-GWHallX", "165"] + frozen),
+            ("137-hall-afternoon", HallUITests.day3 + ["-GWClock", "15.5", "-GWHallX", "200"] + frozen),
+            ("138-hall-dusk-door", HallUITests.day3 + ["-GWClock", "18.6", "-GWHallX", "120"] + frozen),
+            ("139-hall-night", ["-GWNight", "3", "-GWSeed", "2", "-GWHour", "23", "-GWHallX", "250"] + frozen),
+            ("140-hall-hearth-night", ["-GWNight", "3", "-GWSeed", "2", "-GWHallX", "470"] + frozen),
+        ]
+        for shot in shots {
+            let app = XCUIApplication()
+            app.launchArguments = HallUITests.base + shot.arguments
+            app.launch()
+            guard waitUntilReady(app, name: shot.name) else { continue }
+            XCTAssertTrue(waitForField(app, "stage:hall", timeout: 6), "\(shot.name) in the hall")
+            pause(1.0)
+            attach(XCUIScreen.main.screenshot(), "\(shot.name)-\(language)")
+            app.terminate()
+        }
+        // The longest German letter (the bard's song, 304 characters) in the hall's card.
+        let letter = XCUIApplication()
+        letter.launchArguments = HallUITests.base + ["-GWScreen", "petition", "-GWPetition", "bard_song"]
+        letter.launch()
+        guard waitUntilReady(letter, name: "hall-letter") else { return }
+        if element(letter, "audience-root").waitForExistence(timeout: 10) {
+            pause(1.0)
+            attach(XCUIScreen.main.screenshot(), "141-hall-longest-letter-\(language)")
+            checkLetter(letter)
+        } else {
+            XCTFail("the bard's letter did not open")
+        }
+        letter.terminate()
+    }
+
+    /// 18:56 in the hall, three waiting: the horn sends them home by the door and hangs its slip there.
+    private func theHorn() {
+        let app = XCUIApplication()
+        app.launchArguments = HallUITests.base + HallUITests.day3 + ["-GWClock", "18.93", "-GWStage", "hall",
+                                                                     "-GWHallX", "190"]
+        app.launch()
+        guard waitUntilReady(app, name: "hall-horn") else { return }
+        let slip = element(app, "hall-horn-slip")
+        if slip.waitForExistence(timeout: 20) {
+            pause(1.6)
+            attach(XCUIScreen.main.screenshot(), "142-hall-horn-\(language)")
+            XCTAssertTrue(((element(app, "world-scene").value as? String) ?? "").contains("stage:hall"),
+                          "the lord stays where he is")
+        } else {
+            attach(XCUIScreen.main.screenshot(), "hall-horn-missing-\(language)")
+            XCTFail("no horn slip at the door")
+        }
+        app.terminate()
+    }
+
+    /// Reduce Motion: in by the door without the dark, the morning's shafts with their dust held still.
+    private func reduceMotion() {
+        let app = XCUIApplication()
+        app.launchArguments = HallUITests.base + HallUITests.day3
+            + ["-GWClock", "9.5", "-GWStage", "world", "-GWCameraX", "hallDoor", "-GWReduceMotion", "YES"]
+        app.launch()
+        guard waitUntilReady(app, name: "hall-reduce-motion") else { return }
+        guard let door = waitForThing(app, "touch-door-hall", timeout: 8) else {
+            XCTFail("no door")
+            return
+        }
+        touchThing(door)
+        XCTAssertTrue(waitForField(app, "stage:hall", timeout: 3), "a cut")
+        pause(0.6)
+        attach(XCUIScreen.main.screenshot(), "145-hall-reduce-motion-\(language)")
+        app.terminate()
+    }
+
+    /// The step's proofs (fix round 1): the dark of the change caught half way (the change ten times slower), out
+    /// past the door and standing in its doorway facing right, the hearth burning low and as embers at night.
+    private func proofs() {
+        let slow = XCUIApplication()
+        slow.launchArguments = HallUITests.base + HallUITests.day3
+            + ["-GWClock", "10", "-GWStage", "world", "-GWCameraX", "hallDoor", "-GWStageSlow", "10"]
+        slow.launch()
+        if waitUntilReady(slow, name: "hall-dark") {
+            if let door = waitForThing(slow, "touch-door-hall", timeout: 8) {
+                touchThing(door)
+                // The door opens for 2.2 s, the dark comes over 1.6 s: half dark about 3 s after the touch.
+                pause(2.9)
+                attach(XCUIScreen.main.screenshot(), "131a-hall-dark-\(language)")
+                XCTAssertTrue(waitForField(slow, "stage:hall", timeout: 8), "in through the slow dark")
+                // Step stage-2: inside, the inner door stands open for a moment behind him (ten times as long here).
+                pause(1.7)
+                attach(XCUIScreen.main.screenshot(), "131d-hall-door-open-\(language)")
+            } else {
+                XCTFail("no door for the slow change")
+            }
+        }
+        slow.terminate()
+
+        let out = XCUIApplication()
+        out.launchArguments = HallUITests.base + HallUITests.day3
+            + ["-GWClock", "10", "-GWStage", "hall", "-GWHallX", "76"]
+        out.launch()
+        if waitUntilReady(out, name: "hall-exit") {
+            XCTAssertTrue(waitForField(out, "stage:hall", timeout: 6))
+            let scene = element(out, "world-scene")
+            let from = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.30, dy: 0.62))
+            let to = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.20, dy: 0.62))
+            from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .default, thenHoldForDuration: 1.6)
+            XCTAssertTrue(waitForField(out, "stage:world", timeout: 8), "out past the door")
+            pause(0.8)
+            attach(XCUIScreen.main.screenshot(), "143-hall-exit-world-\(language)")
+            // Fix round 1: in the doorway the facade paints (the scene's `door:`), not out of the wall beside it.
+            let door = field(out, "door:") ?? -1
+            XCTAssertEqual(field(out, "kx:") ?? 0, door, accuracy: 1, "he stands in the hall's doorway in the world")
+        }
+        out.terminate()
+
+        let frozen = ["-GWFreezeTime", "YES", "-GWStage", "hall"]
+        for (name, share) in [("144a-hall-hearth-low", "0.5"), ("144b-hall-hearth-embers", "0.25")] {
+            let app = XCUIApplication()
+            app.launchArguments = HallUITests.base + ["-GWNight", "3", "-GWSeed", "2", "-GWHallX", "470",
+                                                      "-GWHearth", share] + frozen
+            app.launch()
+            guard waitUntilReady(app, name: name) else { continue }
+            XCTAssertTrue(waitForField(app, "stage:hall", timeout: 6), "\(name) in the hall")
+            pause(1.0)
+            attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+            app.terminate()
+        }
+    }
+
+    // MARK: - Helpers
+
+    /// The letter never covers the throne or the hearth: it ends in the screen's left half.
+    private func checkLetter(_ app: XCUIApplication) {
+        let card = element(app, "audience-root")
+        guard card.exists else { return }
+        let screen = element(app, "world-scene").frame
+        XCTAssertLessThan(card.frame.maxX, screen.width * 0.53, "the letter stays left of the throne")
+        XCTAssertLessThan(card.frame.maxY, screen.height * 0.66, "the letter ends above the petitioner's head")
+        let text = element(app, "audience-text")
+        if text.exists {
+            XCTAssertGreaterThan(text.frame.height, 20, "the request reads in the letter")
+        }
+    }
+
+    private func waitUntilReady(_ app: XCUIApplication, name: String) -> Bool {
+        let scene = element(app, "world-scene")
+        guard scene.waitForExistence(timeout: 60) else {
+            attach(XCUIScreen.main.screenshot(), "\(name)-missing-\(language)")
+            XCTFail("\(name): no scene")
+            return false
+        }
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value CONTAINS %@", "ready"),
+                                              object: scene)
+        guard XCTWaiter().wait(for: [ready], timeout: 60) == .completed else {
+            attach(XCUIScreen.main.screenshot(), "\(name)-notready-\(language)")
+            XCTFail("\(name): the scene never reported ready")
+            return false
+        }
+        return true
+    }
+
+    private func element(_ app: XCUIApplication, _ identifier: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+    }
+
+    private func field(_ app: XCUIApplication, _ key: String) -> Double? {
+        let text = (element(app, "world-scene").value as? String) ?? ""
+        return text.split(separator: " ").first { $0.hasPrefix(key) }.flatMap { Double($0.dropFirst(key.count)) }
+    }
+
+    private func waitForField(_ app: XCUIApplication, _ text: String, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            if ((element(app, "world-scene").value as? String) ?? "").contains(text) { return true }
+            pause(0.15)
+        }
+        return false
+    }
+
+    private func waitForKing(_ app: XCUIApplication, near x: Double, within tolerance: Double,
+                             timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            if abs((field(app, "kx:") ?? -1) - x) <= tolerance { return true }
+            pause(0.3)
+        }
+        return false
+    }
+
+    private func tapStrip(_ strip: XCUIElement, worldX: Double) {
+        strip.coordinate(withNormalizedOffset: CGVector(dx: worldX / 3900, dy: 0.5)).tap()
+    }
+
+    private func waitForGone(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
+        let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: element)
+        return XCTWaiter().wait(for: [gone], timeout: timeout) == .completed
+    }
+
+    /// DESIGN.md "Accessibility": every target at least 44 pt.
+    private func checkTarget(_ element: XCUIElement, _ name: String) {
+        guard element.exists else {
+            XCTFail("\(name) is missing")
+            return
+        }
+        let frame = element.frame
+        XCTAssertGreaterThanOrEqual(frame.width, 44, "\(name) is \(frame.width) pt wide")
+        XCTAssertGreaterThanOrEqual(frame.height, 44, "\(name) is \(frame.height) pt high")
+    }
+
+    private func attach(_ screenshot: XCUIScreenshot, _ name: String) {
+        let attachment = XCTAttachment(screenshot: screenshot)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func pause(_ seconds: TimeInterval) {
+        let gone = expectation(description: "wait \(seconds) s")
+        gone.isInverted = true
+        wait(for: [gone], timeout: seconds)
+    }
+}

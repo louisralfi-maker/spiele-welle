@@ -69,6 +69,10 @@ enum GameStart {
         // World-2 fix round 1 (GameStartCastle.swift): `-GWCastle` sets the gate's tier too.
         applyCastle(&state, args: args, balance: balance)
         applyCastle(&dawn, args: args, balance: balance)
+        // The hall stage (stage lane): `-GWHearth`, the hearth's strength now.
+        if let share = args.hearth { state.hearth = share * balance.hearthStrength }
+        // Touch the world, fix round 1 (stage lane): `-GWDamage` and `-GWSnuff`, a damaged wall and a cold brazier.
+        applyTouchProofs(&state, args: args, balance: balance)
         if let lord = args.lordIdentity {
             state.lord = lord
             dawn.lord = lord
@@ -104,6 +108,19 @@ enum GameStart {
         var gap = DayClock.wrap(hour) - DayClock.wrap(start)
         if gap <= 1e-9 { gap += DayClock.hoursPerDay }
         return gap
+    }
+
+    /// `-GWDamage`: the named walls at 45 % of their strength; `-GWSnuff`: the named braziers cold (touch the world,
+    /// fix round 1: the night's deeds in a picture).
+    static func applyTouchProofs(_ s: inout GameState, args: DebugArgs, balance: Balance) {
+        for plot in args.damage where plot < s.plots.count {
+            guard let item = s.plots[plot].item, item.isWall, !s.plots[plot].isRubble else { continue }
+            s.plots[plot].hp = max(1, (Build.maxHP(item, balance: balance) * 0.45).rounded())
+        }
+        for plot in args.snuff where plot < s.plots.count {
+            guard s.plots[plot].item == .brazier else { continue }
+            s.plots[plot].snuffed = true
+        }
     }
 
     /// `-GWGold` and `-GWHappiness`.

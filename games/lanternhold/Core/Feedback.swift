@@ -18,6 +18,13 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     case coin, paid, wallHit, creatureHit, arrowHit, gate, step, audienceOpened, choiceMade
     // The taxes on foot (town-2, `TownShow.cues`): the lord's knock at a door, a house's shutters closing
     case knock, shutter
+    // The hall stage (stage lane, 14.11.2026): the hall's door opens (its creak) and shuts behind the lord (its latch)
+    case doorOpened, doorShut
+    // Touch the world (stage lane, step stage-2): the finger lifts from a thing or the ground and he sets off (a light
+    // tick in the hand)
+    case touched
+    // Raise the lantern (stage lane, step stage-2): he lifts the house's lantern over his head
+    case lanternRaised
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").

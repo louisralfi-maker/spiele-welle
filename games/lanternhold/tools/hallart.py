@@ -32,7 +32,12 @@ SPRING = 56            # where the wall arches spring from the shafts' capitals
 STONE = ("ink", "stoneDark", "stoneMid", "stone", "stoneLight", "stonePale")
 THRONE_X = 416
 HEARTH_X = 532
-BANNERS = (137, 211, 253, 327, 368)   # left edges of the five banner places
+BANNERS = (137, 211, 253, 327, 368)   # left edges of the five banner places (the houses' banners hang there)
+# The realm's own banner hangs at every second place only; the others carry a two-candle wall sconce (the director's
+# correction 4 after step stage-1: five identical banners read as a stamp).
+PAINTED_BANNERS = (137, 253, 368)
+SCONCES = (220, 336)
+SCONCE_ROW = 100
 BANNER_TOP = 62
 WINDOWS = (184, 300)
 CHANDELIERS = (184, 300)
@@ -534,6 +539,23 @@ def arms(c, cx=456):
     c.anchor("light", "candle", cx, 123, 14)
 
 
+def wall_sconce(c, cx, row=SCONCE_ROW):
+    """A two-candle iron sconce on the wall between a window and a pier, like the one under the arms: an iron bar on a
+    bracket, two candles on it (their flames are the engine's)."""
+    for x in range(cx - 4, cx + 5):
+        c.put(x, row, "ink")
+    c.put(cx, row + 1, "ink")
+    c.put(cx, row + 2, "ink")
+    c.put(cx, row + 3, "stoneDark")
+    c.put(cx - 5, row - 1, "ink")
+    c.put(cx + 5, row - 1, "ink")
+    for dx in (-4, 4):
+        for y in range(row - 4, row):
+            c.put(cx + dx, y, "parchment")
+        c.anchor("flame", "candle", cx + dx, row - 5)
+    c.anchor("light", "candle", cx, row - 5, 16)
+
+
 # -------------------------------------------------------------------------------------------------------- hearth
 
 def hearth(c, cx=HEARTH_X):
@@ -689,42 +711,56 @@ def carpet_row(x, i):
 
 
 def floor(c):
+    """The nave's flags from the back wall to the front edge, the dais a raised platform at the back (fix round 2 of
+    step stage-1): its top from the wall to the walk line, its 9 px front face standing on the walk line, the three
+    steps' treads and risers likewise; below the walk line the nave's flags run on under the dais's whole length (the
+    treads painted down to the hall's bottom made a seam to the screen's edge). The runner ends at the foot of the
+    steps; a rug lies on the dais before the throne."""
     flagstones(c, 10, WALL, 589, H - 1, seed=61, grow=(2, 5))
     top = WALL - RISE
-    flagstones(c, DAIS_X, top, 589, H - 1 - RISE, seed=62, colours=("stoneLight", "stone", "stoneLight", "stonePale"),
-               joint="stoneMid", light="stonePale", grow=(2, 5))
-    ashlar(c, DAIS_X, H - RISE, 589, H - 1, seed=63, course=(5, 4), width=(12, 20))
+    face = FLOOR - RISE
+    flagstones(c, DAIS_X, top, 589, face - 1, seed=62, colours=("stoneLight", "stone", "stoneLight", "stonePale"),
+               joint="stoneMid", light="stonePale", grow=(2, 4))
+    ashlar(c, DAIS_X, face, 589, FLOOR - 1, seed=63, course=(5, 4), width=(12, 20))
     for x in range(DAIS_X, 590):
-        c.put(x, H - 1 - RISE, "stonePale")
-        c.put(x, H - RISE, "stoneDark")
+        c.put(x, face - 1, "stonePale")          # the lit nosing of the dais's top
+        c.put(x, FLOOR, "stoneDark")             # its shadow on the flags at its foot
     for k in range(3):
         lift = 3 * (k + 1)
         xs = STEPS_X + 4 * k
         for x in range(xs, xs + 4):
-            for y in range(WALL - lift, H - lift):
+            for y in range(WALL - lift, FLOOR - lift):
                 v = "stoneLight"
                 if x == xs:
                     v = "stonePale"
                 elif x == xs + 3:
                     v = "stone"
+                if y == FLOOR - lift - 1:
+                    v = "stonePale"
                 c.put(x, y, v)
-            for y in range(H - lift, H):
+            for y in range(FLOOR - lift, FLOOR):
                 c.put(x, y, "stone" if x == xs else "stoneMid")
-            c.put(x, H - lift, "stoneDark")
-    # the runner from the door wall to the foot of the throne
-    for x in range(10, THRONE_X + 22):
-        lift = WALL - base_at(x)
+            c.put(x, FLOOR, "stoneDark")
+    # the runner from the door wall to the foot of the steps, with a gold fringe
+    for x in range(10, STEPS_X - 1):
         for i in range(13):
-            c.put(x, 169 + i - lift, carpet_row(x, i))
+            c.put(x, 169 + i, carpet_row(x, i))
     for i in range(13):
-        if i % 2 == 0:
-            c.put(THRONE_X + 22, 160 + i, "gold")
-            c.put(THRONE_X + 23, 160 + i, "straw")
+        c.put(STEPS_X - 1, 169 + i, "gold" if i % 2 == 0 else "straw")
+    # the rug on the dais before the throne (its seven rows: the runner's border and field)
+    rows = (0, 1, 3, 6, 9, 11, 12)
+    for x in range(DAIS_X + 4, THRONE_X + 24):
+        for j, i in enumerate(rows):
+            c.put(x, top + 4 + j, carpet_row(x, i))
+    for j in range(len(rows)):
+        if j % 2 == 0:
+            c.put(DAIS_X + 3, top + 4 + j, "gold")
+            c.put(THRONE_X + 24, top + 4 + j, "gold")
 
 
 # ------------------------------------------------------------------------------------------------- lights' irons
 
-def chandelier(c, cx, cy=43):
+def chandelier(c, cx, cy=53):
     """An iron wheel on a chain with six candles."""
     for y in range(0, cy - 15):
         c.put(cx, y, "stoneDark" if y % 3 else "stoneMid")
@@ -799,8 +835,10 @@ def great_hall():
     slit(c, HEARTH_X + 47, 60, 92)
     gallery(c)
     door(c)
-    for bx in BANNERS:
+    for bx in PAINTED_BANNERS:
         realm_banner(c, bx, BANNER_TOP)
+    for cx in SCONCES:
+        wall_sconce(c, cx)
     throne_place(c)
     arms(c)
     hearth(c)
@@ -816,62 +854,85 @@ def great_hall():
     return c
 
 
+def lighter(v, n=1):
+    if v in STONE:
+        return STONE[min(len(STONE) - 1, STONE.index(v) + n)]
+    return v
+
+
 def hall_pillar_near():
-    """A pier of the near arcade, seen close: the code draws it in front of the actors, darker and with a parallax."""
-    w, h = 46, 201
+    """A pier of the near arcade, seen close (fix round 1 of step stage-1: two thirds of the old 46 px): the code draws
+    it in front of the actors at a parallax, in the hall's shade, with a rim of the light on its sides and a dithered
+    window where the lord stands behind it. A round shaft of drums at low contrast (the key from the left like the
+    hall's own shafts), a capital with its abacus, the springers of two arches, a moulded base on a plinth."""
+    w, h = 30, 201
     c = Canvas(w, h)
-    cols = ["ink", "stonePale", "stoneLight", "stoneLight", "stoneLight", "stoneLight", "stone", "stone", "stone",
-            "stone", "stone", "stone", "stone", "stone", "stoneMid", "stoneMid", "stoneMid", "stoneMid", "stoneMid",
-            "stoneDark", "stoneDark", "ink"]
+    mid = 15
+    # The shaft: 14 px, an evenly lit cylinder (fix round 2: the engine lays the key light on it as a soft band, the
+    # window's from the right by day, the door torches' from the left at night); the drums' joints in the dark stone
+    # with a lit lip under each, so the drums read at phone size.
+    cols = ["ink", "stoneMid", "stoneMid", "stone", "stone", "stone", "stone", "stone", "stone", "stone",
+            "stone", "stoneMid", "stoneMid", "ink"]
+    left = mid - len(cols) // 2
+    drum = 19
     for y in range(44, 183):
         for i, col in enumerate(cols):
             v = col
-            if (y - 44) % 23 == 22 and 0 < i < 21:
-                v = darker(col)
-            elif 0 < i < 21 and rnd(71, i, y) < 0.02:
-                v = darker(col)
-            c.put(12 + i, y, v)
-    # the capital
-    for y in range(28, 44):
-        half = 11 + (43 - y) * 6 // 15
-        if y in (28, 29, 30):
-            half = 18
-        for x in range(23 - half, 23 + half):
-            t = (x - (23 - half)) / float(2 * half)
-            v = "stoneLight" if t < 0.3 else ("stone" if t < 0.65 else "stoneMid")
-            if y in (28, 34, 40):
-                v = "stonePale" if t < 0.5 else "stoneLight"
-            if y in (30, 36, 43):
+            k = (y - 44) % drum
+            if 0 < i < len(cols) - 1:
+                if k == drum - 1:
+                    v = "stoneDark"
+                elif k == 0 and 2 < i < 11:
+                    v = lighter(col)
+                elif rnd(71, i, y) < 0.025:
+                    v = darker(col)
+            c.put(left + i, y, v)
+    # The capital: a bell flaring from the shaft to the abacus, its necking ring, the abacus on top.
+    for y in range(30, 44):
+        if y <= 32:
+            half = 12
+        elif y >= 41:
+            half = 8
+        else:
+            half = 8 + (41 - y) * 4 // 8
+        for x in range(mid - half, mid + half):
+            t = (x - (mid - half)) / float(2 * half)
+            v = "stoneMid" if t < 0.12 or t > 0.86 else "stone"
+            if y == 30:
+                v = "stoneLight"
+            if y == 32 or y == 42:
                 v = "stoneDark"
-            if x in (23 - half, 23 + half - 1):
+            if y == 41:
+                v = "stoneLight" if 0.12 <= t <= 0.86 else "stone"
+            if x in (mid - half, mid + half - 1):
                 v = "ink"
             c.put(x, y, v)
-    # the springers of two arches
+    # The springers of the two arches above it, in ashlar, the right half in shade.
     body = set()
-    for y in range(0, 28):
-        spread = int(round(5 * ((27 - y) / 27.0) ** 1.6))
-        for x in range(5 - spread, 41 + spread):
+    for y in range(0, 30):
+        spread = int(round(4 * ((29 - y) / 29.0) ** 1.6))
+        for x in range(3 - spread, 27 + spread):
             if 0 <= x < w:
                 body.add((x, y))
     c.clip = body
-    ashlar(c, 0, 0, w - 1, 27, seed=72, course=(6, 5), width=(8, 13))
+    ashlar(c, 0, 0, w - 1, 29, seed=72, course=(6, 5), width=(7, 11))
     c.clip = None
     for (x, y) in body:
         if (x - 1, y) not in body or (x + 1, y) not in body:
             c.put(x, y, "ink")
-        elif x > 30:
+        elif x > 19:
             c.put(x, y, darker(c.get(x, y)))
-    # the base
+    # The base: a torus over a plinth.
     for y in range(183, h):
-        half = 13 if y < 187 else (15 if y < 191 else 18)
-        for x in range(23 - half, 23 + half):
-            t = (x - (23 - half)) / float(2 * half)
-            v = "stoneLight" if t < 0.3 else ("stone" if t < 0.65 else "stoneMid")
-            if y in (183, 187, 191):
-                v = "stonePale" if t < 0.5 else "stoneLight"
-            if y in (186, 190):
+        half = 8 if y < 186 else (10 if y < 190 else 12)
+        for x in range(mid - half, mid + half):
+            t = (x - (mid - half)) / float(2 * half)
+            v = "stoneMid" if t < 0.12 or t > 0.86 else "stone"
+            if y in (183, 186, 190):
+                v = "stoneLight"
+            if y in (185, 189):
                 v = "stoneDark"
-            if x in (23 - half, 23 + half - 1):
+            if x in (mid - half, mid + half - 1):
                 v = "ink"
             c.put(x, y, v)
     return c
@@ -999,6 +1060,19 @@ GLYPHS = {
         ".iirgrii.",
         "..iirii..",
         "...iii...",
+    ),
+    # Touch the world (stage lane, step stage-2, 15.11.2026): the seventh mark, over the great hall's door in the
+    # world and its inner door in the hall.
+    "tapDoor": (          # an arched door of planks with its ring: go in, go out
+        "..iiiii..",
+        ".ii...ii.",
+        "ii.i.i.ii",
+        "i..i.i..i",
+        "i..i.i.gi",
+        "i..i.i..i",
+        "i..i.i..i",
+        "i..i.i..i",
+        "iiiiiiiii",
     ),
 }
 

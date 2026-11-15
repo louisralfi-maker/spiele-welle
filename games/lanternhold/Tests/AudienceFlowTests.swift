@@ -41,14 +41,16 @@ final class AudienceFlowTests: XCTestCase {
 
     func testTheCrownOpensTheAudienceAndAChoiceIsHeard() throws {
         let game = model([:])
-        XCTAssertEqual(game.target, .throne, "day 1: the king starts at the throne")
+        XCTAssertEqual(game.stage, .hall, "the hall stage: a new realm's first morning starts in the great hall")
+        XCTAssertEqual(game.target, .throne, "day 1: the king starts before the throne")
         XCTAssertEqual(game.strip?.petitioners, 1, "the tutorial's farmer waits")
         game.performAction()
         XCTAssertEqual(game.overlay, .audience)
         XCTAssertTrue(game.isPaused, "the audience stops the clock")
         XCTAssertNil(game.target, "no action button under the audience")
-        XCTAssertEqual(game.driver?.state.king.x, KingTargets.throneX, "seated on the throne")
-        XCTAssertEqual(game.driver?.state.king.facing, -1, "turned to the petitioner")
+        XCTAssertEqual(game.hall?.walker.x, HallLayout.throneX, "seated on the hall's throne")
+        XCTAssertEqual(game.hall?.walker.facing, -1, "turned to the petitioner")
+        XCTAssertEqual(game.driver?.state.king.x, HallLayout.worldDoorX, "the realm's king keeps the hall's door")
         XCTAssertNil(game.audience, "the card opens when the farmer has walked up")
         let hour = game.driver?.state.hour
         wait(game, seconds: 1.6)
@@ -75,7 +77,8 @@ final class AudienceFlowTests: XCTestCase {
         XCTAssertFalse(game.isPaused)
         XCTAssertEqual(game.strip?.petitioners, 0)
         XCTAssertFalse(game.court.leavers.isEmpty, "the farmer walks out of the hall")
-        wait(game, seconds: 3)
+        XCTAssertEqual(game.court.leavers.first?.toX, HallLayout.doorX, "down the nave to the hall's door")
+        wait(game, seconds: 6)
         XCTAssertTrue(game.court.leavers.isEmpty, "and is gone")
     }
 
@@ -90,9 +93,18 @@ final class AudienceFlowTests: XCTestCase {
         XCTAssertEqual(game.strip?.petitioners, waiting, "nobody was heard")
         XCTAssertNil(game.audience)
 
-        // Town-2: the lectern stays as furniture; no button offers the tax card any more (taxes on foot).
+        // Town-2: the lectern stays as furniture; nothing offers the tax card any more (taxes on foot), in the
+        // world's old slot nor in the hall beside the throne.
         let lectern = model(["GWCameraX": "\(KingTargets.lecternX)"])
         XCTAssertNotEqual(lectern.target, .lectern, "the lectern is furniture")
+        let hall = model(["GWStage": "hall", "GWReduceMotion": "YES"])
+        hall.performAction()
+        hall.choosePetition(0)
+        hall.nextPetitioner()
+        XCTAssertNil(hall.overlay, "the farmer was heard")
+        hall.hall?.walker = HallWalker(x: HallLayout.lecternX, facing: -1)
+        hall.refreshAction()
+        XCTAssertNotEqual(hall.target, .lectern, "the hall's lectern is furniture too")
         lectern.performAction()
         XCTAssertNotEqual(lectern.overlay, .taxes, "no tax card")
     }
@@ -183,14 +195,15 @@ final class AudienceFlowTests: XCTestCase {
 
     func testTalkingToTheCourt() throws {
         let game = model(["GWCameraX": "1848"])
+        XCTAssertEqual(game.stage, .hall, "the hall's old slot in the world starts inside the hall")
         XCTAssertEqual(game.target, .throne, "the farmer waits: the throne owns the dais, Odile's spot too (M3 fix, U2)")
         game.performAction()
         wait(game, seconds: 1.6)
         game.choosePetition(0)
         game.nextPetitioner()
         XCTAssertNil(game.overlay, "the farmer was the only one")
-        // The audience seated the king on the throne; Odile stands a step to its right.
-        game.setDrag(offset: 60)
+        // The audience seated the lord on the hall's throne; Odile stands a few steps down the hall from it.
+        game.setDrag(offset: -20)
         var steps = 0
         while game.target != .talk(who: "odile") && steps < 80 {
             game.advance(by: 0.05)

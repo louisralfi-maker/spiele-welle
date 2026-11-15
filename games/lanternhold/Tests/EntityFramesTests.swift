@@ -310,16 +310,12 @@ final class EntityFramesTests: XCTestCase {
                        "at night the townsfolk are home")
     }
 
-    func testMarkersStandOnEmptyUnlockedPlotsByDay() {
+    /// Touch the world (step stage-2, M6): the blue banner posts are gone by day and night; the open plots take the
+    /// touch marks instead (`TouchThingsTests`).
+    func testNoPlotMarkersStand() {
         var s = GameState.newRealm(seed: 2)
         s.hour = 9
-        let day = GameFrameSupport.frame(s, focus: 1300).layer
-        let markers = props(day, .plotMarker)
-        XCTAssertFalse(markers.isEmpty)
-        let half = Double(SpriteID.plotMarker.size.width) / 2
-        XCTAssertTrue(markers.contains { abs($0.x + half - Realm.plots[Realm.lines[0].braziers[0]].x) < 1 },
-                      "line 1's empty brazier plot")
-        XCTAssertFalse(markers.contains { abs($0.x + half - Realm.wallX[1] - 10) < 2 }, "the middle line opens on day 3")
+        XCTAssertTrue(props(GameFrameSupport.frame(s, focus: 1300).layer, .plotMarker).isEmpty, "none by day")
         s.hour = 22
         XCTAssertTrue(props(GameFrameSupport.frame(s, focus: 1300).layer, .plotMarker).isEmpty, "none at night")
     }

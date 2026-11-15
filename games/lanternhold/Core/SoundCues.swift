@@ -11,6 +11,8 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     case wallBreak = "wall_break", gate, step1 = "step_1", step2 = "step_2", parchment, tap, seal, decline, engine
     // The taxes on foot (town-2, made by `tools/taxsound.py`): knuckles on a wooden door
     case knock
+    // The hall stage (stage lane, 14.11.2026): the hall's door opening on its iron hinges, and its latch falling
+    case doorCreak = "door_creak", doorLatch = "door_latch"
 
     static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall]
 
@@ -23,6 +25,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .horn: return 2.5
         case .bell: return 2
         case .gate: return 1
+        case .doorCreak, .doorLatch: return 0.3
         case .wallBreak: return 0.4
         case .parchment, .creatureHit: return 0.3
         case .wallHit, .engine, .lantern, .buildStart, .buildDone: return 0.25
@@ -38,7 +41,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     /// How many copies may sound at once (the oldest is cut for a new one).
     var voices: Int {
         switch self {
-        case .horn, .bell, .gate, .wallBreak, .parchment: return 1
+        case .horn, .bell, .gate, .wallBreak, .parchment, .doorCreak, .doorLatch: return 1
         case .bow, .arrowHit, .dissolve, .coin, .step1, .step2: return 3
         default: return 2
         }
@@ -112,6 +115,10 @@ extension FeedbackCue {
         case .choiceMade: return SoundPlay(id: .seal, volume: 0.7)
         case .knock: return SoundPlay(id: .knock, volume: 0.8)
         case .shutter: return SoundPlay(id: .knock, volume: 0.55, rate: 0.7)
+        case .doorOpened: return SoundPlay(id: .doorCreak, volume: 0.7)
+        case .doorShut: return SoundPlay(id: .doorLatch, volume: 0.75)
+        case .touched: return SoundPlay(id: .tap, volume: 0.22, rate: 1.25)
+        case .lanternRaised: return SoundPlay(id: .lantern, volume: 0.8, rate: 1.3)
         }
     }
 
@@ -123,6 +130,9 @@ extension FeedbackCue {
         case .wallHit: return .medium
         case .wallBroken, .hearthHit: return .heavy
         case .horn: return .rigid
+        case .doorShut: return .soft
+        case .touched: return .light
+        case .lanternRaised: return .medium
         case .taxesCounted: return .success
         case .defeat: return .error
         case .knock: return .rigid

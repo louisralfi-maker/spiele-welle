@@ -102,15 +102,15 @@ final class Look2UITests: XCTestCase {
                                "-GWClock", "10", "-GWCameraX", "1824"] + Look2UITests.look + Look2UITests.clear
         app.launch()
         guard waitUntilReady(app, name: "look2-audience") else { return }
-        let button = element(app, "action-button")
-        guard button.waitForExistence(timeout: 8) else {
+        // Touch the world (step stage-2): a touch on the throne.
+        guard let throne = waitForThing(app, "touch-throne", timeout: 8) else {
             attach(XCUIScreen.main.screenshot(), "80-look2-audience-missing-\(language)")
-            XCTFail("look 2: no crown at the throne")
+            XCTFail("look 2: no mark at the throne")
             app.terminate()
             return
         }
-        button.tap()
-        if element(app, "audience-root").waitForExistence(timeout: 10) {
+        touchThing(throne)
+        if element(app, "audience-root").waitForExistence(timeout: 14) {
             pause(0.6)
             attach(XCUIScreen.main.screenshot(), "80-look2-audience-\(language)")
         } else {

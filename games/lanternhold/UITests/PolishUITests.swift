@@ -70,7 +70,8 @@ final class PolishUITests: XCTestCase {
         }
     }
 
-    /// Day 2 (seed 1) at 10:00 before the throne: the circlet on the audience button.
+    /// Day 2 (seed 1) at 10:00 before the throne: the circlet over the throne (touch the world, step stage-2: the
+    /// throne's mark instead of the audience button).
     func testPolishCirclet() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
@@ -78,12 +79,12 @@ final class PolishUITests: XCTestCase {
                                "-GWClock", "10", "-GWCameraX", "1824", "-GWLook", "2", "-GWWeather", "clear"]
         app.launch()
         if waitUntilReady(app, name: "polish-circlet") {
-            if element(app, "action-button").waitForExistence(timeout: 8) {
+            if waitForThing(app, "touch-throne", timeout: 8) != nil {
                 pause(0.6)
                 attach(XCUIScreen.main.screenshot(), "118-polish-circlet-button-\(language)")
             } else {
                 attach(XCUIScreen.main.screenshot(), "118-polish-circlet-missing-\(language)")
-                XCTFail("polish: no audience button at the throne")
+                XCTFail("polish: no mark at the throne")
             }
         }
         app.terminate()
@@ -114,12 +115,11 @@ final class PolishUITests: XCTestCase {
                                "-GWClock", "10", "-GWCameraX", "1824", "-GWLook", "2", "-GWWeather", "clear"]
         app.launch()
         if waitUntilReady(app, name: "polish-envoy") {
-            let button = element(app, "action-button")
-            if button.waitForExistence(timeout: 8) {
+            if let throne = waitForThing(app, "touch-throne", timeout: 8) {
                 pause(0.6)
                 attach(XCUIScreen.main.screenshot(), "121-polish-envoy-hall-\(language)")
-                button.tap()
-                if element(app, "audience-root").waitForExistence(timeout: 10) {
+                touchThing(throne)
+                if element(app, "audience-root").waitForExistence(timeout: 14) {
                     pause(0.8)
                     attach(XCUIScreen.main.screenshot(), "122-polish-envoy-audience-\(language)")
                 } else {
@@ -128,7 +128,7 @@ final class PolishUITests: XCTestCase {
                 }
             } else {
                 attach(XCUIScreen.main.screenshot(), "121-polish-envoy-missing-\(language)")
-                XCTFail("polish: no audience button at the throne on day 3")
+                XCTFail("polish: no mark at the throne on day 3")
             }
         }
         app.terminate()

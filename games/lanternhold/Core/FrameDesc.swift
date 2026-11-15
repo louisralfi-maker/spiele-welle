@@ -162,6 +162,14 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // one) and the court's ties, one idle each played toward another person (`CourtTies`)
     case kingMended, ladyMended, kingSeatedMended, ladySeatedMended
     case odileTie, brannockTie, pipTie, hesperTie, hesperTieGlow, tamsinTie, bramTie, marekTie, serenTie, serenTieGlow
+    // The hall stage (stage lane, 14.11.2026; SPRITES.md "The great hall as a stage", "The hall stage's light"): the
+    // great hall, its near pillar and its fire, the six marks of touch the world (stage 8), the day's light shaft, a
+    // dust mote and the plaster patches over the brick (tools/hallstage.py)
+    case greatHall, hallPillarNear, hallFire, tapTalk, tapThrone, tapBuild, tapRepair, tapRecruit, tapLight
+    case hallShaft, hallMote, hallWash
+    // Touch the world (stage lane, step stage-2, 15.11.2026): the seventh mark, a door, over the great hall's door
+    // in the world and its inner door (tools/hallart.py)
+    case tapDoor
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -427,6 +435,15 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .odileTie, .brannockTie, .pipTie, .hesperTie, .hesperTieGlow, .tamsinTie, .bramTie, .marekTie, .serenTie,
              .serenTieGlow:
             return CourtTies.size(of: self)
+        // The hall stage (stage lane).
+        case .greatHall: return PixelSize(width: 600, height: 201)
+        case .hallPillarNear: return PixelSize(width: 30, height: 201)
+        case .hallFire: return PixelSize(width: 34, height: 28)
+        case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight: return PixelSize(width: 15, height: 18)
+        case .tapDoor: return PixelSize(width: 15, height: 18)
+        case .hallShaft: return PixelSize(width: 83, height: 120)
+        case .hallMote: return PixelSize(width: 1, height: 1)
+        case .hallWash: return PixelSize(width: 64, height: 44)
         }
     }
 
@@ -490,6 +507,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
+        // The hall stage (stage lane): the great fire's six frames, idle and pressed marks, eight plaster patches.
+        case .hallFire: return 6
+        case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight: return 2
+        case .tapDoor: return 2
+        case .hallWash: return 8
         default: return 1
         }
     }
@@ -572,6 +594,9 @@ struct ActorInstance: Sendable, Equatable {
     var lightCap: Float = 0
     /// The strength of a moonlight rim on its screen-right edge (unlit creatures at night; 0: none, or the king's).
     var moonRim: Float = 0
+    /// The hall stage (stage lane, fix round 2 of step stage-1): game rows cut off the strip's bottom (a petitioner
+    /// sitting behind a bench: the legs below the wall line); 0: the whole frame.
+    var cropBottom: Int = 0
 }
 
 /// One quad of the emissive pass (flames, window glass, lantern glass, stars, sun, moon), added after lighting; it
@@ -582,6 +607,9 @@ struct ActorInstance: Sendable, Equatable {
 struct EmissiveInstance: Sendable, Equatable {
     enum Kind: Sendable, Equatable {
         case glow, glass, occluder
+        // Touch the world, fix round 1 (stage lane): the gold rim one pixel outside the sprite's outline at its left,
+        // right and top (SPRITES.md "The marks of 'touch the world'"); the quad is the sprite grown by that pixel.
+        case rim
     }
 
     var sprite: SpriteID
@@ -710,9 +738,43 @@ struct FrameDesc: Sendable, Equatable {
     /// Look 2: the rain (0 ... 1) and how wet stone and lane are (0 ... 1), for the composite's wet sheen.
     var rain: Float = 0
     var wetness: Float = 0
+    // The hall stage (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world").
+    /// Device pixels per game pixel as the composite reads them, when it is not `scale`: the hall's eased move into
+    /// the audience framing (s 7 to s 8) passes through fractional values; nil everywhere else.
+    var zoom: Double? = nil
+    /// An interior's own light on the world plane and the figures (the great hall): the ambient replaces the
+    /// world's (the far plane and the sky through the windows keep the hour's), the night's pull is scaled, and the
+    /// upper wall fades into the roof's dark. nil outdoors.
+    var interior: InteriorLight? = nil
 
     /// The layer of one plane.
     func layer(_ plane: Plane) -> PlaneLayer {
         planes[plane.rawValue]
     }
+}
+
+/// An interior's light (the hall stage, stage lane): what the composite of look 2 takes instead of the world's ambient
+/// on the world plane and on the figures. The far plane and the sky (seen through the windows) keep the hour's light.
+struct InteriorLight: Sendable, Equatable {
+    /// The ambient light on the hall's albedo (rgb, at its level).
+    var ambient: SIMD3<Float>
+    /// The night's pull toward deep blue × this (1: as outdoors).
+    var nightPull: Float
+    /// The vertical value ramp: the ambient falls to `1 − rampStrength` toward the top of the target, from
+    /// `rampEndRow` (target rows) upward over `InteriorLight.rampRows` rows; 0: none.
+    var rampStrength: Float
+    var rampEndRow: Float
+    /// The near pillars (fix round 1 of step stage-1): the dithered window where the lord stands behind one (centre x,
+    /// y in world target px, half width, half height; zero: none), the rims of light on their left and right edges,
+    /// and the share of the hall's ambient they take.
+    var pillarHole = SIMD4<Float>(repeating: 0)
+    var rimLeft = SIMD3<Float>(repeating: 0)
+    var rimRight = SIMD3<Float>(repeating: 0)
+    var pillarAmbient: Float = 0.6
+    /// Fix round 2: the soft band of light 4 px wide on the pillar's key side (> 0: the right edge in `rimRight`'s
+    /// light, < 0: the left in `rimLeft`'s; its size the strength; 0: rims only).
+    var pillarBand: Float = 0
+
+    /// The rows over which the upper wall fades into the roof's dark.
+    static let rampRows: Float = 95
 }

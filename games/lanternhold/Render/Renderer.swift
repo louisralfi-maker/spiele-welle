@@ -403,12 +403,14 @@ final class Renderer {
         }
 
         // Light pools.
-        let style: UInt32
+        var style: UInt32
         switch frame.lightStyle {
         case .smooth: style = 0
         case .banded: style = 1
         case .dithered: style = 2
         }
+        // The hall stage (stage lane, fix round 1 of step stage-1): an interior's pools fall off to nothing.
+        if frame.interior != nil { style = 3 }
         let whole = Float(max(0, frame.layer(.world).offset.whole))
         var lightUniforms = LightPassUniforms(
             target: SIMD4<Float>(Float(targets.width), Float(targets.height), whole, Float(LightField.litThreshold)),
@@ -580,8 +582,10 @@ final class Renderer {
         let bounce = Look.bounceColor(ambient)
         let bandColor = Look.bandColor(ambient)
         let rim = Look.rimColor(ambient)
+        // The hall stage (stage lane): the eased move into the audience framing reads at a fractional scale.
+        let scale = Float(frame.zoom ?? Double(frame.scale))
         return CompositeUniforms(
-            screen: SIMD4<Float>(Float(frame.physicalWidth), Float(frame.physicalHeight), Float(frame.scale),
+            screen: SIMD4<Float>(Float(frame.physicalWidth), Float(frame.physicalHeight), scale,
                                  Float(LightField.litThreshold)),
             target: SIMD4<Float>(Float(targets.width), Float(targets.height), Float(frame.groundRow), whole),
             shiftsA: SIMD4<Int32>(shift(.sky), shift(.clouds), shift(.far), shift(.mid)),
@@ -665,7 +669,8 @@ final class Renderer {
             // whose pool falls off from its own colour to ember. A cold light (the moon's kind: the gloomweaver's
             // violet lantern) keeps its colour to its rim.
             let window = light.kind == .window
-            let cold = window || light.kind == .moon
+            // The hall stage (stage lane, fix round 2): the lord's lantern indoors keeps its warm white to its rim.
+            let cold = window || light.kind == .moon || (frame.interior != nil && light.kind == .lantern)
             let circle = SIMD4<Float>(light.circle.x, light.circle.y,
                                       light.circle.z * (window ? Look2.windowRadius : 1),
                                       sign * light.circle.w * Look2.intensityScale(light.kind))
@@ -732,6 +737,8 @@ final class Renderer {
     /// The kind of an emissive quad for `lh_emissive_fragment`, in the tint's alpha (glow quads keep their alpha).
     static let glassMode: Float = -1
     static let occluderMode: Float = -2
+    // Touch the world, fix round 1 (stage lane): the rim's mode.
+    static let rimMode: Float = -3
 
     /// An emissive quad. Glow: its colour tints the drawn colours a little (40 %), scaled by its intensity. Glass: the
     /// part of the prop's sprite inside the mask, the glow colour as it is. Occluder: the whole sprite, black.
@@ -754,6 +761,12 @@ final class Renderer {
         case .occluder:
             return SpriteQuad(rect: emissive.rect, texel: cell.texels(flipped: emissive.flipped),
                               tint: SIMD4<Float>(0, 0, 0, occluderMode))
+        case .rim:
+            // Touch the world, fix round 1 (stage lane): the cell grown by a texel left, right and up (the atlas keeps
+            // 2 clear texels round every cell), the colour as it is.
+            let grown = AtlasCell(x: cell.x - 1, y: cell.y - 1, width: cell.width + 2, height: cell.height + 1)
+            return SpriteQuad(rect: emissive.rect, texel: grown.texels(flipped: emissive.flipped),
+                              tint: SIMD4<Float>(rgb.x, rgb.y, rgb.z, rimMode))
         }
     }
 
@@ -777,16 +790,24 @@ final class Renderer {
         // the actor stays the lord's.
         let painted = look == .two ? LordCloak.dressed(actor.sprite, PeopleCast.launchCloth) : actor.sprite
         let cell = layout.cell(painted, frame: actor.frame)
+        var rect = actor.rect
+        var texel = cell.texels(flipped: actor.flipped)
+        // The hall stage (stage lane, fix round 2 of step stage-1): a strip cut off at its bottom (a petitioner sitting
+        // behind a bench).
+        if actor.cropBottom > 0, cell.height > actor.cropBottom {
+            let rows = Float(actor.cropBottom)
+            rect.w -= rect.w * rows / Float(cell.height)
+            texel.w -= rows
+        }
         guard look == .two else {
             let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
             let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, actor.lightCap)
-            return ActorQuad(rect: actor.rect, texel: cell.texels(flipped: actor.flipped), tint: actor.tint,
-                             flags: flags)
+            return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
         }
         let rim: Float = rimmed.contains(actor.sprite) ? Look2.rim
             : (people.contains(actor.sprite) ? Look2.peopleRim : 0)
         let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, 0)
-        return ActorQuad(rect: actor.rect, texel: cell.texels(flipped: actor.flipped), tint: actor.tint, flags: flags)
+        return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
     }
 
     /// Rounded up to 256 bytes (buffer offsets and readback rows).

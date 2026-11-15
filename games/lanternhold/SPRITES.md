@@ -561,8 +561,8 @@ picture at the craft of the great pixel-art kingdoms. `hallInterior` (260x90) an
 
 | id | size | frames | notes |
 |---|---|---|---|
-| `greatHall` | 600x201 | 1 | the whole hall, 2.3 times as wide and 2.2 times as tall as `hallInterior`. Albedo, opaque but for the window lights (transparent: the night and the Weltmauer show through). It fills the view's height: 175 rows above the floor line, 26 below, like the world |
-| `hallPillarNear` | 46x201 | 1 | a pillar of the near arcade with the springers of its arches. Drawn in front of everything at parallax 1.25, dark (it stands before every light) |
+| `greatHall` | 600x201 | 1 | the whole hall, 2.3 times as wide and 2.2 times as tall as `hallInterior`. Albedo, opaque but for the window lights (transparent: the night and the Weltmauer show through). It fills the view's height: 175 rows above the floor line, 26 below, like the world. The realm's banner at every second banner place (137, 253, 368), a two-candle wall sconce at the other two (220 and 336, row 100; fix round 1 of stage-1). The camera shows x 10 to 590 only (the end strips are never seen). Fix round 2: the dais is a raised platform at the back (its top rows 154 to 165, its 9 px front face rows 166 to 174 standing on the walk line; the steps' treads and risers likewise), the nave's flags run on below the walk line under its whole length; the runner ends at the foot of the steps with a gold fringe, a rug lies on the dais before the throne (x 380 to 439, rows 158 to 164); the chandeliers hang 10 px lower (wheel at row 53) |
+| `hallPillarNear` | 30x201 | 1 | a pier of the near arcade: a round shaft of drums (14 px), a capital with its abacus, the springers of two arches, a moulded base on a plinth (fix round 1 of stage-1: two thirds of the old 46 px). Fix round 2: evenly lit (darker edges both sides, no baked key), the drums' joints in `stoneDark` with a lit lip under each; the engine lays the key light on it. Drawn in front of everything at parallax 1.25 in the hall's shade (0.9 of its ambient), with a soft band of light 4 px wide on its key side (the window's by day, the torches' at night), thin rims on its edges, a ramp darker toward the roof and a dithered window where the lord stands behind it (the composite, `InteriorLight`); one only, at hall x 150 |
 | `hallFire` | 204x28 | 6 of 34x28 | the great hearth's fire, emissive, on the fire ramp. Bottom row on hall row 145, centred on x 532. About 8 frames a second |
 
 **The hall's parts** (hall px, x from the hall's left edge, rows from its top; a thing "stands on row r" when its
@@ -570,14 +570,14 @@ lowest row is r − 1):
 
 | what | where |
 |---|---|
-| floor line of the nave (the walk line, on the long carpet) | row 175, x 14 to 363 |
+| floor line of the nave (the walk line, on the long carpet) | row 175, x 14 to 363 (the runner ends at 363 with a gold fringe; below row 175 the nave's flags run on to x 589 under the dais, fix round 2) |
 | wall line of the nave (benches, guards, the waiting) | row 169 |
 | the door (leads out) | opening x 49 to 87, from row 110; a torch each side (x 38 and 98) |
 | the gallery over the door | x 14 to 122, its rail rows 80 to 95; a window behind it |
-| benches (`bench`, 32x10) | centred on x 184 and 300, under the two tall windows; three seats each (centre − 8, centre, centre + 8), the seated townsfolk on row 169 |
+| benches (`bench`, 32x10) | centred on x 184 and 300, under the two tall windows; three seats each (centre − 11, centre, centre + 11 since fix round 2), the seated townsfolk on row 169. Fix round 2: everyone waiting sits, behind the bench's front: the engine draws the benches again as actors over who sits (after the wall line, before the walk line); a body without a seated strip stands 5 px lower with its rows below the wall line cut off (`ActorInstance.cropBottom`) |
 | candle stands (painted in) | x 160, 208, 276, 324: one each side of a bench |
-| dais steps | x 364 to 375: three treads of 4 px, 3 px high each |
-| the dais | x 376 to 589, raised 9 px: its floor line is row 166 |
+| dais steps | x 364 to 375: three treads of 4 px, 3 px high each, from the back wall to the walk line, each with its riser on the walk line (fix round 2) |
+| the dais | x 376 to 589, raised 9 px: its floor line is row 166; its front face rows 166 to 174 on the walk line (fix round 2: no longer down to the hall's bottom) |
 | the throne (`throne`, 14x24) | centred on x 416, on row 166, under the cloth of estate (x 398 to 434); the seated lord faces left, down the hall |
 | court places (row 166) | the tax lectern x 385, Odile x 397 (between lord and nave), Brannock x 441 (under the arms), Hesper x 497 (at the hearth); Pip x 350 at the foot of the steps, on row 171 (the petitioner passes in front of him) |
 | the petitioner's walk | in by the door, along row 175, stops at x 338; the one after him rises from his bench |
@@ -587,8 +587,8 @@ lowest row is r − 1):
 | windows (transparent lights) | two tall ones x 169 to 199 and x 285 to 315, rows 58 to 130; one over the gallery; a round one over the throne (centre 416, 45); two slits beside the hearth |
 
 **Fire and light anchors** (`python3 tools/hallart.py anchors greatHall` prints them all): the hearth fire (532, 145)
-with its light at (532, 128), radius 120; two chandeliers of six candles, light at (184, 39) and (300, 39), radius
-64; four stands of three candles, light at (x, 141), radius 26; the door torches (38, 116) and (98, 116), radius 34;
+with its light at (532, 128), radius 120; two chandeliers of six candles, light at (184, 49) and (300, 49) since fix
+round 2, radius 64; four stands of three candles, light at (x, 141), radius 26; the door torches (38, 116) and (98, 116), radius 34;
 four candles on the mantel, two under the arms (456, 123), two on the gallery's newels.
 
 **The light is the state of the realm**, not decoration:
@@ -643,6 +643,7 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
 | `tapRepair` | 30x18 | 2 of 15x18 | a wall with a wax-red crack: a damaged wall or building |
 | `tapRecruit` | 30x18 | 2 of 15x18 | a head and shoulders with a plus: where the lord can recruit |
 | `tapLight` | 30x18 | 2 of 15x18 | a flame: a cold brazier |
+| `tapDoor` | 30x18 | 2 of 15x18 | an arched door of planks with its gold ring: the great hall's door in the world and its inner door (stage lane, step stage-2, 15.11.2026) |
 
 - **Frames:** 0 idle (parchment in a gold rim), 1 pressed (the plaque a step darker, the rim dull). Pressing
   darkens the plaque, nothing moves, as on every button of the interface. No bobbing, no pulse.
@@ -659,7 +660,25 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
 - **When:** rim and pool on every thing in view that offers something now. At most four marks in view, the nearest
   to the lord first; of a row of damaged walls only the nearest carries the mark, the others keep their rim.
 - **The touch area** is the thing and its mark together, at least 44x44 pt (DESIGN.md "Controls 2").
-- **Texture space:** the six strips (180x18 together) lie on the hall's second page.
+- **Texture space:** the seven strips (210x18 together) lie on the hall's page (`tapDoor` in a shelf that had room).
+- **In the game (step stage-2):** drawn as emissive actors after every figure; at night their tint is
+  (0.78, 0.69, 0.53) of the drawing (M11); at most four in view. The pool is a `window` light (it fades in at dusk);
+  in the hall it burns at 0.4 by day. **The rim** (fix round 1 of step stage-2, 15.11.2026): built as specced, by the
+  engine from the sprite's alpha (`EmissiveInstance.Kind.rim`: the quad is the cell grown by one texel left, right
+  and up; the shader lights the clear texels beside the outline, never the sprite; a building's is a part of its prop,
+  `EmissivePart.rim`, so what stands before it hides it), added in the emissive pass at
+  0.62 of `gold`, 1.15 while pressed, warmed and at three quarters at night like the marks. Over a marked plot's,
+  wall's, brazier's or the barracks' entity props, round a marked person, round a marked bench and the throne in the
+  hall; not on the hall's door (it is part of the facade). Its mark keeps to one band over buildings (the tip at most
+  30 px over the walk line).
+- **The footing of an empty plot (fix round 1, no sprite):** while an empty plot's mark shows, two stakes (1 x 4 px,
+  wood) at the ends of what its first building would cover, a cord between their tops (sagging a pixel over the middle
+  half) and a chalk line on the lane's top row (two on, one off), drawn lit from the `hallMote` texel behind every
+  figure, so the hammer has a ground under it. The atlas gains nothing.
+- **The open inner door (step stage-2, no sprite):** for 0.45 s after he came in by the inner door and while he goes
+  out through it, the hall draws the left leaf swung in (a 3 px strip of oak against the jamb) and the gap beyond it
+  (15 x 45 px of the bailey's dark, hall rows 124 to 169) with a 2 px sliver of cold light at its edge (the day's, the
+  moon's at night), all from the `hallMote` texel, so the atlas gains nothing.
 - **Open, for the lead:** the tax lectern has no mark of its own. Odile stands at it, so her `tapTalk` can lead to
   the tithe; a seventh mark with a coin is a quarter of an hour of art if wanted.
 
@@ -747,3 +766,20 @@ Retired into `tools/retired-art`: `weltmauerPatch`, `farCastlePane`, `farCastleG
 `hallInterior`, `hallFront`, `chapel`, `chapelInterior`, `kitchen`, `kitchenInterior`, `castleWall`, `throne`, `hearth`
 or `candleStand` (look 1 keeps them).
 <!-- END world lane: world rebuild, step world-2 -->
+### The hall stage's light and wear (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world")
+
+Registered in `SpriteID` with the stage-8 hall (`greatHall`, `hallPillarNear`, `hallFire`, the six marks); made by
+`python3 -I -B tools/hallstage.py` (pure Python, palette names only, the same bytes on every run). They only add
+light and wear to tools/hallart.py's hall.
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `hallShaft` | 83x120 | 1 | the light of one tall window's two lights falling onto the nave floor, slanting down to the right (the afternoon; mirrored for the morning). White, its alpha the beam's strength in ordered-dither steps: drawn as an emissive glow in the daylight's colour from hall row 72 (the lancets' spring), its left edge on the window's (x 169 and 285) |
+| `hallMote` | 1x1 | 1 | one speck of dust, drawn emissive inside a shaft (11 per shaft, drifting down slowly, frozen under Reduce Motion) |
+| `hallWash` | 512x44 | 8 of 64x44 | limewash stains, each cut for its own place on the hall's ashlar (never over a banner, a window, a shaft, the wainscot or the flags): frame `n` at `HallLayout.washPatches[n]` (top-left in hall px); a ragged outline (a noisy ellipse, no straight run longer than three or four pixels) with an ordered-dither feather of one to two pixels; each pixel one step warmer than the stone under it and at most one step lighter (the blocks, highlights and joints read through), a few small islands of thicker plaster with a one-pixel shadow (fix round 1 of stage-1: the old patches covered whole blocks and read as square light blocks) |
+
+- Layers: the patches on the world plane right over `greatHall`; the shafts and the motes in the emissive pass over
+  the world plane (benches and props in a shaft catch its light); the figures and the near pillars stay in front.
+- The atlas page: the hall's sprites take it from about 1730 to about 1850 rows of 2048 (one page still; about 200
+  rows are left for the world lane's new pieces before the second page SPRITES.md "The great hall as a stage"
+  proposes is needed).

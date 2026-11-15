@@ -98,6 +98,11 @@ struct Look2Uniforms: Sendable {
     var roomA: SIMD4<Float>
     var roomB: SIMD4<Float>
     var weather: SIMD4<Float>
+    // The hall stage (stage lane, fix round 1 of step stage-1): the near pillars' dithered window around the lord,
+    // their rims and their share of the hall's ambient (`InteriorLight`).
+    var hallHole: SIMD4<Float>
+    var hallRimL: SIMD4<Float>
+    var hallRimR: SIMD4<Float>
 }
 
 /// Look 2's knobs ("farbig-düster", docs/ART-look2.md "Engine values"): the values of tools/scenemock/mock.py's LOOK2,
@@ -228,12 +233,28 @@ enum Look2 {
         let cloud = sample.cloudColor
         let none = SIMD4<Float>(0, 0, 0, 0)
         let rooms = frame.rooms
+        // The hall stage (stage lane): an interior's own ambient and night pull on the world plane and the figures,
+        // and the upper wall's ramp into the roof's dark (in `weather.zw`); the windows keep the hour's far plane.
+        // World-2 fix round 2: through the postern the valley lets go of part of the night's cold pull (outside only).
+        var worldA = SIMD4<Float>(world.x, world.y, world.z,
+                                  colorise * night * (1 - SceneLayout.valleyColdCut(sample, focus: focus)))
+        var weatherV = SIMD4<Float>(frame.rain, frame.wetness, 0, 0)
+        var hallHole = none
+        var hallRimL = none
+        var hallRimR = none
+        if let inside = frame.interior {
+            worldA = SIMD4<Float>(inside.ambient.x, inside.ambient.y, inside.ambient.z,
+                                  colorise * night * inside.nightPull)
+            weatherV.z = inside.rampStrength
+            weatherV.w = inside.rampEndRow
+            hallHole = inside.pillarHole
+            hallRimL = SIMD4<Float>(inside.rimLeft.x, inside.rimLeft.y, inside.rimLeft.z, inside.pillarAmbient)
+            hallRimR = SIMD4<Float>(inside.rimRight.x, inside.rimRight.y, inside.rimRight.z, inside.pillarBand)
+        }
         return Look2Uniforms(
             shifts: SIMD4<Int32>(Int32(frame.layer(.mistBand).offset.deviceShift),
                                  Int32(frame.layer(.near).offset.deviceShift), 0, 0),
-            // World-2 fix round 2: through the postern the valley lets go of part of the night's cold pull.
-            ambW: SIMD4<Float>(world.x, world.y, world.z,
-                               colorise * night * (1 - SceneLayout.valleyColdCut(sample, focus: focus))),
+            ambW: worldA,
             ambF: SIMD4<Float>(far.x, far.y, far.z, day),
             ambM: SIMD4<Float>(mid.x, mid.y, mid.z, bounceK),
             ambN: SIMD4<Float>(near.x, near.y, near.z, bandK),
@@ -250,7 +271,10 @@ enum Look2 {
             grade: SIMD4<Float>(sample.saturation, sample.warmth, sample.vignette, sample.black),
             roomA: rooms.count > 0 ? rooms[0] : none,
             roomB: rooms.count > 1 ? rooms[1] : none,
-            weather: SIMD4<Float>(frame.rain, frame.wetness, 0, 0))
+            weather: weatherV,
+            hallHole: hallHole,
+            hallRimL: hallRimL,
+            hallRimR: hallRimR)
     }
 }
 

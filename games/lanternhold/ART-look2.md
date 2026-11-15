@@ -2078,3 +2078,155 @@ keepRimT1 keepRimT2 keepRimT3 keepRimT2Build keepRimT3Build keepMist smokePuff f
 posternT3`. The previews (castle_preview.py now draws the keep's mist at night) are in the scratch folder of the run,
 not in git.
 <!-- END world lane: world rebuild, step world-2, fix round 2 -->
+## 21. The hall stage in the engine (stage lane, 14.11.2026)
+
+Stage 8's hall seen on the runner for the first time (rounds `lh-s1-2` and on; DESIGN.md "The hall stage and touch the
+world", step stage-1). The art is used as painted; the engine adds its light, its wear, its depth and its life.
+
+### 21.1 What the engine adds
+
+- **The light of the hour through the windows:** the hour's sky and its stars behind the transparent lights, and
+  `weltmauer` on the far plane at parallax 0.3 with its top at hall row 86, so the peaks stand in the tall windows'
+  lower half with sky above them (at row 56, the first try, the snowfields filled the panes and read as blank white
+  glass by day). Seen from inside, the far plane's haze is cut to 55 %.
+- **The shafts** (`hallShaft`, tools/hallstage.py): from the two tall windows, down to the left in the morning (the
+  painted beam mirrored) and down to the right in the afternoon, none round noon, gone with clouds and rain; 0.42 of
+  full strength in the daylight's warm white, turning gold with the low sun (`AmbientSample.warmth`); 11 motes of
+  dust drift down each (frozen under Reduce Motion); a soft pool where each lands on the nave floor.
+- **The interior light** (`InteriorLight`, read by look 2's composite): the hall's ambient is 58 % of the open air's
+  by day, warmed 30 % toward the stone and oak's bounce, and 82 % at night with 45 % of it a dim warm fill of the
+  hearth and candles (the old cut-away rooms' colour at level 0.34), the night's blue pull at 0.6; the upper wall
+  fades to 38 % of the ambient over 95 rows up from hall row 118, so the roof sinks into its dark; the floor gets no
+  sky lift and no moon.
+- **Wear:** eight limewash patches (`hallWash`) on the ashlar at different heights, never in a band.
+- **Light as the realm's state:** the hearth's fire (`hallFire`, the small `hearthFire` below a third) and its pool
+  on the hood (radius 60 + 60 × strength) with a long, flat warm pool on the flags (radius 66 to 120, squashed 3.2:
+  a candle-kind light, so no embers rise out of the floor); a bench's three-candle stands while someone waits on it;
+  the two chandeliers by day, softened to radius 44 and 0.55 so the roof stays dark; the door's torches from the
+  dusk; the mantel's and the arms' candles; the one who has the word stands in a warm pool of radius 30.
+- **Depth:** the near arcade's pillars at parallax 1.25 stand before every light (lit at 0.1 of the light buffer, the
+  world's foreground takes 0.55). While the lord stands behind one it fades to 32 % within 26 px on screen and is
+  whole again from 42 px, so it passes over him as he walks and never hides him where he stops.
+
+### 21.2 What the sweep found (and what was done)
+
+- `lh-s1-2`: the lord vanished behind the near pillars where he stopped (the fade above); the windows read as blank
+  white panes (the Weltmauer lower, less haze); the roof glowed gold under the HUD (the chandeliers softened); the
+  night was flat blue (the warm fill); the golden hour's shaft read as grey smoke (gold with the low sun); a candle
+  stand behind a pillar lit the pillar (the pillars no longer catch light from behind); in the audience the first
+  choice's two lines lifted its plaque over the petitioner's legs (the plaques now keep a smaller hand and two lines
+  at most, below the walk line) and "Counsel" was cut to "Coun…" (the button keeps its width).
+- `lh-s1-3` (ALL PASSED): the lord shows through the pillar he stands behind, the panes hold sky and peaks, the
+  bard's 304-character German letter fits in six lines; Odile's line, once read, fell below the letter's fold (it now
+  has its own teal slip at the top between the letter and the ledger, over where she stands); the night nave was
+  still very dark away from the hearth (the warm fill raised a little, 0.30 to 0.34).
+
+### 21.3 Open, for the art lane
+
+- The hall's inner door has no open frame: it stays shut while the door's creak plays and the screen darkens (0.22 s,
+  barely seen). An open frame for the door bay (as the world lane's `forebuilding` has) would let it swing.
+- The window lights could carry a few panes of leading in a lighter value so they read as glass against a bright
+  day sky; today they are clean holes.
+- The candle stands' flames behind a near pillar are covered while their glow shows beside it; a painted pillar
+  with a thin lit edge would sit better in the light.
+
+### 21.4 Fix round 1: after the art director's first look (critic look 1, 6/10)
+
+- **The ends of the hall:** the camera never shows the sprite's dark end strips (hall x 0 to 10 and 590 to 600); both
+  framings and the move between them stay inside `HallLayout.shownLeft ... shownRight`. The hearth's pool on the
+  flags is centred at 498 with a radius of 90 (squash 3.0), so it falls off before the end wall.
+- **The wash** (`hallWash`, redrawn): stains, not patches. A noisy ellipse gives a ragged outline with a dithered
+  feather; every pixel takes the wash tone of the stone under it (stone to `rock`, thick wash to `rockLight`,
+  `stoneLight` to `rockPale`, the joints to `rockDeep`), so the ashlar reads through and no stain is a lighter block;
+  small islands of thicker plaster carry a one-pixel shadow. The two patches beside the throne's sconce moved: one
+  high on the dais end above the arms (430, 30), one on the gallery's wall left of its window (14, 30).
+- **The near pillar** (`hallPillarNear`, redrawn 30 px wide): one only, at hall x 150 between the door and the first
+  bench, so the walking framing never shows two and it is off screen in the audience. It takes 0.8 of the hall's
+  ambient (with its roof ramp) instead of near black, and a rim on its outer pixels: by day the tall window's cool
+  light (right 0.42/0.46/0.54, left 0.18/0.20/0.24 × daylight), at night the door torches' warm light on the left
+  (0.52/0.30/0.12) and the moon's on the right. Where the lord stands behind it, it opens in a 4x4 ordered dither
+  round his body (open inside 55 % of an ellipse 12 x 24 px, solid outside; only while he overlaps the shaft, growing
+  as he moves behind it), so its outline and rim stay: no glassy slab and no notch when he stands beside it.
+- **Soft pools:** inside the hall every light falls off smoothly to nothing (light style 3: (1 − d)² without the lit
+  edge's step), so no pool ends in a hard disc. The bench stands' candles are round pools of 20 px just below their
+  flames (centred on them, the wainscot's pale cap still carried the two stands' light as one bar). On cool cloth the
+  composite turns warm light toward its own luminance (by `saturate((b − r) × 2.5)`, three quarters at most), so a
+  candle or the lantern brightens the teal instead of greening it.
+- **The hearth by day:** its glow and pool shrink by 35 % and lose half their strength in full daylight, a warm cone
+  round the fire's mouth with grey stone beyond; at night it is as before.
+- **The night:** the moon (when up, less under clouds) comes through the two tall windows as pale shafts (the day's
+  `hallShaft` in a cool `0.55/0.65/1.0` at 0.16) with a cool pool where they land and a cool fill of 44 px round each
+  window on the far wall; the door torches lay a flat pool on the flags before the door.
+- **The lord's lantern** is a warm white (1.0/0.82/0.58) indoors at 0.25 + 0.55 × night of its strength, so it warms
+  the teal cloth instead of greening it and its centre does not burn white on the wainscot;
+  on the throne it sits low and flat at his lap. **The lectern's candle** (the white stick on its book rest) burns
+  and keys the lord in his chair in the same warm white, a low flat pool on the chair's seat (director's correction
+  2).
+- **The banners** (director's correction 4): the realm's banner hangs at every second place only (hall x 137, 253,
+  368); at 211 and 327 a two-candle iron sconce like the one under the arms hangs on the bare ashlar instead
+  (`greatHall` rebuilt by tools/hallart.py, `wall_sconce`, centred at 220 and 336 in the gaps between the windows
+  and the piers, row 100); the engine lights their flames and a round pool of 20 px, and puts a sconce out while a
+  house's banner hangs over its place. The rhythm along the nave: banner, window, sconce, banner, window, sconce,
+  banner.
+- Not done: the inner door's open frame.
+
+### 21.5 Fix round 2: after the art director's second look (critic look 2, 7/10)
+
+- **The lantern indoors** is a soft disc, not a box: one round pool of 44 px on the lantern's head and an ellipse of
+  42 x 8 px on the carpet under it, both in its warm white to the rim. Its strength reaches the light's cap only in a
+  small heart round the glass (round 1's cap held the whole wainscot panel flat and the pool ended at the cap rail).
+- **Teal cloth** (banners, the cloth of estate) takes a dim neutral 0.3 of warm light and keeps its ambient: it stays the
+  dark ground behind the lord; candles and the lantern no longer halo or green it. Stone and wood take warm light whole.
+- **The near pillar** is painted evenly lit (`stoneMid` edges, `stone` face, `stoneDark` joints with a `stoneLight`
+  lip every 19 rows); the engine gives it a 4 px band of the key light on one side (window cool 0.42/0.46/0.54 by day
+  on the right, torch warm 0.52/0.30/0.12 at night on the left, × 2.6 on the stone, falling 1, 0.8, 0.55, 0.3, 0.12
+  over 5 px), the thin rims on both edges and a ramp to 0.6 toward the roof.
+- **The waiting sit behind the bench's front:** the bench is drawn again over who sits on it (seat, cushion and legs
+  over the body); a body without a seated strip stands 5 px lower with its legs below the wall line cut off, its shins
+  showing between the bench's legs. Seats 11 px apart.
+- **The dais** is a raised platform at the back: pale flags on its top (rows 154 to 165, a `stonePale` nosing on the
+  last), a 9 px ashlar face (rows 166 to 174) with its `stoneDark` shadow on the flags at its foot; the steps' treads
+  end at their risers on the walk line; the nave's flags run on below. The runner ends at the steps' foot in a gold
+  fringe; a seven-row rug of the runner's border lies on the dais before the throne (x 380 to 439).
+- **The chandeliers** hang 10 px lower (wheel at row 53), just above the tall windows' apex.
+
+### 21.6 Step stage-2: touch the world (15.11.2026)
+
+- **The seventh mark** `tapDoor` (tools/hallart.py, `GLYPHS`): an arched door of planks with its gold ring, on the
+  same tag as the six (parchment in a gold rim, pressed: plaster in straw). It stands over the hall's door in the world
+  (its tip 43 px above the walk line, over the forebuilding's door the world lane paints at x 1830) and over the inner
+  door in the hall (3 px above the arch). No other sprite was drawn.
+- **The marks at night (M11):** the parchment was the brightest pixel at the front, brighter than the fires. At night
+  the tag draws at (0.78, 0.69, 0.53) of its colour: about three quarters of its value and warmed toward the
+  torchlight, so a fire still outshines it. By day it is as drawn. Never more than four in view.
+- **The pools** at the marked things' feet are scene lights of the `window` kind: invisible in daylight, a soft warm
+  spot after dusk that ties the tag to its thing.
+- **The plot markers are gone (M6):** an empty site shows nothing but its mark, low over the ground, and only while its
+  card offers something.
+- **The near pillar's light (the stage-1 critic's first high):** the key band is 6 px wide with its peak a step inside
+  the edge (0.55, 0.85, 0.9, 0.7, 0.45, 0.22, 0.08 from the edge in), and it and the rims follow a height ramp (nothing
+  above the banners, half at the window sills, full at the wainscot), so the pier no longer carries a pale rule from
+  floor to roof.
+- **The open inner door (the critic's second high):** see SPRITES.md "The marks", the open door: the bailey's dark and
+  a sliver of cold light in the gap, for the moment after he came in and while he goes out.
+- **Open:** the gold rim round a thing that offers something (SPRITES.md asks for it; not drawn); the marks are still
+  parchment tags (the night glass reskin comes in one place at stage-3 or the join, director's note of 15.11. 01:09).
+
+### 21.7 Step stage-2, fix round 1 (the critic's look 1, 6.5/10; 15.11.2026)
+
+- **The gold rim is drawn:** one pixel of `gold` outside the marked thing's outline at its left, right and top, at
+  0.62 of its value (1.15 pressed), so it reads as a warm edge on stone and timber by day without becoming the
+  brightest line on screen; at night (0.78, 0.69, 0.53) of that, like the tags, and still below the fires. It is
+  what ties a tag to its thing: the tag says what, the rim says which.
+- **The footing of an empty plot:** wood (0.40, 0.26, 0.18) stakes, a cord of (0.62, 0.55, 0.42), a chalk line of
+  (0.80, 0.77, 0.68) on the lane; lit like the world, so it is dim at dusk and gone into the dark at night with the
+  plot. Nothing on the ground glows.
+- **One height band:** the tags over buildings hang at the door's height (their tip at most 30 px over the walk
+  line), a head over the townsfolk's tags, so a row of marks reads as one line across the screen and no tag sits on a
+  battlement.
+- **Raise the lantern:** the command frames (the pole lifted high), a flare of fireWhite on the glass and a one-pixel
+  ring of fireGold at the growing light's edge for 0.45 s, the light at 2.2 times falling to 1.6.
+- **Next petitioner:** teal ink on an inked plaque like the choices, no longer a red wax button in the old action
+  button's corner.
+- **Not touched:** the tags' corners and outline (the critic asked to round them by a pixel and soften the outline):
+  they are the parchment look, which the night glass replaces in one place (director's note of 15.11. 01:09).

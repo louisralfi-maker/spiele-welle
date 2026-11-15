@@ -102,6 +102,9 @@ struct DrawnFigure: Sendable, Equatable {
     var talking: Bool
     /// A petitioner waiting seated on a bench: the seated strip drawn instead of the body (`frame` is its frame).
     var seated: SpriteID? = nil
+    /// The hall stage (stage lane, fix round 2 of step stage-1): it waits on a bench, drawn behind the bench's front
+    /// (its legs below the wall line cut off), so any body reads as seated.
+    var onBench = false
 
     /// The strip that is drawn.
     var sprite: SpriteID { seated ?? body.sprite }

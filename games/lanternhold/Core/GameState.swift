@@ -169,6 +169,10 @@ struct Creature: Codable, Sendable, Equatable {
     var isLit = false
     var wave: Int = 0
     var lastHit: DamageSource = .none
+    /// Raise the lantern (stage lane, step stage-2; `LanternRaise`): seconds it still flinches, and the raise it
+    /// flinched at (it flinches once per raise). Optional: older saves load.
+    var flinch: Double?
+    var flinchRaise: Int?
 }
 
 enum ProjectileKind: String, Codable, Sendable {
@@ -302,6 +306,10 @@ struct RealmKing: Codable, Sendable, Equatable {
     /// The brazier he is lighting (1 s), −1 for none.
     var lightingPlot: Int = -1
     var lightTimer: Double = 0
+    /// Raise the lantern (stage lane, step stage-2; `LanternRaise`): seconds since he last raised it (nil: never, or
+    /// ready again) and how often he raised it. Optional: older saves load; the reference bots never raise it.
+    var lanternSince: Double?
+    var raises: Int?
 
     /// His lantern, held ahead of him.
     func lantern(radius: Double) -> LightSource {

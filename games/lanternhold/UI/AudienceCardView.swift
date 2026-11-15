@@ -21,8 +21,20 @@ struct AudienceCardView: View {
     /// clock and numbers.
     static let noteLeft: CGFloat = 70
     static let noteRight: CGFloat = 214
+    /// The hall's layout: the HUD's ledger slip keeps the top right (its width and a margin).
+    static let ledgerRoom: CGFloat = 196
 
     var body: some View {
+        // The hall stage (stage lane, 14.11.2026; docs/REVIEW-look-2.md H4): in the great hall the card no longer
+        // covers the stage: the letter lies in the upper left, the choices as plaques along the floor band.
+        if model.stage == .hall && card.place == .throne {
+            hallLayout
+        } else {
+            worldLayout
+        }
+    }
+
+    private var worldLayout: some View {
         GeometryReader { geometry in
             let insets = geometry.safeAreaInsets
             let fullWidth = geometry.size.width + insets.leading + insets.trailing
@@ -95,6 +107,170 @@ struct AudienceCardView: View {
         .background(ParchmentBackground())
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("audience-root")
+    }
+
+    // MARK: - The hall's layout (H4)
+
+    /// The letter's room: from the safe area's left edge to just short of Odile and the throne, from the top to above
+    /// the petitioner's head; the plaques stand on the floor band below the walk line, across the whole width.
+    private var hallLayout: some View {
+        GeometryReader { geometry in
+            let insets = geometry.safeAreaInsets
+            let fullWidth = geometry.size.width + insets.leading + insets.trailing
+            let fullHeight = geometry.size.height + insets.top + insets.bottom
+            let edge = CGFloat(model.hallLetterEdge) * fullWidth - insets.leading
+            let width = min(420, max(280, edge - 6))
+            let head = CGFloat(model.figureTop) * fullHeight - insets.top
+            let room = max(150, head - 14)
+            // Step stage-2 (the stage-1 critic's third high): Odile's line, once read, hangs on its teal slip just under
+            // the letter at the left, short of the petitioner, so no card covers the throne's canopy (the slip at the
+            // top hid it; inside the letter the long requests cut it off, in its head it pushed the name out).
+            let speaker = CGFloat(model.stageAnchor) * fullWidth - insets.leading
+            let counselWidth = max(170, min(width, speaker - 30))
+            ZStack(alignment: .topLeading) {
+                VStack(alignment: .leading, spacing: 6) {
+                    // Its own height, at most the room (in the stack a flexible frame took the whole room and
+                    // pushed Odile's slip down onto the plaques: round lh-s2-6's 134).
+                    hallLetter
+                        .frame(width: width)
+                        .frame(maxHeight: room, alignment: .top)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
+                        HallCounsel(text: model.story(hint), compact: true)
+                            .frame(width: counselWidth, alignment: .leading)
+                            .transition(model.reduceMotion ? .identity : .opacity)
+                    }
+                }
+                .offset(x: 2, y: 4)
+                hallPlaques
+                    .frame(width: max(0, geometry.size.width - 4))
+                    .frame(width: geometry.size.width, height: geometry.size.height + insets.bottom - 5,
+                           alignment: .bottom)
+            }
+        }
+    }
+
+    /// The letter: the portrait, the name and the role, Odile's counsel button; under the rule the request (or the
+    /// lord's word and the reaction) and, once read, Odile's line in her teal.
+    private var hallLetter: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .center, spacing: 10) {
+                PortraitTile(portrait: card.portrait, side: 56)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(verbatim: name)
+                        .font(Theme.caps(.headline))
+                        .foregroundStyle(Theme.ink)
+                    if let role {
+                        Text(verbatim: role)
+                            .font(Theme.caps(.caption))
+                            .tracking(0.8)
+                            .foregroundStyle(Theme.rubric)
+                    }
+                }
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityElement(children: .combine)
+                Spacer(minLength: 4)
+                if card.phase == .hearing && card.hintKey != nil && !card.counselShown {
+                    counselButton
+                        .fixedSize()
+                        .layoutPriority(1)
+                }
+            }
+            InkRule()
+            CardScroll {
+                VStack(alignment: .leading, spacing: 7) {
+                    if card.phase == .reaction {
+                        reaction
+                    } else {
+                        Text(inked: model.story(card.textKey), .subheadline)
+                            .font(Theme.serif(.subheadline))
+                            .foregroundStyle(Theme.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("audience-text")
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.trailing, 6)
+            }
+        }
+        .padding(.leading, 12)
+        .padding(.trailing, 10)
+        .padding(.vertical, 9)
+        .background(ParchmentBackground())
+        .animation(model.reduceMotion ? nil : .easeOut(duration: 0.2), value: card.counselShown)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("audience-root")
+    }
+
+    /// Along the floor band: the choices as plaques and Leave; after a choice what changed and the way on.
+    private var hallPlaques: some View {
+        Group {
+            if card.phase == .reaction {
+                changes
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(ParchmentBackground(ruled: false))
+            } else {
+                // One height for the row (the tallest plaque's), the words top-aligned (fix round 1: German wraps
+                // stepped the plaques' tops).
+                HStack(alignment: .top, spacing: 8) {
+                    ForEach(card.options, id: \.index) { option in
+                        ChoiceTile(option: option, compact: true) {
+                            model.choosePetition(option.index)
+                        }
+                        .background(ParchmentBackground(ruled: false))
+                    }
+                    leaveButton(stretch: true)
+                        .background(ParchmentBackground(ruled: false))
+                }
+                .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var counselButton: some View {
+        Button {
+            model.showCounsel()
+        } label: {
+            HStack(spacing: 6) {
+                PortraitTile(portrait: .own(.portraitOdile, frame: 0), side: 40)
+                Text("Counsel")
+                    .font(Theme.caps(.subheadline))
+                    .foregroundStyle(Theme.teal)
+                    .lineLimit(1)
+            }
+            .padding(.leading, 3)
+            .padding(.trailing, 12)
+            .frame(minHeight: 46)
+            .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.plaque.opacity(0.8)))
+            .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .strokeBorder(Theme.teal, lineWidth: 1.2))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text("Odile's counsel"))
+        .accessibilityIdentifier("audience-counsel")
+    }
+
+    /// Leave; `stretch`: as high as the row of plaques it ends (the hall stage's floor band).
+    private func leaveButton(stretch: Bool) -> some View {
+        Button {
+            model.standUp()
+        } label: {
+            Text("Leave")
+                .font(Theme.caps(.subheadline))
+                .foregroundStyle(Theme.ink)
+                .lineLimit(1)
+                .fixedSize()
+                .padding(.horizontal, 14)
+                .frame(minWidth: 52, minHeight: 52, maxHeight: stretch ? .infinity : nil)
+                .background(PlaqueBackground())
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("audience-leave")
     }
 
     // MARK: - The header
@@ -251,9 +427,41 @@ struct AudienceCardView: View {
                     }
                 }
             }
-            .buttonStyle(GoldButtonStyle())
+            // Touch the world, fix round 1: an inked plaque in teal, no longer the wax red of the old action button.
+            .buttonStyle(TealPlaqueButtonStyle())
             .accessibilityIdentifier("audience-next")
         }
+    }
+}
+
+/// Odile's line in the hall (the hall stage): her name in small capitals and her line in her hand on a slip ruled in
+/// House Lantern's teal, just under the letter at the left (step stage-2: never over the throne's canopy).
+struct HallCounsel: View {
+    let text: String
+    /// Under the letter, short of the petitioner: a smaller hand, four lines at most.
+    var compact = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: compact ? 1 : 2) {
+            Text("Odile counsels")
+                .font(Theme.caps(compact ? .caption2 : .footnote))
+                .foregroundStyle(Theme.teal)
+            Text(verbatim: text)
+                .font(Theme.italic(.footnote))
+                .foregroundStyle(Theme.ink)
+                .lineLimit(compact ? 4 : nil)
+                .minimumScaleFactor(compact ? 0.85 : 1)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(SlipBackground(teal: true))
+        .overlay(alignment: .leading) {
+            Rectangle().fill(Theme.teal).frame(width: 3).padding(.vertical, 1)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("audience-counsel-line")
     }
 }
 
@@ -286,6 +494,8 @@ struct CounselNote: View {
 /// rule once the counsel is read.
 struct ChoiceTile: View {
     let option: AudienceCard.Option
+    /// The hall stage: the plaques along the floor band keep below the walk line (two lines at most, a smaller hand).
+    var compact = false
     let action: @MainActor () -> Void
     @Environment(\.lordIdentity) private var lord
 
@@ -293,29 +503,31 @@ struct ChoiceTile: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .top, spacing: 4) {
-                    Text(inked: StoryText.string(option.labelKey, lord: lord), .subheadline)
-                        .font(Theme.serif(.subheadline))
+                    Text(inked: StoryText.string(option.labelKey, lord: lord), compact ? .footnote : .subheadline)
+                        .font(Theme.serif(compact ? .footnote : .subheadline))
                         .foregroundStyle(Theme.ink.opacity(option.enabled ? 1 : 0.5))
+                        .lineLimit(compact ? 2 : nil)
+                        .minimumScaleFactor(compact ? 0.85 : 1)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
-                    if option.favoured {
-                        Image(systemName: "checkmark.seal.fill")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(Theme.teal)
-                            .accessibilityLabel(Text("Odile's choice"))
-                    }
                 }
                 EffectChips(gold: option.gold, happiness: option.happiness, citizens: option.citizens,
                             archers: option.archers, guards: option.guards, builders: option.builders,
-                            risky: option.risky, size: 13, night: option.night,
+                            risky: option.risky, size: compact ? 12 : 13, night: option.night,
                             remembers: option.remembers, noteKey: option.noteKey)
                     .opacity(option.enabled ? 1 : 0.6)
+                    // Fix round 2 of step stage-1: on the floor band every line keeps to one line (German must not
+                    // raise the row toward the petitioner's feet): words two lines, what it costs one, the reason one.
+                    .lineLimit(compact ? 1 : nil)
+                    .minimumScaleFactor(compact ? 0.75 : 1)
                 if let block = option.blocker {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.circle.fill")
                             .font(.system(size: 11, weight: .bold))
                         Text(inked: AudienceTexts.blocker(block), .footnote)
                             .font(Theme.serif(.footnote))
+                            .lineLimit(compact ? 1 : nil)
+                            .minimumScaleFactor(compact ? 0.75 : 1)
                     }
                     .foregroundStyle(Theme.rubric)
                     .fixedSize(horizontal: false, vertical: true)
@@ -323,9 +535,20 @@ struct ChoiceTile: View {
             }
             .multilineTextAlignment(.leading)
             .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .frame(maxWidth: .infinity, minHeight: 52, alignment: .topLeading)
+            .padding(.vertical, compact ? 4 : 6)
+            .frame(maxWidth: .infinity, minHeight: 52, maxHeight: compact ? .infinity : nil, alignment: .topLeading)
             .background(PlaqueBackground(enabled: option.enabled, marked: option.favoured))
+            // Odile's seal sits on the plaque's corner, in its padding: it never takes the words' width (fix round 1:
+            // the chosen plaque wrapped and grew).
+            .overlay(alignment: .topTrailing) {
+                if option.favoured {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Theme.teal)
+                        .padding(2)
+                        .accessibilityLabel(Text("Odile's choice"))
+                }
+            }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

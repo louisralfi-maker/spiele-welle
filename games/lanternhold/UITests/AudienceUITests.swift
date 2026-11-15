@@ -60,30 +60,34 @@ final class AudienceUITests: XCTestCase {
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "60-hall-front-\(language)")
 
-        tapStrip(strip, worldX: 1840)
-        XCTAssertTrue(waitForKing(app, near: 1840, within: 14, timeout: 20), "the king stepped into the hall")
+        // The hall stage (14.11.2026): the great hall is a stage of its own; a touch on its door takes him in (touch
+        // the world, step stage-2).
+        if let door = waitForThing(app, "touch-door-hall", timeout: 6) {
+            checkTarget(door, "hall door")
+            touchThing(door)
+            XCTAssertTrue(waitForStage(app, "hall", timeout: 14), "in by the door")
+        } else {
+            XCTFail("no door at the hall")
+        }
         pause(0.9)
         attach(XCUIScreen.main.screenshot(), "51-hall-court-\(language)")
 
+        // A tap on the strip from inside: out by the door and on to the kitchen.
         tapStrip(strip, worldX: 2183)
         XCTAssertTrue(waitForKing(app, near: 2183, within: 14, timeout: 20), "the king stepped into the kitchen")
         pause(0.9)
         attach(XCUIScreen.main.screenshot(), "57-kitchen-open-\(language)")
-        let button = element(app, "action-button")
-        var talked = false
-        let started = Date()
-        while Date().timeIntervalSince(started) < 15 && !talked {
-            if button.exists && button.label.contains("Tamsin") {
-                checkTarget(button, "talk")
-                button.tap()
-                talked = true
-            } else {
-                pause(0.4)
-            }
+        // Touch the world: a touch on Tamsin, and her line opens in a bubble over her head when he stands by her (M9:
+        // no separate name slip; the bubble's head names her).
+        if let tamsin = waitForThing(app, "touch-talk-tamsin", timeout: 15) {
+            checkTarget(tamsin, "talk")
+            XCTAssertTrue(tamsin.label.contains("Tamsin"), "the act first: \(tamsin.label)")
+            touchThing(tamsin)
+        } else {
+            XCTFail("Tamsin offers no word")
         }
-        XCTAssertTrue(talked, "the speech bubble beside Tamsin (\(button.exists ? button.label : "no button"))")
         let bubble = element(app, "talk-bubble")
-        if bubble.waitForExistence(timeout: 6) {
+        if bubble.waitForExistence(timeout: 12) {
             checkTarget(bubble, "talk bubble")
             pause(0.5)
             attach(XCUIScreen.main.screenshot(), "55-talk-\(language)")
@@ -108,15 +112,14 @@ final class AudienceUITests: XCTestCase {
                                "-GWClock", "10", "-GWCameraX", "1824"]
         app.launch()
         guard waitUntilReady(app, name: "audience") else { return }
-        let button = element(app, "action-button")
-        guard button.waitForExistence(timeout: 8) else {
-            XCTFail("no crown at the throne")
+        guard let throne = waitForThing(app, "touch-throne", timeout: 8) else {
+            XCTFail("no mark at the throne")
             return
         }
-        checkTarget(button, "crown")
-        button.tap()
+        checkTarget(throne, "throne")
+        touchThing(throne)
         let card = element(app, "audience-root")
-        guard card.waitForExistence(timeout: 10) else {
+        guard card.waitForExistence(timeout: 14) else {
             attach(XCUIScreen.main.screenshot(), "audience-missing-\(language)")
             XCTFail("the audience card did not open")
             return
@@ -180,10 +183,12 @@ final class AudienceUITests: XCTestCase {
         app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWReduceMotion", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "reduce-motion") else { return }
-        let button = element(app, "action-button")
-        XCTAssertTrue(button.waitForExistence(timeout: 8), "the crown on the first morning")
-        button.tap()
-        XCTAssertTrue(element(app, "audience-root").waitForExistence(timeout: 1.5), "no walk with Reduce Motion")
+        guard let throne = waitForThing(app, "touch-throne", timeout: 8) else {
+            XCTFail("no mark at the throne on the first morning")
+            return
+        }
+        touchThing(throne)
+        XCTAssertTrue(element(app, "audience-root").waitForExistence(timeout: 2.5), "no walk with Reduce Motion")
         element(app, "audience-leave").tap()
         app.terminate()
     }
@@ -222,6 +227,16 @@ final class AudienceUITests: XCTestCase {
         while Date().timeIntervalSince(started) < timeout {
             if abs(kingX(app) - x) <= tolerance { return true }
             pause(0.3)
+        }
+        return false
+    }
+
+    private func waitForStage(_ app: XCUIApplication, _ stage: String, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            let text = (element(app, "world-scene").value as? String) ?? ""
+            if text.contains("stage:\(stage)") { return true }
+            pause(0.2)
         }
         return false
     }

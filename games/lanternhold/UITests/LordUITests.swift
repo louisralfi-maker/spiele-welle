@@ -63,13 +63,15 @@ final class LordUITests: XCTestCase {
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "93-lady-hall-\(language)")
 
-        // The tutorial's farmer: she sits down on the throne, he gets up from the bench and walks up.
-        let button = element(app, "action-button")
-        guard button.waitForExistence(timeout: 8) else {
-            XCTFail("no crown at the throne on the first morning")
+        // Touch the world (step stage-2): the first minute's one slip, then a touch on the throne. The tutorial's
+        // farmer: she sits down on the throne, he gets up from the bench and walks up.
+        XCTAssertTrue(element(app, "touch-first-slip").waitForExistence(timeout: 4), "the first minute's slip")
+        guard let throne = waitForThing(app, "touch-throne", timeout: 8) else {
+            XCTFail("no mark at the throne on the first morning")
             return
         }
-        button.tap()
+        touchThing(throne)
+        XCTAssertTrue(waitForGone(element(app, "touch-first-slip"), timeout: 3), "the first touch ends the slip")
         pause(0.7)
         attach(XCUIScreen.main.screenshot(), "94-lady-sitting-\(language)")
         let card = element(app, "audience-root")
@@ -125,12 +127,11 @@ final class LordUITests: XCTestCase {
         app.launch()
         guard waitUntilReady(app, name: "lord-seated") else { return }
         XCTAssertFalse(element(app, "lord-entry-root").exists, "the arguments name the lord: no entry")
-        let button = element(app, "action-button")
-        guard button.waitForExistence(timeout: 8) else {
-            XCTFail("no crown at the throne")
+        guard let throne = waitForThing(app, "touch-throne", timeout: 8) else {
+            XCTFail("no mark at the throne")
             return
         }
-        button.tap()
+        touchThing(throne)
         let card = element(app, "audience-root")
         guard card.waitForExistence(timeout: 10) else {
             XCTFail("the audience card did not open")

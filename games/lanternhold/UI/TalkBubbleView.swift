@@ -20,8 +20,8 @@ struct TalkBubbleView: View {
                     model.closeTalk()
                 } label: {
                     VStack(alignment: .leading, spacing: 2) {
-                        if let key = bubble.nameKey {
-                            Text(verbatim: model.story(key))
+                        if let name = bubble.nameText ?? bubble.nameKey.map({ model.story($0) }) {
+                            Text(verbatim: name)
                                 .font(Theme.caps(.caption))
                                 .tracking(0.8)
                                 .foregroundStyle(Theme.rubric)

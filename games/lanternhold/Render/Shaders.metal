@@ -188,6 +188,21 @@ fragment float4 lh_emissive_fragment(SpriteOut in [[stage_in]],
     uint2 t = uint2(max(in.texel, float2(0.0f)));
     float4 c = atlas.read(t);
     float mode = in.tint.a;
+    // Touch the world, fix round 1 (stage lane): a rim (-3) lights the clear texels beside the sprite's outline at its
+    // left and right and above it, never the sprite itself (the quad is the cell grown by a texel; the atlas keeps two
+    // clear texels round every cell).
+    if (mode < -2.5f) {
+        if (c.a >= 0.5f) {
+            discard_fragment();
+        }
+        float left = atlas.read(uint2(t.x > 0u ? t.x - 1u : 0u, t.y)).a;
+        float right = atlas.read(uint2(t.x + 1u, t.y)).a;
+        float below = atlas.read(uint2(t.x, t.y + 1u)).a;
+        if (max(left, max(right, below)) < 0.5f) {
+            discard_fragment();
+        }
+        return float4(in.tint.rgb, 0.0f);
+    }
     if (mode < -1.5f) {
         if (c.a < 0.5f) {
             discard_fragment();
@@ -239,6 +254,12 @@ static inline float lh_bayer(uint2 p) {
 static inline float lh_light_level(float d, uint style, uint bands, float edge, float dither) {
     float t = saturate(1.0f - d);
     t = t * t;
+    // The hall stage (stage lane, fix round 1 of step stage-1): an interior has no lit edge for creatures to respect,
+    // so its pools fall off smoothly to nothing (no step at the threshold: no hard disc on the wall, no bar along a
+    // ledge).
+    if (style == 3u) {
+        return t;
+    }
     if (style == 0u) {
         return t >= edge ? t : t * 0.55f;
     }
@@ -444,16 +465,18 @@ struct PixelLight {
     float bank;     // ambient multiplier of the darkness bank
 };
 
+// The scale may be fractional while the hall stage eases into its audience framing (stage lane, 14.11.2026); for a
+// whole scale the floor of the division is the integer division it always was.
 static inline uint lh_column(float px, int shift, constant CompositeUniforms &u) {
-    int s = max(int(u.screen.z), 1);
-    int x = (int(px) + shift) / s;
+    float s = max(u.screen.z, 1.0f);
+    int x = int(floor(float(int(px) + shift) / s));
     return uint(clamp(x, 0, int(u.target.x) - 1));
 }
 
 // Exact s x s game pixels: the image is anchored at the bottom, each plane shifted by its whole device pixels.
 static PlaneCoords lh_coords(float2 p, constant CompositeUniforms &u) {
-    int s = max(int(u.screen.z), 1);
-    int fromBottom = (int(u.screen.y) - 1 - int(p.y)) / s;
+    float s = max(u.screen.z, 1.0f);
+    int fromBottom = int(floor(float(int(u.screen.y) - 1 - int(p.y)) / s));
     int row = clamp(int(u.target.y) - 1 - fromBottom, 0, int(u.target.y) - 1);
     uint r = uint(row);
     PlaneCoords c;
@@ -469,8 +492,8 @@ static PlaneCoords lh_coords(float2 p, constant CompositeUniforms &u) {
     // Bloom is read once per game pixel (its centre on the world grid, rows from the bottom), so glows step in s x s
     // blocks like the art instead of a smooth full-resolution blur (polish after the art review: the sun's and the
     // bowl fire's halos were the only smeared pixels on screen).
-    float xs = floor((p.x + float(u.shiftsB.y)) / float(s)) + 0.5f;
-    float ys = floor(u.target.y - (u.screen.y - p.y) / float(s)) + 0.5f;
+    float xs = floor((p.x + float(u.shiftsB.y)) / s) + 0.5f;
+    float ys = floor(u.target.y - (u.screen.y - p.y) / s) + 0.5f;
     c.bloomUV = float2(xs, ys) / max(u.bloom.zw * 2.0f, float2(1.0f));
     return c;
 }
@@ -869,6 +892,10 @@ struct Look2Uniforms {
     float4 roomA;     // a cut-away room in world target pixels: x0, y0, x1, y1 (x1 <= x0: none)
     float4 roomB;
     float4 weather;   // rain share, wetness, unused, unused
+    // The hall stage (stage lane, fix round 1 of step stage-1): the near pillars.
+    float4 hallHole;  // a dithered window where the lord stands behind one: centre x, y (world target px), half sizes
+    float4 hallRimL;  // the rim of light on their left edge (rgb), the share of the hall's ambient on them (a)
+    float4 hallRimR;  // the rim on their right edge (rgb), unused
 };
 
 constant float3 kNightTint2 = float3(0.72f, 0.95f, 1.85f);
@@ -986,6 +1013,16 @@ static inline float lh2_room(uint2 world, constant Look2Uniforms &v) {
     return (a || b) ? 1.0f : 0.0f;
 }
 
+// The hall stage (stage lane): an interior's upper wall fades into the roof's dark, a vertical ramp on its ambient
+// (strength in weather.z, the row where it ends in weather.w; 0: none).
+static inline float lh2_interior_ramp(uint row, constant Look2Uniforms &v) {
+    if (v.weather.z <= 0.0f) {
+        return 1.0f;
+    }
+    float fade = smoothstep(v.weather.w - 95.0f, v.weather.w, float(row));
+    return 1.0f - v.weather.z * (1.0f - fade);
+}
+
 // Point light on a surface: capped as a whole, so it keeps its hue.
 static inline float3 lh2_capped(float3 light) {
     float peak = max(light.r, max(light.g, light.b));
@@ -1027,6 +1064,10 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         float mockRow = float(c.row) - (u.target.z - 175.0f);
         float clear = 1.0f - 0.5f * (1.0f - smoothstep(0.0f, 64.0f, mockRow));
         float haze = saturate(v.farHC.w * clear + low * v.bounceW.w);
+        // The hall stage (stage lane): seen through an interior's windows the Weltmauer keeps more of its form.
+        if (v.weather.z > 0.0f) {
+            haze *= 0.55f;
+        }
         float3 lit = lh2_cold(f.rgb, v.ambF.rgb, 0.0f, 1.0f, v);
         float key = 0.5f * smoothstep(0.55f, 0.75f, lh_luma(f.rgb) / f.a);
         lit += f.rgb * key * (kMoonLight2 * (moonUp * night) + v.cloudC.rgb);
@@ -1086,24 +1127,41 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         float under = float(c.row) - u.target.z;
         float3 light = lh2_capped(info.light);
         float shade = lh_shade(w.rgb / w.a);
+        // The hall stage (stage lane): an interior's floor faces a roof, not the sky (no night lift, no moon on it).
+        bool inside = v.weather.z > 0.0f;
+        float firePeak = peak;
+        if (inside) {
+            // Fix round 2 of step stage-1: teal cloth (the banners, the cloth of estate) swallows warm light: a dim
+            // neutral touch only, so the lantern leaves no cyan halo round the lord's head (round 1 brightened its
+            // luminance) and never an olive green (before round 1); the cloth stays the dark ground of his silhouette.
+            // Grey stone takes warm light whole, so the lantern's pool reaches the wall above the wainscot.
+            float3 wa = w.rgb / w.a;
+            float cool = saturate((wa.b - wa.r - 0.10f) * 4.0f);
+            float lpeak = max(light.r, max(light.g, light.b));
+            float warmth = smoothstep(0.1f, 0.4f, (light.r - light.b) / max(lpeak, 0.0001f));
+            float absorb = cool * warmth;
+            float3 neutral = float3(lh_luma(light)) * float3(1.04f, 1.0f, 0.94f);
+            light = mix(light, neutral * 0.3f, absorb);
+            firePeak *= 1.0f - 0.8f * absorb;
+        }
         // Firelight displaces the cold inside its pool; a cut-away room has the warm fill of its hearth and candles
         // and no night pull; the lane's track faces the sky; a silhouette's top edge catches it.
-        float3 ambient = lh2_ambient(v.ambW.rgb, 1.0f, shade, v) * (1.0f - kFireCold2 * min(1.0f, peak * 1.5f));
+        float3 ambient = lh2_ambient(v.ambW.rgb, 1.0f, shade, v) * (1.0f - kFireCold2 * min(1.0f, firePeak * 1.5f));
         float room = lh2_room(c.world, v);
         ambient = mix(ambient, v.inter.rgb, room);
         float kmul = 1.0f - room * v.inter.w;
-        if (under >= 0.0f && under < 8.0f) {
+        if (under >= 0.0f && under < 8.0f && !inside) {
             ambient *= v.fog.z + 0.25f * v.weather.y;
-        } else {
+        } else if (!inside) {
             float e = lh2_ledge(worldTex, c.world, w.a);
             if (e > 0.0f) {
                 ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
             }
         }
-        ambient *= info.bank * (1.0f - 0.12f * v.weather.y);
+        ambient *= info.bank * (1.0f - 0.12f * v.weather.y) * lh2_interior_ramp(c.row, v);
         float3 lit = lh2_cold(w.rgb, ambient, 1.0f - shade, kmul, v) + lh_reflectance(w.rgb) * light
             + light * (0.06f * w.a);
-        if (under >= 0.0f && under < 7.0f && moonUp > 0.0f) {
+        if (under >= 0.0f && under < 7.0f && moonUp > 0.0f && !inside) {
             lit += w.rgb * kMoonLight2 * (0.18f * moonUp * night);
         }
         // Weather: the wet lane's top rows throw the firelight back, column by column.
@@ -1129,8 +1187,54 @@ static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant Com
         fogCover = max(fogCover, fb.a);
     }
     float4 f = fgTex.read(c.fg);
+    bool inside = v.weather.z > 0.0f;
+    if (f.a > 0.0f && inside && v.hallHole.z > 0.0f) {
+        // The hall stage (fix round 1): where the lord stands behind a near pillar it opens in an ordered dither
+        // around his body, solid outside it, so its outline and rim stay and he is never behind a glassy slab.
+        float2 d = (float2(c.world) + 0.5f - v.hallHole.xy) / max(v.hallHole.zw, float2(1.0f));
+        float open = 1.0f - smoothstep(0.55f, 1.0f, length(d));
+        if (open > lh_bayer(c.fg)) {
+            f = float4(0.0f);
+        }
+    }
     if (f.a > 0.0f) {
-        float3 lit = lh2_cold(f.rgb, v.ambW.rgb * (v.fog.y * info.bank), 0.0f, 1.0f, v) + f.rgb * info.light * 0.55f;
+        // The hall stage (stage lane): an interior's near pillars stand before every light: a faint touch only; they
+        // take a share of the hall's ambient (its roof ramp too) and a rim of the window's, the torches' or the
+        // moon's light on their edges (fix round 1: no flat black bars).
+        float fgLight = inside ? 0.1f : 0.55f;
+        float3 fgAmbient = inside ? v.ambW.rgb * (v.hallRimL.a * info.bank) * lh2_interior_ramp(c.row, v)
+                                  : v.ambW.rgb * (v.fog.y * info.bank);
+        float3 lit = lh2_cold(f.rgb, fgAmbient, 0.0f, 1.0f, v) + f.rgb * info.light * fgLight;
+        if (inside) {
+            // Fix round 2 of step stage-1: the near pillar is a round shaft, not a slab. Its key side (the window's by
+            // day, the door torches' at night; `hallRimR.a` > 0 the right, < 0 the left) catches a soft band of light
+            // 4 px wide on the stone, both edges keep their thin rims, and the whole pier darkens toward the roof (a
+            // value ramp of its own, like the walls behind it).
+            int last = int(max(u.target.x, 1.0f)) - 1;
+            int2 t = int2(c.fg);
+            int dl = 8;
+            int dr = 8;
+            for (int k = 1; k <= 7; k++) {
+                if (dl > 7 && (t.x - k < 0 || fgTex.read(uint2(uint(t.x - k), uint(t.y))).a < 0.5f)) { dl = k; }
+                if (dr > 7 && (t.x + k > last || fgTex.read(uint2(uint(t.x + k), uint(t.y))).a < 0.5f)) { dr = k; }
+            }
+            float left = dl == 1 ? 1.0f : (dl == 2 ? 0.4f : 0.0f);
+            float right = dr == 1 ? 1.0f : (dr == 2 ? 0.4f : 0.0f);
+            float ramp = lh2_interior_ramp(c.row, v);
+            float height = float(c.row) / max(u.target.y, 1.0f);
+            // Step stage-2 (the stage-1 critic's first high): the key light falls on the pier's lower part: full at
+            // the wainscot, half at the window sills, nothing above the banners; the band is 6 px wide and soft on
+            // both sides (its peak a step inside the edge), so no pale rule runs from the floor to the roof.
+            float lower = smoothstep(0.22f, 0.70f, height);
+            float band = v.hallRimR.a;
+            int keyD = band >= 0.0f ? dr : dl;
+            float3 keyLight = band >= 0.0f ? v.hallRimR.rgb : v.hallRimL.rgb;
+            float bandShare = keyD == 1 ? 0.55f : (keyD == 2 ? 0.85f : (keyD == 3 ? 0.9f : (keyD == 4 ? 0.7f
+                : (keyD == 5 ? 0.45f : (keyD == 6 ? 0.22f : (keyD == 7 ? 0.08f : 0.0f))))));
+            lit += f.rgb * keyLight * (abs(band) * bandShare * ramp * lower);
+            lit += (v.hallRimL.rgb * left + v.hallRimR.rgb * right) * ramp * (0.35f + 0.65f * lower);
+            lit *= mix(0.6f, 1.0f, smoothstep(0.05f, 0.8f, height));
+        }
         color = color * (1.0f - f.a) + lit;
         midVisible *= 1.0f - f.a;
     }
@@ -1243,7 +1347,8 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     float shade = lh_shade(albedo);
     float peak = max(info.light.r, max(info.light.g, info.light.b));
     float room = lh2_room(c.world, v);
-    float3 ambient = mix(v.ambW.rgb, v.inter.rgb, room) * ((1.0f - kFireCold2 * min(1.0f, peak * 1.5f)) * info.bank);
+    float3 ambient = mix(v.ambW.rgb, v.inter.rgb, room) * ((1.0f - kFireCold2 * min(1.0f, peak * 1.5f)) * info.bank)
+        * lh2_interior_ramp(c.row, v);
     float3 cold = lh2_cold(albedo, ambient, 1.0f - shade, 1.0f - room * v.inter.w, v);
     float3 light = lh2_capped(info.light);
     float3 lit = in.flags.x > 0.5f ? albedo : cold + lh_reflectance(albedo) * light + light * 0.06f;

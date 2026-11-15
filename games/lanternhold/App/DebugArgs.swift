@@ -100,6 +100,33 @@ struct DebugArgs: Sendable, Equatable {
     var town: TownDebug.Mode?
     /// True when the launch carried any `-GW` argument.
     var hasArguments = false
+    /// `-GWStage world|hall` (the hall stage, stage lane, 14.11.2026): the launch starts in the world strip or in the
+    /// great hall. Without it a lord standing in the hall's old slot (a new realm's first morning) starts inside.
+    var stage: StageKind?
+    /// `-GWHallX <x>` (0 ... 600): where the lord stands in the hall when the launch starts there (default before his
+    /// throne, `HallLayout.firstMorningX`).
+    var hallX: Double?
+    /// `-GWPetition <id>` (with `-GWScreen petition`): that petition before the throne instead of the herald's (the
+    /// hall stage's screenshots of the longest letters).
+    var petition: String?
+    /// `-GWHearth <0 ... 1>` (stage lane, fix round 1): the hearth's strength at the start, a share of its full (the
+    /// hall's weak and middle hearth in the screenshots).
+    var hearth: Double?
+    /// `-GWStageSlow <factor>` (stage lane, fix round 1): the change of stage runs this many times slower, so a
+    /// screenshot catches the dark (1: as played).
+    var stageSlow = 1.0
+    /// `-GWTouchHint YES` (touch the world, step stage-2): the first minute's slip "Touch what the lord shall do."
+    /// shows and stays (its screenshot), whatever the day.
+    var touchHint = false
+    // Touch the world, fix round 1 (stage lane): the night's deeds and the pressed frame in a picture.
+    /// `-GWDamage <plot>[,<plot>]`: those walls stand damaged at the start (45 % of their strength; the repair's
+    /// screenshots).
+    var damage: [Int] = []
+    /// `-GWSnuff <plot>[,<plot>]`: those braziers stand cold at the start (the light's screenshot).
+    var snuff: [Int] = []
+    /// `-GWPressed <id>|nearest`: that thing's mark held pressed while no finger is down (the pressed frame's
+    /// screenshot).
+    var pressed: String?
 
     /// `-GWGloomFog` values.
     enum GloomFogOverride: Sendable, Equatable {
@@ -141,6 +168,9 @@ struct DebugArgs: Sendable, Equatable {
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
         "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog", "GWHouses", "GWSound",
         "GWTown",
+        "GWStage", "GWHallX", "GWPetition", "GWHearth", "GWStageSlow",
+        // Touch the world (stage lane, step stage-2; fix round 1)
+        "GWTouchHint", "GWDamage", "GWSnuff", "GWPressed",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -175,7 +205,7 @@ struct DebugArgs: Sendable, Equatable {
         if let text = values["GWSeed"], let seed = UInt64(text.trimmingCharacters(in: .whitespaces)) {
             self.seed = seed
         }
-        if let cameraX = DebugArgs.double(values["GWCameraX"]) {
+        if let cameraX = DebugArgs.place(values["GWCameraX"]) {
             self.cameraX = cameraX
         }
         autoplay = values["GWAutoplay"].flatMap { Autoplay(rawValue: $0.lowercased()) }
@@ -251,6 +281,25 @@ struct DebugArgs: Sendable, Equatable {
             let named = text.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             houses = named.contains("all") ? known : known.filter { named.contains($0) }
         }
+        stage = values["GWStage"].flatMap { StageKind(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
+        if let x = DebugArgs.double(values["GWHallX"]) {
+            hallX = min(HallLayout.width, max(0, x))
+        }
+        if let id = values["GWPetition"]?.trimmingCharacters(in: .whitespaces), !id.isEmpty {
+            petition = id
+        }
+        if let share = DebugArgs.double(values["GWHearth"]) {
+            hearth = min(1, max(0, share))
+        }
+        if let slow = DebugArgs.double(values["GWStageSlow"]), slow >= 1 {
+            stageSlow = min(40, slow)
+        }
+        touchHint = DebugArgs.bool(values["GWTouchHint"])
+        damage = DebugArgs.plots(values["GWDamage"])
+        snuff = DebugArgs.plots(values["GWSnuff"])
+        if let held = values["GWPressed"]?.trimmingCharacters(in: .whitespaces), !held.isEmpty {
+            pressed = held
+        }
         lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
         if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
             lordName = name
@@ -281,6 +330,27 @@ struct DebugArgs: Sendable, Equatable {
         if let value = Int(trimmed) { return value }
         if let value = Double(trimmed), value.isFinite, abs(value) < 1_000_000 { return Int(value) }
         return nil
+    }
+
+    /// A place in the world (touch the world, fix round 1): px, or `hallDoor` with an offset (`hallDoor+80`): the
+    /// painted hall door wherever the facade has it (`HallDoor`), so the tests stand where the door is.
+    static func place(_ text: String?) -> Double? {
+        guard let trimmed = text?.trimmingCharacters(in: .whitespaces), !trimmed.isEmpty else { return nil }
+        let key = "halldoor"
+        if trimmed.lowercased().hasPrefix(key) {
+            let rest = String(trimmed.dropFirst(key.count)).replacingOccurrences(of: " ", with: "")
+            if rest.isEmpty { return HallLayout.worldDoorX }
+            guard let offset = Double(rest), offset.isFinite else { return nil }
+            return HallLayout.worldDoorX + offset
+        }
+        return double(trimmed)
+    }
+
+    /// Plot indices, comma separated.
+    static func plots(_ text: String?) -> [Int] {
+        guard let text else { return [] }
+        return text.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+            .filter { $0 >= 0 && $0 < 64 }
     }
 
     private static func double(_ text: String?) -> Double? {

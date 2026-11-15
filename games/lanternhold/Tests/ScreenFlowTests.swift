@@ -195,6 +195,16 @@ final class GameScreensTests: XCTestCase {
         XCTAssertNotEqual(lectern.target, .lectern)
         lectern.performAction()
         XCTAssertNotEqual(lectern.overlay, .taxes)
+        // The join: in the hall too, once nobody waits, the lectern beside the throne offers nothing (taxes on foot).
+        let throne = model(["GWStage": "hall", "GWReduceMotion": "YES"])
+        throne.performAction()
+        throne.choosePetition(0)
+        throne.nextPetitioner()
+        throne.hall?.walker = HallWalker(x: HallLayout.lecternX, facing: -1)
+        throne.refreshAction()
+        XCTAssertNotEqual(throne.target, .lectern, "the lectern is furniture")
+        throne.performAction()
+        XCTAssertNotEqual(throne.overlay, .taxes)
     }
 
     func testTheDawnBringsTheReportAndContinueStartsTheDay() throws {
@@ -322,10 +332,16 @@ final class GameScreensTests: XCTestCase {
     }
 
     func testTheStripTapAndTheSampleScreens() {
-        let game = model([:])
+        let game = model(["GWCameraX": "1500"])
         game.travel(toFraction: 0.25)
         XCTAssertEqual(game.driver?.travelTarget ?? 0, Realm.worldWidth / 4, accuracy: 1e-9)
         XCTAssertNotNil(game.strip)
+        // The hall stage: from inside the great hall the strip sends the lord out by the door and on to that point.
+        let inside = model([:])
+        XCTAssertEqual(inside.stage, .hall)
+        inside.travel(toFraction: 0.25)
+        XCTAssertEqual(inside.stageChange?.to, .world)
+        XCTAssertEqual(inside.stageChange?.travelOn ?? 0, Realm.worldWidth / 4, accuracy: 1e-9)
         XCTAssertTrue(model(["GWScreen": "report"]).reportCard?.fallen.isEmpty == false)
         XCTAssertEqual(model(["GWScreen": "finale"]).reportCard?.banners.first, .kingSlain)
         let showcase = model(["GWNight": "1", "GWAutoplay": "play"])

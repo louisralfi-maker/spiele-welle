@@ -204,6 +204,34 @@ final class GameModel {
     var stageAnchor = 0.45
     var figureTop = 0.7
 
+    // MARK: The hall stage (stage lane, 14.11.2026; `GameModel+Hall.swift`)
+
+    /// Which stage shows: the world strip or the great hall.
+    var stage: StageKind = .world
+    /// The great hall's scene while the lord is inside (his walk, the camera, the move into the audience framing, the
+    /// court's smoothed places), nil in the world.
+    @ObservationIgnored var hall: HallScene?
+    /// The hall's figures as drawn in the last step (the action button's talk targets, the bubble's anchor).
+    @ObservationIgnored var hallFigures: [DrawnFigure] = []
+    /// A change of stage in progress (the walk to the door, the door, the dark), nil when none.
+    @ObservationIgnored var stageChange: StageChange?
+    /// How dark the screen is for the change of stage (0 ... 1; the veil over the scene).
+    var stageDarkness = 0.0
+    /// The horn's slip at the hall's door while the lord is inside after the horn: where the door is on screen (0 ... 1
+    /// of the width, the slip's foot as 0 ... 1 of the height), nil when it does not show.
+    var hornSlip: CGPoint? = nil
+
+    // MARK: Touch the world (stage lane, step stage-2, 15.11.2026; `GameModel+Touch.swift`)
+
+    /// The things on the stage, the errand, the finger, the framing (UI state, not observed).
+    @ObservationIgnored var touch = TouchState()
+    /// The slip above the thing the lord walks to (nil: none).
+    var errandSlip: ErrandSlip? = nil
+    /// The accessibility elements of the things in view (placed again four times a second).
+    var touchSpots: [TouchSpot] = []
+    /// The first minute's slip "Touch what the lord shall do." shows.
+    var firstTouchSlip = false
+
     /// `store` is where the game's save lives (the app's own by default; the tests pass a temporary one, so they never
     /// touch the simulator app's real save).
     init(args: DebugArgs, kind: SceneKind, store saveStore: SaveStore? = SaveStore.standard()) {
@@ -256,7 +284,7 @@ final class GameModel {
         scene = world
         castleStage = stage
         clock = dayClock
-        court = CourtScene(rooms: RoomFades(kingX: start))
+        court = CourtScene(rooms: RoomFades(kingX: HallRules.roomsX(start)))
         autoplay = args.autoplay == .walk && kind == .probe
         if start + GameModel.autoplayLeg <= WorldLayout.walkEnd - 20 {
             autoplayRange = start...(start + GameModel.autoplayLeg)
@@ -271,6 +299,9 @@ final class GameModel {
         settings = loadedSettings
         feedback.soundOn = settings.sound
         feedback.hapticsOn = settings.haptics
+        // The hall stage: a launch in the great hall's old slot (a new realm's first morning) or `-GWStage hall`
+        // starts inside.
+        startStage()
         applyScreen()
         if overlay == nil, let state = driver?.state, LordEntry.asks(args: args, state: state) {
             setOverlay(.lordEntry)
@@ -391,6 +422,10 @@ final class GameModel {
         }
         stepCourt(seconds, state: game.state)
         stepTown()
+        // The hall stage: the change of stage, the lord's walk in the hall, its camera and its court.
+        stepStage(seconds, state: driver?.state ?? game.state)
+        // Touch the world: the errand follows its thing and ends when he arrives.
+        stepTouch(seconds)
         effects.prune(time: animationTime)
         shake.prune(time: clock.elapsed)
         if hornNight != nil && clock.elapsed > hornUntil {
@@ -433,6 +468,8 @@ final class GameModel {
                     hornNight = state.nightNumber
                     hornUntil = time + GameModel.hornBannerSeconds
                 }
+                // The hall stage: inside, the waiting go home and a slip at the door says so.
+                hallHeardTheHorn()
             case .wallBroken(let plot):
                 guard plot >= 0, plot < Realm.plots.count else { continue }
                 shake.kick(ScreenShake.strength(ScreenShake.wallBreak, at: Realm.plots[plot].x,
@@ -453,10 +490,11 @@ final class GameModel {
         }
     }
 
-    /// Where the listener is for the ambience (DESIGN.md "Sound and haptics"): by the lord's room, and the great hall
-    /// during an audience at the throne. The hall's own full-screen scene answers `.hall` here when it lands.
+    /// Where the listener is for the ambience (DESIGN.md "Sound and haptics"): the great hall while the lord is on
+    /// its stage, else by his place in the world. The hall stage: through a change of stage the ear goes first, so
+    /// once the door opens the place is already the stage he is going to.
     func soundPlace(_ state: GameState) -> SoundPlace {
-        SoundPlace.at(x: state.king.x, inAudience: overlay == .audience && court.audience?.place == .throne)
+        SoundPlace.of(stage: audibleStage, worldX: state.king.x)
     }
 
     /// The ambience's target for this frame: day or night, the rain, the place, the fire nearby; half as loud under
@@ -538,6 +576,11 @@ final class GameModel {
     func setDrag(offset: Double?) {
         if kind == .world {
             guard overlay == nil else { return }
+            // The hall stage: inside, the drag walks the lord in the hall.
+            if stage == .hall || stageChange != nil {
+                hallDrag(offset: offset)
+                return
+            }
             driver?.setDrag(offset: offset, deadZone: GameModel.dragDeadZone, runDistance: GameModel.runDistance)
             return
         }
@@ -553,41 +596,8 @@ final class GameModel {
     func performAction() {
         switch kind {
         case .world:
-            guard let target, var game = driver, overlay == nil else { return }
-            switch target {
-            case .build(let plot):
-                let anchor = KingTargets.anchorX(target, state: game.state, balance: game.balance)
-                openCard(.build(plot: plot), anchorX: anchor)
-            case .recruit:
-                openCard(.recruit, anchorX: KingTargets.barracksX)
-            case .throne:
-                // M3: the crown opens the audience while petitioners wait in the hall. Town-2: no tax card any more;
-                // the taxes are collected on foot at the doors (docs/TOWN.md section 1).
-                if !AudienceRules.hall(game.state, catalog: .standard).isEmpty {
-                    openAudience(.throne)
-                }
-            case .lectern:
-                // Town-2: the lectern stays as furniture; the button never offers it (`KingTargets`).
-                break
-            case .stranger:
-                openAudience(.gate)
-            case .talk(let who):
-                talk(to: who)
-            case .light(let plot), .patch(let plot):
-                let action: KingAction = {
-                    if case .light = target { return .light(plot: plot) }
-                    return .patch(plot: plot)
-                }()
-                var actionEvents: [SimEvent] = []
-                let done = game.perform(action, events: &actionEvents)
-                driver = game
-                if !actionEvents.isEmpty {
-                    effects.note(actionEvents, state: game.state, balance: game.balance, time: animationTime)
-                    handle(actionEvents, state: game.state)
-                }
-                if !done { feedback.play(.refused) }
-                refreshHUD()
-            }
+            guard let target else { return }
+            perform(target)
         case .probe:
             scene.toggleBrazier(near: scene.king.x, reach: GameModel.actionReach)
             refreshAction()
@@ -596,9 +606,61 @@ final class GameModel {
         }
     }
 
+    /// Does what `target` offers, where the lord stands (touch the world: when he arrives at the thing).
+    func perform(_ target: KingTarget) {
+        guard kind == .world, var game = driver, overlay == nil else { return }
+        switch target {
+        case .build(let plot):
+            let anchor = KingTargets.anchorX(target, state: game.state, balance: game.balance)
+            openCard(.build(plot: plot), anchorX: anchor)
+        case .recruit:
+            openCard(.recruit, anchorX: KingTargets.barracksX)
+        case .throne:
+            // M3: the crown opens the audience while petitioners wait in the hall. Town-2: no tax card any more;
+            // the taxes are collected on foot at the doors (docs/TOWN.md section 1).
+            if !AudienceRules.hall(game.state, catalog: .standard).isEmpty {
+                openAudience(.throne)
+            }
+        case .lectern:
+            // Town-2: the lectern stays as furniture; nothing offers it (`KingTargets`, `TouchThings`).
+            break
+        case .hallDoor:
+            // The hall stage: in by the hall's door (`HallDoor`), or out by the inner door.
+            if stage == .hall { leaveHall() } else { enterHall() }
+        case .stranger:
+            openAudience(.gate)
+        case .talk(let who):
+            talk(to: who)
+        case .bench(let index):
+            // Touch the world: the first in line on that bench speaks.
+            benchSpeaks(index)
+        case .light(let plot), .patch(let plot):
+            let action: KingAction = {
+                if case .light = target { return .light(plot: plot) }
+                return .patch(plot: plot)
+            }()
+            var actionEvents: [SimEvent] = []
+            let done = game.perform(action, events: &actionEvents)
+            driver = game
+            if !actionEvents.isEmpty {
+                effects.note(actionEvents, state: game.state, balance: game.balance, time: animationTime)
+                handle(actionEvents, state: game.state)
+            }
+            if !done { feedback.play(.refused) }
+            refreshHUD()
+        }
+    }
+
     /// A tap on the realm strip at `fraction` of its width: the king runs there (DESIGN.md "Controls").
     func travel(toFraction fraction: Double) {
         guard kind == .world, overlay == nil, driver != nil else { return }
+        cancelErrand()
+        // The hall stage: from inside, the lord goes out by the door and on to that point.
+        if stage == .hall {
+            leaveHall(travelOn: RealmStrip.worldX(fraction: fraction))
+            refreshHUD()
+            return
+        }
         driver?.travel(to: RealmStrip.worldX(fraction: fraction))
         refreshHUD()
     }
@@ -616,7 +678,10 @@ final class GameModel {
     private func openCard(_ card: Overlay, anchorX: Double) {
         // Acting at a place ends a walk the realm strip started.
         driver?.travelTarget = nil
-        if let view = camera {
+        if stage == .hall {
+            // The hall stage: `anchorX` is a place in the hall.
+            cardAnchor = hallScreenFraction(anchorX)
+        } else if let view = camera {
             cardAnchor = min(1, max(0, (anchorX - view.x) / max(1, view.viewWidth)))
         }
         feedback.play(.cardOpened)
@@ -845,7 +910,9 @@ final class GameModel {
         closeTalk()
         talkLog = TalkLog()
         audience = nil
-        court = CourtScene(rooms: RoomFades(kingX: state.king.x))
+        court = CourtScene(rooms: RoomFades(kingX: HallRules.roomsX(state.king.x)))
+        // The hall stage: a new realm's lord, or a dawn in the hall's slot, starts in the hall; else in the world.
+        resetStage(state)
     }
 
     /// `-GWScreen report|finale|defeat`: that screen with sample data over the realm the other arguments made.
@@ -965,6 +1032,17 @@ final class GameModel {
                                           options: options)
             }
             let state = game.state
+            // The hall stage: inside, the great hall is drawn instead of the world (`GameModel+Hall.swift`).
+            if stage == .hall {
+                _ = ensureCamera(pixelScale, focus: state.king.x)
+                frame = hallFrame(state: state, balance: game.balance, pixelScale: pixelScale, options: options)
+                renderedFrames += 1
+                if renderedFrames % 6 == 1 {
+                    publishDebug(frame)
+                    refreshGameStatus()
+                }
+                return frame
+            }
             growCastle(state)
             var view = ensureCamera(pixelScale, focus: state.king.x + GameModel.cameraLead(state))
             let sway = shake.offset(at: clock.elapsed, reduceMotion: reduceMotion)
@@ -1000,6 +1078,9 @@ final class GameModel {
             TownFrames.apply(&layer, state: state, balance: game.balance,
                              view: EntityFrames.ActorView(camera: view, pixelScale: pixelScale, mode: options.actorMode),
                              reduceMotion: reduceMotion, refused: townRun.refused)
+            // Touch the world: what offers something, its marks and pools, the framing the finger reads.
+            touchWorld(&layer, state: state, balance: game.balance, camera: view, pixelScale: pixelScale,
+                       night: Double(AmbientRamp.sample(at: state.hour, look: options.look).torchStrength))
             for light in DawnSweep.lights(hour: state.hour) {
                 layer.lights.append((source: light, plane: .world))
             }
@@ -1047,6 +1128,13 @@ final class GameModel {
         }
         let front = min(1, max(0, (WorldLayout.castleFrontX + 60 - state.king.x) / 120))
         return -nightLead * night * front
+    }
+
+    /// The hall stage: the world's camera cuts to `focus` (the lord stepping out of the hall's door), and the sound
+    /// watch starts afresh (no step or coin heard across the change).
+    func cutWorldCamera(toFocus focus: Double) {
+        camera?.jump(toFocus: focus)
+        watch.reset()
     }
 
     private func ensureCamera(_ pixelScale: PixelScale, focus: Double) -> Camera {
@@ -1129,7 +1217,10 @@ final class GameModel {
             if s.citizens != people { people = s.citizens }
             if s.soldiers.count != soldiers { soldiers = s.soldiers.count }
             let window = camera.map { RealmStrip.window(cameraX: $0.x, viewWidth: $0.viewWidth) }
-            let next = RealmStrip.make(s, balance: game.balance, travelTarget: game.travelTarget, window: window)
+            var next = RealmStrip.make(s, balance: game.balance, travelTarget: game.travelTarget,
+                                       window: stage == .hall ? nil : window)
+            // The hall stage: inside, the strip marks the hall.
+            next.inHall = stage == .hall
             if next != strip { strip = next }
             refreshCourt(s)
         }
@@ -1137,14 +1228,16 @@ final class GameModel {
         refreshGameStatus()
     }
 
-    private func refreshAction() {
+    func refreshAction() {
         switch kind {
         case .world:
             var next: KingTarget?
             var hold: KingTargetHold?
             var verb: KingTargets.BuildVerb?
-            if let game = driver, overlay == nil, game.bot == nil {
-                next = KingTargets.target(game.state, balance: game.balance)
+            if let game = driver, overlay == nil, game.bot == nil, stageChange == nil {
+                // The hall stage: the hall's own targets inside; in the world the door instead of the throne.
+                next = stage == .hall ? hallTarget(game.state, balance: game.balance)
+                    : HallRules.worldTarget(game.state, balance: game.balance)
                 hold = next.flatMap { KingTargets.hold($0, state: game.state, balance: game.balance) }
                 if case .build(let plot)? = next { verb = KingTargets.verb(game.state, plot: plot) }
             }
@@ -1176,6 +1269,20 @@ final class GameModel {
             + "kx:\(Int(state.king.x.rounded())) lord:\(state.lordOrDefault.form.rawValue)"
         if let front = dawnFront {
             text += " dawn:\(String(format: "%.2f", front))"
+        }
+        // The hall stage: which stage shows, and inside the lord's place in the hall.
+        text += " stage:\(stage.rawValue)"
+        if stage == .hall, let walker = hall?.walker {
+            text += " hx:\(Int(walker.x.rounded()))"
+        }
+        // Touch the world: the lord's x on the stage that shows (`lord:` names Burgherr or Burgherrin) and the
+        // errand's thing.
+        text += " lx:\(Int(stageLordX.rounded())) errand:\(touch.errand?.id ?? "none")"
+        // Fix round 1: where the painted hall door stands in the world (the tests check he comes out there).
+        if stage == .world { text += " door:\(Int(HallLayout.worldDoorX.rounded()))" }
+        // Raise the lantern: its phase at night.
+        if DayClock.phase(at: state.hour) != .day {
+            text += " lantern:\(GameModel.lanternWord(LanternRaise.phase(since: state.king.lanternSince)))"
         }
         if text != sceneStatus {
             sceneStatus = text
