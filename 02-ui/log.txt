@@ -1,0 +1,20 @@
+Test Case '-[LanternholdUITests.AdsUITests testDoubleTaxes]' passed (42.620 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testInterstitialOnARealDawn]' passed (18.580 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testMerchantsGift]' passed (23.118 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testSecondChance]' passed (22.337 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testWithoutAdsNoOffer]' passed (31.503 seconds).
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (145.119 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (182.594 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (52.609 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (241.502 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (104.049 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (173.818 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (17.472 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (30.254 seconds).
+<unknown>:0: error: -[LanternholdUITests.TownUITests testTaxesOnFoot] : Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"town-door-24" IN identifiers'`, given input App element pid: 25076
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' failed (69.072 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (38.818 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (169.858 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (37.403 seconds).
+exit=65
+screenshots: 92

@@ -1,0 +1,19 @@
+Application, 0x101d4dad0, pid: 25076, label: 'Lanternhold' <App element pid: 25076>
+  Window (Main), 0x102853f00, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 25076, elementOrHash.elementID: 4395668176.4>
+    Other, 0x102955560, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 25076, elementOrHash.elementID: 4395799040.5>
+      Other, 0x101d491d0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 25076, elementOrHash.elementID: 4395801120.6>
+        Other, 0x101d4e1b0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 25076, elementOrHash.elementID: 4395778400.7>
+          Other, 0x101d49880, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 25076, elementOrHash.elementID: 4386775184.8>
+            Other, 0x101d4e530, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 25076, elementOrHash.elementID: 4386774080.9>
+              Other, 0x101d4fa30, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:2670 ready d... <AX element pid: 25076, elementOrHash.elementID: 4395883696.10>
+              Other, 0x101d46f40, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 25076, elementOrHash.elementID: 4386256352.11>
+              Other, 0x101d4eff0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 25076, elementOrHash.elementID: 4386761568.12>
+              Other, 0x101d586b0, {{0.0, 0.0}, {1.0, 1.0}}, identifier: 'town-status', value: day:2 owing: paid:... <AX element pid: 25076, elementOrHash.elementID: 4386764464.14>
+              Other, 0x101d56e80, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 25076, elementOrHash.elementID: 4386765920.15>
+              StaticText, 0x101d4b470, {{329.0, 6.7}, {216.0, 60.0}}, identifier: 'horn-banner', label: 'The horn sounds, Night 2 is coming' <AX element pid: 25076, elementOrHash.elementID: 4386785536.62>
+                Image, 0x101d57c40, {{329.0, 6.7}, {216.0, 60.0}} <AX element pid: 25076, elementOrHash.elementID: 4386705728.63>
+                StaticText, 0x101d578c0, {{365.0, 14.0}, {144.0, 23.0}}, label: 'The horn sounds' <AX element pid: 25076, elementOrHash.elementID: 4386763968.64>
+                StaticText, 0x101d4f340, {{385.8, 39.0}, {102.3, 20.3}}, label: 'Night 2 is coming' <AX element pid: 25076, elementOrHash.elementID: 4386785104.65>
+              Other, 0x101d59440, {{415.0, 290.0}, {44.0, 60.0}} <AX element pid: 25076, elementOrHash.elementID: 4386772544.17>
+                Button, 0x101d59e80, {{415.0, 290.0}, {44.0, 60.0}}, identifier: 'touch-lord', label: 'Robin, day 2, 74 gold, the town is glad, 15 people' <AX element pid: 25076, elementOrHash.elementID: 4386770336.21>
+              Other, 0x101d54fb0, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 25076, elementOrHash.elementID: 4386773648.18>
