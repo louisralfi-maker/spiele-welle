@@ -43,6 +43,10 @@ extension SceneLayout {
         }
     }
 
+    /// The columns of room either side of the curtain's banner (tier 3) for its foot to swing in
+    /// (tools/bannerart.py `BANNER_SWING`): the painting stands this far right of the sprite's left edge.
+    static let castleBannerSwing = 3.0
+
     /// The tower, then its sails over it (the sails turn in front of the tower and its cap).
     static let look2Wind: [(plane: Plane, entry: Entry)] = [
         (.mid, Entry(sprite: .windmillTower, x: look2WindmillX, y: look2WindmillY, z: 1, region: .valley)),

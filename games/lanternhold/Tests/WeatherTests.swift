@@ -532,6 +532,33 @@ final class WeatherTests: XCTestCase {
         XCTAssertEqual(poses.first, [3, 3])
     }
 
+    func testTheCurtainsBannersSwingTheirFootDownwind() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let banners = world.props.filter { $0.sprite == .castleBanner }
+        XCTAssertEqual(banners.map(\.x), [1500, 1906, 2084].map { $0 - SceneLayout.castleBannerSwing },
+                       "the painting where it hung, with room for its foot")
+        XCTAssertEqual(SpriteID.castleBanner.size.width, 12 + 2 * Int(SceneLayout.castleBannerSwing))
+        XCTAssertEqual(AtlasLayout.shared.cells[.castleBanner]?.count, 7)
+        func frames(_ override: WeatherOverride, time: Double, reduceMotion: Bool = false) -> [Int] {
+            let weather = Weather.sample(seed: 3, day: 12, hour: 12, time: time, override: override,
+                                         reduceMotion: reduceMotion)
+            return windFrame(world, focus: 1960, weather: weather, time: time, reduceMotion: reduceMotion)
+                .layer(.world).sprites.filter { $0.sprite == .castleBanner }.map(\.frame)
+        }
+        let still = frames(WeatherOverride(mode: .clear), time: 4)
+        XCTAssertFalse(still.isEmpty, "a banner in view")
+        XCTAssertTrue(still.allSatisfy { $0 == 0 }, "still air: it hangs")
+        for index in 0..<12 {
+            let time = 4 + Double(index) * 0.1
+            XCTAssertTrue(frames(WeatherOverride(mode: .storm), time: time).allSatisfy { (2...3).contains($0) },
+                          "a storm toward the valley swings it right")
+            let west = frames(WeatherOverride(mode: .clear, wind: -0.5), time: time)
+            XCTAssertTrue(west.allSatisfy { (5...6).contains($0) }, "a wind from the valley swings it left")
+        }
+        XCTAssertEqual(Set((0..<10).flatMap { frames(WeatherOverride(mode: .storm), time: 4 + Double($0) * 0.2,
+                                                     reduceMotion: true) }), [3], "Reduce Motion: it stands")
+    }
+
     func testTheFiresLeanAndGutterWithTheWind() {
         XCTAssertEqual(Weather.fireLean(x: 1500, .clear, time: 2), 0)
         let storm = fixed(WeatherOverride(mode: .storm))

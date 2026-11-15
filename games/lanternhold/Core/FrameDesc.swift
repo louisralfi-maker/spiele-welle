@@ -416,7 +416,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .curtainStair: return PixelSize(width: 52, height: 66)
         case .curtainTower: return PixelSize(width: 44, height: 104)
         case .curtainHoard: return PixelSize(width: 64, height: 22)
-        case .castleBanner: return PixelSize(width: 12, height: 30)
+        // Build 3, POLISH pass 1 (lane 3): 18 wide (the painting's 12 and room for its foot to swing 3 either way).
+        case .castleBanner: return PixelSize(width: 18, height: 30)
         case .forebuilding: return PixelSize(width: 120, height: 96)
         case .hallDoorGlow: return PixelSize(width: 20, height: 32)
         case .hallDoorWedge: return PixelSize(width: 60, height: 19)
@@ -557,6 +558,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .rainStreak: return 9
         case .windmillSails: return Weather.sailFrames
         case .keepFlag: return 4
+        case .castleBanner: return 7   // build 3: hanging, swung 1 to 3 toward the valley, 1 to 3 toward the west
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
         // The hall stage (stage lane): the great fire's six frames, idle and pressed marks, eight plaster patches.
         case .hallFire: return 6

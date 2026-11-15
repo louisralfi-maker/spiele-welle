@@ -18,6 +18,10 @@ do not have.
       keepFlag      16x21, 4 frames: the realm's flag on the keep's poles (teal, the guardian house's gold lantern
                     near the hoist, a swallowtail), limp, stirring, flying, snapping (`Weather.flagFrame`). Column 0
                     is the cloth's hoist, one pixel right of the pole; row 0 its top, one row under the pole's top.
+      castleBanner  18x30, 7 frames: the realm's banner hung from the curtain's parapet at tier 3 (keepart.py's
+                    painting, 12 px, at cols 3 to 14), hanging still (0), its foot swung 1, 2 and 3 px toward the
+                    valley (1 to 3) and toward the shadow land (4 to 6); the bar stays, the swing grows down the cloth.
+                    Drawn both ways, so its light stays on its left (`WindLook`).
 
 Pure python 3 (pixelart.py's PNG and palette code), deterministic, well under a second per banner.
 """
@@ -209,17 +213,46 @@ def flag_frame(pal, k):
     return img
 
 
+BANNER_W, BANNER_SWING = 18, 3
+BANNER_CHARGE = (12, 15)   # the rows of keepart's lantern on the banner: they move as one, so it never breaks
+
+
+def banner_frame(base, swing):
+    """keepart's hanging banner with its foot swung `swing` px (negative: to the left): row r of the cloth moves by
+    swing x (r / last row) ^ 1.6, so the bar holds and the cloth bends toward its foot; the lantern's rows move by
+    their middle row's shift."""
+    img = Image(BANNER_W, base.h)
+    last = float(base.h - 1)
+    for yy in range(base.h):
+        r = (BANNER_CHARGE[0] + BANNER_CHARGE[1]) / 2.0 if BANNER_CHARGE[0] <= yy <= BANNER_CHARGE[1] else yy
+        shift = int(round(swing * (r / last) ** 1.6))
+        for xx in range(base.w):
+            p = base.get(xx, yy)
+            if p[3]:
+                img.set(BANNER_SWING + xx + shift, yy, p)
+    return img
+
+
+def wind_frames(wid, pal):
+    if wid == "keepFlag":
+        return [flag_frame(pal, k) for k in range(len(FLAG_POSES))]
+    if wid == "castleBanner":
+        import keepart  # the realm's banner as the castle paints it (keepart.py, world-2)
+        base = keepart.castle_banner()
+        return [banner_frame(base, s) for s in (0, 1, 2, 3, -1, -2, -3)]
+    raise SystemExit(f"unknown wind sprite {wid}")
+
+
 def wind_strip(wid, pal):
-    if wid != "keepFlag":
-        raise SystemExit(f"unknown wind sprite {wid}")
-    frames = [flag_frame(pal, k) for k in range(len(FLAG_POSES))]
-    out = Image(FLAG_W * len(frames), FLAG_H)
+    frames = wind_frames(wid, pal)
+    w, h = frames[0].w, frames[0].h
+    out = Image(w * len(frames), h)
     for k, f in enumerate(frames):
-        for yy in range(FLAG_H):
-            for xx in range(FLAG_W):
+        for yy in range(h):
+            for xx in range(w):
                 p = f.get(xx, yy)
                 if p[3]:
-                    out.set(k * FLAG_W + xx, yy, p)
+                    out.set(k * w + xx, yy, p)
     return out
 
 
