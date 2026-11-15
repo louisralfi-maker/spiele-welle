@@ -28,6 +28,11 @@ enum TownText {
     /// The households by plot and name key (town-1's first list).
     static var householdKeys: [(plot: String, key: String)] { households.map { (plot: $0.plot, key: $0.name) } }
 
+    /// Fix lane D (player-loop-1): "Never asked at the town's doors: N" in the place of "Left to the people: N" on a day
+    /// nobody asked at a door. English only for build 2 (the other languages come with the store pass), so it is not
+    /// yet in `keys`, whose catalogue test asks for German too.
+    static let neverAskedKey = "town.report.neverAsked"
+
     /// Houses the report names one by one; more are counted ("Knocked at 3 doors") or, all of them, "every door".
     static let namedDoorsMost = 2
 
@@ -98,7 +103,12 @@ enum TownText {
             }
         }
         if summary.collected > 0 { add("town.report.collected", String(summary.collected)) }
-        if summary.kept > 0 { add("town.report.kept", String(summary.kept)) }
+        if summary.kept > 0 {
+            // Fix lane D (the review of build 2, player-loop-1): after the first morning, a day on which the doors
+            // owed and nobody asked at one (neither the lord nor the collector) says where the gold waits.
+            let neverAsked = summary.day >= 2 && summary.collected == 0 && summary.collectorOut != true
+            add(neverAsked ? neverAskedKey : "town.report.kept", String(summary.kept))
+        }
         if !summary.spared.isEmpty { add("town.report.spared", String(summary.spared.count)) }
         doors(summary.knockedAt, named: "town.report.knocked", counted: "town.report.knockedCount",
               all: "town.report.knockedAll")
@@ -125,7 +135,7 @@ extension TownText {
     static func reportDetail(_ summary: TownSummary, lookup: (String) -> String = { TownText.string($0) }) -> String? {
         let lines = reportLines(summary, lookup: lookup)
         for prefix in ["town.report.unrest", "town.report.levied", "town.report.knocked", "town.report.kept",
-                       "town.report.collector"] {
+                       neverAskedKey, "town.report.collector"] {
             if let line = lines.first(where: { $0.key.hasPrefix(prefix) }) { return line.text }
         }
         return nil

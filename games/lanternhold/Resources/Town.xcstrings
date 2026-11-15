@@ -799,6 +799,18 @@
         }
       }
     },
+    "town.report.neverAsked" : {
+      "comment" : "Dawn report, in the place of \"Left to the people\": the households owed yesterday and nobody asked at a single door of the town, so they kept it. %@ is the amount.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Never asked at the town's doors: %@"
+          }
+        }
+      }
+    },
     "town.report.spared" : {
       "comment" : "Dawn report: how many houses the lord left alone yesterday. %@ is the number.",
       "extractionState" : "manual",

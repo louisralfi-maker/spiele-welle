@@ -85,9 +85,12 @@ enum RealmMapPixels {
         var x: Int
         var glyph: [String]
         var count: Int?
+        /// Fix lane D (player-loop-1): a sign of the kit drawn from the atlas in the glyph's place (the doors' coin).
+        var sign: SpriteID? = nil
+
+        var glyphWidth: Int { sign?.size.width ?? (glyph.first?.count ?? 0) }
 
         var width: Int {
-            let glyphWidth = glyph.first?.count ?? 0
             return 1 + glyphWidth + (count.map { 1 + HUDKit.figuresWidth(HUDKit.figureFrames(min($0, 99)).count) } ?? 0) + 1
         }
     }
@@ -132,6 +135,11 @@ enum RealmMapPixels {
                 let x = line.line == 1 ? column(1330) : column(fraction: line.position)
                 list.append(Tag(x: x, glyph: breachGlyph, count: nil))
             }
+        }
+        // Fix lane D (player-loop-1): by day the doors that still owe, the kit's coin and their number over the town.
+        if strip.owingDoors > 0 {
+            list.append(Tag(x: column(fraction: (RealmStrip.town.lowerBound + RealmStrip.town.upperBound) / 2),
+                            glyph: [], count: strip.owingDoors, sign: .hudCoin))
         }
         list.sort { $0.x < $1.x }
         return list
@@ -388,6 +396,14 @@ enum RealmMapPixels {
             }
         }
         stamp(&c, call.glyph, left: left + 1, bottom: 7, colors: ["X": bone])
+        if call.sign == .hudCoin, let coin = coinCell {
+            for fy in 0..<coin.height {
+                for fx in 0..<coin.width {
+                    let px = coin[fx, fy]
+                    if px.a > 0 { c[left + 1 + fx, fy] = px }
+                }
+            }
+        }
         guard let count = call.count else {
             c[x, tagHeight - 1] = ember
             c[x - 1, tagHeight - 1] = emberDim
@@ -395,7 +411,7 @@ enum RealmMapPixels {
             return
         }
         let digits = HUDKit.figureFrames(min(count, 99))
-        let figuresLeft = left + 1 + (call.glyph.first?.count ?? 0) + 1
+        let figuresLeft = left + 1 + call.glyphWidth + 1
         // The tip: two pixels down to the pane.
         c[x, tagHeight - 1] = ember
         c[x - 1, tagHeight - 1] = emberDim
@@ -422,6 +438,14 @@ enum RealmMapPixels {
             let cell = layout.cell(.hudFigures, frame: frame)
             return layout.image.cropped(x: cell.x, y: cell.y, width: cell.width, height: cell.height)
         }
+    }()
+
+    /// The kit's coin sign from the atlas (nil in a build without it): the owing doors' tag (fix lane D).
+    static let coinCell: PixelImage? = {
+        let layout = AtlasLayout.shared
+        guard layout.sources[.hudCoin] == .png else { return nil }
+        let cell = layout.cell(.hudCoin, frame: 0)
+        return layout.image.cropped(x: cell.x, y: cell.y, width: cell.width, height: cell.height)
     }()
 
     /// Stamps a grid with its bottom row on `bottom`.
