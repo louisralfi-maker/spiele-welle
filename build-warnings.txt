@@ -1,0 +1,4 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/WorldThreeTests.swift:246:34: warning: left side of nil coalescing operator '??' has non-optional type 'Double', so the right side is never used
+2026-11-15 13:32:43.501 appintentsmetadataprocessor[17636:60509] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 13:32:46.551 appintentsmetadataprocessor[17986:61270] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 13:32:48.281 appintentsmetadataprocessor[18198:61733] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
