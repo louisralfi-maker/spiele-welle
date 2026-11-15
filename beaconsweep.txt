@@ -1,0 +1,185 @@
+beaconsweep: compiled in 229 s
+beaconsweep: seeds 1-10, nights 9-14, budgets ["1.0", "1.5", "2.0"] (1 s)
+
+== the idle lockstep: the reference bots' runs (T1, T2) with the rule on and nothing raised
+  39 nights, differences: none (1 s)
+
+== T15 at the chosen values (the full table)
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 1180 creatures reached the defence, without 2382: 50 % fewer (target at least 30 %, without at least 300; per budget x1.0 46 %, x1.5 53 %, x2.0 50 %)
+T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 10 of 10 (target all)
+T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [] (target none: never a trap)
+T15b FAIL x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 1 of 10 (target all)
+T15 wager FAIL x1.5: the forward bot fell where the reference held in 5 seeds [2, 3, 4, 8, 10] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night (share of all arrows)
+  x1.0: 312 | 169 | 46 % | 15/15 | 16/15 | 0/0 | 24 | 232/2788 | 46.9 (41 %)
+  x1.5: 707 | 333 | 53 % | 64/51 | 30/24 | 0/0 | 60 | 884/4147 | 55.1 (33 %)
+  x2.0: 1363 | 678 | 50 % | 138/105 | 35/29 | 0/0 | 83 | 1919/5378 | 59.6 (29 %)
+
+T15a per night (all budgets): without | with | beacons lost (the furthest falls first)
+  night 9: 83 | 14 | 20
+  night 10: 184 | 69 | 41
+  night 11: 238 | 81 | 39
+  night 12: 546 | 289 | 20
+  night 13: 625 | 326 | 24
+  night 14: 706 | 401 | 23
+
+whole runs x1.0, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: held | 9 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 1 forward: held | 9 | 31 | 0 | 10 | 3 | 2/1 | 170 | no | 18 | lived
+  seed 1 neglect: FELL 20 | 7 | 6 | 19 | 10 | 8 | 4/7 | 756 | yes | 0 | -
+  seed 1 walless: held | 8 | 35 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 2 reference: held | 9 | 41 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: held | 10 | 45 | 0 | 10 | 2 | 2/0 | 150 | no | 18 | 71
+  seed 2 neglect: FELL 20 | 7 | 14 | 14 | 10 | 9 | 4/8 | 880 | yes | 0 | -
+  seed 2 walless: held | 7 | 21 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 57
+  seed 3 reference: held | 11 | 53 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 64
+  seed 3 forward: held | 17 | 61 | 0 | 10 | 3 | 2/1 | 170 | no | 19 | lived
+  seed 3 neglect: FELL 20 | 7 | 8 | 14 | 10 | 6 | 4/5 | 730 | yes | 0 | -
+  seed 3 walless: held | 5 | 49 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 60
+  seed 4 reference: held | 8 | 23 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 4 forward: held | 10 | 30 | 0 | 10 | 2 | 2/0 | 150 | no | 18 | 61
+  seed 4 neglect: FELL 20 | 7 | 7 | 18 | 10 | 11 | 4/10 | 848 | yes | 0 | -
+  seed 4 walless: held | 8 | 15 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 56
+  seed 5 reference: held | 9 | 66 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 61
+  seed 5 forward: held | 9 | 35 | 0 | 10 | 1 | 1/0 | 60 | no | 18 | 60
+  seed 5 neglect: FELL 20 | 3 | 13 | 20 | 10 | 9 | 4/8 | 784 | yes | 0 | -
+  seed 5 walless: held | 9 | 66 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 6 reference: held | 13 | 45 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 62
+  seed 6 forward: held | 10 | 59 | 0 | 10 | 2 | 2/1 | 170 | no | 18 | 69
+  seed 6 neglect: FELL 20 | 7 | 10 | 18 | 10 | 9 | 4/8 | 816 | yes | 0 | -
+  seed 6 walless: held | 0 | 40 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 54
+  seed 7 reference: held | 10 | 21 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 61
+  seed 7 forward: held | 7 | 42 | 0 | 10 | 1 | 1/0 | 60 | no | 18 | 60
+  seed 7 neglect: FELL 20 | 17 | 34 | 0 | 10 | 10 | 3/9 | 648 | yes | 0 | -
+  seed 7 walless: held | 10 | 39 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 58
+  seed 8 reference: held | 11 | 35 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 8 forward: held | 7 | 56 | 0 | 10 | 1 | 1/0 | 60 | no | 18 | 66
+  seed 8 neglect: FELL 20 | 4 | 19 | 15 | 10 | 8 | 4/7 | 820 | yes | 0 | -
+  seed 8 walless: held | 9 | 46 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 59
+  seed 9 reference: held | 12 | 72 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 66
+  seed 9 forward: held | 16 | 64 | 0 | 10 | 2 | 2/1 | 170 | no | 17 | 65
+  seed 9 neglect: FELL 20 | 3 | 9 | 19 | 10 | 10 | 4/9 | 816 | yes | 0 | -
+  seed 9 walless: held | 3 | 46 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 51
+  seed 10 reference: held | 9 | 58 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 65
+  seed 10 forward: held | 14 | 59 | 0 | 10 | 2 | 2/0 | 150 | no | 18 | 79
+  seed 10 neglect: FELL 20 | 3 | 10 | 15 | 10 | 8 | 4/7 | 820 | yes | 0 | -
+  seed 10 walless: held | 5 | 61 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 60
+
+whole runs x1.5, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: FELL 20 | 19 | 88 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 1 forward: FELL 20 | 19 | 72 | 0 | 6 | 5 | 1/4 | 140 | no | 0 | -
+  seed 1 neglect: FELL 20 | 7 | 26 | 0 | 6 | 17 | 3/16 | 728 | yes | 0 | -
+  seed 1 walless: held | 14 | 40 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 67
+  seed 2 reference: held | 15 | 55 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: FELL 20 | 17 | 93 | 0 | 6 | 5 | 1/4 | 140 | no | 0 | -
+  seed 2 neglect: FELL 20 | 7 | 26 | 0 | 6 | 17 | 3/16 | 792 | yes | 0 | -
+  seed 2 walless: held | 13 | 43 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 60
+  seed 3 reference: FELL 18 | 17 | 136 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 3 forward: FELL 17 | 16 | 164 | 0 | 6 | 5 | 1/4 | 140 | no | 0 | -
+  seed 3 neglect: FELL 20 | 17 | 84 | 0 | 6 | 17 | 2/15 | 500 | yes | 0 | -
+  seed 3 walless: held | 2 | 94 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 55
+  seed 4 reference: held | 21 | 60 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 4 forward: FELL 20 | 17 | 81 | 0 | 6 | 5 | 1/4 | 140 | no | 0 | -
+  seed 4 neglect: FELL 20 | 7 | 24 | 20 | 7 | 19 | 4/17 | 944 | yes | 0 | -
+  seed 4 walless: held | 13 | 32 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 62
+  seed 5 reference: FELL 19 | 17 | 63 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 5 forward: FELL 20 | 18 | 72 | 0 | 6 | 5 | 1/4 | 140 | no | 0 | -
+  seed 5 neglect: FELL 20 | 9 | 60 | 0 | 6 | 16 | 2/15 | 590 | yes | 0 | -
+  seed 5 walless: FELL 19 | 17 | 63 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 6 reference: held | 25 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 6 forward: held | 19 | 109 | 0 | 6 | 5 | 1/4 | 140 | no | 19 | lived
+  seed 6 neglect: FELL 20 | 9 | 32 | 20 | 7 | 17 | 4/15 | 942 | yes | 0 | -
+  seed 6 walless: held | 12 | 99 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 59
+  seed 7 reference: FELL 20 | 18 | 84 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | -
+  seed 7 forward: FELL 20 | 20 | 69 | 0 | 6 | 5 | 1/4 | 140 | no | 0 | -
+  seed 7 neglect: FELL 20 | 9 | 33 | 0 | 6 | 15 | 2/14 | 560 | yes | 0 | -
+  seed 7 walless: held | 14 | 56 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 63
+  seed 8 reference: held | 21 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | lived
+  seed 8 forward: FELL 20 | 18 | 95 | 0 | 6 | 5 | 1/4 | 140 | no | 0 | -
+  seed 8 neglect: FELL 20 | 7 | 30 | 0 | 7 | 17 | 3/15 | 738 | yes | 0 | -
+  seed 8 walless: held | 11 | 70 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 9 reference: FELL 19 | 16 | 133 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 9 forward: FELL 19 | 17 | 134 | 0 | 7 | 4 | 1/3 | 120 | no | 0 | -
+  seed 9 neglect: FELL 20 | 16 | 75 | 0 | 6 | 18 | 3/17 | 766 | yes | 0 | -
+  seed 9 walless: held | 13 | 96 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 66
+  seed 10 reference: held | 26 | 137 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 10 forward: FELL 19 | 16 | 125 | 0 | 6 | 5 | 1/4 | 140 | no | 0 | -
+  seed 10 neglect: FELL 20 | 8 | 34 | 20 | 7 | 15 | 4/14 | 890 | yes | 0 | -
+  seed 10 walless: held | 12 | 98 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 60
+(13 s)
+
+== night 20 of the forward bot's runs: the fog held on the King's night (chosen) and as today; the reference
+  seed 1: fog held: standing, King slain false after -1 s, beacons burning at its horn 0 | as today: standing, King slain false after -1 s | reference: King slain true after 63 s
+  seed 2: fog held: standing, King slain true after 71 s, beacons burning at its horn 0 | as today: standing, King slain true after 71 s | reference: King slain true after 64 s
+  seed 3: fog held: standing, King slain false after -1 s, beacons burning at its horn 1 | as today: standing, King slain false after -1 s | reference: King slain true after 64 s
+  seed 4: fog held: standing, King slain true after 61 s, beacons burning at its horn 0 | as today: standing, King slain true after 61 s | reference: King slain true after 62 s
+  seed 5: fog held: standing, King slain true after 60 s, beacons burning at its horn 0 | as today: standing, King slain true after 60 s | reference: King slain true after 61 s
+  seed 6: fog held: standing, King slain true after 69 s, beacons burning at its horn 1 | as today: standing, King slain true after 69 s | reference: King slain true after 62 s
+  seed 7: fog held: standing, King slain true after 60 s, beacons burning at its horn 0 | as today: standing, King slain true after 60 s | reference: King slain true after 61 s
+  seed 8: fog held: standing, King slain true after 66 s, beacons burning at its horn 0 | as today: standing, King slain true after 66 s | reference: King slain true after 62 s
+  seed 9: fog held: standing, King slain true after 65 s, beacons burning at its horn 1 | as today: standing, King slain true after 65 s | reference: King slain true after 66 s
+  seed 10: fog held: standing, King slain true after 79 s, beacons burning at its horn 0 | as today: standing, King slain true after 79 s | reference: King slain true after 65 s
+(15 s)
+
+== the controls: the reference and the walls neglected without beacons, whole runs
+  reference x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 10.1, at the defence 3-14 44.3
+  walless x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [16, 15, 15, 15, 17, 14, 15, 15, 15, 15], first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 6.4, at the defence 3-14 41.8
+  reference x1.5: fell [20, 0, 18, 0, 19, 0, 20, 0, 19, 0], Great Beacon [0, 16, 17, 17, 0, 17, 18, 18, 17, 17], first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 19.5, at the defence 3-14 98.4
+  walless x1.5: fell [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], Great Beacon [17, 16, 15, 15, 0, 15, 16, 16, 15, 15], first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 12.1, at the defence 3-14 69.1
+  reference x2.0: fell [17, 17, 17, 17, 14, 16, 17, 15, 17, 17], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 14.8, at the defence 3-14 198.8
+  walless x2.0: fell [0, 0, 17, 0, 14, 0, 0, 0, 0, 0], Great Beacon [17, 16, 0, 15, 0, 16, 16, 16, 16, 16], first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 15.0, at the defence 3-14 133.3
+(20 s)
+
+== the beacons' numbers around the chosen values (T15a pairs; whole runs of the forward and neglect bots)
+-- strength 300: T15a 50 % fewer (x1.0 46 %, x1.5 52 %, x2.0 50 %), beacons lost in the pairs 298
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 18, 19, 18, 17, 19, 18, 17, 17], first loss [7, 7, 8, 8, 8, 8, 7, 7, 8, 8], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.5, relit 2.4, beacon gold 117.0, defenders lost 11.7, at the defence 3-14 44.8
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [8, 8, 7, 8, 8, 8, 7, 9, 8, 7], all four from [20, 19, 20, 19, 20, 0, 0, 0, 18, 19], lost 14.8, relit 13.2, beacon gold 843.6, defenders lost 5.0, at the defence 3-14 12.9
+   forward x1.5: fell [20, 20, 17, 20, 20, 19, 20, 19, 17, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [6, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 5.7, relit 4.7, beacon gold 154.0, defenders lost 17.3, at the defence 3-14 107.1
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [3, 4, 4, 3, 3, 4, 3, 4, 4, 4], all four from [0, 0, 0, 0, 20, 0, 19, 0, 20, 0], lost 23.9, relit 21.9, beacon gold 902.4, defenders lost 8.9, at the defence 3-14 36.2
+(30 s)
+-- strength 600: T15a 51 % fewer (x1.0 47 %, x1.5 54 %, x2.0 50 %), beacons lost in the pairs 72
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 17, 19, 18, 20, 18, 19, 19, 16, 18], first loss [17, 0, 0, 0, 19, 0, 0, 20, 17, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.4, relit 0.1, beacon gold 153.0, defenders lost 7.3, at the defence 3-14 34.0
+   neglect x1.0: fell [0, 0, 0, 0, 0, 0, 20, 0, 0, 0], Great Beacon [19, 18, 19, 18, 20, 19, 0, 20, 19, 19], first loss [20, 20, 20, 0, 17, 0, 20, 20, 0, 0], all four from [15, 14, 14, 14, 15, 14, 15, 15, 14, 14], lost 0.8, relit 0.2, beacon gold 472.0, defenders lost 4.7, at the defence 3-14 11.7
+   forward x1.5: fell [17, 19, 19, 0, 20, 17, 0, 18, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.6, relit 0.1, beacon gold 116.0, defenders lost 16.5, at the defence 3-14 94.6
+   neglect x1.5: fell [20, 20, 0, 0, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 20, 20, 0, 0, 0, 0, 0, 0], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [16, 15, 14, 18, 0, 16, 0, 20, 16, 15], lost 7.8, relit 6.8, beacon gold 733.2, defenders lost 8.4, at the defence 3-14 24.4
+(36 s)
+-- strike reach 16: T15a 47 % fewer (x1.0 46 %, x1.5 50 %, x2.0 45 %), beacons lost in the pairs 493
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [20, 19, 20, 20, 20, 18, 20, 20, 19, 18], first loss [6, 5, 6, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 5.8, relit 4.8, beacon gold 156.0, defenders lost 15.5, at the defence 3-14 45.1
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [4, 4, 4, 4, 4, 4, 4, 4, 4, 4], all four from [0, 0, 20, 0, 0, 0, 0, 0, 20, 0], lost 23.7, relit 21.5, beacon gold 833.2, defenders lost 7.1, at the defence 3-14 17.4
+   forward x1.5: fell [18, 20, 17, 20, 20, 19, 20, 20, 17, 17], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [6, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 5.7, relit 4.7, beacon gold 154.0, defenders lost 16.5, at the defence 3-14 109.6
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [3, 3, 3, 3, 3, 3, 3, 3, 3, 3], all four from [0, 0, 0, 0, 0, 0, 19, 0, 0, 0], lost 27.5, relit 24.6, beacon gold 904.0, defenders lost 9.8, at the defence 3-14 53.6
+(46 s)
+-- no watchtower: T15a 41 % fewer (x1.0 34 %, x1.5 43 %, x2.0 41 %), beacons lost in the pairs 167
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 18, 18, 18, 18, 18, 17, 18], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.4, beacon gold 131.0, defenders lost 10.9, at the defence 3-14 48.2
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [19, 14, 18, 18, 15, 18, 0, 19, 19, 15], lost 8.9, relit 7.9, beacon gold 780.4, defenders lost 7.7, at the defence 3-14 16.3
+   forward x1.5: fell [20, 20, 17, 20, 20, 0, 20, 20, 19, 19], Great Beacon [0, 0, 0, 0, 0, 19, 0, 0, 0, 0], first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.9, relit 3.9, beacon gold 138.0, defenders lost 17.7, at the defence 3-14 101.4
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [6, 6, 6, 6, 6, 7, 6, 7, 6, 7], all four from [0, 0, 0, 0, 0, 20, 0, 0, 0, 20], lost 16.7, relit 15.5, beacon gold 743.4, defenders lost 10.4, at the defence 3-14 49.7
+(54 s)
+-- two bowmen: T15a 58 % fewer (x1.0 53 %, x1.5 60 %, x2.0 59 %), beacons lost in the pairs 167
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 18, 18, 18, 18, 18, 17, 18], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.4, beacon gold 131.0, defenders lost 10.9, at the defence 3-14 48.2
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [19, 14, 14, 18, 20, 14, 0, 15, 19, 15], lost 8.4, relit 7.4, beacon gold 786.0, defenders lost 4.2, at the defence 3-14 10.7
+   forward x1.5: fell [20, 20, 17, 20, 20, 0, 20, 20, 19, 19], Great Beacon [0, 0, 0, 0, 0, 19, 0, 0, 0, 0], first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.9, relit 3.9, beacon gold 138.0, defenders lost 17.7, at the defence 3-14 101.4
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [7, 7, 6, 7, 6, 7, 7, 7, 6, 7], all four from [20, 19, 0, 20, 0, 20, 0, 0, 0, 20], lost 16.9, relit 15.4, beacon gold 793.6, defenders lost 9.5, at the defence 3-14 41.5
+(61 s)
+-- no charcoal: T15a 49 % fewer (x1.0 46 %, x1.5 51 %, x2.0 48 %), beacons lost in the pairs 167
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 18, 18, 18, 18, 18, 17, 18], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.4, beacon gold 131.0, defenders lost 10.9, at the defence 3-14 48.2
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [19, 14, 14, 18, 20, 18, 0, 15, 19, 15], lost 8.8, relit 7.8, beacon gold 791.8, defenders lost 6.5, at the defence 3-14 13.1
+   forward x1.5: fell [20, 20, 17, 20, 20, 0, 20, 20, 19, 19], Great Beacon [0, 0, 0, 0, 0, 19, 0, 0, 0, 0], first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.9, relit 3.9, beacon gold 138.0, defenders lost 17.7, at the defence 3-14 101.4
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [6, 6, 6, 7, 6, 7, 6, 7, 6, 7], all four from [0, 0, 0, 20, 0, 20, 0, 0, 0, 20], lost 16.8, relit 15.4, beacon gold 745.0, defenders lost 9.6, at the defence 3-14 42.4
+(70 s)
+-- the forward bot raises all four before the Great Beacon: T15a 50 % fewer (x1.0 46 %, x1.5 53 %, x2.0 50 %), beacons lost in the pairs 167
+   forward x1.0: fell [0, 0, 0, 20, 0, 0, 0, 0, 0, 0], Great Beacon [19, 19, 20, 0, 20, 18, 18, 20, 19, 19], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.2, relit 0.3, beacon gold 156.0, defenders lost 14.5, at the defence 3-14 40.5
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [19, 14, 14, 18, 20, 18, 0, 15, 19, 15], lost 8.8, relit 7.8, beacon gold 791.8, defenders lost 6.5, at the defence 3-14 13.0
+   forward x1.5: fell [20, 20, 17, 20, 20, 0, 20, 20, 19, 19], Great Beacon [0, 0, 0, 0, 0, 19, 0, 0, 0, 0], first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.9, relit 3.9, beacon gold 138.0, defenders lost 17.7, at the defence 3-14 101.4
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [6, 6, 6, 7, 6, 7, 6, 7, 6, 7], all four from [0, 0, 0, 20, 0, 20, 0, 0, 0, 20], lost 16.8, relit 15.4, beacon gold 745.0, defenders lost 9.6, at the defence 3-14 42.4
+(86 s)
+-- the forward bot relights while saving for the Great Beacon: T15a 50 % fewer (x1.0 46 %, x1.5 53 %, x2.0 50 %), beacons lost in the pairs 167
+   forward x1.0: fell [0, 0, 20, 0, 0, 0, 0, 20, 0, 0], Great Beacon [20, 19, 0, 19, 20, 20, 20, 0, 18, 20], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 8.8, relit 7.1, beacon gold 352.0, defenders lost 11.8, at the defence 3-14 35.6
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [19, 14, 14, 18, 20, 18, 0, 15, 19, 15], lost 8.8, relit 7.8, beacon gold 791.8, defenders lost 6.5, at the defence 3-14 13.0
+   forward x1.5: fell [20, 20, 18, 19, 20, 20, 20, 19, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 12.6, relit 11.2, beacon gold 385.0, defenders lost 17.5, at the defence 3-14 93.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], first loss [6, 6, 6, 7, 6, 7, 6, 7, 6, 7], all four from [0, 0, 0, 20, 0, 20, 0, 0, 0, 20], lost 16.8, relit 15.4, beacon gold 745.0, defenders lost 9.6, at the defence 3-14 42.4
+(93 s)
+
+beaconsweep: done (93 s)
+beaconsweep: exit 0 after 323 s
