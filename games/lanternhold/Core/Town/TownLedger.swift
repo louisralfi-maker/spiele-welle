@@ -113,6 +113,10 @@ struct TownState: Codable, Sendable, Equatable {
     var stage: RealmStage?
     /// The dawn on which the realm came to that stage.
     var stageDay: Int?
+    /// The highest stage the realm ever reached (town-3 fix round 1): the bell rings only above it, so a town that
+    /// burns back to a village and grows again is not announced twice. Nil: none above the hamlet, or a save from
+    /// before it (then `stage` stands for it).
+    var stageBest: RealmStage?
 
     init(today: TownDay? = nil, yesterday: TownDay? = nil) {
         self.today = today

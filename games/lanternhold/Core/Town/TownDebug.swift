@@ -96,7 +96,7 @@ enum TownDebug {
         s.town = town
         let rules = balance.town
         let post = Town.collectorPost
-        let turn = Town.collectorTurn(day)
+        let turn = Town.collectorTurn(day, rules: rules)
         let direction: Double = turn >= post ? 1 : -1
         guard let first = Town.collectorRound(day, standOff: rules.collectorStandOff).first(where: { door in
             day.index(of: door.plot).map { day.places[$0].owes } ?? false

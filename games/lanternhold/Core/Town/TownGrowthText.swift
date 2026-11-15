@@ -85,7 +85,8 @@ extension Town {
     /// had been first at a door of his round; else he brought nothing (the doors were shut); else every door paid him.
     static func collectorWords(_ day: TownDay) -> CollectorWords? {
         guard day.collectorOut == true, day.collectorBack == true else { return nil }
-        let round = Set(collectorRound(day).map(\.plot))
+        // Only which doors are on his round matters here, never where he stands before them.
+        let round = Set(collectorRound(day, standOff: 0).map(\.plot))
         if day.places.contains(where: { round.contains($0.plot) && $0.collected && !$0.paidCollector }) {
             return .lordFirst
         }

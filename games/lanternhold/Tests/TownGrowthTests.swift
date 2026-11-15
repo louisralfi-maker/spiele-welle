@@ -5,9 +5,10 @@ import XCTest
 /// The growing town and the treasury (docs/TOWN.md sections 2 and 3, town-3, `TownGrowth`): the new tiers on the old
 /// plots and cards, the far fields and the treasury's plot, what each tier pays, the standing and its 1.5 % a point, the
 /// ledger of a grown town, the realm's stages and the dawn that reaches one, the treasury's piles, the save, the words,
-/// and that a town that never grows plays the economy of before bit for bit.
+/// and that a town that never grows plays the economy of before bit for bit. Played with the growing town open (build
+/// 3, `TownGrowth.opened`); build 2 ships it shut (`testBuildTwoShipsWithTheGrowingTownShut`).
 final class TownGrowthTests: XCTestCase {
-    private let balance = Balance.standard
+    private let balance = TownGrowth.opened(.standard)
     private var rules: TownRules { balance.town }
 
     private static func plot(_ key: String) -> Int {
@@ -140,6 +141,66 @@ final class TownGrowthTests: XCTestCase {
         XCTAssertTrue(Build.options(built, plot: TownGrowth.treasuryPlot, balance: balance).isEmpty, "built once")
     }
 
+    // MARK: - Build 3's switch
+
+    /// Build 2 ships with the growing town shut (`TownRules.growthOpen`, fix round 1, the critic's high 1): no new tier
+    /// on any card, no card on the far fields or the treasury's plot, no order, and the standing 0 whatever stands, so
+    /// the town plays exactly as before town-3 (the collector's round in sim time stays: build 2 needs it).
+    func testBuildTwoShipsWithTheGrowingTownShut() throws {
+        let shut = Balance.standard
+        XCTAssertFalse(shut.town.growthOpen, "build 2: the growing town is shut")
+        XCTAssertTrue(balance.town.growthOpen)
+        XCTAssertEqual(TownGrowth.items, [.townhouse, .marketHall, .inn, .farmstead, .treasury])
+
+        // No new tier: a big house, the market, the tavern and a field offer nothing more, as before town-3.
+        var s = oldTown()
+        s.gold = 1000
+        var events: [SimEvent] = []
+        for (plot, item) in [(house1, BuildItem.townhouse), (field2, .farmstead), (market, .marketHall),
+                             (tavern, .inn)] {
+            XCTAssertEqual(Build.options(s, plot: plot, balance: shut), [], "\(item)")
+            XCTAssertTrue(BuildCard.make(s, plot: plot, balance: shut).options.isEmpty, "\(item)")
+            XCTAssertFalse(KingTargets.hasCard(s, plot: plot, balance: shut), "\(item)")
+            XCTAssertEqual(Build.order(&s, plot: plot, item: item, balance: shut, events: &events), .notOffered)
+            XCTAssertFalse(Build.options(s, plot: plot, balance: balance).isEmpty, "open: \(item) is offered")
+        }
+        let cottage = GameState.newRealm(seed: 1, balance: shut)
+        XCTAssertEqual(Build.options(cottage, plot: house1, balance: shut).map(\.item), [.bigHouse],
+                       "a cottage still grows to a big house")
+        var bare = oldTown()
+        bare.plots[field2].item = nil
+        XCTAssertEqual(Build.options(bare, plot: field2, balance: shut).map(\.item), [.field], "the old fields as ever")
+
+        // The far fields and the treasury's plot: no card on day 5 and later, nothing for the action button, no order.
+        XCTAssertGreaterThanOrEqual(s.day, TownGrowth.farFieldsDay)
+        for plot in farFields + [TownGrowth.treasuryPlot] {
+            XCTAssertEqual(Build.options(s, plot: plot, balance: shut), [], Realm.plots[plot].key)
+            XCTAssertFalse(KingTargets.hasCard(s, plot: plot, balance: shut), Realm.plots[plot].key)
+            let item = Realm.plots[plot].firstItems[0]
+            XCTAssertEqual(Build.order(&s, plot: plot, item: item, balance: shut, events: &events), .notOffered)
+            s.king.x = Realm.plots[plot].x
+            XCTAssertFalse(KingTargets.buildPlots(s, balance: shut, near: s.king.x).contains(plot),
+                           "the action button offers nothing there: \(Realm.plots[plot].key)")
+            XCTAssertTrue(KingTargets.buildPlots(s, balance: balance, near: s.king.x).contains(plot),
+                          "open: \(Realm.plots[plot].key) is offered")
+        }
+        XCTAssertEqual(s.gold, 1000, "nothing paid")
+        XCTAssertTrue(events.isEmpty)
+        XCTAssertTrue(s.plots.allSatisfy { $0.job == nil })
+
+        // The standing is 0 whatever stands: the tax part, the stage and the backdrop's look stay those of before.
+        var realm = grown(oldTown())
+        realm.plots[TownGrowth.treasuryPlot].item = .treasury
+        XCTAssertGreaterThan(TownGrowth.standing(realm, balance: balance), 0, "open: the same town has standing")
+        XCTAssertEqual(TownGrowth.standing(realm, balance: shut), 0)
+        XCTAssertEqual(TownGrowth.taxFactor(realm, balance: shut), 1)
+        XCTAssertEqual(TownGrowth.stage(realm, balance: shut), .hamlet)
+        let before = realm.town
+        XCTAssertNil(TownGrowth.dawn(&realm, balance: shut))
+        XCTAssertEqual(realm.town, before, "no stage written")
+        XCTAssertEqual(TownGrowth.look(realm), .hamlet)
+    }
+
     // MARK: - What the tiers pay
 
     func testTheTiersPayAndEveryPointOfStandingAddsItsShare() throws {
@@ -264,6 +325,18 @@ final class TownGrowthTests: XCTestCase {
         XCTAssertNil(people.town?.stageReached)
         XCTAssertEqual(TownGrowth.standing(s, balance: balance), 2, "the inn and the market hall still stand")
         XCTAssertEqual(TownGrowth.look(s), .hamlet)
+        XCTAssertEqual(TownGrowth.bestStage(s), .town, "the realm was a town once")
+
+        // Grown again after the fire: back to a village and a town without a second bell (fix round 1).
+        s.plots[house1].item = .townhouse
+        people = dawn(&s)
+        XCTAssertEqual(TownGrowth.look(s), .village)
+        XCTAssertNil(people.town?.stageReached, "a village before: no bell")
+        s = grown(s)
+        people = dawn(&s)
+        XCTAssertEqual(TownGrowth.look(s), .town)
+        XCTAssertNil(people.town?.stageReached, "a town before: no bell")
+        XCTAssertNil(TownText.stageLine(people.town))
     }
 
     func testARealmThatNeverGrowsWritesNoStage() throws {
@@ -331,6 +404,7 @@ final class TownGrowthTests: XCTestCase {
         var town = try XCTUnwrap(state["town"] as? [String: Any])
         town["stage"] = nil
         town["stageDay"] = nil
+        town["stageBest"] = nil
         state["town"] = town
         json["state"] = state
         let old = try JSONSerialization.data(withJSONObject: json)

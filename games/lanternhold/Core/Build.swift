@@ -54,6 +54,8 @@ enum Build {
         let spec = Realm.plots[plot]
         let current = state.plots[plot]
         if current.job != nil { return [] }
+        // Town-3: the far fields and the treasury's plot only while the growing town is open (build 3).
+        guard TownGrowth.isOpen(plot: plot, balance: balance) else { return [] }
         guard let item = current.item else {
             return spec.firstItems.map {
                 BuildOption(item: $0, price: isGift($0, state) ? 0 : balance.price($0), isRebuild: false)
@@ -62,7 +64,7 @@ enum Build {
         if current.isRubble {
             return [BuildOption(item: item, price: rebuildPrice(item, balance: balance), isRebuild: true)]
         }
-        if let next = item.upgrade {
+        if let next = item.upgrade, TownGrowth.offers(next, balance: balance) {
             return [BuildOption(item: next, price: balance.price(next), isRebuild: false)]
         }
         return []

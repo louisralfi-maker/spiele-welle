@@ -17,7 +17,8 @@ standing (a point for every townhouse, the market hall, the inn and every farmst
 the tax part. The grower bot (Core/Town/TownGrowthTuning.swift, `growerOrder`) grows the town before the beacon;
 target T12 compares its taxes at the dawn after night 14 with the old town's (the same game without the growth: 25 to
 35 % more on the runner; reported here, not checked: this mirror reads about 8 points low). The reference bots never
-build the new tiers, so their numbers stay what they were.
+build the new tiers, so their numbers stay what they were. The mirror plays the growth as if `TownRules.growthOpen`
+were on (build 3); build 2 ships it off, and then no bot and no player can build the new tiers.
 
 It reads its numbers from the Swift sources, so it cannot drift from them:
   Core/Balance.swift          the `var name = value` lines and the ItemStats rows (prices, build times)

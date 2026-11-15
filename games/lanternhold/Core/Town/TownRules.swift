@@ -53,6 +53,12 @@ struct TownRules: Sendable, Equatable {
 
     // MARK: The growing town (docs/TOWN.md section 3, town-3, build 3)
 
+    /// Build 3's switch (town-3 fix round 1). TestFlight build 2 ships with it off: the build card offers no new tier
+    /// (no townhouse, market hall, inn or farmstead), the far fields and the treasury's plot offer nothing and stay
+    /// unmarked, and the standing is 0, so build 2 plays exactly the town of before, with the collector's round in sim
+    /// time that build 2 needs. The join's build 3 art lane turns it on (here, `true`) once the tiers, the far fields
+    /// and the treasury are drawn. T12 and `TownGrowthTests` play with it on (`TownGrowth.opened`).
+    var growthOpen = false
     /// A townhouse, a house's third tier, holds this many (a cottage `Balance.houseRoom`, a big house `bigHouseRoom`).
     var townhouseRoom = 12
     /// The market hall, the market's second tier: this share of the tax part instead of `Balance.marketShare`.

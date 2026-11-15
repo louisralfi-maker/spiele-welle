@@ -378,8 +378,8 @@ enum Town {
     }
 
     /// The last door of his round, where he turns for home (his post when there is none).
-    static func collectorTurn(_ day: TownDay) -> Double {
-        collectorRound(day).last?.x ?? collectorPost
+    static func collectorTurn(_ day: TownDay, rules: TownRules) -> Double {
+        collectorRound(day, standOff: rules.collectorStandOff).last?.x ?? collectorPost
     }
 
     /// His pace in world game px per hour of the day clock.
@@ -443,7 +443,7 @@ enum Town {
 
     /// Which way he faces now: outward from his post toward the last door (1 right, -1 left) until he turns, then home.
     static func collectorHeading(_ day: TownDay, hour: Double, rules: TownRules) -> Int {
-        let out = collectorTurn(day) >= collectorPost ? 1 : -1
+        let out = collectorTurn(day, rules: rules) >= collectorPost ? 1 : -1
         if case .back = collectorLeg(day, hour: hour, rules: rules) { return -out }
         return out
     }

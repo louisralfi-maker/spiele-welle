@@ -59,6 +59,32 @@ enum TownGrowth {
     /// field: `EntityFrames` leaves them out), though the action button already offers their cards.
     static let newPlots: Set<Int> = Set(farFieldPlots + [treasuryPlot])
 
+    // MARK: - Build 3's switch (`TownRules.growthOpen`, off in build 2)
+
+    /// Town-3's build items: the four new tiers and the treasury.
+    static let items: Set<BuildItem> = [.townhouse, .marketHall, .inn, .farmstead, .treasury]
+
+    /// `balance` with the growing town open (T12, `TownGrowthTests`; the join's build 3 turns it on in `TownRules`).
+    static func opened(_ balance: Balance) -> Balance {
+        var open = balance
+        open.town.growthOpen = true
+        return open
+    }
+
+    /// The plot's card may offer something (`Build.options`): every plot, but town-3's new ones only while the
+    /// growing town is open. With it off the far fields and the treasury's plot have no card, so the action button
+    /// never offers them and `Build.order` answers `.notOffered`.
+    static func isOpen(plot: Int, balance: Balance) -> Bool {
+        balance.town.growthOpen || !newPlots.contains(plot)
+    }
+
+    /// The card may offer `item` (`Build.options`, the next tier of a built plot): every item, but town-3's only while
+    /// the growing town is open. With it off a big house, the market, the tavern and a field have no next tier, as in
+    /// the realm of before.
+    static func offers(_ item: BuildItem, balance: Balance) -> Bool {
+        balance.town.growthOpen || !items.contains(item)
+    }
+
     // MARK: - What each tier gives
 
     /// The room of a house by its tier (a cottage 4, a big house 8, a townhouse 12); 0 for anything else.
@@ -122,9 +148,11 @@ enum TownGrowth {
         0
     }
 
-    /// The town's standing, 0 to `standingMost`.
+    /// The town's standing, 0 to `standingMost`; always 0 while the growing town is shut (build 2: `growthOpen`), so
+    /// the tax part, the stages and the backdrop's look stay those of before whatever stands.
     static func standing(_ s: GameState, balance: Balance) -> Int {
-        min(balance.town.standingMost, max(0, points(s)))
+        guard balance.town.growthOpen else { return 0 }
+        return min(balance.town.standingMost, max(0, points(s)))
     }
 
     /// What the standing does to the tax part: × (1 + 1.5 % a point); exactly 1 at standing 0, so the old sum is computed
@@ -161,20 +189,28 @@ enum TownGrowth {
         s.town?.stageDay
     }
 
-    /// The dawn's step (`Town.open`): the stage from the standing as the realm stands at this dawn. A higher one than
-    /// the last dawn's is reached today (the bell, the people in the doors, the report's one line): it is returned. A
-    /// lower one (a house lost: the front lane's broken night) is taken without a word. Nothing is written while the
-    /// realm stays a hamlet, so a realm that never grows saves exactly what it saved before.
+    /// The highest stage the realm ever reached (`TownState.stageBest`; a save from before it: the last dawn's stage).
+    static func bestStage(_ s: GameState) -> RealmStage {
+        max(look(s), s.town?.stageBest ?? .hamlet)
+    }
+
+    /// The dawn's step (`Town.open`): the stage from the standing as the realm stands at this dawn. One higher than any
+    /// the realm ever reached comes today (the bell, the people in the doors, the report's one line): it is returned.
+    /// A lower one (a house lost: the front lane's broken night) is taken without a word, and so is the way back up to
+    /// a stage reached before (no second bell). Nothing is written while the realm stays a hamlet, so a realm that
+    /// never grows saves exactly what it saved before.
     @discardableResult
     static func dawn(_ s: inout GameState, balance: Balance) -> RealmStage? {
         let now = stage(s, balance: balance)
         let before = look(s)
         guard now != before else { return nil }
+        let best = bestStage(s)
         var town = s.town ?? TownState()
         town.stage = now
         town.stageDay = s.day
+        if now > best { town.stageBest = now }
         s.town = town
-        return now > before ? now : nil
+        return now > best ? now : nil
     }
 
     // MARK: - Until the art comes

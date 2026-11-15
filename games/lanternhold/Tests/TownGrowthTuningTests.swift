@@ -5,9 +5,10 @@ import XCTest
 /// 35 % more taxes than one who plays the same game without the growth, and still cannot skip the defence (a realm
 /// that grows the town instead of its walls does not reach the chapter's end); bots that do not grow the town give
 /// today's numbers. The report is attached as `t12-report.txt`; `tools/tune.py` mirrors the
-/// economy half.
+/// economy half. Every run plays with the growing town open (`TownGrowth.opened`: build 3); build 2 ships it shut.
 final class TownGrowthTuningTests: XCTestCase {
-    private static let metrics = TownGrowthTuning.measure(balance: .standard)
+    private static let balance = TownGrowth.opened(.standard)
+    private static let metrics = TownGrowthTuning.measure(balance: balance)
 
     private var headline: String {
         String(TownGrowthTuningTests.metrics.report.split(separator: "\n").first ?? "")
@@ -29,12 +30,21 @@ final class TownGrowthTuningTests: XCTestCase {
         XCTAssertTrue(m.ratios.allSatisfy { $0 > 0 }, "every seed's grown town earns more: \(headline)")
     }
 
-    /// 12. Growing the town does not replace the walls: the grower held every night to the 14th while it grew, and a
-    /// bot that grows the town instead of building the defence beyond the first line fell by night 20.
-    func testT12TheGrowerHoldsAndTheSkipperFalls() {
+    /// 12. Growing the town does not replace the walls: the grower held every night to the 14th while it grew; a bot
+    /// that grows the town instead of building the defence beyond the first line fell by night 20; and on the night it
+    /// fell, the same realm with every defence and no beacon (T6's bot) held, so the fall comes from the defence it
+    /// skipped, not from the missing beacon alone (fix round 1, the critic's high 2).
+    func testT12TheGrowerHoldsAndTheSkipperFallsForTheDefenceItSkipped() {
         let m = TownGrowthTuningTests.metrics
         XCTAssertEqual(m.growerHeld, Array(repeating: TownGrowthMetrics.night, count: m.seeds.count), headline)
         XCTAssertTrue(m.skipperFellOn.allSatisfy { $0 > 0 && $0 <= TownGrowthMetrics.skipperNights }, headline)
+        XCTAssertEqual(m.noBeaconFellOn.count, m.seeds.count)
+        for (index, seed) in m.seeds.enumerated() {
+            XCTAssertTrue(m.wallsHoldTheSkippersNight[index],
+                          "seed \(seed): the skipper fell on night \(m.skipperFellOn[index]), every defence without "
+                          + "the beacon fell on night \(m.noBeaconFellOn[index]) (0 = held): \(headline)")
+        }
+        XCTAssertEqual(m.skipperFirstStruck.count, m.seeds.count)
         XCTAssertTrue(m.passes, headline)
     }
 
@@ -42,7 +52,8 @@ final class TownGrowthTuningTests: XCTestCase {
     func testTheGrownTownIsAVillageByNightFourteen() {
         let m = TownGrowthTuningTests.metrics
         for (seed, standing) in zip(m.seeds, m.growerStanding) {
-            XCTAssertGreaterThanOrEqual(standing, Balance.standard.town.villageFrom, "seed \(seed): \(headline)")
+            XCTAssertGreaterThanOrEqual(standing, TownGrowthTuningTests.balance.town.villageFrom,
+                                        "seed \(seed): \(headline)")
         }
         XCTAssertTrue(m.growerStage.allSatisfy { $0 >= .village }, headline)
         XCTAssertTrue(m.growerVillageDay.allSatisfy { $0 > 0 && $0 <= TownGrowthMetrics.night + 1 }, headline)
@@ -52,7 +63,7 @@ final class TownGrowthTuningTests: XCTestCase {
     /// town never build a new tier, so their standing stays 0, their realm writes no stage and every tax is the old
     /// economy's (seed 1's twenty nights line for line: `TownNeutralityTests`).
     func testTheBotsThatDoNotGrowTheTownGiveTodaysNumbers() {
-        let balance = Balance.standard
+        let balance = TownGrowthTuningTests.balance
         let new: Set<BuildItem> = [.townhouse, .marketHall, .inn, .farmstead, .treasury]
         for (bot, nights) in [(Autoplay.reference(), 20), (Autoplay.reference(tax: .low), 12),
                               (Autoplay.reference(tax: .high), 12), (Autoplay.town(.oldTown), 14)] {

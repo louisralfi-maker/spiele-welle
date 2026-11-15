@@ -125,7 +125,7 @@ final class TownCollectorTests: XCTestCase {
         XCTAssertEqual(rules.collectorStandOff, 20)
         XCTAssertEqual(Town.collectorRound(day).map(\.x), [house1, house3, house4, house5].map(stand),
                        "he stops short of each door, his cart before the household")
-        XCTAssertEqual(Town.collectorTurn(day), stand(house5), "the last door")
+        XCTAssertEqual(Town.collectorTurn(day, rules: balance.town), stand(house5), "the last door")
 
         // Before anyone has paid him: straight out, no stop.
         let plain = Town.collectorSchedule(day, rules: rules)

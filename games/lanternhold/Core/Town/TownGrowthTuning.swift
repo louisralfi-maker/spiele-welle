@@ -12,12 +12,18 @@
 /// - **The skipper** builds the first line and then only the town, the growth included, and no defence beyond it
 ///   (`skipsDefence`): it must not reach the chapter's end. (Round lh-t3-1: the first line alone holds to night 14 on
 ///   every seed, so the skipper is played to night 20; its hearth and its fallen by night 14 are reported.)
+/// - **The walls without the beacon** (fix round 1, the critic's high 2): T6's bot that builds every defence of the
+///   reference order but never the beacon (`Autoplay.reference(buildsBeacon: false)`), on the same seeds to night 20.
+///   It must hold the night the skipper falls, so that fall is shown to come from the defence the skipper left out,
+///   not from the missing beacon alone.
 ///
 /// T12 passes when the grower's taxes at the dawn after night 14 are 25 to 35 % above the old town's (the mean over
-/// the seeds), the grower held every night to it, and the skipper fell by night 20 on every seed. The reference bot's
-/// own taxes are reported beside them: it fills its houses on day 13 and builds its fourth big house only after the
-/// beacon, so a grower is further ahead of it. `tools/tune.py` mirrors the economy half; it leaves out the court and the
-/// battle, and its grower's people grow more slowly than on the runner (T12 there reads about 8 points lower).
+/// the seeds), the grower held every night to it, the skipper fell by night 20 on every seed, and the walls without
+/// the beacon held the skipper's last night on every seed. The first night the skipper's hearth was struck is
+/// reported. Every run plays with the growing town open (`TownGrowth.opened`); build 2 ships it shut. The reference
+/// bot's own taxes are reported beside them: it fills its houses on day 13 and builds its fourth big house only after
+/// the beacon, so a grower is further ahead of it. `tools/tune.py` mirrors the economy half; it leaves out the court
+/// and the battle, and its grower's people grow more slowly than on the runner (T12 there reads about 8 points lower).
 extension Autoplay {
     /// Inserted right after the reference's `.build("town.field.8", .field)`: the far fields, from day 5.
     static let farFieldSteps: [BotStep] = [
@@ -137,6 +143,15 @@ struct TownGrowthMetrics: Sendable {
     var skipperFallen: [Int] = []
     /// The skipper's hearth's lowest strength over the nights after the 14th that it held (100: untouched).
     var skipperLateHearth: [Int] = []
+    /// The first night the skipper's hearth was struck (below 100), its last night included (0: never).
+    var skipperFirstStruck: [Int] = []
+    /// The night the walls without the beacon fell (0: they held night 20).
+    var noBeaconFellOn: [Int] = []
+
+    /// Per seed: the walls without the beacon held the night on which the skipper fell.
+    var wallsHoldTheSkippersNight: [Bool] {
+        zip(skipperFellOn, noBeaconFellOn).map { skipper, walls in skipper > 0 && (walls == 0 || walls > skipper) }
+    }
     var log: [String] = []
 
     /// The grower over the old town, seed by seed (0 where the grower fell).
@@ -155,6 +170,7 @@ struct TownGrowthMetrics: Sendable {
         !seeds.isEmpty && TownGrowthMetrics.band.contains(meanRatio)
             && growerHeld.allSatisfy { $0 >= TownGrowthMetrics.night }
             && skipperFellOn.allSatisfy { $0 > 0 && $0 <= TownGrowthMetrics.skipperNights }
+            && noBeaconFellOn.count == seeds.count && wallsHoldTheSkippersNight.allSatisfy { $0 }
     }
 
     var report: String {
@@ -169,7 +185,9 @@ struct TownGrowthMetrics: Sendable {
                      + "(target \(TownGrowthMetrics.night)); the skipper fell on \(skipperFellOn) (target by night "
                      + "\(TownGrowthMetrics.skipperNights); 0 = held); by night \(TownGrowthMetrics.night) its hearth's "
                      + "lowest \(skipperHearthLowest), its fallen \(skipperFallen); after it, until it fell, the "
-                     + "hearth's lowest \(skipperLateHearth)")
+                     + "hearth's lowest \(skipperLateHearth); its hearth first struck on night \(skipperFirstStruck) "
+                     + "(0 = never); every defence without the beacon fell on \(noBeaconFellOn) (0 = held night "
+                     + "\(TownGrowthMetrics.skipperNights); target: holds the skipper's last night)")
         lines.append("   reported: over the reference bot \(referenceRatios.map(percent)) (reference \(referenceTaxes)); "
                      + "taxes over dawns 1-\(TownGrowthMetrics.night): grower \(growerTaxesSum), old town "
                      + "\(oldTownTaxesSum); standing \(growerStanding) (\(growerStage.map(\.rawValue))), a village on "
@@ -194,6 +212,8 @@ enum TownGrowthTuning {
             let reference = TuningRun.play(start, bot: .reference(), balance: balance, nights: nights)
             let skipper = TuningRun.play(start, bot: .town(.skipsDefence), balance: balance,
                                          nights: TownGrowthMetrics.skipperNights)
+            let walls = TuningRun.play(start, bot: .reference(buildsBeacon: false), balance: balance,
+                                       nights: TownGrowthMetrics.skipperNights)
             func last(_ run: PlayResult) -> Int {
                 run.fellOnNight == nil && run.outcomes.count == nights ? run.outcomes[nights - 1].taxes : 0
             }
@@ -213,6 +233,8 @@ enum TownGrowthTuning {
             m.skipperFallen.append(early.reduce(0) { $0 + $1.fallen })
             let late = skipper.outcomes.dropFirst(nights).filter(\.survived)
             m.skipperLateHearth.append(Int((late.map(\.hearthLowest).min() ?? 100).rounded()))
+            m.skipperFirstStruck.append(skipper.outcomes.first { Int($0.hearthLowest.rounded()) < 100 }?.night ?? 0)
+            m.noBeaconFellOn.append(walls.fellOnNight ?? 0)
             let stages = stageDays(start, bot: .town(.grower), balance: balance, nights: nights)
             m.growerVillageDay.append(stages.village)
             m.growerTownDay.append(stages.town)
