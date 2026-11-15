@@ -152,6 +152,9 @@ final class WorldRebuild2Tests: XCTestCase {
         XCTAssertGreaterThan(open.fogColor.x / open.fogColor.z, inside.fogColor.x / inside.fogColor.z * 1.2)
         XCTAssertEqual(frame(world, timeOfDay: 0.8, focus: 2320).ambient, frame(world, timeOfDay: 0.8, focus: 2000).ambient,
                        "nothing changes inside the walls")
+        let castlePull = Look2.uniforms(frame(world, timeOfDay: 0.8, focus: 2000), focus: 2000).ambW.w
+        let valleyPull = Look2.uniforms(frame(world, timeOfDay: 0.8, focus: 2700), focus: 2700).ambW.w
+        XCTAssertLessThan(valleyPull, castlePull * 0.7, "the valley lets go of part of the night's cold pull at dusk")
     }
 
     /// World-1's high 6 (the critic, look 3): at night the cleft's granite is a step darker than by day (its albedo at

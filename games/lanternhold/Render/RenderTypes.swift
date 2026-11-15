@@ -231,7 +231,9 @@ enum Look2 {
         return Look2Uniforms(
             shifts: SIMD4<Int32>(Int32(frame.layer(.mistBand).offset.deviceShift),
                                  Int32(frame.layer(.near).offset.deviceShift), 0, 0),
-            ambW: SIMD4<Float>(world.x, world.y, world.z, colorise * night),
+            // World-2 fix round 2: through the postern the valley lets go of part of the night's cold pull.
+            ambW: SIMD4<Float>(world.x, world.y, world.z,
+                               colorise * night * (1 - SceneLayout.valleyColdCut(sample, focus: focus))),
             ambF: SIMD4<Float>(far.x, far.y, far.z, day),
             ambM: SIMD4<Float>(mid.x, mid.y, mid.z, bounceK),
             ambN: SIMD4<Float>(near.x, near.y, near.z, bandK),

@@ -55,8 +55,8 @@ extension SceneLayout {
 
     /// Through the postern the world's ambient and the fog turn one warm step over world 2330 to 2530 (with the grade's
     /// warmth, `valleyWarmth`): red up, blue down, so the lane and the house fronts read warm by 2530.
-    static let valleyAmbientWarm = SIMD3<Float>(1.12, 1.0, 0.84)
-    static let valleyFogWarm = SIMD3<Float>(1.14, 0.98, 0.82)
+    static let valleyAmbientWarm = SIMD3<Float>(1.18, 1.0, 0.78)
+    static let valleyFogWarm = SIMD3<Float>(1.2, 0.98, 0.76)
 
     /// The share of the valley's warm step at camera `focus` (0 inside the walls, 1 from 2530).
     static func valleyShare(focus: Double) -> Float {
@@ -75,6 +75,14 @@ extension SceneLayout {
         out.fogColor = sample.fogColor * (SIMD3<Float>(repeating: 1) + (valleyFogWarm - 1) * k)
         out.warmth += valleyWarmth(focus: focus)
         return out
+    }
+
+    /// How much of the night's cold pull (`Look.colorise`, which turns every unlit thing toward one violet band) the
+    /// valley lets go through the postern: 45 % while the evening is warm, 25 % at night (round lh-w2f2-1: with the
+    /// pull whole, the warm ambient barely showed on the lane and the house fronts at dusk).
+    static func valleyColdCut(_ sample: AmbientSample, focus: Double) -> Float {
+        let evening = min(1, max(0, sample.warmth / 0.2))
+        return valleyShare(focus: focus) * (0.25 + 0.2 * evening)
     }
 
     // MARK: The light washes (the critic's high 3: "round discs pasted over flat walls")

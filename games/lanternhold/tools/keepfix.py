@@ -668,26 +668,31 @@ MIST_H = 32
 def keep_mist():
     """The mist bank on the mistBand plane at the keep's foot (its bottom row at y 60, the curtain's merlon tops at
     y 72): fix round 2 (the critic's high 1: "neon tiles in the crenel gaps"): one volume behind the wall that rises 4
-    to 6 rows over the merlon tops in slow, low lobes and feathers out over 10 rows of ordered dither (never a smooth
-    alpha edge), both ends dithered away over 56 px; one alpha where it stands, a little thinner in its upper rows. The
-    engine gives it the hour's fog colour, at night a desaturated night grey a value step over the keep's foot."""
+    to 6 rows over the merlon tops in slow, low lobes and feathers out over 10 rows, both ends fading over 56 px. The
+    feather's alpha is quantised to sixteen levels with a 4x4 ordered dither between neighbouring levels only (round
+    lh-w2f2-1 dithered each pixel on or off: a screen-door checker over the keep at dusk), so the edge is soft, with no
+    bands and no pattern. The engine gives it the hour's fog colour, at night a desaturated night grey a value step over
+    the keep's foot."""
     w, h = 320, MIST_H
     im = PA.Image(w, h)
     for x in range(w):
         lobe = 1.4 * math.sin(x / 31.0 + 0.7) + 0.8 * math.sin(x / 13.0 + 2.1) + 0.5 * math.sin(x / 5.3)
-        solid = 17.0 + lobe                          # rows over the bottom where the dither begins (y 77 +- 2.7)
+        solid = 17.0 + lobe                          # rows over the bottom where the feather begins (y 77 +- 2.7)
         end = min(1.0, x / 56.0, (w - 1 - x) / 56.0)
         end = end * end * (3 - 2 * end)
         for y in range(h):
             up = h - 1 - y
-            keep = 1.0 if up <= solid else max(0.0, 1.0 - (up - solid) / 10.0)
-            keep *= end
-            if keep <= 0:
-                continue
-            if keep < 1.0 and BAYER4[y % 4][x % 4] >= keep * 16:
-                continue
-            a = 0.72 if up <= solid - 4 else 0.6
-            im.set(x, y, (255, 255, 255, int(a * 255)))
+            if up <= solid - 4:
+                a = 0.66
+            elif up <= solid:
+                a = 0.66 - 0.06 * (up - (solid - 4)) / 4.0
+            else:
+                t = min(1.0, (up - solid) / 10.0)
+                a = 0.6 * (1.0 - t) ** 1.6
+            a *= end
+            k = int(a * 16 + BAYER4[y % 4][x % 4] / 16.0)   # dither between neighbouring sixteenths only
+            if k > 0:
+                im.set(x, y, (255, 255, 255, min(255, 16 * k)))
     return im
 
 
