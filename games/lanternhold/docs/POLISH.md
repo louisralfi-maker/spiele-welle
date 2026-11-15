@@ -46,6 +46,29 @@ Every item reads the day's wind sample that the trees read; calm days stay calm 
 8. **Sound:** the wind bed swells with the gust value; a banner snaps; shutters rattle in a storm. No music.
 9. Reduce Motion: everything stands, as the trees do today.
 
+### The two rains (Louis' idea, 15.11.2026)
+
+Louis: "Cool wäre auch wenns auf der stadt seite normal regnet wenn es regnet und auf der schatten seite regnet es
+keine ahnung schwarz oder asche oder hast du eine bessere idee?" The director's answer: **ash, and the light decides
+which of the two falls.**
+
+- **Where the light reaches** (the valley, the town, the castle): the rain as it is, fast streaks, wet stone,
+  puddles. Near a lantern the drops glint warm.
+- **Where it does not** (west of the outermost wall, toward the darkness bank): no water. Cold ash falls, slow and
+  few, drifting with the wind; the ground there stays dry and grey. Fast streaks here, slow flakes there: the
+  difference reads at once, by day and at night.
+- **In the Throat** the one turns into the other over a few steps: fewer drops, darker, slower.
+- **The lord's lantern:** a flake that falls into its light glows like an ember for a moment and is gone. He walks
+  out there in a small circle of sparks. (The rule of section 1: it answers the light and the lord.)
+- **The wind carries it:** on a day with the wind from the shadow land a few flakes come over the first wall into
+  the bailey. Nothing happens by it; the player sees the dark come nearer.
+- **A lit beacon** (build 3) is light that reaches: round it the rain is water again. The player sees by the weather
+  how far his house's light goes.
+- Not black rain: dark streaks do not read against a night picture, and by day they read as a fault.
+- Cost: one flake sprite in three sizes, the rain's own emitter with another speed, one test of the light's reach
+  per column. No rule in Core changes. Reduce Motion: the ash follows what the rain does under it today.
+- Open for later, not decided: whether the ash is also a sign (more of it before a hard night).
+
 ## 3. Pass 2: the world answers the lord (feel)
 
 1. **People notice him:** heads turn, a cap comes off, a bow from the old, children run beside him for a few steps.
