@@ -3611,6 +3611,76 @@ burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24
   brazier when he stands at the chapel's door; the moon shows only where the Throat's wedge passes its column (camera
   about 1570 to 1650), by the nature of a still moon behind a moving slit; world-1's highs 1 to 5 and 7 (the water reads
   as a chain behind the keep, among them); the six other languages of the two story lines (the store pass).
+#### Step world-2, fix round 2 (the critic's 7 of 10, look 2; 15.11.2026)
+
+The critic's second look did not pass world-2: two blockers (the gates' foreground piers) and nine highs. The director's
+note of 15.11. 07:47 set the order and replaced his list of 07:42. Art: `tools/keepfix.py`, `tools/keepart.py`
+(ART-look2.md section 25); layout and picture values: `Core/CastleLook.swift` (new), `Core/SceneLayoutCastle.swift`,
+`Core/CastleRooms.swift`, `Core/CastleSmoke.swift`; the light pass's cut: `LightClip`.
+
+- **Both piers are gone (blockers 1 and 2):** no foreground frame stands at either gate. `CastleRooms.scene` places no
+  `gateArchFg` (its sprite stays in the atlas, placed nowhere; `archTenths`, `archFade` and `jambInset` are gone).
+  Build 3 may bring a frame back only as REVIEW-look-2.md 2.8 describes it, after a scenemock preview.
+- **The keep's mist at night (high 1):** `SceneLayout.castleMistTint`: by day and at dusk the hour's fog colour as
+  before; as the evening's warmth goes (`castleMistNightShare`: nightness × the cold of the grade) it turns 85 % of the
+  way to a hair-cool night grey and loses 72 % of its value, one step over the keep's foot (the shader lifts fog by about
+  1.5 at night: the fog colour itself was the brightest cool value on the screen). The bank (`keepMist`, 320x32) rises 4
+  to 6 rows over the merlon tops and feathers out over 10 rows, its alpha in sixteenths with a 4x4 ordered dither
+  between neighbouring levels only (round lh-w2f2-1 dithered each pixel on or off: a screen-door checker over the keep
+  at dusk and over the rock at the bank's ends). The bright blue line under the
+  merlons was a clear row in the curtain's sprites (and the postern's wall) over the corbel table, through which the
+  mist showed: closed.
+- **The keep at noon (high 2):** the sun from the left (the towers' east flanks a step deeper, the west tower's broad
+  shadow over the block's first bay), caps and courses at the lit stone's value, the mirror broken (a shuttered window on
+  the west tower and in the upper storey, the east tower's second string course, a drainage stain under the chimney).
+  The "bare flagpole on the tier-1 stair turret" is no part of the keep: it is the cleft's first water thread
+  (`FrameBuilder.cleftThreads`, mid x 893) seen over the turret's merlons at camera 1830; the threads now draw at 60 %
+  (`cleftWaterAlpha`), the cleft's shaft of light at 40 % (`look2ShaftShare`, the director's item 7: behind the keep
+  it read as a beam from the sky).
+- **The hall door by day (high 7):** the open door's view takes a candle-amber share all day (`CastleRooms.doorGlowDay`,
+  0.70, 0.46, 0.20) and the rest of `doorGlowColor` with the torches, so the night is as before; the room behind the
+  open door is `night0` in the forebuilding's frame 1, so the warm view does not mix with the recess's navy.
+- **The buttress (high 6)** is gone from curtainC: darkened with a shadowed flank and a cast shadow it read as a slot
+  in the scenemock preview. **The chapel brazier's cone (high 5)** is a torch's light (`castleFireLights`): none at
+  noon, full from the dusk.
+- **Lit windows (the director's item 6):** `SceneLayout.castleAmberGlass` (the keep, the forebuilding's dormer and
+  door line, the chapel, the postern, the bakehouse, the gatehouse's slits) take `castleAmberTint` (0.86, 0.80, 0.70) on
+  the glass colour, so the core stays under the clip and reads amber; the chapel's lancets at the keep's share (0.72)
+  and their pools at 0.5. The bloom stays.
+- **Smoke (high 4):** twelve puffs a chimney that grow from 3 to 7 px (five frames), lean 9 px on a diagonal in still
+  air (more with the wind), vary in spacing and alpha and overlap into one plume over 38 rows; still with Reduce Motion.
+- **Light washes (high 3), this lane's lights:** a scene light may carry a `LightClip` (world x and heights;
+  `FrameBuilder` turns it into the plane's target pixels, `FrameLight.clip`, `LightQuad.clip`; both pool shaders clamp
+  their quad to it; the battle's field never reads it). The forebuilding's torch band ends under its eave (row 48) and
+  between its corners (`castleForebuildingClip`); the postern's two lanterns are one band under the porch roof
+  (`castlePosternClip`, and the tier-2 great lantern with it); the bakehouse hatch's wash is low and flat and cut at the
+  lean-to's west jamb (`castleBakehouseClip`). The lord's lantern is the stage lane's.
+- **The valley's warmth (high 9):** `SceneLayout.valleyWarmed`: over 2330 to 2530 the ambient's colour × (1.18, 1,
+  0.78) and the fog's × (1.2, 0.98, 0.76), by the valley's share times 0.45 + 0.55 × nightness (about half at noon, all
+  of it from the dusk), with the grade's warmth (`valleyWarmthGain` 0.12, was 0.07); and the valley lets go of part of
+  the night's cold pull (`Look.colorise`, which turns every unlit thing toward one violet band): 45 % while the evening is
+  warm, 25 % at night (`SceneLayout.valleyColdCut`, read by `Look2.uniforms`; round lh-w2f2-1 showed the warm ambient
+  barely on the lane while the pull was whole). The cleft wall's end is not one
+  layout value (cleftWallC's art and the wall's pieces): it goes onto build 3's list.
+- **The hall door's one named value (the director's notes of 07:30 and 07:47):** `SceneLayout.castleHallDoorX`
+  (1830). `castleForebuildingX` is `castleHallDoorX − 60` (the painted door's middle at the sprite's col 60),
+  `CastleRooms.doorOpen` and the keep's place (`castleKeepX`) read it; nothing else holds the door's x as a number. The
+  stage lane's `HallDoor.paintedX` reads it at the join.
+- **Deferred by the director (07:47):** high 8 (tier 2 from the front gate: the ledger panel leaves the walked world in
+  stage-3-interface, then the turret's flag shows), the moon's notch (build 3), German L6 frames (the store pass).
+- **Tests:** `CastleRoomsTests.testNoGateFrameTheBellAndTheKeepsWindow` (no gate frame and no castle stone in the
+  foreground wherever the lord stands), `WorldRebuild2FixTests` (the puffs grow from the smallest to the largest frame
+  and lean in still air), `WorldRebuild2Tests.testThePictureWarmsThroughThePostern` (the valley's ambient and fog a warm
+  step at dusk, nothing changed inside the walls), `RendererTests` (`LightQuad`'s stride 48).
+- **Rounds** (the director's note of 07:47: one round, build, unit, ui with the lane's classes, English only):
+  lh-w2f2-1 on 497d796 ALL PASSED (its sweep showed the mist's on-or-off dither as a checker at dusk and the valley's
+  warm step too weak); lh-w2f2-2 on 65c899e, the gate (build, unit, ui WorldSweepUITests, Look2UITests,
+  WorldStoryUITests): ALL PASSED. Its upright sweep: `ci-out/lh-w2f2-2/sweep-upright`.
+- **Open after fix round 2:** the cleft wall's end still runs about two screens into the town (not one layout value:
+  build 3); the lord's own lantern (the stage lane's) still lays a round pool on the walls; the bakehouse hatch's pool
+  is flat and cut at the jamb but still an oval on the cobbles; the gatehouse's slits are amber at their rim and pale at
+  their 1 px core under the bloom; high 8 and the moon's notch (deferred by the director); world-1's highs 2 to 5 and 7;
+  the six other languages of the two story lines (the store pass).
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks

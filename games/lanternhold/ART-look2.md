@@ -2007,3 +2007,74 @@ hashes of the position, byte for byte); the layout is DESIGN.md's "Step world-2,
 `keepfix.py`, the rest to `keepart.py`). The previews beside the gatehouse at 1360 and 1830 are in
 `ci-out/lh-w2f1-previews` (git-ignored).
 <!-- END world lane: world rebuild, step world-2, fix round 1 -->
+
+## 25. The world rebuild, step world-2, fix round 2 (15.11.2026)
+
+<!-- BEGIN world lane: world rebuild, step world-2, fix round 2 -->
+The critic's second look gave 7 of 10 with two blockers, both from 24.3's last point: the gates' near jambs read as a
+dark pier in front of the gatehouse and a tombstone in the postern's road. The director's note of 07:47 set the order
+of the pass. What changed in the art (`tools/keepfix.py`, `tools/keepart.py`), each piece previewed with
+`tools/scenemock/castle_preview.py` beside the gatehouse before the round:
+
+### 25.1 No frame at the gates
+
+- **Both foreground piers are gone.** `gateArchFg` stays in the atlas, placed nowhere. A frame may come back in build
+  3 only as REVIEW-look-2.md 2.8 describes it: a jamb 12 to 16 px wide whose foot runs off the screen under the near
+  lane band, whose top feathers out over 16 rows of dither, shown only while the lord passes, and previewed in
+  scenemock at 1340, 1360 and 1380 first. The depth at the front gate comes from the leaf, the torch inside and the
+  arch's own jambs.
+
+### 25.2 The keep at noon: the sun from the left
+
+- **Light direction.** The towers' east flanks are a step deeper (`drum`: past a third of the turn half a step, past
+  the terminator a whole one), the east tower a little darker overall. The west tower, standing forward, casts a broad
+  shadow over the main block's first bay, up through its parapet and merlons, 9 px with a dithered edge.
+- **No white teeth.** Merlon caps, string course tops, machicolation corbels and the parapet's top row take the lit
+  stone's value (`mist`), never `mistLight`.
+- **The mirror is broken.** The west tower has a small window shut with two wooden shutters (`kshutter`) where the east
+  tower has a slit; the upper storey's fourth window is shuttered (tiers 2 and 3); the east tower has a second,
+  corbelled string course; a drainage spout in the parapet leaves dark broken streaks down the wall under the chimney.
+- **No clear row.** The keep's roof reaches down to its parapet; before, a row under the crenels was clear and showed
+  the rock behind.
+
+### 25.3 The curtain
+
+- **The slit under the merlons is closed.** `curtain_body` left the row over the corbel table clear (curtain A, B, C
+  and the postern's stretch of wall): at night the keep's mist showed through it as a bright blue line under the
+  merlons, by day the rock as a dark one. It is the walk's shadow now, two rows deep.
+- **The buttress is gone** (curtainC). Pale it read as a card; darkened with a shadowed east flank and a cast shadow it
+  read in the preview as a slot in the wall. The wall keeps its ivy, its drain spout and the spout's stain.
+
+### 25.4 Mist, smoke, the door by day
+
+- **The keep's mist** (`keepMist`, now 320x32): one volume behind the wall that rises 4 to 6 rows over the merlon tops
+  in slow low lobes and feathers out over 10 rows; its alpha in sixteenths, dithered (4x4 ordered) only between
+  neighbouring levels, so the edge is soft with no bands and no pattern. Dithering each pixel on or off (round
+  lh-w2f2-1) made a screen-door checker over the keep at dusk and over the rock at the bank's ends: never on a
+  translucent veil. At night the engine tints it a dim desaturated grey a value step over the keep's foot
+  (`SceneLayout.castleMistTint`), no periwinkle.
+- **Smoke** (`smokePuff`, now five frames of 8x8 for 3 to 7 px): lumpy blobs, denser at the heart; twelve per chimney
+  that grow as they rise, lean on a diagonal even in still air, vary in spacing and alpha and overlap into one plume
+  over 38 rows (`CastleSmoke`).
+- **The open hall door by day:** the room behind it is `night0` (the darkest night, not the recess's navy), so the
+  hall's painted light (`hallDoorGlow`) reads warm at noon: a candle-amber share that burns all day, the hearth a warm
+  spot, the banner's crimson against it.
+
+### 25.5 Light (engine, no new sprites)
+
+- **Pools cut by the architecture** (`LightClip`): the forebuilding's torch band ends under the eave and between the
+  quoined corners, the postern's two lanterns are one band under the porch roof, the bakehouse hatch's wash is low,
+  flat and cut at the lean-to's west jamb.
+- **Lit glass halfway to the torch's amber** on the keep, the dormer, the door's line, the chapel, the postern, the
+  bakehouse and the gatehouse's slits; the chapel's lancets no brighter than the keep's windows.
+- **The chapel brazier's cone** is a torch's light: none at noon, full from the dusk.
+- **The valley** turns one warm step through the postern: its ambient and fog red up and blue down over 2330 to 2530,
+  and it lets go of part of the night's cold pull (45 % at dusk, 25 % at night).
+
+### 25.6 Rebuild
+
+`bash games/lanternhold/tools/build-art-world.sh curtainA curtainB curtainC keepT1 keepT2 keepT3 keepT2Build keepT3Build
+keepRimT1 keepRimT2 keepRimT3 keepRimT2Build keepRimT3Build keepMist smokePuff forebuilding posternT1 posternT2
+posternT3`. The previews (castle_preview.py now draws the keep's mist at night) are in the scratch folder of the run,
+not in git.
+<!-- END world lane: world rebuild, step world-2, fix round 2 -->
