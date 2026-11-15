@@ -174,20 +174,35 @@ struct TitleView: View {
         }
     }
 
-    /// The lettering, fixed to the screen: unlit, each letter's box swapped to the lit crop as it lights.
+    /// The lettering, fixed to the screen: unlit, each letter's box swapped to the lit crop as it lights. The masks sit
+    /// in the lettering's own frame, and the whole block is offset afterwards (lh-rj-11: masking an offset image put
+    /// the masks at the picture's origin, so the wrong letters lit).
     private func lettering(scale: CGFloat) -> some View {
         let box = TitleLayout.lettering
         return ZStack(alignment: .topLeading) {
-            sprite("letteringUnlit", box, scale)
+            plain("letteringUnlit", box.size, scale)
             ForEach(Array(lit).sorted(), id: \.self) { index in
                 let letter = TitleLayout.letters[index]
-                sprite("letteringLit", box, scale)
+                plain("letteringLit", box.size, scale)
                     .mask(alignment: .topLeading) {
                         Rectangle()
-                            .frame(width: letter.width * scale, height: (box.height) * scale)
-                            .offset(x: (letter.minX - box.minX) * scale)
+                            .frame(width: letter.width * scale, height: box.height * scale)
+                            .padding(.leading, (letter.minX - box.minX) * scale)
                     }
             }
+        }
+        .frame(width: box.width * scale, height: box.height * scale, alignment: .topLeading)
+        .offset(x: box.minX * scale, y: box.minY * scale)
+    }
+
+    /// One PNG at the origin of its frame, nearest neighbour.
+    @ViewBuilder
+    private func plain(_ name: String, _ size: CGSize, _ scale: CGFloat) -> some View {
+        if let image = TitleArt.shared.image(name) {
+            Image(uiImage: image)
+                .resizable()
+                .interpolation(.none)
+                .frame(width: size.width * scale, height: size.height * scale)
         }
     }
 
