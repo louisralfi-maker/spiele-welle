@@ -20,7 +20,8 @@ five quick sketches (the lantern, the beam, the seal and others): "Such du aus, 
 1. A screenshot of the lord walking, by day or by night, shows no interface at all.
 2. Whatever appears on the world is drawn on the world's pixel grid and from its palette: pixel figures in bone with
    a dark edge, no plate, no parchment, no smooth shape, no shadow, no system type.
-3. The desk (pause sheet, defeat card, title) and the cards for words keep the map's style of `docs/UI-look.md`.
+3. The desk (pause sheet, defeat card) and the cards for words stand on night glass (`docs/TITLE.md` section 4).
+   No parchment is left anywhere (Louis, 15.11.2026). The title is `docs/TITLE.md`.
 
 ## 2. The lantern moment (touch the lord)
 
