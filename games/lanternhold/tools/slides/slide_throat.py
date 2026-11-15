@@ -8,7 +8,8 @@ import math
 
 import numpy as np
 
-from litkit import (W, H, Pic, BAYER, core_glow, falloff, lit_figure, mountain, poly_mask, ellipse_mask, eyes, h)
+from litkit import (W, H, Pic, BAYER, core_glow, falloff, lit_figure, mountain, poly_mask, ellipse_mask, eyes, h,
+                    mist_band, far_step)
 
 SPARK = (149, 96)
 FLOOR = 140
@@ -24,11 +25,12 @@ def slide2():
         p.px(x, y, "foam")
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             p.px(x + dx, y + dy, "moon")
-    # the empty land east: three rows of low hills toward a dark horizon, no light
-    for (base, amp, col, rim) in ((104, 3, "nightSlate", "night2"), (116, 5, "nightBlue", "nightSlate"),
-                                  (132, 6, "nightDeep", "nightBlue")):
-        for x in range(200, W):
-            t = int(round(base - amp * abs(math.sin(x / 19.0 + base))))
+    # the empty land east: slide 1's shore, bare: three rows of low land toward the horizon, no light
+    HZ = 108
+    for row, (base, amp, col, rim) in enumerate(((HZ + 4, 2, "nightHaze", "far"), (HZ + 14, 4, "night2", "nightHaze"),
+                                                  (HZ + 30, 6, "nightSlate", "night2"))):
+        for x in range(196, W):
+            t = int(round(base - amp * abs(math.sin(x / (21.0 + row * 7) + row))))
             for y in range(t, H):
                 p.px(x, y, col)
             p.px(x, t, rim)
@@ -51,9 +53,10 @@ def slide2():
     inner_r = poly([(0, 178), (24, 180), (25, 183), (58, 184), (59, 181), (96, 182), (97, 186), (FLOOR, 188)])
     outer_r = poly([(0, 216), (16, 224), (24, 220), (44, 234), (56, 230), (76, 246), (90, 242), (112, 258),
                     (FLOOR, 266)])
-    mountain(p, outer_l, inner_l, inner_r, outer_r,
+    wm = mountain(p, outer_l, inner_l, inner_r, outer_r,
              facets_l=[(122, 84)], facets_r=[(200, 232)], light=SPARK, reach=40, lip=7, y1=FLOOR,
              warm=("gold", "tile", "crimsonDeep"))
+    mist_band(p, 0, W, 128, FLOOR, under=("nightBlue", "nightDeep"))
     # a few short cracks across the planes, so the rock has volume and the light is broken by it
     for (x0, y0, x1, y1) in ((96, 40, 104, 62), (110, 90, 118, 112), (204, 30, 210, 54), (214, 96, 222, 120),
                              (128, 70, 134, 84), (180, 62, 186, 80), (126, 112, 132, 124), (182, 108, 188, 122)):
@@ -80,7 +83,7 @@ def slide2():
     for y in range(FLOOR - 4, FLOOR + 1):
         for x in range(140, 172):
             if y == FLOOR - 4 and 142 <= x <= 169:
-                p.px(x, y, "tile" if abs(x - SPARK[0]) < 12 else "crimsonDeep")
+                p.px(x, y, "ember" if abs(x - SPARK[0]) < 10 else ("tile" if abs(x - SPARK[0]) < 18 else "emberDim"))
             elif y > FLOOR - 4 and 140 + (FLOOR - y) // 2 <= x <= 171 - (FLOOR - y) // 2:
                 p.px(x, y, "nightDeep" if x < 160 else "night0")
     # the ancestor: a hand-set grid, hood, the raised arm, the hand; the spark above the hand
