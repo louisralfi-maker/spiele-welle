@@ -22,6 +22,13 @@ enum PlaceholderPolish {
         // The interface kit (stage lane, stage-3-interface): a plain bone fill while a strip is missing.
         case .hudFigures, .hudArrow, .hudCoin, .hudFace, .hudPeople, .hudGear, .hudDawn:
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xDED2B8))]
+        // b3-count (the count's pieces): plain fills while a strip is missing (their PNGs win).
+        case .hudCoinTen, .hudCoinBar, .siteLantern:
+            return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xE0AE48))]
+        case .hudHollow, .hudHollowTen, .hudHollowBar:
+            return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0x2B2421))]
+        case .payBoard:
+            return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0x66422F))]
         default: return []
         }
     }

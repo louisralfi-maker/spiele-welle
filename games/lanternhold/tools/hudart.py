@@ -23,6 +23,20 @@ Sprites (each a horizontal strip of equal frames, AtlasBuilder.splitFrames cuts 
   hudPeople    13x9: two heads and shoulders, one a step behind the other
   hudGear      10x10: the gear in the corner (opens the pause sheet)
 
+The count (PAY.md, build 3 lane 1): the tally board on its post, a thing in the world (HUD.md: drawn lit by the world,
+never on a plate), its bar coin and the site lantern the one who was paid lights.
+
+  hudCoinBar   13x8: the bar (a hundred), a small cast ingot with a struck C, lit from the upper left
+  hudHollowBar 13x9, 2 frames: its hollow in the board, empty and holding the bar (no ink edge, like the others)
+  payBoard     6x12, 14 frames: the board's tiles, so a board fits any price (PayBoardLayout in Core/PayCount.swift):
+               0 plank's left end, 1 and 2 two plank middles (they alternate, so the grain never repeats in a row),
+               3 plank's right end, 4 5 6 the cap over the top plank (left, middle, right; in the cell's last 3 rows),
+               7 8 9 the foot under the last plank (in the cell's first 2 rows), 10 the post (every row alike, so
+               tiles stack and overlap unseen), 11 the post's foot in the ground, 12 the hasp on the shut lid,
+               13 the post's top, the iron plate the lantern stands on (in the cell's last 3 rows)
+  siteLantern  7x10, 2 frames: the site lantern on the post, unlit (dark glass) and lit (the glass in the fire ramp;
+               the stage lane adds its light and the glass's glow)
+
 The row of the lantern moment is 9 game pixels high (figures, coin, face, people); the big coin and its hollow are
 board and flight pieces only.
 
@@ -409,6 +423,191 @@ HOLLOW_TEN = ["...kkkkk...",
               "...lllll..."]
 
 
+# --- the count: the bar, its hollow, the board's tiles, the site lantern ------------------------------------------------
+# the bar: a small cast ingot, its top face lit, a C struck on its front (C is a hundred; never a currency sign)
+COIN_BAR = ["..hwhhhgg..",
+            ".hhgggggggs",
+            "hgggsssgggd",
+            "ggggsgggggd",
+            "sgggsssggdd",
+            ".ssddddddd."]
+
+HOLLOW_BAR = [".kkkkkkkkkkk.",
+              "kKKKKKKKKKKKk",
+              "kKKKKKKKKKKKk",
+              "kKKKKKKKKKKKk",
+              "kKKKKKKKKKKKk",
+              "kKKKKKKKKKKKl",
+              "kkKKKKKKKKKll",
+              ".kkKKKKKKKll.",
+              "..lllllllll.."]
+
+# the board's colours: a plank face of weathered wood, its grain darker and lighter, the seam between planks in shade,
+# iron nails at the ends, the ink edge round the whole board
+BOARD_LEGEND = {
+    "i": "ink",
+    "F": "wood",        # the plank's face
+    "L": "woodLight",   # grain catching light, the top bevel, a lit edge
+    "D": "woodDark",    # grain in shade, the seam, the shaded edge, the underside
+    "S": "soil",        # a knot's dark heart
+    "n": "stoneMid",    # a nail head
+    "N": "stoneLight",  # its glint
+    "b": "stoneDark",   # iron
+    "B": "stone",       # iron in light
+    "w": "strawLight",  # the top edge's highest light
+}
+
+# a plank row is 12 rows: 11 of face and its seam under it
+PLANK_L = ["iLFFFF",
+           "iLFFFF",
+           "iLFFLL",
+           "iLnFFF",
+           "iLNFFF",
+           "iLFFFF",
+           "iLFFFF",
+           "iLFDSD",
+           "iLFFFF",
+           "iLFFFF",
+           "iDFFFF",
+           "iDDDDD"]
+# the two middles alternate (M1 M2 M1 ...); a streak that leaves one tile's edge goes on in the next, so the grain
+# runs long across the board and its 12-px repeat hides
+PLANK_M1 = ["FFFFFF",
+            "FFFFFF",
+            "LFFFFF",
+            "FFFFFF",
+            "FFFFDD",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFLLLL",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_M2 = ["FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "DFFFFF",
+            "FFFFFF",
+            "FFFDDD",
+            "FFFFFF",
+            "FFFFFF",
+            "LFFFFF",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_R = ["FFFFDi",
+           "FFFFDi",
+           "FFFFDi",
+           "FFFnDi",
+           "FFFNDi",
+           "LLFFDi",
+           "FFFFDi",
+           "FFFFDi",
+           "FFFFDi",
+           "LFFFDi",
+           "FFFFDi",
+           "DDDDDi"]
+CAP_L = [".iiiii",
+         "iwLwLw",
+         "iLLLLL"]
+CAP_M = ["iiiiii",
+         "wLwLLw",
+         "LLLLLL"]
+CAP_R = ["iiiii.",
+         "LwLwDi",
+         "LLLLDi"]
+FOOT_L = ["iDDDDD",
+          ".iiiii"]
+FOOT_M = ["DDDDDD",
+          "iiiiii"]
+FOOT_R = ["DDDDDi",
+          "iiiii."]
+POST = [".iLDi."] * 12
+POST_FOOT = [".iLDi."] * 9 + [".iLDi.", "iDLDDi", "iiiiii"]
+HASP = ["......",
+        "......",
+        "..ii..",
+        ".ibBi.",
+        "ibBBbi",
+        "ibi.bi",
+        "ibi.bi",
+        "ibBBbi",
+        ".ibbi.",
+        "..ii..",
+        "......",
+        "......"]
+POST_TOP = [".iiii.",
+            "ibBBbi",
+            "ibbbbi"]
+
+# the site lantern (7x10): a ring, a cap, four panes in an iron frame, a foot; unlit its glass is the night's dark glass
+# (as the street lanterns' heads), lit it burns in the fire ramp, white at its heart
+LANTERN_LEGEND = {"i": "ink", "b": "stoneDark", "B": "stone", "g": "night2", "G": "night1",
+                  "w": "fireWhite", "y": "fireGold", "o": "fireOrange"}
+LANTERN_UNLIT = ["..iii..",
+                 "..i.i..",
+                 ".iBBBi.",
+                 "ibBbbbi",
+                 "ibgGgbi",
+                 "ibGgGbi",
+                 "ibgGgbi",
+                 "ibbbbbi",
+                 ".ibbbi.",
+                 "..iii.."]
+LANTERN_LIT = ["..iii..",
+               "..i.i..",
+               ".iBBBi.",
+               "ibBbbbi",
+               "ibywybi",
+               "ibwwwbi",
+               "ibyoybi",
+               "ibbbbbi",
+               ".ibbbi.",
+               "..iii.."]
+
+
+def legend_image(rows, pal, legend, h=None, top=True):
+    """The rows in `legend`'s colours, in a cell `h` rows high (the rows at its top, or at its bottom)."""
+    w = len(rows[0])
+    assert all(len(r) == w for r in rows), rows
+    ch = h or len(rows)
+    oy = 0 if top else ch - len(rows)
+    img = Image(w, ch)
+    for y, row in enumerate(rows):
+        for x, c in enumerate(row):
+            if c != ".":
+                img.set(x, y + oy, pal.color(legend[c]) + (255,))
+    return img
+
+
+def board_tiles(pal):
+    cell = 12
+    tiles = [PLANK_L, PLANK_M1, PLANK_M2, PLANK_R]
+    frames = [legend_image(t, pal, BOARD_LEGEND) for t in tiles]
+    frames += [legend_image(t, pal, BOARD_LEGEND, cell, top=False) for t in (CAP_L, CAP_M, CAP_R)]
+    frames += [legend_image(t, pal, BOARD_LEGEND, cell, top=True) for t in (FOOT_L, FOOT_M, FOOT_R)]
+    frames.append(legend_image(POST, pal, BOARD_LEGEND))
+    frames.append(legend_image(POST_FOOT, pal, BOARD_LEGEND))
+    frames.append(legend_image(HASP, pal, BOARD_LEGEND))
+    frames.append(legend_image(POST_TOP, pal, BOARD_LEGEND, cell, top=False))
+    return frames
+
+
+def bar_hollow(with_bar, pal):
+    img = grid_image(HOLLOW_BAR, pal)
+    if with_bar:
+        bar = grid_image(COIN_BAR, pal)
+        ox = (img.w - bar.w) // 2
+        oy = (img.h - bar.h) // 2
+        for y in range(bar.h):
+            for x in range(bar.w):
+                c = bar.get(x, y)
+                if c[3]:
+                    img.set(x + ox, y + oy, c)
+    return img
+
+
 def grid_image(rows, pal):
     h = len(rows)
     w = len(rows[0])
@@ -518,11 +717,19 @@ def frames_for(sprite, pal, style="hand", face=None):
         return [people(pal)]
     if sprite == "hudGear":
         return [edged(grid_image(GEAR, pal), pal)]
+    if sprite == "hudCoinBar":
+        return [edged(grid_image(COIN_BAR, pal), pal)]
+    if sprite == "hudHollowBar":
+        return [bar_hollow(False, pal), bar_hollow(True, pal)]
+    if sprite == "payBoard":
+        return board_tiles(pal)
+    if sprite == "siteLantern":
+        return [legend_image(LANTERN_UNLIT, pal, LANTERN_LEGEND), legend_image(LANTERN_LIT, pal, LANTERN_LEGEND)]
     raise SystemExit("unknown sprite " + sprite)
 
 
 SPRITES = ["hudFigures", "hudArrow", "hudCoin", "hudCoinTen", "hudHollow", "hudHollowTen", "hudFace", "hudPeople",
-           "hudGear", "hudDawn"]
+           "hudGear", "hudDawn", "hudCoinBar", "hudHollowBar", "payBoard", "siteLantern"]
 
 
 def palette():

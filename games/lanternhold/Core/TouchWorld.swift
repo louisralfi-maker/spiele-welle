@@ -46,8 +46,8 @@ enum TouchKind: String, Sendable, Equatable, CaseIterable {
 /// One thing that offers something now, on the stage it stands on (game px of the world strip or of the hall).
 struct TouchThing: Sendable, Equatable {
     /// The accessibility identifier, stable for the UI tests: `touch-talk-<speaker>`, `touch-bench-<n>`,
-    /// `touch-throne`, `touch-plot-<index>`, `touch-wall-<index>`, `touch-recruit-<building>`, `touch-brazier-<index>`,
-    /// `touch-door-hall`, `touch-lectern`.
+    /// `touch-throne`, `touch-plot-<index>`, `touch-wall-<index>`, `touch-recruit-<archer|guard>`,
+    /// `touch-brazier-<index>`, `touch-door-hall`, `touch-lectern`.
     var id: String
     var kind: TouchKind
     /// What the lord does when he arrives.
@@ -76,6 +76,9 @@ struct TouchThing: Sendable, Equatable {
     var rimX: Double? = nil
     /// Stage-3-interface: no gold rim on it (the barracks while Marek's cart stands before them).
     var noRim = false
+    /// Build 3, the count (PAY.md): the recruit this half of the barracks takes on (`touch-recruit-archer`,
+    /// `touch-recruit-guard`); nil for everything else.
+    var soldier: SoldierKind? = nil
 
     var isPerson: Bool { kind == .talk || kind == .bench }
 
