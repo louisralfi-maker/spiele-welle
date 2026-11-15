@@ -13,7 +13,10 @@ enum TitleGate {
         let arguments = ProcessInfo.processInfo.arguments.dropFirst()
         let environment = ProcessInfo.processInfo.environment
         let underTests = environment["XCTestConfigurationFilePath"] != nil || environment["XCTestBundlePath"] != nil
-        return !underTests && !arguments.contains { $0.hasPrefix("-GW") }
+        // A sweep's launch carries its plan in the environment and no argument (lh-rj-10 and lh-rj-15: the title
+        // stood over every sweep shot until the runner gave up).
+        let sweeping = environment[SweepPlan.environmentKey] != nil
+        return !underTests && !sweeping && !arguments.contains { $0.hasPrefix("-GW") }
     }()
 }
 
