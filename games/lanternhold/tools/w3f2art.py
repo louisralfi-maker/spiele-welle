@@ -36,6 +36,7 @@ files byte for byte. Passes over existing sprites read their untouched sources f
   oldWall1          84x60    Oriel's first line at the Throat's end (smaller): the stepped blocks rounded into rubble, the
         tops chipped, heaps of rubble at the foot
   darknessBankGlow  36x3     the bank's near eyes open: almonds, not "+" crosses
+  gateRockL, gateRockR       the gate rocks' lit edge a step down (rockPale to rockLight): no cream cut line up the slope
   valleyVerge, valleyVergeB  the verge (smaller): stones at irregular gaps (3 to 17 px), no two gaps alike in a row
 
   w3f2art.py build <id> [<id> ...] --out <Resources/Art>
@@ -826,6 +827,22 @@ def old_wall_one():
     return im
 
 
+def gate_rock(name):
+    """The gate rocks at the gatehouse's feet (tools/w3f2src): their lit edge in broken pieces still read as a cream cut
+    line up the slope at night and at noon (t-3-1360, w-1200-noon), the same sticker line the critic took off the
+    buttress: the edge's `rockPale` a step down to `rockLight`, its `stoneLight` to `stone`, so the edge is a lit face
+    of the rock, not a stroke round it."""
+    im = src2(name)
+    for y in range(im.h):
+        for x in range(im.w):
+            nm = name_at(im, x, y)
+            if nm == "rockPale":
+                put(im, x, y, "rockLight")
+            elif nm == "stoneLight":
+                put(im, x, y, "stone")
+    return im
+
+
 def darkness_bank_glow():
     """The bank's eyes (4 frames of 9 x 3, tools/w3f2src): the near pair open (frame 0) was two 3 x 3 crosses, a
     "+" glyph at phone size; now each eye an almond, a bright core between two dimmer pixels with a faint lid over
@@ -863,6 +880,8 @@ BUILDERS = {
     "posternNightView": postern_night_view,
     "gloomGroundFog": gloom_ground_fog,
     "darknessBankGlow": darkness_bank_glow,
+    "gateRockL": lambda: gate_rock("gateRockL"),
+    "gateRockR": lambda: gate_rock("gateRockR"),
     "oldWall1": old_wall_one,
     "valleyVerge": lambda: valley_verge(561, 0),
     "valleyVergeB": lambda: valley_verge(587, 1),
