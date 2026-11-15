@@ -52,12 +52,12 @@ final class WorldRebuild2FixTests: XCTestCase {
     func testTheMistStandsAtTheKeepsFootOverTheCurtain() {
         let world = PlaceholderScene.world(look: .two)
         guard let mist = world.props.first(where: { $0.sprite == .keepMist }) else { return XCTFail("the keep's mist") }
-        XCTAssertEqual(mist.plane, .near)
+        XCTAssertEqual(mist.plane, .fogA, "in front of the keep, lit as fog")
         XCTAssertEqual(mist.movesWith, .mistBand)
         XCTAssertGreaterThan(mist.y + Double(mist.height), 72 + 4, "its billows stand over the curtain's crenels")
-        let night = frame(world, timeOfDay: 0.97, focus: 1830).layer(.near).sprites.first { $0.sprite == .keepMist }
+        let night = frame(world, timeOfDay: 0.97, focus: 1830).layer(.fogA).sprites.first { $0.sprite == .keepMist }
         XCTAssertGreaterThan(night?.tint.w ?? 0, 0.3, "a mist you see at night")
-        XCTAssertNil(frame(world, timeOfDay: 0.5, focus: 1830).layer(.near).sprites.first { $0.sprite == .keepMist },
+        XCTAssertNil(frame(world, timeOfDay: 0.5, focus: 1830).layer(.fogA).sprites.first { $0.sprite == .keepMist },
                      "none at noon")
     }
 

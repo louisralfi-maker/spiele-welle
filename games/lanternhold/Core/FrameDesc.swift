@@ -131,6 +131,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // World-2 fix round 1 (tools/keepfix.py): the mist bank at the keep's foot, the bloom around its lit windows, its
     // brazier's light, a puff of chimney smoke (three sizes), the postern's far end lit at night
     case keepMist, keepPaneHalo, keepFireGlow, smokePuff, posternFarGlow
+    // ... and the keep's warm rim on its west edges at dusk, one per keep sprite
+    case keepRimT1, keepRimT2, keepRimT3, keepRimT2Build, keepRimT3Build
     // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
     // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
@@ -370,9 +372,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bakehouse: return PixelSize(width: 100, height: 62)
         case .bakeHatchGlow: return PixelSize(width: 6, height: 6)
         case .posternT1, .posternT2, .posternT3: return PixelSize(width: 176, height: 112)
-        case .gateArchFg: return PixelSize(width: 16, height: 205)
+        case .gateArchFg: return PixelSize(width: 16, height: 116)
         // World-2 fix round 1 (tools/keepfix.py).
         case .keepMist: return PixelSize(width: 320, height: 18)
+        case .keepRimT1, .keepRimT2, .keepRimT3, .keepRimT2Build, .keepRimT3Build: return PixelSize(width: 260, height: 175)
         case .keepPaneHalo: return PixelSize(width: 11, height: 14)
         case .keepFireGlow: return PixelSize(width: 36, height: 24)
         case .smokePuff: return PixelSize(width: 6, height: 6)

@@ -38,7 +38,7 @@ PLANTS="d2FgFerns d2FgMeadow d2FgReeds d2BushA d2BushB d2TreeBelt d2FirBeltFar l
 FOG="d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC bankEnd darknessBankGlow cloudDeck"
 ROCK="throatStepA throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftShaft gateRockL gateRockR cleftWater laneCobbleEnd"
 # World-2 (14.11.2026): one castle, exteriors only (tools/keepart.py); the gatehouse's lane join (tools/lanejoin.py)
-CASTLE="keepT1 keepT2 keepT3 keepT2Build keepT3Build curtainA curtainB curtainC curtainStair curtainTower curtainHoard castleBanner forebuilding hallDoorGlow hallDoorWedge chapelTower bakehouse bakeHatchGlow posternT1 posternT2 posternT3 gateArchFg laneScreeCobble keepMist keepPaneHalo keepFireGlow smokePuff posternFarGlow"
+CASTLE="keepT1 keepT2 keepT3 keepT2Build keepT3Build curtainA curtainB curtainC curtainStair curtainTower curtainHoard castleBanner forebuilding hallDoorGlow hallDoorWedge chapelTower bakehouse bakeHatchGlow posternT1 posternT2 posternT3 gateArchFg laneScreeCobble keepMist keepPaneHalo keepFireGlow smokePuff posternFarGlow keepRimT1 keepRimT2 keepRimT3 keepRimT2Build keepRimT3Build"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -86,7 +86,7 @@ build() { # name: one sprite (or one group of small ones)
     curtainA|curtainC|curtainStair|curtainTower|curtainHoard|castleBanner|chapelTower|bakehouse|bakeHatchGlow)
         # world-2 (14.11.2026): one castle, exteriors only (tools/keepart.py, ART-look2.md section 23)
         python3 -I -B games/lanternhold/tools/keepart.py build $1 --out $A ;;
-    keepT1|keepT2|keepT3|keepT2Build|keepT3Build|keepMist|keepPaneHalo|keepFireGlow|forebuilding|hallDoorGlow|hallDoorWedge|smokePuff|curtainB|posternT1|posternT2|posternT3|posternFarGlow|gateArchFg)
+    keepT1|keepT2|keepT3|keepT2Build|keepT3Build|keepRimT1|keepRimT2|keepRimT3|keepRimT2Build|keepRimT3Build|keepMist|keepPaneHalo|keepFireGlow|forebuilding|hallDoorGlow|hallDoorWedge|smokePuff|curtainB|posternT1|posternT2|posternT3|posternFarGlow|gateArchFg)
         # world-2 fix round 1 (15.11.2026): the pieces the critic sent back (tools/keepfix.py, ART-look2.md section 24)
         python3 -I -B games/lanternhold/tools/keepfix.py build $1 --out $A ;;
     laneScreeCobble)   # world-2: the scree gives way to the cobbles under the gatehouse's gateway (after `plants`)

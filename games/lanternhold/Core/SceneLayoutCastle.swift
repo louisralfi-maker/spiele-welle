@@ -56,8 +56,8 @@ extension SceneLayout {
 
     /// Fix round 1 (the critic's blocker 1: no light of its own, flat cream windows): the keep's emitters. Its lit
     /// panes on glass masks, each with a soft warm bloom around it (`keepPaneHalo`); the brazier on its wall walk,
-    /// between the corner towers (its flame, which burns all night and dimly by day, and its light on the merlons and
-    /// the roof's foot, at dusk and night), but not while the builders are on the walk.
+    /// between the corner towers (its flame and its light on the merlons and the roof's foot, lit at dusk and burning all
+    /// night), but not while the builders are on the walk.
     static func castleKeepEmitters(_ stage: CastleStage) -> [Emitter] {
         var list: [Emitter] = []
         for pane in castleKeepPanes(stage) {
@@ -66,10 +66,12 @@ extension SceneLayout {
                 list.append(.sprite(.keepPaneHalo, dx: pane.0 - 2, dy: pane.1 - 2, glow: .window, fades: true))
             }
         }
+        // Its warm rim on the west edges while the evening is warm (`FrameBuilder.keepRimShare`).
+        list.append(.sprite(castleKeepRim(stage), dx: 0, dy: 0, glow: .window, fades: false))
         if !stage.building {
             let wall = castleKeepWall(stage)
             list.append(.sprite(.brazierFlame, dx: castleKeepBrazierX - 4, dy: wall + 7, glow: .fireOrange,
-                                fades: false))
+                                fades: true))
             list.append(.sprite(.keepFireGlow, dx: castleKeepBrazierX - 18, dy: wall - 1, glow: .fireWhite,
                                 fades: true))
         }
@@ -77,6 +79,18 @@ extension SceneLayout {
     }
     /// The keep's brazier's column (tools/keepfix.py `BRAZIER_X`, in a crenel's gap).
     static let castleKeepBrazierX = 129.0
+
+    /// The keep's dusk rim per stage (tools/keepfix.py `keep_rim`: its sprite's west edges).
+    static func castleKeepRim(_ stage: CastleStage) -> SpriteID {
+        switch (stage.tier, stage.building) {
+        case (2, true): return .keepRimT2Build
+        case (2, false): return .keepRimT2
+        case (3, true): return .keepRimT3Build
+        case (3, false): return .keepRimT3
+        default: return .keepRimT1
+        }
+    }
+    static let castleKeepRims: Set<SpriteID> = [.keepRimT1, .keepRimT2, .keepRimT3, .keepRimT2Build, .keepRimT3Build]
 
     static func castleKeepSprite(_ stage: CastleStage) -> SpriteID {
         switch (stage.tier, stage.building) {
@@ -141,10 +155,13 @@ extension SceneLayout {
     private static func castleBrazier(_ cx: Double, y: Double = 0, z: Int = 3) -> Entry {
         Entry(sprite: .brazier, x: cx - 5, y: y, z: z,
               emitters: [.sprite(.brazierFlame, dx: 1, dy: 11, glow: .fireOrange, fades: false)],
-              lights: castleFireLights(cx, y: y))
+              lights: y == 0 ? castleFireLights(cx, y: y)
+                             : [Light(kind: .brazier, x: cx, y: y + 8, radius: 30, squash: 1.9,
+                                      color: GamePalette.fireGold, intensity: 0.85)])
     }
 
-    /// The shaped light of a castle fire whose flame burns at `y + 14`: the pool, the cone, the core (fire-gold).
+    /// The shaped light of a castle fire on the ground whose flame burns at `y + 14`: the pool, the cone, the core
+    /// (fire-gold). A brazier on the wall walk lights one flat pool along it.
     static func castleFireLights(_ cx: Double, y: Double) -> [Light] {
         [Light(kind: .brazier, x: cx, y: y + 2, radius: 34, squash: 2.4, color: GamePalette.fireGold, intensity: 0.8),
          Light(kind: .brazier, x: cx + 1, y: y + 32, radius: 15, squash: 0.62, color: GamePalette.fireGold,
@@ -169,7 +186,9 @@ extension SceneLayout {
                                   emitters: castleKeepEmitters(stage), movesWith: .mistBand)))
         // Fix round 1 (blocker 1: "no mist at its foot"): a feathered bank of mist on the mistBand plane, its billows
         // standing over the curtain's crenels at dawn, dusk and night.
-        list.append((.near, Entry(sprite: .keepMist, x: castleKeepX - 30, y: castleKeepMistY, z: 6, region: .castle,
+        // On fog A (in front of the near plane's picture, behind the world's), so it takes the hour's fog colour and
+        // the shader's lift like the fog (round lh-w2f1-1: lit as the near plane's albedo it vanished at night).
+        list.append((.fogA, Entry(sprite: .keepMist, x: castleKeepX - 30, y: castleKeepMistY, z: 6, region: .castle,
                                   movesWith: .mistBand, mist: castleKeepMistShare)))
 
         // The curtain wall, its tower and its stair.
@@ -200,14 +219,14 @@ extension SceneLayout {
         // The forebuilding with the hall door (closed here; the game opens it, `CastleRooms.scene`).
         let fore = castleForebuildingX
         // Fix round 1 (high 2: "the two door lamps make a pair of goggle ovals"): the two torches' light is one flat band
-        // across the portal.
+        // across the portal's head, over the lord's (round lh-w2f1-1: at his chest it lit him orange in the doorway).
         list.append((.world, Entry(sprite: .forebuilding, x: fore, y: 0, z: -2,
                                    emitters: [.sprite(.flame, dx: 36, dy: 30, glow: .fireGold, fades: true),
                                               .sprite(.flame, dx: 81, dy: 30, glow: .fireGold, fades: true),
                                               .glass(dx: 57, dy: 64, width: 5, height: 10),
                                               .glass(dx: castleDoorGap.dx, dy: castleDoorGap.dy,
                                                      width: castleDoorGap.width, height: castleDoorGap.height)],
-                                   lights: [Light(kind: .torch, x: fore + 60, y: 27, radius: 40, squash: 2.1),
+                                   lights: [Light(kind: .torch, x: fore + 60, y: 42, radius: 42, squash: 2.2),
                                             Light(kind: .window, x: fore + 59.5, y: 68, radius: 10)])))
 
         // The chapel of the Flame: three lancets lit from inside, the Flame's brazier at its door.

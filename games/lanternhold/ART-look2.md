@@ -1935,3 +1935,74 @@ column and stood there as a vertical seam over the valley's haze, comes down as 
 `build-art-buildings.sh barracks smithy masterSmithy lodge bigLodge`. A quick composite at the real framing:
 `python3 -I tools/scenemock/castle_preview.py <Resources/Art> <out.png> <camera centre> [day|night] [1|1b|2|2b|3|3b]`.
 <!-- END world lane: world rebuild, step world-2 -->
+
+## 24. The world rebuild, step world-2, fix round 1 (15.11.2026)
+
+<!-- BEGIN world lane: world rebuild, step world-2, fix round 1 -->
+The independent critic's first look at world-2 gave 6.5 of 10: one fortress at last, the chapel tower the best new
+piece, but the keep "a symmetric slab in one even mid value" beside the gatehouse and the open hall door "a burning
+doorway". `tools/keepfix.py` repaints what he sent back in keepart's vocabulary (the same rules as 23.1: palette names,
+hashes of the position, byte for byte); the layout is DESIGN.md's "Step world-2, fix round 1".
+
+### 24.1 The keep at the gatehouse's bar
+
+- **Its own stone.** It stands on the mistBand plane, in the cleft's air behind the curtain, so its ramp is not the
+  curtain's: `stoneDark`, `stoneMid`, `stone`, then the mist greys `mistDark`, `mist`, `mistLight` (`KR`). A block is
+  about 15 % paler and a step bluer than the curtain's at the same height, so keep, curtain and forebuilding no longer
+  melt into one grey mass at noon.
+- **A ramp from a dark foot to a lit crown** (`ramp`): stoneMid and stone where it rises out of the curtain, mistDark
+  and mist at the crown; every block takes one of two values of its band (`kashlar`), so the stone has a grain and the
+  wall still reads as one plane.
+- **Modelled masses.** The corner towers are drums (`drum`): blocks that narrow toward both edges (equal steps of the
+  angle round the tower), a dark rim on the left, the lit band at a quarter, falling into shade on the right, as the
+  gatehouse's tier-3 drums do. A round stair turret and its slated stair hall stand on the west, so the silhouette is no
+  longer symmetric and the corner the front gate sees carries the tiers (crenels, then a taller turret with the house's
+  flag, then a cone).
+- **Depth.** Every string course has a lit top and two rows of shadow under it (`kcourse`); the corbel tables and
+  machicolations have ink slots and a row of shadow (`kcorbels`, `kmachicolations`); the twin windows sit in deep
+  reveals (each light's right jamb in `nightDeep` inside the glass box, which the mask leaves dark), splayed jambs, a
+  hood and a lit sill with their shadows (`ktwin`).
+- **Light of its own.** A brazier stands on the wall walk in a crenel's gap; its flame and its light on the merlons and
+  the roof's foot (`keepFireGlow`) burn at dusk and night. Each lit window has a 2 px warm bloom (`keepPaneHalo`). At the
+  golden hour and dusk a warm rim lies on every edge of the silhouette that faces west (`keepRim…`, derived from the
+  keep's own pixels, shown by the hour's warmth until the moon is up).
+- **Mist at its foot** (`keepMist`): a bank 18 rows high on the mistBand plane whose billows stand over the curtain's
+  crenels and feather out, at dawn, dusk and night.
+- **The building states read at phone size:** scaffolding of two-px standards and light ledgers, a crane whose jib
+  stands over the roof line; the cones' timber frames in light wood, rafters two px wide with battens every three rows.
+
+### 24.2 The promise of the hall
+
+- **The view through the open door** (`hallDoorGlow`): no fire in the doorway any more but a lit room seen through it:
+  the leaves and the reveal dark, the ceiling's beams dim, flagstones receding from the threshold to the far wall with
+  their joints converging, the far wall warm and the hearth's glow on it the brightest point, high in the middle; the
+  pillar and the banner inside stay dark against it.
+- **The lord stays a figure.** The door's own light is a flat pool low at the steps' foot (`CastleRooms.openDoor`), so it
+  warms his feet and the stones while his body stands dark against the bright room (an actor is lit, never added over).
+- **The wedge** (`hallDoorWedge`): from the threshold over the steps and 12 rows out on the cobbles, the door's 18 px
+  to 2.5 times it, smooth alpha in sixteen steps and never over 0.5, so the stones show through.
+- **The forebuilding** is a porch, not a temple: a slate roof that slopes back to its ridge, a stone dormer with a thick
+  three-row coping for the lord's chamber, quoined corners and no pilasters or entablature; the door stands on three
+  steps and a pale threshold between low parapets, and the two torches' light is one flat band across the portal.
+
+### 24.3 Light, smoke, passages
+
+- **Fires as shaped pools** (`SceneLayout.castleFireLights`): each castle brazier lights a flat pool on the ground it
+  stands on, a tall narrow cone up the wall over its flame and a small hot core, in fire-gold and a third smaller than
+  before. A scene light can shape its pool now (`LightSource.squash`, scene only; the battle's field is untouched).
+- **Smoke in puffs** (`smokePuff`, `CastleSmoke`): seven puffs of 3 to 5 px a chimney, rising 36 rows in 7 s, growing,
+  drifting with the wind; white × 0.86, so the hour's light gives them a value over the rock. The bakehouse's chimney
+  mouth glows a little, which lights its smoke warm from below. With Reduce Motion they hang still.
+- **The postern's passage** has depth: the jambs' inner faces and the vault in shadow, cobbles receding to a far
+  opening that shows the valley's daylight (lantern-warm at night, `posternFarGlow`).
+- **The curtain's blocked arch** is a recess: rubble a value darker, the intrados's shadow, voussoirs lit only on the
+  left haunch, no pale outline.
+- **The gates' near jambs** (`gateArchFg`): 14 px of dark coursed stone in the foreground with a warm lit edge, only while
+  the lord passes; not the black arch of round lh-w2-1.
+
+### 24.4 Rebuild
+
+`bash games/lanternhold/tools/build-art-world.sh keepT1 …` (the list `CASTLE`; the fix round's names go to
+`keepfix.py`, the rest to `keepart.py`). The previews beside the gatehouse at 1360 and 1830 are in
+`ci-out/lh-w2f1-previews` (git-ignored).
+<!-- END world lane: world rebuild, step world-2, fix round 1 -->

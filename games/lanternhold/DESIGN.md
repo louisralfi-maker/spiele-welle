@@ -3532,6 +3532,69 @@ Art: `tools/keepart.py` (ART-look2.md section 23); layout: `Core/SceneLayoutCast
   (no seam: the valley set begins beyond it); the court, its benches, its lectern and Marek's cart stand in front of
   the forebuilding until the stage lane moves them into the hall stage; the camera's set pieces (2.7) are a later
   step.
+#### Step world-2, fix round 1 (the critic's 6.5 of 10, look 1; 15.11.2026)
+
+The independent critic did not pass world-2: two blockers (the keep under the gatehouse's bar, the open hall door a
+burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24); layout: `Core/SceneLayoutCastle.swift`,
+`Core/CastleRooms.swift`; ids: SPRITES.md "One castle". Rounds by the director's notes of 14.11. 18:46 and 19:35.
+
+- **The keep (blocker 1):** repainted at 260x175 (the old 200-px keep at its cols 60 to 259; `castleKeepX` 1058 =
+  `view / 2 + 0.62 × (1830 − view / 2) − 160`, its main block still centred over the hall door, `castleKeepMiddle`). Its
+  stone is the mistBand's: the mist greys over the slate darks, a step paler and cooler than the curtain's, on a ramp
+  from a dark foot to a lit crown in two values of block; round corner towers modelled as drums; two broad pilasters in
+  place of four (no grid); string courses, corbel tables and machicolations with their shadows; deep window reveals; a
+  round stair turret and its stair hall on the west. Light of its own: a brazier on the wall walk (`brazierFlame`, its
+  light `keepFireGlow` at dusk and night; none among the builders), a 2 px bloom round every lit twin window
+  (`keepPaneHalo`; a dark window loses it), a warm rim on its west edges at the golden hour and dusk (`keepRim…`, by
+  `FrameBuilder.keepRimShare`: the hour's warmth, gone once the moon is up). Mist at its foot: `keepMist` (near picture,
+  moving with the mist band, y 60, 2.6 of the hour's mist), its billows over the curtain's crenels at dawn, dusk and
+  night. A fifth pane, the stair hall's small window (53,70,3,7), lights at night at every tier.
+- **The hall door (blocker 2):** the open frame shows a view into the lit hall (`hallDoorGlow`, 20x32: flagstones
+  receding to a warm far wall, the hearth's glow its brightest point high in the middle, dark jambs, beams, the pillar
+  and the banner dark against it). The door's own light is a flat pool at the steps' foot (y −4, squash 2.6), so the
+  lord in the doorway stays a dark figure. The wedge (`hallDoorWedge`, 60x19) runs from the threshold over the steps
+  and 12 rows out on the cobbles, from the door's 18 px to 2.5 times it, smooth alpha never over 0.5.
+- **Tier growth from the front gate (high 1):** `-GWCastle` sets the gate's tier too (`GameStart.applyCastle`,
+  App/GameStartCastle.swift: tier 1 the gate, 2 the iron gate, 3 the great gate; a building state the tier before it;
+  at night the archers take that gate's posts), and the keep's stair turret stands about 60 px further into the front
+  gate's framing (turret at screen x 365 to 395 at camera 1360) with its tiers: crenels, a taller turret with the
+  house's flag, a cone.
+- **Light pools (high 2):** a scene light can shape its pool (`LightSource.squash`, `SceneLayout.Light.squash`, `color`,
+  `intensity`; FrameBuilder hands it to the light pass; the battle's field never reads it). The castle's braziers
+  (`castleFireLights`) light a flat pool on their ground, a tall cone up the wall over the flame and a small core, in
+  fire-gold, the pool 34 px (was 56); the forebuilding's two torches light one flat band; the postern's lanterns and the
+  bakehouse's oven flatter pools.
+- **Smoke (high 3):** puffs (`smokePuff`, `Core/CastleSmoke.swift`): seven a chimney, 3 to 5 px, rising 36 rows in 7 s
+  with the wind's drift, a pale value; a glow at the bakehouse's chimney mouth lights its smoke warm from below; still
+  with Reduce Motion.
+- **The postern's passage (high 4):** the jambs' faces and the vault in shadow, receding cobbles, a far opening with the
+  valley's daylight, lantern-warm at night (`posternFarGlow`).
+- **The forebuilding (high 5):** a slate roof sloping back to its ridge, a dormer with a thick coping (the lord's
+  chamber), quoins and no pilasters or entablature, three steps and a threshold between low parapets (the door's sill
+  at row 7: `castleDoorGap`, `castleDoorGlow`).
+- **The curtain's blind arch (high 6):** `curtainB`'s blocked arch is a recess a value darker with the intrados's shadow,
+  lit only on its left haunch.
+- **The gates' frame (high 7):** `gateArchFg` is the near jamb of each passage (16x205, 2 frames, foreground, moving
+  with the world plane, at the passage's east end − 8): 14 px of dark coursed stone up over the screen's top with a
+  warm lit edge, only while the lord passes (`archTenths`).
+- **The building states (high 8):** heavy scaffolding, a crane whose jib stands over the roof line (tier 2), timber
+  cones in light wood with two-px rafters (tier 3).
+- **The moon (high 10):** inside the walls it stands on the sky, still on the screen (`FrameBuilder.wedgeMoon`: column
+  96, 34 rows under the top, under the HUD), laid into the emissive pass before the mid plane's rock, so the cleft wall
+  hides it but where a wedge of sky passes over it (the Throat's wedge, camera about 1600, the keep far to its right);
+  its emitter on `cleftWallA` is gone.
+- **Story (L6, high 9):** `WorldStoryUITests` shows both rewritten lines in game on the first day (`92-l6-hesper-en`,
+  `92-l6-tamsin-en`). German frames: none before the store pass (the director's note of 14.11. 19:35: no German screen
+  is looked at before it). The 63 strings of Story.xcstrings that name the hall, the chapel or the kitchen were re-read
+  against the outside-only world: they tell of things that happen inside (the goat in the chapel, the candles before
+  the altar, the kitchen cat), which the story keeps, and none asks the player to see an interior from the world; the
+  hall's are seen in the hall stage. Store-pass item (dated 15.11.2026): `line.hesper_first` and `line.tamsin_first` in
+  fr, es, it, pt-BR, ja and zh-Hans still say "hall" and "back in my kitchen".
+- **Tests:** `WorldRebuild2FixTests` (the keep's light and its dark window's bloom, the mist over the curtain at night
+  and none at noon, the wedge's widths and alpha, the shaped fire pools reaching the light pass, the puffs and their
+  stillness under Reduce Motion, the moon at one column at every camera and clear of the keep where it shows,
+  `-GWCastle` and the gate); `WorldRebuild2Tests`, `Look2FrameTests.testTheCastleTiers` and `CastleRoomsTests` follow the
+  new anchors.
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks

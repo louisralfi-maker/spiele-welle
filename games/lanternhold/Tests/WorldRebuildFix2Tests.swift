@@ -169,7 +169,9 @@ final class WorldRebuildFix2Tests: XCTestCase {
             let pools = desc.lights.filter { $0.plane == .mid && $0.kind == .lantern }
             XCTAssertGreaterThanOrEqual(pools.count, 2, "at \(timeOfDay * 24) h")
             XCTAssertTrue(pools.allSatisfy { $0.color.x > $0.color.z }, "warm")
-            XCTAssertTrue(desc.emissives.allSatisfy { !($0.plane == .mid && $0.rect.z > 100) }, "no band of glow")
+            // (World-2 fix round 1: the rock drawn over the sky's moon is an occluder in the list, not a glow.)
+            XCTAssertTrue(desc.emissives.allSatisfy { !($0.plane == .mid && $0.kind == .glow && $0.rect.z > 100) },
+                          "no band of glow")
         }
     }
 

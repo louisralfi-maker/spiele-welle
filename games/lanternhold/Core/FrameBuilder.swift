@@ -556,6 +556,12 @@ enum FrameBuilder {
     /// and `wedgeMoonTop` rows under its top (under the HUD). It goes into the emissive pass before the mid plane's
     /// rock, so the cleft wall hides it but where a wedge of sky passes over it (the Throat's wedge, the camera about
     /// 1600), clear of the keep, which stands far to its right there; at dusk it is not up yet.
+    /// How strong the keep's warm west rim is (fix round 1): by the hour's warmth (none at noon and at night, full from
+    /// the golden hour to sunset, fading through the dusk) and gone once the moon is up.
+    static func keepRimShare(_ ambient: AmbientSample) -> Float {
+        min(1, max(0, ambient.warmth / 0.25)) * (1 - wedgeMoonShare(ambient))
+    }
+
     static let wedgeMoonX = 96.0
     static let wedgeMoonTop = 34.0
     private static func wedgeMoon(ambient: AmbientSample, geometry: Geometry) -> EmissiveInstance? {
@@ -721,6 +727,11 @@ enum FrameBuilder {
             let strength = mistAlpha(mist, ambient: ambient) * alpha * prop.alpha * share
             guard strength > 0.003 else { return }
             tint = SIMD4<Float>(1, 1, 1, strength)
+            if options.look == .two && (prop.plane == .fogA || prop.plane == .fogB) {
+                // World-2 fix round 1: a bank of mist on a fog plane (the keep's) takes the hour's fog colour, as the
+                // fog's own tiles do; the shader lifts it like the fog.
+                tint = SIMD4<Float>(ambient.fogColor.x, ambient.fogColor.y, ambient.fogColor.z, strength)
+            }
             hidesGlow = false
         } else if let share = prop.sunShaft {
             // World rebuild: a shaft of light is white at the sun's strength (none at night, less under cloud).
@@ -775,6 +786,10 @@ enum FrameBuilder {
         var strength = part.intensity * fade
         if part.fadesByDay {
             strength *= ambient.torchStrength
+        }
+        if SceneLayout.castleKeepRims.contains(part.sprite) {
+            // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm.
+            strength *= keepRimShare(ambient)
         }
         if part.sprite == .moon && options.look == .two {
             // World rebuild, fix round 2: the moon in the cleft's wedge rises with the night's moon, not with the

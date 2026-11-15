@@ -10,6 +10,7 @@ reproduces its files byte for byte):
         round stair turret and its stair hall on the west (the corner the front gate sees: crenels, then a flag, then a
         cone), deep window reveals, shadows under every string course and corbel table, a brazier on the wall walk;
         the building states with heavy timber and a crane whose jib stands over the roof (high 8)
+  keepRimT1 .. keepRimT3Build  260x175  emissive: the keep's warm rim on its west edges at dusk (blocker 1)
   keepMist          320x18   the feathered mist bank on the mistBand plane at the keep's foot (dawn, dusk, night)
   keepPaneHalo      11x14    emissive: the soft warm bloom around a lit twin window of the keep
   keepFireGlow      36x24    emissive: the keep's brazier's light on its merlons and roof
@@ -24,7 +25,7 @@ reproduces its files byte for byte):
   posternT1..T3     176x112  the postern's passage with depth (high 4): jamb shadow, the vault, a lit far end and
         cobbles that recede
   posternFarGlow    10x16    emissive: the lantern-warm far end of the postern's passage at night
-  gateArchFg        16x205 (2 frames)  foreground: the near jamb of either gate (high 7), dark stone, a warm lit edge
+  gateArchFg        16x116 (2 frames)  foreground: the near jamb of either gate (high 7), dark stone, a warm lit edge
 
   keepfix.py build <id> [<id> ...] --out <Resources/Art>
   keepfix.py all --out <Resources/Art>
@@ -579,13 +580,40 @@ def keep(tier, building=False):
     return c.im
 
 
+def keep_rim(tier, building=False):
+    """The keep's warm rim at dusk (an emissive overlay of its sprite, `SceneLayout.castleKeepRims`): the low sun from
+    the west on every edge of the silhouette that faces west (the turret's, the towers', each merlon's), a px of it
+    inside the edge at half strength, and the caps that face the sky faintly; fire-orange in smooth alpha. The engine
+    shows it only while the evening is warm and the moon not yet up."""
+    src = keep(tier, building)
+    im = PA.Image(KW, KH)
+    r, g, b, _ = col("fireOrange")
+
+    def solid(x, y):
+        return 0 <= x < KW and 0 <= y < KH and src.get(x, y)[3] > 0
+    for y in range(KH):
+        for x in range(KW):
+            if not solid(x, y):
+                continue
+            a = 0.0
+            if not solid(x - 1, y):
+                a = 0.62
+            elif not solid(x - 2, y):
+                a = 0.3
+            if not solid(x, y - 1):
+                a = max(a, 0.22 if x < KW * 0.7 else 0.12)
+            if a > 0:
+                im.set(x, y, (r, g, b, int(a * 255)))
+    return im
+
+
 def keep_mist():
     """The mist bank on the mistBand plane at the keep's foot: a band 18 rows high whose top billows in slow lobes and
     feathers out over its upper rows, both ends fading over 56 px; smooth alpha in eight steps (light, not art); the
     engine whitens it at the mist's strength (dawn, dusk, night)."""
     w, h = 320, 18
     im = PA.Image(w, h)
-    r, g, b, _ = col("mistLight")
+    r, g, b = 255, 255, 255                         # white: the engine gives it the hour's fog colour
     for x in range(w):
         lobe = 3.0 * math.sin(x / 23.0 + 0.7) + 2.0 * math.sin(x / 9.0 + 2.1) + 1.2 * math.sin(x / 4.3)
         crest = 11.0 + lobe                             # rows above the bottom where the feather starts
@@ -781,7 +809,7 @@ def hall_door_glow():
     im = PA.Image(w, h)
     cx = 9.5
     far = 9                                          # the floor meets the far wall this many rows over the sill
-    hearth = (10.0, 19.0)                            # col, rows over the sill: the glow's heart
+    hearth = (11.0, 24.0)                            # col, rows over the sill: the glow's heart, over the lord's head
 
     def put(x, up, name, a):
         y = h - 1 - up
@@ -796,7 +824,7 @@ def hall_door_glow():
             if x in (1, 2, 17, 18):                  # the leaves and the reveal: dark, a little warm light
                 put(x, up, "emberDim", 0.2 if up < 22 else 0.08)
                 continue
-            if up > 25:                              # the ceiling: dark beams
+            if up > 27:                              # the ceiling: dark beams
                 put(x, up, "emberDim", 0.16 if (x % 3) else 0.06)
                 continue
             if up < far:                             # the floor: flagstones receding toward the far wall
@@ -847,7 +875,7 @@ def hall_door_wedge():
                 continue
             side = 1.0 if dx <= half - 2.5 else max(0.0, (half + 1.5 - dx) / 4.0)
             side = side * side * (3 - 2 * side)
-            a = 0.46 * (1 - out) ** 1.15 * side + 0.04 * side
+            a = 0.42 * (1 - 0.75 * out) * side
             name = "fireGold" if out < 0.35 else "fireOrange" if out < 0.75 else "ember"
             r, g, b, _ = col(name)
             k = int(a * 16 + 0.5)
@@ -876,9 +904,9 @@ def smoke_puff():
 
 # ------------------------------------------------------------------------------------------------ the curtain
 def curtain_b():
-    """curtainB with its older arch blocked: the infill a value darker in a recess (its rubble in shade, a deep shadow
-    under the arch's intrados), the voussoirs drawn only where the light falls on them (the left haunch), the right
-    haunch a step into the wall's own stone; no pale outline."""
+    """curtainB with its older arch blocked: the infill rubble a value darker than the wall, set back in a recess (a
+    deep shadow under the arch's intrados and down its left jamb), the voussoirs a full ring in the wall's own stone,
+    lit only on the left haunch where the light falls on them; no pale outline."""
     c = C(64, 74)
     seed = 517
     K.curtain_body(c, 0, 63, seed)
@@ -888,21 +916,19 @@ def curtain_b():
             dx = x - cx
             r = math.hypot(dx, max(0, hh - 18))
             if r <= 11.5:
-                v = h01(seed, x // 3, hh // 2)
-                name = "stoneDark" if v < 0.3 else "stoneMid"
-                if hh > 18 and r > 9.6:
-                    name = "stoneDark"                   # the intrados's shadow on the infill
-                if dx < -9.5:
-                    name = "stoneDark"                   # the left jamb's shadow
+                k = (hh // 3) * 7 + (x + (hh // 3) * 2) // 4
+                name = "stone" if h01(seed, k) < 0.28 else "stoneMid"
+                if hh % 3 == 0 or (x + (hh // 3) * 2) % 4 == 0:
+                    name = "stoneMid" if name == "stone" else "stoneDark"
+                if (hh > 18 and r > 9.7) or dx < -9.8:
+                    name = "stoneDark"                   # the recess's shadow under the intrados, down the left jamb
                 c.set(x, c.r(hh), name)
-            elif r <= 14.2 and hh >= 15:
+            elif r <= 14.2 and hh >= 16:
                 theta = math.atan2(max(0, hh - 18), dx)
-                k = int(theta * 12.8 / 3.2)
-                joint = (theta * 12.8) % 3.2 < 0.8
-                if dx < 0:
-                    name = "stoneMid" if joint else ("stoneLight" if k % 2 else "stone")
-                else:
-                    name = "stoneMid" if joint else "stone"
+                arc = theta * 12.8
+                joint = arc % 3.2 < 0.8
+                lit = dx < 0 and theta > 1.8
+                name = "stoneMid" if joint else ("stoneLight" if lit and int(arc // 3.2) % 2 else "stone")
                 c.set(x, c.r(hh), name)
     K.outline(c, sides=("top",))
     return c.im
@@ -981,43 +1007,55 @@ def postern_far_glow():
 
 
 # ------------------------------------------------------------------------------------------- the gate's jamb
-JAMB_W, JAMB_H, JAMB_UNDER = 16, 205, 26
+JAMB_W, JAMB_H, JAMB_UNDER = 16, 116, 26
+JAMB_SPRING = (64, 20)   # the gatehouse's gateway springs at about y 62, the postern's at 20
 
 
-def gate_jamb(seed):
-    """The near jamb of a gate passage in the foreground while the lord passes: 14 px of dark coursed stone (the wall's
-    thickness, nearest the eye) from under the lane to over the screen's top, a warm lit edge on its left (the
-    passage's side, toward the torch inside); the 16 px frame's outer columns stay clear."""
+def gate_jamb(seed, spring):
+    """The near jamb of a gate passage in the foreground while the lord passes: 12 px of dark coursed stone (the wall's
+    thickness, nearest the eye) from under the lane up to the passage's springing, where it curls a few px into the
+    arch's soffit and feathers out over 14 rows; a warm lit edge on its left (toward the passage and its torch), a
+    shaded right edge. A doorpost, never a bar across the screen (round lh-w2f1-1 drew it to the screen's top)."""
     c = C(JAMB_W, JAMB_H)
-    x0, x1 = 1, 14
-    for y in range(JAMB_H):
-        k = y // 6
+    x0, x1 = 2, 13
+    top = JAMB_UNDER + spring                       # rows from the bottom where the post's full stone ends
+    for up in range(JAMB_H):
+        y = JAMB_H - 1 - up
+        k = up // 6
         off = int(h01(seed, k) * 7)
-        for x in range(x0, x1 + 1):
-            joint = (y % 6 == 5) or ((x + off) % 9 == 0)
-            if x == x0:
+        curl = max(0, up - top)                     # the soffit leans toward the opening (left) as it rises
+        fade = 1.0 if up <= top else max(0.0, 1 - (up - top) / 14.0)
+        if fade <= 0:
+            continue
+        for x in range(x0 - min(2, curl // 3), x1 + 1):
+            joint = (up % 6 == 0) or ((x + off) % 9 == 0)
+            if x <= x0 - min(2, curl // 3):
                 name = "wood" if joint else "woodLight"
-            elif x == x0 + 1:
+            elif x == x0 - min(2, curl // 3) + 1:
                 name = "stoneDark" if joint else "rockDark"
             elif x == x1:
                 name = "nightBlue"
             else:
                 name = "nightSlate" if joint else ("stoneDark" if h01(seed, k, (x + off) // 9) < 0.55 else "nightSlate")
-            c.set(x, y, name)
+            r, g, b, _ = col(name)
+            a = fade * (0.92 if up > JAMB_UNDER - 4 else 0.92 * max(0.35, (up + 4) / float(JAMB_UNDER)))
+            c.im.set(x, y, (r, g, b, int(255 * a)))
     return c.im
 
 
 def gate_arch_fg():
     """Frame 0: the gatehouse's near jamb (at the gateway's east side), frame 1: the postern's."""
     out = PA.Image(JAMB_W * 2, JAMB_H)
-    WA.blit(out, gate_jamb(1301), 0, 0)
-    WA.blit(out, gate_jamb(2333), JAMB_W, 0)
+    WA.blit(out, gate_jamb(1301, JAMB_SPRING[0]), 0, 0)
+    WA.blit(out, gate_jamb(2333, JAMB_SPRING[1]), JAMB_W, 0)
     return out
 
 
 BUILDERS = {
     "keepT1": lambda: keep(1), "keepT2": lambda: keep(2), "keepT3": lambda: keep(3),
     "keepT2Build": lambda: keep(2, True), "keepT3Build": lambda: keep(3, True),
+    "keepRimT1": lambda: keep_rim(1), "keepRimT2": lambda: keep_rim(2), "keepRimT3": lambda: keep_rim(3),
+    "keepRimT2Build": lambda: keep_rim(2, True), "keepRimT3Build": lambda: keep_rim(3, True),
     "keepMist": keep_mist, "keepPaneHalo": keep_pane_halo, "keepFireGlow": keep_fire_glow,
     "forebuilding": forebuilding, "hallDoorGlow": hall_door_glow, "hallDoorWedge": hall_door_wedge,
     "smokePuff": smoke_puff, "curtainB": curtain_b,
