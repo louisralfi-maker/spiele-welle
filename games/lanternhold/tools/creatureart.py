@@ -18,7 +18,8 @@ from pixelart import Image, Palette, write_png, DEFAULT_PALETTE  # noqa: E402
 
 GAME = os.path.dirname(HERE)
 ART = os.path.join(GAME, "Resources", "Art")
-RIGGED = ["sootling", "sootlingB", "shadehound", "sootCrow", "ashBrute", "gloomweaver", "ashGiant", "lightlessKing"]
+RIGGED = ["sootling", "sootlingB", "shadehound", "sootCrow", "ashBrute", "gloomweaver", "ashGiant", "lightlessKing",
+          "tumbler", "sootFall", "sootThread"]   # b3-horde: the third small body, the fall, the smoke thread
 
 
 def build(name, out, pal):
@@ -36,8 +37,12 @@ def build(name, out, pal):
         if all(v is None for v in f.b[h - 1]) and not getattr(mod, "FLOATS", False):
             print(f"  note: {name} frame {k} has nothing on the bottom row")
     write_png(os.path.join(out, name + ".png"), body)
-    write_png(os.path.join(out, name + "Glow.png"), glow)
-    print(f"wrote {name}.png and {name}Glow.png {w * n}x{h} ({n} frames)")
+    if getattr(mod, "GLOW", True):
+        write_png(os.path.join(out, name + "Glow.png"), glow)
+        print(f"wrote {name}.png and {name}Glow.png {w * n}x{h} ({n} frames)")
+    else:
+        # b3-horde: the smoke thread has no glow strip
+        print(f"wrote {name}.png {w * n}x{h} ({n} frames)")
 
 
 def main():

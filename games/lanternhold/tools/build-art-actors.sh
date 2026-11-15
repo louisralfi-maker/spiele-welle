@@ -28,7 +28,7 @@ build() { # name: one sprite (and its glow strip)
     case $1 in
     archer|guardsman|builder|king|lady|kingSeated|ladySeated|citizen|citizenB|citizenC|citizenSeated|citizenBSeated|citizenCSeated)
         python3 -I $AA build $G/$1.txt --out $A ;;
-    sootling|sootlingB|shadehound|sootCrow|ashBrute|gloomweaver|ashGiant|lightlessKing)
+    sootling|sootlingB|shadehound|sootCrow|ashBrute|gloomweaver|ashGiant|lightlessKing|tumbler|sootFall|sootThread)
         python3 -I -B $CA build $1 --out $A ;;
     darknessBank)  # the Gloom's bank of look 2 (look 1's wall of night): darknessBank.png, darknessEdge.png (the eyes:
                    # tools/fogart.py darknessBankGlow, build-art-world.sh)
@@ -37,7 +37,7 @@ build() { # name: one sprite (and its glow strip)
     esac
 }
 
-ALL="sootling sootlingB shadehound sootCrow ashBrute gloomweaver ashGiant lightlessKing darknessBank archer guardsman builder king
+ALL="sootling sootlingB tumbler sootFall sootThread shadehound sootCrow ashBrute gloomweaver ashGiant lightlessKing darknessBank archer guardsman builder king
 lady kingSeated ladySeated citizen citizenB citizenC citizenSeated citizenBSeated citizenCSeated"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
