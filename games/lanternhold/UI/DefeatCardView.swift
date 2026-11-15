@@ -48,7 +48,7 @@ struct DefeatCardView: View {
                     model.replayDay()
                 } label: {
                     VStack(spacing: 2) {
-                        Label("Replay the day", systemImage: "arrow.counterclockwise")
+                        GlyphLabel("Replay the day", glyph: .replay)
                         Text(inked: String(localized: "Back to the morning of day \(info.replayDay)"), .footnote)
                             .font(Theme.serif(.footnote))
                             .fixedSize(horizontal: false, vertical: true)
@@ -243,7 +243,7 @@ struct PauseSheetView: View {
                                  .subheadline)
                         }
                     } icon: {
-                        Image(systemName: "person.fill.questionmark")
+                        GlyphView(glyph: .stranger)
                     }
                     .font(Theme.serif(.subheadline))
                     .foregroundStyle(Theme.goldHi)
@@ -311,7 +311,7 @@ struct PauseSheetView: View {
                     Button {
                         model.resume()
                     } label: {
-                        Label("Resume", systemImage: "play.fill").frame(maxWidth: .infinity)
+                        GlyphLabel("Resume", glyph: .play).frame(maxWidth: .infinity)
                     }
                     .buttonStyle(GoldButtonStyle())
                     .accessibilityIdentifier("pause-resume")
@@ -320,7 +320,7 @@ struct PauseSheetView: View {
                         Button {
                             callingTheNight = true
                         } label: {
-                            Label("Sound the horn", systemImage: "moon.stars.fill")
+                            GlyphLabel("Sound the horn", glyph: .horn)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
                                 .frame(maxWidth: .infinity)
@@ -347,7 +347,7 @@ struct PauseSheetView: View {
                     Button {
                         confirming = true
                     } label: {
-                        Label("Restart chapter", systemImage: "arrow.counterclockwise")
+                        GlyphLabel("Restart chapter", glyph: .replay, spacing: 6)
                             .font(Theme.italic(.subheadline))
                             .foregroundStyle(NightGlass.mist)
                             .padding(.horizontal, 4)

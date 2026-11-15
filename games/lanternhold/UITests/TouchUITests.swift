@@ -137,6 +137,18 @@ final class TouchUITests: XCTestCase {
         if waitUntilReady(hall, name: "lantern-hall"), openLantern(hall) {
             pause(0.4)
             attach(XCUIScreen.main.screenshot(), "166-lantern-moment-hall-\(language)")
+            // Fix round 1 (the critic's high 10, H5): a tap on the strip's valley from inside the hall walks him out
+            // by the door (166b, on his way to it) and on into the world (166c, outside at the forebuilding).
+            tapRealmStrip(hall, worldX: 3000)
+            pause(0.8)
+            attach(XCUIScreen.main.screenshot(), "166b-hall-exit-by-strip-\(language)")
+            if waitForField(hall, "stage:world", timeout: 12) {
+                pause(1.2)
+                attach(XCUIScreen.main.screenshot(), "166c-hall-exit-by-strip-out-\(language)")
+                note("166c-hall-exit-by-strip-out", "scene: \((element(hall, "world-scene").value as? String) ?? "")")
+            } else {
+                XCTFail("a tap on the strip's valley from the hall did not take him out")
+            }
         } else {
             XCTFail("no lantern moment in the hall")
         }
@@ -384,6 +396,24 @@ final class TouchUITests: XCTestCase {
         attach(XCUIScreen.main.screenshot(), "157-touch-first-\(language)")
         note("touch-first", "scene: \((element(app, "world-scene").value as? String) ?? "")")
         app.terminate()
+
+        // Fix round 1 (the critic's high 3): the lord's hint over him while his lantern glints (`-GWLordHint`).
+        let hint = XCUIApplication()
+        hint.launchArguments = TouchUITests.base + ["-GWClock", "8", "-GWStage", "world", "-GWCameraX", "1180",
+                                                    "-GWLordHint", "YES"]
+        hint.launch()
+        guard waitUntilReady(hint, name: "touch-lord-hint") else { return }
+        if element(hint, "touch-lord-hint").waitForExistence(timeout: 8) {
+            pause(0.5)
+            attach(XCUIScreen.main.screenshot(), "157b-touch-lord-hint-\(language)")
+            XCTAssertTrue(openLantern(hint), "the hint's lord raises the lantern")
+            XCTAssertTrue(waitForGone(element(hint, "touch-lord-hint"), timeout: 3), "the hint goes once he is touched")
+        } else {
+            attach(XCUIScreen.main.screenshot(), "157b-touch-lord-hint-missing-\(language)")
+            note("157b-touch-lord-hint", "scene: \((element(hint, "world-scene").value as? String) ?? "")")
+            XCTFail("the lord's hint did not show")
+        }
+        hint.terminate()
     }
 
     // MARK: - Helpers

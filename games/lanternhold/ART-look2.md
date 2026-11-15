@@ -2369,3 +2369,21 @@ beaconTowerRim greatBeaconRim riverLanding riverSkiffMoored riverSkiffRim riverL
 throatButtress valleyVerge valleyVergeB` (after build-art-buildings.sh, whose `beaconTower` and `greatBeacon` are the
 sources in tools/w3src, as keepart's `bakehouse` is).
 <!-- END world lane: world-3, fix round 1 -->
+### 21.9 Step stage-3-interface, fix round 1 (the critic's look 1, 6.5/10; 15.11.2026)
+
+- **The Burgherrin** has her own picture now: the only portrait turned to the left, her face in the light (the court's
+  portraits keep the light on the far cheek), so beside the Burgherr in the name entry the two face each other; her
+  silhouette is the crown braid and the plait over the shoulder, never the lord's cowlick; wine against the lord's
+  teal, her teal ground against his dusk. At phone size (64 pt) she reads as a young woman at a glance; the braid is a
+  herringbone of woodLight, wood, woodDark and soilDark, the circlet one gold pixel line on it.
+- **The strip's glyphs** were tested at 6x (the phone's 2 pt): houses as `tileLight` roofs over `far` walls with a
+  `gold` window; the keep a crenellated bone block with a gold window and a `plaster` shaded side; the brackets in
+  `mistDark`. Tags: ember with a bone speech bubble (its three dots cut out) and the kit's figures, or a bone wall with
+  a gap for a breach.
+- **Glyphs on the glass** follow the kit: solid masses, 1 px strokes, no curve smoother than a pixel stair, 5 to 9 px;
+  the horn is a herald's horn, its mouthpiece at the left and its bell flared at the right (a curved cow horn read as a
+  crescent moon in round lh-s3f1-1, the very meaning the critic struck); the flame a solid tongue with a side flick (an
+  inner core read as a hole); the check replaces the seal (a round seal read as a skull at 7 px).
+- **The tiles' ground** is three palette bands (`night2`, `far`, `dusk`; for her `roofDeep`, `banner`, `roofLight`),
+  each change a row at a quarter and a row at half in a checker on the 2 pt grid.
+

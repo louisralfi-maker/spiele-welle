@@ -73,9 +73,82 @@ enum RealmMapPixels {
         if let window = strip.window, !strip.inHall { brackets(&canvas, window) }
         if let target = strip.target { diamond(&canvas, column(fraction: target)) }
         lord(&canvas, column(fraction: strip.king))
-        let calls = (strip.inHall ? 0 : strip.petitioners)
-        if calls > 0 { tag(&canvas, column(RealmStrip.hallPosition * Realm.worldWidth), count: calls) }
+        let calls = tags(strip)
+        for (call, left) in zip(calls, tagLefts(calls)) { tag(&canvas, call, left: left) }
         return canvas
+    }
+
+    // MARK: - The calls' tags (fix round 1, the critic's high 2: a bare number read as the day, a breach had none)
+
+    /// One call's tag: where its tip points, what calls (its glyph), and how many wait (petitioners only).
+    struct Tag: Sendable, Equatable {
+        var x: Int
+        var glyph: [String]
+        var count: Int?
+
+        var width: Int {
+            let glyphWidth = glyph.first?.count ?? 0
+            return 1 + glyphWidth + (count.map { 1 + HUDKit.figuresWidth(HUDKit.figureFrames(min($0, 99)).count) } ?? 0) + 1
+        }
+    }
+
+    /// Someone waits to speak: a bubble with three dots (the talk mark's shape), its tail down left.
+    static let talkGlyph = [
+        ".XXXXX.",
+        "XXXXXXX",
+        "X.X.X.X",
+        "XXXXXXX",
+        ".XXXXX.",
+        ".XX....",
+        ".X.....",
+    ]
+
+    /// A wall breached: its crenels broken by a gap down to the middle.
+    static let breachGlyph = [
+        "X.X...X",
+        "XXX...X",
+        "XXX..XX",
+        "XXXX.XX",
+        "XXXXXXX",
+        "XXXXXXX",
+        "XXXXXXX",
+    ]
+
+    /// Every call has a tag at its place: the petitioners waiting in the hall (the talk glyph and their number, over the
+    /// keep; not while he is inside), the Stranger at the gate (the talk glyph), at night every wall below half or in
+    /// rubble (the breach glyph, over that wall). Tags that would touch move apart, their tips kept on their places.
+    static func tags(_ strip: RealmStrip) -> [Tag] {
+        var list: [Tag] = []
+        if !strip.inHall && strip.petitioners > 0 {
+            list.append(Tag(x: column(RealmStrip.hallPosition * Realm.worldWidth), glyph: talkGlyph,
+                            count: strip.petitioners))
+        }
+        if strip.strangerAtGate {
+            list.append(Tag(x: column(CourtLayout.strangerAtGate), glyph: talkGlyph, count: nil))
+        }
+        if strip.isNight {
+            for line in strip.lines where line.mark == .damaged || line.mark == .rubble {
+                let x = line.line == 1 ? column(1330) : column(fraction: line.position)
+                list.append(Tag(x: x, glyph: breachGlyph, count: nil))
+            }
+        }
+        list.sort { $0.x < $1.x }
+        return list
+    }
+
+    /// The tags' left edges: centred over their tips, inside the strip, one column apart at least.
+    static func tagLefts(_ tags: [Tag]) -> [Int] {
+        var lefts: [Int] = []
+        var nextFree = 1
+        for tag in tags {
+            var left = min(max(1, tag.x - tag.width / 2), width - tag.width - 1)
+            left = max(left, nextFree)
+            // The tip stays under the tag's body.
+            left = min(left, tag.x - 1)
+            lefts.append(left)
+            nextFree = left + tag.width + 1
+        }
+        return lefts
     }
 
     // MARK: - The pieces
@@ -204,22 +277,26 @@ enum RealmMapPixels {
             "XXX...XXX",
         ]
         stamp(&c, gatehouse, left: g - 4, bottom: groundRow - 1, colors: ["X": gateColor])
+        // Fix round 1 (the critic's high 1): the keep a crenellated block wider than a house, a lit window in it, its
+        // shaded side; the pennant over it (it read as a bottle with a gold top).
         let k = column(1830)
         let keep = [
-            ".gg.",
-            ".X..",
-            "XXXX",
-            "XxXX",
-            "XXXX",
-            "XXxX",
-            "XXXX",
-            "XXXX",
+            "...gg..",
+            "...X...",
+            "X.X.X.X",
+            "XXXXXXs",
+            "XXXXXXs",
+            "XXXwXXs",
+            "XXXXXXs",
+            "XXXXXXs",
         ]
-        stamp(&c, keep, left: k - 1, bottom: groundRow - 1, colors: ["X": bone, "x": haze, "g": gold])
+        stamp(&c, keep, left: k - 3, bottom: groundRow - 1,
+              colors: ["X": bone, "s": boneShade, "w": goldDeep, "g": gold])
         if strip.inHall {
+            // The hall's door lit while he is inside.
             c[k, groundRow - 1] = gold
             c[k, groundRow - 2] = gold
-            c[k + 1, groundRow - 1] = gold
+            c[k - 1, groundRow - 1] = gold
         }
         let p = column(2330)
         let postern = [
@@ -231,16 +308,19 @@ enum RealmMapPixels {
         stamp(&c, postern, left: p - 1, bottom: groundRow - 1, colors: ["X": boneShade])
     }
 
-    /// The town: a row of roofs over pale walls.
+    /// The town: a row of houses, each a solid roof over a dark wall with a lit window (fix round 1, the critic's
+    /// high 1: pale walls under the roofs read as mushrooms on white stems).
     static func town(_ c: inout PixelImage) {
-        let roof = [
+        let house = [
             "..t..",
             ".ttt.",
             "ttttt",
-            ".XxX.",
+            "ddddd",
+            "ddwdd",
         ]
         for x in [2520.0, 2830, 3000, 3180, 3360, 3530] {
-            stamp(&c, roof, left: column(x) - 2, bottom: groundRow - 1, colors: ["t": tile, "X": bone, "x": haze])
+            stamp(&c, house, left: column(x) - 2, bottom: groundRow - 1,
+                  colors: ["t": tile, "d": far, "w": goldDeep])
         }
     }
 
@@ -252,8 +332,10 @@ enum RealmMapPixels {
         c[x, groundRow - 1] = mistDark
     }
 
-    /// What is on screen: a bracket of mist at each end of the window.
+    /// What is on screen: a bracket at each end of the window, in dark mist so the glyphs inside it stay the brightest
+    /// thing (fix round 1, the critic's high 1: the gatehouse was lost in it).
     static func brackets(_ c: inout PixelImage, _ window: ClosedRange<Double>) {
+        let mist = mistDark
         let left = column(fraction: window.lowerBound)
         let right = max(left + 3, column(fraction: window.upperBound))
         let top = tagHeight + 3
@@ -289,19 +371,30 @@ enum RealmMapPixels {
         stamp(&c, rows, left: x - 1, bottom: groundRow, colors: ["g": gold, "b": goldDeep, "X": bone])
     }
 
-    /// A call: an ember tag over the place with the number of the waiting in the kit's figures, its tip down to
-    /// the pane. The figures come from the atlas (`HUDKit`), stamped by the view.
-    static func tag(_ c: inout PixelImage, _ x: Int, count: Int) {
-        let digits = HUDKit.figureFrames(min(count, 99))
-        let inner = HUDKit.figuresWidth(digits.count)
-        let width = inner + 2
-        let left = min(max(1, x - width / 2), RealmMapPixels.width - width - 1)
+    /// A call: an ember tag over its place with what calls (the talk or the breach glyph in bone) and, for the
+    /// waiting, their number in the kit's figures; its tip down to the pane. The figures come from the atlas.
+    static func tag(_ c: inout PixelImage, _ call: Tag) {
+        tag(&c, call, left: tagLefts([call])[0])
+    }
+
+    static func tag(_ c: inout PixelImage, _ call: Tag, left: Int) {
+        let x = call.x
+        let width = call.width
         for y in 0..<(tagHeight - 1) {
             for column in left..<(left + width) {
                 let edge = y == 0 || column == left || column == left + width - 1
                 c[column, y] = edge ? emberDim : ember
             }
         }
+        stamp(&c, call.glyph, left: left + 1, bottom: 7, colors: ["X": bone])
+        guard let count = call.count else {
+            c[x, tagHeight - 1] = ember
+            c[x - 1, tagHeight - 1] = emberDim
+            c[x + 1, tagHeight - 1] = emberDim
+            return
+        }
+        let digits = HUDKit.figureFrames(min(count, 99))
+        let figuresLeft = left + 1 + (call.glyph.first?.count ?? 0) + 1
         // The tip: two pixels down to the pane.
         c[x, tagHeight - 1] = ember
         c[x - 1, tagHeight - 1] = emberDim
@@ -309,7 +402,7 @@ enum RealmMapPixels {
         if let atlas = figureCells {
             for (index, frame) in digits.enumerated() where frame < atlas.count {
                 let figure = atlas[frame]
-                let fx = left + 1 + HUDKit.advance * index
+                let fx = figuresLeft + HUDKit.advance * index
                 for fy in 0..<figure.height {
                     for fxx in 0..<figure.width {
                         let px = figure[fxx, fy]

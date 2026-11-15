@@ -47700,6 +47700,60 @@
           }
         }
       }
+    },
+    "touch.lord" : {
+      "comment" : "Stage-3-interface fix round 1: the lord's hint over the lord on the first days while his lantern glints; a touch on him stills the world (the lantern moment, the only pause).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe {den Burgherrn|die Burgherrin} an, um die Welt anzuhalten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch the {lord|lady} to still the world."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca {al señor|a la señora} para detener el mundo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchez {le seigneur|la dame} pour figer le monde."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tocca {il signore|la signora} per fermare il mondo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{領主|女領主}に触れると、世界が止まる。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque {no senhor|na senhora} para parar o mundo."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轻触{领主|女领主}，让世界静止。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

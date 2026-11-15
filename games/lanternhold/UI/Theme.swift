@@ -633,8 +633,7 @@ struct CardCloseButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "xmark")
-                .font(.system(size: 12, weight: .bold))
+            GlyphView(glyph: .close)
                 .foregroundStyle(NightGlass.bone)
                 .frame(width: 26, height: 26)
                 .background(GlassSkinView(skin: .inset))

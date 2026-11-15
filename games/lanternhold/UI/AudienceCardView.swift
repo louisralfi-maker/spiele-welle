@@ -181,6 +181,7 @@ struct AudienceCardView: View {
                 VStack(alignment: .leading, spacing: 7) {
                     if card.phase == .reaction {
                         reaction
+                        hallTraces
                     } else {
                         Text(inked: model.story(card.textKey), .subheadline)
                             .font(Theme.serif(.subheadline))
@@ -193,7 +194,7 @@ struct AudienceCardView: View {
                 .padding(.trailing, 6)
             }
         }
-        .padding(.leading, 12)
+        .padding(.leading, GlassMetrics.inset)
         .padding(.trailing, 10)
         .padding(.vertical, 9)
         .background(ParchmentBackground())
@@ -206,10 +207,7 @@ struct AudienceCardView: View {
     private var hallPlaques: some View {
         Group {
             if card.phase == .reaction {
-                changes
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(ParchmentBackground(ruled: false))
+                hallChanges
             } else {
                 // One height for the row (the tallest plaque's), the words top-aligned (fix round 1: German wraps
                 // stepped the plaques' tops).
@@ -382,25 +380,34 @@ struct AudienceCardView: View {
                             size: 15, saysNoCost: false, night: outcome.night)
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(outcome.unlocked, id: \.self) { unlock in
-                        Label(AudienceTexts.unlock(unlock), systemImage: "key.fill")
-                            .font(Theme.serif(.footnote))
-                            .foregroundStyle(Theme.teal)
-                            .labelStyle(.titleAndIcon)
-                            .fixedSize(horizontal: false, vertical: true)
+                        GlyphLabel(glyph: .key, spacing: 6) {
+                            Text(verbatim: AudienceTexts.unlock(unlock))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .font(Theme.serif(.footnote))
+                        .foregroundStyle(Theme.teal)
                     }
                     // M3 fix (U1): what the court remembers of the choice, so a decision that changes no number
                     // still leaves a trace on the card.
                     ForEach(card.remembered, id: \.self) { key in
-                        Label(model.story(key), systemImage: "bookmark.fill")
-                            .font(Theme.serif(.footnote))
-                            .foregroundStyle(Theme.teal)
-                            .labelStyle(.titleAndIcon)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .accessibilityIdentifier("audience-remembered")
+                        GlyphLabel(glyph: .bookmark, spacing: 6) {
+                            Text(verbatim: model.story(key))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .font(Theme.serif(.footnote))
+                        .foregroundStyle(Theme.teal)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier("audience-remembered")
                     }
                 }
             }
             Spacer(minLength: 8)
+            nextButton
+        }
+    }
+
+    /// The way on after a choice: the next petitioner, or the audience's end.
+    private var nextButton: some View {
             Button {
                 model.nextPetitioner()
             } label: {
@@ -409,7 +416,7 @@ struct AudienceCardView: View {
                         // The count in the figure face: IM Fell's old-style 1 reads as an I on the wax.
                         Text(inked: String(localized: "Next petitioner (\(card.waiting))"), .headline)
                     } icon: {
-                        Image(systemName: "person.fill.badge.plus")
+                        GlyphView(glyph: .recruit)
                     }
                 } else {
                     Label {
@@ -422,6 +429,72 @@ struct AudienceCardView: View {
             // Touch the world, fix round 1: an inked plaque in teal, no longer the wax red of the old action button.
             .buttonStyle(TealPlaqueButtonStyle())
             .accessibilityIdentifier("audience-next")
+    }
+
+    /// The hall's floor band after a choice (stage-3-interface fix round 1, the critic's high 5: a plaque across the
+    /// whole band held only "+1" and read unfinished): no plaque across the band. What changed stands as the kit
+    /// shows a change above the lord (its coin, face and people with their signed figures, on the floor's dark),
+    /// beside the one plaque that goes on; soldiers, builders and the night's changes, which the kit has no sign
+    /// for, on a small pane of their own.
+    private var hallChanges: some View {
+        HStack(alignment: .center, spacing: 14) {
+            Spacer(minLength: 0)
+            if let outcome = card.outcome {
+                let block = HUDKit.effects(gold: outcome.gold, happiness: outcome.happiness,
+                                           citizens: outcome.citizens)
+                if !block.pieces.isEmpty {
+                    KitBlockView(block: block, unit: 2)
+                        .accessibilityElement()
+                        .accessibilityLabel(effectsLabel(outcome))
+                        .accessibilityIdentifier("audience-effects")
+                }
+                if outcome.archers != 0 || outcome.guards != 0 || outcome.builders != 0 || !outcome.night.isEmpty {
+                    EffectChips(gold: 0, happiness: 0, citizens: 0, archers: outcome.archers, guards: outcome.guards,
+                                builders: outcome.builders, risky: false, size: 15, saysNoCost: false,
+                                night: outcome.night)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(GlassPlaqueBackground())
+                }
+            }
+            nextButton
+        }
+        .padding(.trailing, 2)
+    }
+
+    /// The kit's changes for VoiceOver ("Gold +5, Happiness +1").
+    private func effectsLabel(_ outcome: PetitionOutcome) -> Text {
+        var parts: [Text] = []
+        if outcome.gold != 0 { parts.append(Text("Gold \(Texts.signed(outcome.gold))")) }
+        if outcome.happiness != 0 { parts.append(Text("Happiness \(Texts.signed(outcome.happiness))")) }
+        if outcome.citizens != 0 { parts.append(Text("People \(Texts.signed(outcome.citizens))")) }
+        guard var line = parts.first else { return Text(verbatim: "") }
+        for part in parts.dropFirst() { line = line + Text(verbatim: ", ") + part }
+        return line
+    }
+
+    /// In the hall's letter after a choice: what it opened and what the court remembers, under the reaction (fix
+    /// round 1: they stood on the floor band's plaque).
+    @ViewBuilder private var hallTraces: some View {
+        if let outcome = card.outcome, !outcome.unlocked.isEmpty || !card.remembered.isEmpty {
+            VStack(alignment: .leading, spacing: 3) {
+                ForEach(outcome.unlocked, id: \.self) { unlock in
+                    GlyphLabel(glyph: .key, spacing: 6) {
+                        Text(verbatim: AudienceTexts.unlock(unlock))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                ForEach(card.remembered, id: \.self) { key in
+                    GlyphLabel(glyph: .bookmark, spacing: 6) {
+                        Text(verbatim: model.story(key))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("audience-remembered")
+                }
+            }
+            .font(Theme.serif(.footnote))
+            .foregroundStyle(Theme.teal)
         }
     }
 }
@@ -445,8 +518,9 @@ struct HallCounsel: View {
                 .minimumScaleFactor(compact ? 0.85 : 1)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 7)
+        // Fix round 1 (the critic's high 8): the cards' one inner padding (the italic stood 4 pt from the line).
+        .padding(.horizontal, GlassMetrics.inset)
+        .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(SlipBackground(teal: true))
         .accessibilityElement(children: .combine)
@@ -470,8 +544,8 @@ struct CounselNote: View {
                 .minimumScaleFactor(0.8)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
+        .padding(.horizontal, GlassMetrics.inset)
+        .padding(.vertical, 7)
         .background(SlipBackground(teal: true))
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("audience-counsel-line")
@@ -511,8 +585,7 @@ struct ChoiceTile: View {
                     .minimumScaleFactor(compact ? 0.75 : 1)
                 if let block = option.blocker {
                     HStack(spacing: 4) {
-                        Image(systemName: "exclamationmark.circle.fill")
-                            .font(.system(size: 11, weight: .bold))
+                        GlyphView(glyph: .warning)
                         Text(inked: AudienceTexts.blocker(block), .footnote)
                             .font(Theme.serif(.footnote))
                             .lineLimit(compact ? 1 : nil)
@@ -531,10 +604,10 @@ struct ChoiceTile: View {
             // the chosen plaque wrapped and grew).
             .overlay(alignment: .topTrailing) {
                 if option.favoured {
-                    Image(systemName: "checkmark.seal.fill")
-                        .font(.system(size: 13, weight: .bold))
+                    GlyphView(glyph: .check)
                         .foregroundStyle(NightGlass.lanternGold)
-                        .padding(2)
+                        .padding(4)
+                        .accessibilityElement()
                         .accessibilityLabel(Text("Odile's choice"))
                 }
             }
@@ -587,28 +660,28 @@ struct EffectChips: View {
                     .accessibilityLabel(Text("People \(Texts.signed(citizens))"))
             }
             if archers != 0 {
-                chip(Texts.signed(archers)) { symbol("scope") }
+                chip(Texts.signed(archers)) { symbol(.bow) }
                     .accessibilityLabel(Text("Archers \(Texts.signed(archers))"))
             }
             if guards != 0 {
-                chip(Texts.signed(guards)) { symbol("shield.lefthalf.filled") }
+                chip(Texts.signed(guards)) { symbol(.shield) }
                     .accessibilityLabel(Text("Guards \(Texts.signed(guards))"))
             }
             if builders != 0 {
-                chip(Texts.signed(builders)) { symbol("hammer.fill") }
+                chip(Texts.signed(builders)) { symbol(.hammer) }
                     .accessibilityLabel(Text("Builders \(Texts.signed(builders))"))
             }
             ForEach(Array(night.enumerated()), id: \.offset) { _, id in
                 nightChip(id)
             }
             if risky {
-                symbol("dice.fill")
+                symbol(.dice)
+                    .accessibilityElement()
                     .accessibilityLabel(Text("A risk"))
             }
             if remembers {
                 HStack(spacing: 3) {
-                    Image(systemName: "bookmark.fill")
-                        .font(.system(size: size - 2, weight: .semibold))
+                    GlyphView(glyph: .bookmark)
                     if changesNothing {
                         Text(inked: rememberedText, .footnote)
                             .font(Theme.serif(.footnote))
@@ -637,8 +710,7 @@ struct EffectChips: View {
         switch NightModifier(id: id) {
         case .wave(let percent)?:
             HStack(spacing: 3) {
-                Image(systemName: "water.waves")
-                    .font(.system(size: size - 2, weight: .semibold))
+                GlyphView(glyph: .waves)
                 Text(AudienceTexts.tonight(Texts.signed(percent) + "%"))
                     .font(Theme.figures(size + 1))
                     .monospacedDigit()
@@ -648,8 +720,7 @@ struct EffectChips: View {
             .accessibilityLabel(Text("Tonight's attack \(Texts.signed(percent) + "%")"))
         case .fewer(_, let count)?:
             HStack(spacing: 3) {
-                Image(systemName: "pawprint.fill")
-                    .font(.system(size: size - 2, weight: .semibold))
+                GlyphView(glyph: .paw)
                 Text(AudienceTexts.tonight(Texts.signed(-count)))
                     .font(Theme.figures(size + 1))
                     .monospacedDigit()
@@ -658,18 +729,17 @@ struct EffectChips: View {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text("Tonight \(count) fewer creatures"))
         case .fog?:
-            Image(systemName: "cloud.fog.fill")
-                .font(.system(size: size - 1, weight: .semibold))
+            GlyphView(glyph: .fog)
                 .foregroundStyle(Theme.rubric)
+                .accessibilityElement()
                 .accessibilityLabel(Text("Fog tonight"))
         case nil:
             EmptyView()
         }
     }
 
-    private func symbol(_ name: String) -> some View {
-        Image(systemName: name)
-            .font(.system(size: size - 2, weight: .semibold))
+    private func symbol(_ glyph: PixelGlyph) -> some View {
+        GlyphView(glyph: glyph)
             .foregroundStyle(Theme.ink)
     }
 

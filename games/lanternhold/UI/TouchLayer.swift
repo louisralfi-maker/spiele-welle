@@ -90,9 +90,16 @@ struct ErrandSlipView: View {
 
     private var content: some View {
         HStack(spacing: 6) {
-            Text(inked: slip.text, .footnote)
-                .font(Theme.caps(.footnote))
-                .foregroundStyle(Theme.ink)
+            if slip.hint {
+                // The lord's hint (fix round 1): guidance in the quiet hand, not an errand's caps.
+                Text(verbatim: slip.text)
+                    .font(Theme.italic(.subheadline))
+                    .foregroundStyle(Theme.ink)
+            } else {
+                Text(inked: slip.text, .footnote)
+                    .font(Theme.caps(.footnote))
+                    .foregroundStyle(Theme.ink)
+            }
             if let price = slip.price {
                 // Night glass (stage-3-interface): the coin and the price in lantern gold, ember when short.
                 GoldAmount(amount: price, size: 13, color: slip.shortOfGold ? Theme.short : NightGlass.lanternGold)
@@ -107,7 +114,7 @@ struct ErrandSlipView: View {
                 .offset(y: 4 * NightGlass.pointsPerPixel)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("touch-slip")
+        .accessibilityIdentifier(slip.hint ? "touch-lord-hint" : "touch-slip")
     }
 }
 

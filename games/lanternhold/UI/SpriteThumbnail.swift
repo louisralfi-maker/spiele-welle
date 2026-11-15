@@ -82,10 +82,8 @@ struct SpriteThumbnail: View {
         let scale = whole >= 1 ? whole / displayScale : inner / largest
         ZStack {
             // Night glass (stage-3-interface): a dusk ground inside the portraits' brass line.
-            Rectangle()
-                .fill(LinearGradient(colors: [Color(hex: 0x262E5C), Color(hex: 0x4E5A82), Color(hex: 0xA04A60)],
-                                     startPoint: .top, endPoint: .bottom))
-                .frame(width: inner, height: inner)
+            // Fix round 1 (the critic's high 9): three bands dithered on the 2 pt grid, no smooth gradient.
+            DitherGround(side: inner)
             if let image = SpriteImages.image(sprite) {
                 Image(decorative: image, scale: 1)
                     .resizable()

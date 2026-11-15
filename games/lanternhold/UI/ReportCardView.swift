@@ -24,7 +24,9 @@ struct ReportCardView: View {
             }
             .frame(width: width)
             .background(ParchmentBackground())
-            .frame(maxHeight: geometry.size.height - 8)
+            // Fix round 1 (the critic's high 7): at least 16 pt of the world above and below the card (the finale's
+            // stood 5 pt from the top).
+            .frame(maxHeight: geometry.size.height - 32)
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
         .accessibilityElement(children: .contain)
@@ -33,7 +35,9 @@ struct ReportCardView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            DawnMark(size: 36)
+            // Fix round 1 (the critic's high 4, HUD.md section 2): the day line exactly as the lantern moment draws it
+            // above the lord, the kit's dawn sign and the day's figure, so the report teaches it.
+            KitDayLine(day: card.day, unit: 3)
             VStack(alignment: .leading, spacing: 1) {
                 // The same keys as `Text("Day \(n) dawns")`; the digits stand in the ledger's figures.
                 Text(inked: String(localized: "Day \(card.day) dawns"), .title2)
@@ -61,8 +65,8 @@ struct ReportCardView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 10)
-        .padding(.bottom, 6)
+        .padding(.top, 9)
+        .padding(.bottom, 5)
         .overlay(alignment: .bottom) {
             InkRule().padding(.horizontal, 20)
         }
@@ -113,8 +117,7 @@ struct ReportCardView: View {
                         .foregroundStyle(Theme.rubric)
                     ForEach(Array(card.fallen.enumerated()), id: \.offset) { _, soldier in
                         HStack(spacing: 6) {
-                            Image(systemName: "shield.lefthalf.filled")
-                                .font(.system(size: 11, weight: .semibold))
+                            GlyphView(glyph: .shield)
                             Text(inked: Texts.fallen(soldier), .subheadline)
                         }
                         .font(Theme.serif(.subheadline))
@@ -152,9 +155,8 @@ struct ReportCardView: View {
             }
             ForEach(card.unlocked, id: \.self) { unlock in
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Image(systemName: "key.fill")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(Theme.goldDeep)
+                    GlyphView(glyph: .key)
+                        .foregroundStyle(NightGlass.lanternGold)
                     Text(inked: Texts.unlock(unlock), .subheadline)
                         .font(Theme.serif(.subheadline))
                         .foregroundStyle(Theme.teal)
@@ -178,14 +180,18 @@ struct ReportCardView: View {
             Button {
                 model.continueReport()
             } label: {
-                Label("Continue", systemImage: "sunrise.fill")
+                // The kit's dawn sign, the one over the day's figure in the lantern moment (HUD.md section 2).
+                HStack(spacing: 10) {
+                    KitDawnSign(unit: 2)
+                    Text("Continue")
+                }
             }
             .buttonStyle(GoldButtonStyle())
             .accessibilityIdentifier("report-continue")
         }
         .padding(.horizontal, 20)
         .padding(.top, 6)
-        .padding(.bottom, 12)
+        .padding(.bottom, 10)
         .overlay(alignment: .top) {
             InkRule().padding(.horizontal, 20)
         }
@@ -320,10 +326,9 @@ struct ReportRow<Value: View>: View {
                     .fixedSize()
             }
             if let detail {
-                Text(inked: detail, .footnote)
+                SeparatedText(text: detail, style: .footnote)
                     .font(Theme.italic(.footnote))
                     .foregroundStyle(Theme.inkSoft)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .accessibilityElement(children: .combine)
@@ -337,23 +342,24 @@ struct ReportBanner: View {
     let large: Bool
 
     var body: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: large ? 0 : 2) {
             Text(verbatim: title)
-                .font(large ? Theme.caps(.title2) : Theme.caps(.subheadline))
+                .font(large ? Theme.caps(.title3) : Theme.caps(.subheadline))
                 .foregroundStyle(titleColor)
             if let line {
                 Text(verbatim: line)
-                    .font(large ? Theme.italic(.subheadline) : Theme.italic(.footnote))
+                    .font(Theme.italic(.footnote))
                     .foregroundStyle(Theme.sealWords)
             }
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
         .padding(.horizontal, 30)
-        .padding(.vertical, large ? 7 : 5)
+        .padding(.vertical, large ? 5 : 5)
         .frame(maxWidth: .infinity)
-        // Night glass (stage-3-interface): the ribbon's pane with its brass line and V-cut ends.
-        .background(GlassRibbonBackground(height: large ? 32 : 15))
+        // Night glass (stage-3-interface): the ribbon's pane with its brass line and V-cut ends; fix round 1 (the
+        // critic's high 7): the large one lower, so the finale keeps its margins.
+        .background(GlassRibbonBackground(height: large ? 27 : 15))
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier(banner == .kingSlain || banner == .kingWithdrew ? "report-king-banner" : "report-banner")
     }
