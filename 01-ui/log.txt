@@ -1,0 +1,15 @@
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (254.397 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (28.310 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (70.271 seconds).
+Test Case '-[LanternholdUITests.WorldStoryUITests testHesperAtTheChapelDoor]' passed (23.709 seconds).
+Test Case '-[LanternholdUITests.WorldStoryUITests testTamsinAtHerKitchenDoor]' passed (52.542 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testCameraWalkLead]' passed (16.942 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testCastleSetPieces]' passed (32.569 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testCastleTiers]' passed (70.618 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testFogDriftAndItsFreeze]' passed (33.244 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepDusk]' passed (82.831 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepFog]' passed (34.088 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepNight]' passed (62.321 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepNoon]' passed (74.073 seconds).
+exit=0
+screenshots: 133
