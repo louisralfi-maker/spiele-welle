@@ -44,7 +44,9 @@ extension SceneLayout {
                                                   // world-3: the town's back row
                                                   .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD, .riverFarLantern,
                                                   // world-3 fix round 1: the built beacon's slits
-                                                  .greatBeacon]
+                                                  .greatBeacon,
+                                                  // world-3 fix round 2: the front towers' loops, the barracks
+                                                  .watchtower, .barracks]
     /// The lit core moves from the glass's cream (1, 0.76, 0.42 at a gain that clipped it to cream-white) halfway to
     /// the torch's amber: this times the glass colour, so the core stays under the clip and reads amber; the bloom
     /// (`keepPaneHalo`, the window pools) stays.
@@ -57,7 +59,9 @@ extension SceneLayout {
         // world-3 (the critic's medium of world-2 look 3: "the gate slits' pale core"): a step lower, so the bloom
         // stays amber to the slit's middle
         // world-3 fix round 1: a step lower again (w-1400-night: cream bars like UI pegs), a dim amber
-        case .castleFront, .castleFront3, .castleFront3Build: return 0.62
+        // world-3 fix round 2 (the critic's high 2: "[ ]" glyphs): a 2 px core in a dark reveal, under 60 % value
+        case .castleFront, .castleFront3, .castleFront3Build, .watchtower: return 0.5
+        case .barracks: return 0.55
         case .greatBeacon: return 0.5
         // world-3 (M4): the town's back row stands back (round lh-w3-1: its panes were cream-white dots)
         case .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD: return SceneLayout.look2TownRowGlass

@@ -878,6 +878,10 @@ constant float3 kBlack2 = float3(0.030f, 0.040f, 0.095f);
 constant float3 kEmber2 = float3(0.85098f, 0.28235f, 0.12157f);
 constant float3 kEmberDim2 = float3(0.54902f, 0.16471f, 0.07059f);
 constant float3 kMoonRim2 = float3(0.62f, 0.70f, 0.95f);
+// World-3 fix round 2 (the critic's L2): an unlit creature's rim, cool blue-grey on its top edge only, and how much
+// lighter than the bank's own colour its body stands inside the bank (one value step).
+constant float3 kCreatureRim2 = float3(0.40f, 0.46f, 0.60f);
+constant float kCreatureLift2 = 0.3f;
 constant float3 kMoonLight2 = float3(0.55f, 0.60f, 0.92f);
 constant float kFogGlow2 = 0.35f;
 constant float kFireCold2 = 0.7f;
@@ -1276,24 +1280,30 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     // Every figure keeps a rim on its screen-right edge pixels: the sky's for the king, the creatures in light and
     // the people, the moon's for an unlit creature. Firelight outshines it.
     float rimStrength = in.flags.y > 0.0f ? 0.6f * v.cloudC.w : in.flags.z;
-    if (in.flags.x < 0.5f && rimStrength > 0.0f) {
+    bool unlit = in.flags.y > 0.0f;
+    // World-3 fix round 2 (the critic's L2: "red-orange line drawings"): an unlit creature's rim is its top edge only,
+    // cool blue-grey, laid on after the fog (below); the east edge rim stays for the lit figures.
+    bool topEdge = unlit && t.y > 0u && atlas.read(uint2(t.x, t.y - 1u)).a < 0.5f;
+    if (in.flags.x < 0.5f && rimStrength > 0.0f && !unlit) {
         int toward = across < 0.0f ? -1 : 1;
         int2 side = int2(t) + int2(toward, 0);
         bool edge = atlas.read(uint2(max(side, int2(0)))).a < 0.5f;
-        // World-3 fix round 1 (the critic's high 4): the moon stands high, so an unlit creature's top edge catches it
-        // too; with its east edge it outlines a dark mass (the cell's padding is clear above its top row).
-        if (in.flags.y > 0.0f && t.y > 0u && atlas.read(uint2(t.x, t.y - 1u)).a < 0.5f) {
-            edge = true;
-        }
         if (edge) {
-            float3 tone = in.flags.y > 0.0f ? kMoonRim2 : v.rim.rgb;
-            lit = mix(lit, tone, rimStrength * (1.0f - saturate(peak * 1.5f)));
+            lit = mix(lit, v.rim.rgb, rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
     }
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
-    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover,
-                    in.flags.y > 0.0f ? 0.5f : 1.0f);
+    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
+    if (unlit && in.flags.x < 0.5f) {
+        // Inside the bank the body takes the bank's whole fog and stands one value step lighter than it, a dark mass
+        // the eye can read; its top edge catches the moon in a cool blue-grey line (none where firelight outshines).
+        float bankA = fogBTex.read(c.fogB).a * lh2_fog_region(c, u);
+        color *= 1.0f + kCreatureLift2 * bankA;
+        if (topEdge) {
+            color = mix(color, kCreatureRim2, rimStrength * (1.0f - saturate(peak * 1.5f)));
+        }
+    }
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }

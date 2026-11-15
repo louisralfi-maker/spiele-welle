@@ -330,8 +330,10 @@ final class Look2FrameTests: XCTestCase {
         let old = layer(.one)
         let still = layer(.two, reduceMotion: true)
         // World-3 fix round 1 (`LanternLook`): the lord's lantern in look 2 is a core and a spill, one light more.
-        XCTAssertEqual(new.lights.count, old.lights.count + 3,
-                       "two creature lights and the lantern's spill join the picture's lights")
+        // World-3 fix round 2 (`FireLook`): so is every line brazier and fire tower.
+        let fires = Battle.lightSources(s, balance: .standard).filter { FireLook.kinds.contains($0.kind) }.count
+        XCTAssertEqual(new.lights.count, old.lights.count + 3 + fires,
+                       "two creature lights, the lantern's spill and the fires' spills join the picture's lights")
         XCTAssertEqual(still.lights.count, new.lights.count)
         let flakes = new.actors.filter { $0.sprite == .shard }.count
         // Two flakes each from the giant, the brute and the Lightless King, two motes of dust each from the stomp and

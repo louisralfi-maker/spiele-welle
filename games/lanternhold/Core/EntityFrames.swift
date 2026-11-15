@@ -178,6 +178,14 @@ enum EntityFrames {
                     continue
                 }
             }
+            if options.look == .two && FireLook.kinds.contains(light.kind) {
+                // World-3 fix round 2 (the critic's high 3: an orange box on the gate tower's foot): a core and a
+                // round spill (`FireLook`); the battle's light and the fog's holes keep the whole.
+                for part in FireLook.pictureLights(light) {
+                    lights.append((source: part, plane: .world))
+                }
+                continue
+            }
             lights.append((source: light, plane: .world))
         }
         if options.look == .two {
@@ -564,6 +572,10 @@ enum EntityFrames {
                              glass(23, 14, 1, 2), glass(41, 14, 1, 2)]
         props.add(.barracks, x: barracksLeft, z: -1, masks: barracksMasks,
                   lights: [windowLight(barracksLeft + 23, 29), windowLight(barracksLeft + 41, 29),
+                           // world-3 fix round 2 (high 3): the window Marek's cart leaves free, a small pool
+                           windowLight(barracksLeft + SceneLayout.barracksWindowPool.dx,
+                                       SceneLayout.barracksWindowPool.y,
+                                       radius: SceneLayout.barracksWindowPool.radius),
                            windowLight(barracksLeft + 24, 15, radius: 10), windowLight(barracksLeft + 42, 15, radius: 10)])
         let smithy = s.plots[Realm.smithyPlot]
         if let item = smithy.item {
@@ -1134,7 +1146,10 @@ enum EntityFrames {
                     lit: c.isLit, lightCap: creatureLightCap, moonRim: c.isLit ? 0 : unlitRim * night * seen)
             }
             if let glow = glowStrip(sprite) {
-                add(glow, frame: frame, x: c.x, y: y, flipped: flipped, emissive: true, lit: c.isLit)
+                // World-3 fix round 2 (the critic's L2): inside the bank an unlit creature's red line at 30 %.
+                let share: Float = look == .two && !c.isLit ? CreatureLook.glowShare(x: c.x, bankEdge: s.bankEdge) : 1
+                add(glow, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(share, share, share, 1),
+                    emissive: true, lit: c.isLit)
             }
         }
 

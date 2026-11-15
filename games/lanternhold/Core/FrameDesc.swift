@@ -142,6 +142,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // the skiff moored at it and the moon on its gunwale, the far lantern's halo and its reflection on the water, a
     // buttress in the Throat (near plane), a second painting of the valley's verge
     case riverLanding, riverSkiffMoored, riverSkiffRim, riverLanternHalo, riverLanternStreak, throatButtress, valleyVergeB
+    // World lane, world-3 fix round 2 (tools/w3f2art.py, SPRITES.md "World-3, fix round 2"): the postern's far view
+    // at night, the Gloom's ground fog (two frames: body, leading face)
+    case posternNightView, gloomGroundFog
     // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
     // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
@@ -398,9 +401,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .riverSkiff: return PixelSize(width: 34, height: 10)
         // World-3 fix round 1 (tools/w3f1art.py).
         case .riverLanding: return PixelSize(width: 72, height: 20)
-        case .riverSkiffMoored, .riverSkiffRim: return PixelSize(width: 34, height: 9)
+        case .riverSkiffMoored, .riverSkiffRim: return PixelSize(width: 40, height: 12)   // world-3 fix round 2
         case .riverLanternHalo: return PixelSize(width: 22, height: 22)
-        case .riverLanternStreak: return PixelSize(width: 9, height: 24)
+        case .riverLanternStreak: return PixelSize(width: 7, height: 26)   // world-3 fix round 2
+        // World-3 fix round 2 (tools/w3f2art.py).
+        case .posternNightView: return PixelSize(width: 10, height: 14)
+        case .gloomGroundFog: return PixelSize(width: 160, height: 28)
         case .throatButtress: return PixelSize(width: 96, height: 132)
         case .valleyVergeB: return PixelSize(width: 64, height: 10)
         case .valleyVerge: return PixelSize(width: 64, height: 10)
@@ -455,6 +461,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .beaconFire, .darknessBankGlow, .gloomFogEyes: return 4
         case .gloomWisp: return 6
         case .gloomFogBack, .gloomFogMid, .gloomFogFront: return 2
+        case .gloomGroundFog: return 2   // world-3 fix round 2: body, leading face
         case .bankSheetA, .bankSheetB, .bankSheetC: return 2
         case .cleftWater: return 12   // fix round 2: six frames per thread, the second thread's from frame 6
         case .forebuilding, .chapelTower: return 2   // world-2: the hall door closed and open; the bell, gone

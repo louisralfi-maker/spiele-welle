@@ -62,7 +62,8 @@ enum PlaceholderArt {
              .riverSkiffRim, .riverLanternHalo, .riverLanternStreak:
             frames = [glowStandIn(salt, size: size)]
         case .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD, .riverFarLantern, .riverSkiff, .valleyVerge,
-             .riverLanding, .riverSkiffMoored, .throatButtress, .valleyVergeB:
+             .riverLanding, .riverSkiffMoored, .throatButtress, .valleyVergeB,
+             .posternNightView, .gloomGroundFog:   // world-3 fix round 2
             frames = [cliff(salt, size: size)]   // world-3: stand-ins until the art loads (tools/w3art.py)
         default:
             // M2b first (the strips of SPRITES.md), then the milestone 1 buildings and grids.
