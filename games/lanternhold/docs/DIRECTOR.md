@@ -852,3 +852,22 @@ schneller geht."
     - one violet glow sits low in the bank in w-0000-night; it should be an ember pair or go;
     - a creature beside the lord's lantern deep in the bank shows only eyes; check in play that the lantern's light shows a body at the bank's edge.
   - Still open from critic 3: high 4 (far lantern), high 5 (lone squares), high 7 (fog at the Throat), the pale mossy stump in w-1200-noon.
+
+- **Fix lane B is through: the privacy manifest's blocker, test ads on TestFlight, English only in Release, the court's tax words (15.11.2026, 20:24).**
+  - `claude/lh-fix2` 2ad32830. Round lh-fy-2 ALL PASSED on that commit (build, unit, ui FirstDay, Slides, Audience, Ads, Title), read on origin by the director. Round lh-fy-1 on the same head failed once in `AudienceUITests.testAudience` (the tap on the lord beside Tamsin, timing); the join re-runs that class once if it is a final round's only failure, and twice red is red.
+  - release-2 (blocker): the slides' clock is `CACurrentMediaTime()`, so `UserDefaults` is the only required-reason API left; the privacy manifest is unchanged and `NSPrivacyTracking` stays false.
+  - release-1: `AdConfig.liveUnits(release:receiptFileName:)` serves the live ad units only to a Release build with an App Store receipt. TestFlight and App Review installs get Google's test units.
+  - release-3: a Release-only post-build script removes every `*.lproj` except `LH_SHIP_LANGUAGES` (en) and Base; Debug keeps every language. **Not proven yet:** a lane round refuses `release`. The proof is the Release log's "ship languages: removed ..." lines in the full round before the `tf-*` round.
+  - core-day-1: the court speaks of taxes at the doors and of the war levy as a second knock (seven English lines, read by the director; the other languages are marked `needs_review` for the store pass).
+  - release-4: `holdWorld` also holds under the lantern moment and under slides that cover the world.
+  - Left for after build 2: release-5 (the ambience under a video ad), the flaky tap beside Tamsin (`prefersLord`), the live or test unit choice seen on a real install.
+  - Decision: accepted for build 2.
+- **Fix lane D is through: the lord's whole figure stills the world, the town's owing doors call on the strip, the report says nobody asked (15.11.2026, 20:24).**
+  - `claude/lh-fix4` 4c7cb373. Round lh-fw-3 ALL PASSED on that commit (build, the lane's unit classes, ui Touch, Lord, Town, FirstDay, Hall); the full unit suite passed in lh-fw-2 on 98480ea2. Both read on origin by the director. lh-fw-1 failed once in FirstDayUITests: the test tapped a door's middle where the lord stood. The tap moved above his head; the fix stays. The join treats other classes the same way.
+  - A touch anywhere on the lord (16 px wide, from the ground to 2 px over his head) is a touch on the lord.
+  - The strip carries a wax-red coin tag with the number of doors that still owe. It raises itself once on day 2 and once on day 3, never from day 4, and drops when the last door pays.
+  - The dawn report says "Never asked at the town's doors: <amount>" when nobody collected from day 2 on.
+  - Replay is the gold button on the defeat card when no second chance is offered.
+  - The director's look at `50-tax-waiting-en` (lh-fw-3): the night-glass strip with a red talk tag "2" over the keep and a red coin tag "4" over the town. It reads well. Look pile: by day the gatehouse's slits read as the letter L.
+  - Left for after build 2: the stale comment in `TownUITests.testTaxesOnFoot`, Replay turning gold behind a playing second-chance video, screenshots of the day 2 and 3 raise and of the new report row, the two new keys in German and the other languages (store pass).
+  - Decision: accepted for build 2. All six fix lanes and the world's four fix rounds are on origin; the join merges B, D and the world's fix round 4 and sends the three final rounds.
