@@ -38,6 +38,20 @@ final class AdModeTests: XCTestCase {
         XCTAssertNotNil(Bundle.main.object(forInfoDictionaryKey: "SKAdNetworkItems"))
         XCTAssertNotNil(Bundle.main.object(forInfoDictionaryKey: "NSUserTrackingUsageDescription"))
     }
+
+    /// Review b2 release-1: the live units only for a release build from the App Store (receipt file `receipt`); a
+    /// debug build, TestFlight (`sandboxReceipt`) and no receipt URL get Google's test units.
+    func testTheLiveUnitsServeOnlyAReleaseBuildFromTheAppStore() {
+        XCTAssertTrue(AdConfig.liveUnits(release: true, receiptFileName: "receipt"), "the App Store")
+        XCTAssertFalse(AdConfig.liveUnits(release: true, receiptFileName: "sandboxReceipt"), "TestFlight")
+        XCTAssertFalse(AdConfig.liveUnits(release: true, receiptFileName: nil), "no receipt URL")
+        XCTAssertFalse(AdConfig.liveUnits(release: false, receiptFileName: "receipt"), "a debug build")
+        XCTAssertFalse(AdConfig.liveUnits(release: false, receiptFileName: "sandboxReceipt"))
+        XCTAssertFalse(AdConfig.liveUnits(release: false, receiptFileName: nil))
+        #if DEBUG
+        XCTAssertFalse(AdConfig.servesLiveUnits, "this debug test host")
+        #endif
+    }
 }
 
 /// A clock the tests move by hand.
@@ -267,6 +281,23 @@ final class AdDirectorTests: XCTestCase {
         XCTAssertEqual(game.driver?.isPaused, true, "nothing moves under a late ad")
         stub.finish()
         XCTAssertEqual(game.driver?.isPaused, false)
+    }
+
+    /// Review b2 release-4: an ad that ends under the slide stage leaves the world standing; it goes on after the show.
+    func testAnAdEndingUnderTheSlidesLeavesTheWorldStill() {
+        let game = model()
+        let stub = StubAdProvider()
+        stub.closesAtOnce = false
+        let ads = AdDirector(mode: .stub, provider: stub, clock: CountedClock())
+        ads.attach(game)
+        game.presentSlides(.prologue)
+        XCTAssertTrue(game.slides.isShowing)
+        XCTAssertTrue(stub.showInterstitial(onClose: {}))
+        XCTAssertEqual(game.driver?.isPaused, true)
+        stub.finish()
+        XCTAssertEqual(game.driver?.isPaused, true, "the slides still hold the world")
+        game.skipSlides()
+        XCTAssertEqual(game.driver?.isPaused, false, "the day goes on after the show")
     }
 
     func testNoVideoNoOffer() {

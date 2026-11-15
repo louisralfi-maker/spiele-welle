@@ -319,11 +319,11 @@ final class AdDirector {
     }
 
     /// The world stands still under Marek's card, the consent form and any ad on screen (the dawn report's screens
-    /// hold it already), and under a lantern moment raised behind them (as `GameModel.setOverlay`).
+    /// hold it already), and under a lantern moment raised behind them (as `GameModel.setOverlay`) or the slide stage.
     private func holdWorld() {
         guard let model else { return }
         let hold = formShowing || merchantCardOpen || provider.isShowingAd || model.overlay != nil
-            || model.lanternMoment != nil
+            || model.lanternMoment != nil || model.slides.coversWorld
         model.withDriver { $0.isPaused = hold }
     }
 

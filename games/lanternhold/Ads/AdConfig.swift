@@ -5,9 +5,10 @@ import Foundation
 ///
 /// - The AdMob **app id** is not here: it is the build setting `GAD_APPLICATION_IDENTIFIER` in project.yml (Info.plist
 ///   reads it as `GADApplicationIdentifier`).
-/// - The **ad unit ids** are below: the live ones serve release builds only.
-/// - Debug builds ALWAYS use Google's published test units: tapping your own live ads can get the AdMob account closed,
-///   and Piston Empire shares that account.
+/// - The **ad unit ids** are below: the live ones serve only a release build installed from the App Store
+///   (`liveUnits(release:receiptFileName:)`).
+/// - Debug builds and TestFlight ALWAYS use Google's published test units: tapping your own live ads can get the AdMob
+///   account closed, and Piston Empire shares that account.
 enum AdConfig {
     // MARK: Louis' ad units (AdMob → Apps → Lanternhold → Ad units)
     static let liveRewarded = "ca-app-pub-4855617456569312/4289035611"
@@ -27,7 +28,7 @@ enum AdConfig {
         #if DEBUG
         debugNoFill ? debugNoFillUnit : testRewarded
         #else
-        liveRewarded
+        servesLiveUnits ? liveRewarded : testRewarded
         #endif
     }
 
@@ -35,8 +36,31 @@ enum AdConfig {
         #if DEBUG
         debugNoFill ? debugNoFillUnit : testInterstitial
         #else
-        liveInterstitial
+        servesLiveUnits ? liveInterstitial : testInterstitial
         #endif
+    }
+
+    /// Whether the live units serve: a release build whose App Store receipt is the store's own, `receipt`.
+    /// TestFlight's is `sandboxReceipt`; it, a debug build and no receipt URL get the test units, so Louis never sees
+    /// his own live ads.
+    static func liveUnits(release: Bool, receiptFileName: String?) -> Bool {
+        release && receiptFileName == "receipt"
+    }
+
+    /// This build and install: `liveUnits` for the build's kind and the receipt's file name.
+    static var servesLiveUnits: Bool {
+        #if DEBUG
+        let release = false
+        #else
+        let release = true
+        #endif
+        return liveUnits(release: release, receiptFileName: receiptFileName)
+    }
+
+    /// The App Store receipt's file name: `receipt` from the store, `sandboxReceipt` on TestFlight. The URL is deprecated
+    /// in iOS 18; with the deployment target iOS 17 Swift does not warn, and no setting makes warnings errors.
+    static var receiptFileName: String? {
+        Bundle.main.appStoreReceiptURL?.lastPathComponent
     }
 
     /// Release builds run ads only with Louis' real app id in the plist: with Google's sample id (or none) the App Store
@@ -55,8 +79,9 @@ enum AdConfig {
 /// - `stub`: `-GWAdStub YES` (debug builds): no SDK either; a rewarded "video" is always ready, ends at once and
 ///   grants; an interstitial is always ready and ends at once. For the ads' UI tests.
 /// - `google`: Google Mobile Ads with the consent form (UMP) and Apple's tracking question first. Debug builds use the
-///   test units (a plain launch, or `-GWAds google` beside other arguments); release builds use the live units when
-///   `AdConfig.isLiveConfigured`.
+///   test units (a plain launch, or `-GWAds google` beside other arguments); release builds run it when
+///   `AdConfig.isLiveConfigured`, with the live units only when installed from the App Store
+///   (`AdConfig.servesLiveUnits`).
 enum AdMode: String, Sendable, Equatable, CaseIterable {
     case none, stub, google
 
