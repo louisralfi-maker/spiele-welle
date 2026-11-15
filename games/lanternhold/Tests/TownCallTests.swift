@@ -137,8 +137,10 @@ final class TownCallTests: XCTestCase {
         let english: (String) -> String = { TownText.string($0, language: "en") ?? $0 }
         let never = TownSummary(day: 2, tossGold: 0, knockGold: 0, kept: 49, spared: [], knockedAt: [], leviedAt: [],
                                 doubled: false, unrest: false, happinessGain: 0, happinessCost: 0)
-        XCTAssertEqual(TownText.reportLines(never, lookup: { $0 }).map(\.key), [TownText.neverAskedKey])
+        XCTAssertEqual(TownText.reportLines(never, lookup: english).map(\.key), [TownText.neverAskedKey])
         XCTAssertEqual(TownText.reportDetail(never, lookup: english), "Never asked at the town's doors: 49")
+        XCTAssertEqual(TownText.reportLines(never, lookup: { $0 }).map(\.key), ["town.report.kept"],
+                       "a language without the new line keeps the old one, never the bare key")
 
         var asked = never
         asked.tossGold = 11

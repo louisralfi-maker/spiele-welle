@@ -105,8 +105,10 @@ enum TownText {
         if summary.collected > 0 { add("town.report.collected", String(summary.collected)) }
         if summary.kept > 0 {
             // Fix lane D (the review of build 2, player-loop-1): after the first morning, a day on which the doors
-            // owed and nobody asked at one (neither the lord nor the collector) says where the gold waits.
+            // owed and nobody asked at one (neither the lord nor the collector) says where the gold waits; in a
+            // language that has no such line yet (English only for build 2) the old one stands, never the bare key.
             let neverAsked = summary.day >= 2 && summary.collected == 0 && summary.collectorOut != true
+                && lookup(neverAskedKey) != neverAskedKey
             add(neverAsked ? neverAskedKey : "town.report.kept", String(summary.kept))
         }
         if !summary.spared.isEmpty { add("town.report.spared", String(summary.spared.count)) }
