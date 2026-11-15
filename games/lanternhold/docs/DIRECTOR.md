@@ -935,3 +935,26 @@ schneller geht."
   - The director's look: the pause sheet over the lighter dim (frame 163) reads cleanly; the lantern moment's frames were judged on b864c187.
   - `tf-lh-2`: build, unit, testflight, sent from the join's clone. The build number comes from the runner's run number (about 331); the version stays 1.0.0. Never re-run this job from the Actions page.
   - The join branch is closed for build 2. Build 3's lanes are cut from 309ebb46.
+
+- **Build 3, wave 1 starts: the plan is accepted (15.11.2026, 23:45).**
+  - The plan is `ci-out/director/b3-wave1.md` (an Opus planner read the game at 309ebb46 and the specs): six lanes,
+    a collision table with one owner per file, three waves, the joins on a fresh `claude/lh-b3join`.
+  - Wave 1 runs side by side, each lane in its own worktree cut from 309ebb46:
+    - the count (`claude/lh-b3-count`; PAY.md sections 1, 2 and 4);
+    - the wind seen and heard, and the two rains (`claude/lh-b3-wind`; POLISH.md section 2);
+    - the small ones as a horde, the picture first (`claude/lh-b3-horde`; POLISH.md section 7).
+  - The way of working: a lane goes in steps. Each step is one workflow of four Opus agents: build, an independent
+    diff review, the gate round on the runner with the push, and a critic's look as a player. The director reads
+    the critic and briefs the next step. So the quota is read between steps, and a stop costs no work.
+  - The decisions are in `ci-out/director/notes-b3.md`:
+    - PAY.md's gestures hold: a touch brings the board, a hold counts, a tap sets one coin, a drag walks, a hold on
+      the lord raises the lantern;
+    - a plot with several offers shows pictograms above it instead of a card (the count's step 2);
+    - no lane adds or changes a saved field in wave 1, and nobody touches Battle, Balance, GameState or Sim;
+    - English only; a new `-GW` key only under `#if DEBUG`;
+    - a motion step saves a filmstrip at fixed steps of game time, because stills cannot show motion.
+  - The plan's questions 3, 4 and 5 are answered as it recommends (packs first; the yard's stages 1 and 2; wave 3
+    keeps the widow, the king redrawn and evening 9.5).
+  - Lane 6's first step, the frozen build-2 save with its load test, goes out as soon as a slot is free and before
+    any lane changes saved state.
+  - Quota at the start: 61 % of the week, 27 % Fable. The stop is at 80 % unless Louis raises it.
