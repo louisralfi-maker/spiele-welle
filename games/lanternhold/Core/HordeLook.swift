@@ -167,6 +167,9 @@ enum HordeLook {
     static let heapGone = 0.6
     static let threadStands = 0.8
     static let fallLifetime = 1.4
+    /// At most this many falls are drawn in one frame (up to three instances each: the heap, its socket, the thread),
+    /// the newest first.
+    static let maxFallsDrawn = 12
 
     /// The fall sprite's frame and alpha at `seconds` after the kill, nil once the heap is gone. Reduce Motion: the
     /// heap at once, fading.

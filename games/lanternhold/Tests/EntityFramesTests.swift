@@ -599,4 +599,75 @@ final class EntityFramesTests: XCTestCase {
         }
         XCTAssertEqual(EntityFrames.creatureLights(crowd, time: 0).count, EntityFrames.maxCreatureLights)
     }
+
+    func testAKillFindsItsBodyAfterAQuietStretch() {
+        // A note comes only with events: three quiet seconds later the small one has walked 100 px from where it was
+        // last seen, and its fall still takes its body (id 9: the crawler; the counter's fallback would give the loper).
+        var s = GameFrameSupport.demoNight()
+        s.creatures = [GameFrameSupport.creature(.sootling, x: 540, id: 9, lit: true),
+                       GameFrameSupport.creature(.sootling, x: 900, id: 11, lit: true)]
+        var effects = BattleEffects()
+        effects.note([], state: s, balance: balance, time: 0)
+        s.creatures = [GameFrameSupport.creature(.sootling, x: 1000, id: 11, lit: true)]
+        effects.note([.creatureKilled(kind: .sootling, x: 640)], state: s, balance: balance, time: 3)
+        XCTAssertEqual(effects.items.map(\.kind), [.fall])
+        XCTAssertEqual(effects.items.first?.body, HordeLook.Body.crawler.rawValue, "the crawler falls as a crawler")
+        XCTAssertEqual(effects.items.first?.y, 0, "on the ground")
+
+        // One that climbed a heap falls from where it was drawn.
+        let wall = Realm.lines[2].wall
+        var heap = GameFrameSupport.demoNight()
+        heap.creatures = (0..<5).map {
+            var c = GameFrameSupport.creature(.sootling, x: 630 - Double($0) * 2, id: 20 + $0, lit: true,
+                                              action: .attackingWall)
+            c.target = wall
+            return c
+        }
+        XCTAssertEqual(HordeLook.heapLifts(heap.creatures)[24], HordeLook.heapLift)
+        var climb = BattleEffects()
+        climb.note([], state: heap, balance: balance, time: 0)
+        heap.creatures.removeLast()
+        climb.note([.creatureKilled(kind: .sootling, x: 622)], state: heap, balance: balance, time: 0.2)
+        XCTAssertEqual(climb.items.first?.body, HordeLook.body(id: 24).rawValue)
+        XCTAssertEqual(climb.items.first?.y, HordeLook.heapLift, "from the heap")
+    }
+
+    func testAMassKillDrawsOnlyTheNewestFalls() {
+        var s = GameFrameSupport.demoNight()
+        s.creatures = (0..<24).map { GameFrameSupport.creature(.sootling, x: 560 + Double($0) * 6, id: $0, lit: true) }
+        var effects = BattleEffects()
+        effects.note([], state: s, balance: balance, time: 0.5)
+        let kills: [SimEvent] = s.creatures.map { .creatureKilled(kind: .sootling, x: $0.x) }
+        s.creatures = []
+        effects.note(kills, state: s, balance: balance, time: 1.0)
+        XCTAssertEqual(effects.items.filter { $0.kind == .fall }.count, BattleEffects.maxEffects)
+        let actors = hordeLayer(s, focus: 640, time: 1.05, effects: effects).actors
+        XCTAssertEqual(actors.filter { $0.sprite == .sootFall }.count, HordeLook.maxFallsDrawn, "the newest only")
+        XCTAssertLessThanOrEqual(actors.filter { $0.sprite == .sootThread }.count, HordeLook.maxFallsDrawn)
+        XCTAssertLessThanOrEqual(actors.filter { $0.sprite == .sootFallGlow }.count, HordeLook.maxFallsDrawn)
+    }
+
+    func testAGiantInFrontOfAHeapStaysInFront() {
+        // The climbers are drawn right after the foremost small one at their wall, not after every creature.
+        let wall = Realm.lines[2].wall
+        var s = GameFrameSupport.demoNight()
+        s.creatures = (0..<6).map {
+            var c = GameFrameSupport.creature(.sootling, x: 630 - Double($0) * 2, id: 10 + $0, lit: true,
+                                              action: .attackingWall)
+            c.target = wall
+            return c
+        }
+        var giant = GameFrameSupport.creature(.ashGiant, x: 636, id: 30, lit: true, action: .attackingWall)
+        giant.target = wall
+        s.creatures.append(giant)
+        XCTAssertEqual(HordeLook.heapLifts(s.creatures).count, 2, "two climb")
+        let actors = GameFrameSupport.frame(s, focus: 640).layer.actors
+        guard let giantIndex = actors.firstIndex(where: { $0.sprite == .ashGiant }) else {
+            XCTFail("the giant is drawn")
+            return
+        }
+        let small = actors.indices.filter { EntityFramesTests.smallSprites.contains(actors[$0].sprite) }
+        XCTAssertEqual(small.count, 6)
+        XCTAssertTrue(small.allSatisfy { $0 < giantIndex }, "the heap stands behind the giant")
+    }
 }

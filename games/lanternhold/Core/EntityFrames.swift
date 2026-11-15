@@ -985,8 +985,11 @@ enum EntityFrames {
         // advanced first; none deep in the bank, where no body is drawn.
         let free = maxCreatureLights - list.count
         guard free > 0 else { return list }
-        let small = s.creatures.filter { $0.kind == .sootling && $0.hp > 0 && $0.x >= s.bankEdge - 4 }
-            .sorted { ($0.x, $0.id) > ($1.x, $1.id) }
+        let small = s.creatures.filter {
+            $0.kind == .sootling && $0.hp > 0
+                && ($0.isLit || CreatureLook.bodyShare(x: $0.x, bankEdge: s.bankEdge) > 0.02)
+        }
+        .sorted { ($0.x, $0.id) > ($1.x, $1.id) }
         guard !small.isEmpty else { return list }
         let lifts = HordeLook.heapLifts(s.creatures)
         for c in small.prefix(free) {
@@ -1168,12 +1171,22 @@ enum EntityFrames {
             order.append(index)
         }
         // b3-horde: past four small ones at one wall the later ones climb the backs in front (`HordeLook.heapLifts`),
-        // drawn after the ground row.
+        // drawn right after the foremost small one on the ground at their wall; everyone else keeps the x order, so a
+        // giant in front of a heap stays in front of it.
         let lifts = HordeLook.heapLifts(s.creatures)
-        func climbs(_ index: Int) -> Int { lifts[s.creatures[index].id] == nil ? 0 : 1 }
-        order.sort {
-            (climbs($0), s.creatures[$0].x, s.creatures[$0].id) < (climbs($1), s.creatures[$1].x, s.creatures[$1].id)
+        var heapFront: [Int: Double] = [:]
+        if !lifts.isEmpty {
+            for c in s.creatures where c.kind == .sootling && c.hp > 0 && c.action == .attackingWall
+                && lifts[c.id] == nil {
+                heapFront[c.target] = max(heapFront[c.target] ?? c.x, c.x)
+            }
         }
+        func drawKey(_ index: Int) -> (Double, Int, Double, Int) {
+            let c = s.creatures[index]
+            guard lifts[c.id] != nil else { return (c.x, 0, c.x, c.id) }
+            return (max(c.x, heapFront[c.target] ?? c.x), 1, c.x, c.id)
+        }
+        order.sort { drawKey($0) < drawKey($1) }
         for index in order {
             let c = s.creatures[index]
             let sprite = creatureSprite(c)
@@ -1227,10 +1240,14 @@ enum EntityFrames {
         }
 
         // b3-horde: the small ones' falls (three frames, then the heap of soot fades) and their orphan threads, which
-        // stand alone for half a second and go with the wind (`HordeLook.fallFrame`, `orphanThread`).
-        for effect in effects.items where effect.kind == .fall {
+        // stand alone for half a second and go with the wind (`HordeLook.fallFrame`, `orphanThread`); the newest
+        // `HordeLook.maxFallsDrawn` only, so a mass kill (the dawn sweep, the King's fall) keeps the frame budget.
+        var fallsDrawn = 0
+        for effect in effects.items.reversed() where effect.kind == .fall {
+            guard fallsDrawn < HordeLook.maxFallsDrawn else { break }
             let seconds = animTime - effect.start
             guard seconds >= 0, seconds < HordeLook.fallLifetime else { continue }
+            fallsDrawn += 1
             let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
             if let fall = HordeLook.fallFrame(body, seconds: seconds, reduceMotion: reduceMotion) {
                 add(.sootFall, frame: fall.frame, x: effect.x, y: effect.y, tint: SIMD4<Float>(1, 1, 1, fall.alpha),
