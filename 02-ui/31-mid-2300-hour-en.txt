@@ -1,0 +1,1 @@
+31-mid-2300: taken at frame:2570 ready day:12 hour:23.81 alive:14 seen:5 lit:3 shots:4 aim:0 kx:654 lord:lord stage:world lx:654 errand:none door:1830 gold:93 hud:none cam:375 tap:none hint:off0 lantern:ready

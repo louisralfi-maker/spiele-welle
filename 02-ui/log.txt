@@ -1,0 +1,10 @@
+Test Case '-[LanternholdUITests.CraftUITests testEveryCraftsmansCard]' passed (199.144 seconds).
+Test Case '-[LanternholdUITests.CraftUITests testTheCraftsmansOffer]' passed (58.547 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testFinale]' passed (94.448 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testMidChapter]' passed (197.005 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (220.339 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (11.908 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (37.683 seconds).
+Test Case '-[LanternholdUITests.TownLifeUITests testTheTownLivesByItsPeople]' passed (117.562 seconds).
+exit=0
+screenshots: 60
