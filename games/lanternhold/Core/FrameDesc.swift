@@ -130,7 +130,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case citizenTown, citizenBTown, citizenCTown, citizenSeatedTown, citizenBSeatedTown, citizenCSeatedTown, elderTown,
          washerwomanTown, labourerTown, farmerHoeTown, farmerScytheTown, childATown, childBTown, childCTown
     // The people lane, people-2 (docs/PEOPLE.md section 5, `TownLife`, `TownLamps`): Silas Moth the lamplighter and his
-    // pole's flame, Saul Bracken the collector with his handcart, the noble's coach, Old Hemmet on the bench (and its
+    // pole's flame, Saul Tolliver the collector with his handcart, the noble's coach, Old Hemmet on the bench (and its
     // cloth states)
     case lamplighter, lamplighterGlow, collector, coach, elderSeated, elderSeatedVillage, elderSeatedTown
     // The people lane, people-2 fix round 1: the lord's mended cloak (`LordCloak`; the sheets as painted are the good

@@ -1,4 +1,4 @@
-# collector 34x24, 8 frames: push 0-3, idle 4-5, take 6-7 (docs/SPRITES-people.md; people-2, `TownLife`). Saul Bracken,
+# collector 34x24, 8 frames: push 0-3, idle 4-5, take 6-7 (docs/SPRITES-people.md; people-2, `TownLife`). Saul Tolliver,
 # 56, the collector (docs/PEOPLE.md "Three more"; docs/TOWN.md section 2), out from his post at the dawn with the
 # town's strongbox on a handcart, every door, back in the early afternoon. A stout man in a rolled wool cap pulled down
 # to the brow (never a hat with a crown and brim: with the lamplighter's they read as two Victorian bowlers), grey stubble, a

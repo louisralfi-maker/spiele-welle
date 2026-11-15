@@ -14,7 +14,7 @@ bringt Charakterwechsel mit rein." The rule: `docs/BARS.md` section 3. Who is wh
   lady's body, their footman), fitted to STORY.md's houses and guests; how each is drawn (silhouette, posture, pace,
   cloth by palette name, the tell); where they are in the game; their voices in English and German.
 - Art, all hand-set part grids through `tools/actorart.py` (no generated picture anywhere):
-  - repainted at their sizes and frames: `citizen` (Mother Corra), `citizenB` (Dun Rook), `citizenC` (Ned Thatch) and
+  - repainted at their sizes and frames: `citizen` (Mother Corra), `citizenB` (Dun Rook), `citizenC` (Ned Furrow) and
     their seated forms `citizenSeated`, `citizenBSeated`, `citizenCSeated` (`tools/grids/actors/`);
   - new at the citizen contract: `elder` (Old Hemmet, the shuffle), `washerwoman` (Wenna Brisk, with wring frames),
     `labourer` (Brede Hask, the limp), `farmerHoe` (Gorm Ashby) and `farmerScythe` (Hedda Ashby), each farmer with work,
@@ -104,15 +104,15 @@ call `PeopleCast.townLife` once and take the walkers' bodies, pace and step from
   through swing (blade before the feet), the upper body a pixel each way, the apron straight (`skirtWork`); the
   upright scythe's blade curved over her head; the wring a twisted sheet held level between two red fists, its
   banding moving on a pixel, a drop falling.
-- **H5, the names:** Pim is Nib Brisk, Aldo Fenn is Ned Thatch (checked against STORY.md, the docs and the petitions:
-  no Nib, Ned or Thatch anywhere; Odo was close to Odile, Wat is a recruit name in YARD.md).
+- **H5, the names:** Pim is Nib Brisk, Aldo Fenn is Ned (surname since changed, now Furrow; checked against STORY.md, the docs and the
+  petitions: no Nib or Ned anywhere; Odo was close to Odile, Wat is a recruit name in YARD.md).
 - **H6, the director's notes:**
   - cloth states for the eight working bodies and the three seated forms (village and town) and the three children
     (town), cloth pixels only (`tools/peoplestates.py`, `#@state` lines in the grids; PEOPLE.md section 7 says what
     each wears at each stage; SPRITES-people.md "Cloth states"); the six-figure line-up in all states;
   - the nobles' bow (frames 8-9 of `nobleLord` and `nobleLady`), played only when the realm is a town
     (`PeopleCast.bowFrame`; PEOPLE.md section 4);
-  - the collector (Saul Wicket), the lamplighter (Silas Moth) and the jailer (Old Kell) in PEOPLE.md with name, mark,
+  - the collector (Saul, now Tolliver), the lamplighter (Silas Moth) and the jailer (Old Kell) in PEOPLE.md with name, mark,
     silhouette and frames. Their sheets open people-2 (see "What waits").
 - **Smaller things of the critic:** Wenna on the well's far side from the notice board, facing it; the children's laps
   120 px with their centres spread; Gorm and Hedda side by side on the first field (shot 131 frames both);
@@ -191,7 +191,7 @@ critic's H4).
 - **`Core/TownHouseholds.swift`, who lives where** (data only). Four households, nobody twice: house 1 (Mother Corra,
   Ned Furrow, Brede Hask; Ilse Marrow in a big house), house 3 the Ashbys (Gorm, Hedda, Wren), house 4 the Brisks
   (Wenna, Nib, Dun Rook lodging; Master Edwy Tallow in a big house), house 5 Moth's (Silas Moth the lamplighter, Fen his
-  grandson, Old Hemmet); the collector Saul Bracken lodges by the hall door. A household is out only while its house
+  grandson, Old Hemmet); the collector Saul Tolliver lodges by the hall door. A household is out only while its house
   stands. Each passer-by has a place (the well, the market, the tavern, the ford, the castle's gate, the far field).
   Anchors as data: the doors (the plot's centre, as the town lane's `Town.doorX`), the places, the bench, the town's
   gate (`townGateX`, on this branch before the castle's back gate).
@@ -221,7 +221,7 @@ critic's H4).
   states (12x22, 2), Wenna's call frames 8-9, Nib and Wren 12 wide with the stick fight 10-11, Nib's kerchief knotted
   at the nape with its ends flying (the critic's H2: no red on the throat or belly any more), the noble lord's cane
   kept in the talk and the bow.
-- **Names** (the critic's H1 and a smaller note): Ned Thatch is Ned Furrow, Saul Wicket is Saul Bracken (both checked
+- **Names** (the critic's H1 and a smaller note): Ned is Ned Furrow, Saul is Saul Tolliver (the director's names of 15.11.; both checked
   against STORY.md, the docs, both string catalogs and the petitions of the planning branch: no hit).
 - **Tests**: `Tests/TownLifeTests.swift` (15 tests: the households, the farmers' day, the greeting and the turning away,
   Wenna's call, the children's rules, game and trailing, the coach and the berth, the collector's round, the lantern
@@ -325,7 +325,7 @@ People-1's hooks stay as listed above, except `EntityFrames.townsfolk`'s look-2 
 - Old Hemmet could wait on the hall's benches now (`elderSeated`); `CourtLayout.seatedStrip` is not extended (no
   petitioner walks in his body).
 - The square's play is in front of house 4; if the rebuilt square has more room, move `TownLife.playCentre`.
-- Saul Bracken is pushed at the town lane's even pace (about 47 px/s out, 40 back: faster than the lord's walk). If
+- Saul Tolliver is pushed at the town lane's even pace (about 47 px/s out, 40 back: faster than the lord's walk). If
   the town lane can start him earlier or give him till 09:30, he walks at a cart's pace; the picture follows the hours.
 - The lamplighter is in the hall at about 14:40 and walks for four hours of the clock: the castle-to-town walk at a
   walking pace cannot fit TOWN.md's "out of the gate at 18:00, the last lantern at the horn". The horn is kept (the

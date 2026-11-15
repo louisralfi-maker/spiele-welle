@@ -640,7 +640,7 @@ enum TownLife {
 
     // MARK: - The collector
 
-    /// Saul Bracken's post, where his handcart stands and his round starts and ends: just inside the castle's town gate
+    /// Saul Tolliver's post, where his handcart stands and his round starts and ends: just inside the castle's town gate
     /// (on this branch `WorldLayout.backGateX`). The town lane keeps his post by the hall door (`Town.collectorPost`,
     /// `Realm.hallX`), but from there a round of every door at a one-armed man's cart pace takes about thirteen hours
     /// and cannot be back before the horn; the picture keeps his post by the gate until the director rules (docs/lanes/
@@ -670,7 +670,7 @@ enum TownLife {
         return (turn: turn, back: turn + way / DayClock.secondsPerHour)
     }
 
-    /// Saul Bracken now: pushing the strongbox on its handcart from door to door (the hand out, the coin through the
+    /// Saul Tolliver now: pushing the strongbox on its handcart from door to door (the hand out, the coin through the
     /// slot and a nod at each), back to his post at the same heavy pace, then at his post by the gate until the horn,
     /// turned to the lord when he comes.
     static func collector(_ s: GameState, time: Double, context: Context) -> Figure? {
