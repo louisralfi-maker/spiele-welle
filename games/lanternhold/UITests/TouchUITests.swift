@@ -5,7 +5,7 @@ import XCTest
 /// B3, M6, M9, M11, M13, M14): no action button; the marks over what offers something at the front by day and at night
 /// and in the great hall; a touch on a site, the slip above it while he walks and the card when he arrives; a tap on
 /// the ground; a touch on a bench (the first in line speaks in a bubble over his head) and on the throne; a damaged
-/// wall at night, its price over it and the second touch that pays; the first minute's slip; the accessibility
+/// wall at night, its tally board and the coin that pays it (build 3, the count); the first minute's slip; the accessibility
 /// elements (44 pt, the act first, the order left to right); raise the lantern (a hold on the lord at night).
 /// Saves `<nn>-touch-<what>-<lang>`: 150 to 159 (fix round 1: the night forced with a damaged gate and a cold brazier,
 /// 152 to 153c; the lord walking up the nave under the throne's slip, 156; the lantern lifted, 158 and 158b; the
@@ -242,22 +242,21 @@ final class TouchUITests: XCTestCase {
         guard waitUntilReady(app, name: "touch-night") else { return }
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "152-touch-front-night-\(language)")
+        // Build 3, the count (PAY.md): a touch on the gate brings its tally board up (one big coin for the repair)
+        // and he steps beside it; a second touch sets the coin, the seal falls and the site lantern is lit.
         if let wall = waitForThing(app, "touch-wall-0", timeout: 3) {
             XCTAssertTrue(wall.label.count > 0, "the repair's label")
             touchThing(wall)
-            XCTAssertTrue(waitForField(app, "errand:touch-wall-0", timeout: 3), "he sets off to the gate")
+            XCTAssertTrue(waitForField(app, "count:touch-wall-0", timeout: 3), "the gate's board comes up")
             waitForStill(app)
-            if element(app, "touch-slip").waitForExistence(timeout: 4) {
-                pause(0.4)
-                attach(XCUIScreen.main.screenshot(), "153-touch-wall-price-\(language)")
-                if let again = waitForThing(app, "touch-wall-0", timeout: 2) {
-                    touchThing(again)
-                    pause(0.8)
-                    attach(XCUIScreen.main.screenshot(), "153b-touch-wall-paid-\(language)")
-                    XCTAssertEqual(sceneField(app, "errand:"), "none", "the second touch paid")
-                }
-            } else {
-                XCTFail("no price over the gate")
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "153-touch-wall-board-\(language)")
+            XCTAssertFalse(element(app, "touch-slip").exists, "no slip: the board is the price")
+            if let again = waitForThing(app, "touch-wall-0", timeout: 2) {
+                touchThing(again)
+                XCTAssertTrue(waitForField(app, "last:paid:touch-wall-0", timeout: 3), "the coin paid the repair")
+                pause(0.15)
+                attach(XCUIScreen.main.screenshot(), "153b-touch-wall-paid-\(language)")
             }
         } else {
             XCTFail("the damaged gate offers nothing")
@@ -282,14 +281,17 @@ final class TouchUITests: XCTestCase {
         } else {
             XCTFail("the cold brazier offers nothing")
         }
+        // An empty treasury: the board comes up, the coin the touch would set is missing, the empty hollow blinks and
+        // `decline` sounds; nothing is paid.
         if let wall = waitForThing(poor, "touch-wall-0", timeout: 3) {
             touchThing(wall)
+            XCTAssertTrue(waitForField(poor, "count:touch-wall-0", timeout: 3), "the board comes up")
             waitForStill(poor)
-            if element(poor, "touch-slip").waitForExistence(timeout: 4) {
-                pause(0.4)
-                attach(XCUIScreen.main.screenshot(), "153a-touch-wall-short-\(language)")
-            } else {
-                XCTFail("no price over the gate with an empty treasury")
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "153a-touch-wall-short-\(language)")
+            if let again = waitForThing(poor, "touch-wall-0", timeout: 2) {
+                touchThing(again)
+                XCTAssertTrue(waitForField(poor, "last:short:touch-wall-0", timeout: 3), "short of gold: nothing paid")
             }
         }
         poor.terminate()

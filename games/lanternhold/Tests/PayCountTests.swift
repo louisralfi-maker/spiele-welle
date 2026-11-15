@@ -217,10 +217,12 @@ final class PayCountTests: XCTestCase {
         count.arrive()
         count.tap()
         _ = run(&count, seconds: 0.1, gold: 100)
-        _ = run(&count, seconds: 2.05, gold: 100)
-        XCTAssertEqual(count.result, .letGo)
-        XCTAssertEqual(count.slideShare ?? -1, 0, accuracy: 0.2)
-        _ = run(&count, seconds: PayCount.slideSeconds, gold: 100)
+        XCTAssertNil(count.slideShare, "the coin lies on the board")
+        var beats: [PayBeat] = []
+        while !beats.contains(.slideBack) { beats += count.step(step, gold: 100) }
+        XCTAssertEqual(count.result, .letGo, "two seconds without a touch")
+        XCTAssertEqual(count.slideShare ?? -1, 0, accuracy: 0.06, "the slide starts")
+        _ = run(&count, seconds: PayCount.slideSeconds + step, gold: 100)
         XCTAssertEqual(count.slideShare ?? 0, 1, accuracy: 1e-9, "back in 0.3 s")
     }
 
