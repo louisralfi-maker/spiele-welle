@@ -180,7 +180,7 @@ def noon():
              hud_card()]
     return {"src": S13 + "55-talk-en.jpg",
             "shadows": [(BUBBLE, 18, 9, 0.35), (HUD, 9, 6, 0.45), (CAPTION, 9, 6, 0.45)],
-            "cards": cards}
+            "hide": [(1140, 843, 1197, 866)], "cards": cards}
 
 
 PROOFS["noon"] = noon
