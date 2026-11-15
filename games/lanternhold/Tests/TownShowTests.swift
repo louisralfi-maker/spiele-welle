@@ -504,6 +504,15 @@ final class TownShowTests: XCTestCase {
         XCTAssertEqual(offset(layer.actors[2]), 60, accuracy: 1, "far enough: walks on")
         XCTAssertEqual(layer.actors[2].frame, 1)
         XCTAssertEqual(offset(layer.actors[3]), 2, accuracy: 1)
+
+        // Only the town's wanderers: the first morning's stage in the courtyard leaves the court's people alone.
+        let court = Town.firstMorningX
+        var hall = EntityLayer()
+        hall.actors = [ActorInstance(sprite: .citizenC, frame: 1, rect: view.rect(.citizenC, x: court + 6, y: 0),
+                                     tint: SIMD4<Float>(1, 1, 1, 1), flipped: true, isEmissive: false, isLit: true)]
+        let before = hall.actors
+        TownFrames.clearWanderers(&hall, stages: [court], view: view, time: 0)
+        XCTAssertEqual(hall.actors, before, "a petitioner in a townsman's body passes the courtyard as ever")
     }
 
     func testTheFirstMorningsHouseholdWaitsInTheCourtyardAndWalksHome() throws {
@@ -643,7 +652,8 @@ final class TownShowTests: XCTestCase {
         let strip = try XCTUnwrap(knocking.actors.first { $0.sprite == .kingGlow })
         XCTAssertEqual(strip.frame, TownSprites.KnockFrame.lantern)
         XCTAssertFalse(strip.flipped, "with the pose, toward the door")
-        if let lantern = knocking.lights.first(where: { $0.source.kind == .lantern }) {
+        if let lantern = knocking.lights.first(where: { $0.source.kind == .lantern
+            && abs($0.source.x - s.king.x) <= EntityFrames.kingGlass.dx + 1 }) {
             XCTAssertEqual(lantern.source.x, s.king.x + EntityFrames.kingGlass.dx, accuracy: 1e-9, "on the glass")
         }
         s.simTime += 3

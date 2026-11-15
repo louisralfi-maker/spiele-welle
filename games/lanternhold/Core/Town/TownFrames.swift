@@ -35,6 +35,9 @@ enum TownFrames {
     static let wanderFadeFrom = 20.0
     static let wanderGone = 10.0
     static let wanderers: Set<SpriteID> = [.citizen, .citizenB, .citizenC]
+    /// The wanderers walk the town only: a place where the taxes happen west of this (the first morning's courtyard)
+    /// moves nobody, so the court's people in townsfolk bodies (petitioners) are never touched.
+    static var townWest: Double { (WorldLayout.townPlots.map(\.start).min() ?? 0) - wanderClear }
 
     /// The collector's stand-in on his round (fix round 1), until the people lane's collector (Saul Wicket with his
     /// handcart, people-2) draws him from `TownShow.Scene.collector`: a townsman's body walking at his place. Set false
@@ -145,11 +148,13 @@ enum TownFrames {
                                 frame: coin.frame))
     }
 
-    /// The town's wanderers keep clear of every place where the taxes happen now (`TownShow.Scene.stages`): one within
-    /// `wanderClear` of it stands at that distance on its own side, idle and facing it, fading from `wanderFadeFrom`
-    /// nearer and gone within `wanderGone` (never pushed into another such place's room).
-    static func clearWanderers(_ layer: inout EntityLayer, stages: [Double], view: EntityFrames.ActorView,
+    /// The town's wanderers keep clear of every place in the town where the taxes happen now (`TownShow.Scene.stages`
+    /// east of `townWest`): one within `wanderClear` of it stands at that distance on its own side, idle and facing
+    /// it, fading from `wanderFadeFrom` nearer and gone within `wanderGone` (never pushed into another such place's
+    /// room).
+    static func clearWanderers(_ layer: inout EntityLayer, stages all: [Double], view: EntityFrames.ActorView,
                                time: Double) {
+        let stages = all.filter { $0 >= townWest }
         guard !stages.isEmpty else { return }
         let scale = Float(max(1, view.scale))
         var gone: [Int] = []
