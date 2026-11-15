@@ -6,8 +6,8 @@ Writes three PNGs at the engine's sizes (SpriteID.darknessBank 64x236, darknessE
                         its top 36 rows thinning in an ordered dither
   darknessEdge.png      the leading edge: the same soot thinning to the right in a dithered band with reaching fingers;
                         its left column continues the body
-  darknessBankGlow.png  4 frames of 64x236 for the port: pairs of cold eyes at many heights that blink out for a frame,
-                        and a few motes of cold ash; nothing in it is opaque soot
+  (darknessBankGlow.png, 4 frames of 64x236 of eyes and motes: no longer written since the world rebuild's fix round
+                        1; tools/fogart.py paints the bank's eyes)
 
 Pure python, deterministic, about two seconds.   bankart.py [--out DIR]
 """
@@ -101,7 +101,9 @@ def main():
         for (x, y, ph) in motes:
             if (k + ph) % 4 < 2:
                 glow.set(k * W + x, y - (k + ph) % 4, pal.color("wraithDim") + (255,))
-    for name, img in (("darknessBank", body), ("darknessEdge", edge), ("darknessBankGlow", glow)):
+    # World rebuild, fix round 1: darknessBankGlow is one pair of eyes in four frames of 9x3 now, painted by
+    # tools/fogart.py (build-art-world.sh); this strip is no longer written.
+    for name, img in (("darknessBank", body), ("darknessEdge", edge)):
         write_png(os.path.join(out, name + ".png"), img)
         print(f"wrote {name}.png {img.w}x{img.h}")
 

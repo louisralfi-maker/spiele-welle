@@ -721,3 +721,218 @@ final class FrameBuilderTests: XCTestCase {
     ]
     // END layout_m1b
 }
+
+// MARK: - World rebuild, step world-1 (DESIGN.md "World rebuild (14.11.2026)"; docs/REVIEW-look-2.md B4)
+
+extension FrameBuilderTests {
+    /// The fog sprites of look 2 whose ends could show: the hour's three banks, the darkness bank's sheets and the
+    /// Gloom's strips.
+    static let fogSprites: Set<SpriteID> = [.d2FogBank, .d2MistBand, .d2FogLow, .bankSheetA, .bankSheetB, .bankSheetC,
+                                            .gloomFogBack, .gloomFogMid, .gloomFogFront, .bankEnd]
+
+    /// B4: no fog ends in a straight line. The art: every fog sprite feathers out at both ends (its outermost columns
+    /// clear, its cover growing over the feather; the Gloom's strips run out clear at their leading face and repeat
+    /// seamlessly behind it), and the hour's fog tiles' feathers are complementary inside their 64 px overlap. The
+    /// frames: from the bank to the river, by day, at dusk, at night and on a hard fog night, no fog instance's edge
+    /// column falls inside the view without a feather or a neighbour that goes on (64 px over it, or a slice of the
+    /// same strip right against it).
+    func testNoFogEdgeEndsInTheViewWithoutAFeatherOrANeighbour() {
+        let layout = AtlasLayout.shared
+        func cover(_ cell: AtlasCell, _ column: Int) -> Int {
+            (0..<cell.height).reduce(0) { $0 + Int(layout.image[cell.x + column, cell.y + $1].a) }
+        }
+        let tiles: [SpriteID] = [.d2FogBank, .d2MistBand, .d2FogLow]
+        let sheets: [SpriteID] = [.bankSheetA, .bankSheetB, .bankSheetC]
+        for sprite in tiles + sheets {
+            let cell = layout.cell(sprite, frame: 0)
+            XCTAssertEqual(layout.sources[sprite], .png, "\(sprite) is painted")
+            XCTAssertEqual(cover(cell, 0), 0, "\(sprite): its west column is clear")
+            XCTAssertEqual(cover(cell, cell.width - 1), 0, "\(sprite): its east column is clear")
+            XCTAssertLessThan(cover(cell, 6), cover(cell, 60), "\(sprite): the cover grows over its west feather")
+        }
+        for sprite in [SpriteID.gloomFogBack, .gloomFogMid, .gloomFogFront] {
+            let face = layout.cell(sprite, frame: 1)
+            XCTAssertEqual(cover(face, face.width - 1), 0, "\(sprite): its leading face runs out clear")
+        }
+        // Fix round 1: the bank's face frame starts like a body tile, and the world's end runs out clear eastward.
+        for sprite in sheets {
+            let face = layout.cell(sprite, frame: 1)
+            XCTAssertEqual(cover(face, 0), 0, "\(sprite): its face frame's west column is clear")
+            XCTAssertEqual(cover(face, face.width - 1), 0, "\(sprite): its leading face runs out clear")
+        }
+        let end = layout.cell(.bankEnd, frame: 0)
+        XCTAssertEqual(cover(end, end.width - 1), 0, "the world's end thins out to nothing")
+        XCTAssertEqual(cover(end, 0), end.height * 255, "where the world ends the dark is whole")
+        // The hour's tiles and (fix round 1) the bank's body tiles hold every pixel of their overlap exactly once.
+        for sprite in tiles + sheets {
+            let cell = layout.cell(sprite, frame: 0)
+            let period = cell.width - FrameBuilder.fogOverlap
+            var both = 0
+            var held = 0
+            for x in 0..<FrameBuilder.fogOverlap {
+                for y in 0..<cell.height {
+                    let east = layout.image[cell.x + x, cell.y + y].a > 0
+                    let west = layout.image[cell.x + x + period, cell.y + y].a > 0
+                    if east && west { both += 1 }
+                    if east || west { held += 1 }
+                }
+            }
+            XCTAssertEqual(both, 0, "\(sprite): inside the overlap one tile or the other holds a pixel, never both")
+            XCTAssertGreaterThan(held, 0)
+        }
+
+        var options = FrameOptions(flickerTime: 2.5)
+        options.look = .two
+        let world = PlaceholderScene.world(look: .two)
+        var checked = 0
+        for hour in [0.5, 0.8, 0.96] {
+            for gloom in [nil, GloomFog(hardness: 1)] {
+                options.gloom = gloom
+                var focus = 0.0
+                while focus <= WorldLayout.width {
+                    let desc = frame(timeOfDay: hour, focus: focus, options: options, scene: world)
+                    let right = Float(desc.targetWidth) - 0.5
+                    for plane in [Plane.mistBand, .fogA, .world, .fogB] {
+                        let fog = desc.layer(plane).sprites.filter { FrameBuilderTests.fogSprites.contains($0.sprite) }
+                        for item in fog {
+                            for west in [true, false] {
+                                let edge = west ? item.rect.x : item.rect.x + item.rect.z
+                                guard edge > 0.5 && edge < right else { continue }
+                                checked += 1
+                                if FrameBuilderTests.feathered(item, west: west) { continue }
+                                let goesOn = fog.contains { other in
+                                    guard other != item, other.sprite == item.sprite,
+                                          other.rect.y == item.rect.y else { return false }
+                                    if item.source != nil {
+                                        return west ? other.rect.x + other.rect.z == edge : other.rect.x == edge
+                                    }
+                                    return other.rect.x <= edge - 32 && other.rect.x + other.rect.z >= edge + 32
+                                }
+                                XCTAssertTrue(goesOn, "\(item.sprite) ends in the view at \(edge) (focus \(focus), "
+                                              + "hour \(hour * 24), \(plane))")
+                            }
+                        }
+                    }
+                    focus += 100
+                }
+            }
+        }
+        XCTAssertGreaterThan(checked, 100, "edges were checked")
+    }
+
+    /// The sides of a fog instance whose art feathers out: the hour's banks and the bank's sheets at both ends, a
+    /// Gloom strip's leading face (frame 1) at its east end; a slice of a strip only where it is the strip's end.
+    static func feathered(_ item: SpriteInstance, west: Bool) -> Bool {
+        switch item.sprite {
+        case .d2FogBank, .d2MistBand, .d2FogLow, .bankSheetA, .bankSheetB, .bankSheetC:
+            return true
+        case .bankEnd:
+            return !west
+        case .gloomFogBack, .gloomFogMid, .gloomFogFront:
+            guard !west, item.frame == 1 else { return false }
+            guard let source = item.source else { return true }
+            return Int(source.x + source.z) == item.sprite.size.width
+        default:
+            return false
+        }
+    }
+
+    /// The backdrop pieces of the far and the mid plane whose ends could stand in the view as a vertical seam.
+    static let backdrops: Set<SpriteID> = [.shadowForest, .throatStepA, .throatStepB, .throatStepC, .cleftWallA,
+                                           .cleftWallB, .cleftWallC, .weltmauer, .valleyVista,
+                                           .d2FirBeltFar, .d2TreeBelt]
+
+    /// B5 (and B6, H1): from the Throat through the castle to the valley (camera centres 1200 to 2500 in 20 px steps)
+    /// no backdrop piece ends in a vertical seam in the view. Wherever a piece's end column stands inside the view,
+    /// every row its art holds there is covered by something opaque drawn in front of it (later on its own plane, or
+    /// on a nearer plane: the mid plane for the far one, the mist band, the near plane, the world plane with the
+    /// gates' masonry), or its art is clear there. Inside the walls the far plane is gone (the cleft wall fills the
+    /// view up to its slit of sky) and the cleft wall is the mid plane.
+    func testNoBackdropEndsInASeamFromTheThroatToTheValley() {
+        let layout = AtlasLayout.shared
+        func texel(_ item: SpriteInstance, column: Int, row: Int) -> RGBA? {
+            let cell = layout.cell(item.sprite, frame: item.frame)
+            guard column >= 0, column < cell.width, row >= 0, row < cell.height else { return nil }
+            let x = item.flipped ? cell.width - 1 - column : column
+            return layout.image[cell.x + x, cell.y + row]
+        }
+        func opaque(_ item: SpriteInstance, column: Int, row: Int) -> Bool {
+            (texel(item, column: column, row: row)?.a ?? 0) > 128
+        }
+        /// The colour a plain sprite shows at screen pixel x, y (nil: not there or clear).
+        func colour(_ item: SpriteInstance, x: Int, y: Int) -> RGBA? {
+            guard item.source == nil else { return nil }
+            let t = texel(item, column: x - Int(item.rect.x.rounded()), row: y - Int(item.rect.y.rounded()))
+            return (t?.a ?? 0) > 128 ? t : nil
+        }
+        /// True when `item` hides screen pixel x, y of something drawn behind it at `alpha` (a cover fading with the
+        /// far plane hides what fades with it).
+        func covers(_ item: SpriteInstance, x: Int, y: Int, over alpha: Float = 1) -> Bool {
+            guard item.tint.w > 0.9 || item.tint.w >= alpha - 0.01 else { return false }
+            let column = x - Int(item.rect.x.rounded())
+            let row = y - Int(item.rect.y.rounded())
+            guard column >= 0, row >= 0, column < Int(item.rect.z), row < Int(item.rect.w) else { return false }
+            return opaque(item, column: column + Int(item.source?.x ?? 0), row: row + Int(item.source?.y ?? 0))
+        }
+        var options = FrameOptions(flickerTime: 2.5)
+        options.look = .two
+        let world = PlaceholderScene.world(look: .two)
+        var checked = 0
+        // World-2 (the critic of world-1, look 3: "a far-plane mountain ends in a vertical seam at the back gate"):
+        // the sweep runs on to camera 2600, at noon and at dusk, the far plane included.
+        for (timeOfDay, focusStart) in [(0.5, 1200.0), (0.8, 1200.0)] {
+        var focus = focusStart
+        while focus <= 2600 {
+            let desc = frame(timeOfDay: timeOfDay, focus: focus, options: options, scene: world)
+            let mid = desc.layer(.mid).sprites
+            let nearer = desc.layer(.mistBand).sprites + desc.layer(.near).sprites + desc.layer(.world).sprites
+            if focus >= 1400 && focus <= 2300 {
+                XCTAssertTrue(desc.layer(.far).sprites.isEmpty, "the far plane shows inside the walls at \(focus)")
+                let cleft: Set<SpriteID> = [.throatStepC, .cleftWallA, .cleftWallB, .cleftWallC]
+                let centre = desc.targetWidth / 2
+                let row = desc.targetHeight / 2
+                XCTAssertTrue(mid.contains { cleft.contains($0.sprite) && covers($0, x: centre, y: row) },
+                              "the cleft wall stands behind the castle at \(focus)")
+            }
+            // The cleft's canvas is one painting cut in four: a piece's end that meets the next piece goes on.
+            let canvas: Set<SpriteID> = [.throatStepC, .cleftWallA, .cleftWallB, .cleftWallC]
+            for plane in [Plane.far, .mid] {
+                let sprites = desc.layer(plane).sprites
+                for (index, item) in sprites.enumerated() where FrameBuilderTests.backdrops.contains(item.sprite) {
+                    guard item.tint.w > 0.5, item.source == nil else { continue }
+                    let left = Int(item.rect.x.rounded())
+                    let width = Int(item.rect.z)
+                    for (column, edge) in [(0, left), (width - 1, left + width - 1)] {
+                        guard edge > 0 && edge < desc.targetWidth - 1 else { continue }
+                        checked += 1
+                        let west = column == 0
+                        let goesOn = canvas.contains(item.sprite) && sprites.contains { other in
+                            canvas.contains(other.sprite) && other.rect.y == item.rect.y
+                                && (west ? Int(other.rect.x.rounded()) + Int(other.rect.z) == left
+                                         : Int(other.rect.x.rounded()) == edge + 1)
+                        }
+                        if goesOn { continue }
+                        let front = Array(sprites[(index + 1)...]) + (plane == .far ? mid : []) + nearer
+                        let behind = sprites[..<index]
+                        var open = 0
+                        for row in 0..<Int(item.rect.w) where opaque(item, column: column, row: row) {
+                            let y = Int(item.rect.y.rounded()) + row
+                            guard y >= 0 && y < desc.targetHeight else { continue }
+                            if front.contains(where: { covers($0, x: edge, y: y, over: item.tint.w) }) { continue }
+                            // A patch painted over its own wall (the Weltmauer's patch) shows no seam where the wall
+                            // under it has the same colour.
+                            let mine = colour(item, x: edge, y: y)
+                            if let mine, behind.contains(where: { colour($0, x: edge, y: y) == mine }) { continue }
+                            open += 1
+                        }
+                        XCTAssertLessThanOrEqual(open, 2, "\(item.sprite) (\(plane)) ends in the view at column "
+                                                 + "\(edge) with \(open) open rows (camera centre \(focus))")
+                    }
+                }
+            }
+            focus += 20
+        }
+        }
+        XCTAssertGreaterThan(checked, 20, "ends were checked")
+    }
+}

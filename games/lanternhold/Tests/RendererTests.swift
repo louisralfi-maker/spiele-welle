@@ -17,7 +17,7 @@ final class RendererTests: XCTestCase {
 
     func testStructStridesMatchTheShaders() {
         XCTAssertEqual(MemoryLayout<SpriteQuad>.stride, 48)
-        XCTAssertEqual(MemoryLayout<LightQuad>.stride, 32)
+        XCTAssertEqual(MemoryLayout<LightQuad>.stride, 48)   // world-2 fix round 2: the pool's cut
         XCTAssertEqual(MemoryLayout<ActorQuad>.stride, 64)
         XCTAssertEqual(MemoryLayout<LightPassUniforms>.stride, 32)
         XCTAssertEqual(MemoryLayout<BloomUniforms>.stride, 48)

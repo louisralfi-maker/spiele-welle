@@ -83,6 +83,9 @@ struct Prop: Sendable, Equatable {
     var sunShadow: SunShadow?
     /// A bank of ground mist: drawn white at this share of the hour's mist strength, never hiding glow (nil: none).
     var mist: Float?
+    /// World rebuild (step world-1): a shaft of light, drawn white at this share of the sun's strength, never hiding
+    /// glow (nil: an ordinary prop).
+    var sunShaft: Float?
     /// False for a snuffed brazier: no lights and no fire emissives.
     var isLit: Bool
     /// The atlas frame drawn (M2b: a damaged wall, a gate's state, an engine that has just fired); 0 for the scene.
@@ -94,7 +97,8 @@ struct Prop: Sendable, Equatable {
          flipped: Bool = false, anchor: PropAnchor = .ground, region: WorldLayout.Region = .all,
          emissive: [EmissivePart] = [], masks: [GlassMask] = [], lights: [LightSource] = [],
          fade: ClosedRange<Double>? = nil, fadeOut: ClosedRange<Double>? = nil, movesWith: Plane? = nil,
-         sunShadow: SunShadow? = nil, mist: Float? = nil, isLit: Bool = true, frame: Int = 0, alpha: Float = 1) {
+         sunShadow: SunShadow? = nil, mist: Float? = nil, sunShaft: Float? = nil, isLit: Bool = true, frame: Int = 0,
+         alpha: Float = 1) {
         self.id = id
         self.sprite = sprite
         self.plane = plane
@@ -115,6 +119,7 @@ struct Prop: Sendable, Equatable {
         self.movesWith = movesWith
         self.sunShadow = sunShadow
         self.mist = mist
+        self.sunShaft = sunShaft
         self.isLit = isLit
         self.frame = frame
         self.alpha = alpha
@@ -275,9 +280,9 @@ struct PlaceholderScene: Sendable, Equatable {
     ///
     /// Look 2 (DESIGN.md "Look 2 port", tools/scenemock/layout_look2.py): the same world without the tile cycles and
     /// the backdrop pieces look 2 replaces (`SceneLayout.dropsInLook2`), then look 2's own entries
-    /// (`SceneLayout.look2`: the Weltmauer and the far castle's glow, the shadow land's firs, the Throat's rock and
-    /// the warden statue in its wall, the valley's vista and trees, the foreground), then the castle's cliffs in
-    /// granite, last as in the mock.
+    /// (`SceneLayout.look2`: the Weltmauer, the shadow land's firs, the warden statue, the Throat's steps and the
+    /// cleft wall of the world rebuild, the valley's vista and trees, the foreground). Since the world rebuild no
+    /// granite stands on the walk line before the gatehouse (DESIGN.md "World rebuild (14.11.2026)").
     static func world(seed: UInt64 = 1, look: LookVersion = .one,
                       castle: CastleStage = .standard) -> PlaceholderScene {
         var builder = SceneBuilder(seed: seed)
@@ -299,10 +304,9 @@ struct PlaceholderScene: Sendable, Equatable {
                     builder.add(staged, plane: item.plane)
                 }
             }
-            for entry in SceneLayout.world {
-                guard let granite = SceneLayout.look2Cliffs[entry.sprite] else { continue }
-                builder.add(SceneLayout.Entry(sprite: granite, x: entry.x, y: entry.y, z: entry.z,
-                                              shade: entry.shade, flipped: entry.flipped), plane: .world)
+            // World rebuild, step world-2 (SceneLayoutCastle.swift): one castle, exteriors only, at its stage.
+            for item in SceneLayout.look2CastleExteriors(castle) {
+                builder.add(item.entry, plane: item.plane)
             }
         } else {
             for cycle in SceneLayout.cycles {
@@ -356,6 +360,7 @@ private struct SceneBuilder {
         case .fireOrange: return GamePalette.fireOrange
         case .window: return windowColor
         case .cleft: return cleftColor
+        case .moon: return GamePalette.moon
         }
     }
 
@@ -381,16 +386,17 @@ private struct SceneBuilder {
         for light in entry.lights {
             let seed = nextLightSeed()
             seeds.append(seed)
-            let intensity = light.kind == .window ? 0.8 : 1
+            let intensity = light.intensity ?? (light.kind == .window ? 0.8 : 1)
             lights.append(LightSource(kind: light.kind, x: light.x, y: light.y, radius: light.radius,
-                                      intensity: intensity, flickerSeed: seed))
+                                      color: light.color, intensity: intensity, flickerSeed: seed,
+                                      squash: light.squash, clip: light.clip))
         }
         var parts: [EmissivePart] = []
         var masks: [GlassMask] = []
         for emitter in entry.emitters {
             switch emitter {
             case let .sprite(sprite, dx, dy, glow, fades):
-                let isWindow = glow == .window || glow == .cleft
+                let isWindow = glow == .window || glow == .cleft || glow == .moon
                 var seed: UInt64?
                 if !isWindow {
                     seed = parts.count < seeds.count ? seeds[parts.count] : nextLightSeed()
@@ -404,7 +410,8 @@ private struct SceneBuilder {
         append(Prop(id: props.count + 1, sprite: entry.sprite, plane: plane, x: entry.x, y: entry.y, z: entry.z,
                     shade: entry.shade, flipped: entry.flipped, anchor: entry.anchor, region: region,
                     emissive: parts, masks: masks, lights: lights, fade: entry.fade, fadeOut: entry.fadeOut,
-                    movesWith: entry.movesWith, sunShadow: entry.sunShadow, mist: entry.mist))
+                    movesWith: entry.movesWith, sunShadow: entry.sunShadow, mist: entry.mist,
+                    sunShaft: entry.sunShaft))
     }
 
     private mutating func append(_ prop: Prop) {

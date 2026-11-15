@@ -44,10 +44,14 @@ build() { # name: one sprite
                    python3 -I -B $T grid $G/$1.txt $A/$1.png
                    relit $1 ;;
     stoneWall|bastion|rubbleWood|rubbleStone|scaffold|gateWood|gateIron|gateGreat|gateBroken|archerTower|watchtower|\
-    fireTower|catapult|stakePit|beaconTower|greatBeacon|beaconFire|barracks|smithy|masterSmithy|lodge|bigLodge|\
+    fireTower|catapult|stakePit|beaconTower|greatBeacon|beaconFire|\
     plotMarker|arrow|fireArrow|bolt|firepot)
                    python3 -I -B $T grid $GB/$1.txt $A/$1.png
                    relit $1 ;;
+    # world rebuild, step world-2 (ART-look2.md section 23): the bailey's lean-tos in granite and slate, painted by
+    # keepart.py; their grids in grids/buildings stay, unused
+    barracks|smithy|masterSmithy|lodge|bigLodge)
+                   python3 -I -B games/lanternhold/tools/keepart.py build $1 --out $A ;;
     # look 2, stage 4 (ART-look2.md section 15): painted by townart.py; their grids in grids/buildings stay, unused
     bigHouse|market|tavern|bigHouseLit|tavernLit)   # …Lit: the lit rooms at night (stage 6, ART-look2.md section 18)
                    python3 -I -B games/lanternhold/tools/townart.py build $1 --out $A ;;

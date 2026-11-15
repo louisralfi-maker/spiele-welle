@@ -66,6 +66,9 @@ enum GameStart {
         applyNumbers(&dawn, args: args)
         applyHouses(&state, args: args)
         applyHouses(&dawn, args: args)
+        // World-2 fix round 1 (GameStartCastle.swift): `-GWCastle` sets the gate's tier too.
+        applyCastle(&state, args: args, balance: balance)
+        applyCastle(&dawn, args: args, balance: balance)
         if let lord = args.lordIdentity {
             state.lord = lord
             dawn.lord = lord

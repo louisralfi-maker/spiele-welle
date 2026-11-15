@@ -178,8 +178,6 @@ RIDGE_TEETH, RIDGE_MEAN, RIDGE_BASE = 0.4, 18, 150   # the teeth's share, their 
 MASSIFS = [(40, 84, 150), (150, 196, 252), (252, 296, 352), (352, 384, 452), (452, 500, 532), (532, 580, 680),
            (680, 700, 760)]
 SNOW_ROW = 44      # the snow line's mean row: snow on the top quarter and in the gullies, rock below
-GULLY_REACH = 46   # a gully's snow runs at most this far below the snow line
-COULOIRS = [(150, 37), (252, 35), (452, 36), (532, 34), (104, 24), (482, 21), (404, 22), (604, 21)]  # (x, row) heads
 
 
 def vnoise(seed, u):  # smooth value noise in [0, 1)
@@ -250,8 +248,9 @@ def regrade(img, tops):
     colour comes from the kind, the massif's side and the snow line. Above the snow line a massif's lit side is one
     snow cap (mistLight, the painting's shaded facets as folds of moon), its summit as painted (snow and shaded snow
     of far, dark rock in patches), its shade flank dark rock with shaded snow. Below the line the wall is the granite
-    ramp: the lit side rock and rockLight with rockDark shade, the shade flank rockDark with rockDeep shade; snow
-    only in the gullies, for GULLY_REACH rows."""
+    ramp: the lit side rock and rockLight with rockDark shade, the shade flank rockDark with rockDeep shade. Since the
+    world rebuild's fix round 1 no snow hangs in the gullies or couloirs below the line (they read as an icicle
+    curtain): the snow is the caps (`clean_snow`)."""
     lvl = {col(n): i for i, n in enumerate(FARW)}
     c = {n: col(n) for n in ("rockDeep", "rockDark", "rock", "rockLight", "rockPale", "far", "moon", "mist", "farPale",
                              "mistLight", "foam", "farDeep")}
@@ -292,7 +291,9 @@ def regrade(img, tops):
             else:                                        # the rock
                 b = y - sl
                 if q == 2:
-                    v = "farPale" if b < GULLY_REACH else "rockLight"
+                    # world rebuild, fix round 1 (the critic: "an icicle curtain of vertical snow drips"): no snow in
+                    # the gullies below the line; the painting's snow there is lit rock, and the snow lies on shelves
+                    v = "rockLight" if side < 0 else "rock"
                 elif q == 1:
                     crack = h01(67, x, y // 7) < 0.05
                     if side < 0:
@@ -301,7 +302,7 @@ def regrade(img, tops):
                         v = "rockLight" if arete else "rockDark" if crack or patch < 0.18 else "rock"
                     else:
                         v = "rock" if arete else "rockDark"
-                    if b < 5 and h01(73, x // 2, y) < 0.45 - 0.08 * b:   # the snow's ragged hem
+                    if b < 2:   # the snow's hem: a clean edge of one or two rows (fix round 1: no speckle)
                         v = "mist"
                 else:
                     if side < 0:
@@ -310,22 +311,37 @@ def regrade(img, tops):
                         v = "rockDark" if patch > 0.66 and not core else "rockDeep"
                     else:
                         v = "rockDeep"
-                    if b < 4 and h01(83, x // 2, y) < 0.3:
+                    if b < 1:
                         v = "far"
             out.set(x, y, c[v])
-    for hx, hy in COULOIRS:                               # snow couloirs below the saddles and notches
-        x = float(hx)
-        y0 = max(hy, tops[hx] + 1)
-        ln = 34 + int(30 * h01(89, hx))
-        for i in range(ln):
-            y = y0 + i
-            x += (h01(97, hx, i // 3) - 0.5) * 1.2
-            wd = max(1.0, 3.0 - 2.4 * i / ln)
-            for j in range(int(round(wd))):
-                xx = int(x) + j
-                if 0 <= xx < img.w and out.get(xx, y)[3] and y > tops[xx] + 1:
-                    out.set(xx, y, c["mistLight" if j == 0 and i < ln * 0.6 else "farPale"])
+    clean_snow(out, c)
     return out
+
+
+def clean_snow(out, c):
+    """World rebuild, fix round 1 (the critic: "an icicle curtain", "no checkerboard"; the director: "few large snow
+    fields, no patch under about 6 px; the far wall is the calmest plane"): below the snow line no snow hangs in the
+    gullies; any patch of snow left there under 6 px takes the rock's colour, so the snow is the caps on the massifs'
+    upper faces with a clean hem, and the ridgelines are drawn by the lit and the shaded sides of the rock."""
+    flakes = {c["mistLight"], c["farPale"], c["foam"]}
+    seen = set()
+    for y in range(out.h):
+        for x in range(out.w):
+            if (x, y) in seen or out.get(x, y) not in flakes or y < snow_row(x):
+                continue
+            stack, cells = [(x, y)], []
+            seen.add((x, y))
+            while stack:
+                cx, cy = stack.pop()
+                cells.append((cx, cy))
+                for nx, ny in ((cx - 1, cy), (cx + 1, cy), (cx, cy - 1), (cx, cy + 1)):
+                    if 0 <= nx < out.w and 0 <= ny < out.h and (nx, ny) not in seen and out.get(nx, ny) in flakes \
+                            and ny >= snow_row(nx):
+                        seen.add((nx, ny))
+                        stack.append((nx, ny))
+            if len(cells) < 6:
+                for cx, cy in cells:
+                    out.set(cx, cy, c["rock"])
 
 
 SLOT_HALF, SLOT_TOP = 20, 13   # the cleft's half width at the castle (as wide as the castle) and toward the ridge

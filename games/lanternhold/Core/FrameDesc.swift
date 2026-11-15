@@ -67,15 +67,16 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Look 2's weather (docs/PORT-look2.md 3): the rain's streaks (nine frames: three depths by three slants) and
     // the splash on the lane (three frames), painted in code until the art lane brings them
     case rainStreak, rainSplash
-    // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer with the far castle in its
-    // slot, the patch that hides the baked castle from the valley, and the slot's lights
-    case weltmauer, weltmauerPatch, farCastleGlow, farCastlePane, farCleftGlow, farCleftGlowBack
-    // Far and mid: the fir belt, the shadow land's forest, the Throat's rock, the cleft's faces, the valley
-    case d2FirBeltFar, shadowForest, gorgeRock, cleftFace, cleftFaceEnd, valleyVista, d2TreeBelt
-    // Near plane (0.75): the Throat's crags and the trees of both lands
-    case gorgeCrags, firA, firB, firC, firD, deadTreeA, deadTreeB, linden, poplar, appleTree, willow
-    // World plane: the cleft's flanks at the castle, bushes, the lane's end and the four lanes (variants A to D)
-    case cleftFlank, cleftFlankB, cleftThroat, d2BushA, d2BushB, d2LaneEnd
+    // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer (world-2: one castle, the
+    // far castle in its slots, the patch and the slots' lights are gone)
+    case weltmauer
+    // Far and mid: the fir belt, the shadow land's forest, the valley (the world rebuild took the Throat's rock and
+    // the cleft's faces out: they are the steps and the cleft wall below)
+    case d2FirBeltFar, shadowForest, valleyVista, d2TreeBelt
+    // Near plane (0.75): the trees of both lands
+    case firA, firB, firC, firD, deadTreeA, deadTreeB, linden, poplar, appleTree, willow
+    // World plane: bushes, the lane's end and the four lanes (variants A to D)
+    case d2BushA, d2BushB, d2LaneEnd
     case laneMoorA, laneMoorB, laneMoorC, laneMoorD, laneScreeA, laneScreeB, laneScreeC, laneScreeD
     case laneCobbleA, laneCobbleB, laneCobbleC, laneCobbleD, laneEarthA, laneEarthB, laneEarthC, laneEarthD
     // Foreground plane
@@ -84,14 +85,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case d2FogBank, d2MistBand, d2FogLow, d2Smoke, d2Fireflies, d2Sparks
     // The darkness bank's emissive strip (4 frames, ART-look2.md 11.5)
     case darknessBankGlow
-    // The castle's tiers 2 and 3 and their building states (SPRITES.md "The castle grows"; drawing only)
-    case keepTop2, keepTop2Build, keepTop3, keepTop3Build, castleFront3, castleFront3Build, castleFrontScaffold
-    case backTop2, backTop2Build, backTop3, backTop3Build
-    case farCastle2, farCastle2Build, farCastle3, farCastle3Build
-    case farCastleBack2, farCastleBack2Build, farCastleBack3, farCastleBack3Build
-    case farCastle2Glow, farCastle3Glow, farCastleBack2Glow, farCastleBack3Glow
-    case farCleftGlow2, farCleftGlow2Build, farCleftGlow3, farCleftGlow3Build
-    case farCleftGlowBack2, farCleftGlowBack2Build, farCleftGlowBack3, farCleftGlowBack3Build
+    // The gatehouse's tier 3 and its building state, the scaffold before the front (SPRITES.md "The castle grows";
+    // world-2: the keep's copies and the far castles are gone, the one keep is below)
+    case castleFront3, castleFront3Build, castleFrontScaffold
     // The lord pass (SPRITES.md "The lord pass"): the Burgherrin (the Burgherr's frames) and her glow strip, the lord
     // seated on the throne (sit down 0-1, seated idle 2-3) with the glow strips, her portrait, and the three
     // townsfolk seated on a petitioners' bench (seated 0, a nod 1)
@@ -112,6 +108,31 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // creeping fog before it (two frames each: the body that repeats, the leading face), the shred that tears off
     // the front, the cold eyes in the bank's heart (an emissive)
     case gloomFogBack, gloomFogMid, gloomFogFront, gloomWisp, gloomFogEyes
+    // World rebuild, step world-1 (SPRITES.md "The rock and the fog"; look 2 only): the Throat's far wall in three
+    // steps, the cleft wall behind the castle and the cold shaft of light through its slit (mid plane), the granite
+    // the gatehouse's towers grow out of (world plane), the darkness bank's three sheets (fog A, world, fog B)
+    case throatStepA, throatStepB, throatStepC, cleftWallA, cleftWallB, cleftWallC, cleftShaft
+    case gateRockL, gateRockR, bankSheetA, bankSheetB, bankSheetC
+    // World rebuild, fix round 1 (SPRITES.md "The rock and the fog"): where the world ends the dark is whole (fog B,
+    // drawn black), the deck of cloud across the Weltmauer with its ragged underside and veil of mist (far plane), and
+    // a thread of falling water on the cleft wall (mid plane, four frames), the moor's oldest ruin (near plane)
+    case bankEnd, cloudDeck, cleftWater, moorRuin
+    // World rebuild, fix round 2: where the castle's cobbles give way to the valley's earth lane (tools/lanejoin.py)
+    case laneCobbleEnd
+    // World rebuild, step world-2 (SPRITES.md "One castle"; tools/keepart.py): the one keep per tier and its building
+    // states (mistBand parallax), the curtain wall, its stair, tower, hoarding and banner, the forebuilding with the hall
+    // door (closed, open) and the hall's light through it and on the cobbles, the chapel of the Flame (the bell, gone),
+    // the bakehouse and its oven's glow, the postern per tier, the gate passage's arch in the foreground, and where the
+    // Throat's scree gives way to the castle's cobbles under the gatehouse (tools/lanejoin.py)
+    case keepT1, keepT2, keepT3, keepT2Build, keepT3Build
+    case curtainA, curtainB, curtainC, curtainStair, curtainTower, curtainHoard, castleBanner
+    case forebuilding, hallDoorGlow, hallDoorWedge, chapelTower, bakehouse, bakeHatchGlow
+    case posternT1, posternT2, posternT3, gateArchFg, laneScreeCobble
+    // World-2 fix round 1 (tools/keepfix.py): the mist bank at the keep's foot, the bloom around its lit windows, its
+    // brazier's light, a puff of chimney smoke (three sizes), the postern's far end lit at night
+    case keepMist, keepPaneHalo, keepFireGlow, smokePuff, posternFarGlow
+    // ... and the keep's warm rim on its west edges at dusk, one per keep sprite
+    case keepRimT1, keepRimT2, keepRimT3, keepRimT2Build, keepRimT3Build
     // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
     // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
@@ -287,21 +308,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .rainStreak: return PixelSize(width: 7, height: 11)
         case .rainSplash: return PixelSize(width: 5, height: 3)
         case .weltmauer: return PixelSize(width: 888, height: 190)
-        case .weltmauerPatch: return PixelSize(width: 52, height: 190)
-        case .farCastleGlow, .farCastlePane: return PixelSize(width: 40, height: 46)
-        case .farCleftGlow, .farCleftGlow2, .farCleftGlow2Build, .farCleftGlow3, .farCleftGlow3Build:
-            return PixelSize(width: 44, height: 72)
-        case .farCleftGlowBack, .farCleftGlowBack2, .farCleftGlowBack2Build, .farCleftGlowBack3,
-             .farCleftGlowBack3Build:
-            return PixelSize(width: 44, height: 68)
         case .d2FirBeltFar: return PixelSize(width: 520, height: 40)
         case .shadowForest: return PixelSize(width: 224, height: 104)
-        case .gorgeRock: return PixelSize(width: 448, height: 211)
-        case .cleftFace: return PixelSize(width: 448, height: 218)
-        case .cleftFaceEnd: return PixelSize(width: 240, height: 218)
         case .valleyVista: return PixelSize(width: 448, height: 160)
         case .d2TreeBelt: return PixelSize(width: 520, height: 58)
-        case .gorgeCrags: return PixelSize(width: 160, height: 200)
         case .firA: return PixelSize(width: 29, height: 130)
         case .firB: return PixelSize(width: 30, height: 118)
         case .firC: return PixelSize(width: 34, height: 106)
@@ -312,14 +322,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .poplar: return PixelSize(width: 14, height: 116)
         case .appleTree: return PixelSize(width: 42, height: 48)
         case .willow: return PixelSize(width: 52, height: 68)
-        case .cleftFlank, .cleftFlankB: return PixelSize(width: 80, height: 240)
-        case .cleftThroat: return PixelSize(width: 192, height: 240)
         case .d2BushA: return PixelSize(width: 30, height: 15)
         case .d2BushB: return PixelSize(width: 22, height: 12)
         case .d2LaneEnd: return PixelSize(width: 48, height: 30)
         case .laneMoorA, .laneMoorB, .laneMoorC, .laneMoorD, .laneScreeA, .laneScreeB, .laneScreeC, .laneScreeD,
              .laneCobbleA, .laneCobbleB, .laneCobbleC, .laneCobbleD, .laneEarthA, .laneEarthB, .laneEarthC,
-             .laneEarthD:
+             .laneEarthD, .laneCobbleEnd, .laneScreeCobble:
             return PixelSize(width: 64, height: 26)
         case .d2FgFerns: return PixelSize(width: 480, height: 64)
         case .d2FgMeadow: return PixelSize(width: 480, height: 58)
@@ -330,15 +338,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .d2Smoke: return PixelSize(width: 26, height: 50)
         case .d2Fireflies: return PixelSize(width: 96, height: 30)
         case .d2Sparks: return PixelSize(width: 14, height: 24)
-        case .darknessBankGlow: return PixelSize(width: 64, height: 236)
-        case .keepTop2, .keepTop2Build, .keepTop3, .keepTop3Build: return PixelSize(width: 150, height: 140)
+        // Fix round 1 of the world rebuild: one pair of the bank's eyes, near and far, open and half shut.
+        case .darknessBankGlow: return PixelSize(width: 9, height: 3)
         case .castleFront3, .castleFront3Build: return PixelSize(width: 268, height: 236)
         case .castleFrontScaffold: return PixelSize(width: 240, height: 236)
-        case .backTop2, .backTop2Build, .backTop3, .backTop3Build: return PixelSize(width: 100, height: 140)
-        case .farCastle2, .farCastle2Build, .farCastle3, .farCastle3Build, .farCastleBack2, .farCastleBack2Build,
-             .farCastleBack3, .farCastleBack3Build, .farCastle2Glow, .farCastle3Glow, .farCastleBack2Glow,
-             .farCastleBack3Glow:
-            return PixelSize(width: 48, height: 48)
         case .lady, .ladyGlow, .kingSeated, .kingSeatedGlow, .ladySeated, .ladySeatedGlow:
             return PixelSize(width: 16, height: 30)
         case .portraitLady: return PixelSize(width: 48, height: 48)
@@ -361,6 +364,44 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .gloomFogFront: return PixelSize(width: 128, height: 30)
         case .gloomWisp: return PixelSize(width: 40, height: 16)
         case .gloomFogEyes: return PixelSize(width: 64, height: 72)
+        // World rebuild, step world-1
+        case .throatStepA: return PixelSize(width: 224, height: 104)
+        case .throatStepB: return PixelSize(width: 224, height: 176)
+        case .throatStepC: return PixelSize(width: 224, height: 200)
+        case .cleftWallA, .cleftWallB: return PixelSize(width: 256, height: 200)
+        case .cleftWallC: return PixelSize(width: 192, height: 200)
+        case .cleftShaft: return PixelSize(width: 64, height: 200)
+        case .gateRockL: return PixelSize(width: 108, height: 80)
+        case .gateRockR: return PixelSize(width: 64, height: 70)
+        case .bankSheetA: return PixelSize(width: 256, height: 208)
+        case .bankSheetB: return PixelSize(width: 256, height: 124)
+        case .bankSheetC: return PixelSize(width: 256, height: 56)
+        case .bankEnd: return PixelSize(width: 96, height: 208)
+        case .cloudDeck: return PixelSize(width: 720, height: 100)   // fix round 2: room for the towers
+        case .cleftWater: return PixelSize(width: 14, height: 54)
+        // World rebuild, step world-2 (tools/keepart.py).
+        case .keepT1, .keepT2, .keepT3, .keepT2Build, .keepT3Build: return PixelSize(width: 260, height: 175)
+        case .curtainA, .curtainB, .curtainC: return PixelSize(width: 64, height: 74)
+        case .curtainStair: return PixelSize(width: 52, height: 66)
+        case .curtainTower: return PixelSize(width: 44, height: 104)
+        case .curtainHoard: return PixelSize(width: 64, height: 22)
+        case .castleBanner: return PixelSize(width: 12, height: 30)
+        case .forebuilding: return PixelSize(width: 120, height: 96)
+        case .hallDoorGlow: return PixelSize(width: 20, height: 32)
+        case .hallDoorWedge: return PixelSize(width: 60, height: 19)
+        case .chapelTower: return PixelSize(width: 110, height: 132)
+        case .bakehouse: return PixelSize(width: 100, height: 62)
+        case .bakeHatchGlow: return PixelSize(width: 6, height: 6)
+        case .posternT1, .posternT2, .posternT3: return PixelSize(width: 176, height: 112)
+        case .gateArchFg: return PixelSize(width: 16, height: 116)
+        // World-2 fix round 1 (tools/keepfix.py).
+        case .keepMist: return PixelSize(width: 320, height: 32)      // fix round 2: rises over the merlons
+        case .keepRimT1, .keepRimT2, .keepRimT3, .keepRimT2Build, .keepRimT3Build: return PixelSize(width: 260, height: 175)
+        case .keepPaneHalo: return PixelSize(width: 11, height: 14)
+        case .keepFireGlow: return PixelSize(width: 36, height: 24)
+        case .smokePuff: return PixelSize(width: 8, height: 8)        // fix round 2: 3 to 7 px
+        case .posternFarGlow: return PixelSize(width: 10, height: 16)
+        case .moorRuin: return PixelSize(width: 50, height: 36)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
         case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:
             return PixelSize(width: 48, height: 48)
@@ -440,6 +481,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .beaconFire, .darknessBankGlow, .gloomFogEyes: return 4
         case .gloomWisp: return 6
         case .gloomFogBack, .gloomFogMid, .gloomFogFront: return 2
+        case .bankSheetA, .bankSheetB, .bankSheetC: return 2
+        case .cleftWater: return 12   // fix round 2: six frames per thread, the second thread's from frame 6
+        case .forebuilding, .chapelTower: return 2   // world-2: the hall door closed and open; the bell, gone
+        case .gateArchFg: return 2                   // world-2: unplaced since fix round 2 (build 3 may bring it back)
+        case .smokePuff: return 5                    // world-2 fix round 2: five sizes, 3 to 7 px
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9
@@ -577,6 +623,8 @@ struct FrameLight: Sendable, Equatable {
     var ellipseY: Float
     var kind: LightKind
     var plane: Plane = .world
+    /// World-2 fix round 2: the pool's cut in its plane's target pixels (min x, min y, max x, max y), nil for none.
+    var clip: SIMD4<Float>?
 }
 
 /// One fog plane: colour, density, how much point light it catches, and its drift in game pixels.

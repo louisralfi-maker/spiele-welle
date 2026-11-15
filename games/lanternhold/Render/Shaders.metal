@@ -212,6 +212,7 @@ fragment float4 lh_emissive_fragment(SpriteOut in [[stage_in]],
 struct LightQuad {
     float4 circle;  // centre x, centre y, radius (target pixels of its plane), intensity
     float4 color;   // r, g, b, vertical squash of the pool (ellipseY)
+    float4 clip;    // world-2 fix round 2: the pool's cut (min x, min y, max x, max y; huge for none)
 };
 
 struct LightPassUniforms {
@@ -266,7 +267,7 @@ vertex LightPoolOut lh_pool_vertex(uint vid [[vertex_id]],
     float2 corner = float2(float(vid & 1u), float((vid >> 1) & 1u)) * 2.0f - 1.0f;
     float2 extent = float2(l.circle.z, l.circle.z / squash) + 1.0f;
     LightPoolOut out;
-    out.position = lh_ndc(l.circle.xy + corner * extent, u.target.xy);
+    out.position = lh_ndc(clamp(l.circle.xy + corner * extent, l.clip.xy, l.clip.zw), u.target.xy);
     out.circle = l.circle;
     out.color = l.color;
     return out;
@@ -890,7 +891,8 @@ vertex LightPoolOut lh_pool2_vertex(uint vid [[vertex_id]],
     float2 corner = float2(float(vid & 1u), float((vid >> 1) & 1u)) * 2.0f - 1.0f;
     float2 extent = float2(l.circle.z, l.circle.z / squash) + 1.0f;
     LightPoolOut out;
-    out.position = lh_ndc(l.circle.xy + corner * extent, u.target.xy);
+    // World-2 fix round 2: the quad is cut where the architecture stops the light (an eave, a jamb, a corner).
+    out.position = lh_ndc(clamp(l.circle.xy + corner * extent, l.clip.xy, l.clip.zw), u.target.xy);
     out.circle = l.circle;
     out.color = l.color;
     return out;
@@ -943,13 +945,12 @@ static inline float3 lh2_fog(float3 color, float4 g, float gain, float glow, flo
 }
 
 // The mist's share by world x (tools/scenemock/layout_look2.py `fog_region`): thick in the shadow land, thinner from
-// the castle's front (x 1240) through the cleft, light in the valley (from x 2430).
+// the castle's front (x 1240) through the cleft, light in the valley. World rebuild (B4, B5): the valley's share
+// fades in over the back gate (2330 to 2480) instead of starting in a vertical line at 2430.
 static inline float lh2_fog_region(PlaneCoords c, constant CompositeUniforms &u) {
     float x = float(c.world.x) + u.target.w;
-    if (x >= 2430.0f) {
-        return 0.45f;
-    }
-    return 1.0f - 0.3f * saturate((x - 1120.0f) / 200.0f);
+    float cleft = 1.0f - 0.3f * saturate((x - 1120.0f) / 200.0f);
+    return mix(cleft, 0.45f, smoothstep(2330.0f, 2480.0f, x));
 }
 
 // The moon on the lit albedo of the mid and near planes at night (fir tiers, crowns, statues); `p` premultiplied.
@@ -1044,7 +1045,9 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         if (e > 0.0f) {
             ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
         }
-        float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.3f
+        // World rebuild: the backdrop lights a little stronger (0.3 before), so the castle's warm light grazes the
+        // cleft wall over the roofs at dusk and night.
+        float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.5f
             + m.rgb * kMoonLight2 * lh2_moon_key(m, v);
         lit = mix(lit, v.midHC.rgb * m.a, haze);
         lit = mix(lit, v.bandC.rgb * m.a, band * 0.6f);

@@ -48,12 +48,16 @@ final class LookGoldenTests: XCTestCase {
     /// 2525c3e); before, c7130032235b207b. town-noon and the others did not move. The director's fix pass of the people
     /// lane (15.11.2026) lit one pixel of Dun's cheekbone (he walks in look 1's town): both town scenes recorded again
     /// from round lh-p3-1 (on c564b0c); before, 6cdcda6decd89f7d and 54216a62b8b99dca.
+    /// World rebuild, step world-2 (15.11.2026): the bailey's lean-tos are repainted in granite and slate (`barracks`,
+    /// `smithy`, `lodge`; tools/keepart.py), sprites both looks draw, so the castle and the court were recorded again
+    /// from round lh-w2-2 (on 07c8ea1; before: f85bb5b965601d8 and 7847cdaa53452732). Nothing else of look 1 moved.
+    ///
+    /// The rolling join (claude/lh-join, 15.11.2026) puts the people lane's town and the world's castle into one tree:
+    /// all four of castle-night, court-dusk, square-morning and town-noon are recorded again from the join's rounds.
+    /// Until then they have no hash and only print their GOLDEN line. Before the join: castle eb723787eed65a73 / court
+    /// 12c426443634b583 (world) and square 315698c2d0a55839 / town ad3c5e8591125cfa (people).
     static let golden: [String: String] = [
         "front-night": "9b01af38246bc805",
-        "castle-night": "f85bb5b965601d8",
-        "court-dusk": "7847cdaa53452732",
-        "square-morning": "315698c2d0a55839",
-        "town-noon": "ad3c5e8591125cfa",
         "river-golden": "c0f21df86bbe85b6",
     ]
 

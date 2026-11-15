@@ -66,7 +66,7 @@ damage time is untouched).
 
 | id | size | frames | frame use |
 |---|---|---|---|
-| `darknessBankGlow` | 64x236 | 4 | the darkness bank's emissive strip (ART-look2.md 11.5): pairs of cold eyes and dim embers in the bank's body. One frame over each `darknessBank` tile, drawn as it is: frame (tile index + time x 1.5) mod 4, with Reduce Motion tile index mod 4 |
+| `darknessBankGlow` | 9x3 | 4 | the darkness bank's eyes; since the world rebuild's fix round 1 one pair in four frames, placed by `FrameBuilder.bankEyePairs` (see "The rock and the fog"). It was a 64x236 strip of eyes and embers over each `darknessBank` tile |
 
 ## Buildings (frame 0 whole, frame 1 damaged below 50 % HP, unless the table says otherwise)
 
@@ -235,23 +235,27 @@ docs/PORT-look2.md 1.7. Look 1's sprites that look 2 no longer draws stay in the
 | `d2FirBeltFar` | 520x40 | far | the low fir ridge at the wall's foot |
 | `valleyVista` | 448x160 | far | the valley's three ranges of fir slopes |
 | `shadowForest` | 224x104 | mid | the shadow land's forest edge (two copies join) |
-| `gorgeRock` | 448x211 | mid | the Throat's granite face before the castle |
-| `cleftFace`, `cleftFaceEnd` | 448x218, 240x218 | mid | the cleft's inner face behind the castle and its end toward the valley |
+| `gorgeRock` | 448x211 | mid | the Throat's granite face before the castle (retired by the world rebuild: `tools/retired-art`, the old walls' granite) |
+| `cleftFace`, `cleftFaceEnd` | 448x218, 240x218 | mid | the cleft's inner face behind the castle and its end toward the valley (retired by the world rebuild) |
 | `d2TreeBelt` | 520x58 | mid | the tree belt along the valley floor |
-| `gorgeCrags` | 160x200 | near | five crags before the face's edge |
+| `gorgeCrags` | 160x200 | near | five crags before the face's edge (retired by the world rebuild) |
 | `firA`, `firB`, `firC`, `firD` | 29x130, 30x118, 34x106, 27x84 | near | the shadow land's firs |
 | `deadTreeA`, `deadTreeB` | 17x72, 17x70 | near | bare trees |
 | `linden`, `poplar`, `appleTree`, `willow` | 52x92, 14x116, 42x48, 52x68 | near | the town's trees |
-| `cleftFlank`, `cleftFlankB`, `cleftThroat` | 80x240, 80x240, 192x240 | world | the cleft's rock at the castle, in the shapes and places of `cliffFlank`, `cliffFlankB` and `throatRock` |
+| `cleftFlank`, `cleftFlankB`, `cleftThroat` | 80x240, 80x240, 192x240 | world | the cleft's rock at the castle, in the shapes and places of `cliffFlank`, `cliffFlankB` and `throatRock` (retired by the world rebuild: nothing stands on the walk line) |
 | `d2BushA`, `d2BushB` | 30x15, 22x12 | world, z -3 | bushes behind the actors |
 | `d2LaneEnd` | 48x30 | world | the grassy bank where the lane ends at the river |
 | `laneMoorA…D`, `laneScreeA…D`, `laneCobbleA…D`, `laneEarthA…D` | 64x26 each | world | the lane's tiles: moor from x -64, scree from 448, cobble from 1240, earth from 2430; the variant by a hash of the tile index |
 | `d2FgFerns`, `d2FgMeadow`, `d2FgReeds` | 480x64, 480x58, 160x40 | foreground | the shadow land's ferns, the valley's meadow, the river's reeds |
-| `d2FogBank`, `d2MistBand`, `d2FogLow` | 384x40, 448x60, 320x24 | fog A, mist band, fog B | the three fog banks, alpha masks |
+| `d2FogBank`, `d2MistBand`, `d2FogLow` | 384x40, 448x60, 320x24 | fog A, mist band, fog B | the three fog banks, alpha masks (repainted by the world rebuild: feathered tiles that overlap by 64 px) |
 | `d2Smoke` | 26x50 | world | chimney smoke, an alpha mask |
 | `d2Fireflies`, `d2Sparks` | 96x30, 14x24 | world, additive | fireflies in the valley at dusk; a brazier's sparks |
 
 ## The castle grows (ART-look2.md section 15; in `SpriteID` since the contract step; drawing only, the upgrade logic is a later lane)
+
+**World-2 (15.11.2026): only `castleFront3`, `castleFront3Build` and `castleFrontScaffold` of this table are still in
+the game.** The keep's copies (`keepTop2/3`, `backTop2/3`) and the far castles with their glows are retired
+(`tools/retired-art`); the castle grows as one building in "One castle" below.
 
 Three tiers. Tier 1 is today's castle, unchanged. Tiers 2 and 3 are sprites that stand with the existing ones; each
 has a building state (`…Build`: timber scaffolds, ladders, a crane, half-laid courses) for the days the tier is under
@@ -427,7 +431,7 @@ bottom-left at the given y (0 = the ground line). E is `DarknessBank`'s edge.
 | id | size | frames | notes |
 |---|---|---|---|
 | `gloomFogBack` | 192x120 | 2 | the bank: six rows of low rolls, pale crests, a heart that darkens to night toward the lane. Frame 0 repeats seamlessly, frame 1 is the leading face (its left column goes on from frame 0). y 0. Drawn **behind the world plane** (after fog layer A), at least behind every creature. Front at E + 64 |
-| `gloomFogEyes` | 64x72 | 4 | the cold eyes in the bank's heart, an **emissive** only (like `darknessBankGlow`): nine pairs, each shut in one frame. y 0, on the 64 px tiles the bank's glow uses today (tile k's right end at E - 32 - 64k), frame `(k + Int(time * 1.5)) % 4`, strength 1. Drawn after the back strip, before the creatures |
+| `gloomFogEyes` | 64x72 | 4 | (not drawn since the world rebuild's fix round 1: with the bank's sheet lower its pairs stood above it in rows 64 px apart; the bank's own eyes stand in the fog instead) the cold eyes in the bank's heart, an **emissive** only (like `darknessBankGlow`): nine pairs, each shut in one frame. y 0, on the 64 px tiles the bank's glow uses today (tile k's right end at E - 32 - 64k), frame `(k + Int(time * 1.5)) % 4`, strength 1. Drawn after the back strip, before the creatures |
 | `gloomFogMid` | 160x64 | 2 | a thin veil **before the world plane** (creatures, walls), built like the bank. y 0. Front at E + 104 |
 | `gloomFogFront` | 128x30 | 2 | the fog creeping along the lane, before the veil. y -8 (its lowest 8 rows lie under the ground line). Front at E + 136 |
 | `gloomWisp` | 40x16 | 6 | a shred that tears off the front; the six frames are its life, frame 0 whole, frame 5 two flecks. Drawn with the front strip |
@@ -548,3 +552,198 @@ Swift names it yet. Interface art, not world art: no plane, no light, no anchor.
   one at 48x32 pt without a tint; `CircletIcon(ink: true)` in `UI/AudienceCardView.swift` draws the ink one at
   24x16 pt as a template in the button's ink. `CircletShape` is gone. The `@2x` and `@3x` files lie unused in the
   bundle.
+
+### The great hall as a stage (look 2, stage 8; ART-look2.md section 20)
+
+**Proposals for the code lane**: the PNGs lie in `Resources/Art`, `tools/build-art.sh` rebuilds them
+(`tools/hallart.py`, the court lane), no Swift names them yet. Louis on 10.11.: the throne room "much bigger", the
+picture at the craft of the great pixel-art kingdoms. `hallInterior` (260x90) and every id above stay as they are.
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `greatHall` | 600x201 | 1 | the whole hall, 2.3 times as wide and 2.2 times as tall as `hallInterior`. Albedo, opaque but for the window lights (transparent: the night and the Weltmauer show through). It fills the view's height: 175 rows above the floor line, 26 below, like the world |
+| `hallPillarNear` | 46x201 | 1 | a pillar of the near arcade with the springers of its arches. Drawn in front of everything at parallax 1.25, dark (it stands before every light) |
+| `hallFire` | 204x28 | 6 of 34x28 | the great hearth's fire, emissive, on the fire ramp. Bottom row on hall row 145, centred on x 532. About 8 frames a second |
+
+**The hall's parts** (hall px, x from the hall's left edge, rows from its top; a thing "stands on row r" when its
+lowest row is r − 1):
+
+| what | where |
+|---|---|
+| floor line of the nave (the walk line, on the long carpet) | row 175, x 14 to 363 |
+| wall line of the nave (benches, guards, the waiting) | row 169 |
+| the door (leads out) | opening x 49 to 87, from row 110; a torch each side (x 38 and 98) |
+| the gallery over the door | x 14 to 122, its rail rows 80 to 95; a window behind it |
+| benches (`bench`, 32x10) | centred on x 184 and 300, under the two tall windows; three seats each (centre − 8, centre, centre + 8), the seated townsfolk on row 169 |
+| candle stands (painted in) | x 160, 208, 276, 324: one each side of a bench |
+| dais steps | x 364 to 375: three treads of 4 px, 3 px high each |
+| the dais | x 376 to 589, raised 9 px: its floor line is row 166 |
+| the throne (`throne`, 14x24) | centred on x 416, on row 166, under the cloth of estate (x 398 to 434); the seated lord faces left, down the hall |
+| court places (row 166) | the tax lectern x 385, Odile x 397 (between lord and nave), Brannock x 441 (under the arms), Hesper x 497 (at the hearth); Pip x 350 at the foot of the steps, on row 171 (the petitioner passes in front of him) |
+| the petitioner's walk | in by the door, along row 175, stops at x 338; the one after him rises from his bench |
+| guards | x 37 and 100, row 169, facing the door |
+| the hearth | x 492 to 572, the hood up to the roof; the firebox x 508 to 556 |
+| banner places | left edges x 137, 211, 253, 327, 368, top row 62: the realm's teal banner is painted there in the houses' outline (20x41), so a house's banner drawn at the same place covers it whole |
+| windows (transparent lights) | two tall ones x 169 to 199 and x 285 to 315, rows 58 to 130; one over the gallery; a round one over the throne (centre 416, 45); two slits beside the hearth |
+
+**Fire and light anchors** (`python3 tools/hallart.py anchors greatHall` prints them all): the hearth fire (532, 145)
+with its light at (532, 128), radius 120; two chandeliers of six candles, light at (184, 39) and (300, 39), radius
+64; four stands of three candles, light at (x, 141), radius 26; the door torches (38, 116) and (98, 116), radius 34;
+four candles on the mantel, two under the arms (456, 123), two on the gallery's newels.
+
+**The light is the state of the realm**, not decoration:
+
+- the hearth's pool grows with the hearth's strength (radius about 60 + 60 × strength; below a third the small
+  `hearthFire` burns instead of `hallFire`);
+- a stand burns beside a bench while someone waits on it; an empty hall has dark stands;
+- the chandeliers burn while the court sits (the audience hours), and go out for the night;
+- the door torches burn from dusk; the lord carries his lantern as everywhere.
+
+**Layers**, back to front: the night sky and `weltmauer` (parallax about 0.3, seen through the window lights) ·
+`greatHall` · the houses' banners · the wall line (benches, the seated, guards) · the dais' props (throne, lectern) ·
+actors by their floor row · flames and glow strips · `hallPillarNear` · the interface.
+
+- The near pillars stand over the wall shafts at x 126 and 242 when the camera is centred on them: a pillar of hall
+  x `p` is drawn at screen centre + (`p` − camera centre) × 1.25, with `p` = 161 and 254. In the audience framing
+  both are off the screen's left edge, so nothing ever stands before the throne.
+
+**The hall is a stage of its own.** The world's slot (x 1700 to 1960) is too small for it. The lord taps the hall's
+door in the world, walks to it, the screen fades through dark (Reduce Motion: a cut) and he stands inside at the
+door. The door inside leads back.
+
+- **Walking in the hall:** the world's scale (6 device px per game px, a view of 437x201); the camera follows the
+  lord and stops at the hall's ends (camera x 0 to 163).
+- **The audience framing** (the lord sits): 8 device px per game px, a view of 328x151 with its left edge at hall
+  x 232 and its top at row 50. The hall fills the screen from the bench window to the hearth, the characters stand
+  80 pt tall instead of 60. The move in takes about 0.6 s, eased (Reduce Motion: a cut).
+- **The audience card over it** (a proposal, since today's card fills the lower half and would cover the stage): the
+  letter (portrait, name, role, request, Odile's slip) lies in the upper left over the wall and the window, about
+  364x226 pt; the choices lie as plaques along the floor band below the walk line. Petitioner, lord and hearth stay
+  in sight.
+
+**Texture space.** The atlas page stands at 2048x1788: 260 free rows. The hall (201 rows and its padding) would just
+fit and close the page for good. So the hall's three sprites and the tap marks below go on a **second page of
+1024x256** (DESIGN.md's budget allows two pages): `greatHall` at (0, 0), `hallPillarNear` beside it, `hallFire`
+and the marks in the 376 columns that remain. It costs 1 MB as RGBA and leaves page 1 its rows for the world.
+
+**Open, for the lead:** whether the world still shows the small cut-away (`hallInterior`) from the street once the
+stage exists, or the hall's closed front.
+
+### The marks of "touch the world" (look 2, stage 8; ART-look2.md section 20)
+
+**Proposals for the code lane**: `tools/hallart.py` (the court lane of `tools/build-art.sh`), no Swift names them
+yet. They replace the action button (DESIGN.md "Controls 2: touch the world"). A mark is a small parchment tag in
+the interface's ink and gold (docs/UI-look.md) that floats above a thing the lord can touch.
+
+| id | size | frames | above |
+|---|---|---|---|
+| `tapTalk` | 30x18 | 2 of 15x18 | a speech bubble: a petitioner who waits, a member of the court or a townsman with a word |
+| `tapThrone` | 30x18 | 2 of 15x18 | the circlet: the empty throne, when an audience can be held |
+| `tapBuild` | 30x18 | 2 of 15x18 | a hammer: an open plot, a building that can grow |
+| `tapRepair` | 30x18 | 2 of 15x18 | a wall with a wax-red crack: a damaged wall or building |
+| `tapRecruit` | 30x18 | 2 of 15x18 | a head and shoulders with a plus: where the lord can recruit |
+| `tapLight` | 30x18 | 2 of 15x18 | a flame: a cold brazier |
+
+- **Frames:** 0 idle (parchment in a gold rim), 1 pressed (the plaque a step darker, the rim dull). Pressing
+  darkens the plaque, nothing moves, as on every button of the interface. No bobbing, no pulse.
+- **Place:** the tip of the tag's pointer (frame x 7, row 17) stands 3 px above the thing's top row, over the x
+  where the lord will stand. On a bench it stands over the first in line.
+- **Drawn unlit**, like the flames: it is a piece of the interface in the world and must read in the dark. It keeps
+  whole pixels: 30x36 pt at the world's scale, 40x48 pt in the audience framing.
+- **The highlight on the thing itself needs no sprite:**
+  - a **rim** of one pixel outside the sprite's outline at its left, right and top (not below), in `gold`, unlit;
+    the engine takes it from the sprite's alpha;
+  - a **pool**: a point light 5 px above the floor line at the thing's feet, radius 20, `fireGold`, strength 0.7,
+    and 1.4 times that while the finger is down on it. The one who has the word in an audience keeps a pool of
+    radius 30.
+- **When:** rim and pool on every thing in view that offers something now. At most four marks in view, the nearest
+  to the lord first; of a row of damaged walls only the nearest carries the mark, the others keep their rim.
+- **The touch area** is the thing and its mark together, at least 44x44 pt (DESIGN.md "Controls 2").
+- **Texture space:** the six strips (180x18 together) lie on the hall's second page.
+- **Open, for the lead:** the tax lectern has no mark of its own. Odile stands at it, so her `tapTalk` can lead to
+  the tithe; a seventh mark with a coin is a quarter of an hour of art if wanted.
+
+<!-- BEGIN world lane: world rebuild, step world-1 -->
+## The rock and the fog (world rebuild, step world-1, 14.11.2026; ART-look2.md section 22)
+
+In `SpriteID` (look 2 only). Painted by `tools/cleftart.py` on `tools/rockfield.py` (the granite as a lit height
+field) and by `tools/fogart.py`; `tools/build-art-world.sh` rebuilds them byte for byte. Light from the upper left.
+
+| id | size | plane | where (x in the plane's own px) | notes |
+|---|---|---|---|---|
+| `throatStepA` | 224x104 | mid, ground, y -4 | 360 | the Throat's far wall where it begins: low (88 rows at most), far and pale (`far` ramp), its west talus paling into the mist |
+| `throatStepB` | 224x176 | mid, ground, y -4 | 450 | the tor, darker and taller (`stone` ramp): fix round 2: its west side climbs in broken crag steps to a shoulder at 70 % of the screen (104 rows over the ground line); only behind the warden statue (its niche at x 568) does it rise to hold the statue's stepped backing; its east end sinks under C |
+| `throatStepC` | 224x200 | mid, top-anchored | 600 | the third step, the cleft's own granite: a crag falls to the lane at its west end, then it stands at full height (fix round 2: no lower shoulder) behind the gatehouse, a value darker in the Throat (`cleft_gain`) |
+| `cleftWallA`, `cleftWallB`, `cleftWallC` | 256x200, 256x200, 192x200 | mid, top-anchored | 824, 1080, 1336 | the cleft's far wall behind the whole castle, with C one painting cut in four (no join shows). Fix round 1: the rock stands to the screen's top except in two wedges of sky (over the gatehouse at mid 792, over the bailey at mid 1010, where `cleftWallA`'s emitter puts the moon at night, its top 22 rows down); buttresses (a third of their boundaries deep chimneys), chiselled slabs that turn toward the light or away from it, two long ledges that step at each buttress (a lit shelf over an undershadow) with snow drifts on the high one, the slit's cold slate light on the face's top; the beds of three threads of water at 902, 1131 and 1268 (a crack, a wet streak, spray on a ledge); C steps down to the valley floor by 1528 |
+| `cleftShaft` | 64x200 | mid, top-anchored, z 4 | 1104 | `#FFFFFF` alpha mask in twelve levels (fix round 1: stronger, at the sun's full strength) with fourteen dust motes: the cold shaft of light through the slit, drawn at the sun's strength (`Prop.sunShaft`) |
+| `cleftWater` | 14x54, 12 frames | mid, after the mid props | notch at 893 (row 26) and 1258 (row 30), frame x = notch − 5 | fix round 2: the two threads of falling water, frames 0-5 the first, 6-11 the second: mist with a mistLight head per strand and mistDark on the shade side, one then two pixels wide, in an S over two ledges of its own into spray on a third, strands of 4-5 rows scrolling 3 rows a frame over an 18-row pattern; 6 a second, frame 0 with Reduce Motion |
+| `gateRockL`, `gateRockR` | 108x80, 64x70 | world, z 1 | castle front − 54, + 196 (tier 3: 11 and 12 px further out) | fix round 2: shoulders of bedrock with three tongues that climb over each tower's outer edge (the highest to half the shaft), a course of the tower's ashlar on each notch, creased faces, the lit edge in broken pieces (no outline); the east one a low shoulder toward the bailey, no spire |
+| `bankSheetA`, `bankSheetB`, `bankSheetC` | 256x208, 256x124, 256x56, 2 frames each | fog A, world, fog B | the face (frame 1) with its right end at the bank's edge plus the sheet's reach, body tiles (frame 0) every 192 px westward (`FrameBuilder.bankSheetTiles`) | fix round 1: painted in a light cool ramp of values, tinted by the hour (`FrameBuilder.bankTint`: grey-violet and translucent by day, navy at night). The body periodic over 192 px with complementary dithered feathers at both ends (each pixel held by one tile), the face leaning back toward the top and torn into wisps; each crest a lit shell, the body in six value steps in clean clusters, the alpha in sixteen dithered steps. A's crest near the screen's top, B's at about half the screen, C a low roll at the foot |
+| `bankEnd` | 96x208 | fog B | world 0 | fix round 1: where the world ends the dark is whole: night0, opaque for 20 columns, thinning out by column 92 in sixteen dithered steps; drawn black |
+| `darknessBankGlow` | 9x3, 4 frames | world (emissive) | `FrameBuilder.bankEyePairs` | fix round 1 (it was a 64x236 strip of eyes in rows): one pair of the bank's eyes: 0 near and open (two lit diamonds 6 px apart), 1 near and half shut, 2 far and open (two points 4 px apart), 3 far and half shut. Five slots 128 px apart behind the bank's edge, each opening at a place and height of its own, blinking, shutting and opening elsewhere; at most four on a screen; three still with Reduce Motion |
+| `cloudDeck` | 720x100 | far, y 22 | far x −100 | the cloud deck over the Weltmauer (its billows stand on row 50, 72 rows over the ground line): fix round 2: towers of big billows 8 to 22 rows higher where the deck's mass swells, the front lobes at heights of their own (no scallop row), the veil under it a horizontal fade that follows the underside's lobes (no drips) |
+
+The far castle in the Weltmauer's first slot is gone (`cleftart.py noslot`), and the Weltmauer's first 320 columns
+sink into a bank of painted mist toward the west (`cleftart.py mistleft`). Fix round 1: below its snow line no snow hangs in the
+gullies or couloirs any more (`worldart.py regrade`, `clean_snow`: no patch under 6 px); the snow is the caps on the
+massifs' upper faces with a clean hem. The old walls' granite (`oldWall2`, `oldWall3`) is cut to broken footings of
+at most 36 rows (the horn west of the wall 16) in the cleft's granite with cool grey shade (`throatart.py footing_rock`), and the anchors' toothing
+stops at the footing's height.
+Fix round 2 adds:
+
+| id | size | plane | where | notes |
+|---|---|---|---|---|
+| ~~`cleftGraze`~~ | | | | retired by world-2 (the critic's look 3: it read as pale lilac drips); the backdrop pools of the cleft wall stay |
+| `laneCobbleEnd` | 64x26 | world, lane tile | world 2304 (world-2: under the postern's passage; 2432 before) | where the castle's cobbles give way to the valley's earth lane: `laneEarthA` with `laneCobbleB`'s stones laid over it, thinning stone by stone over 48 px (`tools/lanejoin.py`) |
+
+The Weltmauer's slot patch has wandering edges (no dithered blend column), and the wall is cut into buttresses by
+arêtes with lit west and shaded east flanks (`cleftart.py ridges`, between `noslot` and `mistleft`). Look 1's high
+clouds (`cloudA`, `cloudB`, `cloudC` on the sky plane) and look 2's high deck on the clouds plane are gone from look 2.
+<!-- END world lane: world rebuild, step world-1 -->
+
+<!-- BEGIN world lane: world rebuild, step world-2 -->
+## One castle (world rebuild, step world-2, 15.11.2026; ART-look2.md section 23)
+
+In `SpriteID` (look 2 only). Painted by `tools/keepart.py` (hand-placed vocabulary in the gatehouse's language: coursed
+ashlar with soft joints, quoins, lit left edges and cast shadows from the upper left, crenels with lit caps under an ink
+edge, corbel tables, teal slate, glass in `night1` for the layout's masks); `laneScreeCobble` by `tools/lanejoin.py`;
+`tools/build-art-world.sh` rebuilds them byte for byte, the bailey's lean-tos `tools/build-art-buildings.sh`. Placed by
+`Core/SceneLayoutCastle.swift`; masks are (dx, dy from the sprite's bottom, w, h).
+
+| id | size | plane | where (plane x) | notes |
+|---|---|---|---|---|
+| `keepT1`, `keepT2`, `keepT3` | 260x175 (fix round 1, `tools/keepfix.py`; was 200) | near picture, moving with the mist band (0.62), z 5 | 1058 (its main block's middle, col 160, over the hall door at 1830) | the one keep per tier, in the mistBand's own stone (slate darks under mist greys: a step paler and cooler than the curtain) on a ramp from a dark foot to a lit crown; round corner towers (cols 64 to 97, 222 to 255) modelled as drums; the main block (98 to 221) between two broad pilasters; a round stair turret (15 to 45) and its stair hall (45 to 64) on the west, the corner the front gate sees. Tier 1: ridge at y 120, the turret's crenels at y 131; masks (139,80,7,10), (170,80,7,10), (53,70,3,7) (the stair hall's window); tiers 2 and 3 a storey more, masks + (108,100,7,10), (170,100,7,10), (201,100,7,10) (the fourth twin window at (139,100) stays dark: no grid of lit rows), the realm's banners in the outer bays, the house banner on the ridge (tier 2 to y 156; tier 3 the great banner to y 170); tier 2 raises the turret (crenels at y 147) and flies the house's flag from it; tier 3 puts slate cones on the towers and the turret (finials at y 148). A brazier on the wall walk at col 129 (its `brazierFlame` at (125, wall + 7) and `keepFireGlow` at (111, wall − 1); the wall walk at y 98 or 118). Chimney smoke at x + 187.5, y 122 (tier 1) or, low on the right slope so it rises under the HUD's realm strip, x + 202.5, y 136 (tiers 2 and 3) |
+| `keepT2Build`, `keepT3Build` | 260x175 | the same | the same | tier 2's storey half laid under heavy scaffolding (standards two px wide, ledgers in light wood) with a crane whose jib stands over the roof line (to y 146), the roof off (tier 1's panes, no smoke, no brazier); tier 3's cones as heavy timber frames in light wood on the towers and the turret (tier 2's panes, no brazier) |
+| `keepRimT1`, `keepRimT2`, `keepRimT3`, `keepRimT2Build`, `keepRimT3Build` | 260x175 | near picture, emissive | the keep + (0, 0) | the keep's warm rim at dusk: fire-orange on every edge of its silhouette that faces west (a px inside at half strength) and faintly on the caps; shown by the hour's warmth until the moon is up (`FrameBuilder.keepRimShare`) |
+| `keepPaneHalo` | 11x14 | near picture, emissive | each lit twin window − (2, 2) | the soft warm bloom round a lit window, 2 px out onto the stone, at dusk and night; a dark window loses it |
+| `keepFireGlow` | 36x24 | near picture, emissive | keep + (111, wall − 1) | the keep's brazier's light on its merlons, its wall walk and the roof's foot, at dusk and night |
+| `keepMist` | 320x32 | fog A picture (in front of the keep, behind the world plane), moving with the mist band, z 6, y 60 | keep − 30 | the mist bank at the keep's foot (fix round 2): one volume that rises 4 to 6 rows over the curtain's merlon tops and feathers out over 10 rows of ordered dither, both ends dithered away over 56 px; white, tinted by the hour's fog colour at 3.4 of the hour's mist strength (dawn, dusk), at night a dim desaturated grey (`SceneLayout.castleMistTint`) |
+| `smokePuff` | 8x8, 5 frames | the chimney's plane (and the emissive pass from the dusk) | `CastleSmoke` | a puff of smoke at five sizes (3 to 7 px, fix round 2), white; the keep's and the bakehouse's chimneys send twelve at a time that grow as they rise 38 rows, lean on a diagonal and overlap into one plume; from the dusk each catches the moon, and over the bakehouse the oven's glow from below (the same sprite as a glow) |
+| `curtainA`, `curtainB`, `curtainC` | 64x74 | world, z −5 | 1474 + 64 k, k 0 to 11 (A C B A C A B C A B A C) | the curtain wall: wall walk at 64, corbel table, merlons, putlog holes; A a slit and ivy, B an older arch blocked with rubble (fix round 1: the infill a value darker in a recess with the intrados's shadow, the voussoirs lit only on the left haunch, no pale outline), C a drain's spout, its stain and ivy (fix round 2: the buttress is gone; the row over the corbels, clear before, is the walk's shadow) |
+| `curtainTower` | 44x104 | world, z −4 | 1680 (tier 3 also 1584, mirrored) | a wall tower: lit left face, slits, a crown on machicolations |
+| `curtainStair` | 52x66 | world, z −3 | 1724 | the stair to the wall walk, rising leftward, a store's mouth under it |
+| `curtainHoard` | 64x22 | world, z −4, y 54 | 1538, 1602, 2060 (tier 2 and 3) | a timber hoarding on the wall walk under a slate pent roof, drop slots |
+| `castleBanner` | 12x30 | world, z −4, y 28 | 1500, 1906, 2084 (tier 3) | the realm's banner hung from the parapet |
+| `forebuilding` | 120x96, 2 frames | world, z −2 | 1770 | the keep's porch (fix round 1, `tools/keepfix.py`): a slate roof sloping back to its ridge at y 80, a stone dormer with a thick coping for the lord's chamber, quoined corners, the hall door at col 59.5 (world 1830) in a round portal raised on three steps and a threshold between low parapets: frame 0 shut (mask (52,7,16,1): the light under the door), frame 1 open (the view into the hall: `hallDoorGlow` at (50,7)). Torch flames at (36,30) and (81,30), their light one flat band; the lord's chamber window (57,64,5,10) |
+| `hallDoorGlow` | 20x32 | world, emissive | forebuilding + (50, 7), open door only | the view into the lit hall: the leaves and jambs dark, the ceiling's beams dim, flagstones receding to the far wall, the hearth's glow on it the brightest point high in the middle; the pillar and the banner inside left clear; dim by day, full at dusk and night |
+| `hallDoorWedge` | 60x19 | world, emissive | forebuilding + (30, −12), open door only, dusk and night | the door's wedge of warm light from the threshold over the steps and 12 rows out on the cobbles, the door's width (18 px) to 2.5 times it, alpha in sixteen smooth steps, at most 0.5 (the stones show through) |
+| `chapelTower` | 110x132, 2 frames | world, z −2 | 1950 | the chapel of the Flame as a closed tower in the wall: frame 0 the bell in the belfry, frame 1 empty (`castle.chapel.bell.missing`); masks (42,54,5,24), (55,54,5,24), (68,54,5,24): three lancets lit from inside; the Flame's `brazier` at x + 31 |
+| `bakehouse` | 100x62 | world, z −2 | 2120 | the kitchen's lean-to: rubble walls, a hipped slate roof, the oven's domed hatch (`bakeHatchGlow` at (15,7), all day), a window mask (63,23,5,5), chimney smoke at x + 75, y 61 |
+| `bakeHatchGlow` | 6x6 | world, emissive | bakehouse + (15, 7) | the oven's fire through the hatch |
+| `posternT1`, `posternT2`, `posternT3` | 176x112 | world, z 0 | 2230 | the back gate per tier (a building tier shows the one before): the curtain's end, the passage at cols 90 to 110 (world 2320 to 2340) under a slate pent roof (fix round 1, `tools/keepfix.py`: its depth: the jambs' inner faces and the vault in shadow, cobbles that recede to a far opening of the valley's daylight at cols 95 to 104, rows 4 to 18), lanterns at (81,30) and (116,30), a squat tower with a window mask (150,26,5,8), a flower box, ivy and a bench; tier 2 roofs the tower and hangs a great lantern at (99,42); tier 3 crowns it with machicolations and a flag |
+| `posternFarGlow` | 10x16 | world, emissive | postern + (95, 4) | the passage's far end lantern-warm at night |
+| `gateArchFg` | 16x116, 2 frames | none (fix round 2) | placed nowhere | fix round 1's near jamb of each gate passage (an opaque pier of dark coursed stone beside the opening); the critic's look 2 found it a stray pier in front of the gatehouse and a tombstone in the postern's road, so fix round 2 placed it nowhere. Build 3 may bring a frame back only as REVIEW-look-2.md 2.8 describes it, after a scenemock preview |
+| `laneScreeCobble` | 64x26 | world, lane tile | world 1344 (under the gatehouse's gateway) | the Throat's scree giving way to the castle's cobbles stone by stone (`laneCobbleEnd`'s join, mirrored) |
+
+Repainted in place (same sizes, masks and anchors as `EntityFrames.courtyard`): `barracks` (64x48), `smithy` (60x48),
+`masterSmithy` (60x56), `lodge` (56x44), `bigLodge` (64x52), as lean-tos of granite and slate against the curtain: the
+barracks with shields, a spear rack and loopholes either side of its door; the smithy an open forge bay (a stone hearth
+under a hood and a chimney, bellows, tongs) beside a stone room, an anvil and a quench barrel; the master smithy with a
+loft over the forge; the lodges with stacked timber and a ladder, the big one with a hoist.
+
+Retired into `tools/retired-art`: `weltmauerPatch`, `farCastlePane`, `farCastleGlow`, `farCleftGlow`, `farCleftGlowBack`,
+`farCastle2/3`, `farCastleBack2/3` and their `Build` and `Glow` states, `farCleftGlow2/3…`, `farCleftGlowBack2/3…`,
+`keepTop2/3`, `backTop2/3` and their building states, `cleftGraze`. Look 2 no longer draws `keepTop`, `castleBackGate`,
+`hallInterior`, `hallFront`, `chapel`, `chapelInterior`, `kitchen`, `kitchenInterior`, `castleWall`, `throne`, `hearth`
+or `candleStand` (look 1 keeps them).
+<!-- END world lane: world rebuild, step world-2 -->

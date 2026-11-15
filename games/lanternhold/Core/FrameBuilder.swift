@@ -20,6 +20,8 @@ enum FrameBuilder {
     /// The keep's glass seen across the gorge stands in the mid plane's haze (M2b review: at full strength its panes
     /// read as two eyes in the dark): glass on the gorge's mid plane glows at this share.
     static let gorgeMidGlass: Float = 0.45
+    /// World-2: the keep's glass glows at this share (it stands back, behind the curtain wall).
+    static let keepGlass: Float = 0.72
     /// The lowest a top-anchored rock lip may hang, in rows above the ground line (polish after the art review): 20
     /// rows above the statue's bowl fire (y 119), so the gorge's signature prop stays clear on every phone; 175-row
     /// screens show 36 of a lip's 48 rows, 154-row screens 15, the 135-row look none.
@@ -81,7 +83,11 @@ enum FrameBuilder {
         func bottom(of prop: Prop) -> Double {
             switch prop.anchor {
             case .ground: return prop.y
-            case .top: return max(Double(groundRow) - prop.y - Double(prop.height), FrameBuilder.lipLowestBottom)
+            case .top:
+                let bottom = Double(groundRow) - prop.y - Double(prop.height)
+                // World rebuild: a backdrop anchored at the top (the cleft wall and its slit of sky) keeps its top
+                // row at the screen's top on every phone; only the foreground's lips stop short of the statue.
+                return prop.plane == .foreground ? max(bottom, FrameBuilder.lipLowestBottom) : bottom
             }
         }
     }
@@ -132,7 +138,13 @@ enum FrameBuilder {
                                 focusX: camera.focusX,
                                 weather: weather)
         let hour = clock.hour
-        let ambient = Weather.apply(weather, to: AmbientRamp.sample(at: hour, look: options.look))
+        var ambient = Weather.apply(weather, to: AmbientRamp.sample(at: hour, look: options.look))
+        if options.look == .two {
+            // World rebuild, step world-2 (REVIEW-look-2.md 2.8, item 4): through the postern the picture turns warm
+            // over world 2330 to 2530, the reveal of the valley (`SceneLayout.valleyWarmth`); fix round 2 (the critic's
+            // high 9): its ambient and fog a warm step too (`SceneLayout.valleyWarmed`).
+            ambient = SceneLayout.valleyWarmed(ambient, focus: camera.focusX)
+        }
         let animTime = options.flickerTime ?? clock.elapsed
         let sources = entities?.lights ?? scene.sceneLights()
         let rains = options.look == .two && weather.rain > 0 && !options.reduceMotion
@@ -162,6 +174,10 @@ enum FrameBuilder {
         let ordered = props.sorted { ($0.plane, $0.z, $0.id) < ($1.plane, $1.z, $1.id) }
         var next = 0
         for plane in Plane.allCases {
+            if plane == .mid && options.look == .two, let moon = wedgeMoon(ambient: ambient, geometry: geometry) {
+                // World-2 fix round 1: the moon on the sky, behind the cleft's rock (`wedgeMoon`).
+                glow.add(moon)
+            }
             if plane == .world {
                 let tiles = options.look == .two ? laneTiles(geometry: geometry) : groundTiles(geometry: geometry)
                 for tile in tiles {
@@ -169,13 +185,11 @@ enum FrameBuilder {
                     planeSprites[plane.rawValue].append(tile)
                 }
                 if let gloom, fogUp > 0 {
-                    // The eyes in the bank's heart, behind everything that stands on the lane.
-                    let eyes = gloomEyeTiles(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings,
-                                             animTime: animTime, reduceMotion: options.reduceMotion,
-                                             geometry: geometry)
-                        + gloomEyes(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings, animTime: animTime,
-                                    reduceMotion: options.reduceMotion, geometry: geometry)
-                    for item in eyes {
+                    // The eyes in the fog, behind everything that stands on the lane. (World rebuild, fix round 1:
+                    // the painted eye tiles of the bank's heart are gone; with the bank's sheet lower they stood
+                    // above it in rows, 64 px apart. The bank keeps its own eyes in the fog, `bankEyes`.)
+                    for item in gloomEyes(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings,
+                                          animTime: animTime, reduceMotion: options.reduceMotion, geometry: geometry) {
                         glow.add(item)
                     }
                 }
@@ -184,6 +198,21 @@ enum FrameBuilder {
                 addProp(ordered[next], ambient: ambient, hour: hour, animTime: animTime, options: options,
                         geometry: geometry, sprites: &planeSprites, glow: &glow)
                 next += 1
+            }
+            if (plane == .near || plane == .world) && options.look == .two {
+                // World rebuild, step world-2: the castle's chimneys smoke, the keep's in the near plane's picture
+                // (moving with the mist band), the bakehouse's on the world plane.
+                planeSprites[plane.rawValue] += castleSmoke(props: ordered, plane: plane, animTime: animTime,
+                                                            reduceMotion: options.reduceMotion, geometry: geometry,
+                                                            ambient: ambient, glow: &glow)
+            }
+            if plane == .mid && options.look == .two {
+                // Fix round 1: the threads of water falling down the cleft wall, in front of it.
+                planeSprites[plane.rawValue] += cleftWater(animTime: animTime, reduceMotion: options.reduceMotion,
+                                                           geometry: geometry)
+                // World-2 (the critic of world-1, look 3: "the warm graze paints the wall's foot as pale lilac drips"):
+                // no band of glow along the wall's foot any more; the castle's fires warm the wall over the roofs as the
+                // cleft wall's backdrop lights, pools where light really burns.
             }
             if rains && plane == .near {
                 planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: animTime, ambient: ambient,
@@ -210,7 +239,17 @@ enum FrameBuilder {
                                                 targetWidth: geometry.targetWidth) ?? [] {
                     glow.add(item)
                 }
-                if wall > 0.01 {
+                if options.look == .two {
+                    // World rebuild: the darkness bank's sheet on the lane's plane (it stands with the fog too).
+                    for sheet in bankSheets where sheet.plane == .world {
+                        let tint = bankTint(sheet.sprite, ambient: ambient)
+                        for tile in bankSheetTiles(sheet, edgeX: bankEdgeX, tint: tint, animTime: animTime,
+                                                   reduceMotion: options.reduceMotion, geometry: geometry) {
+                            glow.occlude(tile, plane: .world)
+                            planeSprites[plane.rawValue].append(tile)
+                        }
+                    }
+                } else if wall > 0.01 {
                     for tile in bankTiles(edgeX: bankEdgeX, geometry: geometry, alpha: wall) {
                         // A wall that is half gone hides no glow.
                         if wall >= 0.5 {
@@ -220,20 +259,32 @@ enum FrameBuilder {
                     }
                 }
                 if options.look == .two {
-                    if wall > 0.01 {
-                        for item in bankGlow(edgeX: bankEdgeX, geometry: geometry, animTime: animTime,
-                                             reduceMotion: options.reduceMotion, strength: wall) {
-                            glow.add(item)
-                        }
+                    // Fix round 1: the bank's eyes come in pairs, a few at a time, at depths of their own, with or
+                    // without the Gloom's fog.
+                    for item in bankEyes(edgeX: bankEdgeX, animTime: animTime, reduceMotion: options.reduceMotion,
+                                         strength: 1, ambient: ambient, geometry: geometry) {
+                        glow.add(item)
                     }
                     for item in fireflies(hour: hour, animTime: animTime, reduceMotion: options.reduceMotion,
                                           geometry: geometry) {
                         glow.add(item)
                     }
+                    // Fix round 2 (the critic: "a warm half disc sits cut off at the screen's left edge"): the world's
+                    // end hides every glow inside its whole dark (the lord's lantern when he stands at the end).
+                    if let end = bankEndTile(geometry: geometry) {
+                        glow.occlude(end, plane: .world)
+                    }
                 }
             }
         }
-        let emissives = skyEmissives(ambient: ambient, hour: hour, geometry: geometry) + glow.items
+        // World rebuild, fix round 2: inside the walls at dusk the wedges show a dusk sky (warm toward the horizon, no
+        // stars yet), not the night's.
+        let cleftDusk = options.look == .two ? cleftDuskShare(focus: geometry.focusX, ambient: ambient) : 0
+        var skyAmbient = ambient
+        skyAmbient.starAlpha *= Float(1 - cleftDusk)
+        let emissives = skyEmissives(ambient: skyAmbient, hour: hour, geometry: geometry,
+                                     cleft: options.look == .two ? cleftShare(focus: geometry.focusX) : 0)
+            + glow.items
 
         var fog: [FogLayer] = []
         if options.effects.fog {
@@ -262,6 +313,27 @@ enum FrameBuilder {
                                                                 clearings: clearings, animTime: animTime,
                                                                 reduceMotion: options.reduceMotion,
                                                                 geometry: geometry)
+            }
+        }
+
+        if options.look == .two {
+            // World rebuild: the darkness bank's sheets on both fog planes, in front of the hour's fog and the
+            // Gloom's strips (the bank is the darkest thing there, with or without the fog effect). Painted in the
+            // night's own colours, so the lift the shader gives a fog plane is taken out of their tint.
+            let value = 1 / max(1, Look2.fogBrightness(ambient))
+            for sheet in bankSheets where sheet.plane != .world {
+                var tint = bankTint(sheet.sprite, ambient: ambient)
+                tint.x *= value
+                tint.y *= value
+                tint.z *= value
+                planeSprites[sheet.plane.rawValue] += bankSheetTiles(sheet, edgeX: bankEdgeX, tint: tint,
+                                                                     animTime: animTime,
+                                                                     reduceMotion: options.reduceMotion,
+                                                                     geometry: geometry)
+            }
+            // Fix round 1: where the world ends the dark is whole (the last 80 px, before everything).
+            if let end = bankEndTile(geometry: geometry) {
+                planeSprites[Plane.fogB.rawValue].append(end)
             }
         }
 
@@ -299,9 +371,9 @@ enum FrameBuilder {
                          emissives: emissives,
                          fog: fog,
                          ambient: ambient,
-                         skyTop: ambient.skyTop,
+                         skyTop: ambient.skyTop + (ambient.skyBottom - ambient.skyTop) * (Float(cleftDusk) * cleftDuskWarmth),
                          skyBottom: ambient.skyBottom,
-                         starAlpha: ambient.starAlpha,
+                         starAlpha: skyAmbient.starAlpha,
                          bankEdge: bankEdge,
                          bankAmbientScale: Float(DarknessBank.ambientScale),
                          lightStyle: options.lightStyle,
@@ -321,7 +393,8 @@ enum FrameBuilder {
     // MARK: - Sky
 
     /// Stars, the moon and the sun on the sky plane (parallax 0: target pixels are screen pixels).
-    private static func skyEmissives(ambient: AmbientSample, hour: Double, geometry: Geometry) -> [EmissiveInstance] {
+    private static func skyEmissives(ambient: AmbientSample, hour: Double, geometry: Geometry,
+                                     cleft: Double = 0) -> [EmissiveInstance] {
         var list: [EmissiveInstance] = []
         let width = geometry.targetWidth
         let ground = geometry.groundRow
@@ -348,11 +421,16 @@ enum FrameBuilder {
             let lift = Int((Double(ambient.moonHeight) * 90).rounded())
             let top = max(2, ground - 70 - lift)
             let left = Int(centre.rounded()) - size.width / 2
-            let alpha = min(1, max(0, ambient.moonHeight * 3 + 0.3)) * veil
+            // World rebuild, fix round 1: inside the walls the sky is two wedges between the rock, and the moon stands
+            // in the one over the bailey (an emitter of the cleft wall, `SceneLayout.look2Rock`); the open sky's
+            // moon gives way to it.
+            let alpha = min(1, max(0, ambient.moonHeight * 3 + 0.3)) * veil * Float(1 - cleft)
             let moon = GamePalette.moon
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             let color = SIMD4<Float>(moon.x, moon.y, moon.z, alpha)
-            list.append(EmissiveInstance(sprite: .moon, plane: .sky, rect: rect, color: color))
+            if alpha > 0.003 {
+                list.append(EmissiveInstance(sprite: .moon, plane: .sky, rect: rect, color: color))
+            }
         }
 
         if ambient.sunHeight > -0.1 {
@@ -362,7 +440,8 @@ enum FrameBuilder {
             let lift = Int((Double(ambient.sunHeight) * 110).rounded())
             let top = max(2, ground - 40 - lift)
             let left = Int(centre.rounded()) - size.width / 2
-            let alpha = min(1, max(0, ambient.sunHeight * 5 + 0.5)) * veil
+            // In the cleft the sun stands behind the wall (its bloom must not shine through the rock).
+            let alpha = min(1, max(0, ambient.sunHeight * 5 + 0.5)) * veil * Float(1 - cleft)
             let warm = min(1, max(0, ambient.sunHeight * 2 + 0.3))
             let low = GamePalette.ember
             let high = GamePalette.fireWhite
@@ -445,6 +524,71 @@ enum FrameBuilder {
         return list
     }
 
+    // MARK: World rebuild, step world-2 (SceneLayoutCastle.swift)
+
+    /// The castle's chimney smoke (`SceneLayout.castleChimney`) on the plane of its prop, placed by the plane the prop
+    /// moves with (the keep's moves with the mist band). Fix round 1 (the critic's high 3): puffs that rise and drift
+    /// (`CastleSmoke`), white × a pale value, so the hour's light gives them a value over the rock behind; the
+    /// bakehouse's take the warm glow of its chimney's mouth from below. Reduce Motion: they stand still.
+    private static func castleSmoke(props: [Prop], plane: Plane, animTime: Double, reduceMotion: Bool,
+                                    geometry: Geometry, ambient: AmbientSample,
+                                    glow: inout EmissiveList) -> [SpriteInstance] {
+        let weather = geometry.weather
+        let size = SpriteID.smokePuff.size
+        let value = CastleSmoke.value
+        let night = ambient.torchStrength
+        var list: [SpriteInstance] = []
+        for prop in props where prop.plane == plane {
+            guard let chimney = SceneLayout.castleChimney(prop) else { continue }
+            let whole = geometry.whole(prop.movesWith ?? prop.plane)
+            let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
+            let time = reduceMotion ? 0 : animTime
+            let fire = prop.sprite == .bakehouse
+            for puff in CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x)) where puff.alpha > 0.02 {
+                let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
+                guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+                let top = geometry.top(y: (chimney.y + puff.rise).rounded(), height: Double(size.height))
+                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+                list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
+                                           tint: SIMD4<Float>(value, value, value * 1.02, puff.alpha), flipped: false))
+                // Round lh-w2f1-2: lit only as albedo, the puffs sank into the night's rock. From the dusk they catch
+                // the moon (and over the bakehouse the oven's glow from below), a value step over the rock behind.
+                guard night > 0.05 else { continue }
+                var rgb = GamePalette.moon * (CastleSmoke.moonGlow * night)
+                if fire {
+                    let low = Float(max(0, 1 - puff.rise / CastleSmoke.warmRise))
+                    rgb += GamePalette.fireOrange * (CastleSmoke.fireGlow * night * low * low)
+                }
+                glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane, rect: rect,
+                                          color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, puff.alpha), frame: puff.frame))
+            }
+        }
+        return list
+    }
+
+    /// Fix round 1 (the critic's high 10: "the moon moves at about half the camera and sits on the keep's roof line"):
+    /// inside the walls the moon stands on the sky, still on the screen (factor 0), `wedgeMoonX` columns from its left
+    /// and `wedgeMoonTop` rows under its top (under the HUD). It goes into the emissive pass before the mid plane's
+    /// rock, so the cleft wall hides it but where a wedge of sky passes over it (the Throat's wedge, the camera about
+    /// 1600), clear of the keep, which stands far to its right there; at dusk it is not up yet.
+    /// How strong the keep's warm west rim is (fix round 1): by the hour's warmth (none at noon and at night, full from
+    /// the golden hour to sunset, fading through the dusk) and gone once the moon is up.
+    static func keepRimShare(_ ambient: AmbientSample) -> Float {
+        min(1, max(0, ambient.warmth / 0.25)) * (1 - wedgeMoonShare(ambient))
+    }
+
+    static let wedgeMoonX = 106.0
+    static let wedgeMoonTop = 34.0
+    private static func wedgeMoon(ambient: AmbientSample, geometry: Geometry) -> EmissiveInstance? {
+        let share = Float(cleftShare(focus: geometry.focusX)) * ambient.torchStrength * wedgeMoonShare(ambient)
+        guard share > 0.01 else { return nil }
+        let size = SpriteID.moon.size
+        let rect = SIMD4<Float>(Float(wedgeMoonX) - Float(size.width / 2), Float(wedgeMoonTop), Float(size.width),
+                                Float(size.height))
+        let moon = GamePalette.moon * share
+        return EmissiveInstance(sprite: .moon, plane: .mid, rect: rect, color: SIMD4<Float>(moon.x, moon.y, moon.z, 1))
+    }
+
     /// Look 2: the cut-away rooms on screen (`SceneLayout.look2Interior`), at most two, each as x0, y0, x1, y1 in
     /// world target pixels (half open). The great hall is no room while its front wall stands before it.
     private static func rooms(props: [Prop], geometry: Geometry) -> [SIMD4<Float>] {
@@ -521,34 +665,6 @@ enum FrameBuilder {
         return list
     }
 
-    /// Look 2 (SPRITES.md, ART-look2.md 11.5): the bank's cold eyes and dim embers, one frame of `darknessBankGlow`
-    /// over each body tile of the bank, drawn as it is: frame (tile index + time × 1.5) mod 4, with Reduce Motion the
-    /// tile index mod 4. The tiles are counted from the bank's edge, as `bankTiles` lays them.
-    private static func bankGlow(edgeX: Double, geometry: Geometry, animTime: Double,
-                         reduceMotion: Bool, strength: Float = 1) -> [EmissiveInstance] {
-        let whole = geometry.whole(.world)
-        let size = SpriteID.darknessBankGlow.size
-        let width = Double(size.width)
-        let frames = SpriteID.darknessBankGlow.frameCount
-        let step = reduceMotion ? 0 : Int((animTime * 1.5).rounded(.down))
-        let top = geometry.top(y: -Double(WorldLayout.groundRowsBelow), height: Double(size.height))
-        var list: [EmissiveInstance] = []
-        var x = edgeX.rounded(.down) - Double(SpriteID.darknessEdge.size.width) - width
-        var index = 0
-        while x > -width {
-            let left = x - whole
-            if geometry.isVisible(left: left, width: width) {
-                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-                list.append(EmissiveInstance(sprite: .darknessBankGlow, plane: .world, rect: rect,
-                                             color: SIMD4<Float>(strength, strength, strength, 1),
-                                             frame: (index + step) % frames))
-            }
-            x -= width
-            index += 1
-        }
-        return list
-    }
-
     // MARK: - Props
 
     /// The alpha of a baked cast shadow (scene polish 2): the sun's strength (full from a sun height of 0.18, none
@@ -591,11 +707,26 @@ enum FrameBuilder {
             let share = (geometry.focusX - fadeOut.lowerBound) / max(1, fadeOut.upperBound - fadeOut.lowerBound)
             alpha *= Float(1 - min(1, max(0, share)))
         }
+        if options.look == .two && (prop.plane == .far || prop.plane == .clouds) {
+            // World rebuild (B5, H1): inside the walls the cleft wall fills the view up to its slit of sky, and the
+            // far plane is gone (it fades while the gatehouse and the steps cover it, and comes back at the back gate).
+            // Fix round 1 (the director: "the slit at dusk reads as autumn leaves"): the high clouds go with it, so
+            // the wedges of sky show the sky's own gradient, the stars and the moon.
+            alpha *= Float(1 - cleftShare(focus: geometry.focusX))
+        }
         guard alpha > 0.003 else { return }
         let bottom = geometry.bottom(of: prop)
         let top = geometry.top(y: bottom, height: height)
         let rect = SIMD4<Float>(Float(left), Float(top), Float(prop.width), Float(prop.height))
         var tint = SIMD4<Float>(prop.shade, prop.shade, prop.shade, alpha * prop.alpha)
+        if options.look == .two && prop.plane == .mid && SceneLayout.look2CleftPieces.contains(prop.sprite) {
+            // World-2 (the critic of world-1, look 3: "the wall at night is a pale moonlit cardboard face, brighter than
+            // the castle"): the cleft's granite a step darker as the night comes, so the castle's windows carry it.
+            let dim = 1 - SceneLayout.look2CleftNightDim * Look.nightness(ambient)
+            tint.x *= dim
+            tint.y *= dim
+            tint.z *= dim
+        }
         // Scene polish 2: a cast shadow is black at the sun's strength, a mist bank white at the mist's; both are
         // translucent veils that hide no glow.
         var hidesGlow = true
@@ -609,6 +740,19 @@ enum FrameBuilder {
         } else if let mist = prop.mist {
             let share: Float = options.look == .two ? look2CastleMist : 1
             let strength = mistAlpha(mist, ambient: ambient) * alpha * prop.alpha * share
+            guard strength > 0.003 else { return }
+            tint = SIMD4<Float>(1, 1, 1, strength)
+            if options.look == .two && (prop.plane == .fogA || prop.plane == .fogB) {
+                // World-2 fix round 1: a bank of mist on a fog plane (the keep's) takes the hour's fog colour, as the
+                // fog's own tiles do; the shader lifts it like the fog. Fix round 2 (the critic's high 1): at night a
+                // dim, desaturated night grey, one value step over the keep's foot (`SceneLayout.castleMistTint`).
+                tint = SceneLayout.castleMistTint(ambient, strength: strength)
+            }
+            hidesGlow = false
+        } else if let share = prop.sunShaft {
+            // World rebuild: a shaft of light is white at the sun's strength (none at night, less under cloud).
+            let strength = sunShaftAlpha(share, ambient: ambient) * alpha * prop.alpha
+                * Float(1 - geometry.weather.cover)
             guard strength > 0.003 else { return }
             tint = SIMD4<Float>(1, 1, 1, strength)
             hidesGlow = false
@@ -633,10 +777,17 @@ enum FrameBuilder {
         }
         let torch = ambient.torchStrength
         guard torch > 0.01 else { return }
-        let haze: Float = prop.plane == .mid && prop.region == .gorge ? gorgeMidGlass : 1
+        // World-2: the keep's windows (it moves with the mist band, farther off than the world plane) a step dimmer.
+        let haze: Float = prop.plane == .mid && prop.region == .gorge ? gorgeMidGlass
+            : prop.movesWith == .mistBand ? keepGlass : 1
+        // World-2 fix round 2 (the director's note of 07:47, item 6): the castle's lit glass halfway to the torch's
+        // amber, the chapel's lancets no brighter than the keep's windows (`SceneLayout.castleAmberGlass`).
+        let amber = options.look == .two && SceneLayout.castleAmberGlass.contains(prop.sprite)
+        let castleTint = amber ? SceneLayout.castleAmberTint * SceneLayout.castleGlassShare(prop.sprite)
+                               : SIMD3<Float>(repeating: 1)
         for mask in prop.masks {
             let gain = options.look == .two ? glassGain * look2GlassGain : glassGain
-            let rgb = mask.color * (torch * gain * haze)
+            let rgb = mask.color * castleTint * (torch * gain * haze)
             let dx = prop.flipped ? width - mask.dx - Double(mask.width) : mask.dx
             let maskTop = geometry.top(y: bottom + mask.dy, height: Double(mask.height))
             let place = SIMD4<Float>(Float(left + dx), Float(maskTop), Float(mask.width), Float(mask.height))
@@ -657,6 +808,15 @@ enum FrameBuilder {
         if part.fadesByDay {
             strength *= ambient.torchStrength
         }
+        if SceneLayout.castleKeepRims.contains(part.sprite) {
+            // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm.
+            strength *= keepRimShare(ambient)
+        }
+        if part.sprite == .moon && options.look == .two {
+            // World rebuild, fix round 2: the moon in the cleft's wedge rises with the night's moon, not with the
+            // torches (the critic: "dusk looks the same as night: the same full moon in the same place").
+            strength *= wedgeMoonShare(ambient)
+        }
         if let seed = part.flickerSeed {
             let flicker = Flicker.sample(seed: seed, time: animTime * part.flickerPace,
                                          reduceMotion: options.reduceMotion)
@@ -673,6 +833,157 @@ enum FrameBuilder {
         let color = SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)
         return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color,
                                 flipped: part.mirrors && prop.flipped)
+    }
+
+    // MARK: - World rebuild, step world-1 (DESIGN.md "World rebuild (14.11.2026)")
+
+    /// The hour's fog tiles overlap by this much (look 2, tools/fogart.py `OVERLAP`).
+    static let fogOverlap = 64
+
+    /// One sheet of the darkness bank (tools/fogart.py): its plane, its painting, how far past the bank's edge its
+    /// leading face reaches (the low front sheet creeps ahead, the tall back one leans behind), and its breath.
+    struct BankSheet: Sendable, Equatable {
+        var plane: Plane
+        var sprite: SpriteID
+        var face: Double
+        var sway: Double
+        var period: Double
+        var phase: Double
+    }
+
+    /// The darkness bank (REVIEW-look-2.md 2.5, B4): three sheets of feathered fog at the lane's own parallax (like
+    /// the Gloom's strips), so they move with the bank's edge as one soft volume. On fog A behind the creatures the
+    /// tall, thin sheet whose billowing crest stands near the screen's top, on the lane's plane after its props the
+    /// darker sheet whose crest lies at about half the screen (it hides what stands low in the bank), on fog B before
+    /// everything the darkest, low roll; their faces breathe against each other. Fix round 1: each a face and body
+    /// tiles that hold every pixel once (`bankSheetTiles`), tinted by the hour (`bankTint`).
+    static let bankSheets = [
+        BankSheet(plane: .fogA, sprite: .bankSheetA, face: 24, sway: 3, period: 11, phase: 0),
+        BankSheet(plane: .world, sprite: .bankSheetB, face: 8, sway: 4, period: 8, phase: 0.4),
+        BankSheet(plane: .fogB, sprite: .bankSheetC, face: 44, sway: 7, period: 6, phase: 0.75),
+    ]
+    /// The sheets' bottom: four rows under the lowest screen row.
+    static let bankSheetY = -Double(WorldLayout.groundRowsBelow) - 4
+
+    /// The world x of a sheet's leading face (its right end): the bank's edge plus its reach, breathing (never with
+    /// Reduce Motion), in whole pixels.
+    static func bankFace(_ sheet: BankSheet, edgeX: Double, animTime: Double, reduceMotion: Bool) -> Double {
+        let breath = reduceMotion ? 0 : sheet.sway * sin(2 * Double.pi * (animTime / sheet.period + sheet.phase))
+        return (edgeX + sheet.face + breath).rounded()
+    }
+
+    /// One plane's sheets across the screen (fix round 1): the leading face (frame 1) with its right end at the face,
+    /// then body tiles (frame 0) every `width − fogOverlap` px westward to the screen's left end, returned west
+    /// first.
+    /// Neighbours overlap by `fogOverlap` px with complementary dithered feathers, so each pixel is held by exactly
+    /// one tile and a translucent sheet stays one even veil. `tint` is the hour's (`bankTint`).
+    private static func bankSheetTiles(_ sheet: BankSheet, edgeX: Double, tint: SIMD4<Float>, animTime: Double,
+                                       reduceMotion: Bool, geometry: Geometry) -> [SpriteInstance] {
+        let size = sheet.sprite.size
+        let width = Double(size.width)
+        let period = width - Double(fogOverlap)
+        let world = geometry.whole(.world)
+        let face = bankFace(sheet, edgeX: edgeX, animTime: animTime, reduceMotion: reduceMotion)
+        let top = geometry.top(y: bankSheetY, height: Double(size.height))
+        var list: [SpriteInstance] = []
+        var left = face - width - world
+        var frame = 1
+        while left + width >= -1 {
+            if geometry.isVisible(left: left, width: width) {
+                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+                list.append(SpriteInstance(sprite: sheet.sprite, frame: frame, rect: rect, tint: tint, flipped: false))
+            }
+            left -= period
+            frame = 0
+        }
+        return list.reversed()
+    }
+
+    /// The bank's eyes as glow on the world plane (fix round 1, `bankEyePairs`): drawn after the sheet on the lane, so
+    /// no fog of its own hides them; the low roll on fog B veils the lowest.
+    private static func bankEyes(edgeX: Double, animTime: Double, reduceMotion: Bool, strength: Float,
+                                 ambient: AmbientSample, geometry: Geometry) -> [EmissiveInstance] {
+        let size = SpriteID.darknessBankGlow.size
+        let whole = geometry.whole(.world)
+        var list: [EmissiveInstance] = []
+        for eye in bankEyePairs(edgeX: edgeX, time: animTime, reduceMotion: reduceMotion) {
+            let left = eye.x - whole
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let value = bankEyeStrength(eye, ambient: ambient) * strength
+            guard value > 0.02 else { continue }
+            let top = geometry.top(y: eye.y, height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(EmissiveInstance(sprite: .darknessBankGlow, plane: .world, rect: rect,
+                                         color: SIMD4<Float>(value, value, value, 1), frame: eye.frame))
+        }
+        return list
+    }
+
+    /// Where the world ends (x 0) the dark is whole: `bankEnd` on fog B, drawn black (fix round 1).
+    private static func bankEndTile(geometry: Geometry) -> SpriteInstance? {
+        let size = SpriteID.bankEnd.size
+        let left = -geometry.whole(.world)
+        guard geometry.isVisible(left: left, width: Double(size.width)) else { return nil }
+        let top = geometry.top(y: bankSheetY, height: Double(size.height))
+        let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+        return SpriteInstance(sprite: .bankEnd, frame: 0, rect: rect, tint: SIMD4<Float>(0, 0, 0, 1), flipped: false)
+    }
+
+    /// The cleft's threads of water (fix round 2; tools/cleftart.py `THREADS`): each thread's notch (mid x) and its row
+    /// under the wall's top (the wall is anchored at the screen's top, so the row is the screen's). Two, far apart, each
+    /// with a shape of its own in `cleftWater` (frames 0-5 and 6-11): it falls in an S over two short ledges and ends in
+    /// spray on a third, over the castle's roofs.
+    static let cleftThreads: [(x: Double, row: Double)] = [(893, 26), (1258, 30)]
+    /// The columns of room west of a thread's notch in its `cleftWater` frame, and the frames per thread.
+    static let cleftWaterInset = 5.0
+    static let cleftWaterFrames = 6
+    /// World-2 fix round 2 (the director's note of 07:47, item 7): the threads a little thinner, so the one that passes
+    /// behind the keep's stair turret no longer reads as a pole on it.
+    static let cleftWaterAlpha: Float = 0.6
+
+    /// The water falling down the cleft wall from each notch to its last spray: its own frames of `cleftWater`
+    /// scrolling down at six a second, still with Reduce Motion.
+    private static func cleftWater(animTime: Double, reduceMotion: Bool, geometry: Geometry) -> [SpriteInstance] {
+        let size = SpriteID.cleftWater.size
+        let step = reduceMotion ? 0 : Int((max(0, animTime) * 6).rounded(.down)) % cleftWaterFrames
+        let whole = geometry.whole(.mid)
+        var list: [SpriteInstance] = []
+        for (index, thread) in cleftThreads.enumerated() {
+            let left = thread.x - cleftWaterInset - whole
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let rect = SIMD4<Float>(Float(left), Float(thread.row + 1), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: .cleftWater, frame: index * cleftWaterFrames + step, rect: rect,
+                                       tint: SIMD4<Float>(1, 1, 1, cleftWaterAlpha), flipped: false))
+        }
+        return list
+    }
+
+    /// How deep the camera stands in the cleft (0 outside ... 1 between the gatehouse and the back gate): the open
+    /// sky's moon gives way to the one in the wedge of sky and the sun stands behind the rock.
+    static func cleftShare(focus: Double) -> Double {
+        let enter = AmbientRamp.smoothstep((focus - 1240) / 140)
+        let leave = AmbientRamp.smoothstep((focus - 2300) / 160)
+        return enter * (1 - leave)
+    }
+
+    /// How far the wedge moon is up (fix round 2): none while the night's moon is low (dusk), all of it from the blue
+    /// hour on.
+    static func wedgeMoonShare(_ ambient: AmbientSample) -> Float {
+        Float(AmbientRamp.smoothstep(Double((ambient.moonHeight - 0.25) / 0.25)))
+    }
+
+    /// How much of the cleft's sky is dusk's (fix round 2): deep in the cleft while the torches burn and the moon is not
+    /// up yet; 0 by day, at night and outside the walls.
+    static func cleftDuskShare(focus: Double, ambient: AmbientSample) -> Double {
+        let torch = AmbientRamp.smoothstep(Double(ambient.torchStrength) / 0.6)
+        return cleftShare(focus: focus) * torch * (1 - Double(wedgeMoonShare(ambient)))
+    }
+    /// How far the sky's top takes the horizon's colour in the cleft at dusk.
+    static let cleftDuskWarmth: Float = 0.38
+
+    /// The alpha of a shaft of light: the sun's strength (as the cast shadows', `sunShadowAlpha`) times its share.
+    static func sunShaftAlpha(_ share: Float, ambient: AmbientSample) -> Float {
+        share * min(1, max(0, (ambient.sunHeight + 0.12) / 0.3))
     }
 
     // MARK: - Fireflies
@@ -742,7 +1053,8 @@ enum FrameBuilder {
     /// and near planes (`fogBankTiles`).
     static func fogLayers(ambient: AmbientSample, animTime: Double, reduceMotion: Bool,
                           look: LookVersion = .one) -> [FogLayer] {
-        let slow = reduceMotion ? Flicker.reducedRateScale : 1.0
+        // World rebuild (M1): look 2's fog stands still under Reduce Motion; look 1 drifts slowly as it did.
+        let slow = reduceMotion ? (look == .two ? 0 : Flicker.reducedRateScale) : 1.0
         let driftA = Float(animTime * fogDriftA * slow)
         let driftB = Float(animTime * fogDriftB * slow)
         if look == .two {
@@ -797,17 +1109,19 @@ enum FrameBuilder {
         default: (sprite, baseY) = (.d2MistBand, look2MistBandY)
         }
         let size = sprite.size
-        let tile = Double(size.width)
+        // World rebuild (B4): each tile feathers out at both ends and the next one lies `fogOverlap` px over it,
+        // their feathers dithered against each other, so the bank goes on unbroken (tools/fogart.py).
+        let stride = Double(size.width - fogOverlap)
         let whole = geometry.whole(layer.plane)
-        let drift = Double(layer.drift).rounded(.down).truncatingRemainder(dividingBy: tile)
+        let drift = Double(layer.drift).rounded(.down).truncatingRemainder(dividingBy: stride)
         let top = geometry.top(y: baseY, height: Double(size.height))
         let tint = SIMD4<Float>(layer.color.x, layer.color.y, layer.color.z, min(1, layer.density))
-        let first = Int(((whole + drift) / tile).rounded(.down)) - 1
-        let count = geometry.targetWidth / size.width + 3
+        let first = Int(((whole + drift) / stride).rounded(.down)) - 1
+        let count = Int(Double(geometry.targetWidth) / stride) + 3
         var list: [SpriteInstance] = []
         for index in first..<(first + count) {
-            let left = Double(index) * tile - drift - whole
-            guard geometry.isVisible(left: left, width: tile) else { continue }
+            let left = Double(index) * stride - drift - whole
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             list.append(SpriteInstance(sprite: sprite, frame: 0, rect: rect, tint: tint, flipped: false))
         }
@@ -840,10 +1154,14 @@ enum FrameBuilder {
     ]
     /// The fog is drawn in slices this wide, each with the hole a fire cuts where it stands.
     static let gloomSlice = 16
+
+    /// World rebuild (B4): how many parts a slice is cut into where the fire's hole changes the cover by `step`
+    /// across it: whole below 0.06, halves below 0.18, quarters above.
+    static func gloomSubSlices(_ step: Double) -> Int {
+        step > 0.18 ? 4 : step > 0.06 ? 2 : 1
+    }
     /// The eyes glow a little over white, so the bloom catches them at phone size.
     static let gloomEyeGain: Float = 1.4
-    /// The painted eyes' tiles are laid leftward from this far behind the bank's edge.
-    static let gloomEyeInset = 32.0
 
     /// The world x of a strip's front at this moment: its share of the fog's way past the bank's edge, breathing
     /// (never with Reduce Motion).
@@ -878,14 +1196,24 @@ enum FrameBuilder {
                 for k in 0..<(size.width / gloomSlice) {
                     let left = tileLeft + Double(k) * slice
                     guard geometry.isVisible(left: left, width: slice) else { continue }
-                    let x = left + slice / 2 + world
-                    let cover = whole * (1 - GloomFog.hole(x: x, clearings: clearings))
-                    guard cover > 0.012 else { continue }
-                    let rect = SIMD4<Float>(Float(left), Float(top), Float(gloomSlice), Float(size.height))
-                    let source = SIMD4<Float>(Float(k * gloomSlice), 0, Float(gloomSlice), Float(size.height))
-                    list.append(SpriteInstance(sprite: strip.sprite, frame: face ? 1 : 0, rect: rect,
-                                               tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
-                                               flipped: false, source: source))
+                    // World rebuild (B4): where a fire's hole changes the cover steeply across a slice, the slice is
+                    // cut finer (8 or 4 px), so the fog thins toward the fire in small steps, never in 16 px columns.
+                    let ends = abs(GloomFog.hole(x: left + world, clearings: clearings)
+                                   - GloomFog.hole(x: left + slice + world, clearings: clearings)) * whole
+                    let parts = gloomSubSlices(ends)
+                    let width = gloomSlice / parts
+                    for part in 0..<parts {
+                        let partLeft = left + Double(part * width)
+                        let x = partLeft + Double(width) / 2 + world
+                        let cover = whole * (1 - GloomFog.hole(x: x, clearings: clearings))
+                        guard cover > 0.012 else { continue }
+                        let rect = SIMD4<Float>(Float(partLeft), Float(top), Float(width), Float(size.height))
+                        let source = SIMD4<Float>(Float(k * gloomSlice + part * width), 0, Float(width),
+                                                  Float(size.height))
+                        list.append(SpriteInstance(sprite: strip.sprite, frame: face ? 1 : 0, rect: rect,
+                                                   tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
+                                                   flipped: false, source: source))
+                    }
                 }
             }
             tileLeft -= tile
@@ -916,39 +1244,6 @@ enum FrameBuilder {
             list.append(SpriteInstance(sprite: .gloomWisp, frame: wisp.frame, rect: rect,
                                        tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
                                        flipped: false))
-        }
-        return list
-    }
-
-    /// The painted eyes in the bank's heart (`gloomFogEyes`, glow only): tiles laid leftward from a little behind
-    /// the bank's edge to the screen's left end, each stepping through the four frames on its own beat (standing
-    /// with Reduce Motion), dimmed where a fire clears the fog.
-    private static func gloomEyeTiles(_ gloom: GloomFog, edgeX: Double, hour: Double,
-                                      clearings: [GloomFog.Clearing], animTime: Double, reduceMotion: Bool,
-                                      geometry: Geometry) -> [EmissiveInstance] {
-        let size = SpriteID.gloomFogEyes.size
-        let tile = Double(size.width)
-        let world = geometry.whole(.world)
-        let frames = SpriteID.gloomFogEyes.frameCount
-        let step = reduceMotion ? 0 : Int((max(0, animTime) * 1.5).rounded(.down))
-        let presence = gloom.presence(hour: hour)
-        let top = geometry.top(y: 0, height: Double(size.height))
-        var list: [EmissiveInstance] = []
-        var index = 0
-        var left = edgeX.rounded() - gloomEyeInset - tile - world
-        while left + tile >= -1 {
-            if geometry.isVisible(left: left, width: tile) {
-                let strength = presence * (1 - GloomFog.hole(x: left + tile / 2 + world, clearings: clearings))
-                if strength > 0.02 {
-                    let value = Float(strength)
-                    let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-                    list.append(EmissiveInstance(sprite: .gloomFogEyes, plane: .world, rect: rect,
-                                                 color: SIMD4<Float>(value, value, value, 1),
-                                                 frame: (index + step) % frames))
-                }
-            }
-            index += 1
-            left -= tile
         }
         return list
     }
@@ -1193,14 +1488,29 @@ enum FrameBuilder {
                 let shifted = color + flicker.colorShift
                 color = clampUnit(shifted)
             }
+            if options.look == .two && plane == .world {
+                // World rebuild, fix round 2 (the critic: "a warm half disc sits cut off at the screen's left edge"):
+                // inside the world's end the dark is whole, so a light there (the lord's lantern when he stands at
+                // the end) fades with the end's own cover (`bankEnd`: whole for 20 px, gone by 92).
+                intensity *= AmbientRamp.smoothstep((source.x - 20) / 72)
+            }
             guard intensity > 0.01, radius > 0 else { continue }
             let centreX = source.x - geometry.whole(plane)
             guard geometry.isVisible(left: centreX - radius, width: 2 * radius) else { continue }
             let centreY = Double(geometry.groundRow) - source.y
             let circle = SIMD4<Float>(Float(centreX), Float(centreY), Float(radius), Float(intensity))
             let rgba = SIMD4<Float>(color.x, color.y, color.z, 0)
-            list.append(FrameLight(circle: circle, color: rgba, ellipseY: Float(LightField.ellipseY), kind: source.kind,
-                                   plane: plane))
+            // World-2 fix round 1: a scene light may shape its pool (flat on the cobbles, a cone up a wall).
+            var light = FrameLight(circle: circle, color: rgba, ellipseY: Float(source.squash ?? LightField.ellipseY),
+                                   kind: source.kind, plane: plane)
+            // World-2 fix round 2 (the critic's high 3): the architecture cuts it (an eave, a jamb, a corner).
+            if let cut = source.clip {
+                let whole = geometry.whole(plane)
+                let ground = Double(geometry.groundRow)
+                light.clip = SIMD4<Float>(Float(cut.x0 - whole), Float(ground - cut.y1),
+                                          Float(cut.x1 - whole + 1), Float(ground - cut.y0 + 1))
+            }
+            list.append(light)
         }
         return list
     }

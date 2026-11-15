@@ -24,6 +24,8 @@ enum SceneLayout {
         case fireWhite, fireGold, fireOrange, window
         /// Look 2: the cold light in the Weltmauer's cleft (steady, like a window).
         case cleft
+        /// World rebuild, fix round 1: the moon in the wedge of sky over the bailey (steady, at night).
+        case moon
     }
 
     /// A light in the instance's plane coordinates.
@@ -32,6 +34,13 @@ enum SceneLayout {
         let x: Double
         let y: Double
         let radius: Double
+        /// World-2 fix round 1: the pool's vertical squash in the picture (nil: the light field's own), and its colour
+        /// and strength when they differ from its kind's.
+        var squash: Double?
+        var color: SIMD3<Float>?
+        var intensity: Double?
+        /// World-2 fix round 2: where the architecture cuts the pool (nil: a whole pool).
+        var clip: LightClip?
     }
 
     /// One sprite instance.
@@ -59,6 +68,8 @@ enum SceneLayout {
         var sunShadow: SunShadow?
         /// A bank of ground mist (scene polish 2): white at this share of the hour's mist strength (0 by day).
         var mist: Float?
+        /// World rebuild (step world-1): a shaft of light, white at this share of the sun's strength (none at night).
+        var sunShaft: Float?
     }
 
     /// Tiles laid side by side: `sprites` in order (it repeats), `count` tiles from `x`, each `tileWidth` wide.

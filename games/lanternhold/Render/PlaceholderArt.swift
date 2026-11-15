@@ -32,12 +32,13 @@ enum PlaceholderArt {
         case .darknessBank: frames = [darknessBank(salt)]
         case .darknessEdge: frames = [darknessEdge(salt)]
         // Look 2 (ART-look2.md 13.1): every id has its PNG; these plain stand-ins keep the game drawable without one.
-        case .weltmauer, .weltmauerPatch, .gorgeRock, .gorgeCrags, .cleftFace, .cleftFaceEnd, .cleftFlank,
-             .cleftFlankB, .cleftThroat, .keepTop2, .keepTop2Build, .keepTop3, .keepTop3Build, .castleFront3,
-             .castleFront3Build, .castleFrontScaffold, .backTop2, .backTop2Build, .backTop3, .backTop3Build,
-             .farCastle2, .farCastle2Build, .farCastle3, .farCastle3Build, .farCastleBack2, .farCastleBack2Build,
-             .farCastleBack3, .farCastleBack3Build, .farCastlePane, .oldWall1, .oldWall2, .oldWall3,
-             .palisadeAnchor, .stoneWallAnchor, .bastionAnchor:
+        case .weltmauer, .throatStepA, .throatStepB, .throatStepC, .cleftWallA, .cleftWallB,
+             .cleftWallC, .gateRockL, .gateRockR, .castleFront3,
+             .castleFront3Build, .castleFrontScaffold, .oldWall1, .oldWall2, .oldWall3,
+             .palisadeAnchor, .stoneWallAnchor, .bastionAnchor, .moorRuin,
+             .keepT1, .keepT2, .keepT3, .keepT2Build, .keepT3Build, .curtainA, .curtainB, .curtainC, .curtainStair,
+             .curtainTower, .curtainHoard, .castleBanner, .forebuilding, .chapelTower, .bakehouse, .posternT1,
+             .posternT2, .posternT3, .gateArchFg:
             frames = [cliff(salt, size: size)]
         case .d2FirBeltFar, .shadowForest, .valleyVista, .d2TreeBelt, .firA, .firB, .firC, .firD, .deadTreeA,
              .deadTreeB, .linden, .poplar, .appleTree, .willow, .d2BushA, .d2BushB, .d2LaneEnd, .d2FgFerns,
@@ -46,15 +47,15 @@ enum PlaceholderArt {
             frames = [foliageStandIn(salt, size: size)]
         case .laneMoorA, .laneMoorB, .laneMoorC, .laneMoorD, .laneScreeA, .laneScreeB, .laneScreeC, .laneScreeD,
              .laneCobbleA, .laneCobbleB, .laneCobbleC, .laneCobbleD, .laneEarthA, .laneEarthB, .laneEarthC,
-             .laneEarthD:
+             .laneEarthD, .laneCobbleEnd, .laneScreeCobble:
             frames = [ground(salt)]
-        case .d2FogBank, .d2MistBand, .d2FogLow, .d2Smoke, .gloomFogBack, .gloomFogMid, .gloomFogFront, .gloomWisp:
+        case .d2FogBank, .d2MistBand, .d2FogLow, .d2Smoke, .gloomFogBack, .gloomFogMid, .gloomFogFront, .gloomWisp,
+             .cleftShaft, .bankSheetA, .bankSheetB, .bankSheetC, .bankEnd, .cloudDeck, .keepMist:
             frames = [mistBank(salt, size: size)]
-        case .farCastleGlow, .farCleftGlow, .farCleftGlowBack, .farCastle2Glow, .farCastle3Glow, .farCastleBack2Glow,
-             .farCastleBack3Glow, .farCleftGlow2, .farCleftGlow2Build, .farCleftGlow3, .farCleftGlow3Build,
-             .farCleftGlowBack2, .farCleftGlowBack2Build, .farCleftGlowBack3, .farCleftGlowBack3Build,
-             .d2Fireflies, .d2Sparks, .darknessBankGlow, .houseLit, .houseBLit, .houseCLit, .bigHouseLit,
-             .tavernLit, .gloomFogEyes:
+        case .d2Fireflies, .d2Sparks, .darknessBankGlow, .houseLit, .houseBLit, .houseCLit, .bigHouseLit,
+             .tavernLit, .gloomFogEyes, .cleftWater, .hallDoorGlow, .hallDoorWedge, .bakeHatchGlow,
+             .keepPaneHalo, .keepFireGlow, .posternFarGlow, .smokePuff, .keepRimT1, .keepRimT2, .keepRimT3, .keepRimT2Build,
+             .keepRimT3Build:
             frames = [glowStandIn(salt, size: size)]
         default:
             // M2b first (the strips of SPRITES.md), then the milestone 1 buildings and grids.

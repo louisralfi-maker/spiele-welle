@@ -1138,7 +1138,10 @@ enum EntityFrames {
         // did. They count against `maxEffectParticles`; none with Reduce Motion.
         var shed = 0
         if look == .two && !reduceMotion {
-            let sootTint = SIMD4<Float>(0.2, 0.18, 0.26, 1)
+            // World rebuild, fix round 2 (the critic: "black specks over the moor at noon look like dirt on the
+            // screen"): by day the flakes are pale ash and half seen; at night the dark soot as before.
+            let day = 1 - night
+            let sootTint = SIMD4<Float>(0.2 + 0.34 * day, 0.18 + 0.34 * day, 0.26 + 0.34 * day, 1 - 0.55 * day)
             let dustTint = SIMD4<Float>(0.66, 0.62, 0.6, 1)
             for index in order.reversed() where shed < maxSootParticles {
                 let c = s.creatures[index]
