@@ -126,7 +126,7 @@ def end_points():
     """Fix round 2 (the critic: "the cleft wall ends in a straight diagonal"): where the cleft opens to the valley the
     wall comes down as a broken ridge of crags: a polyline of short runs (4 to 16 px), most of them steep (a crag's
     face), some nearly level (a shoulder), a few rising again (a tooth standing up), small at first and bigger toward
-    the valley; scaled so it is under the canvas (205 rows down) by mid 1500. [(mid x, rows down)]"""
+    the valley; scaled so it reaches the canvas's foot at C's east edge (mid 1527), as before. [(mid x, rows down)]"""
     pts, x, y, k = [(float(END_X), 0.0)], float(END_X), 0.0, 0
     while x < CLEFT_X1 + 40:
         dx = 4 + 12 * h01(517, k)
@@ -143,8 +143,9 @@ def end_points():
         y = max(0.0, y + slope * dx)
         pts.append((x, y))
         k += 1
-    at = next(ya + (yb - ya) * (1500 - xa) / (xb - xa) for (xa, ya), (xb, yb) in zip(pts, pts[1:]) if xa <= 1500 < xb)
-    return [(px, py * 205.0 / at) for (px, py) in pts]
+    # (it reaches the canvas's foot only at C's east edge: the low crags hide what stands behind the cleft's mouth)
+    at = next(ya + (yb - ya) * (1527 - xa) / (xb - xa) for (xa, ya), (xb, yb) in zip(pts, pts[1:]) if xa <= 1527 < xb)
+    return [(px, py * 199.0 / at) for (px, py) in pts]
 
 
 END_POINTS = end_points()
@@ -480,14 +481,14 @@ def water():
 
             for (y, x, leg, since, left) in pts:
                 q = (y - 3 * f) % WATER_PERIOD
-                strand = (y - 3 * f) // 6
-                pos = q % 6
-                gap_from = 5 if h01(741, s_i, leg, strand % 3) < 0.5 else 4
+                strand = (y - 3 * f) // 9
+                pos = q % 9
+                gap_from = 8 if h01(741, s_i, leg, strand % 2) < 0.5 else 7
                 if since > 1 and pos >= gap_from:
                     continue                                   # a gap between strands
                 c = head if pos == 0 else core
                 put(x, y, c)
-                if leg and pos < gap_from - 1:
+                if (leg or since > 6) and pos < gap_from - 1:
                     put(x + 1, y, side)
                 if left <= 1:
                     put(x - 1, y, side)                        # it fans as it strikes the ledge
@@ -548,10 +549,10 @@ GATE = {
                    (1272, 45), (1275, 43), (1277, 31), (1281, 29), (1285, 20), (1289, 13), (1292, 6), (1294, 1)],
                   [(1255, 1260, 57), (1266, 1271, 40), (1278, 1284, 27)]),
     "gateRockR": (64, 70, 1436, 1467,
-                  [(1436, 1), (1440, 5), (1444, 8), (1448, 18), (1451, 20), (1453, 30), (1456, 32), (1458, 28),
-                   (1460, 40), (1463, 48), (1465, 46), (1467, 58), (1470, 64), (1473, 62), (1476, 55), (1479, 56),
-                   (1482, 52), (1485, 50), (1488, 44), (1491, 40), (1494, 30), (1496, 20), (1498, 9), (1499, 2)],
-                  [(1445, 1450, 16), (1456, 1461, 28)]),
+                  [(1436, 1), (1441, 4), (1446, 6), (1449, 13), (1453, 15), (1456, 14), (1458, 22), (1462, 25),
+                   (1465, 24), (1467, 36), (1470, 44), (1474, 45), (1477, 41), (1481, 42), (1485, 39), (1488, 36),
+                   (1491, 31), (1494, 24), (1496, 16), (1498, 8), (1499, 2)],
+                  [(1449, 1453, 11), (1458, 1462, 20)]),
 }
 
 
@@ -654,6 +655,36 @@ def aretes():
 ARETES = aretes()
 
 
+def clean_peaks(img):
+    """Fix round 2 (the critic: "the peak strip is torn white with blue bubble sky"): the Weltmauer's skyline as clean
+    peaks: between two summits (the highest points 14 px either side) the sky's gap is a V of two straight edges down
+    to the gap's lowest point; rock above the V is cut away, sky below it filled with the pixel under it."""
+    w, h = img.w, img.h
+    out = PA.Image(w, h, list(img.px))
+    tops = [next((y for y in range(h) if img.get(x, y)[3]), h) for x in range(w)]
+    peaks = [x for x in range(w) if tops[x] < h and tops[x] == min(tops[max(0, x - 14):x + 15])
+             and (not 0 < x < w - 1 or tops[x - 1] >= tops[x])]
+    # one summit per flat top
+    peaks = [x for i, x in enumerate(peaks) if i == 0 or x - peaks[i - 1] > 3]
+    for a, b in zip(peaks, peaks[1:]):
+        if b - a < 6:
+            continue
+        g = max(range(a, b + 1), key=lambda x: tops[x])
+        for x in range(a + 1, b):
+            if x <= g:
+                t = tops[a] + (tops[g] - tops[a]) * (x - a) / float(max(1, g - a))
+            else:
+                t = tops[g] + (tops[b] - tops[g]) * (x - g) / float(max(1, b - g))
+            t = int(round(t))
+            for y in range(h):
+                p = img.get(x, y)
+                if y < t and p[3]:
+                    out.set(x, y, (0, 0, 0, 0))
+                elif y >= t and not p[3] and y < tops[x]:
+                    out.set(x, y, img.get(x, tops[x]))
+    return out
+
+
 def ridges(path):
     """The Weltmauer's masses: under the snow, the painting's fine vertical streaks are smoothed across (a 7 x 3
     average of its granite steps), then the wall is cut into buttresses by arêtes that run down from the summits at a
@@ -665,6 +696,7 @@ def ridges(path):
     ramp = [col(n) for n in ("rockDeep", "rockDark", "rock", "rockLight", "rockPale")]
     index = {c: i for i, c in enumerate(ramp)}
     w, h = img.w, img.h
+    img = clean_peaks(img)
     tops = [next((y for y in range(h) if img.get(x, y)[3]), h) for x in range(w)]
     src = [[index.get(img.get(x, y)) for x in range(w)] for y in range(h)]
     out = PA.Image(w, h, list(img.px))
@@ -681,8 +713,8 @@ def ridges(path):
             if src[y][x] is None:
                 continue
             acc, n = 0.0, 0
-            for dy in (-1, 0, 1):
-                for dx in range(-3, 4):
+            for dy in (-2, -1, 0, 1, 2):
+                for dx in range(-5, 6):
                     yy, xx = y + dy, x + dx
                     if 0 <= yy < h and 0 <= xx < w and src[yy][xx] is not None:
                         acc += src[yy][xx]
@@ -695,12 +727,12 @@ def ridges(path):
                 a, b = xs[i], xs[i + 1]
                 u = (x - a) / max(1.0, b - a)
                 gully = 0.5 + 0.12 * (h01(961, i) - 0.5)
-                if u < 0.22:
-                    shift = -0.8                      # the arête's east flank, in its shade
-                elif u > 0.7:
-                    shift = 0.9                       # the next arête's west flank, in the light
+                if u < 0.24:
+                    shift = -1.3                      # the arête's east flank, in its shade
+                elif u > 0.68:
+                    shift = 1.3                       # the next arête's west flank, in the light
                 elif abs(u - gully) < 0.05:
-                    shift = -1.0                      # the gully between them
+                    shift = -1.6                      # the gully between them
             under = y - tops[x]
             fade = RF.ss((under - 6) / 18.0)          # the masses come out under the snow caps
             idx[y][x] = max(0, min(4, int(round(v + shift * fade))))

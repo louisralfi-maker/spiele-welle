@@ -3298,7 +3298,7 @@ warm valley beyond the back gate).
   joints, cast shadows marched toward the light, a cavity term, less light deeper in the cleft), `tools/cleftart.py`
   cuts the cleft and the steps and the gate's rock from it, `tools/fogart.py` paints the fog, the bank and the Gloom's
   strips. The rock is painted in clean clusters without dither (Louis' art bar); only the fog's alpha is dithered.
-  ART-look2.md section 21 has the notes, SPRITES.md "The rock and the fog" the ids.
+  ART-look2.md section 22 has the notes, SPRITES.md "The rock and the fog" the ids.
 - **Tests**: `FrameBuilderTests.testNoFogEdgeEndsInTheViewWithoutAFeatherOrANeighbour` (B4: every fog sprite's art
   feathers out, the hour's tiles overlap complementarily, and from the bank to the river at three hours, with and
   without the Gloom's fog, no fog instance's edge column stands in the view without a feather or a neighbour);
@@ -3380,6 +3380,50 @@ the muddy wall behind the gatehouse). Where they differ the director's note wins
   matter, not the bank's art); at night the HUD strip covers the screen's top centre, so the moon stands low in its
   wedge to be seen under it; the cleft's ledge drifts and threads of water are the brightest marks on the wall at
   night; step B keeps its height (the director).
+#### Step world-1, fix round 2 (the critic's 6.5 of 10, look 2; 15.11.2026)
+
+The critic (`ci-out/director/world-1-rock-fog-critic2.md`) did not pass round lh-w1f1-4: two blockers (the cleft
+wall's water threads read as poles and street lamps; its ledges and cracks as ruler lines, a grid of flat polygons)
+and six highs. Art notes: ART-look2.md 22.7; ids: SPRITES.md "The rock and the fog".
+
+- **The speed kit** (the director's note of 22:36): `App/SweepRunner.swift`, `UITests/SweepKit.swift`,
+  `Tests/SweepPlanTests.swift` (cherry-picked from claude/lh-speed) and `WorldSweepUITests` as `SweepKit` calls (the
+  director's patch); the sweep of 59 shots runs in about 5 minutes on the runner.
+- **The cleft wall** (`tools/cleftart.py`, `tools/rockfield.py`, all opt-in so the other rock keeps its look): no
+  bands; lens-shaped ledges scattered over the face (`pods`, `Massif.spots` with a lean), creased facets on a warped,
+  staggered, sheared grid (`Massif.crease`, `facet_seed`, `facet2`) with broken, tapering cracks, a swell on every
+  face (`face_relief`), the slit's cold light on whole facets (`Field.fsy`), snow drifts of their own sizes on half the
+  high ledges, no lit rim along the screen's top row (`Field.at` lets row 0 go on upward), the lit edge in broken
+  pieces (`paint(rim_broken:)`), the wall's end a broken crag ridge (`end_points`), C a value darker in the Throat
+  (`cleft_gain`). The ruler check: `WorldRebuildFix2Tests.testTheCleftWallHasNoRulerLines` (no horizontal line over
+  52 px, the critic's 240 px, joining aligned pieces as the eye does).
+- **The water**: two threads (`THREADS`, `FrameBuilder.cleftThreads` (893, 26) and (1258, 30)), each from a notch
+  with a wet stain, in an S over two ledges of its own into spray on a third; `cleftWater` is 14x54 in 12 frames (six
+  per thread, `cleftWaterFrames`, frame = thread × 6 + step), at about two thirds of the old white; the ledges stop
+  short of its column (`Massif.cuts`).
+- **The steps**: the tor (`throatStepB`) climbs in broken crag steps to a shoulder at 70 % of the screen and rises
+  only behind the warden statue (its stepped backing must stand in rock); C stands at full height. **The gate
+  rocks**: shoulders with three tongues over each tower's outer edge and ashlar on the notches, no outline, no spire.
+- **The night bank** (`Core/DarknessBankLook.swift`): the sheets apart in value at night (A 0.62/0.72/1.16 at 0.7
+  alpha, B 0.5/0.56/0.9, C 0.3/0.34/0.62), the eyes on one period (`bankEyePeriod` 7 s) with the slots a fifth
+  apart (at most one slot shut at a time: two or three pairs on every night frame), above the low roll (near 26 to
+  56 rows, far 46 to 128); `bankEnd` occludes the glow inside the world's end (`FrameBuilder.build`).
+- **Dusk in the cleft** (`FrameBuilder.cleftDuskShare`, `wedgeMoonShare`): no wedge moon until the night's moon is
+  up, no stars, the sky's top 0.7 of the way to the horizon's colour inside the walls at dusk. **The warm graze**
+  (`cleftGraze`, `FrameBuilder.cleftGraze`): glow in `fireOrange` × torches × 0.55 behind the buildings, mid 700 to
+  1300. **The moon** stands 36 rows under the screen's top (`look2SlitMoonTop`; the HUD's stat panel ends at row 33).
+- **The Weltmauer and the deck**: arêtes and buttress masses (`cleftart.py ridges`), the slot patch without dotted
+  columns, no high clouds in the peak gaps (`SceneLayout.dropsInLook2` drops look 1's sky clouds; look 2's clouds-plane
+  deck is gone), `cloudDeck` 720x100 with towers and a horizontal veil.
+- **The cobbles** end stone by stone over the tile at world 2432 (`laneCobbleEnd`, `look2CobbleEnd`). **The soot
+  flakes** of the brutes are pale and half seen by day (`EntityFrames`, two lines).
+- **Tests**: `WorldRebuildFix2Tests` (ruler lines, at most two threads per screen, the moon under the HUD at every
+  camera at dusk and night, dusk in the cleft unlike night, the warm graze, two or three eye pairs at every moment,
+  the world's end hides the glow); `Look2FrameTests.testTheLaneByRegion` knows `laneCobbleEnd`.
+- **The art lock**: several lanes' shells whose command lines name a python art script (a heredoc in the same
+  command) match the lock's own check for image jobs, so the lock waits its full 20 minutes for a shell that is only
+  waiting for the lock. This round built its last sprites with `careful.sh` in the scratchpad (one at a time, only
+  while no python3 or sips process runs and the CPU is under 70 °C).
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks

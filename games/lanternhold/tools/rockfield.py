@@ -591,9 +591,9 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_sh
                                                                      not field.inside(x - 1, y - 1)) or second
                 if lit_edge and rim_broken:
                     # fix round 2 (the critic: "a continuous pale outline stroke around the rock"): the light catches
-                    # the edge in pieces (3 to 8 px, a third of them dark), one pixel deep, never an outline
-                    seg = int((gx + 3 * y) // (3 + 5 * h01(seed, 979, int((gx + 3 * y) // 9))))
-                    lit_edge = not second and h01(seed, 977, seg) < 0.62
+                    # the edge in pieces (2 to 6 px, more than half of them dark), one pixel deep, never an outline
+                    seg = int((gx + 3 * y) // (2 + 4 * h01(seed, 979, int((gx + 3 * y) // 9))))
+                    lit_edge = not second and h01(seed, 977, seg) < 0.45
                 if lit_edge:
                     # (fix round 1: on a slope the edge is two pixels deep, so it reads as one line, not dots)
                     c = snow[1] if snow_rows and y < snow_rows else ramp[min(n - 1, max(k, n - 3) + 2 - second)]

@@ -153,8 +153,15 @@ final class WorldRebuildFix2Tests: XCTestCase {
     /// The critic: "a warm half disc sits cut off at the screen's left edge" (the lord's lantern inside the world's
     /// end): the world's end hides every glow in its whole dark.
     func testTheWorldsEndHidesTheGlowInside() {
-        let desc = frame(timeOfDay: 0.97, focus: 0)
-        XCTAssertTrue(desc.emissives.contains { $0.sprite == .bankEnd && $0.kind == .occluder },
-                      "the end's dark occludes the glow behind it")
+        // Every glow on the world plane that overlaps the end's dark has the end's occluder after it.
+        for timeOfDay in [19.2 / 24, 0.97] {
+            let desc = frame(timeOfDay: timeOfDay, focus: 0)
+            let size = SpriteID.bankEnd.size
+            for (index, glow) in desc.emissives.enumerated() where glow.kind == .glow && glow.plane == .world {
+                guard glow.rect.x < Float(size.width) else { continue }
+                XCTAssertTrue(desc.emissives[index...].contains { $0.sprite == .bankEnd && $0.kind == .occluder },
+                              "\(glow.sprite) inside the world's end is hidden by its dark")
+            }
+        }
     }
 }

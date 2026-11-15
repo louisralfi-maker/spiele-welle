@@ -851,7 +851,7 @@ enum FrameBuilder {
     /// (the gatehouse to the back gate), every `width` px, every second one mirrored; the fire's colour at the
     /// torches' strength.
     static let cleftGrazeSpan: ClosedRange<Double> = 700...1300
-    static let cleftGrazeGain: Float = 0.55
+    static let cleftGrazeGain: Float = 0.8
 
     private static func cleftGraze(ambient: AmbientSample, geometry: Geometry) -> [EmissiveInstance] {
         let torch = min(1, max(0, ambient.torchStrength))
@@ -897,7 +897,7 @@ enum FrameBuilder {
         return cleftShare(focus: focus) * torch * (1 - Double(wedgeMoonShare(ambient)))
     }
     /// How far the sky's top takes the horizon's colour in the cleft at dusk.
-    static let cleftDuskWarmth: Float = 0.7
+    static let cleftDuskWarmth: Float = 0.38
 
     /// The alpha of a shaft of light: the sun's strength (as the cast shadows', `sunShadowAlpha`) times its share.
     static func sunShaftAlpha(_ share: Float, ambient: AmbientSample) -> Float {
