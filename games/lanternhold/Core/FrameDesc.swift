@@ -367,7 +367,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bakehouse: return PixelSize(width: 100, height: 62)
         case .bakeHatchGlow: return PixelSize(width: 6, height: 6)
         case .posternT1, .posternT2, .posternT3: return PixelSize(width: 176, height: 112)
-        case .gateArchFg: return PixelSize(width: 64, height: 180)
+        case .gateArchFg: return PixelSize(width: 64, height: 120)
         case .moorRuin: return PixelSize(width: 50, height: 36)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
         case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:
@@ -422,6 +422,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bankSheetA, .bankSheetB, .bankSheetC: return 2
         case .cleftWater: return 12   // fix round 2: six frames per thread, the second thread's from frame 6
         case .forebuilding, .chapelTower: return 2   // world-2: the hall door closed and open; the bell, gone
+        case .gateArchFg: return 2                   // world-2: the gatehouse's passage, the postern's
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9

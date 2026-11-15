@@ -101,7 +101,7 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(only(second, .keepT2, .near)?.masks.count, 6)
         XCTAssertEqual(only(second, .castleFront), front, "tier 2 keeps the gatehouse")
         XCTAssertNotNil(only(second, .posternT2))
-        XCTAssertEqual(count(second, .curtainHoard), 4)
+        XCTAssertEqual(count(second, .curtainHoard), 3)
 
         let building = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2, building: true)).props
         XCTAssertEqual(only(building, .keepT2Build, .near)?.masks.count, 2, "the new storey has no lit panes yet")

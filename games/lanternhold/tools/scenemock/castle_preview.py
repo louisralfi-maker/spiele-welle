@@ -45,7 +45,7 @@ def pieces(tier, building=False):
         out += [("world", "curtainTower", 1584, 0, "ground", 0)]
     out += [("world", "curtainStair", 1724, 0, "ground", 0)]
     if built >= 2:
-        for x in (1538, 1602, 1890, 2060):
+        for x in (1538, 1602, 2060):
             out.append(("world", "curtainHoard", x, 54, "ground", 0))
     if built >= 3:
         for x in (1500, 1906, 2084):

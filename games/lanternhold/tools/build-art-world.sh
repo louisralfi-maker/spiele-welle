@@ -77,7 +77,9 @@ build() { # name: one sprite (or one group of small ones)
         python3 -I -B games/lanternhold/tools/cleftart.py ridges $A/weltmauer.png; cool
         python3 -I -B games/lanternhold/tools/cleftart.py mistleft $A/weltmauer.png; cool
         # world-2 (one castle): no far castle in the second slot either (the valley's view); no patch, no pane
-        python3 -I -B games/lanternhold/tools/cleftart.py noslot2 $A/weltmauer.png ;;
+        python3 -I -B games/lanternhold/tools/cleftart.py noslot2 $A/weltmauer.png; cool
+        # world-2: its east tail comes down as a broken ridge before the canvas ends (no seam over the valley)
+        python3 -I -B games/lanternhold/tools/cleftart.py wmtail $A/weltmauer.png ;;
     castleTiers) # the gatehouse's tier 3 and its scaffold (the art pass; castleart.py also wrote the keep's copies and
                  # the far castles, retired by world-2 into tools/retired-art)
         python3 -I -B $CA tiers $A ;;

@@ -20,6 +20,8 @@ enum FrameBuilder {
     /// The keep's glass seen across the gorge stands in the mid plane's haze (M2b review: at full strength its panes
     /// read as two eyes in the dark): glass on the gorge's mid plane glows at this share.
     static let gorgeMidGlass: Float = 0.45
+    /// World-2: the keep's glass glows at this share (it stands back, behind the curtain wall).
+    static let keepGlass: Float = 0.72
     /// The lowest a top-anchored rock lip may hang, in rows above the ground line (polish after the art review): 20
     /// rows above the statue's bowl fire (y 119), so the gorge's signature prop stays clear on every phone; 175-row
     /// screens show 36 of a lip's 48 rows, 154-row screens 15, the 135-row look none.
@@ -712,7 +714,9 @@ enum FrameBuilder {
         }
         let torch = ambient.torchStrength
         guard torch > 0.01 else { return }
-        let haze: Float = prop.plane == .mid && prop.region == .gorge ? gorgeMidGlass : 1
+        // World-2: the keep's windows (it moves with the mist band, farther off than the world plane) a step dimmer.
+        let haze: Float = prop.plane == .mid && prop.region == .gorge ? gorgeMidGlass
+            : prop.movesWith == .mistBand ? keepGlass : 1
         for mask in prop.masks {
             let gain = options.look == .two ? glassGain * look2GlassGain : glassGain
             let rgb = mask.color * (torch * gain * haze)

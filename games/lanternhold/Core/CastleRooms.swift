@@ -1,8 +1,9 @@
 /// The castle's rooms. World rebuild, step world-2 (docs/REVIEW-look-2.md B1: exteriors only): the cut-away rooms and
 /// their front-wall fades are gone from the world. The great hall is the stage lane's own scene; the chapel and the
 /// kitchen are closed buildings seen from outside (`SceneLayout.look2CastleExteriors`). `RoomFades` keeps its shape for
-/// the court's code (`CourtFrames`, `GameModel+Court`): every room is open, so whoever stands in the castle is seen
-/// where he stands, and nothing fades.
+/// the court's code (`CourtFrames`, `GameModel+Court`): every room is shut (nothing of its insides shows in the world:
+/// not the hall's hearth, banners, tapestry or lantern, not the chapel's candles), while whoever stands in the castle
+/// is seen where he stands; nothing fades.
 struct RoomFades: Sendable, Equatable {
     /// The fade's length (M3: 0.25 s); nothing fades since world-2.
     static let seconds = 0.25
@@ -13,21 +14,21 @@ struct RoomFades: Sendable, Equatable {
     private(set) var open: [Double]
 
     init(kingX: Double) {
-        open = RoomFades.rooms.map { _ in 1 }
+        open = RoomFades.rooms.map { _ in 0 }
     }
 
-    /// 1: every room stands open (there is no front wall to fade).
-    static func target(_ room: WorldLayout.RoomID, kingX: Double) -> Double { 1 }
+    /// 0: every room is shut, seen from outside.
+    static func target(_ room: WorldLayout.RoomID, kingX: Double) -> Double { 0 }
 
     mutating func step(kingX: Double, dt: Double, reduceMotion: Bool) {}
 
-    /// How open a room is: always 1.
-    func openness(_ room: WorldLayout.RoomID) -> Double { 1 }
+    /// How open a room is: never (its insides do not show in the world).
+    func openness(_ room: WorldLayout.RoomID) -> Double { 0 }
 
     /// The opacity of a room's front: none is drawn.
     func front(_ room: WorldLayout.RoomID) -> Float { 0 }
 
-    /// How much of something standing at `x` shows: all of it.
+    /// How much of someone standing at `x` shows: all of him (the court stands where it stands).
     func visibility(x: Double) -> Double { 1 }
 
     var isSettled: Bool { true }
@@ -36,7 +37,7 @@ struct RoomFades: Sendable, Equatable {
 /// The castle's exteriors in the game (world-2): what the realm's state and the lord's place change on them. The hall
 /// door opens while the lord stands at it (the open frame shows the hall's warm light, and at dusk and night a warm
 /// wedge of light falls on the cobbles before it; shut, a thin line of light under the door at night); the gate
-/// passage's arch frames the lord in the foreground while he passes through either gate; the chapel's belfry stands
+/// passage's shade frames the lord in the foreground while he passes through either gate (inside the opening only); the chapel's belfry stands
 /// empty once the bell is melted (`castle.chapel.bell.missing`); a world change darkens one window of the keep
 /// (`castle.keep.window.dark`).
 enum CastleRooms {
@@ -141,7 +142,7 @@ enum CastleRooms {
                 let x = ((passage.lowerBound + passage.upperBound) / 2 - width / 2).rounded()
                 props.append(Prop(id: id, sprite: .gateArchFg, plane: .foreground, x: x,
                                   y: -Double(WorldLayout.groundRowsBelow), z: 9, region: .castle, movesWith: .world,
-                                  alpha: Float(tenths) / 10))
+                                  frame: index, alpha: Float(tenths) / 10))
                 id += 1
             }
         }

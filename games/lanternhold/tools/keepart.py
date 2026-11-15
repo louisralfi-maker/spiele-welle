@@ -23,7 +23,7 @@ its gold lantern.
   bakehouse                         100x62   the kitchen's lean-to with the oven's hatch and a chimney
   bakeHatchGlow                     6x6      emissive: the oven's fire through the hatch
   posternT1, posternT2, posternT3   176x112  the back gate per tier: a squat tower and the passage at x 100
-  gateArchFg                        64x180   foreground: the gate passage's dark arch while the lord passes through
+  gateArchFg                        64x120 x 2  foreground: the gate passage's shade around the lord (the gatehouse, the postern)
 """
 import math
 import os
@@ -84,7 +84,7 @@ class C:
 
 
 # ------------------------------------------------------------------------------------------------------ stone
-def ashlar(c, x0, y0, x1, y1, seed, course=5, bmin=6, bmax=12, joints=1.0, darken=None, foot=0.0, light=0.035,
+def ashlar(c, x0, y0, x1, y1, seed, course=5, bmin=6, bmax=12, joints=1.0, darken=None, foot=0.0, light=0.015,
            dark=0.07, bed=0.8, quoins=False):
     """Coursed dressed stone over the box (image rows y0 top .. y1 bottom), calm as the gatehouse's: courses `course`
     rows high in a running bond of blocks bmin..bmax wide; most blocks the plain stone, a lit stoneLight block now and
@@ -527,7 +527,7 @@ def keep_body(c, t, tier, seed, building=False):
         share = (x - bx0 - 86) / 40.0
         return -1 if share > 0 and h01(seed, x // 7, y // 4, 17) < share else 0
     ashlar(c, bx0, c.r(ww), bx1, c.r(0), seed, course=4, bmin=6, bmax=11, joints=0.45, darken=turn, foot=0.25,
-           light=0.05, dark=0.08, bed=0.6)
+           light=0.02, dark=0.08, bed=0.6)
     for x in range(bx0, bx1 + 1):                # the battered plinth
         for hh in range(0, 6):
             c.set(x, c.r(hh), "stoneMid" if hh < 5 else "stoneLight")
@@ -557,7 +557,7 @@ def keep_body(c, t, tier, seed, building=False):
     # crown on machicolations; the left tower throws its shadow on the main block
     for i, (x0, x1) in enumerate(KTOWERS):
         ashlar(c, x0, c.r(tw), x1, c.r(0), seed + 31 * (i + 1), course=4, bmin=6, bmax=10, joints=0.45,
-               foot=0.25, light=0.10 if i == 0 else 0.03, dark=0.06 if i == 0 else 0.16, bed=0.6, quoins=True,
+               foot=0.25, light=0.04 if i == 0 else 0.01, dark=0.06 if i == 0 else 0.16, bed=0.6, quoins=True,
                darken=(lambda x, y: -1 if x > 180 and h01(x // 5, y // 4, 23) < 0.7 else 0) if i == 1 else None)
         for hh in range(0, 7):
             for x in range(x0 - 1, x1 + 2):
@@ -1049,20 +1049,22 @@ def hall_door_glow():
 
 def hall_door_wedge():
     """The door's wedge of warm light on the cobbles (an emitter just under the ground line before the door): a
-    trapezoid from the door's width to about three times it, its strength falling away from the door in
-    ordered-dither steps of alpha."""
+    trapezoid from the door's width to about three times it, its strength falling away from the door and toward its
+    sides in eight smooth steps of alpha (light, not art: no dither), gold near the door, orange and ember at the
+    rim."""
     c = C(60, 12)
-    bayer = ((0, 8, 2, 10), (12, 4, 14, 6), (3, 11, 1, 9), (15, 7, 13, 5))
     for y in range(12):
         half = 9 + y * 1.7
         for x in range(60):
             dx = abs(x - 29.5)
             if dx > half:
                 continue
-            a = (1 - y / 12.5) * (1 - (dx / half) ** 2 * 0.75)
-            if a * 16 <= bayer[y % 4][x % 4]:
+            a = (1 - y / 12.5) * (1 - (dx / half) ** 2)
+            k = int(a * 8 + 0.5)
+            if k <= 0:
                 continue
-            c.set(x, y, "fireGold" if a > 0.55 else "fireOrange" if a > 0.3 else "ember")
+            r_, g_, b_, _ = col("fireGold" if a > 0.55 else "fireOrange" if a > 0.28 else "ember")
+            c.im.set(x, y, (r_, g_, b_, min(255, 32 * k)))
     return c.im
 
 
@@ -1530,23 +1532,49 @@ def lodge(big=False):
 
 
 # ------------------------------------------------------------------------------------------ the gate's arch
-def gate_arch_fg():
-    """The gate passage's dark arch in the foreground while the lord passes through either gate: two jambs and the
-    vault's soffit, near black, the inner edge a step lighter, the joints barely there."""
-    c = C(64, 180)
-    for y in range(180):
-        hh = 179 - y
-        for x in range(64):
-            jamb = x < 9 or x > 54
-            vr = (x - 31.5) ** 2 + max(0, hh - 128) ** 2
-            if not (jamb or hh > 151 or (hh > 128 and vr > 23.5 ** 2)):
+ARCH_W, ARCH_H, ARCH_UNDER = 64, 120, 26
+# The two passages (centre column of the 64 px frame, half width, springing height): the gatehouse's gateway (world
+# 1337 to 1383, its arch's crown at about y 85 in castleFront) and the postern's (world 2320 to 2340, keepart's PASS).
+ARCH_PASSAGES = ((31.5, 23.0, 62.0), (31.5, 10.0, 20.0))
+
+
+def gate_arch_frame(cx, hw, spring):
+    """The shade of a gate passage around the lord while he walks through it (in the foreground, so it lies over him
+    too): night0 at stepped alpha in a band 7 px wide along the inside of the opening's jambs and its arch, a soft shadow
+    on the floor under him; nothing over the masonry outside the opening, nothing in its middle."""
+    c = C(ARCH_W, ARCH_H)
+    steps = (0, 56, 104, 150, 186)
+    for y in range(ARCH_H):
+        hh = ARCH_H - 1 - ARCH_UNDER - y
+        for x in range(ARCH_W):
+            dx = abs(x - cx)
+            if dx > hw:
                 continue
-            edge = (x in (8, 55) and hh <= 128) or (hh > 128 and 23.5 ** 2 < vr <= 25 ** 2)
-            name = "stoneDark" if edge else "night0"
-            if not edge and hh % 7 == 0 and (hh // 7 + x // 9) % 2 == 0:
-                name = "nightDeep"
-            c.set(x, y, name)
+            if hh >= 0:
+                if hh <= spring:
+                    d = hw - dx
+                else:
+                    r = (dx * dx + (hh - spring) ** 2) ** 0.5
+                    if r > hw:
+                        continue
+                    d = hw - r
+                share = max(0.0, 1 - d / 7.0)
+            else:
+                if -hh > 6:
+                    continue
+                share = 0.45 * (1 - (-hh) / 7.0) * (0.5 + 0.5 * (dx / hw))
+            k = int(share * 4 + 0.5)
+            if k > 0:
+                r_, g_, b_, _ = col("night0")
+                c.im.set(x, y, (r_, g_, b_, steps[k]))
     return c.im
+
+
+def gate_arch_fg():
+    out = PA.Image(ARCH_W * 2, ARCH_H)
+    for i, (cx, hw, spring) in enumerate(ARCH_PASSAGES):
+        WA.blit(out, gate_arch_frame(cx, hw, spring), i * ARCH_W, 0)
+    return out
 
 
 BUILDERS = {

@@ -58,8 +58,8 @@ final class CastleRoomsTests: XCTestCase {
         var rooms = RoomFades(kingX: 1650)
         XCTAssertTrue(RoomFades.rooms.isEmpty)
         for room in WorldLayout.RoomID.allCases {
-            XCTAssertEqual(rooms.openness(room), 1)
-            XCTAssertEqual(rooms.front(room), 0)
+            XCTAssertEqual(rooms.openness(room), 0, "\(room): shut, seen from outside")
+            XCTAssertEqual(rooms.front(room), 0, "no front is drawn")
         }
         rooms.step(kingX: 1830, dt: 0.1, reduceMotion: false)
         XCTAssertTrue(rooms.isSettled)
@@ -194,24 +194,15 @@ final class CastleRoomsTests: XCTestCase {
                        1580)
     }
 
-    /// M3 fix (U2): a gold mark over the throne while petitioners wait in the hall by day (the same art as the speech
-    /// mark, drawn after the lighting); gone with the last petitioner, at night and under the audience.
-    func testTheThroneIsMarkedWhilePetitionersWait() {
-        var s = realm(day: 3, hour: 10, kingX: 1830)
+    /// M3 fix (U2) drew a gold mark over the throne while petitioners waited in the cut-away hall. World-2: the hall is
+    /// shut in the world (the throne and its marks are the stage lane's hall stage), so no such mark stands outside.
+    func testNoThroneMarkStandsInTheWorld() {
+        let s = realm(day: 3, hour: 10, kingX: 1830)
         XCTAssertFalse(AudienceRules.hall(s, catalog: .standard).isEmpty, "petitioners wait on day 3")
         let court = CourtScene(rooms: RoomFades(kingX: 1830))
-        func marks(_ state: GameState) -> [ActorInstance] {
-            Self.frame(state, focus: 1830, court: court).desc.actors.filter { $0.sprite == .speakerMark }
-        }
-        let waiting = marks(s)
-        XCTAssertEqual(waiting.count, 1, "one mark over the throne")
-        XCTAssertEqual(waiting.first?.isEmissive, true, "it reads in the dim hall")
-        XCTAssertEqual(waiting.first?.tint.x, CourtFrames.throneMarkGold.x)
-        var night = s
-        night.hour = 22
-        XCTAssertTrue(marks(night).isEmpty, "they went home at the horn")
-        s.court?.queue = []
-        XCTAssertTrue(marks(s).isEmpty, "nobody waits")
+        let marks = Self.frame(s, focus: 1830, court: court).desc.actors.filter { $0.sprite == .speakerMark
+            && $0.tint.x == CourtFrames.throneMarkGold.x }
+        XCTAssertTrue(marks.isEmpty)
     }
 
     /// Stage 7's banners: a house's banner hangs once the banners are hung (`tithe_letters`) and the house stands
@@ -226,30 +217,12 @@ final class CastleRoomsTests: XCTestCase {
         XCTAssertEqual(CourtFrames.houseBannerPlaces(world: [hung], flags: []), [], "no house stands with the lord")
         XCTAssertEqual(CourtFrames.houseBannerPlaces(world: [hung], flags: ["lorn_with", "varn_with"]), [2, 3])
         let houses = Set(CourtFrames.houseBanners.map { $0.sprite })
-        func hall(world: [String], flags: [String], kingX: Double = 1830) -> [Prop] {
-            let s = realm(day: 2, hour: 22, kingX: kingX, world: world, flags: flags)
-            return Self.frame(s, focus: kingX, court: CourtScene(rooms: RoomFades(kingX: kingX))).layer.props
-        }
-        let all = CourtFrames.houseBanners.map { $0.flag }.sorted()
-        let five = hall(world: ["castle.banners.new", hung], flags: all)
-        XCTAssertFalse(five.contains { $0.sprite == .hallBanner }, "every place holds a house's banner")
-        for banner in CourtFrames.houseBanners {
-            let drawn = five.filter { $0.sprite == banner.sprite }
-            XCTAssertEqual(drawn.map { $0.x }, [banner.x], "\(banner.sprite)")
-            XCTAssertEqual(drawn.first?.y, CourtFrames.houseBannerY, "\(banner.sprite)")
-            XCTAssertEqual(drawn.first?.z, -1, "over the hall's wall, behind the throne and the court")
-        }
-        let two = hall(world: ["castle.banners.new", hung], flags: ["lorn_with", "varn_with"])
-        XCTAssertEqual(Set(two.map { $0.sprite }).intersection(houses), [.bannerVarn, .bannerLorn])
-        XCTAssertEqual(two.filter { $0.sprite == .hallBanner }.map { $0.x },
-                       [CourtFrames.bannerXs[0], CourtFrames.bannerXs[1], CourtFrames.bannerXs[4]],
-                       "the realm's own at the other places")
-        let bare = hall(world: [hung], flags: ["varn_with"])
-        XCTAssertEqual(bare.filter { houses.contains($0.sprite) }.map { $0.sprite }, [.bannerVarn])
-        XCTAssertFalse(bare.contains { $0.sprite == .hallBanner }, "the old banners are not renewed")
-        let unhung = hall(world: ["castle.banners.new"], flags: all)
-        XCTAssertFalse(unhung.contains { houses.contains($0.sprite) }, "the lord holds alone")
-        XCTAssertEqual(unhung.filter { $0.sprite == .hallBanner }.count, CourtFrames.bannerXs.count)
+        // World-2: the hall is shut in the world (its banners hang in the stage lane's hall): none is drawn outside.
+        let outside = realm(day: 2, hour: 22, kingX: 1830, world: ["castle.banners.new", hung],
+                            flags: CourtFrames.houseBanners.map { $0.flag })
+        let drawn = Self.frame(outside, focus: 1830, court: CourtScene(rooms: RoomFades(kingX: 1830))).layer.props
+        XCTAssertFalse(drawn.contains { houses.contains($0.sprite) || $0.sprite == .hallBanner },
+                       "no hall banner in the world")
     }
 
     func testTheCastlesWorldChangesAreDrawn() {
@@ -261,17 +234,17 @@ final class CastleRoomsTests: XCTestCase {
         XCTAssertTrue(sprites(courtyard.desc).contains(.marekCart), "the stall every day")
         XCTAssertEqual(courtyard.desc.actors.filter { $0.sprite == .guardsman && $0.rect.y < 600 }.count, 2,
                        "two guards on the wall walk (the others wait on the ground)")
+        // World-2: the hall's and the chapel's insides do not show in the world (the stage lane's hall shows its own).
         let hall = realm(day: 2, hour: 22, kingX: 1830, world: changes)
-        let inside = Self.frame(hall, focus: 1830, court: CourtScene(rooms: RoomFades(kingX: 1830)))
-        XCTAssertEqual(sprites(inside.desc).filter { $0 == .hallBanner }.count, CourtFrames.bannerXs.count)
-        XCTAssertTrue(sprites(inside.desc).contains(.tapestry))
-        XCTAssertTrue(sprites(inside.desc).contains(.serenLantern))
-        XCTAssertTrue(inside.layer.lights.contains { $0.source.color == CourtFrames.coldLight }, "its cold light")
+        let outside = Self.frame(hall, focus: 1830, court: CourtScene(rooms: RoomFades(kingX: 1830)))
+        for inside in [SpriteID.hallBanner, .tapestry, .serenLantern] {
+            XCTAssertFalse(sprites(outside.desc).contains(inside), "\(inside) is inside the shut hall")
+        }
         let chapel = realm(day: 2, hour: 10, kingX: 2040,
                            world: ["castle.chapel.candles", "castle.chapel.bell.missing"])
-        let open = Self.frame(chapel, focus: 2040, court: CourtScene(rooms: RoomFades(kingX: 2040)))
-        XCTAssertTrue(sprites(open.desc).contains(.votiveCandles))
-        XCTAssertTrue(sprites(open.desc).contains(.bellGone))
+        let shut = Self.frame(chapel, focus: 2040, court: CourtScene(rooms: RoomFades(kingX: 2040)))
+        XCTAssertFalse(sprites(shut.desc).contains(.votiveCandles), "the candles burn inside the chapel")
+        XCTAssertFalse(sprites(shut.desc).contains(.bellGone), "the empty belfry is the chapel tower's own frame")
         let lit = CastleRooms.scene(GameFrameSupport.world, state: realm(day: 2, hour: 22, kingX: 1360),
                                     rooms: RoomFades(kingX: 1360))
         let mourning = realm(day: 2, hour: 22, kingX: 1360, world: ["castle.keep.window.dark"])

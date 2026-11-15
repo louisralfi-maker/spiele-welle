@@ -705,6 +705,36 @@ def noslot2(path):
     print("wrote", path)
 
 
+def wmtail(path):
+    """World-2 (the critic of world-1, look 3: "a far-plane mountain ends in a vertical seam at the back gate"): the
+    Weltmauer's east tail ran on to the canvas's last column and stopped there in a straight edge over the valley's
+    haze (camera 2400, far x 843). It comes down now as a broken ridge from column 806 and is gone before the canvas
+    ends: a falling line of runs 2 to 5 px long, each its own slope, everything above it cleared."""
+    img = PA.read_png(path)[0]
+    out = PA.Image(img.w, img.h, list(img.px))
+    x0 = 806
+    top = 0.0
+    for y in range(img.h):
+        if img.get(x0, y)[3]:
+            top = float(y)
+            break
+    x, k = x0, 0
+    while x < img.w:
+        w = 2 + int(h01(951, k) * 4)
+        drop = (0.6 + h01(953, k) * 3.2) * w
+        for j in range(w):
+            if x + j >= img.w:
+                break
+            cut = int(round(top + drop * (j + 1) / float(w)))
+            for y in range(0, min(img.h, cut)):
+                out.set(x + j, y, (0, 0, 0, 0))
+        top += drop
+        x += w
+        k += 1
+    PA.write_png(path, out)
+    print("wrote", path)
+
+
 # Fix round 2 (the critic: "the Weltmauer reads as a grey curtain of vertical streaks with no mass or ridgelines"):
 # the arêtes that come down from the summits, (far x at the snow line, lean in px per row: + leans east going down)
 def aretes():
@@ -889,6 +919,9 @@ def build(name, out):
 
 def main():
     a = sys.argv[1:]
+    if len(a) >= 2 and a[0] == "wmtail":
+        wmtail(a[1])
+        return
     if len(a) >= 2 and a[0] == "noslot2":
         noslot2(a[1])
         return
