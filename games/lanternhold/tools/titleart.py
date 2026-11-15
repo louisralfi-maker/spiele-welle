@@ -855,44 +855,64 @@ def lantern_glow(step, w=WIN_W, hh=H, cx=None, cy=None):
 
 # ---------------------------------------------------------------------------------------------- the small figures
 def lord(frame):
-    """9 x 16, feet on the bottom row: the lord on the keep's top beside the beacon, facing left (the dark), cape and
-    hood, the circlet, the house's lantern on its staff raised as a second small light. 0 holds it at his head,
-    1 higher, 2 high, 3 high and flaring."""
+    """9 x 16, feet on the bottom row: the lord on the keep's top, right of the eternal light, facing it (left). He
+    stands dark against the gold air: brown hair, the face lit on the flame's side, the house's teal cloak to the
+    calves with a warm rim on his left and night blue on his right, the legs behind the merlons. The house's hand
+    lantern (2 x 3: the bail, the glass with one fireWhite pixel in sprite column 0, the base) hangs low at his side in frame 0 and goes up in answer to
+    a touch: 1 at his chest, 2 at his shoulder, 3 above his head at arm's length, flaring. It is never in front of his
+    head: a column of air stays between his arm and his face."""
     L = Layer(9, 16)
-    for (x, y) in ((4, 1), (5, 1), (3, 2), (4, 2), (5, 2), (6, 2)):
-        L.px(x, y, "nightDeep")
-    L.px(4, 1, "gold"); L.px(5, 1, "gold")                       # the circlet
-    L.px(3, 3, "tileLight"); L.px(4, 3, "tileLight"); L.px(5, 3, "nightDeep"); L.px(6, 3, "nightDeep")
-    L.px(3, 4, "tile"); L.px(4, 4, "nightDeep"); L.px(5, 4, "nightDeep")
-    rows = [(3, 6), (2, 6), (2, 7), (2, 7), (2, 7), (2, 8), (2, 8), (1, 8), (1, 8)]
-    for i, (a, b) in enumerate(rows):
-        y = 5 + i
-        for x in range(a, b + 1):
-            L.px(x, y, "roofDeep" if x < b - 1 else "nightDeep")
-        L.px(a, y, "tileLight" if i < 4 else "tile")             # the flame's light on his left
-    L.px(3, 14, "nightDeep"); L.px(6, 14, "nightDeep"); L.px(3, 15, "nightDeep"); L.px(6, 15, "nightDeep")
+    key = {"h": "wood", "H": "woodDark", "G": "gold", "S": "dawnRose", "s": "tileLight", "R": "tileLight",
+           "r": "tile", "U": "banner", "T": "roofDeep", "N": "nightBlue", "D": "nightDeep", "L": "woodDark", "F": "fireWhite",
+           "f": "fireGold"}
+    body = [".........",
+            ".........",
+            "....hH...",
+            "...hGHH..",
+            "...SSHH..",
+            "...sSH...",
+            "..RUTTNN.",
+            "..RUTTNN.",
+            "..RUTTNN.",
+            "..rUTTNN.",
+            "..rUTTNNN",
+            "..rUTTNNN",
+            "..rUTTNNN",
+            "...D.D...",
+            "...D.D...",
+            "...D.D..."]
+    for y, row in enumerate(body):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                L.px(x, y, key[ch])
     ly = LORD_LANTERN_Y[frame]
-    for y in range(ly + 2, 15):
-        L.px(1 if y > 6 else 0, y, "woodDark")
-    L.px(0, ly - 1, "woodDark")
-    L.px(0, ly, "fireWhite" if frame == 3 else "fireGold")
-    L.px(0, ly + 1, "fireGold" if frame == 3 else "fireOrange")
-    L.px(1, {0: 7, 1: 6, 2: 5, 3: 5}[frame], "tileLight")      # the hand on the staff
+    glass = ("F", "F") if frame == 3 else ("F", "f")
+    for dy, cells in ((-1, (".", "L")), (0, glass), (1, ("L", "L"))):
+        for dx, ch in enumerate(cells):
+            if ch != ".":
+                L.px(dx, ly + dy, key[ch])
+    if frame == 0:
+        L.px(1, ly - 2, "dawnRose")                             # the hand on the bail, the arm in the cloak
+    else:
+        L.px(1, ly + 2, "dawnRose")                             # the hand under the lantern
+        for y in range(ly + 3, 6):
+            L.px(1, y, "roofDeep")                              # the raised arm in its sleeve
     return L
 
 
-LORD_LANTERN_Y = {0: 4, 1: 3, 2: 1, 3: 1}
+LORD_LANTERN_Y = {0: 11, 1: 7, 2: 3, 3: 1}
 
 
 def lord_light(frame):
-    """His lantern's own small dithered glow, 15 x 15 centred on the lantern (sprite column 0, its row)."""
+    """His lantern's own small glow, 15 x 15 centred on the lantern's bright pixel (sprite column 0, its row): a
+    few dithered steps brighter than the gold air (fireGold, then fireWhite at the core), never a dark ring."""
     a = np.zeros((15, 15, 4), np.uint8)
-    big = 1.35 if frame == 3 else 1.0
+    big = 1.4 if frame == 3 else 1.0
     for y in range(15):
         for x in range(15):
-            d = math.hypot(x - 7, (y - 7.5) * 1.1) / big
-            p = max(0.0, 1 - d / 4.5) * 3.2
-            c = pick_air(x, y, [None, "tile", "tileLight", "gold"], p)
+            d = math.hypot(x - 7, (y - 7) * 1.1) / big
+            p = max(0.0, 1 - d / 4.0) * 2.4
+            c = pick_air(x, y, [None, "fireGold", "fireWhite"], p)
             if c:
                 a[y, x, :3] = C(c)
                 a[y, x, 3] = 255
