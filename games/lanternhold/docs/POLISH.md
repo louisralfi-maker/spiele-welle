@@ -161,7 +161,8 @@ light. The game is about a light in the dark, and neither of the two makes light
 2. **The people:** each of the three classes its own walk (PEOPLE.md). The named ones get a temper of their own
    (section 8); the rest get two idle habits per trade (the smith wipes his hands, the baker dusts flour off).
 3. **The creatures:** a gait of their own per kind, a flinch from light, a dissolve that reads at phone size, all at
-   the Ash Giant's bar (section 7).
+   the Ash Giant's bar (section 7). The small ones come first, then the king: the player meets the sootlings every
+   night from the first, the king once.
 4. **Follow-through:** nothing stops in one frame. Doors swing past their rest, signs sway after a touch, a tossed
    coin bounces once.
 5. **The archers:** draw, hold, loose. Soldiers stay plain on purpose (section 8); this item is cut first.
@@ -221,11 +222,82 @@ for a crown, a snuffer on a long pole, the tool that puts lights out. The figure
   (pass 1's leaning fire).
 - No rule in Core changes: night 20, his hit points, his harm and the dark ending stay as they are (REALM.md).
 
-**The others:** the step opens with one sheet of all seven kinds in plain black, judged by the rule. The Ash Brute
-(44 px) is next in line: in its strip it reads as a hunched lump with no light of its own.
+**The small ones: the horde is a creature of its own** (Louis, 15.11.2026; after build 2)
 
-**Cost:** a new rig in `tools/creatures/` and its strips. The bigger king does not fit on the atlas as it stands
-(2048 x 1925 of 2048 rows used at stage-3), so pass 4 opens by making room for frames; how is the lane's choice.
+Louis: "Wichtig ist halt noch das die kleinen so cool aussehen. Also das es halt so einen kleinen als kannonen
+futter gibt damit die angriffe immer dick aussehen die wie bei kingdome". He names Kingdom for the feeling, an
+attack that looks thick. Its creatures stay its own (see "Never" below).
+
+*What is there* (`Core/Balance.swift`, `Core/Battle.swift`; the strips enlarged on 15.11., the director's desk
+`louis/small-ones-today.png`)
+
+- **The cannon fodder exists: the sootling.** 14 px high (the lord is 30), 8 hit points, 1 point of the night's
+  budget of 16 + 9 per night. Every point no other kind takes is a sootling: 25 on night 1, about 30 to 50 from
+  night 3 to 12, about 70 on night 20. The Lightless King calls six more every 15 seconds.
+- It has two bodies, chosen by the creature's number: A crawls, B walks upright.
+- **The count is there, the mass is not.** A wave leaves the bank over up to ten seconds at 34 px a second, so its
+  heads are strung over up to 340 px: a file, not a pack. (Computed from the numbers, not yet watched; the step's
+  first clip confirms or corrects it.)
+- **The two sootlings fail the giant's rule.** A is a mound with a rust edge whose four walk frames differ by a
+  pixel. B reads as a small man, which breaks rule 1. Neither has a light that reads: the eye is one pixel.
+- The shadehound holds: the arched back, the limbs too long, a bound that stretches. The soot crow is a lump with no
+  wings.
+
+*The idea: a sootling is a snuffed wick.* It is what the king's snuffer leaves of a light; the rule that he calls
+them is already in Core.
+
+- **The thread:** from the torn peak of each hood rises a thread of smoke, one pixel wide and as long as the body is
+  high. It streams back when the sootling runs, leans with the wind (pass 1) and stands straight when it waits. It
+  is its own small strip over the body, so the wind can lean it.
+- **The horde reads as a field of threads** before a single body is seen. That is the mass's outline (rule 1).
+- **Its light** stays the socket's cold point, drawn two pixels with a glow so that it reads on a phone. Cold only:
+  warm light is the castle's, and the giant's heart is the one exception.
+- **In light** it burns already (`burns`, 2 hit points a second). The picture shows it: the thread frays and
+  shortens first, then the body smokes.
+- **Its death:** the body falls to soot in three frames and the thread stands alone for half a second, then goes
+  with the wind. A volley leaves a row of orphan threads.
+
+*Three bodies, none a man's*
+
+- **The crawler** (A, kept): the back pumps two pixels in the scuttle.
+- **The loper** (B, redrawn): it runs on the long arm and one leg, the arm swung ahead like a crutch. It never
+  stands upright on two legs.
+- **The tumbler** (new): a wheel of rags that rolls, and unfolds to claw.
+- Three heights (10, 12 and 14 px), and each body starts its walk at its own frame, so no two keep step.
+
+*The pack* (picture only: every place in the simulation stays)
+
+- **They heap at a wall.** When more than four stand at one wall, the later ones are drawn one body higher, clawing
+  over the backs in front. The heap's height is the pressure on that wall, read without a number (HUD.md).
+- At the edge of light they shy and mill before they push in (rule 4).
+- The pack has a voice: a dry rustle that grows with the count (a sound effect; never music).
+- The king's call is seen: six threads rise from the dark ground under his train, then the bodies under them.
+
+*The coming* (rule 5 for the mass; picture only, never simulated)
+
+- Before a wave, cold points open low in the bank by the dozen, more than will come, and the threads stand over the
+  bank's edge like reeds.
+- On the far ridge small shapes with threads cross toward the gorge, 6 px high.
+- On night 10 the giant's ember heart rises high above that field of cold points.
+
+*What needs Core* (so it waits for build 3's walls' tuning and is measured there with the battle tests, not
+decided here)
+
+- **Packs:** a wave leaves in clumps of five to eight within a second, then a gap.
+- Each body's pace varies by a seventh, so a pack is ragged.
+- **Twice the heads at half the strength:** the sootling's hit points, harm and points halved. The night's total
+  stays and a volley fells a row. The frame time with 150 small bodies is measured on the runner first.
+
+*Never:* a mask, a pale face, two eyes, anything of a child, a thief of coins, a portal (research-market-art.md,
+ART-look2.md 14).
+
+**The others:** the step opens with one sheet of all seven kinds in plain black, judged by the rule. The Ash Brute
+(44 px) is next in line after the small ones and the king: in its strip it reads as a hunched lump with no light of
+its own. The soot crow gets wings that spread.
+
+**Cost:** a new rig in `tools/creatures/` and its strips per body. The small ones' strips are small (84 x 14 each)
+and fit the atlas's gaps. The bigger king does not fit on the atlas as it stands (2048 x 1925 of 2048 rows used at
+stage-3), so pass 4 opens by making room for frames; how is the lane's choice.
 
 ## 8. A character of their own: the named people (Louis, 15.11.2026)
 
@@ -291,8 +363,9 @@ how often the lord meets them. The step's first delivery is a column "temper" in
 ## 9. Order and cost
 
 - Each pass is one lane step with its critic, about half a day, on the sweep that the world lane already has
-  (the wind needs sweep frames on a calm, a breezy and a storm day). Pass 4 is art work and takes about two days:
-  one for the motion, one for the king's redraw (section 7) and the named people's tempers (section 8).
+  (the wind needs sweep frames on a calm, a breezy and a storm day). Pass 4 is art work and takes about three days:
+  one for the motion, one for the small ones and their horde (section 7), one for the king's redraw (section 7)
+  and the named people's tempers (section 8).
 - Pass 1 first: most of it is art strips and one existing number. Then pass 2 (it carries the feel that Louis asks
   for with "deeds in the world"), then pass 3, then pass 4; the review with Louis may put pass 4 first.
 - They run beside build 3's mechanics, not instead of them, and never touch a rule in Core.
