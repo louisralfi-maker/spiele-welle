@@ -1,0 +1,12 @@
+2026-11-15 01:20:03.530796+0000 Lanternhold[11378:45263] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.TableBoardTests testALanternStandsWhereItWent]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testEveryPartyHasItsCarvedPiece]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheArtShipsAtItsSizesWithHardEdges]' passed (0.196 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheLineOfLightNeverTellsTheRoll]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheMapHasEveryCarvedPlaceAndItsRoad]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testThePictureLightsTheRoadAndThePins]' passed (0.030 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheRailTellsWhoIsHomeAwayOrLost]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheStagesSetUpTheRailAndAReport]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheTableFillsEveryPhone]' passed (0.001 seconds).
+exit=0
+screenshots: 0

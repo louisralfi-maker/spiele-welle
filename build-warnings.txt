@@ -1,0 +1,4 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/Table/TableScreen.swift:747:80: warning: main actor-isolated property 'slipMargin' can not be referenced from a Sendable closure
+2026-11-15 01:18:33.952 appintentsmetadataprocessor[9210:39028] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 01:18:39.026 appintentsmetadataprocessor[9225:39141] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 01:18:40.001 appintentsmetadataprocessor[9237:39211] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
