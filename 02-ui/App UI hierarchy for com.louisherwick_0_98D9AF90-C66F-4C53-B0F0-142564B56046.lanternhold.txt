@@ -1,0 +1,29 @@
+Application, 0x105ada4d0, pid: 20489, label: 'Lanternhold' <App element pid: 20489>
+  Window (Main), 0x105b44800, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 20489, elementOrHash.elementID: 4363620112.3>
+    Other, 0x105be2a80, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 20489, elementOrHash.elementID: 4363587744.4>
+      Other, 0x105b37320, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 20489, elementOrHash.elementID: 4363710992.5>
+        Other, 0x105bc16f0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 20489, elementOrHash.elementID: 4364254208.6>
+          Other, 0x105bbd980, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 20489, elementOrHash.elementID: 4363224960.7>
+            Other, 0x105b2ae30, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 20489, elementOrHash.elementID: 4363223856.8>
+              Other, 0x105b24e30, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:440 ready da... <AX element pid: 20489, elementOrHash.elementID: 4362200592.9>
+              Other, 0x105b37b10, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 20489, elementOrHash.elementID: 4364406272.10>
+              Other, 0x105b71110, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 20489, elementOrHash.elementID: 4364406704.11>
+              Button, 0x105bca7f0, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'hud-pause', label: 'Pause' <AX element pid: 20489, elementOrHash.elementID: 4364423552.12>
+                Other, 0x10575e6b0, {{70.0, 6.0}, {44.0, 44.0}} <AX element pid: 20489, elementOrHash.elementID: 4364422336.21>
+                Image, 0x10575dca0, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'pause.fill', label: 'Pause' <AX element pid: 20489, elementOrHash.elementID: 4364423120.22>
+              StaticText, 0x105714db0, {{708.7, 12.3}, {83.3, 19.3}}, identifier: 'hud-clock', label: 'Day 3, 22:23' <AX element pid: 20489, elementOrHash.elementID: 4362177088.13>
+                StaticText, 0x10575f7f0, {{708.7, 12.3}, {38.7, 19.3}}, label: 'Day 3' <AX element pid: 20489, elementOrHash.elementID: 4362103936.23>
+                StaticText, 0x1057afd00, {{755.3, 12.8}, {36.7, 18.3}}, label: '22:23' <AX element pid: 20489, elementOrHash.elementID: 4362176656.24>
+              Other, 0x10575f490, {{651.0, 41.0}, {38.0, 19.7}}, identifier: 'hud-gold', label: 'Gold', value: 60 <AX element pid: 20489, elementOrHash.elementID: 4362331824.14>
+                Other, 0x10575f110, {{651.0, 43.0}, {16.0, 16.0}} <AX element pid: 20489, elementOrHash.elementID: 4362326496.25>
+                StaticText, 0x105748ab0, {{672.0, 41.0}, {17.0, 19.7}}, label: '60' <AX element pid: 20489, elementOrHash.elementID: 4362331040.26>
+              Other, 0x10575ed90, {{701.0, 41.0}, {40.0, 19.7}}, identifier: 'hud-happiness', label: 'Happiness', value: 69 <AX element pid: 20489, elementOrHash.elementID: 4363390464.15>
+                Other, 0x105763cb0, {{701.0, 41.8}, {18.0, 18.0}} <AX element pid: 20489, elementOrHash.elementID: 4362333280.27>
+                StaticText, 0x105757cb0, {{724.0, 41.0}, {17.0, 19.7}}, label: '69' <AX element pid: 20489, elementOrHash.elementID: 4363211728.28>
+              Other, 0x1057583a0, {{753.3, 41.0}, {38.7, 19.7}}, identifier: 'hud-people', label: 'People', value: 17 <AX element pid: 20489, elementOrHash.elementID: 4363219008.16>
+                Other, 0x105758000, {{753.3, 43.7}, {16.0, 14.3}} <AX element pid: 20489, elementOrHash.elementID: 4363218144.29>
+                StaticText, 0x105754ce0, {{775.0, 41.0}, {17.0, 19.7}}, label: '17' <AX element pid: 20489, elementOrHash.elementID: 4363218576.30>
+              Other, 0x105755390, {{651.0, 36.0}, {141.0, 1.0}} <AX element pid: 20489, elementOrHash.elementID: 4363220112.17>
+              Button, 0x105758a70, {{266.0, 6.0}, {342.0, 44.0}}, identifier: 'realm-strip', label: 'Map of the valley' <AX element pid: 20489, elementOrHash.elementID: 4363217472.18>
+              Other, 0x1057483b0, {{564.0, 222.0}, {96.0, 140.0}} <AX element pid: 20489, elementOrHash.elementID: 4363222752.19>
+                Button, 0x10575a940, {{564.0, 222.0}, {96.0, 140.0}}, identifier: 'touch-wall-0', label: 'Repair the wall', value: 10 gold <AX element pid: 20489, elementOrHash.elementID: 4363221648.32>
