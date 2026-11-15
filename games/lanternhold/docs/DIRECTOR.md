@@ -922,3 +922,9 @@ schneller geht."
     - The tf round is `tf-lh-2` with build, unit, testflight; never re-run a tf job from the Actions page.
   - For build 3 from the seam reader: lane D's doors raise under Marek's card, five places computing the world hold, a lift after the scene went inactive counting as a tap, `keepBeforeTown`'s `try?` move before an unconditional write, stale German tax lines; development certificates pile up.
   - The final join: one Opus agent merges `claude/lh-fix7` b864c187 and `claude/lh-proof` 7e98db22 into `claude/lh-join` and sends four rounds on the joined head (lh-rj-25 to lh-rj-28). Then the director verifies them and sends `tf-lh-2`.
+
+- **Louis' word: build 3 may start right after build 2's upload, as far as the quota carries (15.11.2026, 23:13).**
+  - His words: "wenn danach noch kontigent überog ist kannst du build 3 starten oder? Also weiter machen jenachdem wo du bist".
+  - This replaces "build 3 starts only after the résumé". The résumé still happens when he has played build 2; his three piles (missing, feel, look) are folded into the running work.
+  - The first wave is what stands whatever his play test says: the count (PAY.md, paying coin by coin), the drill yard (YARD.md), the small shadow creatures as a mass, the lantern moment's build 3 ideas (no dead tap, the look-around), POLISH.md's first look pass.
+  - Quota at this word: 61 % of the week, 27 % Fable. Read it before every workflow; tell Louis near 80 % and stop there unless he raises it.
