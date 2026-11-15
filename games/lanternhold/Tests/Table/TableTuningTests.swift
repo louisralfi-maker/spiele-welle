@@ -52,7 +52,17 @@ final class TableTuningTests: XCTestCase {
     func testT3TheSendersBeacon() { check("T3 sender") }
 
     /// T4: high tax all the time stays under 30 at dawn 8 with the sender, not above the reference.
-    func testT4HighTaxWithTheSender() { check("T4 sender") }
+    /// The pre-join (the director's note of 15.11.2026 09:23): "under 30" stays hard. "Not above the reference" waits
+    /// for build 3's tuning: the sender's errands pay +1 to +3 happiness on their return (errands-ch1.json), and under
+    /// the walked town's knocking habit the reference's day-8 value is 20, so one return puts the sender a point above.
+    func testT4HighTaxWithTheSender() {
+        let m = TableTuningTests.tuning
+        let line = String(m.report.split(separator: "\n").first { $0.hasPrefix("T4 ") } ?? "")
+        XCTAssertLessThan(m.highTaxSender, 30, "T4 sender: high taxes hurt with the sender too: \(line)")
+        XCTExpectFailure("build 3 tuning: the table's T4 against the walked town", strict: true, failingBlock: {
+            XCTAssertLessThanOrEqual(m.highTaxSender, m.highTaxReference, "T4 sender, not above the reference: \(line)")
+        })
+    }
 
     /// T5: the sender owns 8 to 12 buildings by day 10.
     func testT5TheSendersPaceOfBuilding() { check("T5 sender") }
