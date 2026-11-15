@@ -21,6 +21,8 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     // Touch the world (stage lane, step stage-2): the finger lifts from a thing or the ground and he sets off (a light
     // tick in the hand)
     case touched
+    // Raise the lantern (stage lane, step stage-2): he lifts the house's lantern over his head
+    case lanternRaised
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").

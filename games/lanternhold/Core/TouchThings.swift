@@ -29,9 +29,12 @@ enum TouchThings {
                 guard s.isUnlocked(plot: plot), KingTargets.hasCard(s, plot: plot, balance: balance) else { continue }
                 let x = KingTargets.spotX(plot: plot, layouts: layouts)
                 let size = extent(plot: plot, state: s, layouts: layouts)
+                // Its mark only while the treasury can pay something on its card (a free gift included); the site
+                // still answers a touch (its card shows the prices).
+                let affordable = Build.options(s, plot: plot, balance: balance).contains { $0.price <= s.gold }
                 list.append(TouchThing(id: "touch-plot-\(plot)", kind: .plot, act: .build(plot: plot), x: x,
                                        standX: x, halfWidth: size.half, top: size.top,
-                                       rank: TouchRules.rank(.plot)))
+                                       rank: TouchRules.rank(.plot), marked: affordable))
             }
             var seen = Set<String>()
             for figure in figures where figure.alpha > 0.5 && figure.petition == nil && !seen.contains(figure.who) {

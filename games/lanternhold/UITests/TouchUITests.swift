@@ -6,8 +6,8 @@ import XCTest
 /// and in the great hall; a touch on a site, the slip above it while he walks and the card when he arrives; a tap on
 /// the ground; a touch on a bench (the first in line speaks in a bubble over his head) and on the throne; a damaged
 /// wall at night, its price over it and the second touch that pays; the first minute's slip; the accessibility
-/// elements (44 pt, the act first, the order left to right).
-/// Saves `<nn>-touch-<what>-<lang>`: 150 to 157.
+/// elements (44 pt, the act first, the order left to right); raise the lantern (a hold on the lord at night).
+/// Saves `<nn>-touch-<what>-<lang>`: 150 to 158.
 @MainActor
 final class TouchUITests: XCTestCase {
     override func setUp() async throws {
@@ -116,6 +116,23 @@ final class TouchUITests: XCTestCase {
             note("touch-night", "no damaged wall tonight: \((element(app, "world-scene").value as? String) ?? "")")
         }
         app.terminate()
+
+        // Raise the lantern: a hold on the lord at night, in the town (no camera lead: he stands in the middle).
+        let town = XCUIApplication()
+        town.launchArguments = TouchUITests.base + ["-GWNight", "2", "-GWSeed", "2", "-GWHour", "22",
+                                                    "-GWStage", "world", "-GWCameraX", "2600"]
+        town.launch()
+        guard waitUntilReady(town, name: "touch-lantern") else { return }
+        pause(0.6)
+        XCTAssertEqual(sceneField(town, "lantern:"), "ready", "the lantern can be raised")
+        let scene = element(town, "world-scene")
+        let groundY = 1 - 26.0 * 6 / 1206
+        scene.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: groundY - 15.0 * 6 / 1206)).press(forDuration: 0.8)
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "158-touch-lantern-raised-\(language)")
+        XCTAssertEqual(sceneField(town, "lantern:"), "raised", "the hold raised the lantern")
+        XCTAssertEqual(sceneField(town, "errand:"), "none", "and sent him nowhere")
+        town.terminate()
     }
 
     /// Day 3 (seed 2) at 10:00 in the great hall: the marks over the benches, the court and the throne; a touch on a
@@ -123,7 +140,7 @@ final class TouchUITests: XCTestCase {
     private func theHall() {
         let app = XCUIApplication()
         app.launchArguments = TouchUITests.base + ["-GWDay", "3", "-GWSeed", "2", "-GWClock", "10",
-                                                   "-GWStage", "hall", "-GWHallX", "120"]
+                                                   "-GWStage", "hall", "-GWHallX", "280"]
         app.launch()
         guard waitUntilReady(app, name: "touch-hall") else { return }
         pause(1.0)

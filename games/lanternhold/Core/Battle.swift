@@ -501,7 +501,9 @@ enum Battle {
             lights.append(LightSource(kind: kind, x: glow.x, y: glow.y, radius: glow.radius, intensity: fade,
                                       flickerSeed: lightSeed(100 + index, 0)))
         }
-        lights.append(s.king.lantern(radius: balance.lanternRadius))
+        // Raise the lantern (stage lane, step stage-2): raised, its light is bigger; guttering, smaller.
+        lights.append(s.king.lantern(radius: LanternRaise.radius(since: s.king.lanternSince,
+                                                                 normal: balance.lanternRadius)))
         if s.hearth > 0 {
             lights.append(LightSource(kind: .hearth, x: Realm.hearthX + 13, y: 10, radius: balance.hearthRadius,
                                       flickerSeed: 0x4845_4152))
@@ -722,6 +724,11 @@ enum Battle {
             if c.isLit && stats.burns {
                 c.hp -= balance.burnPerSecond * dt
                 c.lastHit = .fire
+            }
+            // Raise the lantern (stage lane, step stage-2): lit by the raised lantern it flinches and backs away.
+            if LanternRaise.flinch(&c, king: s.king, normal: balance.lanternRadius, dt: dt) {
+                s.creatures[index] = c
+                continue
             }
             if c.kind.flies {
                 stepCrow(&c, &s, dt: dt, balance: balance, events: &events)

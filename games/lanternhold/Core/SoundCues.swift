@@ -113,6 +113,7 @@ extension FeedbackCue {
         case .doorOpened: return SoundPlay(id: .doorCreak, volume: 0.7)
         case .doorShut: return SoundPlay(id: .doorLatch, volume: 0.75)
         case .touched: return SoundPlay(id: .tap, volume: 0.22, rate: 1.25)
+        case .lanternRaised: return SoundPlay(id: .lantern, volume: 0.8, rate: 1.3)
         }
     }
 
@@ -126,6 +127,7 @@ extension FeedbackCue {
         case .horn: return .rigid
         case .doorShut: return .soft
         case .touched: return .light
+        case .lanternRaised: return .medium
         case .taxesCounted: return .success
         case .defeat: return .error
         default: return nil

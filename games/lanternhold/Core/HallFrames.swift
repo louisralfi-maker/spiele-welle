@@ -32,6 +32,9 @@ struct HallFrameInput {
     /// Touch the world (step stage-2): the marks over what offers something (drawn last, unlit) and their pools;
     /// nil keeps the old speech marks and the throne's pulsing mark (tests that build a hall frame by hand).
     var touchMarks: [TouchMark]? = nil
+    /// Step stage-2 (the stage-1 critic's second high): the inner door stands open (just after he came in, and while
+    /// he goes out through it).
+    var doorOpen = false
 }
 
 /// The great hall's frame (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world", SPRITES.md "The
@@ -48,6 +51,10 @@ enum HallFrames {
     /// The hall's ambient against the open air's: by day the windows light it at this share, at night a little more
     /// of the moon's (the hall is darker than outdoors by day, about as dark at night).
     static let dayShare: Float = 0.58
+    /// The open inner door's gap: from below the arch's spring to the wall line (step stage-2).
+    static let doorGapTop = 124
+    /// How long the inner door stands open after he came in by it (seconds of the hall's clock).
+    static let doorOpenSeconds = 0.45
     static let nightShare: Float = 0.82
     /// By day the hall's ambient warms this far toward the stone and oak's bounce.
     static let bounceWarm = SIMD3<Float>(1.0, 0.9, 0.78)
@@ -383,6 +390,23 @@ enum HallFrames {
 
         // The hall, its wear, the houses' banners and the court's furniture.
         put(.greatHall, x: 0, row: 0)
+        if input.doorOpen {
+            // The left leaf swung into the hall, narrow against its jamb, and in the gap the bailey's dark with a
+            // sliver of the cold light outside (the moon's at night).
+            let top = HallFrames.doorGapTop
+            let rows = HallLayout.wallRow - top
+            sprites[Plane.world.rawValue].append(SpriteInstance(
+                sprite: .hallMote, frame: 0, rect: g.rect(x: 50, row: top, size: PixelSize(width: 3, height: rows)),
+                tint: SIMD4<Float>(0.36, 0.24, 0.15, 1), flipped: false))
+            sprites[Plane.world.rawValue].append(SpriteInstance(
+                sprite: .hallMote, frame: 0, rect: g.rect(x: 53, row: top, size: PixelSize(width: 15, height: rows)),
+                tint: SIMD4<Float>(0.05, 0.06, 0.09, 1), flipped: false))
+            let n = Float(torch)
+            let cold = SIMD3<Float>(0.62, 0.68, 0.80) * (0.9 - 0.55 * n)
+            emissives.append(EmissiveInstance(sprite: .hallMote, plane: .world,
+                                              rect: g.rect(x: 53, row: top, size: PixelSize(width: 2, height: rows)),
+                                              color: SIMD4<Float>(cold.x, cold.y, cold.z, 1)))
+        }
         for (index, patch) in HallLayout.washPatches.enumerated() {
             put(.hallWash, x: patch.x, row: patch.row, frame: index)
         }

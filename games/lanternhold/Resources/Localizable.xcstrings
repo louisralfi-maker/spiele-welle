@@ -1654,6 +1654,17 @@
         }
       }
     },
+    "Raise the lantern" : {
+      "comment" : "VoiceOver custom action on the world at night: the lord lifts the house's lantern (as a hold on him).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Laterne heben"
+          }
+        }
+      }
+    },
     "Rebuild: %@" : {
       "comment" : "Build card: rebuild rubble.",
       "localizations" : {

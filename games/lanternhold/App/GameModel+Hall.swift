@@ -243,6 +243,12 @@ extension GameModel {
             targets[spec.key] = talking ? (court.talkX ?? spec.x) : spec.x
         }
         if let session = court.audience, let key = walkerKey { targets[key] = session.walkerX }
+        // Step stage-2 (the stage-1 critic's fourth high): while an audience runs the petitioner has the floor alone;
+        // whoever stands within `HallCourt.clearZone` of his place (Pip at the foot of the steps, a bench-end stander)
+        // steps out of it toward the nave.
+        if let session = court.audience, session.place == .throne {
+            targets = HallCourt.clearingTheFloor(targets, specs: specs, walkerKey: walkerKey, spot: session.spotX)
+        }
         scene.drawn = CourtMotion.step(scene.drawn, targets: targets, dt: dt, reduceMotion: reduceMotion)
         var present: [String: HallFigureSpec] = [:]
         for spec in specs where present[spec.key] == nil { present[spec.key] = spec }
@@ -352,6 +358,9 @@ extension GameModel {
                                    ambient: ambient, weather: options.weather, animTime: animationTime)
         // Touch the world (step stage-2): the hall's things, their marks and the framing the finger reads.
         input.touchMarks = touchHall(state: state, figures: figures, pixelScale: pixelScale, scene: scene)
+        // The inner door stands open just after he came in by it and while he goes out through it.
+        let leaving = stageChange.map { $0.to == .world && ($0.phase == .opening || $0.phase == .darkening) } ?? false
+        input.doorOpen = leaving || scene.since < HallFrames.doorOpenSeconds
         let frame = HallFrames.build(input)
         noteHallFrame(figures: figures)
         return frame

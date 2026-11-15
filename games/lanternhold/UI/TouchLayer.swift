@@ -109,8 +109,9 @@ struct ErrandSlipView: View {
     }
 }
 
-/// The first minute's one slip, once: "Touch what the lord shall do." (the first mark is the lesson), low in the middle
-/// of the screen over the lane.
+/// The first minute's one slip, once: "Touch what the lord shall do." (the first mark is the lesson), high in the
+/// middle of the screen under the realm strip, clear of the lord and the lane (the first sweep: low, it covered his
+/// feet).
 @MainActor
 struct FirstTouchSlipView: View {
     /// The slip's words (Story.xcstrings `touch.first`, the lord's form filled in).
@@ -118,7 +119,6 @@ struct FirstTouchSlipView: View {
 
     var body: some View {
         VStack {
-            Spacer(minLength: 0)
             Text(verbatim: text)
                 .font(Theme.italic(.subheadline))
                 .foregroundStyle(Theme.ink)
@@ -128,7 +128,8 @@ struct FirstTouchSlipView: View {
                 .padding(.vertical, 6)
                 .background(SlipBackground())
                 .accessibilityIdentifier("touch-first-slip")
-                .padding(.bottom, 26)
+                .padding(.top, 62)
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity)
         .allowsHitTesting(false)

@@ -122,22 +122,13 @@ struct AudienceCardView: View {
             let width = min(420, max(280, edge - 6))
             let head = CGFloat(model.figureTop) * fullHeight - insets.top
             let room = max(150, head - 14)
-            // Odile's line, once read, on a slip of her own at the top between the letter and the ledger, over her
-            // (she stands beside the throne): the request keeps the whole letter.
-            let noteLeft = width + 12
-            let noteWidth = max(160, geometry.size.width - noteLeft - AudienceCardView.ledgerRoom)
+            // Step stage-2 (the stage-1 critic's third high): Odile's line, once read, stands inside the letter under
+            // the request, so no card covers the throne's canopy (the slip of its own at the top hid it).
             ZStack(alignment: .topLeading) {
                 hallLetter
                     .frame(width: width)
                     .frame(maxHeight: room, alignment: .top)
                     .offset(x: 2, y: 4)
-                if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
-                    HallCounsel(text: model.story(hint))
-                        .frame(width: noteWidth, alignment: .leading)
-                        .frame(maxHeight: room, alignment: .top)
-                        .offset(x: noteLeft, y: 6)
-                        .transition(model.reduceMotion ? .identity : .opacity)
-                }
                 hallPlaques
                     .frame(width: max(0, geometry.size.width - 4))
                     .frame(width: geometry.size.width, height: geometry.size.height + insets.bottom - 5,
@@ -185,6 +176,10 @@ struct AudienceCardView: View {
                             .foregroundStyle(Theme.ink)
                             .fixedSize(horizontal: false, vertical: true)
                             .accessibilityIdentifier("audience-text")
+                        if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
+                            HallCounsel(text: model.story(hint))
+                                .transition(model.reduceMotion ? .identity : .opacity)
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -429,8 +424,8 @@ struct AudienceCardView: View {
     }
 }
 
-/// Odile's line in the hall (the hall stage): her name in small capitals and her line in her hand on a slip ruled in
-/// House Lantern's teal, at the top between the letter and the ledger, over where she stands beside the throne.
+/// Odile's line in the hall (the hall stage): her name in small capitals and her line in her hand, an inset ruled in
+/// House Lantern's teal inside the letter under the request (step stage-2: never over the throne's canopy).
 struct HallCounsel: View {
     let text: String
 

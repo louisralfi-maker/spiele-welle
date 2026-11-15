@@ -564,106 +564,102 @@ Each is a short scene of three panels; then the realm goes on in endless mode.
   background (the dawn snapshot only). A relaunch resumes at the last dawn ("Continue: day 7, morning"). A corrupt file
   is kept as a backup and the game starts fresh (as in Comet Cargo).
 
-## Controls (landscape, two thumbs)
-
-- **Walk:** touch anywhere in the left 45 % of the screen and drag sideways. The king walks toward the drag; more than
-  40 pt from the touch point he runs. Lifting the finger stops him. Walk 36, run 80 game px/s.
-- **Action button:** bottom right, an 88 pt circle with a 128 pt touch area. Its icon names what is in front of the
-  king: a hammer (build or upgrade), a speech bubble (talk), the crown (sit on the throne), a flame (light), a patch
-  (repair), coins (recruit). Hidden when there is nothing to do.
-- **Realm strip:** a thin bar at the top centre shows the whole world (front, castle, town) with markers: petitioners
-  waiting, a damaged wall, creatures at night, the king. Tapping a point walks the king there; any drag cancels it.
-- **HUD:** pause top left (44 pt in a 60 pt area); gold, happiness and the day and clock top right.
-- Cards (build, audience, report) take taps only; every button is at least 44 pt high, choice buttons 52 pt.
-- Both landscape orientations. The HUD respects the safe area; the scene renders under the sensor housing, but nothing
-  important sits in the outer 30 game px.
-
-## Controls 2: touch the world (a proposal of the art lane, 10.11.2026; not built)
+## Controls: touch the world (built in step stage-2, 15.11.2026; the action button is gone)
 
 Louis on 10.11.: the button at the right is "cringe"; in the games he names you touch the people and the things
-themselves; the interface matters as much as the picture. This section proposes the change for the code lane. Once
-built it replaces "Controls" above. The marks and the highlight are painted (SPRITES.md "The marks of 'touch the
-world'", previews in `ci-out/hall`).
+themselves; the interface matters as much as the picture. The art lane proposed this on 10.11. ("Controls 2"); the
+stage lane built it on 15.11. (DESIGN.md "The hall stage and touch the world", step stage-2) and it replaces the old
+"Controls" with the walk pad and the action button. The marks are painted (SPRITES.md "The marks of 'touch the
+world'", previews in `ci-out/hall`). Code: `Core/TouchWorld.swift` (the rules), `Core/TouchThings.swift` (what offers
+something), `Core/TouchMarks.swift` (the framing, the marks), `App/GameModel+Touch.swift` (the errands),
+`UI/TouchLayer.swift` (the finger, the elements, the slips).
 
 **The rule:** the lord goes where the finger points. Touch a thing and he walks to it and does what it offers.
-Touch the ground and he walks there. Drag and he walks as today.
+Touch the ground and he walks there. Drag and he walks as before.
 
 | The tap lands on | The lord | Then |
 |---|---|---|
-| someone with a word: a petitioner on a bench, a member of the court, a townsman (`tapTalk`) | walks to an arm's length (12 px) and faces them | the talk bubble opens |
+| someone with a word: a member of the court or a guest (`tapTalk`, marked only while he has something new to say: a word about today's petitions he has not told yet), the Stranger at the gate | walks to an arm's length (12 px) and faces them | the talk bubble opens over the speaker's head (M9) |
+| a bench in the hall with people waiting (`tapTalk` over the first in line) | walks to the first in line | he speaks one short line of the waiting in a bubble (`touch.bench.*`) |
 | the empty throne, when an audience can be held (`tapThrone`) | walks up the steps and sits | the camera moves to the audience framing, the first in line rises and walks up; the card opens when he has stopped |
-| an open plot, a building that can grow (`tapBuild`) | walks to it | the build card |
-| a damaged wall or building (`tapRepair`) | walks to it | the repair, as the button ordered it |
-| the place to recruit (`tapRecruit`) | walks to it | the recruit card |
-| a cold brazier (`tapLight`) | walks to it | he lights it |
-| the hall's door, from either side | walks to it | the stage changes (the world, the great hall) |
-| the ground, or a thing that offers nothing now | walks to that x | stands |
-| the realm strip | as today | as today |
+| an open plot, a building that can grow, rubble (`tapBuild`, only while its card offers something: M6) | walks to it | the build card |
+| a damaged wall at night (`tapRepair`, its price in the slip) | walks to it | the slip stays over the wall with the price; a **second touch pays** (the director's note of 14.11. 14:35); refused while the gold or the cooldown says no |
+| the barracks (`tapRecruit`) | walks to it | the recruit card |
+| a cold brazier at night (`tapLight`) | walks to it | he lights it |
+| the hall's door, from either side (`tapDoor`, the seventh mark) | walks to it | the stage changes (the world, the great hall) |
+| the tax lectern in the hall (no mark; until the town lane's taxes on foot) | walks to it | the tax card |
+| the ground, or a thing that offers nothing now | walks to that x (in the hall inside the floor, short of the way out) | stands |
+| the lord himself | nothing (stage-3 gives the tap the lantern moment) | |
+| the realm strip | runs there, as before | |
 
-- **The action starts when he arrives** (within 6 px of the thing's standing place), not at the tap. If he already
-  stands there it starts at once.
-- **While he walks to it**, a slip above the thing says what he is about to do and what it costs ("Repair the wall,
-  12"). It is the button's caption, moved to the thing. A tap anywhere else, or a drag, calls him off before he
-  arrives. A second tap on the same thing makes him run.
-- **Tap or drag:** a touch that never moves more than 10 pt is a tap, however long it lasts. Past 10 pt it is a
-  drag: he walks toward the drag, runs past 40 pt, stops when the finger lifts, exactly as today. The drag now works
-  anywhere in the world, since no button needs the right half.
-- **Pressed:** with the finger down on a thing its mark shows the pressed frame and its pool brightens. On the lift
-  the light haptic ticks and he sets off. If the finger slides away the mark goes back to idle.
-- **Tapping the lord** does nothing. He leaves the throne by the card's "End the audience", as today.
+- **The action starts when he arrives** (within 6 px of the thing's standing place). If he already stands there it
+  starts at once. A thing that walks (the court) is followed.
+- **The pace:** he walks; a place more than 480 px away, or any place at night, he hurries (68 px/s, about 1.9 times
+  his walk; the director's note 3 of 14.11.); a second tap on the thing he walks to makes him run (80). The reference
+  bots keep their own pace (they never touch the world).
+- **While he walks to it** a slip above the thing's mark says what he is about to do and what it costs ("Repair the
+  wall" and the coin with 10, its figure red while the treasury cannot pay). A tap anywhere else, or a drag, calls him
+  off.
+- **Tap or drag:** a touch that never moves more than 10 pt is a tap, however long it lasts. Past 10 pt it is a drag
+  anywhere on the screen: he walks toward the drag, runs past 40 pt, stops when the finger lifts.
+- **Pressed:** with the finger down on a thing its mark shows the pressed frame and its pool brightens (1.4 times).
+  On the lift the light haptic ticks (`touched`) and he sets off. If the finger slides off, the mark goes back to idle.
+- **Raise the lantern** (the director's note 3): at night a press and hold on the lord (0.35 s) lifts the house's
+  lantern over his head: its light grows to 96 px for 3 s and every creature it lights flinches (stops and backs away
+  for 1.2 s; a boss only stops, for 0.6 s); then the flame gutters (24 px for 8 s); it is ready again 30 s after the
+  raise, and a small flame over the lantern's glass shows it. A medium haptic and the fire's sound pitched up. By day a
+  hold does nothing. `Core/LanternRaise.swift`; the bots never raise it, so T1 to T8 hold step for step.
+- **The flame shows the danger** (the director's note 5, picture only): as the next wave nears (its last 12 s) the
+  lantern's light burns lower and flutters, and it stays so while creatures are on the field; it steadies when the
+  wave is spent. Reduce Motion: the light reddens instead of fluttering.
 
 **What wins a touch**, in this order:
 
-1. The interface: an open card, the pause seal, the ledger, the realm strip. While a card is open the world takes
-   no taps (as today).
+1. The interface: an open card, the pause seal, the ledger, the realm strip, the talk bubble. While a card is open
+   the world takes no taps and shows no marks.
 2. A thing that offers something now. Its touch area is its sprite and its mark together, grown to at least
-   **44x44 pt** (22x22 game px at the world's scale, 17x17 in the audience framing), centred on its standing place,
-   from the floor line up to the mark's top.
+   **44x44 pt** (22x22 game px at the world's scale on the 17 Pro, 19 at the hall's walking scale, 17 in the audience
+   framing), centred on its standing place, from 6 px below the walk line up to the mark's top.
 3. Where two areas overlap, the thing whose centre x is nearer to the finger wins. Within 4 px of a tie: the one
-   who has the word, then a waiting petitioner, the court, a townsman, the throne, a brazier, a plot, a wall.
-   People are small and move, walls are big and wait. A person standing before a wall takes his area out of the
-   wall's.
-4. Everything else is ground: he walks to the finger's x. In the hall the x is held inside the floor (the nave, the
-   steps, the dais).
+   who has the word, then a waiting petitioner (a bench), the court, a townsman, the throne, the door, the barracks,
+   the lectern, a brazier, a plot, a wall. A person standing before a wall or a building takes his area out of theirs.
+4. Everything else is ground.
 
-- **A bench is one target.** The seated sit 8 px apart, too close for a finger. A tap anywhere on an occupied bench
-  walks the lord to it and the first in line speaks.
-- **Layout rule:** two things that can offer something at the same time stand at least 22 game px apart. The great
-  hall's places keep it (SPRITES.md); the world's plots and walls already do.
-- **The realm strip stays** as it is: the fast way across the realm, and its tags still say where something waits.
-- **The action button is removed** with its caption slip (`action-button`). The lower right corner is free.
-- **First minute:** one slip, once: "Touch what the lord shall do." The first mark is the lesson.
+- **A bench is one target.** The seated sit 11 px apart, too close for a finger.
+- **The marks:** over every thing in view that offers something, at most four, the nearest to the lord first (the
+  errand's thing always among them); of a row of damaged walls only the nearest carries one. Drawn unlit; at night at
+  three quarters of their value and warmed (M11). A pool of warm light (radius 20, 0.7) at the thing's feet, a scene
+  light that only shows after dusk. No rim yet (the spec's gold outline is open). Nothing bobs or blinks. The old
+  speech marks and the throne's pulsing mark are gone in the game.
+- **First minute:** one slip, once (a new realm's first day, 10 s or until the first touch): "Touch what the lord
+  shall do." (`touch.first`, with the lord's form). The first mark is the lesson.
 
 **Accessibility**
 
-- Every thing that offers something and is in view gets an accessibility element at its touch area on screen (a
-  button), placed again when the camera or the thing moves (four times a second is enough) and removed when the
-  offer or the thing leaves the view. While a card is open they are hidden.
-- **Labels** name the act first, localized: "Talk to Tamsin, the cook", "Sit on the throne", "Build here",
-  "Upgrade the archer tower", "Repair the wall", "Recruit", "Light the brazier", "Enter the great hall". The value
-  carries the price where there is one.
-- **Identifiers**, stable for the UI tests: `touch-talk-<speaker id>`, `touch-bench-<n>`, `touch-throne`,
-  `touch-plot-<index>`, `touch-wall-<index>`, `touch-recruit-<building id>`, `touch-brazier-<index>`,
-  `touch-door-hall`.
-- **Order:** the HUD first, then the things from left to right. Activating an element is the tap: he walks, the
-  action follows, and VoiceOver hears the arrival ("At the wall. Repairing.").
-- **Far things:** `world-scene` gets the custom actions "Walk left" and "Walk right" (one screen each), so a
-  VoiceOver or Switch Control user reaches what is out of view without a drag. The realm strip stays a second way.
-- The mark is a shape with a glyph in ink on parchment (10:1), never a colour alone; the rim is an extra. Nothing
-  bobs or blinks. With Reduce Motion the move into the audience framing and the fade between the stages are cuts.
+- Every thing that offers something and is in view has an accessibility element at its touch area (a button),
+  placed again four times a second, gone under a card. The elements take no finger (the touch layer under them does).
+- **Labels** name the act first: "Talk to Tamsin", "Sit on the throne", "Build: Brazier", "Upgrade: Tower",
+  "Repair the wall", "Recruit", "Light the brazier", "Enter the great hall", "Leave the great hall". The value
+  carries the price ("10 gold").
+- **Identifiers:** `touch-talk-<speaker>`, `touch-bench-<n>`, `touch-throne`, `touch-plot-<index>`,
+  `touch-wall-<index>`, `touch-recruit-barracks`, `touch-brazier-<index>`, `touch-door-hall`, `touch-lectern`; the
+  slip `touch-slip`, the first slip `touch-first-slip`.
+- **Order:** the HUD first, then the things from left to right, then the scene. Activating an element is the tap;
+  VoiceOver hears the arrival where nothing else speaks ("At the wall. Touch it again to repair it.", "At the brazier.
+  Lighting it.").
+- **`world-scene`'s custom actions:** "Walk left" and "Walk right" (one screen each) and "Raise the lantern".
+- With Reduce Motion the move into the audience framing and the fade between the stages are cuts.
 
-**What the UI tests need**
+**What the UI tests use:** the identifiers (present only while the offer exists and the thing is in view);
+`world-scene`'s value carries `stage:world|hall`, `lx:<x>` (the lord's x on the stage that shows; `lord:` already
+names Burgherr or Burgherrin) and `errand:<identifier>|none`; `-GWStage hall`; `-GWTouchHint YES` holds the first slip
+for its picture. `UITests/TouchSupport.swift` taps an element's coordinates.
 
-- The identifiers above, present only while the offer exists, so waiting for one is waiting for the offer.
-- `world-scene`'s value also carries `stage:world|hall`, `lord:<x>` and `errand:<identifier>|none`, so a test waits
-  for the arrival instead of sleeping.
-- A launch argument that starts in the hall (`-GWStage hall`), beside those that set the day and the hour.
-- The flows: tap `touch-throne`, wait for `audience-root`, choose; tap `touch-plot-<n>`, wait for `build-card`; tap
-  `touch-wall-<n>` and read the wall's state; tap the ground at a point of `world-scene` and read `lord:`; drag and
-  read `lord:`; `action-button` no longer exists. English and German, for the slip above the thing.
-- Unit tests on the pure functions: the touch area of every kind is at least 44x44 pt at both scales; the nearer
-  centre wins; a person before a wall wins; a bench is one target; a touch of 10 pt or less is a tap.
-- Screenshots `<nn>-touch-hall-<lang>` and `<nn>-touch-front-<lang>`.
+- HUD: pause top left (44 pt in a 60 pt area); gold, happiness and the day and clock top right (stage-3 takes them
+  off the walked world: docs/HUD.md).
+- Cards (build, audience, report) take taps only; every button is at least 44 pt high, choice buttons 52 pt.
+- Both landscape orientations. The HUD respects the safe area; the scene renders under the sensor housing, but nothing
+  important sits in the outer 30 game px.
 
 ## Look
 
@@ -3451,6 +3447,59 @@ highs). What changed (new values in `Core/HallLight.swift` and `HallCourt`):
   unit classes, the off-screen renders judged after each: the lantern too faint after the second, right after the
   third) ALL PASSED; **`lh-s1f2-4` build, unit, ui Hall, FirstDay, Audience and Lord ALL PASSED on bb0c4a0.** No sprite
   changed its size, so the atlas gains no rows; no new player-facing strings.
+
+#### Step stage-2: touch the world
+
+The action button and its caption are gone (B3); the lord goes where the finger points. The rules, as built, are the
+section "Controls: touch the world" above, which replaces the old "Controls" and "Controls 2". The files:
+`Core/TouchWorld.swift` (a thing, its touch area of at least 44 x 44 pt, the nearer centre, the tie by rank, a person
+before a wall, a tap of 10 pt or less, at most four marks, the night's tint, the pace), `Core/TouchThings.swift` (what
+offers something in the world and in the hall now), `Core/TouchMarks.swift` (how a stage lies on the screen; the marks
+as unlit actors and their pools), `Core/LanternRaise.swift` (raise the lantern, the flame that shows the danger),
+`App/GameModel+Touch.swift` (the finger, the errands, the slips, the elements), `UI/TouchLayer.swift` (the touch layer
+over the whole screen, the elements, the slip above the thing, the first slip). Small marked hooks in shared files:
+`GameModel` (the state block, the step, the frame, `perform(_:)` split out of `performAction`, the scene value),
+`SimDriver.travel(to:speed:)`, `HallWalker.walk(to:speed:)`, `KingTarget.bench`, `SpriteID.tapDoor`, `FeedbackCue
+.touched` and `.lanternRaised`, `RealmKing.lanternSince`/`.raises` and `Creature.flinch`/`.flinchRaise` (optional,
+older saves load), one line each in `Sim.stepKing` and `Battle` (the lantern's radius, the flinch), `EntityFrames` (the
+plot markers no longer drawn, M6).
+
+- **B3, the button:** `ActionArea` and the game's action button are deleted (the light probe keeps its brazier
+  button as `probe-action`); the whole screen takes the finger (`TouchLayer` instead of the walk pad on the left 45 %).
+  `GameModel.target` and `performAction()` stay as the model's "what is in reach" for the unit tests; an errand that
+  arrives calls `perform(_:)` with the thing's own act.
+- **M6:** the four blue banner posts (the plot markers) are gone; an open plot shows `tapBuild` only while its card
+  offers something and it is open.
+- **M9:** the bubble stands over the speaker's head (300 pt at most, its tail on him) and names him; the separate name
+  slip went with the button. A bench's first in line speaks his line from his seat (`TalkBubble.nameText`).
+- **M11:** at night the marks draw at three quarters of their value, warmed; at most four in view, the nearest first; a
+  member of the court or a guest carries a mark only while he has something new to say (`CourtTalk.marks`: a word
+  about today's petitions, not yet heard today); the rest still answer a touch.
+- **M13:** the elements, labels, identifiers, order and the scene's custom actions as listed in "Controls"; the
+  scene's value adds `lx:` and `errand:`.
+- **M14:** German: the slips' longest lines ("Wiederaufbau: Großes Leuchtfeuer", "Den großen Saal verlassen", "Die
+  Mauer ausbessern" with its coin) are one line under 260 pt; build 2 is English only by the director's note of
+  14.11. 19:35, so no German round ran.
+- **The director's ideas for stage-2:** the lord hurries (far ways, the night), raise the lantern (a hold on the lord
+  at night), the flame shows the danger (picture only). The tap on the lord stays free for stage-3's lantern moment.
+- **The stage-1 critic's four highs:** the near pillar's key band 6 px wide, soft both ways, on the pier's lower part
+  only (a height ramp; the rims too); the inner door stands open for 0.45 s after he came in and while he goes out
+  (the leaf, the bailey's dark, a sliver of cold light; no new sprite); Odile's counsel inside the letter under the
+  request (never over the canopy); while an audience runs whoever stands within 28 px of the petitioner's place steps
+  out toward the nave (`HallCourt.clearingTheFloor`; Pip at the foot of the steps was the one).
+- **Strings** (English and German, the director's note of 14.11. 19:19): Story.xcstrings `touch.first`,
+  `touch.bench.wait|sit|far`; Localizable "Sit on the throne", "Repair the wall", "%lld gold", the two arrivals, "Walk
+  left", "Walk right", "Raise the lantern".
+- **Tests:** `TouchWorldTests` (the areas at every scale, the nearer centre, the tie, a person before a wall, a bench as
+  one target, a tap, the marks, the night's tint, the pace, the floor cleared, what the world offers by day and at
+  night, and the errands through the model: a site's card on arrival, the ground and a drag, a second tap runs, the
+  hall's door both ways, the bench and the throne, the scene value, the marks and the elements);
+  `LanternRaiseTests` (the timing, only at night and when ready, the farther light, the flinch once per raise, the
+  danger, the save, the reference bot never raises it); `EntityFramesTests.testNoPlotMarkersStand`. UI: every flow
+  that used the action button touches the world (`FirstDayUITests`, `AudienceUITests`, `HallUITests`,
+  `Look2UITests`, `PolishUITests`, `LordUITests`); `TouchUITests` 150 to 157 (`150-touch-front`, `151-touch-front-walk`,
+  `152-touch-front-night`, `153-touch-wall-price`, `154-touch-hall`, `155-touch-hall-bench`, `156-touch-hall-walk`,
+  `157-touch-first`).
 
 ## Risks
 

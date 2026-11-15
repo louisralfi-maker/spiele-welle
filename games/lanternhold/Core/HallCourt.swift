@@ -138,6 +138,24 @@ enum HallCourt {
         return list
     }
 
+    /// Step stage-2: the petitioner before the throne has this much floor to each side of his place alone.
+    static let clearZone = 28.0
+
+    /// The court's goals while an audience runs: whoever stands (not seated, not a guard) within `clearZone` of the
+    /// petitioner's place `spot` steps out of it toward the nave, one after the other 12 px apart.
+    static func clearingTheFloor(_ targets: [String: Double], specs: [HallFigureSpec], walkerKey: String?,
+                                 spot: Double) -> [String: Double] {
+        var out = targets
+        var next = spot - clearZone
+        for spec in specs.sorted(by: { $0.key < $1.key }) {
+            guard spec.key != walkerKey, !spec.sits, spec.who != "guard", let x = out[spec.key],
+                  abs(x - spot) < clearZone else { continue }
+            out[spec.key] = next
+            next -= 12
+        }
+        return out
+    }
+
     private static func standingSpot(_ stand: inout Int) -> Double {
         let spots = HallLayout.standing
         let spot = stand < spots.count ? spots[stand] : (spots.last ?? 106) - 8 * Double(stand - spots.count + 1)

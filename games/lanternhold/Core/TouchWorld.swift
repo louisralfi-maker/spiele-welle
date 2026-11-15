@@ -115,8 +115,10 @@ enum TouchRules {
     static let arrival = 6.0
     /// An arm's length before a person.
     static let armsLength = 12.0
-    /// At most this many marks show at once, the nearest to the lord first (M11).
+    /// At most this many marks show at once, the nearest to the lord first (M11), and at most `maxSiteMarks` of them
+    /// over building sites (the first sweep: four hammers in a row at the gate read as the banner posts they replaced).
     static let maxMarks = 4
+    static let maxSiteMarks = 2
     /// A place farther than this, or any place at night, and he hurries (director's note 3, 14.11.).
     static let hurryDistance = 480.0
     /// His pace when he hurries: about 1.9 times his walk.
@@ -190,7 +192,8 @@ enum TouchRules {
     }
 
     /// The marks to draw: things in view (`viewLeft ... viewRight`) that may carry one, the nearest to the lord first,
-    /// at most `maxMarks`; of a row of damaged walls only the nearest carries the mark.
+    /// at most `maxMarks` (and `maxSiteMarks` over sites); of a row of damaged walls only the nearest carries the mark;
+    /// a tag that would overlap a nearer one gives way.
     static func marked(_ things: [TouchThing], lordX: Double, viewLeft: Double, viewRight: Double) -> [TouchThing] {
         var list = things.filter { thing in
             thing.marked && thing.kind.mark != nil && thing.markX + 8 >= viewLeft && thing.markX - 8 <= viewRight
@@ -202,11 +205,19 @@ enum TouchRules {
         }
         var out: [TouchThing] = []
         var wall = false
+        var sites = 0
         for thing in list {
             if thing.kind == .wall {
                 if wall { continue }
                 wall = true
             }
+            if thing.kind == .plot {
+                if sites >= maxSiteMarks { continue }
+                sites += 1
+            }
+            // Two tags never overlap: the farther one gives way.
+            if out.contains(where: { abs($0.markX - thing.markX) < markWidth + 1
+                && abs($0.markLift - thing.markLift) < markHeight }) { continue }
             out.append(thing)
             if out.count == maxMarks { break }
         }

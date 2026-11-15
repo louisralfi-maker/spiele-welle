@@ -1756,3 +1756,25 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
   end at their risers on the walk line; the nave's flags run on below. The runner ends at the steps' foot in a gold
   fringe; a seven-row rug of the runner's border lies on the dais before the throne (x 380 to 439).
 - **The chandeliers** hang 10 px lower (wheel at row 53), just above the tall windows' apex.
+
+### 21.6 Step stage-2: touch the world (15.11.2026)
+
+- **The seventh mark** `tapDoor` (tools/hallart.py, `GLYPHS`): an arched door of planks with its gold ring, on the
+  same tag as the six (parchment in a gold rim, pressed: plaster in straw). It stands over the hall's door in the world
+  (its tip 43 px above the walk line, over the forebuilding's door the world lane paints at x 1830) and over the inner
+  door in the hall (3 px above the arch). No other sprite was drawn.
+- **The marks at night (M11):** the parchment was the brightest pixel at the front, brighter than the fires. At night
+  the tag draws at (0.78, 0.69, 0.53) of its colour: about three quarters of its value and warmed toward the
+  torchlight, so a fire still outshines it. By day it is as drawn. Never more than four in view.
+- **The pools** at the marked things' feet are scene lights of the `window` kind: invisible in daylight, a soft warm
+  spot after dusk that ties the tag to its thing.
+- **The plot markers are gone (M6):** an empty site shows nothing but its mark, low over the ground, and only while its
+  card offers something.
+- **The near pillar's light (the stage-1 critic's first high):** the key band is 6 px wide with its peak a step inside
+  the edge (0.55, 0.85, 0.9, 0.7, 0.45, 0.22, 0.08 from the edge in), and it and the rims follow a height ramp (nothing
+  above the banners, half at the window sills, full at the wainscot), so the pier no longer carries a pale rule from
+  floor to roof.
+- **The open inner door (the critic's second high):** see SPRITES.md "The marks", the open door: the bailey's dark and
+  a sliver of cold light in the gap, for the moment after he came in and while he goes out.
+- **Open:** the gold rim round a thing that offers something (SPRITES.md asks for it; not drawn); the marks are still
+  parchment tags (the night glass reskin comes in one place at stage-3 or the join, director's note of 15.11. 01:09).

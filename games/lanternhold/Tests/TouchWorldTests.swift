@@ -131,22 +131,29 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertFalse(TouchRules.isTap(travel: 40))
     }
 
-    func testAtMostFourMarksTheNearestFirstAndOneWall() {
+    func testAtMostFourMarksTheNearestFirstTwoSitesAndOneWall() {
         var list: [TouchThing] = []
-        for i in 0..<6 { list.append(thing("plot-\(i)", kind: .plot, x: 100 + Double(i) * 30)) }
+        for i in 0..<4 { list.append(thing("plot-\(i)", kind: .plot, x: 100 + Double(i) * 40)) }
         list.append(thing("wall-a", kind: .wall, x: 95, half: 15, top: 40))
         list.append(thing("wall-b", kind: .wall, x: 99, half: 15, top: 40))
         list.append(thing("lectern", kind: .lectern, x: 101))
-        var quiet = thing("tamsin", kind: .talk, x: 100)
+        list.append(thing("odile", kind: .talk, x: 300))
+        list.append(thing("door", kind: .door, x: 340))
+        var quiet = thing("tamsin", kind: .talk, x: 102)
         quiet.marked = false
         list.append(quiet)
         let marked = TouchRules.marked(list, lordX: 100, viewLeft: 0, viewRight: 400)
         XCTAssertEqual(marked.count, TouchRules.maxMarks)
         XCTAssertEqual(marked.filter { $0.kind == .wall }.count, 1, "of a row of walls only the nearest")
+        XCTAssertEqual(marked.filter { $0.kind == .plot }.count, TouchRules.maxSiteMarks, "two sites at most")
         XCTAssertEqual(marked.first?.id, "plot-0")
+        XCTAssertTrue(marked.contains { $0.id == "odile" }, "then the next nearest of another kind")
         XCTAssertFalse(marked.contains { $0.id == "lectern" }, "the lectern has no mark")
-        XCTAssertFalse(marked.contains { $0.id == "tamsin" }, "no new line, no mark")
+        XCTAssertFalse(marked.contains { $0.id == "tamsin" }, "nothing new to say, no mark")
         XCTAssertTrue(TouchRules.marked(list, lordX: 100, viewLeft: 500, viewRight: 900).isEmpty, "none out of view")
+        // Two tags side by side: the farther gives way.
+        let close = [thing("a", kind: .door, x: 100), thing("b", kind: .recruit, x: 108)]
+        XCTAssertEqual(TouchRules.marked(close, lordX: 100, viewLeft: 0, viewRight: 400).map(\.id), ["a"])
     }
 
     func testTheMarksAtNightAreDarkerAndWarm() {
@@ -168,6 +175,57 @@ final class TouchWorldTests: XCTestCase {
                        TouchRules.hurrySpeed, "at night he always hurries")
         XCTAssertEqual(TouchRules.pace(distance: 50, night: false, run: true, walk: walk, runSpeed: run), run)
         XCTAssertEqual(TouchRules.hurrySpeed / walk, 1.9, accuracy: 0.05)
+    }
+
+    /// The stage-1 critic's fourth high: while an audience runs, whoever stands within 28 px of the petitioner's place
+    /// steps out toward the nave; the seated and the guards stay.
+    func testThePetitionerHasTheFloorAlone() {
+        let body = SpeakerBody.court(.pip)
+        let specs = [
+            HallFigureSpec(who: "pip", key: "pip", body: body, x: 350, row: HallLayout.pipRow, facing: 1),
+            HallFigureSpec(who: "petitionerD", key: "p:a", body: body, x: 311, row: HallLayout.wallRow, facing: 1,
+                           sits: true, petition: "a"),
+            HallFigureSpec(who: "guard", key: "guard:arms", body: body, x: 448, row: HallLayout.daisRow, facing: -1),
+            HallFigureSpec(who: "petitionerE", key: "p:walker", body: body, x: 338, row: HallLayout.wallRow, facing: 1),
+        ]
+        let targets = ["pip": 350.0, "p:a": 311, "guard:arms": 448, "p:walker": 338]
+        let cleared = HallCourt.clearingTheFloor(targets, specs: specs, walkerKey: "p:walker", spot: 338)
+        XCTAssertGreaterThanOrEqual(abs((cleared["pip"] ?? 0) - 338), HallCourt.clearZone, "Pip steps aside")
+        XCTAssertLessThan(cleared["pip"] ?? 999, 338, "toward the nave")
+        XCTAssertEqual(cleared["p:a"], 311, "the seated stay seated")
+        XCTAssertEqual(cleared["guard:arms"], 448)
+        XCTAssertEqual(cleared["p:walker"], 338, "the petitioner keeps his place")
+    }
+
+    /// M14: the slips' German lines stay one short line (the slip has one line and no wrap): at most 34 characters for
+    /// the longest act with a place's name, the two arrivals for VoiceOver excepted.
+    func testTheGermanSlipsFit() throws {
+        let folder = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let url = folder.appendingPathComponent("Resources/Localizable.xcstrings")
+        guard let data = try? Data(contentsOf: url),
+              let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let strings = json["strings"] as? [String: Any] else {
+            throw XCTSkip("the source catalog \(url.path) is out of reach")
+        }
+        func german(_ key: String) -> String? {
+            let entry = strings[key] as? [String: Any]
+            let de = (entry?["localizations"] as? [String: Any])?["de"] as? [String: Any]
+            return (de?["stringUnit"] as? [String: Any])?["value"] as? String
+        }
+        // The longest place a slip names is the slot's name "Großes Leuchtfeuer" (`Texts.slotName`).
+        for key in ["Build: %@", "Upgrade: %@", "Rebuild: %@"] {
+            let line = try XCTUnwrap(german(key), key).replacingOccurrences(of: "%@", with: "Großes Leuchtfeuer")
+            XCTAssertLessThanOrEqual(line.count, 34, line)
+        }
+        for key in ["Sit on the throne", "Repair the wall", "Leave the great hall", "Enter the great hall",
+                    "Light the brazier", "Recruit", "Set the taxes"] {
+            let line = try XCTUnwrap(german(key), key)
+            XCTAssertLessThanOrEqual(line.count, 30, line)
+        }
+        XCTAssertNotNil(german("Walk left"))
+        XCTAssertNotNil(german("Walk right"))
+        XCTAssertNotNil(german("Raise the lantern"))
+        XCTAssertNotNil(german("%lld gold"))
     }
 
     // MARK: - What offers something
@@ -295,6 +353,51 @@ final class TouchWorldTests: XCTestCase {
         game.touchThing(throne)
         run(game, seconds: 12) { game.overlay == .audience }
         XCTAssertEqual(game.overlay, .audience, "he sits and the audience begins")
+    }
+
+    /// The director's note of 14.11. 14:35: a damaged wall's repair waits at the wall with its price; a second touch
+    /// pays.
+    func testTheRepairWaitsForASecondTouch() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWNight": "1", "GWHour": "22", "GWGold": "50",
+                          "GWCameraX": "1280"])
+        let wall = Realm.lines[0].wall
+        game.withDriver { driver in
+            if let item = driver.state.plots[wall].item {
+                driver.state.plots[wall].hp = Build.maxHP(item, balance: driver.balance) / 2
+            }
+            driver.state.gold = 50
+        }
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let repair = try XCTUnwrap(game.touch.things.first { $0.id == "touch-wall-\(wall)" }, "the wall offers")
+        let hp = try XCTUnwrap(game.driver?.state.plots[wall].hp)
+        game.touchThing(repair)
+        run(game, seconds: 6) { game.touch.errand?.waiting == true }
+        XCTAssertEqual(game.touch.errand?.waiting, true, "he stands at the wall and waits")
+        XCTAssertEqual(game.errandSlip?.price, Balance.standard.patchCost, "the price over the wall")
+        let before = try XCTUnwrap(game.driver?.state.plots[wall].hp)
+        XCTAssertLessThanOrEqual(before, hp + 1e-9, "nothing paid yet")
+        XCTAssertEqual(game.driver?.state.gold, 50, "nothing paid yet")
+        game.touchThing(repair)
+        XCTAssertGreaterThan(try XCTUnwrap(game.driver?.state.plots[wall].hp), before, "the second touch repairs")
+        XCTAssertEqual(game.driver?.state.gold, 50 - Balance.standard.patchCost, "and pays")
+        XCTAssertNil(game.touch.errand)
+    }
+
+    func testAHoldOnTheLordAtNightRaisesTheLantern() throws {
+        // In the town, where nothing offers anything at night.
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWNight": "1", "GWHour": "22", "GWCameraX": "2600"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let x = try XCTUnwrap(game.driver?.state.king.x)
+        let on = CGPoint(x: framing.deviceX(stageX: x) / 3, y: framing.deviceY(lift: 15) / 3)
+        game.touchChanged(start: on, at: on, translation: .zero, in: proPoints)
+        run(game, seconds: 0.5)
+        XCTAssertEqual(LanternRaise.phase(since: game.driver?.state.king.lanternSince), .raised, "the hold raised it")
+        game.touchEnded(at: on, translation: .zero, in: proPoints)
+        XCTAssertNil(game.touch.errand, "and the lift did nothing more")
+        XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.x), x, accuracy: 0.5, "he did not walk")
+        game.refreshHUD()
+        XCTAssertTrue(game.sceneStatus.contains("lantern:raised"), game.sceneStatus)
     }
 
     func testTheSceneValueCarriesTheLordAndTheErrand() throws {

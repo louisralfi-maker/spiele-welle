@@ -130,6 +130,8 @@ enum Sim {
     static func stepKing(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent]) {
         var king = s.king
         if king.patchCooldown > 0 { king.patchCooldown = max(0, king.patchCooldown - dt) }
+        // Raise the lantern (stage lane, step stage-2): its clock.
+        LanternRaise.step(&king, dt: dt)
         if king.lightingPlot >= 0 {
             king.velocity = 0
             king.lightTimer += dt

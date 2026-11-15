@@ -1244,6 +1244,10 @@ final class GameModel {
         // Touch the world: the lord's x on the stage that shows (`lord:` names Burgherr or Burgherrin) and the
         // errand's thing.
         text += " lx:\(Int(stageLordX.rounded())) errand:\(touch.errand?.id ?? "none")"
+        // Raise the lantern: its phase at night.
+        if DayClock.phase(at: state.hour) != .day {
+            text += " lantern:\(GameModel.lanternWord(LanternRaise.phase(since: state.king.lanternSince)))"
+        }
         if text != sceneStatus {
             sceneStatus = text
         }

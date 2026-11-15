@@ -106,6 +106,11 @@ struct WorldSceneView: UIViewRepresentable {
                     MainActor.assumeIsolated { model.walkScreen(1) }
                     return true
                 },
+                // Raise the lantern at night (the hold on the lord).
+                UIAccessibilityCustomAction(name: String(localized: "Raise the lantern")) { _ in
+                    MainActor.assumeIsolated { model.raiseLantern() }
+                    return true
+                },
             ]
         }
         return view

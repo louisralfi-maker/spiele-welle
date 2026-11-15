@@ -63,6 +63,8 @@ extension GameModel {
         // Touch the world (step stage-2): the touch marks replace the speech marks in the game (`tapTalk` over whoever
         // has a new line today); `CourtTalk.marks` stays for the court's own rules.
         if !court.marks.isEmpty { court.marks = [] }
+        touch.hinted = CourtTalk.marks(state, figures: CourtLayout.figures(state, catalog: .standard), lines: .standard,
+                                       log: talkLog)
     }
 
     /// After each drawn frame: where the speaker of the bubble and the audience's speaker stand on screen.

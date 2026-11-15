@@ -1194,23 +1194,27 @@ static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant Com
             // value ramp of its own, like the walls behind it).
             int last = int(max(u.target.x, 1.0f)) - 1;
             int2 t = int2(c.fg);
-            int dl = 6;
-            int dr = 6;
-            for (int k = 1; k <= 5; k++) {
-                if (dl > 5 && (t.x - k < 0 || fgTex.read(uint2(uint(t.x - k), uint(t.y))).a < 0.5f)) { dl = k; }
-                if (dr > 5 && (t.x + k > last || fgTex.read(uint2(uint(t.x + k), uint(t.y))).a < 0.5f)) { dr = k; }
+            int dl = 8;
+            int dr = 8;
+            for (int k = 1; k <= 7; k++) {
+                if (dl > 7 && (t.x - k < 0 || fgTex.read(uint2(uint(t.x - k), uint(t.y))).a < 0.5f)) { dl = k; }
+                if (dr > 7 && (t.x + k > last || fgTex.read(uint2(uint(t.x + k), uint(t.y))).a < 0.5f)) { dr = k; }
             }
             float left = dl == 1 ? 1.0f : (dl == 2 ? 0.4f : 0.0f);
             float right = dr == 1 ? 1.0f : (dr == 2 ? 0.4f : 0.0f);
             float ramp = lh2_interior_ramp(c.row, v);
+            float height = float(c.row) / max(u.target.y, 1.0f);
+            // Step stage-2 (the stage-1 critic's first high): the key light falls on the pier's lower part: full at
+            // the wainscot, half at the window sills, nothing above the banners; the band is 6 px wide and soft on
+            // both sides (its peak a step inside the edge), so no pale rule runs from the floor to the roof.
+            float lower = smoothstep(0.22f, 0.70f, height);
             float band = v.hallRimR.a;
             int keyD = band >= 0.0f ? dr : dl;
             float3 keyLight = band >= 0.0f ? v.hallRimR.rgb : v.hallRimL.rgb;
-            float bandShare = keyD == 1 ? 1.0f : (keyD == 2 ? 0.8f : (keyD == 3 ? 0.55f : (keyD == 4 ? 0.3f
-                : (keyD == 5 ? 0.12f : 0.0f))));
-            lit += f.rgb * keyLight * (abs(band) * bandShare * ramp);
-            lit += (v.hallRimL.rgb * left + v.hallRimR.rgb * right) * ramp;
-            float height = float(c.row) / max(u.target.y, 1.0f);
+            float bandShare = keyD == 1 ? 0.55f : (keyD == 2 ? 0.85f : (keyD == 3 ? 0.9f : (keyD == 4 ? 0.7f
+                : (keyD == 5 ? 0.45f : (keyD == 6 ? 0.22f : (keyD == 7 ? 0.08f : 0.0f))))));
+            lit += f.rgb * keyLight * (abs(band) * bandShare * ramp * lower);
+            lit += (v.hallRimL.rgb * left + v.hallRimR.rgb * right) * ramp * (0.35f + 0.65f * lower);
             lit *= mix(0.6f, 1.0f, smoothstep(0.05f, 0.8f, height));
         }
         color = color * (1.0f - f.a) + lit;

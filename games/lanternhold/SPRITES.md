@@ -639,6 +639,7 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
 | `tapRepair` | 30x18 | 2 of 15x18 | a wall with a wax-red crack: a damaged wall or building |
 | `tapRecruit` | 30x18 | 2 of 15x18 | a head and shoulders with a plus: where the lord can recruit |
 | `tapLight` | 30x18 | 2 of 15x18 | a flame: a cold brazier |
+| `tapDoor` | 30x18 | 2 of 15x18 | an arched door of planks with its gold ring: the great hall's door in the world and its inner door (stage lane, step stage-2, 15.11.2026) |
 
 - **Frames:** 0 idle (parchment in a gold rim), 1 pressed (the plaque a step darker, the rim dull). Pressing
   darkens the plaque, nothing moves, as on every button of the interface. No bobbing, no pulse.
@@ -655,7 +656,14 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
 - **When:** rim and pool on every thing in view that offers something now. At most four marks in view, the nearest
   to the lord first; of a row of damaged walls only the nearest carries the mark, the others keep their rim.
 - **The touch area** is the thing and its mark together, at least 44x44 pt (DESIGN.md "Controls 2").
-- **Texture space:** the six strips (180x18 together) lie on the hall's second page.
+- **Texture space:** the seven strips (210x18 together) lie on the hall's page (`tapDoor` in a shelf that had room).
+- **In the game (step stage-2):** drawn as emissive actors after every figure; at night their tint is
+  (0.78, 0.69, 0.53) of the drawing (M11); at most four in view. The pool is a `window` light (it fades in at dusk);
+  in the hall it burns at 0.4 by day. The rim is not drawn yet.
+- **The open inner door (step stage-2, no sprite):** for 0.45 s after he came in by the inner door and while he goes
+  out through it, the hall draws the left leaf swung in (a 3 px strip of oak against the jamb) and the gap beyond it
+  (15 x 45 px of the bailey's dark, hall rows 124 to 169) with a 2 px sliver of cold light at its edge (the day's, the
+  moon's at night), all from the `hallMote` texel, so the atlas gains nothing.
 - **Open, for the lead:** the tax lectern has no mark of its own. Odile stands at it, so her `tapTalk` can lead to
   the tithe; a seventh mark with a coin is a quarter of an hour of art if wanted.
 

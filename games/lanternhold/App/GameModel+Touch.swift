@@ -52,6 +52,12 @@ struct TouchState: Sendable {
     var firstSlipUntil = 0.0
     /// The touch layer's width in points (the screen's scale for the accessibility elements' sizes).
     var viewWidth = 0.0
+    /// Who has a word about today's petitions and was not heard yet (`CourtTalk.marks`; `refreshCourt`).
+    var hinted: Set<String> = []
+    /// Raise the lantern: the finger went down on the lord at this second of the clock, and the hold raised it.
+    var onLord = false
+    var downAt = 0.0
+    var raised = false
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -82,6 +88,10 @@ extension GameModel {
             touch.down = start
             touch.dragging = false
             touch.pressed = thingAt(start, in: size)?.id
+            // Raise the lantern: a hold on the lord at night (`stepTouch` counts it).
+            touch.onLord = touch.pressed == nil && stagePoint(start, in: size).map(isOnLord) == true
+            touch.downAt = clock.elapsed
+            touch.raised = false
         }
         let travel = hypot(Double(translation.width), Double(translation.height))
         if !touch.dragging && !TouchRules.isTap(travel: travel) {
@@ -105,14 +115,17 @@ extension GameModel {
         }
         let dragged = touch.dragging
         let start = touch.down ?? point
+        let raised = touch.raised
         touch.down = nil
         touch.dragging = false
         touch.pressed = nil
-        guard overlay == nil else { return }
+        touch.onLord = false
+        touch.raised = false
         if dragged {
             setDrag(offset: nil)
             return
         }
+        guard overlay == nil, !raised else { return }
         tap(at: start, in: size)
     }
 
@@ -143,11 +156,34 @@ extension GameModel {
             touchThing(thing)
             return
         }
-        // Tapping the lord does nothing (stage-3 gives him the lantern moment).
-        if abs(place.x - stageLordX) <= 7 && place.lift >= -2 && place.lift <= 32 { return }
+        // Tapping the lord does nothing (stage-3 gives him the lantern moment; a hold at night raises the lantern).
+        if isOnLord(place) { return }
         cancelErrand()
         feedback.play(.touched)
         walk(to: groundX(place.x), run: false)
+    }
+
+    /// The lantern's phase in the scene's value (`lantern:`).
+    nonisolated static func lanternWord(_ phase: LanternRaise.Phase) -> String {
+        switch phase {
+        case .ready: return "ready"
+        case .raised: return "raised"
+        case .guttering: return "guttering"
+        case .resting: return "resting"
+        }
+    }
+
+    /// True for a point on the lord's body.
+    func isOnLord(_ place: (x: Double, lift: Double, minimum: Double)) -> Bool {
+        abs(place.x - stageLordX) <= max(7, place.minimum / 2 - 2) && place.lift >= -2 && place.lift <= 32
+    }
+
+    /// Raise the lantern (`LanternRaise`): the hold on the lord at night lifts it, with a haptic and the fire's sound
+    /// pitched up. By day a hold does nothing.
+    func raiseLantern() {
+        guard kind == .world, stage == .world, overlay == nil else { return }
+        let done = withDriver { LanternRaise.raise(&$0.state) } ?? false
+        if done { feedback.play(.lanternRaised) }
     }
 
     /// Where a tap on the ground sends him: inside his walk; in the hall inside the floor and short of the way out.
@@ -282,6 +318,11 @@ extension GameModel {
     func stepTouch(_ seconds: Double) {
         guard kind == .world else { return }
         stepFirstSlip()
+        if touch.down != nil, touch.onLord, !touch.dragging, !touch.raised,
+           clock.elapsed - touch.downAt >= LanternRaise.holdSeconds {
+            touch.raised = true
+            raiseLantern()
+        }
         guard var errand = touch.errand else { return }
         if overlay != nil || errand.stage != stage {
             cancelErrand()
@@ -365,7 +406,8 @@ extension GameModel {
     func touchWorld(_ layer: inout EntityLayer, state: GameState, balance: Balance, camera view: Camera,
                     pixelScale: PixelScale, night: Double) {
         let figures = CourtFrames.figures(state: state, catalog: .standard, scene: court, animTime: animationTime)
-        let things = TouchThings.world(state, balance: balance, figures: figures, talked: talkedToday(state))
+        let things = TouchThings.world(state, balance: balance, figures: figures,
+                                       talked: quietToday(state, figures: figures))
         let framing = TouchFraming.world(camera: view, pixelScale: pixelScale)
         touch.things = things
         touch.framing = framing
@@ -374,12 +416,43 @@ extension GameModel {
         for pool in TouchMarks.pools(marks) {
             layer.lights.append((source: pool, plane: .world))
         }
+        // The flame shows the danger (director's note 5): as the next wave nears the lantern burns lower and
+        // flutters, and it steadies when the wave is spent; with Reduce Motion it reddens instead of fluttering.
+        let danger = LanternRaise.danger(state)
+        if danger > 0.01 {
+            for index in layer.lights.indices where layer.lights[index].source.kind == .lantern {
+                var light = layer.lights[index].source
+                light.intensity *= 1 - 0.3 * danger
+                if reduceMotion {
+                    light.color += (SIMD3<Float>(1.0, 0.42, 0.18) - light.color) * Float(0.6 * danger)
+                } else {
+                    let t = animationTime
+                    let flutter = 0.5 * sin(t * 17.0) + 0.3 * sin(t * 29.0 + 1.3) + 0.2 * sin(t * 7.0)
+                    light.intensity *= 1 + 0.18 * danger * flutter
+                    light.radius += 2.5 * danger * flutter
+                }
+                layer.lights[index].source = light
+            }
+        }
+        // Raise the lantern: at night a small flame stands over the lantern's glass while it can be raised.
+        if night > 0.5, LanternRaise.canRaise(state), overlay == nil, driver?.bot == nil {
+            let x = state.king.x + EntityFrames.kingGlass.dx * Double(state.king.facing)
+            let left = framing.deviceX(stageX: x.rounded(.down))
+            let top = framing.deviceY(lift: EntityFrames.kingGlass.dy + 5)
+            let s = Float(framing.scale)
+            let gold = GamePalette.fireGold
+            layer.actors.append(ActorInstance(sprite: .hallMote, frame: 0,
+                                              rect: SIMD4<Float>(Float(left), Float(top), s, 2 * s),
+                                              tint: SIMD4<Float>(gold.x, gold.y, gold.z, 1), flipped: false,
+                                              isEmissive: true, isLit: true))
+        }
         noteTouchFrame()
     }
 
     /// The hall's things and marks for this frame (`hallFrame`).
     func touchHall(state: GameState, figures: [DrawnFigure], pixelScale: PixelScale, scene: HallScene) -> [TouchMark] {
-        let things = TouchThings.hall(state, figures: figures, talked: talkedToday(state), lordX: scene.walker.x)
+        let things = TouchThings.hall(state, figures: figures, talked: quietToday(state, figures: figures),
+                                      lordX: scene.walker.x)
         let framing = TouchFraming.hall(pixelScale: pixelScale, walkLeft: scene.camera?.x ?? 0, progress: scene.zoom)
         touch.things = things
         touch.framing = framing
@@ -392,6 +465,15 @@ extension GameModel {
     func talkedToday(_ state: GameState) -> Set<String> {
         guard talkLog.day == state.day else { return [] }
         return Set(talkLog.counts.keys)
+    }
+
+    /// Who carries no talk mark now: whoever was heard today, and whoever has no word about today's petitions
+    /// (`CourtTalk.marks`, kept by `refreshCourt`): the court always has a line, so a mark over each of them all day
+    /// would crowd the hall (M11: a mark only while someone has something new to say). They still answer a touch.
+    func quietToday(_ state: GameState, figures: [DrawnFigure]) -> Set<String> {
+        var quiet = talkedToday(state)
+        for figure in figures where !touch.hinted.contains(figure.who) { quiet.insert(figure.who) }
+        return quiet
     }
 
     /// The marks in view now: none under a card, during a change of stage or while the reference bot plays; the
