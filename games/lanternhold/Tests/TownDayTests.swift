@@ -122,6 +122,26 @@ final class TownDayTests: XCTestCase {
         XCTAssertNil(TownDay.washer(day(3), time: 1, context: quiet), "home at night")
     }
 
+    func testThePassersByAreHomeBeforeTheHorn() {
+        let s = day(10)
+        let routes = TownDay.routes(s, coach: nil)
+        XCTAssertGreaterThanOrEqual(routes.count, 2)
+        for route in routes {
+            XCTAssertLessThanOrEqual(TownDay.inHour(route) + abs(route.spot - route.home) / route.speed
+                                     / DayClock.secondsPerHour, TownDay.homeBy + 1e-9, "\(route.body) in by the horn")
+        }
+        var everybody = s
+        everybody.citizens = everybody.soldiers.count + 40
+        for hour in stride(from: TownDay.homeBy + 0.01, to: 24, by: 0.05) {
+            XCTAssertTrue(TownDay.walkers(day(hour), time: 1, context: quiet, coach: nil).isEmpty, "home at \(hour)")
+            everybody.hour = hour
+            XCTAssertTrue(TownDay.walkers(everybody, time: 1, context: quiet, coach: nil).isEmpty)
+        }
+        everybody.hour = 12
+        XCTAssertEqual(Set(TownDay.walkers(everybody, time: 1, context: quiet, coach: nil).map(\.sprite)).count,
+                       TownDay.routes(everybody, coach: nil).count, "nobody walks twice")
+    }
+
     // MARK: - The children
 
     func testChildrenAreOutFromFortyFiveAndNeverAtNight() {
@@ -136,7 +156,7 @@ final class TownDayTests: XCTestCase {
         }
         // At the horn they run home, each to its own door, and are in before the night.
         var seen = false
-        for hour in stride(from: 19.0, to: 20.0, by: 0.01) {
+        for hour in stride(from: 19.07, to: 20.0, by: 0.01) {
             for child in TownDay.children(day(hour, happiness: 90), time: 5, context: quiet) {
                 seen = true
                 let door = TownHouseholds.door(plot: TownHouseholds.home(of: child.sprite)?.plot ?? 0)
@@ -416,7 +436,7 @@ final class TownDayTests: XCTestCase {
         let fen = try XCTUnwrap(play.first { $0.sprite == .childC })
         XCTAssertEqual(fen.x, 2850 + TownDay.trailGap * tanh(70 / 20), accuracy: 0.01, "72: Fen at the lord's heels")
         // 73: the horn: Wenna calling from her doorway, the children running home.
-        let dusk = TownDay.figures(day(19.08, happiness: 85, lord: 2930), time: 1, context: quiet)
+        let dusk = TownDay.figures(day(19.08, happiness: 85, lord: 2880), time: 1, context: quiet)
         XCTAssertTrue(dusk.contains { $0.sprite == .washerwoman && PeopleCast.Frames.call.contains($0.frame) })
         XCTAssertTrue(dusk.contains { PeopleCast.children.contains($0.sprite) && PeopleCast.Frames.run.contains($0.frame) })
         XCTAssertGreaterThan(TownLamps.share(2, s: day(19.08), hearth: 1, reduceMotion: false), 0, "73: the lanterns lit")

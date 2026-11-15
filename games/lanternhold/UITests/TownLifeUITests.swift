@@ -28,7 +28,7 @@ final class TownLifeUITests: XCTestCase {
             ("70-fields-morning", ["-GWHour", "7.0", "-GWCameraX", "2600"] + base),
             ("71-square-noon", ["-GWHour", "12.0", "-GWCameraX", "3150"] + base),
             ("72-children", ["-GWHour", "16.2367", "-GWCameraX", "2850", "-GWHappiness", "85"] + base),
-            ("73-dusk-home", ["-GWHour", "19.08", "-GWCameraX", "2930", "-GWHappiness", "85"] + base),
+            ("73-dusk-home", ["-GWHour", "19.08", "-GWCameraX", "2880", "-GWHappiness", "85"] + base),
             ("74-noble-coach", ["-GWHour", "10.0", "-GWCameraX", "2500", "-GWCoach", "YES"] + base),
             ("75-lamplighter-dusk", ["-GWHour", "19.003", "-GWCameraX", "3080"] + base),
             ("76-collector-morning", ["-GWHour", "8.15", "-GWCameraX", "2790", "-GWCollector", "YES"] + base),

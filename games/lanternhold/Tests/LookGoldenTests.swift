@@ -42,12 +42,15 @@ final class LookGoldenTests: XCTestCase {
     /// from round lh-p1-2 (on 289e3d0); look 1's drawing and its walkers are unchanged (the cast's new bodies are look 2
     /// only). Before, square-morning was c0ba9a8be11ba03e and town-noon e0e4b0352af35485. Fix round 1 of the people
     /// lane repainted Dun's rag and Ned's crown (both walk in look 1's town): recorded again from round lh-p1f1-1 (on
-    /// b5a4a91); in between they were 48f861adaf7d4de4 and 72f6c186577a8bc6.
+    /// b5a4a91); in between they were 48f861adaf7d4de4 and 72f6c186577a8bc6. People-2 (15.11.2026): the street lanterns'
+    /// glass and pools are drawn by `TownLamps` now (look 1 at full share, as before, but with their own flicker seeds),
+    /// and at 08:00 the morning still lights the glass a little: square-morning recorded again from round lh-p2-1 (on
+    /// 2525c3e); before, c7130032235b207b. town-noon and the others did not move.
     static let golden: [String: String] = [
         "front-night": "9b01af38246bc805",
         "castle-night": "f85bb5b965601d8",
         "court-dusk": "7847cdaa53452732",
-        "square-morning": "c7130032235b207b",
+        "square-morning": "6cdcda6decd89f7d",
         "town-noon": "54216a62b8b99dca",
         "river-golden": "c0f21df86bbe85b6",
     ]

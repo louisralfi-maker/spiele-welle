@@ -224,7 +224,8 @@ upper floor's lodger):
 - **Old Hemmet** (`TownDay.bench`): on the bench before house 5 from 07:24 to 17:36, facing the square; now and then
   his chin sinks in a doze.
 - **The passers-by** (`TownDay.walkers`, as many as the taxpayers allow): out from 07:00, each from beside their door
-  to their place and back with a pause at both ends; from 18:30 home from wherever they are.
+  to their place and back with a pause at both ends; from 18:30 home from wherever they are (earlier from a far
+  place, so everyone is in before the horn).
 - **The lord passes:** whoever stands still turns to him: the farmers straighten, Wenna straightens from the linen,
   Hemmet inclines his head, a passer-by pausing at an end faces him, the collector at his post turns. Below 30
   happiness they turn their back instead (the farmers work on). The footman never greets anyone.
@@ -233,7 +234,7 @@ upper floor's lodger):
   at the well: across and back (Wren skipping the way back), then they meet in the middle and fight with sticks (one
   swings while the other winds up), part and begin again; Fen runs wider laps. One of them (Fen when he is out, else
   Nib) runs after the lord at his heels while he is near the play, stops when he walks on and runs back to the game;
-  Wren waits for Nib meanwhile. At the horn they run home, each to its own door, all in by 19:40. Never out at night.
+  Wren waits for Nib meanwhile. At the horn they run home, each to its own door, all in by 19:45. Never out at night.
 - **The noble's coach** (`TownDay.coachSpan`, `TownDay.footman`): on a day when a noble guest of the petition data is
   due (the noble petitioner, Steward Lorenz Pell of Oxmoor, Auditor Ebba Calder of Stillmere; in today's queue or heard
   today), the coach stands at the town's gate (on this branch the castle's back gate, facing it) from 06:00 to the dusk,

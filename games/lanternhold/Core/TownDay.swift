@@ -268,7 +268,8 @@ enum TownDay {
 
     // MARK: - The passers-by
 
-    /// They are out from 07:00 and start home at 18:30 from wherever they are, in before the horn.
+    /// They are out from 07:00 and start home at 18:30 from wherever they are (earlier from a far place), in before
+    /// the horn.
     static let walkersOut = 7.0
     static let walkersIn = 18.5
     /// How far the townsfolk keep from the noble's coach (px past its ends).
@@ -331,13 +332,21 @@ enum TownDay {
         routes(s, coach: coach).enumerated().compactMap { k, r in walker(r, k: k, s: s, time: time, context: context) }
     }
 
+    /// When a passer-by turns home: at `walkersIn`, or earlier from a far place, so that the walk home from there ends
+    /// before the horn (by `homeBy`).
+    static func inHour(_ r: Route) -> Double {
+        let walk = abs(r.spot - r.home) / max(0.01, r.speed)
+        return min(walkersIn, homeBy - walk / DayClock.secondsPerHour)
+    }
+
     /// One passer-by now: on the way, pausing at an end (turned to the lord when he is near, toward the coach when it
-    /// stops them short), or on the way home after `walkersIn` from wherever they were, gone in at the door.
+    /// stops them short), or on the way home after `inHour` from wherever they were, gone in at the door.
     static func walker(_ r: Route, k: Int, s: GameState, time: Double, context: Context) -> Figure? {
         let hour = s.hour
-        if hour >= walkersIn {
-            guard let then = place(r, hour: walkersIn), abs(then.x - r.home) > 0.5 else { return nil }
-            guard let x = walking(from: then.x, to: r.home, t: since(walkersIn, s), speed: r.speed) else { return nil }
+        let turnHome = inHour(r)
+        if hour >= turnHome {
+            guard let then = place(r, hour: turnHome), abs(then.x - r.home) > 0.5 else { return nil }
+            guard let x = walking(from: then.x, to: r.home, t: since(turnHome, s), speed: r.speed) else { return nil }
             return Figure(sprite: r.body, frame: PeopleCast.walkFrame(r.body, x: x), x: x, flipped: r.home < then.x)
         }
         guard let now = place(r, hour: hour) else { return nil }
@@ -361,7 +370,7 @@ enum TownDay {
     static let playUntil = 19.0
     /// Their run (px/s) and the faster run home.
     static let runSpeed = 25.0
-    static let homeRun = 34.0
+    static let homeRun = 40.0
     /// The trailing child runs after the lord while he is within this far of the play (px), then falls back.
     static let trailZone = 110.0
     static let trailBack = 90.0
