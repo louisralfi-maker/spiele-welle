@@ -73,9 +73,12 @@ enum GameStart {
         if let x = args.cameraX {
             state.king.x = min(Realm.walkEnd, max(0, x))
         }
-        // Craft lane hook: the realm the player plays meets the travelling craftsmen (bots' realms never do).
-        CraftVisits.begin(&state)
-        CraftVisits.begin(&dawn)
+        // Craft lane hook: the realm the player plays meets the travelling craftsmen (bots' realms never do; build 3:
+        // `CraftVisits.open`).
+        if CraftVisits.open {
+            CraftVisits.begin(&state)
+            CraftVisits.begin(&dawn)
+        }
         return Result(state: state, dawn: dawn, bot: bot)
     }
 

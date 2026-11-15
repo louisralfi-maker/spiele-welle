@@ -107,7 +107,14 @@ struct CraftState: Codable, Sendable, Equatable {
 /// - Bots never commission: the reference bot's audience passes the craftsman by, so a realm in which nobody is
 ///   commissioned plays exactly as one without craftsmen (`CraftTests.testARunWithoutCommissionsIsTodaysRun`).
 enum CraftVisits {
-    /// Starts the craftsmen in a realm the player plays (the hooks in `GameStart.realm` and `SimDriver.restart`).
+    /// Build 3's switch (the director's note of 15.11.2026 08:39; as the growing town's `TownRules.growthOpen`):
+    /// TestFlight build 2 ships with the craft closed, so the game never starts the craftsmen in the player's realm
+    /// (`GameStart.realm`, `SimDriver.restart`) and no craftsman comes. The debug sample (`-GWScreen craft`) and the
+    /// tests start them themselves. Turn it on with build 3's craft art and the lampmaker's tuning (`CraftTests`).
+    static let open = false
+
+    /// Starts the craftsmen in a realm the player plays (the hooks in `GameStart.realm` and `SimDriver.restart`, both
+    /// only while `open`).
     static func begin(_ s: inout GameState) {
         if s.craft == nil { s.craft = CraftState() }
     }
