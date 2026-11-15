@@ -529,3 +529,19 @@ schneller geht."
     rule 8 (English and German), with the house texts' apply pass at the join. Panel 4 still says "The one who
     lights the lamps", which Louis turned down; it must not reach his phone again. The new pictures fit the new
     captions.
+- **The prologue's round 3 is 6 to 7 of 10 (15.11.2026, 04:06) and not accepted.** Commits on `claude/lh-panels`:
+  `1e65854` (slide 4), `6fcb5f5` (slide 3), `da36b05` (slide 2), `f769d4a` (slide 1). The director's scores: slide 1
+  7, slide 2 6.5, slide 3 7, slide 4 6 (the artist's own: 7, 6.5, 6.5, 6.5; the title is 8.5).
+  - **What the round taught:** hand-set figures of 30 to 60 px work (the rider and his horse read at once). Figures
+    of 100 px do not: on slide 4 the heir is a flat blue slab, Odile a black one, the circlet is not seen and the
+    ringed disc of light is back. **So no large figure stands anywhere in the prologue.**
+  - **The set's one idea, held in all four:** one small gold light in a big dark. Slide 1 the door's lantern,
+    slide 2 the first spark, slide 3 Aldric's lantern riding out, slide 4 the circlet under the house's lantern.
+  - **Round 4 started 04:07. Slide 4 is a new picture, the empty seat:** the hall at night in side view, as the game
+    shows it; the lord's seat empty on its dais with the circlet on it, the house's lantern above, the heir a small
+    silhouette on the threshold of the open door, far left. The player walks into this room a moment later.
+  - **The other three get one narrow pass:** slide 3 a pale road from the last window to the beacon's hill, the
+    moon's cold rim on the ridges, the horse's legs in its own dark; slide 2 warm rock only near the spark (the lips
+    read as red curtains) and a larger ancestor on a step; slides 1 and 2 few uneven cracks in place of the regular
+    strata (they read as brick); slide 1 the castle in the night's stone tones (it reads as a painted toy).
+  - Still open in a running round: the people lane's director's pass (`lh-p3-1`).
