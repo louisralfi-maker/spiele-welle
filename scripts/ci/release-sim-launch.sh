@@ -35,7 +35,7 @@ fi
 # 1. The Release build for the simulator.
 build_release() {
     xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Release -destination "id=$SIM" \
-        -derivedDataPath "$DERIVED" -jobs "$NPROC" "$@" build >"$OUT/build.log" 2>&1
+        -derivedDataPath "$DERIVED" -jobs "$NPROC" ONLY_ACTIVE_ARCH=YES "$@" build >"$OUT/build.log" 2>&1
 }
 echo "== $(date +%H:%M:%S) Release build starts"
 RC=0
@@ -79,6 +79,10 @@ done <<EOT
 $(find "$APP" -maxdepth 1 -type d -name '*.lproj' | sort)
 EOT
 echo "  ($COUNT folders)"
+if [ ! -d "$APP/en.lproj" ]; then
+    echo "FAIL: no en.lproj in the Release app (the English texts are missing)"
+    exit 1
+fi
 if [ -n "$LEFT" ]; then
     echo "FAIL: language folders left in the Release app:$LEFT"
     exit 1

@@ -6,7 +6,12 @@ import XCTest
 /// text attachment `proof-<test>-log-<lang>`). It asserts hard only what the game itself controls; whether Google sent
 /// an ad, a consent form or nothing is recorded, never asserted.
 ///
-/// - `testRealAdsPathWithTestUnits`: the real Google SDK with Google's test units (`-GWAds google`, the EEA consent
+/// The order matters and is XCTest's own (alphabetical by name): the ending runs first on a fresh install, when no ad
+/// can start yet (the consent flow has never run, so a real interstitial cannot cover its end card); the Google ads path
+/// runs second, so its consent form and Apple's tracking question come on that fresh install, in its 3 s and 10 s shots;
+/// the no-fill test runs after it with the consent done, so the SDK starts at launch there and every load fails.
+///
+/// - `testGoogleAdsPathWithTestUnits`: the real Google SDK with Google's test units (`-GWAds google`, the EEA consent
 ///   geography). `-GWScreen report` opens the day-8 sample, a story dawn that never offers a video
 ///   (`AdPacing.storyDays`), so the report here is the live dawn of day 9 (as `AdsUITests.testDoubleTaxes`).
 /// - `testNoFillDefeatAndReport`: every ad load fails (`-GWAdsNoFill`): the report and the defeat card show no offer
@@ -30,7 +35,7 @@ final class ProofUITests: XCTestCase {
 
     // MARK: - a. The real ads path with Google's test units
 
-    func testRealAdsPathWithTestUnits() {
+    func testGoogleAdsPathWithTestUnits() {
         XCUIDevice.shared.orientation = .landscapeLeft
         defer { flushProof("proof-ads-log") }
         let app = XCUIApplication()
