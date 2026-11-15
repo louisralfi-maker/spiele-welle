@@ -470,6 +470,8 @@ their size, frame count and stand-ins follow the lord's; `PeopleCast.Figure` has
   shots set the camera per still, and `-GWFreezeTime` holds the clock, so the greeting and the trailing are proven in
   unit tests and shown in still poses); the demo's builders by Hemmet's bench in 71 (the demo raises house 5; the
   bench stands before Moth's house where Hemmet lives).
-- The lamplighter at the hearth still meets Odile's other stop now and then in the old hall (she alternates between
-  the throne and her lectern); the rebuilt hall's anchor settles it.
+- The lamplighter at the hearth and Odile: the court's round is the same each day from the dawn, so at these hours she
+  stands at her lectern on the hearth's right every day while he holds the wick into the Flame from its left. If the
+  director moves his hours, the phase moves with them (she also stops by the throne, 8 px from his stand); the rebuilt
+  hall's anchor settles it.
 - The six other languages: no new strings in this round.

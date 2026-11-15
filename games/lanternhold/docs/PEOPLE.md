@@ -248,7 +248,7 @@ upper floor's lodger):
   coin through the slot, a nod), at the farthest door about 10:20, back at his post about 14:10, there until the horn.
   From the town lane's post by the hall door no round of every door fits before the horn at that pace: the post and
   the hours wait for the director (docs/lanes/people.md, "people-2 fix round 1").
-- **The lamplighter** (`TownLamps`): each afternoon Silas Moth comes into the hall by its chapel door, holds his
+- **The lamplighter** (`TownLamps`): each day Silas Moth comes into the hall by its chapel door, holds his
   pole's wick into the Eternal Light in the hearth, bows his head to it, turns and carries the flame out through the
   castle's gate into the town; he lights the four street lanterns one by one down the road (each with a small flare
   and a warm pool), the last one as the horn sounds, and goes in at his door. At first light (05:00) he walks back from
