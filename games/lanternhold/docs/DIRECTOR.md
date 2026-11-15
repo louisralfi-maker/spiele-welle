@@ -505,3 +505,15 @@ schneller geht."
     cloak in place of `-GWCloth`; mended `kingKnock` and `ladyKnock`; the court's ties and the lamplighter's spot in
     the rebuilt hall; the berth and the builders' hook on the rebuilt road; `TownDay` on the people branch is now
     `TownLife`, so it no longer clashes with the town lane's `TownDay`.
+- **The prologue's round 1 is back (15.11.2026, 03:41) and is not accepted: 5.5 to 6.5 of 10 by the director's own
+  look** (the artist's own scores 6 to 7; the title is 8.5). Commits on `claude/lh-panels`: `889dc74` (slide 1 and
+  `tools/slides/litkit.py`), `8db48b7`, `24f390a`, `710fdcb`. The compositions are mostly right.
+  - **Two faults run through all four.** Every lantern has a banded ellipse of light in air, and the figures are
+    flat slabs with a 1 px orange line around them.
+  - **Per slide:** 1, the wall reads as tree trunks and the castle is small; 2, coloured shards, an ancestor of
+    12 px, a dead right half; 3, the moon sits on the beacon's head, so the dark beacon reads as a lit lamp; 4, the
+    heir stands in front of the hand-over.
+  - **Round 2 started 03:45** with one narrow brief: light is seen only on what it hits, no outline anywhere, and
+    one thing per slide. **Slide 2 gets a new picture: slide 1's place, closer and long ago, bare, one point of
+    gold in a huge dark,** so slide 1 answers it.
+  - Louis sees nothing of the prologue before it stands beside the title.
