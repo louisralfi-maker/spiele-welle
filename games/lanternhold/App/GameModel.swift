@@ -254,13 +254,22 @@ final class GameModel {
         var start = min(WorldLayout.walkEnd, max(0, args.cameraX ?? world.king.x))
         var dayClock: DayClock
         var loadedSettings = SaveSettings()
+        var beforeTown = false
         if kind == .world {
             let store = saveStore
             if args.reset { store?.reset() }
             var saved: GameState?
             switch store?.read() {
             case .loaded(let save)?:
-                saved = save.state
+                // Build 2 review, core-state-1: a save from before the taxes went on foot (no town, TestFlight build
+                // 86) starts a new realm with the title, the name entry, the prologue and the first morning; the old
+                // file is kept beside it, the Chronicle, the settings and the ad pacing go on.
+                if save.state.town == nil {
+                    store?.keepBeforeTown()
+                    beforeTown = true
+                } else {
+                    saved = save.state
+                }
                 chronicle = args.reset ? nil : save.chronicle
                 loadedSettings = save.settings ?? SaveSettings()
                 adPacing = save.adPacing ?? AdPacing()
@@ -322,6 +331,8 @@ final class GameModel {
         // The lantern moment (stage-3-interface): the purse and the notes start from the realm as it is.
         resetLanternHUD()
         refreshHUD()
+        // Core-state-1: the new realm replaces the old save at once (the old file was moved aside).
+        if beforeTown { writeSave() }
     }
 
     /// The debug values (`debug-king-x`, `debug-camera-x`, the scene value's `king:` and `cam:`) show while the king
