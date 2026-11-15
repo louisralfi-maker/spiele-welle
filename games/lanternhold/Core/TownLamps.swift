@@ -40,8 +40,11 @@ enum TownLamps {
     /// dais' end, facing the Flame with the wick in it (the fire's middle is about 13 px right of `hearthX`; his pole's
     /// tip reaches 14.5 px ahead), and goes out to the town by the back gate. On its right, between the hearth and the
     /// tax lectern, Odile stands at her lectern for a third of her round (fix round 1: the two merged in shot 77); the
-    /// rebuilt hall gives him an anchor of his own at the join.
-    static let hallDoor = 1956.0
+    /// rebuilt hall gives him an anchor of his own at the join. The join (15.11.2026): the hall's one door since the
+    /// world's one castle is the forebuilding's (`SceneLayout.castleHallDoorX`, 1830; 1956 is the chapel now). Inside
+    /// the closed buildings he is hidden (`TownLife.closedRooms`) until he comes out by the postern; the hall stage's
+    /// own place for him is `HallLayout.lamplighterSpot` (drawing him there is the hall's people step, not this one).
+    static let hallDoor = SceneLayout.castleHallDoorX
     static let hearthStand = WorldLayout.hearthX - 4
     static let gate = WorldLayout.backGateX
     /// His door (Moth's house, `TownHouseholds`).
