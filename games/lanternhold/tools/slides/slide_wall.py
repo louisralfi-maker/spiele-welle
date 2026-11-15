@@ -12,7 +12,7 @@ import numpy as np
 from litkit import (W, H, Pic, BAYER, core_glow, eyes, falloff, lit_figure, mountain, pick_air, poly_mask,
                     ellipse_mask, h)
 
-BEACON = (161, 76)
+BEACON = (161, 77)
 HORIZON = 108
 FOOT = 152
 
@@ -124,28 +124,43 @@ def slide1():
         for x in range(a, b + 1):
             if p.get(x, y) == "nightBlue" and y > 60 and BAYER[y % 4][x % 4] < 4:
                 p.px(x, y, "nightSlate")
-    # our castle across the cleft's foot: its wall and gate from lip to lip, two towers, the lantern tower above
-    wall = P([(134, 124), (188, 124), (188, H), (134, H)])
-    merl = np.zeros((H, W), bool)
-    for x in range(134, 189, 4):
-        merl[121:124, x:x + 2] = True
-    tl = P([(137, 108), (146, 108), (146, H), (137, H)])
-    tr = P([(176, 108), (185, 108), (185, H), (176, H)])
-    roofs = P([(135, 108), (148, 108), (141.5, 98)]) | P([(174, 108), (187, 108), (180.5, 98)])
-    keep = P([(154, 86), (168, 86), (168, H), (154, H)])
-    kmerl = np.zeros((H, W), bool)
-    for x in range(153, 170, 4):
-        kmerl[83:86, x:x + 2] = True
-    # each body lit on its own, so the towers and the keep stand off the wall by their lit planes
-    for parts in ([(wall, "nightBlue"), (merl, "nightBlue")], [(tl, "nightSlate"), (roofs & (np.arange(W)[None, :] < 160),
-                  "roofDeep")], [(tr, "nightBlue"), (roofs & (np.arange(W)[None, :] > 160), "roofDeep")],
-                  [(keep, "nightSlate"), (kmerl, "nightSlate")]):
-        lit_figure(p, parts, BEACON[0], BEACON[1], near=40, depth=3, tones_near=("tileLight", "tile"),
-                   tones_far=("tile", "plum"), lit_part={"roofDeep": ("tile", "plum")})
-    for y in range(124, 152):                                          # the dark seam where the towers meet the wall
-        p.px(147, y, "night0"); p.px(175, y, "night0")
-    for y in range(90, 152):
-        p.px(169, y, "night0")                                         # the keep's shadow side
+    # our castle across the cleft's foot, drawn as the title draws it: stone in courses, a lit side toward its own
+    # lantern and a shadow side, solid steps by distance, teal roofs with a lit slope
+    STEPS = ["nightBlue", "plumDeep", "plum", "tile", "tileLight", "straw"]
+
+    def body(x0, x1, y0, y1, lit_side, seed, k_lit=1.0, k_dark=0.32):
+        mid = (x0 + x1) // 2
+        for y in range(y0, min(H, y1)):
+            yq = ((y - y0) // 5) * 5 + y0 + 2
+            for x in range(x0, x1 + 1):
+                lit = (x >= mid) if lit_side == "right" else (x <= mid)
+                t = falloff(mid, yq, BEACON[0], BEACON[1], 44, 80, 1.1)
+                i = int(t * 5.6 * (k_lit if lit else k_dark))
+                if (y - y0) % 5 == 4 and h(x // 4, y, seed) < 0.6:
+                    i = max(0, i - 1)                       # a course joint, one step darker
+                if (x - x0 + ((y - y0) // 5) * 4) % 9 == 0 and (y - y0) % 5 != 4 and lit and h(x, y // 5, seed) < 0.4:
+                    i = max(0, i - 1)
+                p.px(x, y, STEPS[min(5, i)])
+        for x in range(x0, x1 + 1, 3):                      # merlons, their tops a step brighter
+            for y in (y0 - 2, y0 - 1):
+                t = falloff(x, y, BEACON[0], BEACON[1], 44, 80, 1.1)
+                p.px(x, y, STEPS[min(5, int(t * 5.6) + 1)])
+                p.px(x + 1, y, STEPS[min(5, int(t * 5.6))])
+
+    body(134, 188, 124, H, "right", 5, k_lit=0.7, k_dark=0.7)
+    body(137, 146, 108, H, "right", 11)
+    body(176, 185, 108, H, "left", 12)
+    for (x0, x1, lit_left) in ((135, 148, False), (174, 187, True)):
+        cx = (x0 + x1) / 2.0
+        for d in range(10):
+            y = 107 - d
+            half = (x1 - x0) / 2.0 * (1 - d / 10.0)
+            for x in range(int(round(cx - half)), int(round(cx + half)) + 1):
+                lit = (x <= cx) == lit_left
+                p.px(x, y, ("tile" if d < 6 else "plum") if lit else "roofDeep")
+    body(154, 168, 86, H, "left", 21, k_lit=1.0, k_dark=0.45)
+    for y in range(86, H):
+        p.px(169, y, "night0")                              # the keep's shadow edge
     # the gate: a dark arch with a warm slit; a few windows
     gate = P([(157, H), (157, 140), (159, 137), (163, 137), (165, 140), (165, H)])
     p.mask(gate, "night0")
@@ -156,19 +171,14 @@ def slide1():
             p.px(x, y, "nightDeep")
     for (x, y) in ((141, 114), (180, 114), (160, 96), (163, 108), (148, 132), (174, 134)):
         p.px(x, y, "fireOrange"); p.px(x, y + 1, "ember")
-    # the beacon: an iron cage on the lantern tower, the fire white, a small core glow: the brightest thing
-    core_glow(p, BEACON[0], BEACON[1], r=9, tones=("fireOrange", "emberDim"))
-    for y in range(71, 82):
-        p.px(157, y, "nightDeep"); p.px(165, y, "nightDeep")
-    for x in range(157, 166):
-        p.px(x, 70, "nightDeep"); p.px(x, 82, "nightDeep")
-    p.px(161, 69, "nightDeep"); p.px(161, 68, "nightDeep")
-    for (x, y, c) in ((160, 77, "fireWhite"), (161, 77, "fireWhite"), (162, 77, "fireWhite"), (161, 76, "fireWhite"),
-                      (160, 76, "fireGold"), (162, 76, "fireGold"), (161, 75, "fireWhite"), (161, 74, "fireGold"),
-                      (160, 78, "fireGold"), (161, 78, "fireWhite"), (162, 78, "fireGold"), (159, 77, "fireGold"),
-                      (163, 77, "fireGold"), (161, 73, "fireOrange"), (159, 78, "fireOrange"), (163, 78, "fireOrange"),
-                      (160, 79, "fireOrange"), (161, 79, "fireGold"), (162, 79, "fireOrange")):
-        p.px(x, y, c)
-    for y in range(71, 82):
-        p.px(159, y, "nightDeep"); p.px(163, y, "nightDeep")
+    # the beacon: the same cage as the hall's lantern and Aldric's, small, a small core glow
+    core_glow(p, BEACON[0], BEACON[1] + 1, r=5, tones=("ember", "emberDim"))
+    SMALL = ["...i...", "..iii..", ".bbbbs.", ".i.F.i.", ".iFWFi.", ".ifFfi.", ".bbbbs.", "..iii.."]
+    for r, row in enumerate(SMALL):
+        for q, ch in enumerate(row):
+            if ch != ".":
+                p.px(BEACON[0] - 3 + q, BEACON[1] - 4 + r, {"i": "nightDeep", "b": "gold", "W": "fireWhite",
+                                                          "F": "fireGold", "f": "fireOrange", "s": "straw"}[ch])
+    for y in range(BEACON[1] + 4, 86):
+        p.px(BEACON[0], y, "nightDeep")
     return p
