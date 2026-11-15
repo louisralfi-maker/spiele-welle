@@ -441,6 +441,22 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertEqual(game.touch.errand?.id, "touch-recruit-barracks", "he sets off to the barracks")
     }
 
+    /// Build 2 fix A's review: the background under Marek's card raises the lantern moment behind it; closing the card
+    /// leaves the world standing under that moment.
+    func testClosingMareksCardKeepsTheWorldUnderALanternMoment() throws {
+        let game = model(["GWDay": "3", "GWStage": "world", "GWCameraX": "1430"])
+        let ads = AdDirector(mode: .stub, provider: StubAdProvider(), clock: CountedClock())
+        ads.attach(game)
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        ads.openMerchantCard()
+        XCTAssertTrue(ads.merchantCardOpen)
+        game.pauseForBackground()
+        XCTAssertNotNil(game.lanternMoment, "the background raised the moment behind the card")
+        ads.closeMerchantCard()
+        XCTAssertNotNil(game.lanternMoment)
+        XCTAssertTrue(game.isPaused, "the moment still holds the world")
+    }
+
     /// Build 2 review, app-ui-2: by day a press on the lord held 0.35 s or longer opens the lantern moment like a short
     /// tap (the hold raises no lantern by day).
     func testALongPressOnTheLordByDayOpensTheLanternMoment() throws {
