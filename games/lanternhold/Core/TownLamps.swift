@@ -32,12 +32,13 @@ enum TownLamps {
     /// house), never nearer than `doorClear` to a door nor `postSpacing` to another post, at most `maxPosts`.
     static let posts: [Double] = {
         let postern = SceneLayout.castlePosternX + Double(SpriteID.posternT1.size.width)
-        var list = [postern + posternGap]
+        var list = [postern + TownLamps.posternGap]
         let houses = WorldLayout.townPlots.filter { $0.kind == .house }.sorted { $0.start < $1.start }
-        for (near, far) in zip(houses, houses.dropFirst()) where list.count < maxPosts {
-            let x = near.end + houseGap
-            guard x + Double(SpriteID.lanternPost.size.width) <= far.start, x - (list.last ?? 0) >= postSpacing,
-                  doorXs.allSatisfy({ abs(glassX(x) - $0) >= doorClear }) else { continue }
+        let doors = TownLamps.doorXs
+        for (near, far) in zip(houses, houses.dropFirst()) where list.count < TownLamps.maxPosts {
+            let x = near.end + TownLamps.houseGap
+            guard x + Double(SpriteID.lanternPost.size.width) <= far.start, x - (list.last ?? 0) >= TownLamps.postSpacing,
+                  doors.allSatisfy({ abs(TownLamps.glassX(x) - $0) >= TownLamps.doorClear }) else { continue }
             list.append(x)
         }
         return list
