@@ -78,30 +78,33 @@ final class AdDirectorTests: XCTestCase {
         return report
     }
 
-    func testDoubleTaxesSetTodaysFlagAndBridgeTheDawnsTaxes() throws {
-        let game = model()
+    /// The join's hookup (docs/lanes/ads.md, the director's note of 15.11. 03:27): the video sets the town's one flag
+    /// for the day (`Town.grantDoubleTaxes`) and banks no gold; the coins count twice at the doors.
+    func testDoubleTaxesSetTheTownsFlagAndBankNoGold() throws {
+        // The reference bot plays to the morning of day 9: the town's day is open and not the first morning.
+        let game = model(["GWDay": "9"])
         let stub = StubAdProvider()
         let clock = CountedClock()
         let ads = AdDirector(mode: .stub, provider: stub, clock: clock)
         ads.attach(game)
+        XCTAssertEqual(game.driver?.state.day, 9)
         let dawn = report(day: 9)
         game.setOverlay(.report(dawn))
         let gold = try XCTUnwrap(game.driver?.state.gold)
         let banked = try XCTUnwrap(game.driver?.dawnSnapshot.gold)
         XCTAssertTrue(ads.doubleTaxesOffered(for: dawn))
-        XCTAssertEqual(ads.treasuryGain(on: dawn), 0)
+        XCTAssertFalse(ads.taxesDoubled(on: dawn))
         ads.takeDoubleTaxes(dawn)
         XCTAssertEqual(stub.rewardedShown, 1)
-        // The flag for the day: every tax of day 9 counts twice, saved; the next dawn reads it as gone.
-        XCTAssertTrue(game.adPacing.taxesDoubled(day: 9))
+        // The town's flag for the day, now and in the dawn a replayed day starts from.
+        XCTAssertEqual(game.driver?.state.town?.today?.doubled, true, "every toss and knock of day 9 counts twice")
+        XCTAssertEqual(game.driver?.dawnSnapshot.town?.today?.doubled, true, "kept by a replayed day")
         XCTAssertTrue(ads.taxesDoubled(on: dawn))
-        XCTAssertFalse(game.adPacing.taxesDoubled(day: 10))
-        // The bridge until the town's taxes on foot read the flag: this dawn's taxes once more, banked in the dawn.
-        XCTAssertEqual(game.driver?.state.gold, gold + dawn.goldIn, "the day's taxes counted again")
-        XCTAssertEqual(game.driver?.dawnSnapshot.gold, banked + dawn.goldIn, "kept by the save and a replayed day")
-        XCTAssertEqual(game.gold, gold + dawn.goldIn, "the HUD")
-        XCTAssertEqual(ads.doubled, AdDirector.Doubled(report: dawn, gold: dawn.goldIn))
-        XCTAssertEqual(ads.treasuryGain(on: dawn), dawn.goldIn, "the report's treasury counts up by it")
+        XCTAssertFalse(ads.taxesDoubled(on: report(day: 10)), "only the report's own day")
+        // No free gold: the day's taxes are owed at the doors, not paid again.
+        XCTAssertEqual(game.driver?.state.gold, gold, "no gold at once")
+        XCTAssertEqual(game.driver?.dawnSnapshot.gold, banked)
+        XCTAssertEqual(ads.doubled, AdDirector.Doubled(report: dawn))
         XCTAssertFalse(ads.doubleTaxesOffered(for: dawn), "once")
         XCTAssertEqual(game.adPacing.lastDoubleTaxesDay, 9)
         XCTAssertEqual(game.adPacing.lastAdAt, clock.now)
@@ -111,11 +114,10 @@ final class AdDirectorTests: XCTestCase {
         XCTAssertNil(game.overlay, "the day begins")
         XCTAssertEqual(stub.interstitialsShown, 0)
         XCTAssertEqual(ads.lastVerdict, .held(.afterRewarded))
-        // The save holds the flag, the pacing and the banked gold.
+        // The save holds the town's flag and the pacing.
         let saved = try XCTUnwrap(SaveStore(directory: directory).read()?.loadedSave)
-        XCTAssertEqual(saved.adPacing?.taxesDoubledDay, 9)
+        XCTAssertEqual(saved.state.town?.today?.doubled, true)
         XCTAssertEqual(saved.adPacing?.lastDoubleTaxesDay, 9)
-        XCTAssertEqual(saved.state.gold, banked + dawn.goldIn)
     }
 
     func testNoDoubleTaxesOnAStoryDawn() {
@@ -143,9 +145,8 @@ final class AdDirectorTests: XCTestCase {
         ads.takeDoubleTaxes(dawn)
         XCTAssertEqual(stub.rewardedShown, 1)
         XCTAssertEqual(game.driver?.state.gold, gold, "no reward, no gold")
-        XCTAssertFalse(game.adPacing.taxesDoubled(day: 9), "no flag")
+        XCTAssertFalse(ads.taxesDoubled(on: dawn), "no flag")
         XCTAssertNil(ads.doubled)
-        XCTAssertEqual(ads.treasuryGain(on: dawn), 0)
         XCTAssertEqual(game.adPacing.lastDoubleTaxesDay, 0, "the offer's slot is not used")
         XCTAssertEqual(game.adPacing.lastAdAt, clock.now, "but it was an ad")
         XCTAssertEqual(game.adPacing.lastRewardedDay, 9)
@@ -226,8 +227,8 @@ final class AdDirectorTests: XCTestCase {
         XCTAssertFalse(ads.merchantCardOpen)
         XCTAssertEqual(game.gold, gold + gift.gold, "the HUD")
         XCTAssertEqual(game.driver?.isPaused, false)
-        // The double taxes the same way: the report's treasury counts up only after the ad.
-        let other = model()
+        // The double taxes the same way: the town's flag in the reward callback, the report's note only after the ad.
+        let other = model(["GWDay": "9"])
         let slow = StubAdProvider()
         slow.closesAtOnce = false
         let director = AdDirector(mode: .stub, provider: slow, clock: CountedClock())
@@ -235,10 +236,10 @@ final class AdDirectorTests: XCTestCase {
         let dawn = report(day: 9)
         other.setOverlay(.report(dawn))
         director.takeDoubleTaxes(dawn)
-        XCTAssertTrue(other.adPacing.taxesDoubled(day: 9))
-        XCTAssertEqual(director.treasuryGain(on: dawn), 0, "nothing counts up under the ad")
+        XCTAssertTrue(director.taxesDoubled(on: dawn))
+        XCTAssertNil(director.doubled, "no note under the ad")
         slow.finish()
-        XCTAssertEqual(director.treasuryGain(on: dawn), dawn.goldIn)
+        XCTAssertEqual(director.doubled, AdDirector.Doubled(report: dawn))
     }
 
     func testAnAdOnScreenHoldsTheWorld() {
@@ -385,7 +386,7 @@ final class AdDirectorTests: XCTestCase {
         ads.noteDoubleTaxesShown(report(day: 9))
         game.continueReport()
         XCTAssertEqual(game.adPacing.lastDoubleTaxesDay, 9)
-        XCTAssertFalse(game.adPacing.taxesDoubled(day: 9), "passed by: no flag")
+        XCTAssertFalse(ads.taxesDoubled(on: report(day: 9)), "passed by: no flag")
         XCTAssertFalse(ads.doubleTaxesOffered(for: report(day: 10)))
         XCTAssertFalse(ads.doubleTaxesOffered(for: report(day: 11)), "day 11 is a story dawn")
         XCTAssertTrue(ads.doubleTaxesOffered(for: report(day: 12)))

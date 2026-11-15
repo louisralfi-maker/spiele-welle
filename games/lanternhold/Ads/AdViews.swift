@@ -88,8 +88,8 @@ struct DoubleTaxesButton: View {
     }
 }
 
-/// After the video: today every tax counts twice, in House Lantern's teal (the report's own treasury counts up,
-/// `ReportTreasury`; one treasury figure on the card).
+/// After the video: today every tax counts twice, in House Lantern's teal (the town's flag for the day; the report's
+/// treasury figure stays, the doubled coins come at the doors).
 struct DoubledTaxesNote: View {
     var body: some View {
         HStack(spacing: 7) {
@@ -117,8 +117,8 @@ struct DoubledTaxesNote: View {
 }
 
 /// The dawn report's treasury figure (the report's footer, after "Treasury"; a hook in place of its `GoldAmount`): the
-/// report's own figure, and once the double taxes' video has gone it counts up by the gold that came in
-/// (`AdDirector.treasuryGain`). With Reduce Motion the new figure simply stands there.
+/// report's own figure. The double taxes bring no gold at once (the town's flag doubles the day's coins at the doors),
+/// so the figure stays as it is after their video.
 @MainActor
 struct ReportTreasury: View {
     /// The report's treasury after the dawn (`ReportCard.goldAfter`).
@@ -126,12 +126,7 @@ struct ReportTreasury: View {
     let model: GameModel
 
     var body: some View {
-        let director = AdDirector.shared
-        let gain: Int = {
-            if case .report(let open)? = model.overlay { return director.treasuryGain(on: open) }
-            return 0
-        }()
-        let total = gold + gain
+        let total = gold
         GoldAmount(amount: total, size: 17)
             .contentTransition(model.reduceMotion ? ContentTransition.identity : .numericText(value: Double(total)))
             .animation(model.reduceMotion ? nil : .easeOut(duration: 1.1), value: total)

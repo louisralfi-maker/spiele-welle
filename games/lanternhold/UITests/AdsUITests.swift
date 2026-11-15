@@ -40,10 +40,11 @@ final class AdsUITests: XCTestCase {
         let done = element(app, "report-ad-doubled")
         XCTAssertTrue(done.waitForExistence(timeout: 6), "today every tax counts twice")
         XCTAssertFalse(offer.exists, "the offer gives way to the note")
-        // Until the town's taxes on foot read the flag, the day's taxes come in once more: the report's one treasury
-        // figure counts up.
-        XCTAssertTrue(waitForNumber(treasury, above: before, timeout: 4), "the treasury counts up (\(number(treasury)))")
+        // The town's flag for the day (`Town.grantDoubleTaxes`): no gold comes in at once, the coins count twice at the
+        // doors, so the report's treasury figure stays.
+        pause(1.2)
         let after = number(treasury)
+        XCTAssertEqual(after, before, "no free gold: the day's taxes are owed at the doors")
         XCTAssertTrue(log(app).contains("rewarded:1"), log(app))
         pause(1.4)
         attach(XCUIScreen.main.screenshot(), "ads-02-double-done-\(language)")

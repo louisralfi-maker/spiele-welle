@@ -21,13 +21,11 @@ final class AdDirector {
     static let shared = AdDirector(mode: AdMode.current)
 
     /// The double taxes taken on a dawn report, once their video has gone: the report shows the note in place of the
-    /// offer, and its treasury counts up by the bridge's gold.
+    /// offer. No gold comes in at once: the town's flag for the day (`Town.grantDoubleTaxes`) doubles every coin the
+    /// houses toss and the knocks bring until the next dawn.
     struct Doubled: Sendable, Equatable {
         /// The report they were taken on.
         var report: DawnReport
-        /// What came into the treasury at once: this dawn's taxes once more, the bridge until the town's taxes on foot
-        /// read the flag (`AdPacing.taxesDoubled(day:)`); 0 then.
-        var gold: Int
     }
 
     let mode: AdMode
@@ -136,19 +134,14 @@ final class AdDirector {
     /// taxes, no story dawn, one video per dawn, every second dawn) and a video is ready.
     func doubleTaxesOffered(for report: DawnReport) -> Bool {
         guard let model, rewardedReady, let state = model.driver?.state else { return false }
-        return model.adPacing.doubleTaxesOpen(day: report.day, taxes: report.goldIn,
+        return model.adPacing.doubleTaxesOpen(day: report.day, taxes: report.taxes.total,
                                               storyDawn: AdPacing.isStoryDawn(day: report.day, mode: state.mode))
     }
 
-    /// Today's taxes count twice (the flag for the day, `AdPacing.taxesDoubled(day:)`).
+    /// Today's taxes count twice: the town's flag for the report's day (`TownDay.doubled`, one source of truth).
     func taxesDoubled(on report: DawnReport) -> Bool {
-        model?.adPacing.taxesDoubled(day: report.day) ?? false
-    }
-
-    /// The gold the report's treasury adds once the double taxes' video has gone (`ReportTreasury`).
-    func treasuryGain(on report: DawnReport) -> Int {
-        guard let doubled, doubled.report == report else { return 0 }
-        return doubled.gold
+        guard let state = model?.driver?.state, state.day == report.day else { return false }
+        return state.town?.today?.doubled == true
     }
 
     /// The offer is on screen: if the report closes without it, the next one waits two dawns.
@@ -158,18 +151,16 @@ final class AdDirector {
 
     func takeDoubleTaxes(_ report: DawnReport) {
         guard doubleTaxesOffered(for: report) else { return }
-        // The bridge: this build still pays the day's taxes at dawn, before the report, so "every tax of today counts
-        // twice" pays them once more now. At the join the town's taxes on foot read the flag instead
-        // (`Town.grantDoubleTaxes`, docs/lanes/ads.md): then this is 0.
-        let bridge = report.goldIn
+        // The town's flag for the day (`SimDriver.grantDoubleTaxes`): no gold moves here, every toss and knock of today
+        // counts twice at the doors.
         watch(day: report.day, grant: { [weak self] in
             guard let self, let model = self.model else { return }
             model.adPacing.rewardGiven(.doubleTaxes, day: report.day)
-            model.withDriver { $0.bankReward(gold: bridge) }
+            _ = model.withDriver { $0.grantDoubleTaxes() }
             model.saveNow()
         }, payoff: { [weak self] in
             guard let self, let model = self.model else { return }
-            self.doubled = Doubled(report: report, gold: bridge)
+            self.doubled = Doubled(report: report)
             self.landed(model)
         })
     }
@@ -256,7 +247,7 @@ final class AdDirector {
             proceed()
             return
         }
-        if doubleTaxesShownOn == report && !model.adPacing.taxesDoubled(day: report.day) {
+        if doubleTaxesShownOn == report && !taxesDoubled(on: report) {
             model.adPacing.doubleTaxesPassed(day: report.day)
         }
         doubleTaxesShownOn = nil

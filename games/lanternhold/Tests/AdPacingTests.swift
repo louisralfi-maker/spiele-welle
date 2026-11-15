@@ -71,7 +71,6 @@ final class AdPacingTests: XCTestCase {
                        "the 6 minutes count from any ad")
         XCTAssertEqual(pacing.lastAdAt, t0)
         // No reward, so the offer's own memory is untouched and the offer stays open.
-        XCTAssertFalse(pacing.taxesDoubled(day: 9))
         XCTAssertEqual(pacing.lastDoubleTaxesDay, 0)
         XCTAssertEqual(pacing.lastRewardGivenDay, 0)
         XCTAssertTrue(pacing.doubleTaxesOpen(day: 9, taxes: 40, storyDawn: false), "the offer comes back")
@@ -164,20 +163,18 @@ final class AdPacingTests: XCTestCase {
         XCTAssertTrue(pacing.doubleTaxesOpen(day: 7, taxes: 40, storyDawn: false), "a later dawn offers it again")
     }
 
-    func testTheDoubleTaxesFlagHoldsForItsDayAndClearsAtTheNextDawn() {
+    /// The flag for the day is the town's (`Town.grantDoubleTaxes`, TownTests); the pacing keeps only the offer's slot.
+    func testTakingTheDoubleTaxesUsesTheDaysSlot() {
         var pacing = AdPacing()
-        XCTAssertFalse(pacing.taxesDoubled(day: 9), "no flag before the video")
         pacing.rewardGiven(.doubleTaxes, day: 9)
-        XCTAssertEqual(pacing.taxesDoubledDay, 9)
-        XCTAssertTrue(pacing.taxesDoubled(day: 9), "every tax of day 9 counts twice")
+        XCTAssertEqual(pacing.lastDoubleTaxesDay, 9)
         XCTAssertFalse(pacing.doubleTaxesOpen(day: 9, taxes: 40, storyDawn: false), "once a day")
-        XCTAssertFalse(pacing.taxesDoubled(day: 10), "the next dawn clears it")
-        XCTAssertFalse(pacing.taxesDoubled(day: 8))
-        XCTAssertFalse(AdPacing().taxesDoubled(day: 0), "day 0 is never doubled")
-        // Saved: a relaunch on day 9 still doubles; the next day does not.
+        XCTAssertFalse(pacing.doubleTaxesOpen(day: 10, taxes: 40, storyDawn: false), "every second dawn")
+        XCTAssertTrue(pacing.doubleTaxesOpen(day: 11, taxes: 40, storyDawn: false))
+        // Saved: a relaunch on day 9 still knows the slot is used.
         let back = try? JSONDecoder().decode(AdPacing.self, from: JSONEncoder().encode(pacing))
-        XCTAssertEqual(back?.taxesDoubled(day: 9), true)
-        XCTAssertEqual(back?.taxesDoubled(day: 10), false)
+        XCTAssertEqual(back?.lastDoubleTaxesDay, 9)
+        XCTAssertEqual(back?.doubleTaxesOpen(day: 9, taxes: 40, storyDawn: false), false)
     }
 
     func testASecondChanceOncePerFiveNightsAndOncePerTenInEndless() {
@@ -240,7 +237,7 @@ final class AdPacingTests: XCTestCase {
         pacing.rewardedWatched(.merchantGift, day: 12, at: t0 + 0.25)
         pacing.rewardGiven(.doubleTaxes, day: 15)
         pacing.videoShown(day: 15, at: t0 + 600)
-        XCTAssertEqual(pacing.taxesDoubledDay, 15)
+        XCTAssertEqual(pacing.lastDoubleTaxesDay, 15)
         pacing.interstitialShown(InterstitialMoment(day: 21, place: .chapterEnd(chapter: 1)), at: t0 + 900)
         let data = try JSONEncoder().encode(pacing)
         XCTAssertEqual(try JSONDecoder().decode(AdPacing.self, from: data), pacing)

@@ -3,8 +3,8 @@ import Foundation
 /// The three rewarded offers (DESIGN.md "Ads (AdMob, no purchases)"). Each names its reward on its button, says plainly
 /// that a video plays and shows only while a video is ready; without one the game goes on with no dead button.
 enum AdOffer: String, Codable, Sendable, CaseIterable {
-    /// The dawn report: every tax of this day counts twice (`AdPacing.taxesDoubled(day:)`; at most every second dawn,
-    /// never on a story dawn, never after another video on the same dawn).
+    /// The dawn report: every tax of this day counts twice (the town's flag for the day, `Town.grantDoubleTaxes`; at
+    /// most every second dawn, never on a story dawn, never after another video on the same dawn).
     case doubleTaxes
     /// The defeat card: the hearth is rekindled, every creature inside the castle burns away and dawn comes at once
     /// (once per five nights, once per ten in endless; DESIGN.md "Losing a night").
@@ -93,8 +93,8 @@ struct MerchantGift: Sendable, Equatable {
 /// tells it what was shown (`videoShown`, on the close of every rewarded video that was shown) and what was given
 /// (`rewardGiven`, only when a video was watched to its end).
 ///
-/// - **Double taxes** at the dawn report: a flag for the day (`taxesDoubled(day:)`: every tax payment of that day counts
-///   twice; set by the reward, read as false from the next dawn on). At most every second dawn (taken, or passed by with
+/// - **Double taxes** at the dawn report: the town's flag for the day (`Town.grantDoubleTaxes`, `TownDay.doubled`: every
+///   tax payment of that day counts twice; the next dawn clears it). At most every second dawn (taken, or passed by with
 ///   Continue), only on a dawn that owes taxes, never on a story dawn, never when another video already gave its reward
 ///   on that dawn (one video per dawn).
 /// - **Second chance** on the defeat card: once per five nights, once per ten in endless.
@@ -145,16 +145,13 @@ struct AdPacing: Codable, Sendable, Equatable {
     /// The day of the dawn whose rewarded video last gave its reward (0: never): one video per dawn, so the double
     /// taxes are not offered again on a dawn a second chance brought.
     var lastRewardGivenDay = 0
-    /// The day whose taxes all count twice (0: none). Set by the double taxes' reward; any other day reads it as false,
-    /// so the next dawn clears it. The town lane's collect reads it at the join (`taxesDoubled(day:)`).
-    var taxesDoubledDay = 0
     /// When the last ad of any kind went off the screen, by the injected clock (nil: none yet).
     var lastAdAt: TimeInterval?
     /// The chapters whose ending has had its interstitial.
     var chapterEndings: [Int] = []
 
     init(lastInterstitialDay: Int = 0, lastDoubleTaxesDay: Int = 0, lastSecondChanceNight: Int = 0,
-         merchantTakenDay: Int = 0, lastRewardedDay: Int = 0, lastRewardGivenDay: Int = 0, taxesDoubledDay: Int = 0,
+         merchantTakenDay: Int = 0, lastRewardedDay: Int = 0, lastRewardGivenDay: Int = 0,
          lastAdAt: TimeInterval? = nil, chapterEndings: [Int] = []) {
         self.lastInterstitialDay = lastInterstitialDay
         self.lastDoubleTaxesDay = lastDoubleTaxesDay
@@ -162,7 +159,6 @@ struct AdPacing: Codable, Sendable, Equatable {
         self.merchantTakenDay = merchantTakenDay
         self.lastRewardedDay = lastRewardedDay
         self.lastRewardGivenDay = lastRewardGivenDay
-        self.taxesDoubledDay = taxesDoubledDay
         self.lastAdAt = lastAdAt
         self.chapterEndings = chapterEndings
     }
@@ -175,26 +171,17 @@ struct AdPacing: Codable, Sendable, Equatable {
         merchantTakenDay = try c.decodeIfPresent(Int.self, forKey: .merchantTakenDay) ?? 0
         lastRewardedDay = try c.decodeIfPresent(Int.self, forKey: .lastRewardedDay) ?? 0
         lastRewardGivenDay = try c.decodeIfPresent(Int.self, forKey: .lastRewardGivenDay) ?? 0
-        taxesDoubledDay = try c.decodeIfPresent(Int.self, forKey: .taxesDoubledDay) ?? 0
         lastAdAt = try c.decodeIfPresent(TimeInterval.self, forKey: .lastAdAt)
         chapterEndings = try c.decodeIfPresent([Int].self, forKey: .chapterEndings) ?? []
     }
 
-    // MARK: - Double taxes: the flag for the day
-
-    /// Every tax payment of `day` counts twice: the double taxes' video was watched on that day's dawn. False on any
-    /// other day, so the flag is gone from the next dawn on.
-    func taxesDoubled(day: Int) -> Bool {
-        taxesDoubledDay > 0 && taxesDoubledDay == day
-    }
-
     // MARK: - Which offer is open
 
-    /// Double taxes at this dawn: open on a dawn that owes taxes (`taxes`: what this day owes; today the report's sum,
-    /// at the join the town's ledger for the day), never on a story dawn, never twice on one day, never after another
+    /// Double taxes at this dawn: open on a dawn that owes taxes (`taxes`: what the houses owe this day, the report's
+    /// `taxes`), never on a story dawn, never twice on one day (`lastDoubleTaxesDay`), never after another
     /// video gave its reward on this dawn (one video per dawn), and at most every second dawn.
     func doubleTaxesOpen(day: Int, taxes: Int, storyDawn: Bool) -> Bool {
-        taxes > 0 && !storyDawn && !taxesDoubled(day: day) && lastRewardGivenDay != day
+        taxes > 0 && !storyDawn && lastRewardGivenDay != day
             && day - lastDoubleTaxesDay >= AdPacing.doubleTaxesEvery
     }
 
@@ -290,7 +277,6 @@ struct AdPacing: Codable, Sendable, Equatable {
         switch offer {
         case .doubleTaxes:
             lastDoubleTaxesDay = day
-            taxesDoubledDay = day
         case .merchantGift: merchantTakenDay = day
         case .secondChance: lastSecondChanceNight = max(lastSecondChanceNight, night)
         }

@@ -259,12 +259,22 @@ struct SimDriver: Sendable {
         return true
     }
 
-    /// The ads (a rewarded video's gold: double taxes, Marek's gift): into the realm now and into its last dawn, so a
-    /// watched video always pays, after a relaunch from the save and after "Replay the day" too.
+    /// The ads (a rewarded video's gold: Marek's gift): into the realm now and into its last dawn, so a watched video
+    /// always pays, after a relaunch from the save and after "Replay the day" too.
     mutating func bankReward(gold: Int) {
         guard gold > 0 else { return }
         state.gold += gold
         dawnSnapshot.gold += gold
+    }
+
+    /// The ads' "Double taxes" (the dawn report's video): the town's one flag for the day (`Town.grantDoubleTaxes`), now
+    /// and in its last dawn, so a relaunch and "Replay the day" keep it. No gold moves here: the coins count twice at
+    /// the doors. False when the town has no running day to double (after the horn, the first morning, done already).
+    @discardableResult
+    mutating func grantDoubleTaxes() -> Bool {
+        let granted = Town.grantDoubleTaxes(&state)
+        if granted { Town.grantDoubleTaxes(&dawnSnapshot) }
+        return granted
     }
 
     /// Panels lane (the chapter's end card, "Hold the realm"): the realm goes on in the Long Watch, now and in its last
