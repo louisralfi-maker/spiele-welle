@@ -1,0 +1,23 @@
+Application, 0x101622250, pid: 33065, label: 'Lanternhold' <App element pid: 33065>
+  Window (Main), 0x101620240, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 33065, elementOrHash.elementID: 4319278432.4>
+    Other, 0x101621ee0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 33065, elementOrHash.elementID: 4328572144.5>
+      Other, 0x101623da0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 33065, elementOrHash.elementID: 4328640512.6>
+        Other, 0x103043f60, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 33065, elementOrHash.elementID: 4319352832.7>
+          Other, 0x103053880, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 33065, elementOrHash.elementID: 4319453088.8>
+            Other, 0x103054280, {{0.0, 0.0}, {893.0, 402.0}}, identifier: 'world-root' <AX element pid: 33065, elementOrHash.elementID: 4319451984.9>
+              Other, 0x103056290, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:430 ready da... <AX element pid: 33065, elementOrHash.elementID: 4328736448.10>
+              Other, 0x103171ee0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 33065, elementOrHash.elementID: 4318695904.11>
+              Other, 0x103172000, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 33065, elementOrHash.elementID: 4318702608.12>
+              Other, 0x103172140, {{437.0, 2.0}, {0.0, 4.0}} <AX element pid: 33065, elementOrHash.elementID: 4319364064.27>
+              Other, 0x103172260, {{49.0, 102.0}, {844.0, 260.0}} <AX element pid: 33065, elementOrHash.elementID: 4319450880.14>
+                Button, 0x101621b90, {{49.0, 222.0}, {96.0, 140.0}}, identifier: 'touch-plot-0', label: 'Upgrade: Wall', value: 90 gold <AX element pid: 33065, elementOrHash.elementID: 4319437104.16>
+                Button, 0x101621810, {{235.0, 102.0}, {44.0, 260.0}}, identifier: 'touch-plot-4', label: 'Build: Siege engine', value: 70 gold <AX element pid: 33065, elementOrHash.elementID: 4319441776.17>
+                Button, 0x101624a10, {{295.0, 248.0}, {44.0, 114.0}}, identifier: 'touch-talk-brannock', label: 'Talk to Brannock' <AX element pid: 33065, elementOrHash.elementID: 4319439968.18>
+                Button, 0x101624d80, {{347.0, 254.0}, {112.0, 108.0}}, identifier: 'touch-recruit-barracks', label: 'Recruit', value: 10 gold <AX element pid: 33065, elementOrHash.elementID: 4319443152.19>
+                Button, 0x1016250e0, {{415.0, 290.0}, {44.0, 60.0}}, identifier: 'touch-lord', label: 'Robin, day 3, 91 gold, the town is glad, 16 people' <AX element pid: 33065, elementOrHash.elementID: 4319444256.20>
+                Button, 0x101625450, {{439.0, 248.0}, {44.0, 114.0}}, identifier: 'touch-talk-marek', label: 'Talk to Marek' <AX element pid: 33065, elementOrHash.elementID: 4319445360.21>
+                Button, 0x101625f70, {{487.0, 248.0}, {44.0, 114.0}}, identifier: 'touch-talk-bram', label: 'Talk to Bram' <AX element pid: 33065, elementOrHash.elementID: 4319447568.22>
+                Button, 0x1016262c0, {{507.0, 270.0}, {44.0, 92.0}}, identifier: 'touch-plot-19', label: 'Build: Smithy', value: 60 gold <AX element pid: 33065, elementOrHash.elementID: 4319446464.23>
+                Button, 0x101626650, {{579.0, 264.0}, {44.0, 98.0}}, identifier: 'touch-talk-pip', label: 'Talk to Pip' <AX element pid: 33065, elementOrHash.elementID: 4318670896.25>
+                Button, 0x1016269a0, {{651.0, 270.0}, {44.0, 92.0}}, identifier: 'touch-plot-20', label: 'Build: Builders' lodge', value: 60 gold <AX element pid: 33065, elementOrHash.elementID: 4319448672.24>
+                Button, 0x101626d30, {{849.0, 228.0}, {44.0, 134.0}}, identifier: 'touch-door-hall', label: 'Enter the great hall' <AX element pid: 33065, elementOrHash.elementID: 4319449776.26>

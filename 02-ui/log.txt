@@ -1,0 +1,33 @@
+<unknown>:0: error: -[LanternholdUITests.AudienceUITests testAudience] : Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"realm-strip" IN identifiers'`, given input App element pid: 33065
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' failed (28.239 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:102: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:83: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the king ran to the barracks
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:97: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - the barracks offer nothing
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:102: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:103: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the king ran toward the hall's door
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:107: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no door at the hall
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:109: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - in the great hall
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:132: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no mark at the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:148: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no lectern beside the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:102: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:162: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the dawn report opens
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:314: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - continue is missing
+<unknown>:0: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : Failed to tap "report-continue" Any: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"report-continue" IN identifiers'`, given input App element pid: 33870
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (414.240 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (60.267 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (230.690 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (200.829 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (24.389 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (71.006 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (73.098 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (184.849 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (12.160 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (37.447 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:113: error: -[LanternholdUITests.TouchUITests testTheLanternMoment] : failed - no lantern moment at dusk
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' failed (104.777 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (157.638 seconds).
+Test Suite 'TouchUITests' failed at 2026-11-15 09:14:41.711.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 09:14:41.712.
+Test Suite 'Selected tests' failed at 2026-11-15 09:14:41.712.
+exit=65
+screenshots: 105

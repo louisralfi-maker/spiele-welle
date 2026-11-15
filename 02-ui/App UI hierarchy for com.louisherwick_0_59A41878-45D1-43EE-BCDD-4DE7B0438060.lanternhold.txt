@@ -1,0 +1,13 @@
+Application, 0x103c4ac00, pid: 94917, label: 'Lanternhold' <App element pid: 94917>
+  Window (Main), 0x103d4d580, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 94917, elementOrHash.elementID: 4318179120.4>
+    Other, 0x103d316d0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 94917, elementOrHash.elementID: 4318068032.5>
+      Other, 0x103d4fff0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 94917, elementOrHash.elementID: 4318682240.6>
+        Other, 0x103d47fb0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 94917, elementOrHash.elementID: 4318681232.7>
+          Other, 0x103d4c6c0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 94917, elementOrHash.elementID: 4318459056.8>
+            Other, 0x103d4fbd0, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 94917, elementOrHash.elementID: 4318430672.9>
+              Other, 0x103d4bf30, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:890 ready da... <AX element pid: 94917, elementOrHash.elementID: 4319386192.10>
+              Other, 0x103d47a40, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 94917, elementOrHash.elementID: 4318455360.11>
+              Other, 0x103d51560, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 94917, elementOrHash.elementID: 4318454480.12>
+              Other, 0x103d51680, {{437.0, 2.0}, {0.0, 4.0}} <AX element pid: 94917, elementOrHash.elementID: 4318450864.13>
+              Other, 0x103d5ecb0, {{388.0, 290.0}, {44.0, 60.0}} <AX element pid: 94917, elementOrHash.elementID: 4318215920.14>
+                Button, 0x103d5edd0, {{388.0, 290.0}, {44.0, 60.0}}, identifier: 'touch-lord', label: 'Robin, day 3, 4 gold, the town is glad, 17 people' <AX element pid: 94917, elementOrHash.elementID: 4318233152.15>
