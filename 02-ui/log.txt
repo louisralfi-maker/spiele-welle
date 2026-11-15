@@ -1,0 +1,7 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (107.457 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (95.043 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (51.185 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (190.967 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (55.892 seconds).
+exit=0
+screenshots: 54
