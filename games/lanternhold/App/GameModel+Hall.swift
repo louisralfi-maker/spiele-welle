@@ -351,8 +351,23 @@ extension GameModel {
         let ambient = Weather.apply(options.weather, to: AmbientRamp.sample(at: state.hour, look: options.look))
         let specs = HallCourt.specs(state, catalog: .standard)
         let residents = HallCourt.residents(day: state.day, hour: state.hour, flags: state.flags)
-        let figures = HallFrames.drawnFigures(specs, scene: scene, court: court, residents: residents,
+        var figures = HallFrames.drawnFigures(specs, scene: scene, court: court, residents: residents,
                                               lordX: hallLordX, since: scene.since, animTime: animationTime)
+        // The join (item 9's kept part): Silas Moth at the Flame while the lord is in the hall and his evening's hearth
+        // beat runs: his own sprites at `HallLayout.lamplighterSpot`, facing the fire; the flame flares as the wick
+        // takes it (`flareHearth`).
+        let lamp = TownLife.Context(reduceMotion: reduceMotion,
+                                    hearth: max(0, min(1, state.hearth / max(1, balance.hearthStrength))))
+        if let silas = TownLamps.atHearth(state, context: lamp) {
+            let x = HallLayout.lamplighterSpot
+            let body = SpeakerBody(sprite: .lamplighter, walk: 0...3, idle: PeopleCast.Frames.idle, talk: nil,
+                                   glow: silas.burning ? .lamplighterGlow : nil)
+            figures.append(DrawnFigure(who: "lamplighter", key: "lamplighter", body: body, x: x,
+                                       y: HallLayout.lift(at: x), facing: HallLayout.hearthX >= x ? 1 : -1,
+                                       frame: silas.frame, alpha: 1, look: nil, petition: nil, talking: false))
+            let flaredThisBeat = scene.flareAt.map { scene.since - $0 < TownLamps.hearthSeconds } ?? false
+            if silas.u >= TownLamps.wickLit, !flaredThisBeat { flareHearth() }
+        }
         var input = HallFrameInput(state: state, balance: balance, scene: scene, court: court, figures: figures,
                                    specs: specs, lord: state.lordOrDefault, pixelScale: pixelScale, options: options,
                                    ambient: ambient, weather: options.weather, animTime: animationTime)

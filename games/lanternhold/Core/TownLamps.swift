@@ -288,6 +288,17 @@ enum TownLamps {
         return nil
     }
 
+    /// The join (item 9's kept part, Louis' idea): the lamplighter at his hearth errand now: his frame, whether the
+    /// wick burns, and the seconds into the beat. The hall stage draws him at `HallLayout.lamplighterSpot` while the
+    /// lord is inside; nil at any other time.
+    static func atHearth(_ s: GameState, context: TownLife.Context) -> (frame: Int, burning: Bool, u: Double)? {
+        guard works(s, hearth: context.hearth), let plan = today else { return nil }
+        let t = (s.hour - plan.eveningStart) * DayClock.secondsPerHour
+        guard let found = leg(plan.evening, at: t), case .hearth = found.leg,
+              let pose = pose(s, context: context) else { return nil }
+        return (frame: pose.frame, burning: pose.burning, u: found.u)
+    }
+
     /// The lamplighter now (his body, and his pole's flame as a glow strip while it burns), or nobody.
     static func lamplighter(_ s: GameState, time: Double, context: TownLife.Context) -> [Figure] {
         guard let pose = pose(s, context: context) else { return [] }
