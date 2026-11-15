@@ -455,3 +455,10 @@ schneller geht."
   the dark with distinct tendrils and more eyes. Louis sees the title after round 4.
 - **Louis reset the week's quota (15.11.2026, between 02:13 and 02:22).** 90 % before, 1 % after. All five workflows
   ran through (newest logs 02:13 to 02:22).
+- **The title's round 4 is 8.5 of 10 and Louis has seen it (15.11.2026, 02:29).** Commit `06e302e` on
+  `claude/lh-title`. The castle has volume, the air is quieter, the dark's front is crisp. The two heads, the horn
+  and the hand were thin violet outlines (`#5E3A9E`) and read as cartoon masks at phone size. Louis got the loading
+  picture (`03-loading-full-r3`) and the title with the outlines painted out by the director (`06-title-r4-eyes`,
+  proofs only, in `ci-out/director/first-light/`). Round 5 makes the same change in the art: eyes alone, the hand as
+  a solid silhouette, no two eye pairs alike, nothing else touched. Still open after that: the long wall is plain,
+  the lord is small, "Touch to begin" stands in smooth type on pixels (a question for the wiring).
