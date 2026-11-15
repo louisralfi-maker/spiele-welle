@@ -3660,6 +3660,11 @@ files: `GameModel` (the state, `setOverlay` keeps the moment's pause, the backgr
   site's sign stands over the heads (tip 22 px); by day three marks at most, and two building marks never closer than
   120 px; the rim at 0.5 of `gold` by day; the raised lantern's ring is gone, the lift throws four sparks. The door's
   sign is an arched double door with one seam and its ring (round lh-s3-3's 155: two seams read as a pause sign).
+- **After the gate round lh-s3-4** (build, all unit tests, ui Hall, Audience, Lord, Polish, Look2 and TouchUITests'
+  stage-2 flow passed; FirstDay and the moment in the hall failed): the camera eases on after the lord stops, so a touch
+  read from his element a moment earlier fell on the site he stood on and opened its card; the scene's value carries
+  `cam:` and the tests wait for it; the lord's body wins within 7 px and over a bench (furniture), never over a person
+  standing there or a wall he waits at to pay. The lady's portrait has a gold drop at her ear lobe (hand-finished).
 - **After round lh-s3-3's sweep:** the glass plaque's skins lie behind its words (as ZStack siblings the resizable
   skins took all the room: the report's Continue filled half the card); the strip's Throat carries low crags in haze
   rising into the cleft's walls toward the gate and the beacon's crag (that half of the map was an empty line).
