@@ -30,8 +30,10 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
   the market its bonus.
 - **Collecting.** By day, when the lord comes within about 28 px of a door whose household still owes, the household
   tosses him its coins. No tap, no button, no prompt.
-- **The sign.** A household that owes stands in its doorway with a pouch from dawn until it has paid (the farmer at the
-  fence, the stall keeper at the market). There is no mark on the HUD.
+- **The sign.** A household that owes stands in its doorway from dawn until it has paid, its open palm held out at the
+  waist with a coin on it that glints now and then (the farmer at the fence with his knotted cloth, the stall keeper at
+  the market). No pouch anywhere (STORY.md rule 12, DESIGN.md "Not a copy"). There is no mark on the HUD. The coins
+  land in the lord's open palm at belt height, under his lantern (town-2 fix round 2).
 - **Left alone.** What the lord has not collected by the horn, the people keep. Each house left alone gives +1
   happiness at the next dawn (at most +3, the old Low tax's gain).
 - **The knock (demanding more).** A touch on the door of a house that has paid today: the lord walks up and knocks three
@@ -49,8 +51,9 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
 - **The picture.** Three to seven coins fly in an arc and land with a coin sound and a light tap in the hand; gold rises
   as they land. At 60 happiness and more the household waves; below 30 it throws the coins at his feet and turns away.
   Reduce Motion: the coins fade in at the lord.
-- **The first morning** (onboarding lane, after the join): one townsman walks into the courtyard, tosses the lord his
-  coins and walks home to the town. That is the whole tutorial for taxes.
+- **The first morning** (in build 2 since town-2 fix round 2; the onboarding lane may add words after the join): the
+  chandler's household crosses the hall ahead of the lord, waits in the courtyard on his way to every goal of day 1,
+  tosses him its coins and walks home to the town. That is the whole tutorial for taxes.
 
 ### The numbers in Core (town-1, 14.11.2026; fix round 1 the same day)
 
@@ -69,8 +72,11 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
   `Town.firstMorning`, opened by `GameState.newRealm`). It waits from the start and tosses them to the lord who comes
   by, so the new way to get gold is met on day 1, not in minute 5. Nobody else owes before the first dawn; "double
   taxes" cannot be granted on it; left alone it counts like any house (+1 at the first dawn). Every bot takes the 16
-  at its first step, whatever its habit, so its purse at the first build is the 60 of before. The onboarding's
-  townsman who walks into the courtyard is this household: `Town.collect` does not ask where the lord stands.
+  at its first step, whatever its habit, so its purse at the first build is the 60 of before. Town-2 fix round 2:
+  the household walks; `Town.firstMorningStand(at:)` gives where it stands (from `firstMorningEnters`, hall x + 60,
+  west across the hall at 14 px/s to `firstMorningX`, hall x − 10, in the courtyard, reached after about 5 s; it waits
+  there until the horn), and `Town.step` collects its 16 when the lord comes within `collectReach` of that place. Every
+  goal of day 1 lies west of it, so a lord who goes to any of them first, at any moment, meets it.
 - **Collecting.** By day (from the dawn to the horn) a household tosses its whole part when the lord passes within
   28 px of its door (`collectReach`; the whole way of a step is checked). The door is the plot's centre until the
   rebuilt town brings its door anchors. Gold rises at once; the dawn itself puts nothing into the purse and plays no
@@ -99,7 +105,8 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
   (`collectorWageShare` 0.125, `collectorWageLeast` 2: 49 brings 43). A house the lord reaches first pays the lord in
   full (in the same step the lord is first). He never knocks; the lord may knock wherever he has been. In unrest he
   walks and comes back empty, taking nothing. A horn before noon brings him back first. The reference bots never
-  hire him. Not built (the director's call): the first plan's extra coin "for the lantern" at 60 happiness.
+  hire him. Not built: the first plan's extra coin "for the lantern" at 60 happiness. The director's call (15.11.2026):
+  not in build 2; it waits for build 3, with the growing town.
 - **The picture's numbers** (for town-2): the household waves from 60 happiness, throws the coins at the lord's feet
   below 30; one coin in the air for every 4 gold, at least 3 and at most 7 (`Town.coins`).
 - **The dawn report** (`DawnReport.town`, `TownText.reportLines`): what reached the purse yesterday (tosses, knocks and
@@ -140,7 +147,8 @@ What follows is the first plan; where it differs, the lines above win.
 - **Collector:** hired at the treasury. Every morning he walks the town with a strongbox on a handcart, the households
   pay him the normal tax, and he is back by noon. His wage is one coin in eight of what he brings (at least 2 a day).
 - He never knocks: demanding more stays the lord's own deed. A house the lord reaches first pays the lord, and at 60
-  happiness and more it adds one coin "for the lantern". In unrest he comes back empty.
+  happiness and more it adds one coin "for the lantern" (build 3, with the growing town; not in build 2). In unrest he
+  comes back empty.
 - He is a person with a name, in the voice of STORY.md.
 
 ### The numbers in Core (town-3, 15.11.2026)
@@ -175,7 +183,7 @@ What follows is the first plan; where it differs, the lines above win.
   `TownGrowth.treasuryPiles(gold:built:rules:)` gives the scene its chests and piles: none without it, one for the
   first coin and one more for every `treasuryGoldPerPile` 60, at most `treasuryPilesMost` 6 (the scene passes the gold
   it shows, so the piles grow as the coins land). Not built: the first plan's coin "for the lantern" (the director's
-  call of town-1) and any rule that the treasury keeps gold safe (the front lane's broken night takes a fifth of the
+  call of 15.11.2026: not in build 2, it waits for build 3 with the growing town) and any rule that the treasury keeps gold safe (the front lane's broken night takes a fifth of the
   purse; whether a treasury shelters part of it is the director's to decide).
 
 ## 3. The town grows (build 3)

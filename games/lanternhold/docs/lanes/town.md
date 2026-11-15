@@ -725,3 +725,73 @@ the critic's small things too.
   noon" needs about 30 px/s (the director's call, one value).
 - Unchanged from town-3: the town-2 critic's look-2 highs 1 and 2 (screen work), the dim stand-in collector, German
   not looked at on screen, the six other languages in the i18n pass.
+
+
+## town-2, fix round 2 (the critic's look 2: three highs, no blocker; town-1's high; 15.11.2026)
+
+The critic (ci-out/director/town-2-taxes-screen-critic2.md, 7.5/10) found three moments that did not read at phone
+size; town-1's critic (look 2) found the first morning met by almost no first-time player. All four are fixed, with
+the critic's smaller points; what the critic asked to keep is kept (the 4x4 rimmed emissive coin with its glow on
+whole pixels, the palm held out at the waist with the glinting coin, `clearWanderers`, Reduce Motion as it was, no new
+strings, T1 to T8, no new saved state).
+
+### What changed
+
+1. **The bow is seen** (high 1). The lord still knocks from `TownShow.knockStand` (6 px, the fist on the door), then
+   takes half a step back to `knockBackStand` (13 px) between `stepBackFrom` 0.75 s and `stepBackUntil` 0.95 s after
+   the knock, before the door opens fully and the household bows (1.05 s). `TownShow.knockBackX(doorX:knockX:t:)` is
+   the pure path; `GameModel.stepBackFromDoor` (App, `TownRun.stepBack`) moves the sim's lord along it while he stands,
+   facing the door still, and drops it the moment he is sent elsewhere. His 16 px then end where the household's 12 px
+   begin, and the coins hop 4 px across a gap. The knock pose holds the fist drawn back from the last knock to the open
+   palm, so nothing jumps. The 24 x 24 door box is unchanged.
+2. **The coins land in an open palm** (high 2). `kingKnock`/`ladyKnock` frame 2 holds the far hand out low, palm up at
+   belt height (row 20), under and before the lantern; `TownShow.lordHand` is (5, 12), 10 px under the glass
+   (`EntityFrames.kingGlass` dy 22.5); `arcHeight` 12 to 8, so the arc tops out at 20, under the glass too. Frame 3
+   (`KnockFrame.give`) is the palm a pixel down and back, shown `catchFor` 0.08 s as each coin lands. The palm is held
+   out for the knock and also for every toss while the lord stands within `receiveNear` (30 px) of the household
+   (`TownShow.receivePose`; the touch stops him at 18 px), facing it; walking past, the coins land at his belt before
+   him (`TownShow.receivingHand`). The stall's and the farmer's tosses use the same palm.
+3. **The collector stands at the door** (high 3). Town-3 already gave him a stop in Core (80e5f25, c36e60d): he stops
+   `collectorStandOff` 20 px short of each door that pays him, for `collectorStop` 1.5 s, the hand-over's last coin is
+   in his box after at most 0.86 s. Nothing in Core changed here. On screen: `Scene.collector.still` says he stands at
+   a door (`Town.CollectorLeg.atDoor`), and the stand-in then shows the townsfolk's idle, not a frozen stride; a
+   hand-set strongbox (`townStrongbox`, 6x5, one frame, open mouth, gold hasp) is drawn before him at
+   `TownShow.collectorBox` (dx 7, its lid at dy 9 where the coins land; `TownSprites.strongboxLift` 4) whenever the
+   stand-in is drawn. The bots never hire him, so T1 to T8 hold.
+4. **The first morning is met** (town-1's high). The chandler's household walks: `Town.firstMorningStand(at:)` from
+   `firstMorningEnters` (hall x + 60, in the hall ahead of the lord at the throne; she came from her door before the
+   first frame) west at `firstMorningPace` 14 px/s to `firstMorningX` (hall x − 10, the courtyard), about 5 s, and
+   waits there, palm out, until the horn. `Town.step` collects the 16 when the lord comes within `collectReach` of
+   where she stands now (`Town.meetX(plot:day:at:)`). Every day-1 goal (the stake pit, both braziers, the tower, the
+   barracks, the lodge, the gate) lies west of her, so a lord who goes to any of them first, at any moment and pace,
+   meets her (`TownTests.testTheFirstMorningIsMetOnTheWayToEveryGoalOfDayOne`); one who goes into the town first meets
+   her on his way back. She never starts within his reach (64 px from the throne). The screen draws her crossing (her
+   walk frames, back to the lord), waiting (palm out, coin glinting), tossing where he met her, and walking home. The
+   bots take the 16 at their first step as before (`Town.morning`), so the neutrality log is unchanged.
+5. **Smaller points.** The knock pose moves only a lantern light at the glass's height (`y == kingGlass.dy`); the
+   stand-in stands on whole game pixels; `taking` is set only while the collector is within `collectorNear`.
+6. **TOWN.md section 1:** the household's open palm with a coin, no pouch; the lantern coin waits for build 3.
+
+### New hooks in existing files (add to town-2's table for the join)
+
+- `Core/FrameDesc.swift`: `SpriteID.townStrongbox` (case list and `size` switch, as the other town sprites).
+- No other. `App/GameModel+Town.swift` (the step back, `TownRun.stepBack`), `Core/Town/*`, `Render/PlaceholderTown.swift`,
+  the grids (`kingKnock.txt`/`ladyKnock.txt` 4 frames, `townStrongbox.txt`), `tools/taxart.py`, the tests and
+  `FirstDayUITests` are the lane's.
+
+### For the join
+
+- **Anchors, one value each:** the first morning's path is `Town.firstMorningEnters` and `Town.firstMorningX`, both
+  from `Realm.hallX`; if the rebuilt castle moves the hall or puts a day-1 goal east of the courtyard, move those two
+  and run `testTheFirstMorningIsMetOnTheWayToEveryGoalOfDayOne`, which lists the goals by their own anchors. The
+  knock's spots are `TownShow.knockStand`/`knockBackStand` from the door anchor (`Spot.doorX`).
+- **people-2's collector:** keep his stop at 1.5 s per door (`TownRules.collectorStop`, the people lane's figure
+  stops the same) and his standing pose on `Scene.collector.still`; put his handcart's strongbox mouth at
+  `collectorBox` (dx 7 before him, dy 9); then set `TownFrames.drawsCollectorStandIn = false`, delete the stand-in
+  block with its strongbox, and the `townStrongbox` sprite if his cart carries its own.
+- **The lord's palm:** a new lord body (the house lane's heir, the stage lane) keeps the palm of `kingKnock` frame 2
+  at `TownShow.lordHand` (5, 12) and frame 3 a pixel down and back; the step back needs nothing but `stepTown`.
+- **FirstDayUITests** now starts at the throne (no `-GWCameraX 1150`): the first walk out of the hall takes the toss
+  (shot `43-first-toss`), the purse reads 60, the brazier leaves 48, and the first dawn's report shows the 16. A lane
+  that changes the start or the day-1 purse reads those three numbers.
+
