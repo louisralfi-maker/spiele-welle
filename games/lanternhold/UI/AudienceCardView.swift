@@ -129,9 +129,12 @@ struct AudienceCardView: View {
             let counselWidth = max(170, min(width, speaker - 30))
             ZStack(alignment: .topLeading) {
                 VStack(alignment: .leading, spacing: 6) {
+                    // Its own height, at most the room (in the stack a flexible frame took the whole room and
+                    // pushed Odile's slip down onto the plaques: round lh-s2-6's 134).
                     hallLetter
                         .frame(width: width)
                         .frame(maxHeight: room, alignment: .top)
+                        .fixedSize(horizontal: false, vertical: true)
                     if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
                         HallCounsel(text: model.story(hint), compact: true)
                             .frame(width: counselWidth, alignment: .leading)
