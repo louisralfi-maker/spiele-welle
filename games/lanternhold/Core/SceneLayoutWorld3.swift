@@ -82,6 +82,23 @@ extension SceneLayout {
         return dressed
     }
 
+    /// The whole-world pass (round lh-w3-1, 72 and w-1400-night): the gatehouse's two torches beside the gateway threw
+    /// round olive-green halos on its blue stone (fire-gold on the cold grey). In look 2 their light is a warmer amber,
+    /// a flatter pool and a little weaker, like the castle's torches.
+    static let look2GateTorchColor = SIMD3<Float>(1.0, 0.64, 0.30)
+    static func look2GateTorches(_ entry: Entry) -> Entry {
+        var warmed = entry
+        warmed.lights = entry.lights.map { light in
+            guard light.kind == .torch else { return light }
+            var torch = light
+            torch.color = look2GateTorchColor
+            torch.squash = 1.5
+            torch.intensity = 0.85
+            return torch
+        }
+        return warmed
+    }
+
     /// World-3's additions to look 2's scene.
     static let look2WorldThree: [(plane: Plane, entry: Entry)] = {
         var list: [(plane: Plane, entry: Entry)] = []

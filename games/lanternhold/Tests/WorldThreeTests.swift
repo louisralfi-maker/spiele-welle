@@ -215,6 +215,19 @@ final class WorldThreeTests: XCTestCase {
         XCTAssertGreaterThan(EntityFrames.unlitRim, 0.5)
     }
 
+    /// The gateway's two torches warm and flat in look 2 (round lh-w3-1: olive-green round halos on the blue stone).
+    func testTheGatewayTorchesAreWarmAndFlat() {
+        for stage in [CastleStage(tier: 1), CastleStage(tier: 3)] {
+            let world = PlaceholderScene.world(look: .two, castle: stage)
+            let front = world.props.first { $0.sprite == .castleFront || $0.sprite == .castleFront3 }
+            let torches = front?.lights.filter { $0.kind == .torch } ?? []
+            XCTAssertEqual(torches.count, 2, "\(stage)")
+            XCTAssertTrue(torches.allSatisfy { $0.color == SceneLayout.look2GateTorchColor && $0.squash == 1.5 })
+        }
+        let one = PlaceholderScene.world(look: .one).props.first { $0.sprite == .castleFront }
+        XCTAssertFalse(one?.lights.contains { $0.color == SceneLayout.look2GateTorchColor } ?? true, "look 1 as it was")
+    }
+
     /// The gatehouse's slits a step lower (the critic's medium: their pale core).
     func testTheGateSlitsGlowAStepLower() {
         XCTAssertLessThan(SceneLayout.castleGlassShare(.castleFront), 1)

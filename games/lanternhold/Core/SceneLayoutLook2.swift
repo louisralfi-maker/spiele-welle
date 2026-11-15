@@ -356,21 +356,22 @@ extension SceneLayout {
     static func look2Castle(_ stage: CastleStage, plane: Plane, entry: Entry) -> [Entry] {
         // World-3: every other entry takes look 2's dressing (the beacon ruin's moon rim, `look2Dressed`).
         guard plane == .world, entry.sprite == .castleFront else { return [look2Dressed(entry, plane: plane)] }
-        let rock = look2GateRock(front: entry.x, tier: stage.tier)
+        let gate = look2GateTorches(entry)   // world-3: the gateway's torches warm and flat (no green halos)
+        let rock = look2GateRock(front: gate.x, tier: stage.tier)
         if stage.tier == 1 {
             // The scaffold stands before the front (and before the gate's leaves, which are drawn earlier).
-            return (stage.building ? [entry, Entry(sprite: .castleFrontScaffold, x: entry.x, y: 0, z: entry.z)]
-                                   : [entry]) + rock
+            return (stage.building ? [gate, Entry(sprite: .castleFrontScaffold, x: gate.x, y: 0, z: gate.z)]
+                                   : [gate]) + rock
         }
-        guard stage.tier == 3 else { return [entry] + rock }
+        guard stage.tier == 3 else { return [gate] + rock }
         let sprite: SpriteID = stage.building ? .castleFront3Build : .castleFront3
         var emitters: [Emitter] = []
-        for emitter in entry.emitters {
+        for emitter in gate.emitters {
             if case let .sprite(id, dx, dy, glow, fades) = emitter {
                 emitters.append(Emitter.sprite(id, dx: dx + 14, dy: dy, glow: glow, fades: fades))
             }
         }
-        return [Entry(sprite: sprite, x: entry.x - 14, y: entry.y, z: entry.z,
-                      emitters: emitters + castleGlass(sprite), lights: entry.lights)] + rock
+        return [Entry(sprite: sprite, x: gate.x - 14, y: gate.y, z: gate.z,
+                      emitters: emitters + castleGlass(sprite), lights: gate.lights)] + rock
     }
 }
