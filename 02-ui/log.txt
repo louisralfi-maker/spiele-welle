@@ -1,0 +1,18 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:110: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - the recruit card did not open
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (210.247 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (76.531 seconds).
+Test Suite 'FirstDayUITests' failed at 2026-11-15 18:17:46.798.
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (241.161 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (68.228 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (104.528 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (183.606 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (14.602 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (34.618 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (100.250 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (43.845 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (167.822 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (32.885 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 18:34:18.376.
+Test Suite 'Selected tests' failed at 2026-11-15 18:34:18.378.
+exit=65
+screenshots: 83
