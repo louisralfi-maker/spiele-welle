@@ -101,7 +101,10 @@ final class ProofUITests: XCTestCase {
                 proof("the ad could not be closed within 40 s: the test ends here without failing")
                 return
             }
-            proof("after the ad: taxes doubled note \(element(app, "report-ad-doubled").exists ? "shown" : "not shown")")
+            pause(1)
+            attach(XCUIScreen.main.screenshot(), "proof-ads-closed-\(language)")
+            proof("after the ad: \(screenState(app)); taxes doubled note "
+                + "\(element(app, "report-ad-doubled").exists ? "shown" : "not shown")")
         } else {
             proof("no video was ready: the report goes on without an offer")
         }
@@ -382,11 +385,11 @@ final class ProofUITests: XCTestCase {
         return label
     }
 
-    /// The report stands free again (no full-screen ad over it).
+    /// No full-screen ad stands over the game. While Google's ad is up the game's own views leave the hierarchy (round
+    /// lh-pf-1: neither `report-root` nor `world-scene` was there under the test video, only its web views), so a
+    /// missing report alone never means free.
     private func reportFree(_ app: XCUIApplication) -> Bool {
-        guard element(app, "report-root").exists else { return true }
-        return hittable(element(app, "report-continue")) || hittable(element(app, "report-ad-doubled"))
-            || hittable(element(app, "report-ad-double"))
+        element(app, "world-scene").exists && app.webViews.count == 0
     }
 
     /// Tries an ad's close control for at most `seconds`; true when the report stands free again.
@@ -394,9 +397,11 @@ final class ProofUITests: XCTestCase {
         let deadline = Date().addingTimeInterval(seconds)
         while Date() < deadline {
             if reportFree(app) { return true }
-            let close = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@ AND NOT (label CONTAINS[c] %@)",
-                                                         "close", "resume")).firstMatch
-            if close.exists && close.isHittable {
+            // The first close control that can be pressed (lh-pf-1: the video's own "Close" beside a disabled
+            // "Close Advertisement"); never "Resume video" of the early-close question.
+            let closes = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@ AND NOT (label CONTAINS[c] %@)",
+                                                          "close", "resume")).allElementsBoundByIndex
+            if let close = closes.first(where: { $0.exists && $0.isEnabled && $0.isHittable }) {
                 proof("tapping the ad's \"\(close.label)\"")
                 close.tap()
             }
@@ -453,8 +458,11 @@ final class ProofUITests: XCTestCase {
         app.descendants(matching: .any).matching(identifier: identifier).firstMatch
     }
 
+    /// The scene's value; empty while it is not there (reading a missing element's value stops the test: lh-pf-1).
     private func sceneValue(_ app: XCUIApplication) -> String {
-        (element(app, "world-scene").value as? String) ?? ""
+        let scene = element(app, "world-scene")
+        guard scene.exists else { return "" }
+        return (scene.value as? String) ?? ""
     }
 
     /// The king's x in world game pixels from the scene value ("kx:1150"), -1 when missing.
