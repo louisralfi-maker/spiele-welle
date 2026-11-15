@@ -1,0 +1,5 @@
+PROOF: -[ProofUITests testEndingReplayedAtLaunch] set-up launch: frame:150 ready day:21 hour:6.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:954 lord:lady stage:world lx:954 errand:none door:1830 gold:154 hud:strip cam:736 tap:none hint:off0
+PROOF: -[ProofUITests testEndingReplayedAtLaunch] set-up app after home: state 3
+PROOF: -[ProofUITests testEndingReplayedAtLaunch] relaunch: slides up; first words: The iron crown rolled across the stone. Under the mantle lay Aldric, grey, thin, and breathing.
+PROOF: -[ProofUITests testEndingReplayedAtLaunch] end card: ending ending1
+PROOF: -[ProofUITests testEndingReplayedAtLaunch] after Hold the realm: clock 6.1 then 6.35; frame:560 ready day:21 hour:6.42 alive:0 seen:0 lit:0 shots:0 aim:0 kx:954 lord:lady stage:world lx:954 errand:none door:1830 gold:154 hud:none cam:736 tap:none hint:off0

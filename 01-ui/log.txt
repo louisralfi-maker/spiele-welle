@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.ProofUITests testEndingReplayedAtLaunch]' passed (93.746 seconds).
+Test Case '-[LanternholdUITests.ProofUITests testGoogleAdsPathWithTestUnits]' passed (148.587 seconds).
+Test Case '-[LanternholdUITests.ProofUITests testNoFillDefeatAndReport]' passed (82.625 seconds).
+Test Case '-[LanternholdUITests.ProofUITests testSecondLaunchWithoutArguments]' passed (83.299 seconds).
+exit=0
+screenshots: 16

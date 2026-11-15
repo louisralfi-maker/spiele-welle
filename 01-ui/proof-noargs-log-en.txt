@@ -1,0 +1,6 @@
+PROOF: -[ProofUITests testSecondLaunchWithoutArguments] first launch: frame:170 ready day:1 hour:6.26 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lady stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0
+PROOF: -[ProofUITests testSecondLaunchWithoutArguments] 03s: title true
+PROOF: -[ProofUITests testSecondLaunchWithoutArguments] 10s: title true
+PROOF: -[ProofUITests testSecondLaunchWithoutArguments] after the title: frame:220 ready day:1 hour:6.62 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lady stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0
+PROOF: -[ProofUITests testSecondLaunchWithoutArguments] 25s: frame:240 ready day:1 hour:6.70 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lady stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0
+PROOF: -[ProofUITests testSecondLaunchWithoutArguments] the lord sent to 1262: from 1830.0 to 1264.0, reached true
