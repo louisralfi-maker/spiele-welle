@@ -96,6 +96,10 @@ final class AudienceUITests: XCTestCase {
             XCTFail("no bubble over Tamsin")
         }
 
+        // The join (lh-rj-16): standing an arm's length from Tamsin, a touch on his body is hers (a person wins over the
+        // lord), so the lantern moment never came and the strip with it. A step toward the chapel first.
+        element(app, "world-scene").coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.95)).tap()
+        waitForStill(app)
         tapRealmStrip(app, worldX: 2036)
         XCTAssertTrue(waitForKing(app, near: 2036, within: 14, timeout: 20), "the king stepped into the chapel")
         pause(0.9)
