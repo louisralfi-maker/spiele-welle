@@ -45,7 +45,9 @@ final class SimDriverTests: XCTestCase {
             XCTAssertFalse(driver.canStep, setting)
             XCTAssertEqual(driver.advance(by: 0.2, events: &events), 0, "\(setting): no step")
             XCTAssertTrue(driver.state == before, "\(setting): the realm stands still")
-            XCTAssertEqual(driver.accumulator, 0, "\(setting): the time is dropped, not caught up later")
+            // render-2: the accumulator rests at half a step (`SimDriver.startPhase`), no longer at 0.
+            XCTAssertEqual(driver.accumulator, SimDriver.startPhase,
+                           "\(setting): the time is dropped, not caught up later")
             driver.isPaused = false
             driver.isInBackground = false
             driver.isFrozen = false
