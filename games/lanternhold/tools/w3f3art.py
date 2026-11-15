@@ -200,7 +200,7 @@ def beacon_tower():
     return im, parts
 
 
-def face_band(im, parts=None, top=TOWER_TOP - 1):
+def face_band(im, parts=None, top=TOWER_TOP - 1, gain=1.0):
     """Emissive: the moon from the east on whole blocks of the right face (the block's value, 0.3 to 0.5, its joints
     at a third), fading over 7 px into the face; no wash elsewhere (fix round 2's wash over every face lifted the
     stone evenly toward grey under the night's grade, and its band lit every second course only: a dotted row)."""
@@ -219,7 +219,7 @@ def face_band(im, parts=None, top=TOWER_TOP - 1):
             if d > 7:
                 continue
             bx = (x + off) // 7
-            a = (0.3 + 0.2 * h01(331, course, bx)) * (1 - d / 8.0) ** 1.2
+            a = min(0.8, gain * (0.3 + 0.2 * h01(331, course, bx)) * (1 - d / 8.0) ** 1.2)
             if r == 3 or (x + off) % 7 == 0:
                 a *= 0.35
             if a > 0.03:
@@ -245,9 +245,150 @@ def face_band(im, parts=None, top=TOWER_TOP - 1):
     return out
 
 
+# ------------------------------------------------------------- fix round 4, item 1: the bowl and the top at phone size
+BOWL = dict(cx=27.0, rim_y=6, rx=14.0, ry=3.5, wall=8)
+
+
+def deep_bowl(im):
+    """Fix round 4 (the director, item 1: "a lid or a disc" at phone size): a beacon bowl, not a dish. Its side wall
+    shows under the rim, about a third of its width tall and rounding to its foot; the rim an ellipse open toward the
+    viewer, dark inside with the grey ash low in it; the moon side (east) of the rim and of the wall cool grey, the
+    west dark iron; two iron struts slant from its foot to the wall's top, dark lines against the sky with a gap of
+    sky between the bowl and the masonry."""
+    cx, rim_y, rx, ry, wall = BOWL["cx"], BOWL["rim_y"], BOWL["rx"], BOWL["ry"], BOWL["wall"]
+    parts = {"body": set(), "rim": set(), "lip": set(), "ash": set(), "ashtop": set(), "strut": set(), "moon": set()}
+    rin, ryin = rx - 2.0, ry - 1.2
+
+    def setp(x, y, nm, part):
+        if 0 <= x < im.w and 0 <= y < im.h:
+            put(im, x, y, nm)
+            for q in parts.values():
+                q.discard((x, y))
+            parts[part].add((x, y))
+
+    def outer(x, y):
+        u, v = (x + 0.5 - cx) / rx, (y + 0.5 - rim_y) / ry
+        return u * u + v * v <= 1.0
+
+    def inner(x, y):
+        u, v = (x + 0.5 - cx) / rin, (y + 0.5 - rim_y) / ryin
+        return u * u + v * v <= 1.0
+
+    foot = rim_y + ry + wall                           # the bowl's lowest row
+    for (x0, y0, x1, y1) in [(int(cx) - 6, int(foot) - 1, int(cx) - 12, 24),
+                             (int(cx) + 6, int(foot) - 1, int(cx) + 12, 24)]:
+        n = max(abs(x1 - x0), abs(y1 - y0))
+        for i in range(n + 1):
+            x = int(round(x0 + (x1 - x0) * i / float(n)))
+            y = int(round(y0 + (y1 - y0) * i / float(n)))
+            setp(x, y, "ink", "strut")
+            if x0 > cx:
+                setp(x - 1, y, "stoneDark", "strut")   # its lit edge toward the moon is the outer one: a hair
+    # the wall: under the front arc, rounding in to a foot about half as wide as the rim
+    for x in range(int(cx - rx), int(cx + rx) + 1):
+        u = (x + 0.5 - cx) / rx
+        if abs(u) >= 1:
+            continue
+        front = rim_y + ry * math.sqrt(1 - u * u)
+        bottom = rim_y + ry + wall * math.sqrt(max(0.0, 1 - (u / 0.92) ** 2)) - 0.5
+        t = (u + 1) / 2
+        for y in range(int(math.floor(front)), int(math.floor(bottom)) + 1):
+            if outer(x, y):
+                continue
+            k = y - front
+            if t > 0.72:
+                nm, part = ("stoneLight" if t > 0.86 else "stone"), "moon"   # the moon side
+            elif t > 0.5:
+                nm, part = "stoneMid", "body"
+            else:
+                nm, part = ("stoneDark" if t > 0.18 else "stoneMid"), "body"
+            if k < 1.0:
+                nm, part = "rockDeep", "body"          # the lip's shadow under the front arc
+            elif y >= bottom - 0.5:
+                nm = "rockDeep" if t < 0.72 else "stoneMid"
+            if int(k) == int(wall * 0.45):
+                nm = "rockDeep" if t < 0.72 else "stoneMid"   # an iron band round the wall
+            setp(x, y, nm, part)
+    for y in range(int(rim_y - ry) - 1, int(rim_y + ry) + 2):   # the rim ring
+        for x in range(int(cx - rx) - 1, int(cx + rx) + 2):
+            if not outer(x, y) or inner(x, y):
+                continue
+            t = (x + 0.5 - (cx - rx)) / (2 * rx)
+            if y + 0.5 < rim_y:
+                nm = "stone" if t < 0.6 else "stoneLight"
+            else:
+                nm = "stoneMid" if t < 0.4 else "stone" if t < 0.7 else "stoneLight"
+            part = "rim"
+            if t > 0.78 and not outer(x + 1, y):
+                nm, part = "stonePale", "lip"
+            setp(x, y, nm, part)
+    for y in range(int(rim_y - ryin) - 1, int(rim_y + ryin) + 2):   # inside: dark, the ash low in the front
+        for x in range(int(cx - rin) - 1, int(cx + rin) + 2):
+            if not inner(x, y):
+                continue
+            v = (y + 0.5 - rim_y) / ryin
+            setp(x, y, "rockDeep" if v < -0.3 else "ink", "body")
+            u = (x + 0.5 - cx) / (rin * 0.62)
+            w = (y + 0.5 - (rim_y + 0.7)) / 1.2
+            if u * u + w * w <= 1.0:
+                a = h01(97, x, y)
+                setp(x, y, "stone" if a < 0.5 else "stoneMid" if a < 0.85 else "stoneLight",
+                     "ash" if a < 0.85 else "ashtop")
+    return parts
+
+
+def broken_top(im):
+    """The top course broken: everything over the wall's top cleared (the old merlons, the dish), then one course of
+    blocks (cols 11 to 41) at uneven heights, one block missing down into the course under it."""
+    for y in range(0, TOWER_TOP - 1):
+        for x in range(im.w):
+            im.set(x, y, CLEAR)
+    blocks = [(11, 16, 21), (17, 22, 22), (23, 28, None), (29, 34, 21), (35, 41, 23)]
+    for x0, x1, top in blocks:
+        if top is None:                                # the missing block, into the course under it
+            for x in range(x0, x1 + 1):
+                for y in range(TOWER_TOP - 1, TOWER_TOP + 2):
+                    im.set(x, y, CLEAR)
+                put(im, x, TOWER_TOP + 2, "stoneLight")
+            put(im, x1 + 1, TOWER_TOP, "stoneMid")
+            continue
+        for x in range(x0, x1 + 1):
+            jag = 1 if h01(401, x) < 0.25 else 0
+            t = (x - 11) / 30.0
+            for y in range(top + jag, TOWER_TOP):
+                if y == top + jag:
+                    nm = "stoneLight" if t < 0.6 else "stone"
+                elif x == x1:
+                    nm = "stoneMid"
+                else:
+                    nm = "stone" if t < 0.5 else "stoneMid"
+                put(im, x, y, nm)
+    return im
+
+
+def beacon_tower4():
+    im, _ = beacon_tower()
+    im = broken_top(im)
+    parts = deep_bowl(im)
+    return im, parts
+
+
 def tower_rim():
-    im, parts = beacon_tower()
-    return face_band(im, parts)
+    """Fix round 4: the moonlit right face a value step brighter (the band 0.48 to 0.72), so the silhouette parts from
+    the bank and the sky at phone size; the bowl's moon side and lip."""
+    im, parts = beacon_tower4()
+    out = face_band(im, None, top=TOWER_TOP - 6, gain=1.5)
+    for (x, y) in parts["lip"]:
+        out.set(x, y, white(0.75))
+    for (x, y) in parts["moon"]:
+        out.set(x, y, white(0.45))
+    for (x, y) in parts["rim"]:
+        if x > BOWL["cx"] + 4:
+            out.set(x, y, white(0.4))
+    for (x, y) in parts["ashtop"] | parts["ash"]:
+        if x > BOWL["cx"]:
+            out.set(x, y, white(0.15))
+    return out
 
 
 def stage_rim(name):
@@ -398,7 +539,7 @@ def bakehouse():
 
 
 BUILDERS = {
-    "beaconTower": lambda: beacon_tower()[0],
+    "beaconTower": lambda: beacon_tower4()[0],
     "beaconTowerRim": tower_rim,
     "beaconRuinRim": lambda: stage_rim("beaconRuin"),
     "beaconBaseRim": lambda: stage_rim("beaconBase"),
