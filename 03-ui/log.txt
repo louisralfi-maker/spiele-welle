@@ -1,0 +1,7 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (135.254 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (57.883 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (198.463 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (11.580 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (37.429 seconds).
+exit=0
+screenshots: 44
