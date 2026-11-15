@@ -89,8 +89,32 @@ def slide2():
                 p.px(x, y, "ember" if abs(x - SPARK[0]) < 10 else ("tile" if abs(x - SPARK[0]) < 18 else "emberDim"))
             elif y > FLOOR - 4 and 140 + (FLOOR - y) // 2 <= x <= 171 - (FLOOR - y) // 2:
                 p.px(x, y, "nightDeep" if x < 160 else "night0")
+    # the struck spark throws light: a small dithered glow round it (the title's dither, radius 14)
+    glow = ["plumDeep", "plum", "tile", "tileLight"]
+    for y in range(SPARK[1] - 15, SPARK[1] + 16):
+        for x in range(SPARK[0] - 15, SPARK[0] + 16):
+            t = falloff(x, y, SPARK[0], SPARK[1], 14, 14, 1.6) * 4.0
+            i, f = int(t), t - int(t)
+            if BAYER[y % 4][x % 4] < int(f * 16):        # every step crossed in the full ordered dither: no ring
+                i += 1
+            if i > 0:
+                p.px(x, y, glow[min(3, i - 1)])
     # the ancestor: a hand-set grid, hood, the raised arm, the hand; the spark above the hand
     lit_grid_fig(p)
+    # a warm rim on his raised arm, head and shoulder on the spark's side
+    fig = np.zeros((H, W), bool)
+    ax0, ay0 = SPARK[0] - 1, FLOOR - 4 - len(ANCESTOR)
+    for r, row in enumerate(ANCESTOR):
+        for q, ch in enumerate(row):
+            if ch != ".":
+                fig[ay0 + r, ax0 + q] = True
+    for y, x in zip(*np.where(fig)):
+        if math.hypot(x - SPARK[0], y - SPARK[1]) < 18 and (not fig[y - 1, x] or not fig[y, x - 1]):
+            if p.get(x, y) not in ("dawnRose", "tileLight"):
+                p.px(x, y, "tileLight" if math.hypot(x - SPARK[0], y - SPARK[1]) < 11 else "tile")
+    # two or three warm pixels on the nearest rock edge
+    for (x, y, c) in ((136, 93, "tileLight"), (136, 94, "tile"), (137, 99, "tile")):
+        p.px(x, y, c)
     # the point of gold: small and hard, the stars' four rays drawn in gold
     sx, sy = SPARK
     p.px(sx, sy, "fireWhite")
