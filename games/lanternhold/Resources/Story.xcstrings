@@ -4874,7 +4874,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The taxes wait at the doors. Pass a door by and you make a friend. Knock, and you make a wall. Choose your enemies."
+            "value" : "The taxes wait at the doors. Spare a door and you make a friend. Knock, and you make a wall. Choose your enemies."
           }
         },
         "es" : {
@@ -36680,7 +36680,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "If I open the treasury once, they will expect it twice. Pass a few doors by instead."
+            "value" : "If I open the treasury once, they will expect it twice. Spare a few doors instead."
           }
         },
         "es" : {
