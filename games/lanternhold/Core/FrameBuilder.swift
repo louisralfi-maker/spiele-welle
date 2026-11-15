@@ -136,7 +136,12 @@ enum FrameBuilder {
                                 focusX: camera.focusX,
                                 weather: weather)
         let hour = clock.hour
-        let ambient = Weather.apply(weather, to: AmbientRamp.sample(at: hour, look: options.look))
+        var ambient = Weather.apply(weather, to: AmbientRamp.sample(at: hour, look: options.look))
+        if options.look == .two {
+            // World rebuild, step world-2 (REVIEW-look-2.md 2.8, item 4): through the postern the picture turns warm
+            // over world 2330 to 2530, the reveal of the valley (`SceneLayout.valleyWarmth`).
+            ambient.warmth += SceneLayout.valleyWarmth(focus: camera.focusX)
+        }
         let animTime = options.flickerTime ?? clock.elapsed
         let sources = entities?.lights ?? scene.sceneLights()
         let rains = options.look == .two && weather.rain > 0 && !options.reduceMotion
@@ -186,6 +191,12 @@ enum FrameBuilder {
                 addProp(ordered[next], ambient: ambient, hour: hour, animTime: animTime, options: options,
                         geometry: geometry, sprites: &planeSprites, glow: &glow)
                 next += 1
+            }
+            if (plane == .near || plane == .world) && options.look == .two {
+                // World rebuild, step world-2: the castle's chimneys smoke, the keep's in the near plane's picture
+                // (moving with the mist band), the bakehouse's on the world plane.
+                planeSprites[plane.rawValue] += castleSmoke(props: ordered, plane: plane, animTime: animTime,
+                                                            reduceMotion: options.reduceMotion, geometry: geometry)
             }
             if plane == .mid && options.look == .two {
                 // Fix round 1: the threads of water falling down the cleft wall, in front of it.
@@ -499,6 +510,28 @@ enum FrameBuilder {
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             let column = SpriteInstance(sprite: .d2Smoke, frame: 0, rect: rect, tint: look2SmokeTint,
                                         flipped: false)
+            let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
+            list += sheared(column, offset: Int((wind * smokeLean).rounded()), bands: 10, bend: false)
+        }
+        return list
+    }
+
+    // MARK: World rebuild, step world-2 (SceneLayoutCastle.swift)
+
+    /// The castle's chimney smoke (`SceneLayout.castleChimney`): the same veil as the cottages', on the plane of its
+    /// prop, placed by the plane the prop moves with (the keep's moves with the mist band).
+    private static func castleSmoke(props: [Prop], plane: Plane, animTime: Double, reduceMotion: Bool,
+                                    geometry: Geometry) -> [SpriteInstance] {
+        let weather = geometry.weather
+        let size = SpriteID.d2Smoke.size
+        var list: [SpriteInstance] = []
+        for prop in props where prop.plane == plane {
+            guard let chimney = SceneLayout.castleChimney(prop) else { continue }
+            let left = chimney.x - Double(size.width / 2) - geometry.whole(prop.movesWith ?? prop.plane)
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let top = geometry.top(y: chimney.y, height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            let column = SpriteInstance(sprite: .d2Smoke, frame: 0, rect: rect, tint: look2SmokeTint, flipped: false)
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
             list += sheared(column, offset: Int((wind * smokeLean).rounded()), bands: 10, bend: false)
         }

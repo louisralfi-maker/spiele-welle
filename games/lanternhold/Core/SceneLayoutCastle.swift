@@ -54,14 +54,23 @@ extension SceneLayout {
         }
     }
 
-    /// The keep's chimney (its smoke's foot) on the mistBand plane, nil while its roof is off (tier 2 building).
-    static func castleKeepChimney(_ stage: CastleStage) -> (x: Double, y: Double)? {
-        if stage.tier == 2 && stage.building { return nil }
-        return (castleKeepX + 127.5, stage.tier == 1 ? 122 : 142)
+    /// The chimney of a castle prop that smokes (its plane's x of the smoke's middle, the smoke's foot), nil for any
+    /// other: the keep's on its right slope (none while tier 2's storey is built and the roof is off), the bakehouse's.
+    static func castleChimney(_ prop: Prop) -> (x: Double, y: Double)? {
+        switch prop.sprite {
+        case .keepT1: return (prop.x + 127.5, 122)
+        case .keepT2, .keepT3, .keepT3Build: return (prop.x + 127.5, 142)
+        case .bakehouse: return (prop.x + 75, 61)
+        default: return nil
+        }
     }
 
-    /// The bakehouse's chimney (world x of the smoke's middle, its foot).
-    static let castleBakeChimney = (x: castleBakehouseX + 75, y: 61.0)
+    /// How much warmer the picture's grade is with the camera at `focus` (REVIEW-look-2.md 2.8, item 4): none inside
+    /// the walls, rising through the postern over world 2330 to 2530, the reveal of the valley.
+    static let valleyWarmthGain: Float = 0.07
+    static func valleyWarmth(focus: Double) -> Float {
+        valleyWarmthGain * Float(AmbientRamp.smoothstep((focus - castlePassages[1].lowerBound - 10) / 200))
+    }
 
     /// The forebuilding's closed door: the warm line of light under it at night (cols 52 to 67, its sill row).
     static let castleDoorGap = (dx: 52.0, dy: 1.0, width: 16, height: 1)

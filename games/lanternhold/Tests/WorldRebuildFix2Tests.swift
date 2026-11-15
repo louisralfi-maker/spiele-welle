@@ -21,6 +21,40 @@ final class WorldRebuildFix2Tests: XCTestCase {
         return FrameBuilder.build(scene: scene, clock: clock, camera: camera, pixelScale: pixelScale, options: options)
     }
 
+    /// World-2 (the critic of world-1, look 3: "the jagged slit is a ruler-straight V"; "extend the ruler check to
+    /// diagonal runs"): along each wedge of sky the rock's top profile never falls or climbs in one even slope over 16
+    /// columns (8 rows or more with every step the same to a pixel), and no wedge is wider than 12 % of the screen at
+    /// its top or deeper than about a quarter of it.
+    func testTheWedgesEdgesAreBrokenCrags() {
+        let layout = AtlasLayout.shared
+        let pieces: [(SpriteID, Int)] = [(.throatStepC, 600), (.cleftWallA, 824), (.cleftWallB, 1080),
+                                         (.cleftWallC, 1336)]
+        var top = [Int](repeating: 0, count: 1528 - 600)
+        for (sprite, gx) in pieces {
+            let cell = layout.cell(sprite, frame: 0)
+            for column in 0..<cell.width {
+                var row = 0
+                while row < cell.height && layout.image[cell.x + column, cell.y + row].a == 0 { row += 1 }
+                top[gx - 600 + column] = row
+            }
+        }
+        for (centre, name) in [(792, "the gate's wedge"), (1010, "the bailey's wedge")] {
+            let span = (centre - 600 - 30)...(centre - 600 + 30)
+            let open = span.filter { top[$0] > 0 }
+            XCTAssertLessThanOrEqual(open.count, 56, "\(name) is \(open.count) px wide at its top")
+            XCTAssertLessThanOrEqual(span.map { top[$0] }.max() ?? 0, 54, "\(name) depth")
+            for start in span.lowerBound...(span.upperBound - 16) {
+                let seg = Array(top[start...(start + 16)])
+                guard seg.contains(where: { $0 > 0 }) else { continue }
+                let steps = zip(seg.dropFirst(), seg).map { $0 - $1 }
+                let even = (steps.map { abs($0) }.max() ?? 0) - (steps.map { abs($0) }.min() ?? 0) <= 1
+                let oneWay = steps.allSatisfy { $0 >= 0 } || steps.allSatisfy { $0 <= 0 }
+                XCTAssertFalse(even && oneWay && abs(seg[16] - seg[0]) >= 8,
+                               "\(name): an even slope from canvas x \(start + 600)")
+            }
+        }
+    }
+
     /// The critic's check: "no horizontal run over 240 px on the wall in any sweep frame" (240 px of the 2000 x 920
     /// view of a 201-row screen are 52 game pixels). A line is a chain of edge pixels (a step of 7 or more in luma to the pixel under it,
     /// the same way) that stays within three rows and jumps gaps of up to 4 px, so a row of aligned ledges counts as

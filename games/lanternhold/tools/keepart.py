@@ -25,6 +25,7 @@ its gold lantern.
   posternT1, posternT2, posternT3   176x112  the back gate per tier: a squat tower and the passage at x 100
   gateArchFg                        64x180   foreground: the gate passage's dark arch while the lord passes through
 """
+import math
 import os
 import sys
 
@@ -255,6 +256,81 @@ def arch_window(c, x, y, w, h, kind="round", sill=True, mullion=True):
             c.set(xx, y + h + 1, "stoneDark")
 
 
+def arch_ring(c, cx, spring, r_in, r_out, vw=4.0, jamb_to=0, inner="night1", recess=None):
+    """A round arch of dressed voussoirs: the ring between r_in and r_out over the springing at height `spring`
+    (centre column cx, may be a half), cut into blocks about `vw` px along the arc with dark joints; the left half lit
+    (pale and light blocks in turn), the right half a step darker, a pale keystone; below the springing the jambs in
+    long and short blocks down to `jamb_to`. Inside the ring `inner` (the opening), or `recess(x, hh)` naming a colour."""
+    for hh in range(jamb_to, spring + int(r_out) + 2):
+        for x in range(int(cx - r_out) - 1, int(cx + r_out) + 2):
+            dx = x - cx
+            if hh >= spring:
+                r = math.hypot(dx, hh - spring)
+                if r > r_out:
+                    continue
+                if r <= r_in:
+                    name = recess(x, hh) if recess else inner
+                    if name:
+                        c.set(x, c.r(hh), name)
+                    continue
+                theta = math.atan2(hh - spring, dx)              # 0 at the right springing, pi at the left
+                arc = theta * (r_in + r_out) / 2.0
+                k = int(arc // vw)
+                joint = (arc % vw) < 0.9 or r > r_out - 0.6
+                left = dx < 0
+                key = abs(theta - math.pi / 2) < vw / (r_in + r_out)
+                if joint:
+                    name = "stoneDark" if not left else "stoneMid"
+                elif key:
+                    name = "stonePale"
+                elif left:
+                    name = "stonePale" if k % 2 else "stoneLight"
+                else:
+                    name = "stoneLight" if k % 2 else "stone"
+                c.set(x, c.r(hh), name)
+            else:
+                if abs(dx) <= r_in:
+                    name = recess(x, hh) if recess else inner
+                    if name:
+                        c.set(x, c.r(hh), name)
+                    continue
+                if abs(dx) > r_out:
+                    continue
+                k = (spring - hh) // 5
+                width = (r_out - r_in) * (1.0 if k % 2 else 0.6)
+                if abs(dx) - r_in > width + 0.5:
+                    continue
+                left = dx < 0
+                joint = (spring - hh) % 5 == 4
+                name = ("stoneMid" if joint else ("stonePale" if left else "stone")) if left else \
+                       ("stoneDark" if joint else "stoneMid")
+                if not left and abs(dx) - r_in < 1.5 and not joint:
+                    name = "stone"
+                c.set(x, c.r(hh), name)
+
+
+def gable_coping(c, cx, eave, apex, half, x0, x1):
+    """A gable's coping: a thick band of dressed stone along both slopes (a lit top on the left slope, a light one on
+    the right), its shadow on the gable under it, kneelers at the eaves."""
+    for hh in range(eave - 1, apex + 4):
+        w = (apex - hh) * float(half) / (apex - eave)
+        for side in (-1, 1):
+            edge = cx + side * (w + 2)
+            for d in range(4):
+                x = int(round(edge - side * d))
+                if side < 0:
+                    name = ("stonePale", "stonePale", "stone", "stoneDark")[d]
+                else:
+                    name = ("stoneLight", "stone", "stoneMid", "stoneDark")[d]
+                c.set(x, c.r(hh), name)
+    for (kx, lit) in ((x0 - 3, True), (x1 - 3, False)):
+        for x in range(kx, kx + 7):
+            for hh in range(eave - 3, eave + 3):
+                top = hh == eave + 2
+                c.set(x, c.r(hh), ("stonePale" if top else "stoneLight") if lit else ("stoneLight" if top else "stoneMid"))
+            c.set(x, c.r(eave - 4), "stoneDark")
+
+
 def door(c, x0, y0, x1, y1, kind="round"):
     """An oak door under a round or pointed head: planks with lit edges, two iron straps, a ring."""
     w = x1 - x0 + 1
@@ -322,18 +398,21 @@ def pole(c, x, ytop, ybot):
 
 
 def outline(c, sides=("right", "bottom", "top", "left"), name="ink"):
-    """The gatehouse's outline: `name` on the silhouette's edge pixels that face transparency on the given sides."""
-    marks = []
+    """The gatehouse's outline: on the left, right and bottom, `name` on the silhouette's own edge pixels that face
+    transparency; on top a line of `name` laid over the silhouette, outside it, so a merlon's or a coping's lit cap
+    keeps its light under the dark edge."""
+    marks, over = [], []
     for y in range(c.h):
         for x in range(c.w):
             if not c.opaque(x, y):
+                if "top" in sides and y + 1 < c.h and c.opaque(x, y + 1):
+                    over.append((x, y))
                 continue
             if (("right" in sides and x + 1 < c.w and not c.opaque(x + 1, y)) or
                     ("left" in sides and x > 0 and not c.opaque(x - 1, y)) or
-                    ("top" in sides and y > 0 and not c.opaque(x, y - 1)) or
                     ("bottom" in sides and y + 1 < c.h and not c.opaque(x, y + 1))):
                 marks.append((x, y))
-    for x, y in marks:
+    for x, y in marks + over:
         c.set(x, y, name)
 
 
@@ -661,6 +740,25 @@ def curtain_body(c, x0, x1, seed, top=CURT_H):
         c.set(x + 1, c.r(37), "stoneMid")
 
 
+def ivy(c, x0, h0, w, h, seed):
+    """Ivy climbing from the wall's foot: two or three stems that lean and branch, leaves in clusters of five (a lit
+    meadow pixel up and left, leaf, a leafDark one down and right) along them, thinning out upward."""
+    leaf = ((0, 0, "leaf"), (-1, 0, "leaf"), (1, 0, "leafDark"), (0, 1, "meadow"), (0, -1, "leafDark"),
+            (-1, 1, "meadow"))
+    for stem in range(3):
+        x = x0 + 2 + stem * (w // 3) + int(h01(seed, stem, 41) * 3)
+        top = h0 + int(h * (0.55 + 0.45 * h01(seed, stem, 43)))
+        for hh in range(h0, top):
+            if h01(seed, stem, hh // 4, 45) < 0.5:
+                x += 1 if h01(seed, stem, hh, 47) < 0.55 else -1
+            c.set(x, c.r(hh), "woodDark")
+            share = 1 - (hh - h0) / float(max(1, top - h0))
+            if (hh + stem) % 3 == 0 and h01(seed, stem, hh, 49) < 0.45 + 0.5 * share:
+                side = -2 if h01(seed, stem, hh, 51) < 0.5 else 2
+                for dx, dy, name in leaf:
+                    c.set(x + side + dx, c.r(hh + dy), name)
+
+
 def curtain(kind):
     c = C(64, 74)
     seed = {"curtainA": 501, "curtainB": 517, "curtainC": 533}[kind]
@@ -678,16 +776,32 @@ def curtain(kind):
                     c.set(x, c.r(hh), ("stonePale" if dx < 0 else "stoneLight") if vous else
                           ("stoneLight" if dx < 0 else "stone"))
     if kind == "curtainC":
-        # a buttress with a lit face and its shadow on the wall; a drain spout and its stain
-        for x in range(24, 34):
-            hmax = 48 - max(0, x - 30) * 2
-            for hh in range(0, hmax):
-                c.set(x, c.r(hh), "stoneLight" if x < 26 else "stone" if x < 31 else "stoneMid")
-            c.set(x, c.r(hmax), "stonePale" if x < 31 else "stoneLight")
+        # a buttress: its lit face in courses, its shaded flank, a sloped cap, an ink edge on the shade side and its
+        # shadow on the wall; a drain spout and its stain
+        for x in range(23, 34):
+            k = x - 23
+            for hh in range(0, 46):
+                if k < 2:
+                    name = "stoneLight"
+                elif k < 8:
+                    name = "stone" if (hh // 6) % 2 or k < 7 else "stoneLight"
+                else:
+                    name = "stoneMid"
+                if hh % 6 == 5:
+                    name = "stoneMid" if k < 8 else "stoneDark"
+                c.set(x, c.r(hh), name)
+            for d in range(4):                    # the sloped cap
+                hh = 46 + d
+                if k <= 10 - d * 3:
+                    c.set(x, c.r(hh), "stonePale" if k < 8 else "stoneLight")
+        for hh in range(0, 46):
+            c.set(34, c.r(hh), "ink")
         for hh in range(4, 44):
-            c.step(34, c.r(hh), -1)
+            c.step(35, c.r(hh), -1)
+            c.step(36, c.r(hh), -1)
             if hh % 2:
-                c.step(35, c.r(hh), -1)
+                c.step(37, c.r(hh), -1)
+        ivy(c, 4, 0, 16, 26, seed)
         for hh in range(30, 55):
             if h01(seed, hh) < 0.85:
                 c.step(50, c.r(hh), -1)
@@ -698,6 +812,7 @@ def curtain(kind):
         c.set(51, c.r(56), "stoneDark")
     if kind == "curtainA":
         slit(c, 40, c.r(48), 6)
+        ivy(c, 50, 0, 12, 34, seed)
     outline(c, sides=("top",))
     return c.im
 
@@ -814,16 +929,7 @@ def forebuilding_frame(open_):
                 c.set(x, c.r(hh), "stoneMid" if v > 0.88 or x > 92 else "stone")
                 if hh % 5 == 0 and h01(seed, x, hh) < 0.7:
                     c.set(x, c.r(hh), "stoneMid")
-    for hh in range(eave - 2, apex + 3):
-        half = (apex - hh) * 50.0 / (apex - eave) + 2
-        for d in range(3):
-            xl = int(round(59.5 - half)) + d
-            xr = int(round(59.5 + half)) - d
-            c.set(xl, c.r(hh), ("stonePale", "stoneLight", "stoneMid")[d])
-            c.set(xr, c.r(hh), ("stoneDark", "stoneMid", "stoneDark")[d])
-        if hh % 4 == 0:                          # the coping's steps
-            c.set(int(round(59.5 - half)) - 1, c.r(hh), "stonePale")
-            c.set(int(round(59.5 + half)) + 1, c.r(hh), "stoneDark")
+    gable_coping(c, 59.5, eave, apex, 50, x0, x1)
     for x in range(x0 - 2, x1 + 3):              # the eaves' string course across
         c.set(x, c.r(eave), "stonePale" if x < 96 else "stoneLight")
         c.set(x, c.r(eave - 1), "stone" if x < 96 else "stoneMid")
@@ -851,27 +957,24 @@ def forebuilding_frame(open_):
                     name = S[max(0, S.index(name) - 1)]
                 c.set(x, c.r(hh), name)
             c.set(x, c.r(hmax), "stonePale" if lit else "stoneLight")
+        for hh in range(0, 50 if lit else 30):
+            c.set(bx + (7 if lit else 7), c.r(hh), "ink" if not lit else "stoneDark")
         if lit:
             for hh in range(4, 50):
                 c.step(bx + 8, c.r(hh), -1)
+                c.step(bx + 9, c.r(hh), -1)
                 if hh % 2:
-                    c.step(bx + 9, c.r(hh), -1)
-    # the portal: a deep round arch of two orders, the door recessed, the left reveal in shadow
-    cx = 59.5
-    for hh in range(0, 40):
-        for x in range(43, 77):
-            dx = x - cx
-            r2 = dx * dx + max(0, hh - 22) ** 2
-            if r2 > 15.6 ** 2:
-                continue
-            if r2 > 12.8 ** 2:
-                vous = int((hh * 2 + x) / 3) % 2
-                c.set(x, c.r(hh), ("stonePale" if dx < 0 else "stoneLight") if vous else
-                      ("stoneLight" if dx < 0 else "stone"))
-            elif r2 > 10.4 ** 2:
-                c.set(x, c.r(hh), "stoneDark" if dx < -2 or hh > 30 else "stone")
-            else:
-                c.set(x, c.r(hh), "night1" if abs(dx) <= 8.6 else "stoneDark")
+                    c.step(bx + 10, c.r(hh), -1)
+    # the portal: a round arch of dressed voussoirs (two orders: the outer lit ring, the inner one in shadow), the
+    # door recessed in the dark
+    def recess(x, hh):
+        return "night1" if abs(x - 59.5) <= 8.6 else "stoneDark"
+    arch_ring(c, 59.5, 22, 12.6, 16.0, vw=3.6, jamb_to=2, recess=lambda x, hh: None)
+    arch_ring(c, 59.5, 22, 10.0, 12.6, vw=3.0, jamb_to=2, recess=recess)
+    for hh in range(2, 34):                      # the inner order's soffit in shadow
+        for x in range(46, 74):
+            if c.is_(x, c.r(hh), "stonePale") and abs(x - 59.5) < 12.6 and math.hypot(x - 59.5, max(0, hh - 22)) < 12.6:
+                c.set(x, c.r(hh), "stone")
     if not open_:
         door(c, DOOR[0], c.r(28), DOOR[1], c.r(1), kind="round")
         for x in range(DOOR[0] + 1, DOOR[1]):    # the gap under the door: the layout's mask lights it at night
@@ -1215,6 +1318,200 @@ def postern(tier):
     return c.im
 
 
+# ------------------------------------------------------------------------------------- the bailey's lean-tos
+# World-2 (REVIEW-look-2.md 2.1: "the barracks, the smithy and the builders' lodge, as lean-tos against the curtain wall
+# in the castle's granite and slate; no half-timbering here: that belongs to the town"). Same sizes, the window glass
+# where `EntityFrames.courtyard` puts its masks, the forge's fire where its emitter burns.
+def pent_roof(c, x0, x1, h0, h1, seed):
+    """A lean-to's pent roof of teal slate seen from the front: a band from the eave (h0) up to the wall it leans on
+    (h1), its courses, its left part lit, the eave's dark edge and its shadow on the wall under it."""
+    top, bot = c.r(h1), c.r(h0)
+    TA.roof(c.im, top, bot, lambda y: x0, lambda y: x1, SLATE, "slate", seed, moss=True, mid=0.6, shade=6)
+    for x in range(x0 + 1, x1):
+        c.step(x, bot + 1, -1)
+        c.step(x, bot + 2, -1)
+
+
+def win_box(c, dx, dy, w, h):
+    """A small square window whose glass is the mask box (dx, dy up from the bottom row, w, h): a pale lintel and sill,
+    a lit left jamb, a shaded right one."""
+    for hh in range(dy, dy + h):
+        for x in range(dx, dx + w):
+            c.set(x, c.r(hh), "night1")
+        c.set(dx - 1, c.r(hh), "stoneLight")
+        c.set(dx + w, c.r(hh), "stoneMid")
+    for x in range(dx - 1, dx + w + 1):
+        c.set(x, c.r(dy + h), "stonePale" if x < dx + w else "stoneLight")
+        c.set(x, c.r(dy - 1), "stonePale" if x < dx + w else "stoneLight")
+        c.set(x, c.r(dy - 2), "stoneDark")
+
+
+def shield(c, x, hh, emblem="gold"):
+    """A round shield hung on the wall: teal with a lit rim on the left, a gold boss."""
+    for dy in range(-2, 3):
+        for dx in range(-2, 3):
+            if dx * dx + dy * dy <= 5:
+                name = "banner" if dx < 0 or dy > 0 else "roofDeep"
+                if dx * dx + dy * dy >= 4:
+                    name = "roofLight" if dx < 0 and dy >= 0 else "night1"
+                c.set(x + dx, c.r(hh + dy), name)
+    c.set(x, c.r(hh), emblem)
+
+
+def barracks():
+    c = C(64, 48)
+    seed = 1201
+    ashlar(c, 2, c.r(33), 61, c.r(0), seed, course=4, bmin=5, bmax=10, joints=0.8, foot=0.3, quoins=True)
+    for x in range(2, 62):
+        for hh in range(0, 3):
+            c.set(x, c.r(hh), "stoneMid" if hh < 2 else "stoneLight")
+    pent_roof(c, 0, 63, 34, 46, seed)
+    for (dx, dy, w, h) in ((8, 26, 4, 4), (21, 26, 4, 4), (39, 26, 4, 4), (52, 26, 4, 4)):
+        win_box(c, dx, dy, w, h)
+    for dx in (23, 41):                           # loopholes either side of the door (1 x 2 glass)
+        for hh in (14, 15):
+            c.set(dx, c.r(hh), "night1")
+        c.set(dx - 1, c.r(14), "stoneLight")
+        c.set(dx - 1, c.r(15), "stoneLight")
+        c.set(dx + 1, c.r(14), "stoneMid")
+        c.set(dx + 1, c.r(15), "stoneMid")
+        c.set(dx, c.r(13), "stonePale")
+        c.set(dx, c.r(16), "stoneMid")
+    arch_ring(c, 31.5, 11, 4.2, 6.2, vw=2.6, jamb_to=1, recess=lambda x, hh: None)
+    door(c, 28, c.r(14), 35, c.r(1), kind="round")
+    banner(c, 30, c.r(23), 4, 6, emblem=False)
+    shield(c, 9, 12)
+    shield(c, 54, 12)
+    for x in (14, 16, 18):                        # a rack of spears
+        for hh in range(1, 22):
+            c.set(x, c.r(hh), "woodLight" if x == 14 else "wood")
+        c.set(x, c.r(22), "stonePale")
+        c.set(x, c.r(23), "stoneLight")
+    for x in range(13, 20):
+        c.set(x, c.r(6), "woodDark")
+        c.set(x, c.r(15), "woodDark")
+    TA.barrel(c.im, 45, c.r(1), w=5, h=7)
+    outline(c)
+    return c.im
+
+
+def forge_bay(c, x0, x1, h1, seed, hearth=(10, 24), hood=True):
+    """An open forge bay under the lean-to: the dim back wall, a stone hearth (its fire is the layout's emitter on
+    its top), a hood narrowing into the chimney, bellows, tools on the wall, timber posts at the front corners."""
+    for hh in range(0, h1 + 1):
+        for x in range(x0, x1 + 1):
+            v = h01(seed, x // 6, hh // 4, 61)
+            c.set(x, c.r(hh), "stoneMid" if v < 0.18 else "stoneDark" if v < 0.85 else "night1")
+            if hh % 4 == 3 and h01(seed, x, hh) < 0.6:
+                c.set(x, c.r(hh), "night1")
+    a, b = hearth
+    ashlar(c, a, c.r(11), b, c.r(0), seed + 3, course=3, bmin=3, bmax=6, joints=0.9, light=0.15, dark=0.2)
+    for hh in range(0, 12):
+        c.set(a, c.r(hh), "stoneLight")
+        c.set(b, c.r(hh), "stoneDark")
+    for x in range(a - 1, b + 2):
+        c.set(x, c.r(12), "stonePale" if x < b else "stoneLight")
+    if hood:
+        for i, hh in enumerate(range(20, h1 + 1)):
+            inset = min(i, (b - a) // 2 - 3)
+            for x in range(a - 1 + inset, b + 2 - inset):
+                c.set(x, c.r(hh), "stone" if x < (a + b) // 2 else "stoneMid")
+            c.set(a - 1 + inset, c.r(hh), "stoneLight")
+    for x in range(b + 2, b + 7):                 # the bellows
+        for hh in range(5, 10 - (x - b - 2) // 2):
+            c.set(x, c.r(hh), "soil" if hh > 6 else "woodDark")
+    for (tx, th) in ((b + 8, 14), (b + 10, 15)):  # tongs and a hammer on the back wall
+        for hh in range(th, th + 7):
+            c.set(tx, c.r(hh), "stone")
+        c.set(tx - 1, c.r(th), "stone")
+    for px in (x0, x1):
+        for hh in range(0, h1 + 1):
+            c.set(px, c.r(hh), "wood" if px == x0 else "woodDark")
+            c.set(px + 1, c.r(hh), "woodDark")
+
+
+def anvil(c, x, hh0=0):
+    for hh in range(hh0, hh0 + 4):
+        for xx in range(x + 2, x + 6):
+            c.set(xx, c.r(hh), "stoneDark")
+    for xx in range(x, x + 9):
+        c.set(xx, c.r(hh0 + 4), "stoneMid")
+        c.set(xx, c.r(hh0 + 5), "stoneMid")
+        c.set(xx, c.r(hh0 + 6), "stoneLight" if xx > x else "stoneMid")
+    c.set(x - 1, c.r(hh0 + 6), "stoneMid")
+
+
+def smithy(master=False):
+    h = 56 if master else 48
+    c = C(60, h)
+    seed = 1301 + (7 if master else 0)
+    bay_top = 30
+    wall_top = 46 if master else 30
+    ashlar(c, 36, c.r(wall_top), 57, c.r(0), seed, course=4, bmin=5, bmax=9, joints=0.8, foot=0.3, quoins=True)
+    if master:
+        ashlar(c, 3, c.r(46), 36, c.r(bay_top + 1), seed + 1, course=4, bmin=5, bmax=9, joints=0.8)
+        win_box(c, 20, 41, 4, 4)
+        win_box(c, 47, 16, 4, 4)
+        for x in range(3, 37):                    # the loft's beam over the bay
+            c.set(x, c.r(bay_top + 1), "woodDark")
+            c.set(x, c.r(bay_top + 2), "wood")
+    forge_bay(c, 3, 35, bay_top, seed, hearth=(10, 30) if master else (11, 23))
+    for x in range(36, 58):
+        for hh in range(0, 3):
+            c.set(x, c.r(hh), "stoneMid" if hh < 2 else "stoneLight")
+    roof_h0 = wall_top + 1
+    pent_roof(c, 0, 59, roof_h0, h - 2 if master else roof_h0 + 11, seed)
+    chx = 7 if master else 15
+    TA.chimney(c.im, chx, chx + 5, 0 if master else 1, c.r(roof_h0 + 3), seed)
+    anvil(c, 39)
+    TA.barrel(c.im, 50, c.r(1), w=5, h=6)
+    if not master:
+        door(c, 51, c.r(20), 56, c.r(9), kind="round")
+    outline(c)
+    return c.im
+
+
+def lodge(big=False):
+    w, h = (64, 52) if big else (56, 44)
+    c = C(w, h)
+    seed = 1401 + (5 if big else 0)
+    top = 38 if big else 30
+    ashlar(c, 3, c.r(top), w - 4, c.r(0), seed, course=4, bmin=5, bmax=10, joints=0.8, foot=0.3, quoins=True)
+    for x in range(3, w - 3):
+        for hh in range(0, 3):
+            c.set(x, c.r(hh), "stoneMid" if hh < 2 else "stoneLight")
+    pent_roof(c, 0, w - 1, top + 1, h - 2, seed)
+    if big:
+        for (dx, dy, ww, hh) in ((9, 26, 3, 4), (22, 26, 3, 4), (35, 26, 3, 4), (47, 26, 3, 4)):
+            win_box(c, dx, dy, ww, hh)
+        arch_ring(c, 30.5, 14, 6.2, 8.4, vw=3.0, jamb_to=1, recess=lambda x, hh: None)
+        door(c, 25, c.r(20), 36, c.r(1), kind="round")
+        for x in range(w - 12, w):                # the hoist beam with its rope and block
+            c.set(x, c.r(top + 2), "woodDark")
+            c.set(x, c.r(top + 3), "wood")
+        for hh in range(18, top + 2):
+            c.set(w - 3, c.r(hh), "soilLight")
+        for hh in range(14, 18):
+            for x in range(w - 5, w - 1):
+                c.set(x, c.r(hh), "stoneLight" if x < w - 3 else "stoneMid")
+    else:
+        win_box(c, 11, 11, 4, 4)
+        door(c, 24, c.r(20), 35, c.r(1), kind="round")
+        for x in range(23, 37):
+            c.set(x, c.r(21), "stonePale" if x < 33 else "stoneLight")
+    for hh in range(1, 7):                        # stacked timber and a ladder: the builders' yard
+        for x in range(w - 16, w - 4):
+            c.set(x, c.r(hh), "woodLight" if hh % 2 else ("wood" if x % 5 else "woodDark"))
+    for hh in range(1, top - 2):
+        c.set(w - 10 + hh // 9, c.r(hh), "woodLight")
+        c.set(w - 7 + hh // 9, c.r(hh), "wood")
+        if hh % 3 == 0:
+            c.set(w - 9 + hh // 9, c.r(hh), "woodLight")
+            c.set(w - 8 + hh // 9, c.r(hh), "wood")
+    outline(c)
+    return c.im
+
+
 # ------------------------------------------------------------------------------------------ the gate's arch
 def gate_arch_fg():
     """The gate passage's dark arch in the foreground while the lord passes through either gate: two jambs and the
@@ -1245,6 +1542,8 @@ BUILDERS = {
     "chapelTower": chapel_tower, "bakehouse": bakehouse, "bakeHatchGlow": bake_hatch_glow,
     "posternT1": lambda: postern(1), "posternT2": lambda: postern(2), "posternT3": lambda: postern(3),
     "gateArchFg": gate_arch_fg,
+    "barracks": barracks, "smithy": lambda: smithy(False), "masterSmithy": lambda: smithy(True),
+    "lodge": lambda: lodge(False), "bigLodge": lambda: lodge(True),
 }
 
 
