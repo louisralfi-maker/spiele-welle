@@ -468,3 +468,21 @@ schneller geht."
   well before Sunday noon. After the join one agent wires the launch image, the loading lantern and the title from
   `ci-out/director/first-light.md`; it also settles the type of "Touch to begin" (pixel letters or none, never smooth
   type on the picture).
+- **The v1 lanes workflow is over (15.11.2026, 02:32; 46 agents).** Passed: quests (engine 9, content 8, table 8;
+  round `lh-q1f1-1` on `2723f37`, 449 unit tests), ads (8, one high), the six languages (fr 8.5, es 9, it 8.5,
+  pt-BR 9, ja 9, zh-Hans 9; on `claude/lh-i18n`, not in build 2) and the store kit (8.5). **Failed: the story
+  slides** (prologue 6, endings 7; three highs each). The director's decisions:
+  - **The prologue is redrawn in the title's language** (light against dark, volume first, quiet dither, eyes alone
+    in the dark) by the title's artist, on `claude/lh-panels`, under the director's own round-by-round look, as the
+    title was. Round 1 started 03:27. Slide 1 is the game's side view from far back (dark, the wall with one glowing
+    door, home); slide 2 is the founding (one point of gold struck from the bare rock), so it fits HOUSE.md's
+    origin and the rewritten caption; slide 3 keeps its idea with a large rider; slide 4 is the court in a half ring
+    under the house's lantern, drawn as pixel people. The stage and the strings stay. It must be accepted before the
+    join; if it is not, build 2 ships today's slides.
+  - **The endings' slides wait for build 3.** A player reaches an ending on day 20; their highs are in
+    `ci-out/director/notes-panels.md`.
+  - **The ads high is fixed at the hookup:** one source for the doubled day, `Town.grantDoubleTaxes` behind one
+    one-line function; the lane's own flag goes (`notes-ads.md`).
+  - **Quests, for the store pass and build 3:** German "Laterne 38 ist heim" becomes "ist zurück" on chip and header
+    and "ist heimgekehrt" in the openings; `report.highcairn_true.r1` reads "ride in at dusk"; the smaller open
+    items are in `ci-out/director/quests-3-table-*.md`.
