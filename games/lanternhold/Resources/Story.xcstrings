@@ -908,13 +908,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Willkommen, Kind des Hauses. Die Flamme brennt seit tausend Jahren in diesem Saal. Seid bitte nicht {derjenige|diejenige}."
+            "value" : "Willkommen, Kind des Hauses. Die Flamme brennt seit tausend Jahren in diesem Haus. Seid bitte nicht {derjenige|diejenige}."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Welcome, child of the house. The Flame has burned in this hall for a thousand years. Please do not be the one."
+            "value" : "Welcome, child of the house. The Flame has burned in this house for a thousand years. Please do not be the one."
           }
         }
       }
@@ -2348,13 +2348,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wieder in meiner Küche, {lord}? {Mein Herr|Meine Herrin}, meine ich. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge."
+            "value" : "An meiner Küchentür, {lord}? {Mein Herr|Meine Herrin}, meine ich. Bleibt draußen: Katze, Ofen, Suppe, in dieser Reihenfolge."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Back in my kitchen, {lord}? My {lord|lady}, I mean. Mind the cat, the oven and the soup, in that order."
+            "value" : "At my kitchen door, {lord}? My {lord|lady}, I mean. Stay out: the cat, the oven and the soup, in that order."
           }
         }
       }
