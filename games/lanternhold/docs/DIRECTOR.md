@@ -650,3 +650,12 @@ schneller geht."
   - At 15:11 I had accepted the head from dusk and night frames. I had not looked at the buttress at noon, and I had passed the ruin on its bowl and moon band alone. Lesson: before accepting a head, look at every changed thing at noon, dusk and night, and at phone size.
   - Fix round 2 is small and timed: 60 minutes of work, one gate round, the third look is the last. One repaint for the buttress, or it comes out for build 2. The ruin gets the most care. Highs H1, H3, H4, H2, H5 only if they take minutes; H6, H7, H8 and the small ones wait until after build 2.
   - The join merges df67321 now, sends the world's sweep round under the new interface, takes the third delta when it is pushed, and pins `LookGoldenTests` only on my note.
+- **The title is proven in the merged game; two faults from my own look; the stage's touch fault was in the game (15.11.2026, 15:26).**
+  - **Rounds.** lh-rj-13 `ALL PASSED` on f585596 (TitleUITests 2 of 2). The join's head 9e23de9 holds the world's df67321 and the stage's 1c24a12. lh-rj-14 (the six classes on f585596), lh-rj-15 (round A: the world's three sweep classes on 9e23de9) and the stage's lh-s3f1-5 (on 7c397e5) are running.
+  - **The title.** Launch colour, the lantern catching, the reveal, all eleven letters lit and "Touch to begin" are in the game. Sent to Louis as promised.
+    - Fault 1: the reveal's ellipse ends at R 260 and leaves a dark wedge in the bottom corners (the corner needs 282). The join fixes it in `TitleView.swift`.
+    - Fault 2: the lord on the keep reads as a brown lump at phone size. One Opus agent redraws him on `claude/lh-title` (art only, 40 minutes, report `title-lord.md`); the join merges the delta.
+    - After build 2 unless minutes are left: the reveal's dithered edge (00b shows a hard ellipse) and the windows' flicker.
+  - **The stage.** FirstDay's "no realm strip" was a fault in the game: a touch on the lord standing on a site he had ordered opened the site's card. 7c397e5 lets the lord win on his body unless the finger is 3 px nearer the thing. Its 44 pt checks at 43.5 are too loose; the lane and the join round to the hundredth.
+  - **The gate.** The join sends its gate on the head that holds the stage's next delta and the title's corner fix, at 16:30 at the latest.
+  - **Quota:** 46 % of the week, 17 % of the Fable part.
