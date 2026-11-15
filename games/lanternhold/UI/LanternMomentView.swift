@@ -74,7 +74,7 @@ struct LanternMomentView: View {
             let blockWidth = CGFloat(show.block.width) * unit
             let blockHeight = CGFloat(show.block.height) * unit
             ZStack(alignment: .topLeading) {
-                Color.black.opacity(0.3)
+                Color.black.opacity(0.18)
                     .contentShape(Rectangle())
                     .onTapGesture { model.lowerLanternMoment() }
                     .accessibilityElement()
