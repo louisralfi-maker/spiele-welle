@@ -114,14 +114,17 @@ extension XCTestCase {
         _ = XCTWaiter().wait(for: [gone], timeout: 4)
     }
 
-    /// Walks the lord to world x by the realm strip: the strip that a call brought up, else the lantern moment's.
-    /// The map spans columns 3 ... 146 of the strip's 150 game px.
+    /// Walks the lord to world x by the realm strip of the lantern moment. The map spans columns 3 ... 146 of the
+    /// strip's 150 game px. Fix round 1 of stage-3-interface (round lh-s3f1-3): never the strip a call brought up by
+    /// itself: it goes after 6 s, and a tap read from it as it went failed the query ("Failed to get matching
+    /// snapshot"); the moment's strip stands until a touch.
     func tapRealmStrip(_ app: XCUIApplication, worldX: Double) {
         let strip = app.descendants(matching: .any).matching(identifier: "realm-strip").firstMatch
-        if !strip.exists {
+        let moment = app.descendants(matching: .any).matching(identifier: "lantern-moment").firstMatch
+        if !moment.exists {
             openLantern(app)
-            _ = strip.waitForExistence(timeout: 4)
         }
+        _ = strip.waitForExistence(timeout: 4)
         guard strip.exists else {
             XCTFail("no realm strip")
             return

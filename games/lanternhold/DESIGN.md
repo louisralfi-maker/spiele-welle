@@ -4363,6 +4363,22 @@ strip, the ledger on the lectern, PAY.md, HUD.md section 4. New file `UI/PixelGl
   grid (`DitherGround`): night blue, far blue, dusk rose; the Burgherrin's teal.
 - **High 10, the hall exit by the strip:** `TouchUITests` photographs it: 166 the moment in the hall, a tap on the
   strip's valley, 166b on his way to the door, 166c outside at the forebuilding.
+- **Touch, from the rounds:** on his body the lord wins over the site he stands on unless the finger is 3 px nearer
+  the site (round lh-s3f1-4: FirstDay's touch on the lord standing on the brazier site he had ordered fell half a
+  pixel nearer the site and opened its card); a lantern moment the app raises by itself on going to the background does
+  not count as the hint learnt. The UI tests walk only by the lantern moment's strip (the call's strip goes after 6 s,
+  and a tap read from it as it went failed the query in round lh-s3f1-3), and their 44 pt checks allow half a point of
+  the frame's rounding (a 44 pt site measured 43.99999999999997).
+- **Rounds** (the gate by the director's notes: build, unit and seven UI classes, English, no `ui-de`, no `release`):
+  `lh-s3f1-1` (everything but the hint's picture at 9:00 passed, the new 166b and 166c included); `lh-s3f1-2` (the
+  scene said `hint:off0`: `-GWLordHint` was missing from `DebugArgs.keys`); `lh-s3f1-3` (the hint caught, 157b;
+  Audience failed on the call's strip as it went); `lh-s3f1-4` (FirstDay's touch on the lord on his site, a 44 pt check
+  at 43.99999999999997); **`lh-s3f1-5` build, all unit tests and ui Touch, FirstDay, Hall, Audience, Lord, Polish and
+  Look2 ALL PASSED on 7c397e5** (sweep `ci-out/lh-s3f1-5-upright`, 124 frames). The atlas: 2048 x 1925 of 2048 rows,
+  unchanged (the glyphs, grounds and the gear's disc are built in code).
+- **Open:** the title (H8, not this lane's), German, ja and zh-Hans pictures (the store pass; `touch.lord` is in all
+  eight languages, the other new strings in English and German), the name entry as a page of the family book (it is
+  glass), PAY.md, HUD.md section 4, the ledger on the lectern.
 
 ## Risks
 

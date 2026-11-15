@@ -178,6 +178,8 @@ struct DebugArgs: Sendable, Equatable {
         // Touch the world (stage lane, step stage-2; fix round 1)
         "GWTouchHint", "GWDamage", "GWSnuff", "GWPressed",
         "GWWalk",
+        // The lord's hint (stage lane, stage-3-interface fix round 1)
+        "GWLordHint",
     ]
 
     static func fromProcess() -> DebugArgs {
