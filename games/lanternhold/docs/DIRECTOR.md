@@ -826,3 +826,15 @@ schneller geht."
   - render-2: the driver's accumulator starts half a step in hand (`SimDriver.startPhase`) and returns to it at every reset, so callback jitter no longer gives a frame with no step and then one with two. Nothing drawn is interpolated.
   - Not proven by any round: the main thread's time at the title's touch and the judder on a real phone. Both are for Louis' play of build 2 and the résumé.
   - After build 2: a timeout on the warm-up, `TitleView.ready`'s doc comment.
+
+- **Fix lane F is through: the Shuttered Lantern tells the truth about a slain King, and the truce texts say half a wave (15.11.2026, 19:32).**
+  - `claude/lh-fix6` 28f381af, round lh-fu-1 ALL PASSED (build, unit, ui EndingsUITests); read on origin by the director. Five files, 120 insertions.
+  - late-1: when the King was slain on night 20 and the ending is the Shuttered Lantern, slide 1 uses the new key `slides.ending2.1.slain` and the Open Lantern's first picture (the crown on the stone). A King who withdrew keeps the walk into the fog.
+  - late-2: the bargain's nights are half a wave, so the people no longer call them quiet (`petition.truce_drill.text`, `petition.truce_end.text`, `petition.herald_alone.r1`).
+  - Decision: accepted for build 2 as it is.
+  - Store pass: retranslate the three changed keys in seven languages; the new key has English and German only.
+  - After build 2:
+    - see the slain slide on screen and judge whether it needs its own picture (a rose dawn sky under the Shuttered Lantern's grey lamp);
+    - add the new key to `tools/slides/panels_catalog.py` (re-running the tool today would drop it);
+    - late-10 (an unheard follow-up leaves its night at full strength);
+    - maybe soften `petition.truce_end.r2`.
