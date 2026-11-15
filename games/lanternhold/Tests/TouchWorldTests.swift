@@ -414,6 +414,24 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertTrue(game.sceneStatus.contains("lantern:raised"), game.sceneStatus)
     }
 
+    /// Build 2 review, app-ui-2: by day a press on the lord held 0.35 s or longer opens the lantern moment like a short
+    /// tap (the hold raises no lantern by day).
+    func testALongPressOnTheLordByDayOpensTheLanternMoment() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "2900"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let on = CGPoint(x: framing.deviceX(stageX: game.stageLordX) / 3, y: framing.deviceY(lift: 15) / 3)
+        // Nothing offers under the finger, so the press is on the lord alone (the steps below draw no frame).
+        game.touch.things = []
+        game.touchChanged(start: on, at: on, translation: .zero, in: proPoints)
+        XCTAssertTrue(game.touch.onLord, "the press is on the lord")
+        for _ in 0..<30 { game.advance(by: 1.0 / 60) }
+        XCTAssertNil(game.lanternMoment, "nothing before the finger lifts")
+        game.touchEnded(at: on, translation: .zero, in: proPoints)
+        XCTAssertNotNil(game.lanternMoment, "the long press opened the lantern moment")
+        XCTAssertEqual(game.touch.lastTap, "moment")
+    }
+
     /// Build 2 review, app-ui-1: a touch the system cancels (the notification shade, Control Center, the home edge)
     /// never ends. A new start point is a new touch; the scene going inactive (`GameView` calls `resetTouch`), a card
     /// and the lantern moment forget the finger.

@@ -404,8 +404,11 @@ extension GameModel {
         stepLordHint()
         if touch.down != nil, touch.onLord, !touch.dragging, !touch.raised,
            clock.elapsed - touch.downAt >= LanternRaise.holdSeconds {
-            touch.raised = true
+            let raises = driver?.state.king.raises
             raiseLantern()
+            // Build 2 review, app-ui-2: a hold that raised nothing (by day, the lantern resting, in the hall) is a tap
+            // on the lord when it lifts: it opens the lantern moment.
+            if driver?.state.king.raises != raises { touch.raised = true } else { touch.onLord = false }
         }
         guard var errand = touch.errand else { return }
         if overlay != nil || errand.stage != stage {
