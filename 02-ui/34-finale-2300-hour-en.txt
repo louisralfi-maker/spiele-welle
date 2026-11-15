@@ -1,0 +1,1 @@
+34-finale-2300: taken at frame:2130 ready day:20 hour:23.37 alive:22 seen:9 lit:6 shots:2 aim:2 kx:654 lord:lord stage:world lx:654 errand:none door:1830 gold:24 hud:none cam:375 tap:none hint:off0 lantern:ready
