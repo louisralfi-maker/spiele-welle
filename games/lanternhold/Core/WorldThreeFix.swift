@@ -107,7 +107,9 @@ extension SceneLayout {
 
     static func posternFarColor(_ ambient: AmbientSample) -> SIMD3<Float> {
         let warm = min(1, max(0, ambient.warmth / 0.25)) * (1 - FrameBuilder.wedgeMoonShare(ambient))
-        return posternFarMoon + (posternFarDusk - posternFarMoon) * warm
+        // Fix round 2 (the critic's high 4): under the moon a fraction of it (it lifted the view over the valley).
+        let dim = 1 - (1 - posternFarNightDim) * FrameBuilder.wedgeMoonShare(ambient)
+        return (posternFarMoon + (posternFarDusk - posternFarMoon) * warm) * dim
     }
 }
 
@@ -133,8 +135,10 @@ extension SceneLayout {
     /// Its deck's top row is the lane's (y −1).
     static let look2LandingX = 3708.0
     /// The skiff tied to the landing, alongside it on the water in front of its posts (moved from the far shore).
-    static let look2LandingSkiffX = 3722.0
-    static let look2LandingSkiffY = -12.0
+    /// Fix round 2 (the critic's high 5: under the landing and the reeds it never read): in the open water right of
+    /// the old bridge's first stump, its stern at the landing's end, its painter up to the stump.
+    static let look2LandingSkiffX = 3781.0
+    static let look2LandingSkiffY = -15.0
 }
 
 // MARK: - High 9: a closer buttress in the Throat

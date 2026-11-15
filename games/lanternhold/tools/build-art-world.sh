@@ -46,6 +46,10 @@ W3="bakeHatchWedge wardenStatue castleFront castleFront3 castleFront3Build townR
 # World-3, fix round 1 (15.11.2026): the critic's look 1 (tools/w3f1art.py, ART-look2.md section 27). The beacon's three
 # stages read their untouched sources from tools/w3src; the rims are painted from the stages as built here.
 W3F1="bakehouse beaconRuin beaconTower greatBeacon beaconRuinRim beaconBaseRim beaconTowerRim greatBeaconRim riverLanding riverSkiffMoored riverSkiffRim riverLanternHalo riverLanternStreak throatButtress valleyVerge valleyVergeB"
+# World-3, fix round 2 (15.11.2026): the critic's look 2 (tools/w3f2art.py, ART-look2.md section 28). Its passes over
+# sprites of the earlier passes read those passes' output from tools/w3f2src, so this case comes first and the
+# earlier ones no longer write these ids here.
+W3F2="throatButtress beaconTower beaconRuinRim beaconBaseRim beaconTowerRim greatBeaconRim castleFront castleFront3 castleFront3Build watchtower cloudA cloudB cloudC riverSkiffMoored riverSkiffRim riverLanternStreak riverLanternHalo posternNightView gloomGroundFog darknessBankGlow oldWall1 valleyVerge valleyVergeB"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -73,6 +77,9 @@ cliff() { # name old-sprite box [tuft boxes]: the painting's granite in an old c
 
 build() { # name: one sprite (or one group of small ones)
     case $1 in
+    throatButtress|beaconTower|beaconRuinRim|beaconBaseRim|beaconTowerRim|greatBeaconRim|castleFront|castleFront3|castleFront3Build|watchtower|cloudA|cloudB|cloudC|riverSkiffMoored|riverSkiffRim|riverLanternStreak|riverLanternHalo|posternNightView|gloomGroundFog|darknessBankGlow|oldWall1|valleyVerge|valleyVergeB)
+        # world-3 fix round 2 (15.11.2026): the critic's look 2 (tools/w3f2art.py, ART-look2.md section 28)
+        python3 -I -B games/lanternhold/tools/w3f2art.py build $1 --out $A ;;
     weltmauer)   # the wall with its two views of the cleft, the patch that hides the valley's view, the far castles' glow, the slots' light
         px convert $W/wall-1.png $P/wallA.png --size 384x182 --key $K --only $FARW --match new; cool
         px convert $W/wall-1.png $P/wallB.png --size 420x190 --box 0,0,1400,768 --key $K --only $FARW --match new; cool
@@ -149,6 +156,6 @@ build() { # name: one sprite (or one group of small ones)
     esac
 }
 
-ALL="weltmauer castleTiers gorgeRock oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor bastionAnchor moorRuin gloomFogBack gloomFogMid gloomFogFront gloomWisp gloomFogEyes $ROCK shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants $FOG $CASTLE $W3 $W3F1"
+ALL="weltmauer castleTiers gorgeRock oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor bastionAnchor moorRuin gloomFogBack gloomFogMid gloomFogFront gloomWisp gloomFogEyes $ROCK shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants $FOG $CASTLE $W3 $W3F1 $W3F2"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do cool; build "$name"; done

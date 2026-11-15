@@ -224,7 +224,8 @@ extension SceneLayout {
         }
 
         // A torch inside the front gate: warm light on the bailey's cobbles where the scree's cold light ends.
-        list.append((.world, castleTorch(1488, 0)))
+        // World-3 fix round 2 (the critic's high 3): its pool a core and a round spill (`look2GateInnerTorch`).
+        list.append((.world, look2GateInnerTorch(1488)))
 
         // The forebuilding with the hall door (closed here; the game opens it, `CastleRooms.scene`).
         let fore = castleForebuildingX
@@ -293,6 +294,9 @@ extension SceneLayout {
         }
         list.append((.world, Entry(sprite: castlePosternSprite(stage), x: post, y: 0, z: 0,
                                    emitters: posternEmitters, lights: posternLights)))
+        // World-3 fix round 2 (the critic's high 4): the far view at night over the painted day's view.
+        list.append((.world, Entry(sprite: .posternNightView, x: post + posternNightViewAt.dx,
+                                   y: posternNightViewAt.dy, z: 1)))
 
         return list
     }

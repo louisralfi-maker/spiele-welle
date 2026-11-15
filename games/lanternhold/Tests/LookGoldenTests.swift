@@ -63,11 +63,12 @@ final class LookGoldenTests: XCTestCase {
     /// and the castle were recorded again from round lh-w3-1 (on b3fcfa1; before: 9b01af38246bc805 and
     /// eb723787eed65a73). Nothing else of look 1 moved.
     ///
-    /// The join's first world delta (world-3 at a0afd3f, 15.11.2026): the world's scenes print only until the world's
-    /// fix head is merged (the director's note of 12:37); then all six are pinned once. Last pinned: front-night
-    /// 9b01af38246bc805, castle-night eb723787eed65a73, court-dusk 12c426443634b583, square-morning b6559342f5c214c,
-    /// town-noon 7e6e2b19a82a9f07, river-golden c0f21df86bbe85b6.
-    /// World-3's own round gave front-night 91e62b85b75e0717 and castle-night 30f274a12862a8be.
+    /// The join's world deltas (world-3 a0afd3f, fix rounds f4d9689, df67321 and 6df1728): the world's scenes print
+    /// only until the director accepts a head for the pins. Last pinned on the join: front-night 9b01af38246bc805,
+    /// castle-night eb723787eed65a73, court-dusk 12c426443634b583, square-morning b6559342f5c214c, town-noon
+    /// 7e6e2b19a82a9f07, river-golden c0f21df86bbe85b6. World-3 fix round 2's own round (lh-w3f2-1, on db5b8d9, without
+    /// the join's lamp posts) gave front 33a590095caabf26, castle de4bdd427b1cb29e, court cc0e0a90a0e48b8b, square
+    /// 94a9fa20e13f3d3d, town 60268aab280c9113, river 6ac9ca655af4c593.
     static let golden: [String: String] = [:]
 
     func testLookOneIsPinned() throws {

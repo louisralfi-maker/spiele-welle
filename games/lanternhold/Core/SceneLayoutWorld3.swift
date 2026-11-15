@@ -117,7 +117,8 @@ extension SceneLayout {
         // reflection lies on the water, `FrameBuilder.riverLanternStreak`). Its skiff moved to the landing.
         list.append((.near, Entry(sprite: .riverFarLantern, x: look2RiverLanternX, y: 0, z: 2, region: .valley,
                                   emitters: [.glass(dx: 8, dy: 14, width: 3, height: 4),
-                                             .sprite(.riverLanternHalo, dx: -1, dy: 0, glow: .fireGold, fades: true)])))
+                                             // fix round 2 (high 5: a cold white lamp): the halo in fire
+                                             .sprite(.riverLanternHalo, dx: -1, dy: 0, glow: .fireOrange, fades: true)])))
         // Fix round 1 (the critic's high 10): two paintings of the verge, A B A' B', so its stones never keep one
         // rhythm.
         for index in 0..<look2VergeCount {

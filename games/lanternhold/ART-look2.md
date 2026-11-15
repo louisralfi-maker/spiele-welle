@@ -2387,3 +2387,60 @@ sources in tools/w3src, as keepart's `bakehouse` is).
 - **The tiles' ground** is three palette bands (`night2`, `far`, `dusk`; for her `roofDeep`, `banner`, `roofLight`),
   each change a row at a quarter and a row at half in a checker on the 2 pt grid.
 
+
+## 28. World-3, fix round 2: the critic's look 2 (15.11.2026)
+
+The critic's look 2 of world-3 (`ci-out/director/world-3-camera-pass-critic2.md`, 7/10): two blockers, eight highs.
+Painter: `tools/w3f2art.py`; engine: `Core/WorldThreeFix2.swift`, `Render/Shaders.metal` (the creatures).
+
+### 28.1 The Throat's buttress (blocker 1)
+
+The cobalt was the slate ramp's darkest step (`nightSlate`, #1E2B52) on the near plane, which takes little haze; the
+cream line was the lit rim. Now the cliff's own warm granite: shade `rockDeep`, faces `rockDark` and `rock`, lit shelves
+`rockLight`, no rim and no outline, so the hour drives it like the cliff behind. The left slope climbs in three ledges
+(a two-row lit shelf, the riser's foot in shadow under the next lip), the crest is broad and leans right, a fourth ledge
+on the right shoulder. A scree apron 9 to 18 rows high runs along the whole foot and rises into skirts where the rock
+runs out, with stones of three sizes, so the rock stands in its own talus at the wall's foot.
+
+### 28.2 The beacon at the tower stage (blocker 2)
+
+The sweep's state has the tower stage built, so the chapter's goal on screen is `beaconTower`. Its crown is repainted:
+the shaft's courses run up to row 26 (the old 2-row transparent gap under the parapet read as a ruled line), a string
+course, the left merlon with a chipped corner, the middle one a broken stub, the right corner fallen 16 rows in three
+steps that follow the 4-row courses (each step's top a broken course in `stoneLight`, its east face rough), fallen
+blocks at the foot. The cold bowl in clear values: dark iron body lit on the left with one band, a rim ellipse 3 px
+thick a value over the body with the lip's shadow under it, the back wall of the mouth in shadow, grey ash heaped over
+the back lip in a rounded crown, a `stonePale` highlight on the right lip. The moon's band (all four stage rims) lights
+every second course only, so it reads as lit stone faces; a wash of 2/16 (west) and 3/16 (east) on the faces lifts the
+bricks a value at night, the joints left dark; on the tower stage the bowl's right lip (0.75), its right edge and the ash
+crown's top catch the moon.
+
+### 28.3 Glyphs and boxes (highs 1 to 4)
+
+- The slits' frame was glass (`night0`), so it lit as "[ ]": every gatehouse slit is now a dark reveal (`stoneDark`
+  edge, `rockDeep` inside) round a 2 px glass core under a 2-row head, at a share of 0.5; the watchtower's shuttered
+  window (glass round a wooden cross, an "r") is a plain loop of the same kind.
+- The bank's near eyes open were two 3 x 3 crosses: now almonds (a bright core between dimmer pixels, a faint lid).
+- The braziers' box: no clip; two line braziers' pools saturated into a plateau. In look 2's picture every line fire is a
+  core at half and a round spill 1.7 times as wide (`FireLook`), the gate's inner torch likewise.
+- The postern's view at night: `posternNightView` painted in night colours over the day's, by the moon.
+
+### 28.4 The river end, the sky, the fog
+
+- The skiff (40 x 12): far gunwale lit, the dark inside between the gunwales with a thwart, the near gunwale a light
+  line, the planking a step darker with a plank line, the bow sweeping up, a low transom; in the open water right of the
+  first stump with its painter up to it.
+- The far lantern: glass in the gate torches' colour, the halo smaller and fainter in fire orange, the reflection a
+  broken streak 3 to 4 px wide fading downward.
+- The clouds: the dither's single-pixel checker under each cloud (a pinking-shears seam across the valley's sky) taken
+  out; the undersides hang in lobes 0 to 3 rows deep of varied length, the lobes in the belly colour, their last row a
+  value darker.
+- The ground fog: a cold band on fog A on hard nights, so the mid and near planes stand in it to their knees.
+
+### 28.5 Rebuild
+
+`bash games/lanternhold/tools/build-art-world.sh throatButtress beaconTower beaconRuinRim beaconBaseRim beaconTowerRim
+greatBeaconRim castleFront castleFront3 castleFront3Build watchtower cloudA cloudB cloudC riverSkiffMoored riverSkiffRim
+riverLanternStreak riverLanternHalo posternNightView gloomGroundFog darknessBankGlow oldWall1 valleyVerge valleyVergeB`
+(its sources for the passes over earlier sprites are in tools/w3f2src).
+<!-- END world lane: world-3, fix round 2 -->

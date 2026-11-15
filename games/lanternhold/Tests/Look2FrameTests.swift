@@ -331,10 +331,12 @@ final class Look2FrameTests: XCTestCase {
         let still = layer(.two, reduceMotion: true)
         // Look 1 keeps all its street lanterns lit; look 2 lights only the posts the lamplighter reaches (the people
         // lane, the director's rule of 15.11.: `TownLamps.plan`), the far ones stay dark. World-3 fix round 1
-        // (`LanternLook`): the lord's lantern in look 2 is a core and a spill, one light more.
+        // (`LanternLook`): the lord's lantern in look 2 is a core and a spill, one light more. World-3 fix round 2
+        // (`FireLook`): so is every line brazier and fire tower.
         let darkPosts = TownLamps.posts.count - (TownLamps.today?.lit ?? 0)
-        XCTAssertEqual(new.lights.count, old.lights.count + 3 - darkPosts,
-                       "two creature lights and the lantern's spill join the picture's lights")
+        let fires = Battle.lightSources(s, balance: .standard).filter { FireLook.kinds.contains($0.kind) }.count
+        XCTAssertEqual(new.lights.count, old.lights.count + 3 + fires - darkPosts,
+                       "two creature lights, the lantern's spill and the fires' spills join the picture's lights")
         XCTAssertEqual(still.lights.count, new.lights.count)
         let flakes = new.actors.filter { $0.sprite == .shard }.count
         // Two flakes each from the giant, the brute and the Lightless King, two motes of dust each from the stomp and
