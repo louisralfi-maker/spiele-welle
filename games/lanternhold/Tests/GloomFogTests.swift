@@ -346,14 +346,11 @@ final class GloomFogTests: XCTestCase {
         let foggy = frame(night, focus: 620, gloom: hard)
         XCTAssertTrue(slices(plain, .fogA).isEmpty)
         XCTAssertTrue(slices(plain, .fogB).isEmpty)
-        // World-3 fix round 1: a hard night's cold veil is a second sheet of the back strip on fog A, tinted cold.
-        let veil = slices(foggy, .fogA).filter { $0.tint.x != $0.tint.z }
-        XCTAssertFalse(veil.isEmpty, "the hard night's veil over the mid plane")
-        XCTAssertTrue(veil.allSatisfy { $0.sprite == .gloomFogBack && $0.tint.z > $0.tint.x }, "cold")
-        XCTAssertTrue(veil.allSatisfy { $0.tint.w <= Float(GloomFog.midVeilCover * hard.paintCover) + 1e-4 })
-        XCTAssertTrue(slices(frame(night, focus: 620, gloom: GloomFog(hardness: 0.4)), .fogA)
-            .allSatisfy { $0.tint.x == $0.tint.z }, "an ordinary night has none")
-        let back = slices(foggy, .fogA).filter { $0.tint.x == $0.tint.z }
+        // World-3 fix round 1: a hard night's fog eats the mid plane (more haze), an ordinary night's does not.
+        XCTAssertGreaterThan(foggy.gloomHaze, 0.1)
+        XCTAssertEqual(frame(night, focus: 620, gloom: GloomFog(hardness: 0.4)).gloomHaze, 0)
+        XCTAssertEqual(plain.gloomHaze, 0)
+        let back = slices(foggy, .fogA)
         let before = slices(foggy, .fogB)
         XCTAssertGreaterThan(back.count, 10, "the fog bank behind the lane")
         XCTAssertTrue(back.allSatisfy { $0.sprite == .gloomFogBack })

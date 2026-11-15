@@ -218,6 +218,10 @@ enum Look2 {
         // World-3 (1a): the cleft wall behind the castle a step hazier by day (`SceneLayout.castleCliffHaze`).
         let midH = midHazeDay + (midHazeNight - midHazeDay) * night + haze * midHazeShare
             + SceneLayout.castleCliffHaze(focus: focus, night: night, warm: warm)
+            + frame.gloomHaze   // world-3 fix round 1: a hard fog night eats the mid plane
+        // ... and its haze colder there.
+        let veilCold = SIMD3<Float>(repeating: 1)
+            + (GloomFog.midVeilTint - SIMD3<Float>(repeating: 1)) * min(1, frame.gloomHaze / GloomFog.midVeilHaze)
         let nearH = nearHazeDay + (nearHazeNight - nearHazeDay) * night + haze * nearHazeShare
         let top = sample.skyTop
         let sky = top / max(0.001, max(top.x, max(top.y, top.z)))
@@ -261,7 +265,8 @@ enum Look2 {
             ambM: SIMD4<Float>(mid.x, mid.y, mid.z, bounceK),
             ambN: SIMD4<Float>(near.x, near.y, near.z, bandK),
             farHC: SIMD4<Float>(farAir.x, farAir.y, farAir.z, farH),
-            midHC: SIMD4<Float>(air.x * midAir, air.y * midAir, air.z * midAir, midH),
+            midHC: SIMD4<Float>(air.x * midAir * veilCold.x, air.y * midAir * veilCold.y,
+                                air.z * midAir * veilCold.z, midH),
             nearHC: SIMD4<Float>(air.x * nearAir, air.y * nearAir, air.z * nearAir, nearH),
             bounceW: SIMD4<Float>(bounceColor.x, bounceColor.y, bounceColor.z, mist * (0.4 + sample.fogDensity)),
             bandC: SIMD4<Float>(bandColor.x, bandColor.y, bandColor.z, bandHeight),

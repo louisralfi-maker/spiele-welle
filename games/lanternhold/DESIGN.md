@@ -3793,6 +3793,66 @@ M3, then M5 and the lows. Art: `tools/w3art.py` (ART-look2.md section 26); layou
     bank's fog covers their bodies; L2's lighter body shows outside it.
   - The back row repeats two of its sprites mirrored (A at near 2567, B at 2687) behind the second field; at 70 %
     value behind the trees it reads as more of the town, a third painting is build 3.
+
+#### Step world-3, fix round 1 (the critic's 6 of 10, look 1; 15.11.2026)
+
+The critic's look 1 (`ci-out/director/world-3-camera-pass-critic1.md`): four blockers, ten highs. Logic: `Core/WorldThreeFix.swift`
+(picture only); art: `tools/w3f1art.py` (ART-look2.md section 27); ids: SPRITES.md "World-3, fix round 1"; tests:
+`WorldThreeFixTests`, `WorldThreeTests` (the archers per line, the oven, the river end, the torches).
+
+- **Blocker 1, the lord's lantern box.** Its picture pool was the battle's lantern light drawn whole: × the light gain it
+  saturated the light buffer over a plateau about 34 px across whose falloff ended within a few pixels, so the wall
+  between it and the next dark vertical read as a lit box. In look 2 the picture now draws it as a dim core at the
+  battle's radius (`LanternLook.coreShare` 0.25, `LightSource.pictureGain`, so its middle saturates over about 12 px)
+  plus a round spill twice as wide (0.18, a window-kind scene light: no light field, no hole in the Gloom's fog), a
+  smooth quadratic falloff to nothing. The battle's lantern (`Battle.lightSources`) is untouched; look 1 keeps its one
+  pool. `lh2_base` stays as it was.
+- **Blocker 2, the lord on the river.** A timber landing (`riverLanding`, world plane, 3708 to 3779) from the bank's end
+  to the old bridge's first stump, its deck at the lane's height under his last steps (`WorldLayout.walkEnd` 3760 stays:
+  no simulation position moved); the skiff is tied alongside it (`riverSkiffMoored`, with the moon on its gunwale,
+  `riverSkiffRim`), the far shore keeps its lantern.
+- **Blocker 3, the beacon's handle.** The tower stage's crane (a bar on a post with a diagonal jib) is gone with the
+  scaffold's posts, ledger and braces (a stage being built shows the scaffold props of its own); a squat cold iron bowl
+  sits in its crenels (a dark rim ellipse 3 px thick, a cold highlight on its right lip, grey ash heaped in it). The
+  ruin's bowl lost its stem and sits low in the broken top. The moon is a 2 to 3 px band of lit stone faces on each
+  stage's right, broken by joints and missing stones, with a faint wash on the face toward it; no outline on the left
+  or the top.
+- **Blocker 4, the picket fence.** At most three archers per defensive line (its wall and its tower together), at least
+  14 px apart (the sprite is 12 wide: none overlap): the tower's archer nearest its middle, then the wall walk's from
+  its far end (`EntityFrames.drawnArchers`).
+- **Highs.** 1: the gate torches radial (squash 1) at 0.45 (0.85 before), under the cap, so no lens and no rim. 2: the
+  postern's lantern band is cut three ways around the passage's painted far view, the part over it overlapping its
+  neighbours by the feather (`posternPassageCut`), and the view's glow takes the valley's hour (moon-blue at night, warm
+  only while the evening is warm, `posternFarColor`). 3: the sweep's night frames already have the Gloom's fog of night
+  12 (hardness 0.4), so its fog frames (hardness 1) looked the same; a hard night now eats the mid plane: about 40 %
+  more haze there, colder (`GloomFog.midHaze`, `FrameDesc.gloomHaze` into look 2's mid haze, by how much of the view
+  lies inside the fog's reach); an ordinary night none (round lh-w3f1-2 tried a second, raised sheet of the back strip
+  on fog A: its dark painted body ate the mist below it with a straight edge). 4: deep in the bank half a creature's
+  body shows (`GloomFog.bodyFloor`), and an unlit creature takes fog B at half with the moon on its top edge as well as
+  its east edge (`Render/Shaders.metal` `lh2_top`, `lh_actor2_fragment`), so it reads as a dark mass with its cool rim.
+  5: the built beacon's bowl in three steps of iron with a lit side, its rim an ellipse, the hoops curved, no ember line
+  across its mouth in look 2; its slits a dim amber (`castleGlassShare` 0.5) in a dark reveal; the gatehouse's slits a
+  step lower again (0.62). 6: the oven's hatch light a torch's fade (none by day), weak and wide (0.3, radius 26), ended
+  by its own falloff on the lane; the oven's dome a value step down (`bakehouse`: a pale ring at noon). 7: `-GWWalk
+  right|left` (mid stride, the lead preset, `Camera.presetLead`) and three sweep stills at 2800 (`testCameraWalkLead`).
+  8: the far lantern's halo and pool (`riverLanternHalo`) and its broken reflection on the water (`riverLanternStreak`,
+  drawn after the world plane). 9: a buttress of the Throat's granite with its scree fan on the near plane
+  (`throatButtress`, near 852). 10: two paintings of the verge (A B A' B'), stones of three sizes at gaps of two to five
+  times, some sunk in the grass.
+- **Rounds** (as world-3's gate: `build unit "ui …"` with WorldSweepUITests, Look2UITests and WorldStoryUITests,
+  English only): lh-w3f1-1 on a999ada (build and UI passed; unit: the fog's own colours with the veil, the body deep in
+  the bank, a window light at the lantern's x), lh-w3f1-2 on f4d9689 ALL PASSED, lh-w3f1-3 on dfec6bc ALL PASSED. Its
+  upright sweep (133 frames, the walk-lead stills `w-2800-walk-r`, `w-2800-walk-l`, `w-2800-walk-r-rm` among them):
+  `ci-out/lh-w3f1-3/sweep-upright`. Proof frames: `w-1400-night`, `w-2200-night`, `w-2400-night` (no box between the
+  lantern and the next dark vertical; the gate torches without halos), `w-3800-noon`, `w-3900-night` (the lord on the
+  landing), `w-0400-night`, `w-0600-night` (the squat bowl, the moon's band), `w-1000-dusk`, `71`, `85` (three archers
+  or fewer per line), `w-0600-fog-b` against `w-0600-night`, `w-0000-night` (bodies in the bank), `w-0400-dusk` and
+  `-noon` (the great bowl), `w-2200-noon` (the oven without a ring), `w-1200-noon` (the buttress), `w-2600-noon` (the
+  verge).
+- **Named, not fixed here:** the postern's painted far view is pale albedo (sky, mist, meadow), so at night it reads a
+  cool grey-green rather than a deep moon-blue (no longer peach); a painted night view would be a second sprite (build
+  3). The bank's own cold eyes can stand beside the beacon's top in the fog (`w-0400-night`; the bank's, not this
+  step's). The buttress reads as a granite needle standing before the cliff rather than a rib tied into it.
 <!-- END world lane: World rebuild (14.11.2026) -->
 ### The hall stage and touch the world (14.11.2026)
 

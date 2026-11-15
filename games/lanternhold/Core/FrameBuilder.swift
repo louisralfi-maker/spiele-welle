@@ -315,16 +315,6 @@ enum FrameBuilder {
                                                                       reduceMotion: options.reduceMotion,
                                                                       geometry: geometry)
                 }
-                if gloom.midVeil > 0 {
-                    // World-3 fix round 1 (the critic's high 3): a hard night's cold veil eats the mid plane.
-                    planeSprites[Plane.fogA.rawValue] += gloomSlices(gloom, strip: gloomVeilStrip, edgeX: bankEdgeX,
-                                                                     hour: hour, value: value, clearings: clearings,
-                                                                     animTime: animTime,
-                                                                     reduceMotion: options.reduceMotion,
-                                                                     geometry: geometry,
-                                                                     cover: gloom.midVeil * GloomFog.midVeilCover,
-                                                                     tint: GloomFog.midVeilTint)
-                }
                 planeSprites[Plane.fogB.rawValue] += gloomWisps(gloom, edgeX: bankEdgeX, hour: hour, value: value,
                                                                 clearings: clearings, animTime: animTime,
                                                                 reduceMotion: options.reduceMotion,
@@ -402,6 +392,12 @@ enum FrameBuilder {
             desc.rooms = rooms(props: ordered, geometry: geometry)
             desc.rain = Float(weather.rain)
             desc.wetness = Float(weather.wetness)
+            if let gloom, fogUp > 0 {
+                // World-3 fix round 1 (the critic's high 3): a hard night's fog eats the mid plane (`midVeil`).
+                desc.gloomHaze = GloomFog.midHaze(gloom, presence: fogUp,
+                                                  front: gloom.front(bankEdge: bankEdgeX, hour: hour),
+                                                  left: camera.x, width: camera.viewWidth)
+            }
         }
         return desc
     }
@@ -887,7 +883,7 @@ enum FrameBuilder {
         guard geometry.isVisible(left: left, width: Double(size.width)) else { return nil }
         let top = geometry.top(y: -6 - Double(size.height - 1), height: Double(size.height))
         let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-        let rgb = SIMD3<Float>(1.0, 0.72, 0.38) * strength
+        let rgb = SIMD3<Float>(1.0, 0.6, 0.26) * strength   // the fire's amber, darker on the water
         return EmissiveInstance(sprite: .riverLanternStreak, plane: .near, rect: rect,
                                 color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1))
     }
@@ -1209,10 +1205,6 @@ enum FrameBuilder {
         GloomStrip(plane: .fogB, sprite: .gloomFogMid, y: 0, share: 0.7, sway: 6, period: 7, phase: 0.33),
         GloomStrip(plane: .fogB, sprite: .gloomFogFront, y: -8, share: 1, sway: 10, period: 5, phase: 0.67),
     ]
-    /// World-3 fix round 1 (the critic's high 3): on a hard night a second, taller sheet of the back strip on fog A,
-    /// raised over the lane and reaching most of the fog's way, so the fog visibly eats the mid plane (`midVeil`).
-    static let gloomVeilStrip = GloomStrip(plane: .fogA, sprite: .gloomFogBack, y: 22, share: 0.85, sway: 2,
-                                           period: 13, phase: 0.5)
     /// The fog is drawn in slices this wide, each with the hole a fire cuts where it stands.
     static let gloomSlice = 16
 
@@ -1239,8 +1231,7 @@ enum FrameBuilder {
     /// the shader gives the hour's fog, so the painting keeps its own colours.
     private static func gloomSlices(_ gloom: GloomFog, strip: GloomStrip, edgeX: Double, hour: Double, value: Float,
                                     clearings: [GloomFog.Clearing], animTime: Double, reduceMotion: Bool,
-                                    geometry: Geometry, cover coverShare: Double = 1,
-                                    tint: SIMD3<Float> = SIMD3<Float>(repeating: 1)) -> [SpriteInstance] {
+                                    geometry: Geometry) -> [SpriteInstance] {
         let world = geometry.whole(.world)
         let front = gloomFront(gloom, strip: strip, edgeX: edgeX, hour: hour, animTime: animTime,
                                reduceMotion: reduceMotion)
@@ -1248,8 +1239,7 @@ enum FrameBuilder {
         let tile = Double(size.width)
         let slice = Double(gloomSlice)
         let top = geometry.top(y: strip.y, height: Double(size.height))
-        let whole = gloom.presence(hour: hour) * gloom.paintCover * coverShare
-        let rgb = tint * value
+        let whole = gloom.presence(hour: hour) * gloom.paintCover
         var list: [SpriteInstance] = []
         var tileLeft = front - tile - world
         var face = true
@@ -1274,7 +1264,7 @@ enum FrameBuilder {
                         let source = SIMD4<Float>(Float(k * gloomSlice + part * width), 0, Float(width),
                                                   Float(size.height))
                         list.append(SpriteInstance(sprite: strip.sprite, frame: face ? 1 : 0, rect: rect,
-                                                   tint: SIMD4<Float>(rgb.x, rgb.y, rgb.z, Float(min(1, cover))),
+                                                   tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
                                                    flipped: false, source: source))
                     }
                 }

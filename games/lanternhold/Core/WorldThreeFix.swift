@@ -152,9 +152,18 @@ extension GloomFog {
     /// How much of the hard night's extra veil stands (0 on an ordinary night, 1 on the hardest): from hardness 0.45
     /// up. Round lh-w3-4: the sweep's fog frames (hardness 1) looked like its night frames (night 12: 0.4).
     var midVeil: Double { min(1, max(0, (hardness - 0.45) / 0.55)) }
-    /// The veil's cover where it is whole and its cold tint (× the strips' value).
-    static let midVeilCover = 0.8
+    /// The extra haze on the mid plane where the hard night's fog stands whole (on top of the night's 0.36 to 0.4,
+    /// about 40 % more) and how much colder the haze turns there (× the air's colour).
+    static let midVeilHaze: Float = 0.16
     static let midVeilTint = SIMD3<Float>(0.80, 0.92, 1.16)
+
+    /// The frame's extra mid-plane haze: the hard night's share × the fog's presence × how much of the view lies
+    /// inside the fog's reach (its front at world `front`, the view from `left`, `width` wide). The composite's mid
+    /// haze is one value per frame, so a view the fog only touches takes only a little.
+    static func midHaze(_ gloom: GloomFog, presence: Double, front: Double, left: Double, width: Double) -> Float {
+        let inside = min(1, max(0, (front - left) / max(1, width)))
+        return midVeilHaze * Float(gloom.midVeil * min(1, presence) * inside)
+    }
     /// The share of a creature's body that shows deep in the bank under the fog (the critic's high 4: unseen, only its
     /// red glow strip and the bank's eyes showed, "red squiggles"): a dark mass with its cool rim.
     static let bodyFloor = 0.5
@@ -167,5 +176,5 @@ extension SceneLayout {
     /// torches.
     static let look2MoonRims: Set<SpriteID> = [.riverSkiffRim]
     /// The far lantern's reflection on the water: its share of the window's glow at full torch strength.
-    static let look2RiverStreakGain: Float = 1.2
+    static let look2RiverStreakGain: Float = 0.9
 }

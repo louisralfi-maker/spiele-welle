@@ -546,7 +546,7 @@ def river_lantern_halo():
             d = math.hypot(x - cx, (y - cy) * 1.1) / 9.0
             a = 0.0
             if d < 1:
-                a = 0.75 * (1 - d) ** 1.6
+                a = 0.5 * (1 - d) ** 1.8
             if y >= 19:
                 dd = math.hypot((x - cx) / 7.0, (y - 20.5) / 1.6)
                 if dd < 1:
@@ -557,20 +557,20 @@ def river_lantern_halo():
 
 
 def river_lantern_streak():
-    """Emissive (9 x 24): the lantern's reflection on the water, a column of broken horizontal dashes under it,
-    widest and brightest near the shore, thinning and parting downward."""
+    """Emissive (9 x 24): the lantern's reflection on the water, broken horizontal dashes under it (one row in two
+    or three), widest and brightest near the shore, shifting a pixel this way or that, thinning and parting downward."""
     im = PA.Image(9, 24)
     for y in range(24):
-        if h01(401, y) < 0.28 and y > 2:
+        if h01(401, y) < 0.45 and y > 1:
             continue
-        half = 3.5 - 2.5 * y / 23.0
-        off = (h01(402, y) - 0.5) * 2.0
-        a = 0.85 * (1 - y / 26.0) ** 1.2
+        half = 2.4 - 1.9 * y / 23.0
+        off = (h01(402, y) - 0.5) * 2.4
+        a = 0.6 * (1 - y / 25.0) ** 1.4
         for x in range(9):
             dx = abs(x - 4 - off)
             if dx <= half:
                 k = 1 - dx / (half + 1)
-                im.set(x, y, white(a * (0.5 + 0.5 * k)))
+                im.set(x, y, white(a * (0.45 + 0.55 * k)))
     return im
 
 

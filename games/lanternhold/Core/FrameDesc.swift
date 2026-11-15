@@ -785,6 +785,8 @@ struct FrameDesc: Sendable, Equatable {
     /// world's (the far plane and the sky through the windows keep the hour's), the night's pull is scaled, and the
     /// upper wall fades into the roof's dark. nil outdoors.
     var interior: InteriorLight? = nil
+    /// World-3 fix round 1: a hard fog night's extra haze on the mid plane (`GloomFog.midHaze`), 0 otherwise.
+    var gloomHaze: Float = 0
 
     /// The layer of one plane.
     func layer(_ plane: Plane) -> PlaneLayer {
