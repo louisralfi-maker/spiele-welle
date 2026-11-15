@@ -3920,6 +3920,51 @@ passes over earlier sprites in `tools/w3f2src`); ids: SPRITES.md "World-3, fix r
 - **Open:** the far lantern's glass reads warm peach rather than deep fire-gold at night and its streak is faint under
   the reeds; `oldWall1` is rounder but still pale and blocky at noon (`w-1200-noon`); the bank's pairs moved off the
   beacon can stand beside its middle (56 rows) in the fog; the gate rocks' edge is a lit face now, still a broken line.
+
+#### Step world-3, fix round 3 (the critic's 7 of 10, look 3; 15.11.2026)
+
+The critic's look 3 (`ci-out/director/world-3-camera-pass-critic3.md`): two blockers, nine highs; this round took both
+blockers and highs 1, 3, 6, 8 and 9. Logic: `Core/WorldThreeFix3.swift` (picture only); art: `tools/w3f3art.py` (its
+passes start from fix round 2's painting, no new sources); tests: `WorldThreeFix3Tests`.
+
+- **Blocker 1, the goal as a grey striped stele.** The cause: the beacon is painted in the castle's near-neutral stone
+  ramp (blue over red about 1.1) while the cliff and the firs behind it carry their night blue in their own paint and
+  their planes' haze, so under the world plane's dim night ambient it stayed grey; fix round 2's moon wash over every
+  face (an emissive added before the grade's night desaturation) lifted it evenly toward grey, and with the joints
+  left out of the wash the courses read as ruled dashes. Now every beacon stage takes the cliff's cold step at night
+  (`SceneLayout.beaconNightTint`: × (0.84, 0.90, 1.14) by the night's moon, nothing by day or at dusk); the moon is a
+  band of whole blocks on the right face (no wash, no every-second-course ticks; all four rims). `beaconTower`: the
+  shaft re-laid as blocks (one value a block, 2 to 3 steps along a course, the joints one step under their block), the
+  left edge broken by two missing blocks, the bowl a wide shallow dish seen from above (its rim ellipse whole, a dark
+  inside, the ash lying low in it, no heap over the lip) on two cold iron struts.
+- **Blocker 2, the gate rocks as cut-outs.** `gateRockL`, `gateRockR`: no lit edge on any slope (each outline pixel
+  takes the stone inside it), the navy pockets (`nightDeep`) and the slate (`stoneMid`, `stoneDark`) in the cliff's own
+  granite, one step under the lit face and a little bluer.
+- **High 1, porcelain rubble.** `oldWall1` on the granite ramp (`stonePale` to `rockLight` and down), its moss a step
+  darker in shadow (also the white stump behind the lord in `w-1200-noon`).
+- **High 3, floating eyes.** `EyeRules.ceiling` 30 rows (a creature's head height; the bank's pairs at 26 to 30, the
+  fog's under 30), `EyeRules.clearance` 40 px either side of every building; the bank's pairs move left of it (two on
+  one spot drop the second), the fog's eyes move right of it, deeper in the fog (`placedInFog`).
+- **High 6, neon emblems.** The gate banners' lanterns (`castleFront3`, `castleFront3Build`; look 2 only) a dull gold
+  thread one step over the cloth, lit on the side toward the gate's torch; the glass inside is cloth.
+- **High 8, the "?" on the battlement.** It was the bakehouse's chimney stack, pale and lit by a small lantern light at
+  its mouth: the stack in the wall's stone, a pot with a dark mouth (`bakehouse`), the light gone, the smoke from over
+  the pot (`castleChimney` y 64).
+- **High 9, the postern at dusk.** The hour's view (`posternNightView`) lies over the painted day's from the dusk on,
+  at 0.75 of the torches' strength, whole under the moon (`posternNightShare`); the far glow dims with it, still warm.
+- **From the sweep of lh-w3f3-1:** without the wash the tower fell to a black mass (about 14, 16, 34), so its cold step
+  also lifts it (× 1.5, 1.62, 1.9; the 8-bit plane clips a lit block's blue first); the gate rocks' pale stepped line
+  was the shader's ledge (`lh2_ledge`: a world pixel with nothing above it takes 1.4 × the ambient and a share of the
+  horizon), so their slope pixels are painted dark enough for the ledge to lift them only to the face.
+- **Rounds** (world-3's gate, English only): lh-w3f3-1 on 1df9421e (build and UI passed; unit: the fog test looked for
+  the bank's eyes at 620, where the bank's part of the screen lies within the beacon's 40 px: it looks at 200 now),
+  lh-w3f3-2 on 8341fb14 ALL PASSED. Proof frames (`ci-out/lh-w3f3-2/sweep-upright`): `w-0400-night`, `w-0600-night`,
+  `78` (the beacon), `w-1360-noon`, `w-1200-noon`, `t-3-1360` (the gate rocks), `w-2400-dusk` (the chimney, the
+  postern). Look 1's goldens did not move (castleFront3 and the gate rocks are look 2's; the bakehouse is in no golden
+  scene).
+- **Open:** high 2 (the creatures in the bank), high 4 (the far lantern), high 5 (the lone squares), high 7 (the fog
+  at the Throat); a pale mossy stump behind the lord in `w-1200-noon` is not `oldWall1` (still to find); the beacon at
+  night is dark and its dish reads as a flat dark disc at phone size.
 <!-- END world lane: World rebuild (14.11.2026) -->
 ### The hall stage and touch the world (14.11.2026)
 

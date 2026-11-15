@@ -382,12 +382,14 @@ final class GloomFogTests: XCTestCase {
         XCTAssertTrue(wall(foggy).allSatisfy { $0.sprite == .bankSheetB }, "no old wall of night in look 2")
         XCTAssertEqual(foggy.layer(.world).sprites, plain.layer(.world).sprites)
         // (Fix round 1: the bank's eyes open and shut, so they are looked for over a few seconds.)
+        // (World-3 fix round 3: no eyes within 40 px of a building, `EyeRules.clearance`; at 620 the bank's part of the
+        // screen lies wholly beside the beacon, so they are looked for at 200, where the bank stands clear of it.)
         XCTAssertTrue((0..<10).contains { step in
-            frame(night, focus: 620, gloom: nil, time: 1.5 + Double(step) * 0.8).emissives
+            frame(night, focus: 200, gloom: nil, time: 1.5 + Double(step) * 0.8).emissives
                 .contains { $0.sprite == .darknessBankGlow }
         })
         XCTAssertTrue((0..<10).contains { step in
-            frame(night, focus: 620, gloom: hard, time: 1.5 + Double(step) * 0.8).emissives
+            frame(night, focus: 200, gloom: hard, time: 1.5 + Double(step) * 0.8).emissives
                 .contains { $0.sprite == .darknessBankGlow }
         }, "the bank's eyes in the fog")
         XCTAssertTrue(eyeTiles(plain).isEmpty)

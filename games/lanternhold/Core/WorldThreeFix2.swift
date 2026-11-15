@@ -7,19 +7,23 @@
 enum EyeRules {
     /// The highest an eye pair may open over the ground line (the critic: eyes beside the beacon's top and high in
     /// the treetops; "at most 60 px above the ground inside the bank").
-    static let ceiling = 60.0
+    /// World-3 fix round 3 (the critic's high 3 of look 3: "eyes still float, about 200 px above the ground with no
+    /// body"): a creature's head height, 30 rows (60 before).
+    static let ceiling = 30.0
+    /// World-3 fix round 3: no eyes within this many pixels of a building (the beacon included; 2 before).
+    static let clearance = 40.0
     /// A world-plane prop at least this tall is a building (the beacon, a line's wall or tower): no eyes before it.
     static let screenHeight = 40
     /// The creatures' own sprites (a big body is never a screen: eyes may sit in it).
     static let creatureSprites: Set<SpriteID> = [.sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute,
                                                  .gloomweaver, .ashGiant, .lightlessKing]
 
-    /// The world x ranges the eyes keep out of: every building standing on the world plane, 2 px either side.
+    /// The world x ranges the eyes keep out of: every building standing on the world plane, `clearance` either side.
     static func screens(_ props: [Prop]) -> [ClosedRange<Double>] {
         props.compactMap { prop in
             guard prop.plane == .world, prop.anchor == .ground, prop.height >= screenHeight,
                   !creatureSprites.contains(prop.sprite) else { return nil }
-            return (prop.x - 2)...(prop.x + Double(prop.width) + 2)
+            return (prop.x - clearance)...(prop.x + Double(prop.width) + clearance)
         }
     }
 
@@ -95,8 +99,11 @@ extension SceneLayout {
     static let posternNightViewAt = (dx: 95.0, dy: 4.0)
 
     /// How much of the night view stands (0 by day and while the evening is warm, 1 under the moon).
+    /// World-3 fix round 3 (the critic's high 9 of look 3: "the painted day view is a pale panel against the purple
+    /// dusk"): from the dusk on, while the torches burn, the hour's view stands at `posternDuskViewShare` (lit by the
+    /// dusk's ambient on the world plane it reads purple-dark like the valley beside it), whole under the moon.
     static func posternNightShare(_ ambient: AmbientSample) -> Float {
-        FrameBuilder.wedgeMoonShare(ambient)
+        max(FrameBuilder.wedgeMoonShare(ambient), posternDuskViewShare * min(1, ambient.torchStrength))
     }
 
     /// The passage's far glow at night is a fraction of the dusk's (it lifted the pale view over the valley).

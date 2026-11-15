@@ -82,7 +82,9 @@ final class WorldRebuildFixTests: XCTestCase {
                 frames.insert(eye.frame)
             }
         }
-        XCTAssertGreaterThan(heights.count, 12, "at heights of their own")
+        // World-3 fix round 3 (the critic's high 3 of world-3, look 3): the pairs at a creature's head height, 26 to 30
+        // rows (no more eyes with no body under them), so five heights, not over twelve
+        XCTAssertGreaterThanOrEqual(heights.count, 4, "at heights of their own")
         XCTAssertEqual(near, [true, false], "near and far")
         XCTAssertEqual(frames, [0, 1, 2, 3], "open and blinking")
         // With Reduce Motion three stand open where they are and none blinks.

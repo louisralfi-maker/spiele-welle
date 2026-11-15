@@ -50,6 +50,9 @@ W3F1="bakehouse beaconRuin beaconTower greatBeacon beaconRuinRim beaconBaseRim b
 # sprites of the earlier passes read those passes' output from tools/w3f2src, so this case comes first and the
 # earlier ones no longer write these ids here.
 W3F2="throatButtress beaconTower beaconRuinRim beaconBaseRim beaconTowerRim greatBeaconRim castleFront castleFront3 castleFront3Build watchtower cloudA cloudB cloudC riverSkiffMoored riverSkiffRim riverLanternStreak riverLanternHalo posternNightView gloomGroundFog darknessBankGlow oldWall1 valleyVerge valleyVergeB gateRockL gateRockR"
+# World-3, fix round 3 (15.11.2026): the critic's look 3 (tools/w3f3art.py). Its passes start from fix round 2's
+# painting (tools/w3f2art.py and its sources), so this case comes first.
+W3F3="beaconTower beaconTowerRim beaconRuinRim beaconBaseRim greatBeaconRim gateRockL gateRockR oldWall1 castleFront3 castleFront3Build bakehouse"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -77,6 +80,9 @@ cliff() { # name old-sprite box [tuft boxes]: the painting's granite in an old c
 
 build() { # name: one sprite (or one group of small ones)
     case $1 in
+    beaconTower|beaconTowerRim|beaconRuinRim|beaconBaseRim|greatBeaconRim|gateRockL|gateRockR|oldWall1|castleFront3|castleFront3Build|bakehouse)
+        # world-3 fix round 3 (15.11.2026): the critic's look 3 (tools/w3f3art.py)
+        python3 -I -B games/lanternhold/tools/w3f3art.py build $1 --out $A ;;
     throatButtress|beaconTower|beaconRuinRim|beaconBaseRim|beaconTowerRim|greatBeaconRim|castleFront|castleFront3|castleFront3Build|watchtower|cloudA|cloudB|cloudC|riverSkiffMoored|riverSkiffRim|riverLanternStreak|riverLanternHalo|posternNightView|gloomGroundFog|darknessBankGlow|oldWall1|valleyVerge|valleyVergeB|gateRockL|gateRockR)
         # world-3 fix round 2 (15.11.2026): the critic's look 2 (tools/w3f2art.py, ART-look2.md section 28)
         python3 -I -B games/lanternhold/tools/w3f2art.py build $1 --out $A ;;

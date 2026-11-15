@@ -116,7 +116,8 @@ extension SceneLayout {
         case .keepT1: return (prop.x + 187.5, 122)
         // (fix round 1, after lh-w2f1-3: tiers 2 and 3 low on the right slope, so the smoke rises under the HUD)
         case .keepT2, .keepT3, .keepT3Build: return (prop.x + 202.5, 136)
-        case .bakehouse: return (prop.x + 75, 61)
+        // world-3 fix round 3 (high 8): the smoke starts over the pot's dark mouth (row 0 is world 61)
+        case .bakehouse: return (prop.x + 75, 64)
         default: return nil
         }
     }
@@ -253,7 +254,7 @@ extension SceneLayout {
 
         // The bakehouse: the oven's fire through its hatch (all day), a lit window at night.
         let bake = castleBakehouseX
-        // Fix round 1 (high 3): the chimney's mouth glows a little, so its smoke is lit warm from below at night.
+        // (Fix round 1 lit the chimney's mouth; world-3 fix round 3 took that light off: it lit the stack as a box.)
         list.append((.world, Entry(sprite: .bakehouse, x: bake, y: 0, z: -2,
                                    emitters: [.sprite(.bakeHatchGlow, dx: 15, dy: 7, glow: .fireOrange, fades: false),
                                               .glass(dx: 63, dy: 23, width: 5, height: 5),
@@ -269,8 +270,9 @@ extension SceneLayout {
                                                   y: castleBakeHatchLight.y, radius: castleBakeHatchLight.radius,
                                                   squash: castleBakeHatchLight.squash, color: GamePalette.fireOrange,
                                                   intensity: castleBakeHatchLight.intensity, clip: castleBakeHatchClip),
-                                            Light(kind: .window, x: bake + 65.5, y: 25, radius: 10),
-                                            Light(kind: .lantern, x: bake + 75, y: 70, radius: 9, intensity: 0.35)])))
+                                            // world-3 fix round 3 (the critic's high 8: the chimney lit as a pale
+                                            // box, a "?" glyph on the battlement): no light at the chimney's mouth
+                                            Light(kind: .window, x: bake + 65.5, y: 25, radius: 10)])))
 
         // The postern: lanterns either side of the passage, from tier 2 the great lantern over it.
         let post = castlePosternX

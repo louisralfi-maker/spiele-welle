@@ -187,7 +187,8 @@ struct GloomFog: Sendable, Equatable {
             let fog = cover(x: x, bankEdge: bankEdge, hour: hour) / thickness
             let strength = open * min(1, amount * 3) * min(1, 0.35 + fog)
             guard strength > 0.02 else { continue }
-            list.append(Eyes(x: x, y: (6 + v * (14 + 30 * (1 - u))).rounded(), strength: strength))
+            // World-3 fix round 3 (the critic's high 3): never over a creature's head height (30 rows, `EyeRules`)
+            list.append(Eyes(x: x, y: (6 + v * (10 + 14 * (1 - u))).rounded(), strength: strength))
         }
         return list
     }
