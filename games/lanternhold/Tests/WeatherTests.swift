@@ -433,7 +433,7 @@ final class WeatherTests: XCTestCase {
 
         // At the river end on a breezy noon the sails turn; on a calm day and with Reduce Motion they stand.
         func sailFrames(_ weather: (Double) -> WeatherSample, reduceMotion: Bool = false) -> [Int] {
-            (0..<24).compactMap { index in
+            (0..<24).compactMap { index -> Int? in
                 let time = 4 + Double(index) * 0.25
                 let desc = windFrame(world, focus: 3900, weather: weather(time), time: time,
                                      reduceMotion: reduceMotion)
