@@ -164,6 +164,9 @@ struct ReportCardView: View {
                 }
             }
         }
+        // Fix round 2 (the critic's smaller point on 47): the last valley row keeps its line gap above the footer's
+        // rule ("1 born" stood about 2 pt above it).
+        .padding(.bottom, 6)
     }
 
     private var footer: some View {

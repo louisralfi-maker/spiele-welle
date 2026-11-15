@@ -177,12 +177,15 @@ struct AudienceCardView: View {
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
                 .fixedSize(horizontal: false, vertical: true)
+                // Fix round 2 (the critic's smaller point on 98): the name column takes the width up to the Counsel
+                // plaque ("Captain of / the guard" wrapped beside a free gap).
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
                 .accessibilityElement(children: .combine)
-                Spacer(minLength: 4)
                 if card.phase == .hearing && card.hintKey != nil && !card.counselShown {
                     counselButton
                         .fixedSize()
-                        .layoutPriority(1)
+                        .layoutPriority(2)
                 }
             }
             InkRule()

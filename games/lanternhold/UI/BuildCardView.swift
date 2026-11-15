@@ -99,6 +99,8 @@ struct CardChrome<Header: View, Content: View>: View {
 struct CardTitle: View {
     let title: String
     let subtitle: String?
+    /// A sentence of its own under the subtitle (fix round 2, the critic's high 2: the barracks' free posts).
+    var note: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -111,6 +113,12 @@ struct CardTitle: View {
                 SeparatedText(text: subtitle, style: .subheadline)
                     .font(Theme.italic(.subheadline))
                     .foregroundStyle(Theme.inkSoft)
+            }
+            if let note {
+                Text(inked: note, .subheadline)
+                    .font(Theme.italic(.subheadline))
+                    .foregroundStyle(Theme.inkSoft)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(.top, 4)
@@ -162,10 +170,10 @@ struct OptionRow<Trailing: View>: View {
                     }
                 }
                 .fixedSize(horizontal: false, vertical: true)
-                // Fix round 1 (the critic's high 8): the words take the row's width before the gap does ("all night"
-                // stood alone on a second line beside an empty middle).
+                // Fix round 2 (the critic's high 2): the words take the whole free middle up to the price (in 41 they
+                // broke at about 60 % of the row beside an empty middle).
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .layoutPriority(1)
-                Spacer(minLength: 6)
                 trailing()
                     .opacity(enabled ? 1 : 0.6)
             }
@@ -284,7 +292,8 @@ struct RecruitCardView: View {
             CardChrome(identifier: "recruit-card", closeIdentifier: "recruit-card-close", treasury: model.gold,
                        close: { model.closeCard() }) {
                 CardTitle(title: String(localized: "Barracks"),
-                          subtitle: String(localized: "Archers \(card.archers) · room on the walls for \(card.freePosts) more · guards \(card.guards)"))
+                          subtitle: String(localized: "Archers \(card.archers) · Guards \(card.guards)"),
+                          note: String(localized: "Room on the walls for \(card.freePosts) more."))
             } content: {
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(card.options, id: \.kind) { option in

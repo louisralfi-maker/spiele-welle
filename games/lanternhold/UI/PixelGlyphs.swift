@@ -490,9 +490,10 @@ enum GlassMetrics {
     static let inset: CGFloat = 14
 }
 
-/// Facts joined by " · " that never leave the separator at a line's end (fix round 1, the critic's high 8): the line
-/// breaks between the facts, and the dot goes with the break. One line when it fits, else two (the last fact or the
-/// first alone), else one fact a line (a fact longer than the column wraps inside itself).
+/// Facts joined by " · " (fix round 1, the critic's high 8; fix round 2, his high 2 and the director's 16:06 rule):
+/// facts that fit stay on one line with " · ". If they do not fit, every fact stands on its own line and starts with a
+/// capital, so a line never mixes the end of one fact with the next one ("Lights the ground before it" / "Burns all
+/// night"; a fact longer than the column wraps inside itself).
 struct SeparatedText: View {
     let text: String
     let style: Font.TextStyle
@@ -504,20 +505,12 @@ struct SeparatedText: View {
                 .fixedSize(horizontal: false, vertical: true)
         } else {
             ViewThatFits(in: .horizontal) {
-                line(parts)
-                if parts.count >= 3 {
-                    VStack(alignment: .leading, spacing: 0) {
-                        line(Array(parts.dropLast()))
-                        line([parts[parts.count - 1]])
-                    }
-                    VStack(alignment: .leading, spacing: 0) {
-                        line([parts[0]])
-                        line(Array(parts.dropFirst()))
-                    }
-                }
+                Text(inked: parts.joined(separator: " · "), style)
+                    .lineLimit(1)
+                    .fixedSize()
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(Array(parts.enumerated()), id: \.offset) { _, part in
-                        Text(inked: part, style)
+                        Text(inked: Self.capitalised(part), style)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -525,9 +518,9 @@ struct SeparatedText: View {
         }
     }
 
-    private func line(_ parts: [String]) -> some View {
-        Text(inked: parts.joined(separator: " · "), style)
-            .lineLimit(1)
-            .fixedSize()
+    /// The fact with its first letter a capital (the rest untouched).
+    static func capitalised(_ fact: String) -> String {
+        guard let first = fact.first else { return fact }
+        return String(first).uppercased() + fact.dropFirst()
     }
 }

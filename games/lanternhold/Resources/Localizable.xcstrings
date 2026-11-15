@@ -380,13 +380,13 @@
         }
       }
     },
-    "Archers %lld · room on the walls for %lld more · guards %lld" : {
-      "comment" : "Recruit card subtitle: counts (archers, free archer posts on the walls and towers, guards).",
+    "Archers %lld · Guards %lld" : {
+      "comment" : "Recruit card subtitle: counts (archers, guards).",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bogenschützen %1$lld · Platz auf den Mauern für %2$lld weitere · Wachen %3$lld"
+            "value" : "Bogenschützen %1$lld · Wachen %2$lld"
           }
         }
       }
@@ -1815,6 +1815,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Platz für %lld Einwohner"
+          }
+        }
+      }
+    },
+    "Room on the walls for %lld more." : {
+      "comment" : "Recruit card: the free archer posts on the walls and towers, a sentence of its own under the counts.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Platz auf den Mauern für %lld weitere."
           }
         }
       }
