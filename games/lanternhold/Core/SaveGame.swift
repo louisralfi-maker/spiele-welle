@@ -115,9 +115,12 @@ struct SaveGame: Codable, Sendable, Equatable {
     var track: ChronicleTrack?
     /// Records across realms and modes.
     var chronicle: Chronicle?
+    /// The last three dawns, for waking after the hearth goes out (front lane hook, docs/lanes/front.md "front-2"; nil
+    /// in saves from before it: the driver starts the ring with `state`).
+    var dawns: DawnRing?
 
     init(state: GameState, track: ChronicleTrack? = nil, chronicle: Chronicle? = nil, settings: SaveSettings? = nil,
-         adPacing: AdPacing? = nil, hintFlags: [String]? = nil) {
+         adPacing: AdPacing? = nil, hintFlags: [String]? = nil, dawns: DawnRing? = nil) {
         version = SaveGame.currentVersion
         mode = state.mode
         self.state = state
@@ -126,6 +129,7 @@ struct SaveGame: Codable, Sendable, Equatable {
         self.settings = settings
         self.adPacing = adPacing
         self.hintFlags = hintFlags
+        self.dawns = dawns
     }
 
     /// The track this realm counts for.

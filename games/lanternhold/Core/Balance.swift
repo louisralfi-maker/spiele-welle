@@ -277,6 +277,10 @@ struct Balance: Sendable, Equatable {
     var creatureHPScale = 1.0
     var creatureHarmScale = 1.0
 
+    // MARK: The front rule (front lane hook: docs/lanes/front.md; every number of REALM.md section 3)
+
+    var front = FrontTuning()
+
     // MARK: Lookups
 
     func stats(_ item: BuildItem) -> ItemStats { items[item.index] }

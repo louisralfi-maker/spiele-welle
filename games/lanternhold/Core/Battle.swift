@@ -511,6 +511,7 @@ enum Battle {
             lights.append(LightSource(kind: .beacon, x: Realm.beaconX, y: balance.beaconFlameY, radius: beacon,
                                       flickerSeed: 0x4245_4143))
         }
+        Gorge.addLights(&lights, s, balance: balance)  // front lane hook (docs/lanes/front.md "front-3")
         return lights
     }
 
@@ -532,7 +533,8 @@ enum Battle {
             }
             nightEdge += (balance.beaconBankEdge - nightEdge) * share
         }
-        return DarknessBank.edge(hour: s.hour, restingEdge: DarknessBank.restingEdge, nightEdge: nightEdge)
+        let edge = DarknessBank.edge(hour: s.hour, restingEdge: DarknessBank.restingEdge, nightEdge: nightEdge)
+        return Gorge.holdFog(s, edge: edge, balance: balance)  // front lane hook (docs/lanes/front.md "front-3")
     }
 
     /// The lit test for the current state (lights, darkness bank, bubbles of darkness).
@@ -632,6 +634,9 @@ enum Battle {
             walkTimes = stepCreatures(&s, dt: dt, balance: balance, probe: probe, firstLight: phase == .firstLight,
                                       events: &events)
         }
+        // front lane hook (docs/lanes/front.md "front-3"): the furthest gorge beacon struck in passing, the watch looses
+        Gorge.battle(&s, dt: dt, balance: balance, creatureStartX: creatureStartX, walkTimes: walkTimes,
+                     events: &events)
         stepSoldiers(&s, dt: dt, balance: balance, creatureStartX: creatureStartX, walkTimes: walkTimes,
                      events: &events)
         if !s.creatures.isEmpty {
@@ -822,8 +827,9 @@ enum Battle {
         if frontContact >= 0 {
             // For the part of the step in which the front creature stands at the guards (harm × time at any step).
             var strike = 0.0
+            let aura = LordAura(s, balance: balance)  // front lane hook: the old rally, or the lord's presence
             for soldier in s.soldiers where soldier.state == .holding {
-                let rally = abs(soldier.x - s.king.x) <= balance.rallyRadius ? balance.rallyFactor : 1
+                let rally = aura.speed(at: soldier.x)
                 strike += balance.guardDPS * rally * frontContactTime
             }
             if strike > 0 {
@@ -864,30 +870,38 @@ enum Battle {
     /// Damage to the holding guards, front guard first. A guard steps back at 30 % while another guard still holds
     /// (the rest of the blow goes to the next one). The last guard holding has no one to pass the blow to: he stands
     /// his ground and can fall in the breach (DESIGN.md "Defenders", "Losses").
+    /// Front lane hook: a guard under the lord's presence takes `share` of the blow (1 under the old rules, where the
+    /// arithmetic is the old one exactly).
     private static func hurtGuards(_ s: inout GameState, damage: Double, balance: Balance) {
         var holders: [Int] = []
         for index in s.soldiers.indices where s.soldiers[index].state == .holding { holders.append(index) }
+        let aura = LordAura(s, balance: balance)
         var left = damage
         for (k, index) in holders.enumerated() where left > 0 {
             var soldier = s.soldiers[index]
+            let share = aura.harm(at: soldier.x)
+            let hpBefore = soldier.hp
+            var raw = left  // front lane hook: the blow without presence, for the withheld tally
             if k == holders.count - 1 {
-                soldier.hp -= left
+                soldier.hp -= left * share
                 left = 0
             } else {
                 let floor = soldier.maxHP * balance.guardRetreatShare
                 let room = soldier.hp - floor
-                if left < room {
-                    soldier.hp -= left
+                if left * share < room {
+                    soldier.hp -= left * share
                     left = 0
                 } else {
                     soldier.hp = min(soldier.hp, floor)
-                    left -= max(0, room)
+                    raw = max(0, room) / share
+                    left -= max(0, room) / share
                     soldier.state = .moving
                     soldier.goal = .resting
                     soldier.targetX = Realm.keepX
                 }
             }
             s.soldiers[index] = soldier
+            FrontNight.withheld(&s, raw: raw, taken: hpBefore - soldier.hp, hp: hpBefore, maxHP: soldier.maxHP)
         }
         refreshHolding(&s)
     }
@@ -1007,7 +1021,7 @@ enum Battle {
         if s.soldiers.isEmpty { return }
         let soldierStartX = s.soldiers.map { $0.x }
         let soldierStart = s.soldiers.map { (state: $0.state, goal: $0.goal) }
-        let kingX = s.king.x
+        let aura = LordAura(s, balance: balance)  // front lane hook: the old rally, or the lord's presence
         let damage = balance.archerDamage * (1 + smithyBonus(s, balance: balance))
         let table = balance.creatures
         var arrived = false
@@ -1016,7 +1030,7 @@ enum Battle {
             switch soldier.state {
             case .posted:
                 guard soldier.kind == .archer else { break }
-                let rally = abs(soldier.x - kingX) <= balance.rallyRadius ? balance.rallyFactor : 1
+                let rally = aura.speed(at: soldier.x)
                 soldier.cooldown -= dt * rally
                 if soldier.cooldown > 0 { break }
                 let range = balance.archerRange * (1 + rangeBonus(s, plot: soldier.postPlot, balance: balance))
@@ -1074,6 +1088,7 @@ enum Battle {
         let count = min(walkTimes.count, creatureStartX.count, s.creatures.count)
         if count == 0 { return }
         func onTheGround(_ state: SoldierState) -> Bool { state == .moving || state == .reserve || state == .resting }
+        let aura = LordAura(s, balance: balance)  // front lane hook: the lord's presence takes a share of the harm
         for index in s.soldiers.indices {
             let soldier = s.soldiers[index]
             let start = index < soldierStart.count ? soldierStart[index] : (state: soldier.state, goal: soldier.goal)
@@ -1101,7 +1116,12 @@ enum Battle {
                 if time > 0 { harm += table[c.kind.index].harm * time }
             }
             if harm > 0 {
-                s.soldiers[index].hp -= harm * balance.creatureHarmScale
+                let raw = harm * balance.creatureHarmScale
+                let hpBefore = s.soldiers[index].hp
+                let maxHP = s.soldiers[index].maxHP
+                s.soldiers[index].hp -= raw * aura.harm(at: s1)
+                // front lane hook: the withheld tally
+                FrontNight.withheld(&s, raw: raw, taken: raw * aura.harm(at: s1), hp: hpBefore, maxHP: maxHP)
             }
         }
     }

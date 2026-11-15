@@ -1,0 +1,756 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "front.fall.new" : {
+      "comment" : "The fall card: a button, begin a new realm from day 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein neues Reich beginnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Begin a new realm"
+          }
+        }
+      }
+    },
+    "front.fall.title" : {
+      "comment" : "The fall card's title (docs/REALM.md 4): the fire went out, the realm fell. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer ist aus."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hearth is out."
+          }
+        }
+      }
+    },
+    "front.fall.wake.0" : {
+      "comment" : "The fall card: a button, wake at the newest dawn kept (the morning of the day that ended in the fall). No number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An diesem Morgen erwachen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wake this morning"
+          }
+        }
+      }
+    },
+    "front.fall.wake.1" : {
+      "comment" : "The fall card: a button, wake at the dawn one morning before the newest. No number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einen Morgen früher erwachen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wake a morning earlier"
+          }
+        }
+      }
+    },
+    "front.fall.wake.2" : {
+      "comment" : "The fall card: a button, wake at the dawn two mornings before the newest. The number is a word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwei Morgen früher erwachen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wake two mornings earlier"
+          }
+        }
+      }
+    },
+    "front.gorge.land.camp" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the third beacon freed the stretch where the charcoal burners worked; they are back, and their charcoal makes the braziers burn brighter. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Köhler sind zurück. Die Feuerschalen brennen heller."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The charcoal burners are back. The braziers burn brighter."
+          }
+        }
+      }
+    },
+    "front.gorge.land.quarry" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the first beacon freed the stretch with the old quarry: stone for the walls, so wall and gate work costs a little less. Short and dry; no number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der alte Steinbruch gehört wieder uns. Stein wird billiger."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old quarry is ours again. Stone comes cheaper."
+          }
+        }
+      }
+    },
+    "front.gorge.land.stones" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the fourth beacon freed the last stretch, where old standing stones stand (the wardens' stones). Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die fernen Steine stehen frei vom Nebel."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The far stones stand clear of the fog."
+          }
+        }
+      }
+    },
+    "front.gorge.land.watchtower" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the second beacon freed the stretch with a ruined watchtower; it can be raised as a forward post for archers. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der alte Wachturm liegt frei. Man könnte ihn besetzen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old watchtower stands clear. It could be manned."
+          }
+        }
+      }
+    },
+    "front.gorge.land.watchtower.back" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3 fix 1): the second beacon burns again and frees the stretch of the old watchtower, which was raised as a forward post before; its watch goes back up. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der alte Wachturm liegt frei. Die Wache ist wieder oben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old watchtower stands clear. The watch is back on it."
+          }
+        }
+      }
+    },
+    "front.gorge.lit" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): a beacon the builders raised in the gorge yesterday burned through the night; the fog could not pass it. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein neues Leuchtfeuer brannte die Nacht durch. Der Nebel blieb fern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A new beacon burned all night. The fog kept off."
+          }
+        }
+      }
+    },
+    "front.gorge.lost.all" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3, fix 2): in the night two or more beacons fell and none burns at dawn; the fog comes as it always came (on early nights not yet up to the walls). Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Leuchtfeuer erloschen. Der Nebel nahm sich die Schlucht zurück."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every beacon went dark. The fog took the gorge back."
+          }
+        }
+      }
+    },
+    "front.gorge.lost.last" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3 fix 1): the only beacon that burned fell in the night; none burns at dawn and the fog comes as it always came. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das letzte Leuchtfeuer erlosch. Die Schlucht gehört wieder dem Nebel."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last beacon went dark. The gorge is the fog's again."
+          }
+        }
+      }
+    },
+    "front.gorge.lost.more" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the creatures struck down more than one beacon in the night (the furthest first); the fog came back. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die äußeren Leuchtfeuer erloschen. Der Nebel kam zurück."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The far beacons went dark. The fog came back."
+          }
+        }
+      }
+    },
+    "front.gorge.lost.one" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the creatures struck down the beacon furthest out in the night; it went cold and the fog came back to the next one. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das äußerste Leuchtfeuer erlosch. Der Nebel kam zurück."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The far beacon went dark. The fog came back."
+          }
+        }
+      }
+    },
+    "front.gorge.relit.more" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): several beacons that had fallen were relit yesterday and burned through the night. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die kalten Leuchtfeuer brennen wieder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cold beacons burn again."
+          }
+        }
+      }
+    },
+    "front.gorge.relit.one" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): one beacon that had fallen was relit yesterday and burned through the night. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das kalte Leuchtfeuer brennt wieder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cold beacon burns again."
+          }
+        }
+      }
+    },
+    "front.gorge.untended" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3 fix 1 and 2): the beacons are tended from a wall beyond the gate (its people walk out to them by day); no such wall stands, or it is rubble, so nobody went and the struck beacons kept their harm. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niemand ging zu den Leuchtfeuern hinaus. Vor dem Tor steht keine Mauer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nobody walked out to the beacons. No wall to send them from."
+          }
+        }
+      }
+    },
+    "front.gorge.watch" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the ruined watchtower was raised yesterday as a forward post; the castle's watch now holds it at night. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Wache hält den alten Turm."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The watch holds the old tower."
+          }
+        }
+      }
+    },
+    "front.hearth.bright" : {
+      "comment" : "Dawn report, hearth half: the fire is back to bright after it had burnt low. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer brennt wieder hell."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hearth burns bright again."
+          }
+        }
+      }
+    },
+    "front.hearth.burnt.field" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). No house stood, so a field burnt. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Feld brannte ab."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A field burnt."
+          }
+        }
+      }
+    },
+    "front.hearth.burnt.house" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). One house burnt. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Haus brannte nieder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A house burnt down."
+          }
+        }
+      }
+    },
+    "front.hearth.burnt.houses" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). Two houses burnt (never more). The number is a word. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwei Häuser brannten nieder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Two houses burnt down."
+          }
+        }
+      }
+    },
+    "front.hearth.burnt.market" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). No house stood, so the market stall burnt. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Marktstand brannte ab."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The market stall burnt."
+          }
+        }
+      }
+    },
+    "front.hearth.dead.one" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). One townsperson died; %@ is the first name. Dread by what is missing, no gore (STORY.md rule 9). No he or she.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ erlebte den Morgen nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ did not see the morning."
+          }
+        }
+      }
+    },
+    "front.hearth.dead.three" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). Three townspeople died (never more); the three first names. No gore, no he or she.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@ und %3$@ erlebten den Morgen nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@ and %3$@ did not see the morning."
+          }
+        }
+      }
+    },
+    "front.hearth.dead.two" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). Two townspeople died; the two first names. No gore, no he or she.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ und %2$@ erlebten den Morgen nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ and %2$@ did not see the morning."
+          }
+        }
+      }
+    },
+    "front.hearth.embers" : {
+      "comment" : "Dawn report, hearth half: the fire is down to embers (a broken night takes a bright fire there): one more broken night puts it out. Short and dry; the danger without saying it. The stake follows as its own line (front.hearth.last).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Herd glimmt nur noch Glut."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only embers glow in the hearth."
+          }
+        }
+      }
+    },
+    "front.hearth.gift" : {
+      "comment" : "The dawn after a broken night (front-2 fix 1; the ads lane's card at the join): the rewarded video's offer. Watching it pays the day's wood for the hearth; the lord still walks there and throws the log on. A button, short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holz für den Herd"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wood for the hearth"
+          }
+        }
+      }
+    },
+    "front.hearth.gold" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). A fifth of the purse (at most 60) is gone; no number, the treasury figure shows it. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In der Schatzkammer fehlt Gold."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coin is missing from the treasury."
+          }
+        }
+      }
+    },
+    "front.hearth.last" : {
+      "comment" : "Dawn report, hearth half (front-2 fix 1): the stake, right after the fire's line, on every dawn the fire is frail (with two steps a breach: low and embers). If the creatures reach the hearth once more, the fire goes out and the realm falls. True after a broken night and after a held one alike; no number. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreicht die Düsternis den Herd noch einmal, erlischt das Feuer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If the Gloom reaches the hearth again, it goes out."
+          }
+        }
+      }
+    },
+    "front.hearth.low" : {
+      "comment" : "Dawn report, hearth half: the fire burns low (one of four steps: bright, low, embers, out): after a held night raised it from embers, or after a breach took it there. Short and dry. While the fire is frail the stake follows as its own line (front.hearth.last).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer brennt niedrig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hearth burns low."
+          }
+        }
+      }
+    },
+    "front.hearth.reason" : {
+      "comment" : "Dawn report, the happiness row: the reason for the loss a broken night takes at once (−8). A label, no full stop.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Düsternis erreichte den Herd"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Gloom reached the hearth"
+          }
+        }
+      }
+    },
+    "front.hearth.rekindled" : {
+      "comment" : "Dawn report, hearth half: the fire went out and the second chance (a rewarded video) brought the dawn; it glows at embers now. Short and dry. Only if the director turns the video at out back on (HearthTuning.videoAtOut); off by default.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer erlosch und fing wieder Feuer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hearth went out, and caught again."
+          }
+        }
+      }
+    },
+    "front.hearth.walls" : {
+      "comment" : "Dawn report, hearth half (front-2 fix 1): a realm's first broken night only. The walls the night left in rubble are being rebuilt at no cost; the builders are at them at first light. The town turning out after its first disaster. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eure Leute richten die Mauern wieder auf. Ohne Lohn."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your people raise the walls again. They ask no coin."
+          }
+        }
+      }
+    },
+    "front.report.away" : {
+      "comment" : "Dawn report, front half: there was real fighting, and the lord was rarely near it (teaches that being there counts). Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorn brannte es. Ihr wart anderswo."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It burned at the front. You were elsewhere."
+          }
+        }
+      }
+    },
+    "front.report.relit" : {
+      "comment" : "Dawn report, front half: dead braziers that caught again from the lord's lantern (as the lord passed them, or while the lord stood on their wall). Short and dry; no he or she in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Eine Feuerschale fing an Eurer Laterne Feuer."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Feuerschalen fingen an Eurer Laterne Feuer."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One brazier caught from your lantern."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld braziers caught from your lantern."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "front.report.there" : {
+      "comment" : "Dawn report, front half: the lord stood where the fighting was, and the harm the lord's presence kept off the defenders came to at least one soldier's life (docs/REALM.md 3). Shown only on such nights. Short and dry; no he or she in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr standet, wo es brannte. Eure Leute hielten länger stand."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You stood where it burned. Your people held longer."
+          }
+        }
+      }
+    },
+    "front.report.thrown" : {
+      "comment" : "Dawn report, front half: how often a creature reached the lord and threw the lord back (the lord cannot die). Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Die Düsternis warf Euch einmal zurück."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Die Düsternis warf Euch %lld-mal zurück."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "The Gloom threw you back once."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "The Gloom threw you back %lld times."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

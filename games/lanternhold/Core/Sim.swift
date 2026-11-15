@@ -37,6 +37,7 @@ enum SimEvent: Sendable, Equatable {
 /// What the action button offers the king at night (DESIGN.md "The king at night").
 enum KingAction: Sendable, Equatable {
     case patch(plot: Int)
+    /// Going at the join (front lane): the front rule relights by passing; the new screen has no Light button.
     case light(plot: Int)
 }
 
@@ -80,10 +81,13 @@ enum Sim {
         let kingFrom = s.king.x
         stepKing(&s, dt: dt, balance: balance, events: &events)
         Town.step(&s, from: kingFrom, balance: balance)
+        FrontNight.step(&s, dt: dt, balance: balance, events: &events)  // front lane hook (docs/lanes/front.md)
         Build.stepBuilders(&s, dt: dt, balance: balance, events: &events)
+        Gorge.step(&s, dt: dt, balance: balance)  // front lane hook (docs/lanes/front.md "front-3")
         if DayClock.phase(at: s.hour) != .day || !s.creatures.isEmpty {
             Battle.step(&s, dt: dt, balance: balance, events: &events)
         }
+        Hearth.afterBattle(&s, balance: balance, events: &events)  // front lane hook (docs/lanes/front.md "front-2")
     }
 
     /// The dawn (06:00): the night ends, the economy runs, unlocks and records, and the report.
@@ -127,6 +131,9 @@ enum Sim {
                                 realmFell: fell ? true : nil, kingSlain: stats.kingSlain && !fell ? true : nil,
                                 housesFull: housesFull ? true : nil, town: people.town)
         s.lastReport = report
+        FrontNight.dawn(&s)  // front lane hook (docs/lanes/front.md)
+        Hearth.dawn(&s, balance: balance)  // front lane hook (docs/lanes/front.md "front-2")
+        Gorge.dawn(&s, balance: balance)  // front lane hook (docs/lanes/front.md "front-3")
         PetitionEngine.dawn(&s)
         events.append(.dawn(day: s.day))
     }
@@ -199,7 +206,9 @@ enum Sim {
         return true
     }
 
-    /// Light (free, 1 s) a snuffed brazier in reach; the king stands still while he lights it.
+    /// Light (free, 1 s) a snuffed brazier in reach; the king stands still while he lights it. Going at the join (front
+    /// lane, docs/REALM.md section 3): with the front rule a dead brazier he passes catches by itself
+    /// (`FrontNight.step`); this stays for the old screen until then.
     @discardableResult
     static func light(_ s: inout GameState, plot: Int, balance: Balance) -> Bool {
         guard s.king.lightingPlot < 0, s.plots[plot].item?.slot == .brazier, s.plots[plot].snuffed,

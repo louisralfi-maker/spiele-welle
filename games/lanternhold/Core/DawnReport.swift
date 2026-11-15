@@ -42,6 +42,15 @@ struct DawnReport: Codable, Sendable, Equatable {
     /// in saves from before the taxes went on foot; the first dawn tells of the first morning's coins). `taxes` is what
     /// the households owe today.
     var town: TownSummary? = nil
+    /// What the lord's being there did tonight (front lane hook, docs/lanes/front.md; nil without the front rule and in
+    /// saves from before this field).
+    var front: FrontNightReport?
+    /// What a broken night cost and the fire's state (front lane hook, docs/lanes/front.md "front-2"; nil without the
+    /// hearth rule and in saves from before this field).
+    var hearth: HearthDawnReport?
+    /// The gorge beacons' half (front lane hook, docs/lanes/front.md "front-3"): beacons lit and lost, land freed. nil
+    /// without the rule.
+    var gorge: GorgeDawnReport?
 
     /// No soldier fell tonight: the report shows a small banner.
     var noLosses: Bool { fallen.isEmpty }
