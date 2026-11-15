@@ -799,3 +799,30 @@ left or the top), `valleyVerge` (stones of three sizes at gaps of two to five ti
 `bakehouse` (the oven's dome a value step down: at noon it read as a pale grey ring round the hatch). No
 longer placed: `riverSkiff` (the skiff moved to the landing).
 <!-- END world lane: world-3, fix round 1 -->
+
+## World-3, fix round 2 (15.11.2026; ART-look2.md section 28)
+
+In `SpriteID` (look 2 only). Painted by `tools/w3f2art.py` (pure python, palette colours, hashes of the position;
+`tools/build-art-world.sh` rebuilds them byte for byte; its passes over sprites of the earlier passes read their sources
+from `tools/w3f2src`). The postern's night view is placed by `look2CastleExteriors`, the ground fog by
+`FrameBuilder` with the Gloom's strips (`GloomFog.groundStrip`).
+
+| id | size | plane | where (plane x) | notes |
+|---|---|---|---|---|
+| `posternNightView` | 10x14 | world, z 1, y 4 | postern + 95 (over the passage's painted far view, cols 95-104, rows 4-17) | the valley at night (high 4): a deep blue sky, the far hills a step darker, a faint meadow, the lane's end; drawn by the night's moon (`SceneLayout.posternNightShare`), none by day or in the warm evening |
+| `gloomGroundFog` | 2 frames of 160x28 | fog A, y −6 | the Gloom's front × 0.9, tiled back to the screen's left | the hard night's ground fog (high 8): a cold low mist (`far`, `mistDark`, `mist` crests), densest at the ground, rising 16 to 22 rows in soft billows; frame 0 repeats, frame 1 is the leading face; alpha × `GloomFog.midVeil`, tint × (0.92, 1, 1.14) |
+
+Repainted in place: `throatButtress` (96x132: the Throat's own warm granite, its shade `rockDeep`, no lit rim; the left
+slope in three lit ledges, a broad crest leaning right, a scree apron along the foot rising into skirts at both ends),
+`beaconTower` (the crown broken: a chipped merlon, a stub, the right corner fallen 16 rows in steps by the courses,
+fallen blocks at the foot; the 2-row gap under the old parapet closed; the cold bowl with a rim a value over its body, a
+cold right lip and a grey ash crown), `beaconRuinRim` to `greatBeaconRim` (the moon's band broken at every second course,
+a wash that lifts the faces at night, on the tower stage the bowl's lip and ash), `castleFront`, `castleFront3`,
+`castleFront3Build` (the slits a 2 px glass core in a dark reveal), `watchtower` (the shuttered window a plain arrow
+loop), `cloudA` to `cloudC` (the undersides' checker teeth out, irregular lobes, a darker belly), `darknessBankGlow`
+(the near eyes open as almonds, not crosses), `oldWall1` (the stepped blocks rounded into rubble, heaps at the foot),
+`valleyVerge`, `valleyVergeB` (gaps of 3 to 17 px, never one rhythm). Resized: `riverSkiffMoored` and `riverSkiffRim`
+40x12 (a hull with both gunwales, the bow raised, in the open water right of the first stump at 3781, y −15),
+`riverLanternStreak` 7x26 (a broken amber streak 3 to 4 px wide fading down); `riverLanternHalo` fainter, in fire
+orange.
+<!-- END world lane: world-3, fix round 2 -->

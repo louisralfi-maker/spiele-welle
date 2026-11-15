@@ -33,6 +33,9 @@ files byte for byte. Passes over existing sprites read their untouched sources f
         blue, the hills a step darker, a faint lit meadow; laid over the painted view by the night's share
   gloomGroundFog    320x28   the Gloom's ground fog (high 8), 2 frames of 160x28 (body, leading face): a cold low
         mist that rises 16 to 22 rows over the lane, densest at the ground, its top in soft irregular billows
+  oldWall1          84x60    Oriel's first line at the Throat's end (smaller): the stepped blocks rounded into rubble, the
+        tops chipped, heaps of rubble at the foot
+  darknessBankGlow  36x3     the bank's near eyes open: almonds, not "+" crosses
   valleyVerge, valleyVergeB  the verge (smaller): stones at irregular gaps (3 to 17 px), no two gaps alike in a row
 
   w3f2art.py build <id> [<id> ...] --out <Resources/Art>
@@ -742,6 +745,62 @@ def valley_verge(seed=561, variant=0):
     return im
 
 
+def old_wall_one():
+    """Oriel's first line before the gatehouse (84 x 60, tools/w3f2src): its stepped blocks read as grey cubes at the
+    Throat's end (the critic, w-1000-dusk). The steps' outer corners are knocked off twice (rounded), every top is
+    chipped 0 to 2 rows by a hash so no top runs straight, the new tops take the old top's light, and heaps of rubble
+    lean on the foot of the low wall and the stump."""
+    im = src2("oldWall1")
+    w, h = im.w, im.h
+
+    def op(img, x, y):
+        return 0 <= x < w and 0 <= y < h and img.get(x, y)[3] > 0
+
+    tops = {}
+    for x in range(w):
+        ys = [y for y in range(h) if op(im, x, y)]
+        if ys:
+            tops[x] = (min(ys), im.get(x, min(ys)))
+    for _ in range(2):                                 # round the outer corners
+        out = copy(im)
+        for y in range(h - 8):
+            for x in range(w):
+                if not op(im, x, y) or op(im, x, y - 1):
+                    continue
+                if not op(im, x - 1, y) or not op(im, x + 1, y):
+                    out.set(x, y, CLEAR)
+        im = out
+    out = copy(im)
+    for x in range(w):                                 # chip every top a little
+        ys = [y for y in range(h - 8) if op(im, x, y)]
+        if not ys:
+            continue
+        chip = int(3 * h01(733, x // 2)) - 1
+        for k in range(max(0, chip)):
+            out.set(x, min(ys) + k, CLEAR)
+    im = out
+    for x in range(w):                                 # the new tops keep the light
+        ys = [y for y in range(h) if op(im, x, y)]
+        if ys and x in tops and min(ys) > tops[x][0] and min(ys) < h - 8:
+            im.set(x, min(ys), tops[x][1])
+    heaps = [(0, 30, 8, 10), (60, 84, 6, 20)]          # (x0, x1, height, peak offset from x0)
+    for hi, (x0, x1, hh, peak) in enumerate(heaps):
+        for x in range(x0, x1):
+            d = abs(x - (x0 + peak)) / float(max(peak, x1 - x0 - peak))
+            top = int(hh * max(0.0, 1 - d) ** 1.3 + h01(741, hi, x) * 1.5)
+            for k in range(top):
+                y = h - 9 - k
+                if op(im, x, y):
+                    continue
+                v = h01(743, x, y)
+                nm = "stoneLight" if k == top - 1 and v < 0.6 else "stone" if v < 0.45 else "stoneMid" \
+                    if v < 0.8 else "stoneDark"
+                if v > 0.93:
+                    nm = "leaf"
+                put(im, x, y, nm)
+    return im
+
+
 def darkness_bank_glow():
     """The bank's eyes (4 frames of 9 x 3, tools/w3f2src): the near pair open (frame 0) was two 3 x 3 crosses, a
     "+" glyph at phone size; now each eye an almond, a bright core between two dimmer pixels with a faint lid over
@@ -779,6 +838,7 @@ BUILDERS = {
     "posternNightView": postern_night_view,
     "gloomGroundFog": gloom_ground_fog,
     "darknessBankGlow": darkness_bank_glow,
+    "oldWall1": old_wall_one,
     "valleyVerge": lambda: valley_verge(561, 0),
     "valleyVergeB": lambda: valley_verge(587, 1),
 }
