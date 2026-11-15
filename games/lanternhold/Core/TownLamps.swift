@@ -12,9 +12,8 @@ import Foundation
 ///
 /// **The rule of the evening** (the director, 15.11. 10:52, for the join; it replaces the rule of 03:39), as data for
 /// any anchors (`Anchors`, `plan(for:)`):
-/// - he sets out (in at the hall's door) not before 16:00, and as late as still lets the first street lantern burn by
-///   18:00 and three by the horn (19:00); if three by the horn would need an earlier start, he sets out at 16:00 and
-///   lights what he reaches by the horn;
+/// - he sets out (in at the hall's door) at 16:00, so the first street lantern burns by 18:00 (11:39: three by the
+///   horn is dropped); he lights what he reaches by the horn, and only those posts stand (`posts`);
 /// - the lighting round keeps the heavy step (16 px/s); the way from the hearth to the first post is walked with the lit
 ///   pole on the shoulder at the lord's pace (36 px/s);
 /// - the posts he does not reach by the horn stay dark in build 2 (build 3: Fen's taper).
@@ -26,11 +25,19 @@ enum TownLamps {
 
     // MARK: - Anchors (this branch's town; the rebuilt town's at the join)
 
-    /// The town's street lanterns (the join, the director's rule of 15.11. 10:52), the one table `SceneLayout` draws
-    /// (each a post's left edge): the first `posternGap` px outside the postern on the town side, then one in each gap
-    /// between neighbouring houses of `WorldLayout.townPlots`, going out from the gate (`houseGap` px after the nearer
-    /// house), never nearer than `doorClear` to a door nor `postSpacing` to another post, at most `maxPosts`.
+    /// The town's street lanterns, the one table `SceneLayout` draws (each a post's left edge): the candidates his
+    /// evening reaches by the horn (the director, 15.11. 11:39: no post stands that he cannot light; the street grows
+    /// with the realm in build 3). Build 2: 2430 and 2548.
     static let posts: [Double] = {
+        let all = Anchors(posts: candidates, hallDoor: hallDoor, hearthStand: hearthStand, home: home, gate: gate)
+        return Array(candidates.prefix(plan(for: all)?.lit ?? 0))
+    }()
+
+    /// The places a street lantern may stand (the director's rule of 15.11. 10:52): the first `posternGap` px outside
+    /// the postern on the town side, then one in each gap between neighbouring houses of `WorldLayout.townPlots`,
+    /// going out from the gate (`houseGap` px after the nearer house), never nearer than `doorClear` to a door nor
+    /// `postSpacing` to another post, at most `maxPosts`.
+    static let candidates: [Double] = {
         let postern = SceneLayout.castlePosternX + Double(SpriteID.posternT1.size.width)
         var list = [postern + TownLamps.posternGap]
         let houses = WorldLayout.townPlots.filter { $0.kind == .house }.sorted { $0.start < $1.start }
@@ -167,10 +174,8 @@ enum TownLamps {
 
     /// He sets out no earlier than this (in at the hall's door) ...
     static let setOutEarliest = 16.0
-    /// ... and as late as still lets the first lantern burn by this hour ...
+    /// The first lantern should burn by this hour (with the posts of build 2 it does at 17:58).
     static let firstLanternBy = 18.0
-    /// ... and this many by the horn.
-    static let wantedByHorn = 3
 
     /// Seconds from setting out to the moment each post takes the flame, lighting them all in order.
     static func flameOffsets(_ a: Anchors) -> [Double] {
@@ -185,15 +190,9 @@ enum TownLamps {
         return list
     }
 
-    /// The hour he sets out for a set of anchors, by the rule.
-    static func setOut(_ a: Anchors) -> Double {
-        let offsets = flameOffsets(a)
-        guard !offsets.isEmpty else { return setOutEarliest }
-        let sph = DayClock.secondsPerHour
-        let want = min(wantedByHorn, offsets.count)
-        let latest = min(firstLanternBy - offsets[0] / sph, ClockEvent.horn.hour - offsets[want - 1] / sph)
-        return max(setOutEarliest, latest)
-    }
+    /// The hour he sets out (in at the hall's door): 16:00, the earliest the rule allows (the director, 15.11. 11:39:
+    /// "three by the horn" is dropped, so nothing asks for a later start).
+    static func setOut(_ a: Anchors) -> Double { setOutEarliest }
 
     /// The evening for a set of anchors, by the rule (nil when not even the nearest post can be lit by the horn).
     static func plan(for a: Anchors) -> Plan? {
@@ -232,8 +231,7 @@ enum TownLamps {
                     eveningStart: start, snuffHours: snuffHours, morning: morning, morningStart: dawn)
     }
 
-    /// Today's plan (the join's posts: the first by the postern at 17:58, the second at 18:45; the third would take the
-    /// flame after the horn, so two burn at the horn and the far two stay dark).
+    /// Today's plan (the join's posts: the first by the postern at 17:58, the second at 18:45; both burn at the horn).
     static let today: Plan? = plan(for: anchors)
 
     /// Seconds from a round's start to a moment in one of its legs (`index`, `offset` into it).

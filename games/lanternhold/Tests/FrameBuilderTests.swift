@@ -686,8 +686,6 @@ final class FrameBuilderTests: XCTestCase {
         "house world x=3090 y=0 z=0 shade=0.97 flip=1 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@3140,11,8 window@3105,11,8]",
         "lanternPost world x=2430 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2433,20,28]",
         "lanternPost world x=2548 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2551,20,28]",
-        "lanternPost world x=2868 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2871,20,28]",
-        "lanternPost world x=2968 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2971,20,28]",
         "field world x=2600 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
         "field world x=2680 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
         "well world x=3013 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
