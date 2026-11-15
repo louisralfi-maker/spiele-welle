@@ -819,3 +819,10 @@ schneller geht."
   - Accepted side effect: at night a hold on the lord while the lantern rests opens the lantern moment on the lift. For the résumé's feel pile.
   - Open for the proof step: the old-save test builds its save from today's state with the town removed. A fixture with build 86's real shape (every later key missing) is still owed; if such a file does not decode, the corrupt path also starts a new realm and keeps the file, but without the Chronicle and the settings.
   - After build 2: a VoiceOver element for Marek's cart, the errand cancelled on a cart tap, `keepBeforeTown` checking the move, the lantern HUD's `visible` and `canRaiseLanternMoment` under the slides.
+
+- **Fix lane C is through: the title's touch no longer builds the scene on the main thread, and the frame steps are even (15.11.2026, 19:21).**
+  - `claude/lh-fix3` is on origin at b7ce62fc (4 commits on 906f57c); round `lh-fz-1` (build, unit, ui Title, FirstDay, Touch, Look2) ended ALL PASSED on that commit, read on origin. The new `Render/RenderWarmup.swift` read by the director.
+  - render-1: while the title stands, a detached task decodes and packs the atlas, uploads it and compiles the 11 pipelines (`RenderPipelines`, moved out of `Renderer.init` unchanged). The title is ready only when the model is made and the warm-up has ended; a failed warm-up counts as ended and the renderer builds on demand as before. Launches that skip the title start no warm-up. This is TITLE.md's rule made true: the light is the progress bar.
+  - render-2: the driver's accumulator starts half a step in hand (`SimDriver.startPhase`) and returns to it at every reset, so callback jitter no longer gives a frame with no step and then one with two. Nothing drawn is interpolated.
+  - Not proven by any round: the main thread's time at the title's touch and the judder on a real phone. Both are for Louis' play of build 2 and the résumé.
+  - After build 2: a timeout on the warm-up, `TitleView.ready`'s doc comment.
