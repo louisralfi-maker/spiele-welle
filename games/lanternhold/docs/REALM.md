@@ -81,7 +81,8 @@ section 3 is the number, this is its picture.
   lost position; or begins a new realm.
 - **Night 20:** the Lightless King at the hearth ends the chapter with the dark ending, as today.
 - **Bots and targets.** For T1 to T8 a night in which the hearth is reached still counts as the loss it is today, so
-  the numbers do not move. **T14:** one broken night can be mended within three days; two in three nights end it.
+  the numbers do not move. **T14:** one broken night can be mended within three days; two broken nights
+  with less than two steps of mending between them end it (the rule as built and measured, 15.11.2026).
 
 ## 5. Beacons into the gorge (forward)
 
@@ -90,6 +91,10 @@ section 3 is the number, this is its picture.
   needs the one before it lit).
 - **The fog line** moves out to the furthest lit beacon. Creatures appear at the fog line, so they walk longer under
   the arrows; the beacon lights its own pool.
+- **Two edges (director, 15.11.2026).** The battle's bank keeps its natural edge, capped by the furthest lit beacon,
+  so the reference nights do not move. The picture shows more: land beyond the furthest lit beacon lies under a
+  standing veil of mist, by day and by night, until its beacon burns. Lighting a beacon uncovers its land that day.
+  The front lane first measures whether the two edges can be one.
 - **Freed land,** one thing seen and one small gain per stretch (none above about 8 % on any system): the old quarry
   (wall and gate work cheaper), the ruined watchtower (a forward archers' post), the charcoal burners' camp (braziers
   burn longer), the far stones (the Great Beacon reaches further on night 20; picture only if the finale would move).
