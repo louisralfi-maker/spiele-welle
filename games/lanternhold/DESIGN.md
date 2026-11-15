@@ -3829,6 +3829,20 @@ The critic's look 1 (`ci-out/director/world-3-camera-pass-critic1.md`): four blo
   drawn after the world plane). 9: a buttress of the Throat's granite with its scree fan on the near plane
   (`throatButtress`, near 852). 10: two paintings of the verge (A B A' B'), stones of three sizes at gaps of two to five
   times, some sunk in the grass.
+- **Rounds** (as world-3's gate: `build unit "ui …"` with WorldSweepUITests, Look2UITests and WorldStoryUITests,
+  English only): lh-w3f1-1 on a999ada (build and UI passed; unit: the fog's own colours with the veil, the body deep in
+  the bank, a window light at the lantern's x), lh-w3f1-2 on f4d9689 ALL PASSED, lh-w3f1-3 on dfec6bc ALL PASSED. Its
+  upright sweep (133 frames, the walk-lead stills `w-2800-walk-r`, `w-2800-walk-l`, `w-2800-walk-r-rm` among them):
+  `ci-out/lh-w3f1-3/sweep-upright`. Proof frames: `w-1400-night`, `w-2200-night`, `w-2400-night` (no box between the
+  lantern and the next dark vertical; the gate torches without halos), `w-3800-noon`, `w-3900-night` (the lord on the
+  landing), `w-0400-night`, `w-0600-night` (the squat bowl, the moon's band), `w-1000-dusk`, `71`, `85` (three archers
+  or fewer per line), `w-0600-fog-b` against `w-0600-night`, `w-0000-night` (bodies in the bank), `w-0400-dusk` and
+  `-noon` (the great bowl), `w-2200-noon` (the oven without a ring), `w-1200-noon` (the buttress), `w-2600-noon` (the
+  verge).
+- **Named, not fixed here:** the postern's painted far view is pale albedo (sky, mist, meadow), so at night it reads a
+  cool grey-green rather than a deep moon-blue (no longer peach); a painted night view would be a second sprite (build
+  3). The bank's own cold eyes can stand beside the beacon's top in the fog (`w-0400-night`; the bank's, not this
+  step's). The buttress reads as a granite needle standing before the cliff rather than a rib tied into it.
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
