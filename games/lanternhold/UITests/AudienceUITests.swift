@@ -253,8 +253,9 @@ final class AudienceUITests: XCTestCase {
             return
         }
         let frame = element.frame
-        XCTAssertGreaterThanOrEqual(frame.width, 44, "\(name) is \(frame.width) pt wide")
-        XCTAssertGreaterThanOrEqual(frame.height, 44, "\(name) is \(frame.height) pt high")
+        // The join: to the hundredth of a point (a float of 43.99999999999994 is 44; 44 pt stays the rule).
+        XCTAssertGreaterThanOrEqual((frame.width * 100).rounded() / 100, 44, "\(name) is \(frame.width) pt wide")
+        XCTAssertGreaterThanOrEqual((frame.height * 100).rounded() / 100, 44, "\(name) is \(frame.height) pt high")
     }
 
     private func field(_ text: String, _ key: String) -> Double? {
