@@ -93,6 +93,17 @@ struct TitleView: View {
     /// `ready` as state: the sequence's task holds the view value it started with, so it reads this live copy
     /// (lh-rj-9: reading `ready` there kept the lantern lit forever, the model was made after the task began).
     @State private var gameReady = false
+    /// TITLE.md step 6: "Touch to begin" after 3 s without a touch.
+    @State private var showHint = false
+
+    /// `-GWTitleHold loading|half|lit|hint` (Debug only): the sequence holds at that state for the proof frames.
+    private static let hold: String? = {
+        #if DEBUG
+        return UserDefaults.standard.string(forKey: "GWTitleHold")?.lowercased()
+        #else
+        return nil
+        #endif
+    }()
 
     var body: some View {
         GeometryReader { geometry in
@@ -127,6 +138,16 @@ struct TitleView: View {
             }
             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
             .clipped()
+            .overlay(alignment: .bottom) {
+                if showHint {
+                    Text("Touch to begin")
+                        .font(Theme.italic(.subheadline))
+                        .foregroundStyle(NightGlass.bone.opacity(0.7))
+                        .padding(.bottom, 18)
+                        .transition(.opacity)
+                        .accessibilityHidden(true)
+                }
+            }
         }
         .background(TitleLayout.night)
         .ignoresSafeArea()
@@ -135,7 +156,7 @@ struct TitleView: View {
         .accessibilityElement()
         .accessibilityIdentifier("title-root")
         .accessibilityLabel(Text("Lanternhold"))
-        .accessibilityHint(Text("Touch to begin"))
+        .accessibilityHint(Text("Double tap to begin"))
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { touched() }
         .onAppear { gameReady = ready }
@@ -227,9 +248,19 @@ struct TitleView: View {
             try? await Task.sleep(nanoseconds: 200_000_000)
             if revealing { return }
             step = next
+            if TitleView.hold == "loading" && next == 3 { return }
         }
         while !gameReady { try? await Task.sleep(nanoseconds: 50_000_000) }
+        if TitleView.hold == "half" {
+            revealing = true
+            radius = (TitleLayout.revealFrom + TitleLayout.revealTo) / 2
+            return
+        }
         await reveal()
+        if TitleView.hold == "lit" { return }
+        // TITLE.md step 6: after 3 s without a touch, the one small line.
+        if TitleView.hold != "hint" { try? await Task.sleep(nanoseconds: 3_000_000_000) }
+        if !started { withAnimation(.easeIn(duration: reduceMotion ? 0 : 0.6)) { showHint = true } }
     }
 
     private func reveal() async {
@@ -260,6 +291,7 @@ struct TitleView: View {
             return
         }
         started = true
+        showHint = false
         Task { @MainActor in
             for frame in 1...3 {
                 lordFrame = frame
