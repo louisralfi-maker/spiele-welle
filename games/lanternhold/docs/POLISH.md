@@ -158,18 +158,132 @@ light. The game is about a light in the dark, and neither of the two makes light
 
 1. **The lord:** a walk of eight frames with the cloak's own motion, a turn, a breath when he stands, the pole's
    swing. He is on screen all the time; he gets the most frames.
-2. **The people:** each of the three classes its own walk (PEOPLE.md); two idle habits per trade (the smith wipes
-   his hands, the baker dusts flour off).
-3. **The archers:** draw, hold, loose, and a lean out over the crenel; nock while they wait.
-4. **The creatures:** a gait of their own per kind, a flinch from light, a dissolve that reads at phone size.
-5. **Follow-through:** nothing stops in one frame. Doors swing past their rest, signs sway after a touch, a tossed
+2. **The people:** each of the three classes its own walk (PEOPLE.md). The named ones get a temper of their own
+   (section 8); the rest get two idle habits per trade (the smith wipes his hands, the baker dusts flour off).
+3. **The creatures:** a gait of their own per kind, a flinch from light, a dissolve that reads at phone size, all at
+   the Ash Giant's bar (section 7).
+4. **Follow-through:** nothing stops in one frame. Doors swing past their rest, signs sway after a touch, a tossed
    coin bounces once.
+5. **The archers:** draw, hold, loose. Soldiers stay plain on purpose (section 8); this item is cut first.
 6. Proof is by short clips from the runner, not by stills; the critic judges at full speed and at a quarter.
 
-## 7. Order and cost
+## 7. The creatures: the Ash Giant is the bar (Louis, 15.11.2026)
+
+Louis: "die schatten monster was am besten gelungensten aussieht ist dieser schatten riese aber die neue version von
+dir der sieht geisteskrank aus der komische ritter kackt rein." The giant is praised. The director reads "the odd
+knight" as the Lightless King: he is the only creature that stands upright like an armed man, in a mantle with a
+pole. If Louis means another one, the rule below judges that one the same way.
+
+**Why the giant works** (`tools/creatures/ashGiant.py`, 110 px high, seven frames; strips seen on 15.11.)
+
+- Its outline is not a man's: stooped under a cloak like a sail, the head lower than the shoulders, the arms almost
+  to the ground.
+- It has one light that tells what it was: the chest is a broken lantern with an ember heart between the ribs. It is
+  the only warm spot on the figure, so the eye goes there.
+- It has weight: planted feet, a stomp, dust.
+
+**Why the king fails** (`lightlessKing.py`, 64 px high, seven frames). The idea is right: a void for a face, thorns
+for a crown, a snuffer on a long pole, the tool that puts lights out. The figure is not:
+
+- he stands upright and even, so he reads as a man in a cloak with a staff;
+- he is little more than half the giant's height, and he is the boss of the last night;
+- he has no light that reads at phone size (a cold ring round the cowl);
+- his walk is a man's walk.
+
+**The giant's rule, for every creature**
+
+1. No man's outline: in plain black at phone size nobody takes it for a person in a costume.
+2. One light of its own that tells what it was (the giant's lantern chest, the gloomweaver's dead violet lantern).
+3. Its weight is decided and shown: it stomps, it scuttles, or it has none at all.
+4. It answers the light: a flinch, and a death that reads (pass 4, item 3).
+
+**The king, redrawn** (after build 2; the idea stays, the figure goes)
+
+- **Tall and thin as a burnt wick:** taller than the giant and a third as wide, the tallest thing before the walls.
+- **Bent like a hook, and he does not walk:** no feet show. He drifts, the cowl leaning out over what he looks at.
+  The train is three times his length and crawls after him; the ground under it goes dark.
+- **His light is a stolen one:** in the snuffer's bell one small warm flame is caught, the only warm thing on him.
+  The bell is drawn big enough to read on a phone.
+- **The lights he took:** dead lanterns hang inside the open mantle. An arrow that strikes knocks one loose; it
+  breaks, and its light flies home to the castle as a spark. The player sees the fight go his way without a bar
+  (picture only, read from his hit points).
+- **He bends light:** the pools of light near him lean toward the cowl and thin out (picture only).
+- **He is announced:** before he comes out of the bank, the torches on the outermost wall gutter one after another
+  (pass 1's leaning fire).
+- No rule in Core changes: night 20, his hit points, his harm and the dark ending stay as they are (REALM.md).
+
+**The others:** the step opens with one sheet of all seven kinds in plain black, judged by the rule. The Ash Brute
+(44 px) is next in line: in its strip it reads as a hunched lump with no light of its own.
+
+**Cost:** a new rig in `tools/creatures/` and its strips. The bigger king does not fit on the atlas as it stands
+(2048 x 1925 of 2048 rows used at stage-3), so pass 4 opens by making room for frames; how is the lane's choice.
+
+## 8. A character of their own: the named people (Louis, 15.11.2026)
+
+Louis: "Was uns auch fehlt ist das manche charakter nen eigenen charakter haben manche kinder sind aufgedreht manche
+nicht manche dumm manche schlau. Oder alte menschen humpeln mit geh stock dicke dünne". And right after: "Aber eher
+bei wichtigen charakter die soldaten können schon basic aussehen."
+
+**What is there** (PEOPLE.md of the people lane; it comes with build 2, Louis has not seen it): the working people
+with a name and a mark each, and three children. Old Hemmet walks bent double on a stick at half the others' pace.
+Brede Hask limps on a foot bound in rags. Wenna Brisk is broad and heavy, Gorm Ashby long and lean. Nib, Wren and
+Fen run and skip.
+
+**What is missing:** they differ in how they look, not in how they are. All three children are quick; nobody is
+slow or sharp, shy or loud. A person's character is what he does when the lord passes, when the horn sounds, and
+when nothing happens.
+
+**The rule:** every named person gets a temper: two words, set by hand, the same every day. Never a text and never
+a number. The player learns it by watching; after a week he knows them without having read a name, and then the
+night is about people he knows. The temper shows in five places:
+
+1. **Pace and path:** straight or wandering, running or dawdling, with or without a rest on the way.
+2. **When nothing happens:** two idle habits of their own (pass 4, item 2).
+3. **How they greet the lord** (pass 2, item 1).
+4. **What they do at the horn** (pass 2, item 6).
+5. **How they stand before the throne:** the same person in the hall's close shot.
+
+**The children**
+
+- **Nib (7), wild:** never still. He runs ahead of the lord and back, jumps into every puddle, chases the hens; the
+  stick is a sword. At the horn somebody has to drag him home.
+- **Wren (9), clever:** she watches before she joins. At dusk she walks behind the lamplighter and plays his trade
+  with a stick; when the lord tosses coins she counts along on her fingers. At the horn she is the first to look up,
+  and she takes Nib by the hand.
+- **Fen (11), quiet:** the lamp-runner. He walks at the lord's heel without a word (this is built), and stands
+  looking up at the Eternal Light when he thinks nobody sees.
+- **A fourth child, the dreamer** (new, comes as the town grows): the smallest, slow and happy. He stands and stares
+  at a butterfly, a puddle, the windmill; he follows the others a few steps late; at the horn he is the last one
+  out, and somebody comes back for him. Never the butt of a joke: the town looks after him.
+
+**The old**
+
+- **Old Hemmet:** the stick and the shuffle are drawn. New: he rests on the well's rim halfway; his bow takes so
+  long that the lord has passed before it is done; at the horn he sets out first, because he needs the longest.
+- **Mother Corra:** stops to talk with everyone she meets and is the last grown-up off the lane.
+
+**Stout and thin**
+
+- Lanternhold is poor (PEOPLE.md: "poor and even"), so thin is the town's body today.
+- **Bodies show the realm's wealth:** PEOPLE.md section 7 changes each one's cloth by stage; the body follows.
+  Master Edwy, the richest man in town, is the first to grow a belly under his apron. One of the two noble bodies
+  of the inner lands is stout from the first day: the rich side looks fed.
+- The test: in plain black at phone size every named person is told from every other by outline alone (height,
+  width, posture).
+
+**The soldiers stay plain** (Louis): the archers and the garrison share one body and one walk, on purpose. A uniform
+reads as "the wall", and plain soldiers make the named ones stand out. Only the named are exceptions: Osk Barrow at
+the gate, and Old Kell in build 3.
+
+**Cost and order:** behaviour in the town's life (no balance rule changes), two or three short strips per person,
+one new child body. The children first (the liveliest, and small bodies are cheap), then the old, then the rest by
+how often the lord meets them. The step's first delivery is a column "temper" in PEOPLE.md's table.
+
+## 9. Order and cost
 
 - Each pass is one lane step with its critic, about half a day, on the sweep that the world lane already has
-  (the wind needs sweep frames on a calm, a breezy and a storm day). Pass 4 is art work and takes a day.
+  (the wind needs sweep frames on a calm, a breezy and a storm day). Pass 4 is art work and takes about two days:
+  one for the motion, one for the king's redraw (section 7) and the named people's tempers (section 8).
 - Pass 1 first: most of it is art strips and one existing number. Then pass 2 (it carries the feel that Louis asks
   for with "deeds in the world"), then pass 3, then pass 4; the review with Louis may put pass 4 first.
 - They run beside build 3's mechanics, not instead of them, and never touch a rule in Core.
