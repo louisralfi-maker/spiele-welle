@@ -1,0 +1,45 @@
+2026-11-15 08:35:08.236009+0000 Lanternhold[11816:47123] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-15 08:35:10.314168+0000 Lanternhold[11816:48155] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-15 08:35:10.314373+0000 Lanternhold[11816:48168] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-15 08:35:10.370526+0000 Lanternhold[11816:48155] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-15 08:35:10.370996+0000 Lanternhold[11816:48174] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-15 08:35:10.376291+0000 Lanternhold[11816:48174] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-15 08:35:10.376580+0000 Lanternhold[11816:48174] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.CraftTests testACommissionIsPaidAtOnceAndTheWorkStandsDaysLater]' passed (0.096 seconds).
+Test Case '-[LanternholdTests.CraftTests testAnOfferIsAnAudienceCard]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.CraftTests testARunWithoutCommissionsIsTodaysRun]' passed (12.518 seconds).
+Test Case '-[LanternholdTests.CraftTests testAStoryDayHoldsTheVisitBackButTheHousesAudiencesDoNot]' passed (0.047 seconds).
+Test Case '-[LanternholdTests.CraftTests testAWorkThatDoesNotStandChangesNothing]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CraftTests testEachWorksSceneAtOtherAmounts]' passed (0.907 seconds).
+Test Case '-[LanternholdTests.CraftTests testNoCraftsmanComesToARealmWithoutThem]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.CraftTests testNotNowBringsHimBackOnceAndNoSendsHimOn]' passed (0.003 seconds).
+XCTExpectFailure: matcher accepted Assertion Failure at CraftTests.swift:751: XCTAssertLessThanOrEqual failed: ("0.49391727493917276") is greater than ("0.06") - lampmaker moves taxes while it stands by 494‰
+CraftTests.swift:751: Expected failure in -[LanternholdTests.CraftTests testNoWorkMovesItsSystemMoreThanAboutFivePercent]: XCTAssertLessThanOrEqual failed: ("0.49391727493917276") is greater than ("0.06") - lampmaker moves taxes while it stands by 494‰Reason: (build 3 tuning: the lampmaker against the walked town)
+Test Case '-[LanternholdTests.CraftTests testNoWorkMovesItsSystemMoreThanAboutFivePercent]' passed (69.866 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheBalanceWorksChangeTheirOneValue]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheBookHoldsTenCraftsmenWithTenWorks]' passed (0.078 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheCraftIsClosedInBuildTwo]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheCraftsmenRideInTheSave]' passed (0.142 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheMortarMakesEveryPatchMendMore]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePainterSpeaksToTheRealmsStage]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePitchMakesAFireArrowStrikeHarder]' passed (0.074 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePortraitGivesItsHappinessOnceAsItIsHung]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheRoadLanternsHoldUnrestOffAtDawnThroughTheSimulation]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheStatueAddsACoinPerHouseWhileTheTownIsContent]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheVisitsComeEveryThirdDayAndEachComesBackOnceAfterNotNow]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheWordsAreInEnglishAndGermanWithinTheCardsLimits]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testReportIsAttached]' passed (147.995 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT10TheTableIsATrade]' passed (0.017 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT11TheHookMatters]' passed (0.026 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT1TheSenderHoldsTheFirstTenNights]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT3TheSendersBeacon]' passed (0.017 seconds).
+XCTExpectFailure: matcher accepted Assertion Failure at TableTuningTests.swift:63: XCTAssertLessThanOrEqual failed: ("21") is greater than ("20") - T4 sender, not above the reference: T4 FAIL high tax, happiness at dawn 8: reference 20 | sender 21 (under 30, not above the reference)
+TableTuningTests.swift:63: Expected failure in -[LanternholdTests.TableTuningTests testT4HighTaxWithTheSender]: XCTAssertLessThanOrEqual failed: ("21") is greater than ("20") - T4 sender, not above the reference: T4 FAIL high tax, happiness at dawn 8: reference 20 | sender 21 (under 30, not above the reference)Reason: (build 3 tuning: the table's T4 against the walked town)
+Test Case '-[LanternholdTests.TableTuningTests testT4HighTaxWithTheSender]' passed (0.036 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT5TheSendersPaceOfBuilding]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT6NightTwenty]' passed (0.031 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT7TheSendersEndless]' passed (0.053 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT8TheSendersBudgets]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testTheBotsUsedTheTable]' passed (0.007 seconds).
+exit=0
+screenshots: 0
