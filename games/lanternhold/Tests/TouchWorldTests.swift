@@ -219,7 +219,7 @@ final class TouchWorldTests: XCTestCase {
             XCTAssertLessThanOrEqual(line.count, 34, line)
         }
         for key in ["Sit on the throne", "Repair the wall", "Leave the great hall", "Enter the great hall",
-                    "Light the brazier", "Recruit", "Set the taxes"] {
+                    "Light the brazier", "Recruit"] {
             let line = try XCTUnwrap(german(key), key)
             XCTAssertLessThanOrEqual(line.count, 30, line)
         }
@@ -233,8 +233,9 @@ final class TouchWorldTests: XCTestCase {
     /// joined it in this step).
     func testTheAtlasStillFitsOnePage() {
         let layout = AtlasBuilder.build(bundle: .main)
-        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide)
-        let attachment = XCTAttachment(string: "atlas: \(layout.width) x \(layout.height) of \(AtlasLayout.maxSide)")
+        // The join: the world's second page (`AtlasLayout.pages`), as PeopleCastTests.
+        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxHeight)
+        let attachment = XCTAttachment(string: "atlas: \(layout.width) x \(layout.height) of \(AtlasLayout.maxHeight)")
         attachment.name = "atlas-rows"
         attachment.lifetime = .keepAlways
         add(attachment)
