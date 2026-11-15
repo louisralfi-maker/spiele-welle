@@ -36,9 +36,8 @@ struct RoomFades: Sendable, Equatable {
 
 /// The castle's exteriors in the game (world-2): what the realm's state and the lord's place change on them. The hall
 /// door opens while the lord stands at it (the open frame shows the hall's warm light, and at dusk and night a warm
-/// wedge of light falls on the cobbles before it; shut, a thin line of light under the door at night); the gate
-/// passage's shade frames the lord in the foreground while he passes through either gate (inside the opening only); the chapel's belfry stands
-/// empty once the bell is melted (`castle.chapel.bell.missing`); a world change darkens one window of the keep
+/// wedge of light falls on the cobbles before it; shut, a thin line of light under the door at night); the chapel's
+/// belfry stands empty once the bell is melted (`castle.chapel.bell.missing`); a world change darkens one window of the keep
 /// (`castle.keep.window.dark`).
 enum CastleRooms {
     static let hallX = 1700.0
@@ -65,15 +64,14 @@ enum CastleRooms {
         var seed: UInt64
     }
 
-    // MARK: - The hall door and the gate passages
+    // MARK: - The hall door
 
     /// The door opens while the lord stands this close to its middle.
     static let doorReach = 18.0
-    /// The gate passage's near jamb fades in and out over this many px either side of a passage.
-    static let archFade = 12.0
-    /// The jamb's sprite stands this far inside the passage's east end, so its lit edge (col 2) is the opening's edge
-    /// and the pier stands beside the opening (fix round 1).
-    static let jambInset = 2.0
+    // World-2 fix round 2 (the critic's blockers 1 and 2, the director's note of 15.11. 07:47): no foreground frame at
+    // either gate. The near pier in front of the gatehouse and the slab in front of the postern are gone; `gateArchFg`
+    // stays in the atlas unplaced and may come back in build 3 only as REVIEW-look-2.md 2.8 describes it (a jamb whose
+    // foot runs off the screen and whose top feathers out, only while the lord passes), after a scenemock preview.
     /// The hall's light through the open door, its wedge on the cobbles and the lantern-warm pool before it.
     static let doorGlowColor = SIMD3<Float>(0.92, 0.8, 0.62)
     static let doorGlowByDay: Float = 0.5
@@ -82,16 +80,6 @@ enum CastleRooms {
     /// True while the lord stands at the hall door.
     static func doorOpen(kingX: Double) -> Bool {
         abs(kingX - SceneLayout.castleHallDoorX) <= doorReach
-    }
-
-    /// The arch's strength in each gate passage for a lord at `kingX` (1 inside, fading over `archFade` outside), in
-    /// tenths so the game's scene is laid out anew only when it changes visibly.
-    static func archTenths(kingX: Double) -> [Int] {
-        SceneLayout.castlePassages.map { passage in
-            let outside = max(passage.lowerBound - kingX, kingX - passage.upperBound, 0)
-            let share = 1 - AmbientRamp.smoothstep(outside / archFade)
-            return Int((share * 10).rounded())
-        }
     }
 
     // MARK: - The scene in the game
@@ -103,22 +91,20 @@ enum CastleRooms {
         var darkKeep: Bool
         var bellGone: Bool = false
         var doorOpen: Bool = false
-        var arches: [Int] = []
     }
 
     static func sceneKey(state: GameState, rooms: RoomFades) -> SceneKey {
         SceneKey(open: rooms.open, darkKeep: CourtWorld.shows(state, "castle.keep.window.dark"),
                  bellGone: CourtWorld.shows(state, "castle.chapel.bell.missing"),
-                 doorOpen: doorOpen(kingX: state.king.x), arches: archTenths(kingX: state.king.x))
+                 doorOpen: doorOpen(kingX: state.king.x))
     }
 
-    /// The scene as the game draws it: the hall door open or shut, the chapel's bell, the keep's dark window, and the
-    /// gate passage's arch in the foreground while the lord passes through a gate.
+    /// The scene as the game draws it: the hall door open or shut, the chapel's bell, the keep's dark window.
     static func scene(_ base: PlaceholderScene, state: GameState, rooms: RoomFades) -> PlaceholderScene {
         var scene = base
         let key = sceneKey(state: state, rooms: rooms)
         var props: [Prop] = []
-        props.reserveCapacity(base.props.count + 2)
+        props.reserveCapacity(base.props.count)
         for var prop in base.props {
             switch (prop.plane, prop.sprite) {
             case (.world, .forebuilding) where key.doorOpen:
@@ -137,20 +123,6 @@ enum CastleRooms {
                 break
             }
             props.append(prop)
-        }
-        if base.props.contains(where: { $0.sprite == .forebuilding || $0.sprite == .posternT1
-                                    || $0.sprite == .posternT2 || $0.sprite == .posternT3 }) {
-            var id = (base.props.map(\.id).max() ?? 0) + 1
-            for (index, tenths) in key.arches.enumerated() where tenths > 0 {
-                // Fix round 1 (the critic's high 7): the passage's near jamb, its lit edge at the passage's east end,
-                // frames the lord while he passes; not the full arch.
-                let passage = SceneLayout.castlePassages[index]
-                let x = (passage.upperBound - jambInset).rounded()
-                props.append(Prop(id: id, sprite: .gateArchFg, plane: .foreground, x: x,
-                                  y: -Double(WorldLayout.groundRowsBelow), z: 9, region: .castle, movesWith: .world,
-                                  frame: index, alpha: Float(tenths) / 10))
-                id += 1
-            }
         }
         scene.props = props
         return scene

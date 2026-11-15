@@ -124,29 +124,20 @@ final class CastleRoomsTests: XCTestCase {
         XCTAssertNotNil(day.emissives.first { $0.sprite == .hallDoorGlow }, "the hall's light shows by day too")
     }
 
-    /// World-2 (2.8): the gate passage's dark arch frames the lord in the foreground while he passes through either
-    /// gate, fading in and out at the passage's ends; none elsewhere. The chapel's belfry stands empty once the bell is
-    /// melted; a world change darkens one of the keep's windows.
-    func testTheGateArchTheBellAndTheKeepsWindow() {
+    /// World-2 fix round 2 (the critic's blockers 1 and 2): no foreground frame stands at either gate, wherever the
+    /// lord stands (the pier in front of the gatehouse and the slab in front of the postern are gone). The chapel's
+    /// belfry stands empty once the bell is melted; a world change darkens one of the keep's windows.
+    func testNoGateFrameTheBellAndTheKeepsWindow() {
         let world = PlaceholderScene.world(look: .two)
-        func arches(_ kingX: Double) -> [Prop] {
-            let s = realm(kingX: kingX)
-            return CastleRooms.scene(world, state: s, rooms: RoomFades(kingX: kingX)).props
-                .filter { $0.sprite == .gateArchFg }
+        var spots: [Double] = [1300, 1600]
+        for passage in SceneLayout.castlePassages {
+            spots += [passage.lowerBound, (passage.lowerBound + passage.upperBound) / 2, passage.upperBound]
         }
-        XCTAssertTrue(arches(1600).isEmpty)
-        XCTAssertTrue(arches(1300).isEmpty)
-        for (index, passage) in SceneLayout.castlePassages.enumerated() {
-            let middle = (passage.lowerBound + passage.upperBound) / 2
-            let inside = arches(middle)
-            XCTAssertEqual(inside.count, 1, "passage \(index)")
-            XCTAssertEqual(inside.first?.alpha ?? 0, 1, accuracy: 1e-6)
-            XCTAssertEqual(inside.first?.plane, .foreground)
-            XCTAssertEqual(inside.first?.movesWith, .world, "it stands with the gate's masonry")
-            XCTAssertEqual(inside.first?.x ?? 0, passage.upperBound - CastleRooms.jambInset, accuracy: 0.5,
-                           "the near jamb at the passage's east end (fix round 1)")
-            let edge = arches(passage.upperBound + CastleRooms.archFade / 2)
-            XCTAssertLessThan(edge.first?.alpha ?? 0, 1, "fading out past the passage")
+        for kingX in spots {
+            let props = CastleRooms.scene(world, state: realm(kingX: kingX), rooms: RoomFades(kingX: kingX)).props
+            XCTAssertFalse(props.contains { $0.sprite == .gateArchFg }, "no gate frame with the lord at \(kingX)")
+            XCTAssertFalse(props.contains { $0.plane == .foreground && $0.region == .castle },
+                           "no castle stone in the foreground at \(kingX)")
         }
         let bell = CastleRooms.scene(world, state: realm(kingX: 1600, world: ["castle.chapel.bell.missing"]),
                                      rooms: RoomFades(kingX: 1600))

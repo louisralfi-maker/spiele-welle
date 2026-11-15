@@ -734,6 +734,9 @@ def curtain_body(c, x0, x1, seed, top=CURT_H):
         c.set(x, c.r(5), "stoneDark")
     corbel_table(c, x0, x1, c.r(top - 4), period=6, depth=3)
     for x in range(x0, x1 + 1):
+        # world-2 fix round 2: the row over the corbels was left clear, a slit through the wall (the keep's mist showed
+        # through it at night as a bright blue line under the merlons); the walk's shadow, two rows deep
+        c.set(x, c.r(top - 2), "stoneDark")
         c.set(x, c.r(top - 1), "stoneDark")
         c.set(x, c.r(top), "stone")
         c.set(x, c.r(top + 1), "stoneLight")
@@ -781,31 +784,34 @@ def curtain(kind):
                     c.set(x, c.r(hh), ("stonePale" if dx < 0 else "stoneLight") if vous else
                           ("stoneLight" if dx < 0 else "stone"))
     if kind == "curtainC":
-        # a buttress: its lit face in courses, its shaded flank, a sloped cap, an ink edge on the shade side and its
-        # shadow on the wall; a drain spout and its stain
+        # a buttress (world-2 fix round 2, the critic's high 6: "one even pale value, like a card leaning on the
+        # wall"): its stone a step darker than the curtain's, the sun from the left on a narrow lit edge, its face in
+        # courses, a broad east flank in shadow, a sloped cap lit only along its upper edge, and its shadow cast on the
+        # wall to the east, widening downward; a drain spout and its stain
         for x in range(23, 34):
             k = x - 23
             for hh in range(0, 46):
-                if k < 2:
-                    name = "stoneLight"
-                elif k < 8:
-                    name = "stone" if (hh // 6) % 2 or k < 7 else "stoneLight"
+                joint = hh % 6 == 5
+                if k == 0:
+                    name = "stone"                       # the lit edge: the curtain's own value, no paler
+                elif k < 6:
+                    name = "stoneMid" if joint else ("stone" if (hh // 6 + k // 3) % 3 == 0 else "stoneMid")
                 else:
-                    name = "stoneMid"
-                if hh % 6 == 5:
-                    name = "stoneMid" if k < 8 else "stoneDark"
+                    name = "stoneDark" if joint or k > 8 else "stoneMid"   # the east flank, turned from the sun
                 c.set(x, c.r(hh), name)
-            for d in range(4):                    # the sloped cap
+            for d in range(4):                    # the sloped cap: its lit upper edge, its shaded underside
                 hh = 46 + d
                 if k <= 10 - d * 3:
-                    c.set(x, c.r(hh), "stonePale" if k < 8 else "stoneLight")
-        for hh in range(0, 46):
+                    top_row = k > 10 - (d + 1) * 3
+                    c.set(x, c.r(hh), ("stone" if k < 6 else "stoneMid") if top_row else
+                          ("stoneMid" if k < 6 else "stoneDark"))
+        for hh in range(0, 47):
             c.set(34, c.r(hh), "ink")
-        for hh in range(4, 44):
-            c.step(35, c.r(hh), -1)
-            c.step(36, c.r(hh), -1)
-            if hh % 2:
-                c.step(37, c.r(hh), -1)
+        for hh in range(2, 47):                  # its cast shadow on the wall: 3 px under the cap, 6 at the foot
+            reach = 3 + (46 - hh) * 3 // 44
+            for d in range(reach):
+                if d < reach - 1 or hh % 2:
+                    c.step(35 + d, c.r(hh), -1)
         ivy(c, 4, 0, 16, 26, seed)
         for hh in range(30, 55):
             if h01(seed, hh) < 0.85:

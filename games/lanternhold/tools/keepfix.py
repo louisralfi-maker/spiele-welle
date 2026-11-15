@@ -11,7 +11,7 @@ reproduces its files byte for byte):
         cone), deep window reveals, shadows under every string course and corbel table, a brazier on the wall walk;
         the building states with heavy timber and a crane whose jib stands over the roof (high 8)
   keepRimT1 .. keepRimT3Build  260x175  emissive: the keep's warm rim on its west edges at dusk (blocker 1)
-  keepMist          320x22   the feathered mist bank on the mistBand plane at the keep's foot (dawn, dusk, night)
+  keepMist          320x32   the feathered mist bank on the mistBand plane at the keep's foot (dawn, dusk, night)
   keepPaneHalo      11x14    emissive: the soft warm bloom around a lit twin window of the keep
   keepFireGlow      36x24    emissive: the keep's brazier's light on its merlons and roof
   forebuilding      120x96 x 2  the porch rebuilt (high 5): a slate roof that slopes, a dormer with a thick coping
@@ -20,7 +20,7 @@ reproduces its files byte for byte):
         flagstones receding to a lit far wall, a pillar, the hearth's glow the brightest point high in the middle
   hallDoorWedge     60x19    emissive: the door's wedge of light over the steps and the cobbles, the door's width at
         the threshold to 2.5 times it 12 rows out, smooth alpha so the stones show through
-  smokePuff         18x6 (3 frames)  a puff of chimney smoke at three sizes (high 3)
+  smokePuff         8x8 (5 frames)  a puff of chimney smoke at five sizes, 3 to 7 px (high 3; fix round 2)
   curtainB          64x74    the curtain's blocked arch as a recess in shadow (high 6)
   posternT1..T3     176x112  the postern's passage with depth (high 4): jamb shadow, the vault, a lit far end and
         cobbles that recede
@@ -130,6 +130,8 @@ def drum(c, x0, x1, h0, h1, seed, course=4, lift=0.0, step=0.44):
                 v = min(v, 3.9) - 1
             if x in (x0, x1):
                 v -= 0.6
+            if theta > 0.3:                         # fix round 2 (high 2): the flank away from the sun a step deeper
+                v -= 1.0 if theta > 0.62 else 0.5
             kset(c, x, c.r(hh), v)
 
 
@@ -137,10 +139,10 @@ def kcourse(c, x0, x1, hh, lit_to=None, drum_x=None):
     """A string course at height hh: a lit top row, its moulding, and two rows of shadow under it (deep, then soft)."""
     for x in range(x0, x1 + 1):
         lit = (lit_to is None or x < lit_to)
-        top, body = (5, 3.5) if lit else (4, 2.5)
+        top, body = (4.5, 3.4) if lit else (3.6, 2.5)    # fix round 2: the lit-stone value on top, not white
         if drum_x:
             sh, _ = drum_shade(x, drum_x[0], drum_x[1])
-            top, body = 4.4 + sh * 0.6, 3.2 + sh * 0.6
+            top, body = 4.2 + sh * 0.6, 3.1 + sh * 0.6
         kset(c, x, c.r(hh), top)
         kset(c, x, c.r(hh - 1), body)
         kset(c, x, c.r(hh - 2), 0)
@@ -175,7 +177,7 @@ def kmachicolations(c, x0, x1, hh, period=5, depth=4, drum_x=None):
         for d in range(depth):
             y = c.r(hh - d)
             if k == 0:
-                kset(c, x, y, (4.8, 3.6, 2.6, 2.0)[d] + sh * 0.5)
+                kset(c, x, y, (4.3, 3.5, 2.6, 2.0)[d] + sh * 0.5)
             elif k == 1:
                 kset(c, x, y, (3.6, 2.4, 1.8, 1.0)[d] + sh * 0.5)
             else:
@@ -188,7 +190,7 @@ def kparapet(c, x0, x1, hh, rows=3, drum_x=None, lit_to=None):
     for x in range(x0, x1 + 1):
         sh = drum_shade(x, drum_x[0], drum_x[1])[0] if drum_x else (0.0 if lit_to is None or x < lit_to else -1.0)
         for d in range(rows):
-            kset(c, x, c.r(hh + d), (2.8 if d == 0 else 3.3 if d < rows - 1 else 4.4) + ramp(hh) - 3.0 + sh * 0.7)
+            kset(c, x, c.r(hh + d), (2.8 if d == 0 else 3.3 if d < rows - 1 else 4.1) + ramp(hh) - 3.0 + sh * 0.7)
 
 
 def kmerlons(c, x0, x1, hbase, mh=5, mw=5, gap=3, phase=0, drum_x=None, lit_to=None):
@@ -203,9 +205,9 @@ def kmerlons(c, x0, x1, hbase, mh=5, mw=5, gap=3, phase=0, drum_x=None, lit_to=N
         for d in range(mh):
             y = c.r(hbase + d)
             if d == mh - 1:
-                v = 5.0 if k < mw - 1 else 4.0
+                v = 4.3 if k < mw - 1 else 3.5     # fix round 2 (high 2): the lit stone's value, not white teeth
             elif k == 0:
-                v = 4.4
+                v = 4.0
             elif k == mw - 1:
                 v = 2.0
             else:
@@ -262,6 +264,35 @@ def ktwin(c, x, hb, w=7, h=10):
         kset(c, xx, c.r(hb - 2), 0)
         if h01(xx, hb, 3) < 0.6:
             kset(c, xx, c.r(hb - 3), 1)
+
+
+def kshutter(c, x, hb, w=5, h=8):
+    """Fix round 2 (the critic's high 2: "a mirrored front"): a small window shut with two wooden shutters (cols x ..
+    x+w-1, heights hb .. hb+h-1): a round head of dark voussoirs, the leaves in plank courses (the left lit, the right
+    a step darker), the gap between them, an iron strap on each, a lit sill and its shadow; a deep reveal on the
+    right."""
+    ytop = c.r(hb + h - 1)
+    mid = x + w // 2
+    for d in range(h):
+        for xx in range(x, x + w):
+            if d == 0 and abs(xx - mid) > 1:
+                continue
+            if xx == mid:
+                name = "woodDark"                       # the gap between the leaves
+            elif xx < mid:
+                name = "woodLight" if xx == x else "wood"
+            else:
+                name = "wood" if xx < x + w - 1 else "woodDark"
+            if d in (2, h - 2) and xx != mid:
+                name = "stoneDark"                      # the iron straps
+            c.set(xx, ytop + d, name)
+    for d in range(-1, h + 1):                          # the reveal: lit jamb left, deep right
+        kset(c, x - 1, ytop + d, 4.0)
+        kset(c, x + w, ytop + d, 0.4)
+    for xx in range(x - 1, x + w + 1):                  # the head's voussoirs and the sill
+        kset(c, xx, ytop - 1, 3.6 if xx < mid else 2.6)
+        kset(c, xx, c.r(hb - 1), 4.2 if xx < x + w else 3.4)
+        kset(c, xx, c.r(hb - 2), 0)
 
 
 def ksmall(c, x, hb, h=7):
@@ -399,7 +430,7 @@ def keep_tower(c, x0, x1, t, tier, seed, building, i):
     """A round corner tower: the drum, a string course, slits, a corbelled crown of machicolations and merlons; tier 3
     puts a slate cone on it."""
     tw = t["tower"]
-    drum(c, x0, x1, 0, tw, seed + 31 * (i + 1), course=4, lift=0.15 if i == 0 else -0.15)
+    drum(c, x0, x1, 0, tw, seed + 31 * (i + 1), course=4, lift=0.15 if i == 0 else -0.45)
     for hh in range(0, 7):
         for x in range(x0 - 1, x1 + 2):
             kset(c, x, c.r(hh), 1.2 if hh < 6 else 3.5)
@@ -407,7 +438,15 @@ def keep_tower(c, x0, x1, t, tier, seed, building, i):
     cx = (x0 + x1) // 2
     for hh in (82, 102, 118):
         if hh + 2 < tw - 6:
-            kslit(c, cx - 3, hh + 6, 7)
+            if i == 0 and hh == 82:
+                kshutter(c, cx - 5, 82)             # fix round 2: the west tower's shut window (the towers differ)
+            else:
+                kslit(c, cx - 3, hh + 6, 7)
+    if i == 1:
+        # fix round 2: the east tower's second string course, a corbelled band at the main block's upper floor
+        kcourse(c, x0, x1, 94, drum_x=(x0, x1))
+        for x in range(x0 + 2, x1 - 1, 4):
+            kset(c, x, c.r(91), 1.2)
     ext = 2
     kmachicolations(c, x0 - ext, x1 + ext, tw - 1, period=5, depth=4, drum_x=(x0 - ext, x1 + ext))
     kparapet(c, x0 - ext, x1 + ext, tw, rows=3, drum_x=(x0 - ext, x1 + ext))
@@ -452,19 +491,31 @@ def keep_body(c, t, tier, seed, building=False):
     for (x, dy, w, h) in keep_panes(tier, building)[:-1]:
         ktwin(c, x, dy, w, h)
     if tier >= 2 and not building:
-        ktwin(c, OX + 79, 100)                      # the storey's fourth window, its glass unlit (no mask)
+        kshutter(c, OX + 79, 100, w=7, h=10)        # the storey's fourth window, shuttered (fix round 2: no mirror)
     for (x, hh) in ((OX + 48, 78), (OX + 141, 78)):  # unlit: a stair's slits in the outer bays
         kslit(c, x + 3, hh + 8, 8)
     kcorbels(c, bx0, bx1, ww - 1, period=4, depth=3)
     kparapet(c, bx0, bx1, ww, rows=3, lit_to=bx1 - 26)
     kmerlons(c, bx0 + 1, bx1 - 1, ww + 3, mh=5, mw=5, gap=3, lit_to=bx1 - 26)
     x1 = KTOWERS[0][1]                              # the west tower's shadow on the block beside it
-    for hh in range(6, ww - 3):
-        for d in range(4):
-            if d < 3 or hh % 2:
+    # fix round 2 (high 2: "no light direction"): the sun from the left; the west tower, standing forward, casts a
+    # broad shadow over the block's first bay, up through its parapet and merlons, its edge dithered
+    for hh in range(6, ww + 9):
+        for d in range(12):
+            if d < 9 or (hh + d) % 2:
                 v = kval(c, x1 + 1 + d, c.r(hh))
                 if v is not None:
-                    kset(c, x1 + 1 + d, c.r(hh), v - 1)
+                    kset(c, x1 + 1 + d, c.r(hh), v - (1.8 if d < 7 else 1.0))
+    # a drainage stain under the chimney: a spout in the parapet and its dark, broken streaks down the wall
+    sx = 183 if ww < 110 else 195
+    for d, (dx, length) in enumerate(((0, 26), (1, 34), (2, 18))):
+        for hh in range(ww - length, ww - 1):
+            if h01(sx, d, hh // 2, 71) < 0.82:
+                v = kval(c, sx + dx, c.r(hh))
+                if v is not None:
+                    kset(c, sx + dx, c.r(hh), v - (1.0 if hh > ww - 14 else 0.6))
+    c.set(sx + 1, c.r(ww), "ink")
+    c.set(sx + 1, c.r(ww - 1), "stoneDark")
 
 
 def keep_roof(c, t, seed):
@@ -472,7 +523,7 @@ def keep_roof(c, t, seed):
     chimney stack on the right slope (its smoke is the layout's)."""
     ww, ridge = t["wall"], t["ridge"]
     bx0, bx1 = KBODY
-    top, bot = c.r(ridge), c.r(ww + 4)
+    top, bot = c.r(ridge), c.r(ww + 3)              # fix round 2: down to the parapet (a clear row showed the rock)
     run = float(bot - top)
     a0, b0 = bx0 + 5, bx1 - 5
     ra, rb = bx0 + 44, bx1 - 44
@@ -610,29 +661,33 @@ def keep_rim(tier, building=False):
     return im
 
 
+BAYER4 = ((0, 8, 2, 10), (12, 4, 14, 6), (3, 11, 1, 9), (15, 7, 13, 5))
+MIST_H = 32
+
+
 def keep_mist():
-    """The mist bank on the mistBand plane at the keep's foot: a band 22 rows high whose top billows in slow lobes and
-    feathers out over its upper rows, both ends fading over 56 px; smooth alpha in eight steps (light, not art); the
-    engine gives it the hour's fog colour at the mist's strength (dawn, dusk, night)."""
-    w, h = 320, 22
+    """The mist bank on the mistBand plane at the keep's foot (its bottom row at y 60, the curtain's merlon tops at
+    y 72): fix round 2 (the critic's high 1: "neon tiles in the crenel gaps"): one volume behind the wall that rises 4
+    to 6 rows over the merlon tops in slow, low lobes and feathers out over 10 rows of ordered dither (never a smooth
+    alpha edge), both ends dithered away over 56 px; one alpha where it stands, a little thinner in its upper rows. The
+    engine gives it the hour's fog colour, at night a desaturated night grey a value step over the keep's foot."""
+    w, h = 320, MIST_H
     im = PA.Image(w, h)
-    r, g, b = 255, 255, 255                         # white: the engine gives it the hour's fog colour
     for x in range(w):
-        lobe = 3.0 * math.sin(x / 23.0 + 0.7) + 2.0 * math.sin(x / 9.0 + 2.1) + 1.2 * math.sin(x / 4.3)
-        crest = 14.0 + lobe                             # rows above the bottom where the feather starts
+        lobe = 1.4 * math.sin(x / 31.0 + 0.7) + 0.8 * math.sin(x / 13.0 + 2.1) + 0.5 * math.sin(x / 5.3)
+        solid = 17.0 + lobe                          # rows over the bottom where the dither begins (y 77 +- 2.7)
         end = min(1.0, x / 56.0, (w - 1 - x) / 56.0)
         end = end * end * (3 - 2 * end)
         for y in range(h):
             up = h - 1 - y
-            if up <= crest - 5:
-                a = 1.0
-            else:
-                t = (up - (crest - 5)) / 8.0
-                a = max(0.0, 1.0 - t) ** 1.6
-            a *= end * 0.75
-            k = int(a * 8 + 0.5)
-            if k > 0:
-                im.set(x, y, (r, g, b, min(255, 32 * k - 1)))
+            keep = 1.0 if up <= solid else max(0.0, 1.0 - (up - solid) / 10.0)
+            keep *= end
+            if keep <= 0:
+                continue
+            if keep < 1.0 and BAYER4[y % 4][x % 4] >= keep * 16:
+                continue
+            a = 0.72 if up <= solid - 4 else 0.6
+            im.set(x, y, (255, 255, 255, int(a * 255)))
     return im
 
 
@@ -773,6 +828,13 @@ def forebuilding_frame(open_):
         for x in range(DOOR[0] + 1, DOOR[1]):        # the gap under the door: the layout's mask lights it at night
             c.set(x, c.r(SILL), "night1")
     else:
+        # fix round 2 (the critic's high 7: "by day a dull brown field with a grey smudge"): the room behind the open
+        # door is dark by day (the darkest night, not the recess's navy), so the hall's light painted over it
+        # (`hallDoorGlow`) reads warm at noon too
+        for y in range(c.r(SILL + 30), c.r(SILL) + 1):
+            for x in range(DOOR[0], DOOR[1] + 1):
+                if c.is_(x, y, "night1"):
+                    c.set(x, y, "night0")
         for y in range(c.r(SILL + 25), c.r(SILL) + 1):   # the leaves swung in against the recess's sides
             c.set(DOOR[0], y, "woodDark")
             c.set(DOOR[0] + 1, y, "wood")
@@ -887,21 +949,34 @@ def hall_door_wedge():
     return im
 
 
+PUFF = 8                                             # a puff frame's side
+PUFF_SIZES = (3, 4, 5, 6, 7)                         # fix round 2 (high 4): puffs grow from 3 to 7 px as they rise
+
+
 def smoke_puff():
-    """A puff of chimney smoke at three sizes (frames 6 px wide): a soft round blob, solid in its heart, its rim at
-    half alpha; white, so the engine's tint gives it the hour's value."""
-    out = PA.Image(18, 6)
-    for f, rad in enumerate((1.6, 2.2, 2.8)):
-        for y in range(6):
-            for x in range(6):
-                d = math.hypot(x - 2.5, y - 2.8)
-                if d <= rad - 0.7:
-                    a = 255
-                elif d <= rad + 0.3:
-                    a = 120
+    """A puff of chimney smoke at five sizes (frames 8 px square, 3 to 7 px across): a soft lumpy blob, denser in its
+    heart and toward its upper left, its rim broken in half alpha; white, so the engine's tint gives it the hour's
+    value. Overlapping as they rise, the growing puffs merge into one plume."""
+    out = PA.Image(PUFF * len(PUFF_SIZES), PUFF)
+    for f, size in enumerate(PUFF_SIZES):
+        rad = size / 2.0
+        cx = (PUFF - 1) / 2.0
+        cy = (PUFF - 1) / 2.0 + 0.3
+        for y in range(PUFF):
+            for x in range(PUFF):
+                ang = math.atan2(y - cy, x - cx)
+                lump = 0.35 * math.sin(3 * ang + f * 1.3) + 0.2 * math.sin(5 * ang + 0.7 * f)
+                d = math.hypot(x - cx, y - cy) - lump * min(1.0, rad / 2.5)
+                if d <= rad - 1.0:
+                    heart = 1.0 - 0.18 * max(0.0, (x - cx) + (y - cy)) / max(1.0, rad)
+                    a = int(255 * max(0.7, heart))
+                elif d <= rad - 0.2:
+                    a = 150
+                elif d <= rad + 0.4 and (x + y + f) % 2 == 0:
+                    a = 80
                 else:
                     continue
-                out.set(f * 6 + x, y, (255, 255, 255, a))
+                out.set(f * PUFF + x, y, (255, 255, 255, a))
     return out
 
 

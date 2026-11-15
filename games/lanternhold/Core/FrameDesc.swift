@@ -374,11 +374,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .posternT1, .posternT2, .posternT3: return PixelSize(width: 176, height: 112)
         case .gateArchFg: return PixelSize(width: 16, height: 116)
         // World-2 fix round 1 (tools/keepfix.py).
-        case .keepMist: return PixelSize(width: 320, height: 22)
+        case .keepMist: return PixelSize(width: 320, height: 32)      // fix round 2: rises over the merlons
         case .keepRimT1, .keepRimT2, .keepRimT3, .keepRimT2Build, .keepRimT3Build: return PixelSize(width: 260, height: 175)
         case .keepPaneHalo: return PixelSize(width: 11, height: 14)
         case .keepFireGlow: return PixelSize(width: 36, height: 24)
-        case .smokePuff: return PixelSize(width: 6, height: 6)
+        case .smokePuff: return PixelSize(width: 8, height: 8)        // fix round 2: 3 to 7 px
         case .posternFarGlow: return PixelSize(width: 10, height: 16)
         case .moorRuin: return PixelSize(width: 50, height: 36)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
@@ -434,8 +434,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bankSheetA, .bankSheetB, .bankSheetC: return 2
         case .cleftWater: return 12   // fix round 2: six frames per thread, the second thread's from frame 6
         case .forebuilding, .chapelTower: return 2   // world-2: the hall door closed and open; the bell, gone
-        case .gateArchFg: return 2                   // world-2: the gatehouse's near jamb, the postern's
-        case .smokePuff: return 3                    // world-2 fix round 1: three sizes
+        case .gateArchFg: return 2                   // world-2: unplaced since fix round 2 (build 3 may bring it back)
+        case .smokePuff: return 5                    // world-2 fix round 2: five sizes, 3 to 7 px
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9
