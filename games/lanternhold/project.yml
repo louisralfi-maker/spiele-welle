@@ -21,6 +21,9 @@ settings:
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     ALWAYS_SEARCH_USER_PATHS: NO
+    # The languages a Release build ships (review b2 release-3; DIRECTOR.md: build 2 is English only, the other seven
+    # come back in one pass before the store). The app target's last script phase removes every other *.lproj.
+    LH_SHIP_LANGUAGES: en
 
 # --- Ads: Google Mobile Ads + the consent form (UMP) through Swift Package Manager (as Comet Cargo and Piston Empire) ----
 # Pinned by Package.resolved (the runner copies it into the generated project).
@@ -76,6 +79,40 @@ targets:
         # The tracking question's text; Resources/InfoPlist.xcstrings holds it in all eight languages.
         INFOPLIST_KEY_NSUserTrackingUsageDescription: "Lets the few ads you see match your interests. The game plays the same either way."
         # --- end ads --------------------------------------------------------------------------------------------------
+        # The script phase below deletes folders inside the built app, which the user-script sandbox forbids; it is
+        # this target's only script phase.
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+    # Review b2 release-3: a Release build holds only the languages in LH_SHIP_LANGUAGES (Base.lproj always stays). It
+    # runs after every other phase and before code signing, on every build (no inputs or outputs). Release only: the
+    # unit tests, hosted in the Debug app, read de.lproj, and the ui-de rounds play in German. The catalogs stay whole.
+    postBuildScripts:
+      - name: Ship only LH_SHIP_LANGUAGES
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "${CONFIGURATION}" != "Release" ]; then
+            echo "ship languages: ${CONFIGURATION} keeps every language"
+            exit 0
+          fi
+          if [ -z "${LH_SHIP_LANGUAGES}" ]; then
+            echo "error: LH_SHIP_LANGUAGES is empty"
+            exit 1
+          fi
+          RES="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
+          for dir in "${RES}"/*.lproj; do
+            [ -d "${dir}" ] || continue
+            lang="$(basename "${dir}" .lproj)"
+            [ "${lang}" = "Base" ] && continue
+            keep=0
+            for ship in ${LH_SHIP_LANGUAGES}; do
+              [ "${lang}" = "${ship}" ] && keep=1
+            done
+            if [ "${keep}" = "0" ]; then
+              rm -rf "${dir}"
+              echo "ship languages: removed ${lang}.lproj"
+            fi
+          done
+          echo "ship languages: the app holds:"
+          ls -d "${RES}"/*.lproj
     dependencies:
       - package: GoogleMobileAds
         product: GoogleMobileAds
