@@ -732,3 +732,11 @@ schneller geht."
   - Decision: a timed fix round 3 as the director's own Opus agent: blockers 1 and 2, highs 1, 3, 6, 8, 9, and high 5 only before 19:00. Gate round by 19:10 (lh-w3f3-1); report `world-3-camera-pass-fix3.md`. After build 2: highs 2, 4, 7.
   - The join sends its gate on the stage's delta now. D waits for the world's fix-3 delta and one more gate, so D moves from about 20:30 to about 21:15.
   - Quota: 51 % of the week.
+
+- **The review of build 2 runs as a workflow of Opus agents (15.11.2026, 17:54).**
+  - Louis' word (17:48): Fable 5.2 stays the director on extra high as it is; Opus agents may be started in ultracode (workflows).
+  - Workflow `lanternhold-build2-review` (run `wf_20b84201-581`, started 17:50), read only, on the pinned snapshot `.claude/worktrees/lh-b2review` at 906f57c (the join's head with the stage's fix round 2; the world before its fix round 3).
+  - Eight lenses: `core-day`, `core-night`, `core-state` (a save of build 86 on Louis' phone; the app killed at any moment), `app-ui`, `render`, `release` (privacy manifest, ads, debug hooks dead in Release, what a German phone shows in the English build), `player-first` (the first ten minutes, with frames), `player-loop` (days 2 to 7 on paper).
+  - After each lens an independent refuter attacks every blocker and high (not confirmed from the code means refuted) and writes `ci-out/director/review-b2/<lens>.md`. A completeness critic names what no lens covered. 17 agents, two at a time (the Mac), all Opus 5.5.
+  - No fix phase in it: the rolling join is the only writer on `claude/lh-join`. The director reads the result and then orders the fix lane.
+  - The join meanwhile: the stage's 3d00e5c is merged (906f57c); `lh-rj-19` (the lanes' other classes) sent 17:45; `lh-rj-18` still runs.
