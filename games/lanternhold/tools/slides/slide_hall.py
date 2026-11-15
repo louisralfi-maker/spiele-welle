@@ -160,7 +160,7 @@ SEAT_X = 198               # the seat at about 62 % of the width
 DOOR = (16, 50, 60)        # the door's left, right and the arch's top (about 70 px high to the floor)
 FLOOR2 = 132
 PIERS = ((64, 77, "far"), (106, 119, "mid"), (146, 159, "near"))
-LIT = {"near": ("gold", "tile"), "mid": ("tile", "crimsonDeep"), "far": ("plumDeep", "plumDeep")}
+LIT = {"near": ("tileLight", "tile"), "mid": ("plum", "plumDeep"), "far": ("plumDeep", "night1")}
 HEIR_COLD = {"H": ("night0", "nightSlate", "night0", 1), "F": ("night0", "nightSlate", "night0", 1),
              "C": ("night0", "nightSlate", "night0", 1), "D": ("night0", "nightSlate", "night0", 1),
              "B": ("night0", "nightSlate", "night0", 1)}
@@ -263,21 +263,22 @@ def slide4(kind):
     for y in range(FLOOR2, H):
         k = (y - FLOOR2) / float(H - FLOOR2)
         x0 = int(hx + k * 150)
-        w_ = max(1, int(round(3.5 - k * 2.5)))
+        w_ = max(1, int(round(3.0 - k * 2.0)))           # 6 to 7 px wide where it is near, 2 at its far end
         for x in range(x0 - w_, x0 + w_ + 1):
             if wedge_outer[y, x]:
-                p.px(x, y, "night0")
+                c = p.get(x, y)
+                p.px(x, y, {"nightHaze": "nightBlue", "nightSlate": "nightBlue", "nightBlue": "nightDeep"}.get(c, c))
     # the lantern's warm pool at the dais: three steps on the flagstones, gold nearest, then ember, then dark
     for y in range(FLOOR2, H):
         for x in range(140, W):
             cx_, row, joint = flag_at(x, y)
             t = falloff(cx_, FLOOR2 + row * 7 + 3, SEAT_X - 10, FLOOR2, 64, 20, 1.2)
-            lv = 2 if t > 0.5 else (1 if t > 0.16 else 0)
+            lv = 3 if t > 0.6 else (2 if t > 0.32 else (1 if t > 0.12 else 0))
             if not lv:
                 continue
-            c = ("night0", "tile", "straw")[lv]
+            c = ("night0", "plumDeep", "plum", "tile")[lv]
             if joint:
-                c = ("night0", "night0", "tile")[lv]
+                c = ("night0", "night1", "plumDeep", "plum")[lv]
             p.px(x, y, c)
     # the piers: stone, 14 px wide, base and capital, a lit face toward the lantern in two tones
     for (x0, x1, which) in PIERS:
@@ -285,6 +286,11 @@ def slide4(kind):
             for x in range(x0, x1 + 1):
                 p.px(x, y, "nightDeep" if x < x1 - 4 else "nightBlue")
             l1, l2 = LIT[which]
+            if which == "near":
+                t = max(0.0, 1.0 - abs(y - ly) / 70.0)
+                l1, l2 = (("tileLight", "tile") if t > 0.66 else (("tile", "plum") if t > 0.33 else ("plum", "plumDeep")))
+                if y % 10 == 9:
+                    l1, l2 = "plumDeep", "night1"           # a course breaks the light
             p.px(x1, y, l1); p.px(x1 - 1, y, l1 if which == "near" else l2); p.px(x1 - 2, y, l2)
         for x in range(x0 - 2, x1 + 3):
             for y in (FLOOR2 - 3, FLOOR2 - 2, FLOOR2 - 1, 18, 19, 20):
@@ -309,10 +315,14 @@ def slide4(kind):
         for y in range(y0, y1):
             for x in range(x0, x1):
                 t = falloff(x, y0, lx, ly, 120, 120, 1.1)
-                if y <= y0 + 1:
-                    c = "straw" if t > 0.55 else ("tile" if t > 0.25 else "nightBlue")
+                if y == y0:
+                    c = "tileLight" if t > 0.6 else ("tile" if t > 0.35 else "plumDeep")
+                elif y == y0 + 1:
+                    c = "plum" if t > 0.35 else "night1"
                 else:
-                    c = "nightDeep"
+                    c = "plumDeep" if (t > 0.45 and (x // 18 + (y > y0 + 4)) % 2 == 0) else "night1"
+                    if (x + (7 if y > y0 + 4 else 0)) % 18 == 17:
+                        c = "night0"
                 p.px(x, y, c)
     # the high-backed seat, about 1.4 times larger, empty; warm on the top of its back and on its arms
     seat = {"back": (SEAT_X - 11, SEAT_X + 11, 50, 108), "board": (SEAT_X - 17, SEAT_X + 17, 102, 108),
