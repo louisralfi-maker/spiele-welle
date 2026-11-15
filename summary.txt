@@ -1,0 +1,7 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 309ebb4
+source: claude/lh-join
+21:37:05 PASS release
+ALL PASSED
