@@ -640,3 +640,50 @@ stage lane renames any of them, the join renames the call).
 7. **The dawn report's row** ("Lanterns home: 38 (Tallowford)" / "Did not come home: 40") from
    `ErrandEngine.dawnRows(s, day:)`, in the rebuilt dawn report. Sounds (no music): a hook's clink and a light haptic
    at dawn for a lantern home, one long haptic and no sound for a lost one (QUESTS.md 5.3), via `SoundCues` at the join.
+
+### Tests
+
+- `Tests/Table/TableBoardTests.swift` (8 tests): the map file has every carved place, its pin 24 px clear of every
+  other and of the castle, its hit box on the table, its house colour and an unbroken road from the castle; the art
+  ships at its sizes with binary alpha and a solid table top; the picture lights half of Highcairn's road (head white,
+  road gold, the rest dark) and shows the cloth on day 1; the rail's four states; the line of light reads the same for
+  a late and a lost party (only `dueDay`), is full on the last day and for Hild's lantern; every party of every order
+  gets a carved piece; a lantern stands at its place, by the castle with its report, nowhere when home or lost; the
+  stages `rail`, `report:goldenacre_paid` and `report:ludo_lost`.
+- `UITests/TableUITests.swift` (4 tests, English): Pip sent on day 2 (Tallowford's pin lit, the slip opened, the
+  order sent, lantern 38 out and burning at Tallowford, called back, sent again), "Back" to dawn 3 (`-GWTableReturn`),
+  his report on the letter with lantern 38 by the castle, the lanes lit, 38 dark on its hook again, "Back" to day 4;
+  day 11 with three lanterns out; the rail's states (staged); the longest report (`goldenacre_paid`, 240 characters)
+  and Ser Ludo's lost lantern (staged). Every button checked for 44 pt. Shots `40-table`, `41-slip`, `43-hook-empty`,
+  `42-report`, `46-reaction`, `44-table-day11`, `45-table-three-out`, `47-table-rail`, `48-table-report-long`,
+  `49-table-report-lost`.
+
+### Rounds (by the director's notes of 14.11. 18:46 and 19:35: short rounds, English only, the gate one round)
+
+- `lh-q3-1` on `38699a9` (build, unit `TableBoardTests` `ErrandDataTests`, ui `TableUITests`): build and unit passed
+  at once; ui failed one check only (Tallowford's pin 43.99999 pt high, a rounding of 44). The shots showed what to fix:
+  lit pins did not glow, the rail's dark lanterns read blue, the letter and the column's parchment filled their whole
+  height, the open slip's order tile sat below the fold, Highcairn's tag hid the rider, the seal's mark read as a plus,
+  the house pins' enamel was a blob, the table's east was bare. Fixed in `c0a9d6c`.
+- `lh-q3-2` on `c0a9d6c` (same filters): **ALL PASSED**. One more fix from its shots: a tag above a pin near the north
+  edge hung over the rim (`51b8352`, it hangs below).
+- `lh-q3-3` on `51b8352`, the gate (build, unit all, ui `TableUITests`): **ALL PASSED**. 488 unit tests passed, 0
+  failed; no build warning from the lane's files; `tuning-report.txt` and `table-neutral-seed1.txt` byte for byte those
+  of `lh-q2f1-1` (the screen changes nothing in the simulation); `TableUITests` passed all four tests. Upright shots:
+  `ci-out/upright/q3-3/*.jpg` in the lane's worktree (git-ignored).
+
+### Open, and what waits for the join
+
+- **German:** every new key has German within its budget (unit-tested); no German screen was shot or judged (the
+  director's note of 14.11. 19:35; the brief asked for both languages).
+- **Art, judged harshly:** the downs read a little as warm piles; the Morninglands' east is calm rather than rich; the
+  Weltmauer's peaks are placed by rule and a pixel artist may see the rule in the west foothills; the boxwood pieces
+  (8 to 16 px) and the map's lantern (7 x 11, 12 x 18 pt) are small on a phone; the plates' 3 x 5 digits are the
+  smallest type on the screen. The interface kit's 7 x 9 figures (`claude/lh-hudart`) could replace them at the join.
+- **While a report is read** the letter covers the castle and the lantern standing by it; the lantern is seen again
+  the moment the answer is given (dark on its hook).
+- **The open slip** scrolls to its last tile; on day 2 that clips the slip's top border in the column.
+- **Not shot yet:** the red chip "{who} waits in the hall" (it depends on the day's queue; the day-11 test notes it
+  when it happens).
+- **For the join:** everything under "How the join wires the walked world" above; Pip's court line on day 2 (the cloth),
+  the `Remembered` and `CourtWorld` lists, `tools/simtune`, the six other languages, as before.
