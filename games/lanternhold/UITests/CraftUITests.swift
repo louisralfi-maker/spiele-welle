@@ -8,16 +8,8 @@ import XCTest
 /// `61-craft-commissioned`, `60b-craft-counsel`, `60c-craft-again`, `60d-craft-longest` (each `-<lang>`).
 @MainActor
 final class CraftUITests: XCTestCase {
-    /// The craft is closed in build 2 (`CraftVisits.open = false`: the game starts no craftsmen; `CraftTests.
-    /// testTheCraftIsClosedInBuildTwo` pins it). A UI test cannot read the app's flag, so this mirrors it: while it is
-    /// false the class skips itself instead of showing an offer no player can meet. Build 3 opens the craft and turns
-    /// both to true.
-    static let craftIsOpen = false
-
     override func setUp() async throws {
         continueAfterFailure = true
-        try XCTSkipUnless(CraftUITests.craftIsOpen,
-                          "the craft is closed in build 2 (CraftVisits.open = false); this class runs once build 3 opens it")
     }
 
     private var language: String {
