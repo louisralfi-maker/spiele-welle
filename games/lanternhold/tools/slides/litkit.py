@@ -1,0 +1,359 @@
+#!/usr/bin/env python3
+"""The title's light language for the prologue slides (copied and adapted from tools/titleart.py on claude/lh-title,
+round 5, ce729f3): light against dark, volume before detail, a quiet ordered dither in the air (each palette step
+keeps 60 % of its band solid, the rest mixes in 25 / 50 / 75 %), solid steps on surfaces, the dark in the night0
+family with eyes alone. numpy + PIL for the drawing; saved through paint.write_png (paint.py itself is unchanged), so
+the files are written exactly as the other slides. Deterministic: no random source, only position hashes.
+"""
+import math
+import os
+import sys
+
+import numpy as np
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from paint import PAL, write_png  # noqa: E402
+
+W, H = 320, 160
+BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]
+AIR = ["night2", "plum", "dusk", "tileLight", "gold", "fireGold"]          # dusk violet .. pale gold
+STONE = ["plumDeep", "plum", "tile", "tileLight", "straw", "strawLight"]  # plum .. rust .. amber .. warm sand
+COLD = ["nightSlate", "night2", "nightHaze", "far", "moon", "farPale"]    # the moon's cold ramp
+
+
+def C(n):
+    return PAL[n]
+
+
+def h(x, y, s=0):
+    v = (x * 374761393 + y * 668265263 + s * 2246822519) & 0xFFFFFFFF
+    v = ((v ^ (v >> 13)) * 1274126177) & 0xFFFFFFFF
+    return ((v ^ (v >> 16)) & 0xFFFFFF) / float(0x1000000)
+
+
+def pick_air(x, y, cols, p):
+    if p <= 0:
+        return cols[0]
+    i = int(p)
+    if i >= len(cols) - 1:
+        return cols[-1]
+    f = p - i
+    if f < 0.6:
+        return cols[i]
+    level = (4, 8, 12)[min(2, int((f - 0.6) / 0.4 * 3))]
+    return cols[i + 1] if BAYER[y % 4][x % 4] < level else cols[i]
+
+
+def pick_solid(cols, p):
+    return cols[max(0, min(len(cols) - 1, int(p)))]
+
+
+def falloff(x, y, cx, cy, rx, ry, g=1.35):
+    return max(0.0, 1.0 - math.hypot((x - cx) / rx, (y - cy) / ry)) ** g
+
+
+def poly_mask(pts, w=W, hh=H):
+    m = np.zeros((hh, w), bool)
+    n = len(pts)
+    for y in range(hh):
+        yc = y + 0.5
+        xs = []
+        for i in range(n):
+            (x0, y0), (x1, y1) = pts[i], pts[(i + 1) % n]
+            if (y0 <= yc < y1) or (y1 <= yc < y0):
+                xs.append(x0 + (yc - y0) * (x1 - x0) / (y1 - y0))
+        xs.sort()
+        for i in range(0, len(xs) - 1, 2):
+            a = int(math.ceil(xs[i] - 0.5))
+            b = int(math.floor(xs[i + 1] - 0.5))
+            if b >= a:
+                m[y, max(0, a):min(w, b + 1)] = True
+    return m
+
+
+def ellipse_mask(cx, cy, rx, ry, w=W, hh=H):
+    yy, xx = np.mgrid[:hh, :w]
+    return ((xx + 0.5 - cx) / rx) ** 2 + ((yy + 0.5 - cy) / ry) ** 2 <= 1.0
+
+
+def edge_of(m):
+    return m & ~(np.roll(m, 1, 0) & np.roll(m, -1, 0) & np.roll(m, 1, 1) & np.roll(m, -1, 1))
+
+
+class Pic:
+    """A slide: names per pixel, so every pixel stays a palette colour by construction."""
+
+    def __init__(self, fill="night0"):
+        self.n = np.full((H, W), fill, dtype=object)
+
+    def px(self, x, y, name):
+        x, y = int(x), int(y)
+        if 0 <= x < W and 0 <= y < H and name:
+            self.n[y, x] = name
+
+    def get(self, x, y):
+        return self.n[int(y), int(x)] if (0 <= x < W and 0 <= y < H) else None
+
+    def mask(self, m, name):
+        self.n[m] = name
+
+    def rgb(self):
+        out = np.zeros((H, W, 3), np.uint8)
+        for name in set(self.n.flat):
+            out[self.n == name] = C(name)
+        return out
+
+    def save(self, path):
+        a = self.rgb()
+        allowed = set(PAL.values())
+        assert all(tuple(int(v) for v in a[y, x]) in allowed for y in range(H) for x in range(W))
+        rows = [bytearray(np.concatenate([a[y], np.full((W, 1), 255, np.uint8)], axis=1).tobytes())
+                for y in range(H)]
+        write_png(path, W, H, rows)
+
+    def save_preview(self, path, zoom=3):
+        a = np.repeat(np.repeat(self.rgb(), zoom, 0), zoom, 1)
+        rows = [bytearray(np.concatenate([a[y], np.full((W * zoom, 1), 255, np.uint8)], axis=1).tobytes())
+                for y in range(H * zoom)]
+        write_png(path, W * zoom, H * zoom, rows)
+
+
+def lit_mass(pic, m, base, lx, ly, rx, ry, k_face=0.45, k_edge=1.0, depth=3, ramp=STONE, quant=6, g=1.25,
+             cold_rim=None, cold_dir=(-1, -1)):
+    """A solid mass lit by a point: the edges turned to the light (a step toward it leaves the mass) take the warm
+    ramp fully, depth 1..depth px in; the rest of the face a share k_face; everything in solid steps sampled on a
+    quant-px grid (so the steps follow planes, not pixels). cold_rim: a colour for edges turned to cold_dir (the sky)."""
+    ys, xs = np.where(m)
+    for y, x in zip(ys, xs):
+        d = math.hypot(x - lx, y - ly) or 1.0
+        vx, vy = (lx - x) / d, (ly - y) / d
+        facing = 0
+        for k in range(1, depth + 1):
+            qx, qy = int(round(x + vx * k)), int(round(y + vy * k))
+            if not (0 <= qx < W and 0 <= qy < H) or not m[qy, qx]:
+                facing = k
+                break
+        t = falloff((x // quant) * quant + quant / 2.0, (y // quant) * quant + quant / 2.0, lx, ly, rx, ry, g)
+        k = (k_edge * (1.0 - 0.18 * (facing - 1))) if facing else k_face
+        i = int(t * len(ramp) * k)
+        if i <= 0 and cold_rim:
+            qx, qy = x + cold_dir[0], y + cold_dir[1]
+            if not (0 <= qx < W and 0 <= qy < H) or not m[qy, qx]:
+                pic.px(x, y, cold_rim)
+                continue
+        pic.px(x, y, ([base] + ramp)[min(len(ramp), max(0, i))])
+
+
+def air(pic, base_fn, lx, ly, rx, ry, scale=6.2, g=1.35, mask=None, ramp=AIR):
+    for y in range(H):
+        for x in range(W):
+            if mask is not None and not mask[y, x]:
+                continue
+            pic.px(x, y, pick_air(x, y, [base_fn(x, y)] + ramp, falloff(x, y, lx, ly, rx, ry, g) * scale))
+
+
+def bands(stops, mix=10):
+    """A sky of flat bands meeting in ordered dither over `mix` rows: stops [(y0, name), ...]."""
+    def f(x, y):
+        n = stops[0][1]
+        for (y0, c) in stops:
+            if y >= y0:
+                n = c
+        for i in range(1, len(stops)):
+            y0, c = stops[i]
+            d = y - (y0 - mix // 2)
+            if 0 <= d < mix:
+                return c if BAYER[y % 4][x % 4] < int(16 * (d + 0.5) / mix) else stops[i - 1][1]
+        return n
+    return f
+
+
+def eyes(pic, pairs, inside=None):
+    """Pairs of eyes, no two alike: (x, y, w, h, gap, right eye dy, right eye h, colour). No outline, no halo."""
+    for (x, y, w_, h_, gap, dyr, hr, col) in pairs:
+        for (ex, ey, eh) in ((x, y, h_), (x + w_ + gap, y + dyr, hr)):
+            for dx in range(w_):
+                for dy in range(eh):
+                    X, Y = ex + dx, ey + dy
+                    if inside is None or inside[Y, X]:
+                        pic.px(X, Y, col if dy == 0 or col != "wraithWhite" else "wraithGlow")
+
+
+def grid(pic, rows, x0, y0, legend, flip=False):
+    """A hand-drawn sprite from text rows; '.' is empty. legend maps a char to a palette name."""
+    for r, row in enumerate(rows):
+        for q, ch in enumerate(row[::-1] if flip else row):
+            if ch != "." and ch != " ":
+                pic.px(x0 + q, y0 + r, legend[ch])
+
+
+def grid_mask(rows, x0, y0, flip=False):
+    m = np.zeros((H, W), bool)
+    for r, row in enumerate(rows):
+        for q, ch in enumerate(row[::-1] if flip else row):
+            if ch != "." and ch != " " and 0 <= x0 + q < W and 0 <= y0 + r < H:
+                m[y0 + r, x0 + q] = True
+    return m
+
+
+# --- round 2 of the prologue (the director's rules A and B) -----------------------------------------------------------
+def core_glow(pic, cx, cy, r=8, tones=("fireOrange", "ember"), keep=()):
+    """The only light in the air: a small core of two tones with an ordered-dither edge, radius at most 10 px."""
+    for y in range(int(cy - r - 1), int(cy + r + 2)):
+        for x in range(int(cx - r - 1), int(cx + r + 2)):
+            if not (0 <= x < W and 0 <= y < H) or pic.get(x, y) in keep:
+                continue
+            d = math.hypot(x - cx, y - cy)
+            if d < r * 0.5:
+                pic.px(x, y, tones[0])
+            elif d < r * 0.62 and BAYER[y % 4][x % 4] < 8:
+                pic.px(x, y, tones[0])
+            elif d < r * 0.88:
+                pic.px(x, y, tones[1])
+            elif d < r and BAYER[y % 4][x % 4] < 6:
+                pic.px(x, y, tones[1])
+
+
+def lit_figure(pic, parts, lx, ly, near=70, depth=3, tones_near=("tileLight", "tile"), tones_far=("tile", "plum"),
+               lit_part=None):
+    """A figure is a dark mass; only the side that faces the light gets lit planes, 2 to 3 px wide, in two tones
+    (the outer px the brighter); the far side sinks into the dark. No outline anywhere. parts: [(mask, base)];
+    lit_part: optional {base: (light, mid)} for parts with their own lit tones (skin, metal)."""
+    U = np.zeros((H, W), bool)
+    for m, _ in parts:
+        U |= m
+    for m, base in parts:
+        for y, x in zip(*np.where(m)):
+            d = math.hypot(x - lx, y - ly) or 1.0
+            vx, vy = (lx - x) / d, (ly - y) / d
+            facing = 0
+            for k in range(1, depth + 1):
+                qx, qy = int(round(x + vx * k)), int(round(y + vy * k))
+                if not (0 <= qx < W and 0 <= qy < H) or not U[qy, qx]:
+                    facing = k
+                    break
+            if facing:
+                tones = (lit_part or {}).get(base) or (tones_near if d < near else tones_far)
+                pic.px(x, y, tones[0] if facing <= 1 else tones[1])
+            else:
+                pic.px(x, y, base)
+
+
+def mountain(pic, outer_l, inner_l, inner_r, outer_r, facets_l, facets_r, light=None, reach=70, lip=9,
+             warm=("tileLight", "tile"), y0=0, y1=H):
+    """The Weltmauer with one cleft (round 2): two masses wide at the foot, their jagged outer edges leaving the top
+    of the frame; leaning facets in the night's stone tones (a facet's left edge catches the cold sky); a cold rim on
+    the planes that face home (the right mass's outer slope); warm light only on the cleft's two lips, in two tones,
+    broken by the facets' edges. outer_l .. outer_r: functions y -> x. facets_*: [(x at top, x at bottom), ...]."""
+    tones = ("nightBlue", "nightDeep", "nightBlue", "night0", "nightBlue", "nightDeep")
+    m = np.zeros((H, W), bool)
+    for y in range(y0, y1):
+        a, b, c, d = int(outer_l(y)), int(inner_l(y)), int(inner_r(y)), int(outer_r(y))
+        for x in range(max(0, a), min(W, b)):
+            k = sum(1 for (xt, xb) in facets_l if x >= xt + (xb - xt) * y / float(H))
+            edge = any(x == int(xt + (xb - xt) * y / float(H)) for (xt, xb) in facets_l)
+            pic.px(x, y, "nightSlate" if edge else tones[k % len(tones)])
+            m[y, x] = True
+        for x in range(max(0, c), min(W, d + 1)):
+            k = sum(1 for (xt, xb) in facets_r if x >= xt + (xb - xt) * y / float(H))
+            edge = any(x == int(xt + (xb - xt) * y / float(H)) for (xt, xb) in facets_r)
+            pic.px(x, y, "nightSlate" if edge else tones[(k + 1) % len(tones)])
+            m[y, x] = True
+        if h(y // 7, 3, 91) < 0.62:                    # a broken cold rim on the slope that faces home
+            for x in range(max(0, d - 2), min(W, d + 1)):
+                pic.px(x, y, "night2" if x == d else "nightSlate")
+        # few, uneven ledges and cracks that lean with the slope (round 4), never regular courses
+        for (x0, x1, s_, lean) in ((a, b, 11, -0.55), (c, d, 23, 0.55)):
+            if x1 - x0 > 24 and h(y, 0, s_) < 0.045:
+                sx0 = int(x0 + 6 + (x1 - x0 - 18) * h(y, 1, s_))
+                n = 7 + int(h(y, 2, s_) * 10)
+                for k in range(n):
+                    xx, yy = sx0 + int(round(k * lean)), y + k
+                    if pic.get(xx, yy) in ("nightBlue", "nightDeep", "night0"):
+                        pic.px(xx, yy, "nightSlate" if pic.get(xx, yy) == "nightBlue" else "nightBlue")
+                        if pic.get(xx + 1, yy) in ("nightBlue", "nightDeep"):
+                            pic.px(xx + 1, yy, "night0")
+        for x in range(max(0, a), min(W, a + 2)):
+            pic.px(x, y, "nightBlue")
+        if light is not None:
+            for x in list(range(max(0, b - lip), b)) + list(range(c, min(W, c + lip))):
+                dist = math.hypot(x - light[0], y - light[1])
+                if dist >= reach:
+                    continue
+                onedge = pic.get(x, y) == "nightSlate"
+                inner = (b - 1 - x) if x < b else (x - c)
+                if inner > (lip - 1) * (1.0 - dist / reach) + 1:
+                    continue
+                if onedge:
+                    pic.px(x, y, "night0")             # a facet's edge breaks the light: a crack
+                    continue
+                if len(warm) == 3:     # round 3: the light falls off in three steps by distance
+                    pic.px(x, y, warm[0] if dist < reach * 0.3 else (warm[1] if dist < reach * 0.55 else warm[2]))
+                else:
+                    pic.px(x, y, warm[0] if (dist < reach * 0.5 and inner < lip * 0.5) else warm[1])
+    return m
+
+
+# --- round 3 of the prologue: hand-set figures -------------------------------------------------------------------
+def grid_parts(rows, x0, y0, legend):
+    """Hand-set pixel grid -> {char: mask}. Each char is a region with its own dark base and lit tones (legend)."""
+    out = {}
+    for r, row in enumerate(rows):
+        for q, ch in enumerate(row):
+            if ch in (".", " "):
+                continue
+            X, Y = x0 + q, y0 + r
+            if 0 <= X < W and 0 <= Y < H:
+                out.setdefault(ch, np.zeros((H, W), bool))[Y, X] = True
+    return [(out[ch], legend[ch]) for ch in legend if ch in out]
+
+
+def light_grid(pic, parts, lx, ly, depth=3):
+    """Night versions of hand-set people: each region a dark mass; only px whose step toward the light leaves the
+    whole figure take its lit tones (outer px the first, the next 1..depth-1 the second). legend values:
+    (base, lit1, lit2[, depth])."""
+    U = np.zeros((H, W), bool)
+    for m, _ in parts:
+        U |= m
+    for m, spec in parts:
+        base, l1, l2 = spec[:3]
+        dep = spec[3] if len(spec) > 3 else depth
+        for y, x in zip(*np.where(m)):
+            d = math.hypot(x - lx, y - ly) or 1.0
+            vx, vy = (lx - x) / d, (ly - y) / d
+            facing = 0
+            for k in range(1, dep + 1):
+                qx, qy = int(round(x + vx * k)), int(round(y + vy * k))
+                if not (0 <= qx < W and 0 <= qy < H) or not U[qy, qx]:
+                    facing = k
+                    break
+            pic.px(x, y, (l1 if facing == 1 else l2) if facing else base)
+
+
+def mist_band(pic, x0, x1, top, bottom, under=("nightBlue", "nightDeep", "night0", "nightSlate")):
+    """A low band of mist at the mountain's foot (round 5): a paler navy, its upper edge in ordered dither."""
+    for y in range(top, bottom):
+        for x in range(x0, x1):
+            if pic.get(x, y) not in under:
+                continue
+            edge = y - top
+            if edge < 4 and BAYER[y % 4][x % 4] >= 4 * (edge + 1):
+                continue
+            pic.px(x, y, "nightSlate" if pic.get(x, y) in ("nightBlue", "nightDeep", "night0") else "night2")
+
+
+def far_step(pic, mask, top_y, blend=8):
+    """One tone step between far and near rock: above top_y the rock is one step lighter (the air between),
+    crossing in ordered dither over `blend` rows."""
+    up = {"night0": "nightDeep", "nightDeep": "nightBlue", "nightBlue": "nightSlate"}
+    for y in range(0, top_y + blend):
+        for x in range(W):
+            if not mask[y, x]:
+                continue
+            c = pic.get(x, y)
+            if c not in up:
+                continue
+            if y >= top_y and BAYER[y % 4][x % 4] < int(16 * (y - top_y + 1) / (blend + 1)):
+                continue
+            pic.px(x, y, up[c])

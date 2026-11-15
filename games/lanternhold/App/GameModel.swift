@@ -169,6 +169,8 @@ final class GameModel {
 
     // The HUD and the screens (the game).
     private(set) var overlay: Overlay? = nil
+    /// Panels lane: the slide stage over everything (the prologue, later the endings; `UI/Slides/`).
+    let slides = SlideStage()
     /// Where the open card's place is on screen, 0 ... 1 of the width (the card stands above it).
     private(set) var cardAnchor = 0.5
     private(set) var gold = 0
@@ -268,6 +270,8 @@ final class GameModel {
         if overlay == nil, let state = driver?.state, LordEntry.asks(args: args, state: state) {
             setOverlay(.lordEntry)
         }
+        // Panels lane: a realm saved at the finale's dawn that never chose how to go on gets its ending again.
+        resumeChapterEndAtLaunch()
         refreshHUD()
     }
 
@@ -713,6 +717,8 @@ final class GameModel {
         if delta > 0 { feedback.play(.happinessUp) }
         if delta < 0 { feedback.play(.happinessDown) }
         setOverlay(nil)
+        // Panels lane: after the finale's dawn the chapter ends (its ending's slides, then the end card).
+        endChapterIfFinale(report)
     }
 
     var defeatInfo: DefeatInfo? {

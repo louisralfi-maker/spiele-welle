@@ -33,6 +33,8 @@ struct GameView: View {
                 OverlayView(model: model)
                 // The ads (Ads/AdViews.swift): Marek's card over the world.
                 AdLayer(model: model)
+                // Panels lane: the slide stage over everything (UI/Slides/SlideStageView.swift).
+                SlideStageHost(model: model)
             }
         }
         .background(Color.black.ignoresSafeArea())
@@ -164,7 +166,8 @@ final class WorldSceneCoordinator: NSObject, MTKViewDelegate {
             applyThermalState()
         }
         // The audience keeps 60: its hall lives on under the card (M3).
-        let screen = model.overlay?.isScreen ?? false
+        // Panels lane: the slide stage covers the world like a screen.
+        let screen = (model.overlay?.isScreen ?? false) || model.slides.coversWorld
         let rate = min(thermalRate, screen ? WorldSceneCoordinator.screenRate : 60)
         if view.preferredFramesPerSecond != rate {
             view.preferredFramesPerSecond = rate
