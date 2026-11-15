@@ -51,6 +51,10 @@ struct HearthBot: Sendable {
     /// Called before every sim step.
     mutating func act(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent],
                       petitions: PetitionCatalog = .standard) {
+        // The town's morning first (the join with the taxes on foot): the old dawn had paid the day's taxes before this
+        // bot's first purchase, so it collects as its day bot's habit says before it spends (`Autoplay.morning`; a
+        // second call the same day does nothing).
+        day.morning(&s, balance: balance)
         let isDay = DayClock.phase(at: s.hour) == .day
         if !isDay && carelessNights.contains(s.nightNumber) {
             walk(&s, to: Realm.throneX, dt: dt, balance: balance)

@@ -114,6 +114,9 @@ struct TableTuning: Sendable {
             let night = s.nightNumber
             let report = runToDawn(&s, bot: &player, table: &tableBot, catalog: catalog, balance: balance,
                                    dusk20: &dusk)
+            // The town's morning right after the dawn, as `TuningRun.play` (the join with the taxes on foot): the gold
+            // and happiness logged at a dawn are what the old dawn sum gave.
+            player.morning(&s, balance: balance)
             played += 1
             let stats = s.night
             result.outcomes.append(NightOutcome(night: night, survived: !s.defeated, hearthLowest: stats.hearthLowest,

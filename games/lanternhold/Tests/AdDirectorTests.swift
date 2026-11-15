@@ -225,7 +225,10 @@ final class AdDirectorTests: XCTestCase {
         stub.finish()
         XCTAssertEqual(ads.giftLanded, gift, "the slip comes when the ad has gone")
         XCTAssertFalse(ads.merchantCardOpen)
-        XCTAssertEqual(game.gold, gold + gift.gold, "the HUD")
+        // The HUD's purse holds back the coins still in the air (`GameModel.townShownGold`, the taxes on foot): the
+        // reference bot's morning tosses of the `-GWDay` start have not landed while the clock stands.
+        let inFlight = try XCTUnwrap(game.driver.map { TownShow.goldInFlight($0.state, balance: $0.balance) })
+        XCTAssertEqual(game.gold, gold + gift.gold - inFlight, "the HUD")
         XCTAssertEqual(game.driver?.isPaused, false)
         // The double taxes the same way: the town's flag in the reward callback, the report's note only after the ad.
         let other = model(["GWDay": "9"])

@@ -61,6 +61,10 @@ struct ForwardBot: Sendable {
     /// Called before every sim step.
     mutating func act(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent],
                       petitions: PetitionCatalog = .standard) {
+        // The town's morning first (the join with the taxes on foot): the old dawn had paid the day's taxes before this
+        // bot's first beacon order, so it collects as its day bot's habit says before it spends (`Autoplay.morning`; a
+        // second call the same day does nothing).
+        day.morning(&s, balance: balance)
         let isDay = DayClock.phase(at: s.hour) == .day
         guard isDay, s.gorge != nil else {
             day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)

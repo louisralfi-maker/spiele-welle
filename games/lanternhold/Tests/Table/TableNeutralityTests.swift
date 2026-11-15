@@ -86,6 +86,8 @@ final class TableNeutralityTests: XCTestCase {
         for night in 1...20 {
             if night == 20 { bot = Autoplay.reference() }
             let report = runToDawn(&s, bot: &bot, visit: visit, catalog: catalog, seen: &seen)
+            // The town's morning right after the dawn, as `TuningRun.play` plays it (the join with the taxes on foot).
+            bot.morning(&s, balance: .standard)
             dawns.append(Dawn(state: s, line: line(night: night, s, taxes: report?.taxes.total ?? 0)))
             if s.defeated { break }
         }
