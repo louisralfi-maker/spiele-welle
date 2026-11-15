@@ -1,0 +1,13 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:106: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - the crown did not open the audience
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (247.451 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (86.396 seconds).
+Test Suite 'FirstDayUITests' failed at 2026-11-15 00:18:22.165.
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (16.340 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (25.730 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (76.963 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (29.712 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (23.197 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 00:21:14.119.
+Test Suite 'Selected tests' failed at 2026-11-15 00:21:14.120.
+exit=65
+screenshots: 21

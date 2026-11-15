@@ -1,0 +1,28 @@
+Application, 0x103661690, pid: 27672, label: 'Lanternhold' <App element pid: 27672>
+  Window (Main), 0x102e3c780, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 27672, elementOrHash.elementID: 4343258128.3>
+    Other, 0x102e38c50, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 27672, elementOrHash.elementID: 4343262688.4>
+      Other, 0x102e3d1b0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 27672, elementOrHash.elementID: 4344757168.5>
+        Other, 0x102e37100, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 27672, elementOrHash.elementID: 4343259120.6>
+          Other, 0x102e37ea0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 27672, elementOrHash.elementID: 4344326448.7>
+            Other, 0x102e3ab50, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 27672, elementOrHash.elementID: 4344800064.8>
+              Other, 0x102e3aef0, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:2640 ready d... <AX element pid: 27672, elementOrHash.elementID: 4343597312.9>
+              Other, 0x1036611f0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 27672, elementOrHash.elementID: 4343260128.10>
+              Other, 0x1036628b0, {{0.0, 0.0}, {1.0, 1.0}}, identifier: 'town-status', value: day:1 owing: paid:... <AX element pid: 27672, elementOrHash.elementID: 4343653696.11>
+              Other, 0x103662270, {{0.0, 0.0}, {393.3, 402.0}} <AX element pid: 27672, elementOrHash.elementID: 4344401792.12>
+              Button, 0x103666660, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'hud-pause', label: 'Pause' <AX element pid: 27672, elementOrHash.elementID: 4344825360.13>
+                Other, 0x1036609b0, {{70.0, 6.0}, {44.0, 44.0}} <AX element pid: 27672, elementOrHash.elementID: 4344781200.21>
+                Image, 0x103666ea0, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'pause.fill', label: 'Pause' <AX element pid: 27672, elementOrHash.elementID: 4344311616.22>
+              StaticText, 0x103664980, {{708.7, 12.3}, {83.3, 19.3}}, identifier: 'hud-clock', label: 'Day 1, 21:42' <AX element pid: 27672, elementOrHash.elementID: 4344320880.14>
+                StaticText, 0x10366bb70, {{708.7, 12.3}, {38.7, 19.3}}, label: 'Day 1' <AX element pid: 27672, elementOrHash.elementID: 4344774240.23>
+                StaticText, 0x103665a00, {{755.3, 12.8}, {36.7, 18.3}}, label: '21:42' <AX element pid: 27672, elementOrHash.elementID: 4344774672.24>
+              Other, 0x103661a30, {{651.0, 41.0}, {38.0, 19.7}}, identifier: 'hud-gold', label: 'Gold', value: 48 <AX element pid: 27672, elementOrHash.elementID: 4344776848.15>
+                Other, 0x10365cc10, {{651.0, 43.0}, {16.0, 16.0}} <AX element pid: 27672, elementOrHash.elementID: 4344321312.25>
+                StaticText, 0x10365e9e0, {{672.0, 41.0}, {17.0, 19.7}}, label: '48' <AX element pid: 27672, elementOrHash.elementID: 4344776416.26>
+              Other, 0x1036655e0, {{701.0, 41.0}, {40.0, 19.7}}, identifier: 'hud-happiness', label: 'Happiness', value: 60 <AX element pid: 27672, elementOrHash.elementID: 4344322944.16>
+                Other, 0x1036676e0, {{701.0, 41.8}, {18.0, 18.0}} <AX element pid: 27672, elementOrHash.elementID: 4344800736.27>
+                StaticText, 0x10365ee00, {{724.0, 41.0}, {17.0, 19.7}}, label: '60' <AX element pid: 27672, elementOrHash.elementID: 4344322512.28>
+              Other, 0x103667b00, {{753.3, 41.0}, {38.7, 19.7}}, identifier: 'hud-people', label: 'People', value: 14 <AX element pid: 27672, elementOrHash.elementID: 4344324912.17>
+                Other, 0x103670ec0, {{753.3, 43.7}, {16.0, 14.3}} <AX element pid: 27672, elementOrHash.elementID: 4344324048.29>
+                StaticText, 0x103670fe0, {{775.0, 41.0}, {17.0, 19.7}}, label: '14' <AX element pid: 27672, elementOrHash.elementID: 4344324480.30>
+              Other, 0x103671100, {{651.0, 36.0}, {141.0, 1.0}} <AX element pid: 27672, elementOrHash.elementID: 4344326016.18>
+              Button, 0x103671220, {{266.0, 6.0}, {342.0, 44.0}}, identifier: 'realm-strip', label: 'Map of the valley' <AX element pid: 27672, elementOrHash.elementID: 4344323376.19>
