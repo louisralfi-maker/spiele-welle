@@ -47644,42 +47644,6 @@
             "state" : "translated",
             "value" : "I walked a long way to be heard."
           }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "I walked a long way to be heard."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "I walked a long way to be heard."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "I walked a long way to be heard."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "I walked a long way to be heard."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "I walked a long way to be heard."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "I walked a long way to be heard."
-          }
         }
       }
     },
@@ -47696,42 +47660,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "When you sit, {my lord|my lady}, I will speak."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "When you sit, {my lord|my lady}, I will speak."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "When you sit, {my lord|my lady}, I will speak."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "When you sit, {my lord|my lady}, I will speak."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "When you sit, {my lord|my lady}, I will speak."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "When you sit, {my lord|my lady}, I will speak."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "needs_review",
             "value" : "When you sit, {my lord|my lady}, I will speak."
           }
         }
@@ -47752,42 +47680,6 @@
             "state" : "translated",
             "value" : "We wait for the throne, {my lord|my lady}."
           }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "We wait for the throne, {my lord|my lady}."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "We wait for the throne, {my lord|my lady}."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "We wait for the throne, {my lord|my lady}."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "We wait for the throne, {my lord|my lady}."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "We wait for the throne, {my lord|my lady}."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "We wait for the throne, {my lord|my lady}."
-          }
         }
       }
     },
@@ -47804,42 +47696,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Touch what the {lord|lady} shall do."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Touch what the {lord|lady} shall do."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Touch what the {lord|lady} shall do."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Touch what the {lord|lady} shall do."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Touch what the {lord|lady} shall do."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Touch what the {lord|lady} shall do."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "needs_review",
             "value" : "Touch what the {lord|lady} shall do."
           }
         }

@@ -29,11 +29,29 @@ final class StoryLanguagesTests: XCTestCase {
         attachment.lifetime = .keepAlways
         add(attachment)
         XCTAssertEqual(problems, [], problems.prefix(40).joined(separator: "\n"))
-        for language in StoryLanguages.all {
-            XCTAssertEqual(story.texts[language]?.count, story.texts["en"]?.count,
-                           "\(language) has exactly the keys English has")
+        // The join (the director's decision of 15.11. 11:40): the key parity is asserted for the build's languages
+        // only (`shippedLanguages`); for the others the missing keys are written to `i18n-missing.txt`, the store
+        // pass's work list, and do not fail the test.
+        let english = Set(story.texts["en"]?.keys.map { $0 } ?? [])
+        var missing: [String] = []
+        for language in ["de"] + StoryLanguages.all {
+            let have = Set(story.texts[language]?.keys.map { $0 } ?? [])
+            let lacking = english.subtracting(have).sorted()
+            if Self.shippedLanguages.contains(language) {
+                XCTAssertEqual(lacking, [], "\(language) ships in this build: it has every key English has")
+            } else if !lacking.isEmpty {
+                missing.append("\(language) (\(lacking.count)): " + lacking.joined(separator: ", "))
+            }
         }
+        let list = XCTAttachment(string: missing.isEmpty ? "none" : missing.joined(separator: "\n"))
+        list.name = "i18n-missing"
+        list.lifetime = .keepAlways
+        add(list)
     }
+
+    /// The languages this build ships besides English, whose Story keys must all exist: none in build 2 (English
+    /// only, the director's note of 14.11. 19:40); the store pass adds German and the six.
+    static let shippedLanguages: Set<String> = []
 
     func testTheBuildCompiledEveryStoryKeyInTheSixLanguages() {
         let keys = CourtValidator.keys(petitions: .standard, lines: .standard)
