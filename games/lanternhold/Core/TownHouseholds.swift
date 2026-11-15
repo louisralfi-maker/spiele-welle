@@ -74,8 +74,8 @@ enum TownHouseholds {
         ]),
     ]
 
-    /// The collector, Saul Tolliver, lodges at the castle by the hall door (docs/TOWN.md section 2): no house of the town.
-    static let collectorName = "Saul Tolliver"
+    /// The collector, Saul Bracken, lodges at the castle by the hall door (docs/TOWN.md section 2): no house of the town.
+    static let collectorName = "Saul Bracken"
 
     // MARK: - Anchors (this branch's town; replaced by the rebuilt town's at the join)
 

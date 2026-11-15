@@ -39,7 +39,7 @@ enum TownFrames {
     /// moves nobody, so the court's people in townsfolk bodies (petitioners) are never touched.
     static var townWest: Double { (WorldLayout.townPlots.map(\.start).min() ?? 0) - wanderClear }
 
-    // The collector is the people lane's Saul Tolliver with his handcart (`TownLife.collector`, drawn with the town's
+    // The collector is the people lane's Saul Bracken with his handcart (`TownLife.collector`, drawn with the town's
     // life in `EntityFrames`), placed by the town's round (`Town.collectorLeg`); the coins of the doors land in his
     // cart's strongbox at `TownShow.collectorBox` (the pre-join, 15.11.2026: the stand-in and its strongbox are gone).
 
