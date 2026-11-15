@@ -1,0 +1,1 @@
+scene: frame:720 ready day:3 hour:11.93 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1945 lord:lord stage:world lx:1945 errand:none door:1830 gold:91 hud:strip cam:1673 tap:moment hint:off0
