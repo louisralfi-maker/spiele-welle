@@ -113,7 +113,7 @@ def slide1():
     outer_r = poly([(0, 198), (14, 206), (24, 203), (42, 214), (54, 211), (74, 224), (88, 221), (110, 234),
                     (H, 248)])
     mountain(p, outer_l, inner_l, inner_r, outer_r, facets_l=[(130, 100)], facets_r=[(186, 214)],
-             light=BEACON, reach=48, lip=7)
+             light=BEACON, reach=46, lip=7, warm=("tileLight", "tile", "crimsonDeep"))
     for (x0, y0, x1, y1) in ((112, 30, 118, 50), (124, 90, 130, 106), (196, 40, 202, 60), (204, 100, 210, 118)):
         n = max(abs(x1 - x0), abs(y1 - y0))
         for k in range(n + 1):
@@ -126,28 +126,41 @@ def slide1():
                 p.px(x, y, "nightSlate")
     # our castle across the cleft's foot, drawn as the title draws it: stone in courses, a lit side toward its own
     # lantern and a shadow side, solid steps by distance, teal roofs with a lit slope
-    STEPS = ["nightBlue", "plumDeep", "plum", "tile", "tileLight", "straw"]
+    def stone(t, lit, joint):
+        """The night's stone: shadow side nightDeep, front nightBlue, lit side one step lighter; warm only right
+        under the lantern."""
+        if lit and t > 0.8:
+            c = "tileLight"
+        elif lit and t > 0.62:
+            c = "tile"
+        elif lit and t > 0.2:
+            c = "nightSlate"
+        elif lit:
+            c = "nightBlue"
+        else:
+            c = "nightDeep" if t < 0.5 else "nightBlue"
+        if joint:
+            c = {"tileLight": "tile", "tile": "crimsonDeep", "nightSlate": "nightBlue", "nightBlue": "nightDeep",
+                 "nightDeep": "night0"}[c]
+        return c
 
     def body(x0, x1, y0, y1, lit_side, seed, k_lit=1.0, k_dark=0.32):
         mid = (x0 + x1) // 2
         for y in range(y0, min(H, y1)):
             yq = ((y - y0) // 5) * 5 + y0 + 2
             for x in range(x0, x1 + 1):
-                lit = (x >= mid) if lit_side == "right" else (x <= mid)
-                t = falloff(mid, yq, BEACON[0], BEACON[1], 44, 80, 1.1)
-                i = int(t * 5.6 * (k_lit if lit else k_dark))
-                if (y - y0) % 5 == 4 and h(x // 4, y, seed) < 0.6:
-                    i = max(0, i - 1)                       # a course joint, one step darker
-                if (x - x0 + ((y - y0) // 5) * 4) % 9 == 0 and (y - y0) % 5 != 4 and lit and h(x, y // 5, seed) < 0.4:
-                    i = max(0, i - 1)
-                p.px(x, y, STEPS[min(5, i)])
-        for x in range(x0, x1 + 1, 3):                      # merlons, their tops a step brighter
+                lit = ((x >= mid) if lit_side == "right" else (x <= mid)) if lit_side else False
+                t = falloff(mid, yq, BEACON[0], BEACON[1], 44, 80, 1.1) * (k_lit if lit else 1.0)
+                joint = ((y - y0) % 5 == 4 and h(x // 4, y, seed) < 0.5) or \
+                        ((x - x0 + ((y - y0) // 5) * 4) % 9 == 0 and (y - y0) % 5 != 4 and h(x, y // 5, seed) < 0.35)
+                p.px(x, y, stone(t, lit, joint))
+        for x in range(x0, x1 + 1, 3):                      # merlons
             for y in (y0 - 2, y0 - 1):
                 t = falloff(x, y, BEACON[0], BEACON[1], 44, 80, 1.1)
-                p.px(x, y, STEPS[min(5, int(t * 5.6) + 1)])
-                p.px(x + 1, y, STEPS[min(5, int(t * 5.6))])
+                p.px(x, y, stone(t, True, False))
+                p.px(x + 1, y, stone(t, False, False))
 
-    body(134, 188, 124, H, "right", 5, k_lit=0.7, k_dark=0.7)
+    body(134, 188, 124, H, None, 5)
     body(137, 146, 108, H, "right", 11)
     body(176, 185, 108, H, "left", 12)
     for (x0, x1, lit_left) in ((135, 148, False), (174, 187, True)):
