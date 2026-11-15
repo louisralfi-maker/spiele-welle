@@ -704,6 +704,13 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
   hand (the crown braid's herringbone, the circlet as one gold line resting on the braid with a `crimsonLight` stone,
   the forehead without a band, the closed mouth with a `dusk` lower lip, only the ear lobe with a gold drop) and built
   by actorart.py. The name entry sets her on a teal ground (`TileGround.teal`).
+- **`portraitKing`, fix round 2** (15.11.2026, the critic's look 2, high 4: he read as a boy in a sweatband beside
+  the lady): `tools/grids/court/portraits/portraitKing.txt` finished by hand, no new render. The broad two-row band
+  across the forehead is gone: the circlet is one thin line resting in the hair above the brow, `straw` at the back
+  (in shade, higher) and `gold` in front, with one small `daySky` stone (the lady's is red); hair fills where the band
+  was. A diagonal jaw line in `tile` runs from under the ear to the chin with the neck in `tileLight` under it (a value
+  step between face and collar); the mouth is a closed `tile` line, and the profile's pout (the lips past the chin)
+  is cut back. Built by actorart.py (`build-art-court.sh portraitKing`). Proof: `ci-out/lh-s3f2-1-crops/91-portraits.png`.
 - **The cards' pixel glyphs** (fix round 1) are not sprites: `UI/PixelGlyphs.swift` builds them from text grids at run
   time on the 2 pt grid (20 glyphs, one colour each), with the tiles' dithered grounds and the gear's glass disc; they
   take no atlas row.
