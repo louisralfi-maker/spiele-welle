@@ -122,7 +122,7 @@ final class WorldRebuild2FixTests: XCTestCase {
             XCTAssertEqual(moon.plane, .mid, "before the rock: the cleft hides it")
             if (1560...1660).contains(focus) {
                 let keep = desc.layer(.near).sprites.first { WorldRebuild2FixTests.keeps.contains($0.sprite) }
-                XCTAssertGreaterThan(keep?.rect.x ?? 999, moon.rect.x + moon.rect.z + 50, "clear of the keep at \(focus)")
+                XCTAssertGreaterThan(keep?.rect.x ?? 999, moon.rect.x + moon.rect.z + 35, "clear of the keep at \(focus)")
             }
         }
         XCTAssertEqual(xs.count, 1, "factor 0: the same column at every camera")

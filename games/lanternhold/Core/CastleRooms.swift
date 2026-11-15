@@ -71,8 +71,9 @@ enum CastleRooms {
     static let doorReach = 18.0
     /// The gate passage's near jamb fades in and out over this many px either side of a passage.
     static let archFade = 12.0
-    /// The jamb's left edge stands this far inside the passage's east end (fix round 1: its lit edge 1 px in from it).
-    static let jambInset = 8.0
+    /// The jamb's sprite stands this far inside the passage's east end, so its lit edge (col 2) is the opening's edge
+    /// and the pier stands beside the opening (fix round 1).
+    static let jambInset = 2.0
     /// The hall's light through the open door, its wedge on the cobbles and the lantern-warm pool before it.
     static let doorGlowColor = SIMD3<Float>(0.92, 0.8, 0.62)
     static let doorGlowByDay: Float = 0.5

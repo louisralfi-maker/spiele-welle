@@ -11,7 +11,7 @@ reproduces its files byte for byte):
         cone), deep window reveals, shadows under every string course and corbel table, a brazier on the wall walk;
         the building states with heavy timber and a crane whose jib stands over the roof (high 8)
   keepRimT1 .. keepRimT3Build  260x175  emissive: the keep's warm rim on its west edges at dusk (blocker 1)
-  keepMist          320x18   the feathered mist bank on the mistBand plane at the keep's foot (dawn, dusk, night)
+  keepMist          320x22   the feathered mist bank on the mistBand plane at the keep's foot (dawn, dusk, night)
   keepPaneHalo      11x14    emissive: the soft warm bloom around a lit twin window of the keep
   keepFireGlow      36x24    emissive: the keep's brazier's light on its merlons and roof
   forebuilding      120x96 x 2  the porch rebuilt (high 5): a slate roof that slopes, a dormer with a thick coping
@@ -608,15 +608,15 @@ def keep_rim(tier, building=False):
 
 
 def keep_mist():
-    """The mist bank on the mistBand plane at the keep's foot: a band 18 rows high whose top billows in slow lobes and
+    """The mist bank on the mistBand plane at the keep's foot: a band 22 rows high whose top billows in slow lobes and
     feathers out over its upper rows, both ends fading over 56 px; smooth alpha in eight steps (light, not art); the
-    engine whitens it at the mist's strength (dawn, dusk, night)."""
-    w, h = 320, 18
+    engine gives it the hour's fog colour at the mist's strength (dawn, dusk, night)."""
+    w, h = 320, 22
     im = PA.Image(w, h)
     r, g, b = 255, 255, 255                         # white: the engine gives it the hour's fog colour
     for x in range(w):
         lobe = 3.0 * math.sin(x / 23.0 + 0.7) + 2.0 * math.sin(x / 9.0 + 2.1) + 1.2 * math.sin(x / 4.3)
-        crest = 11.0 + lobe                             # rows above the bottom where the feather starts
+        crest = 14.0 + lobe                             # rows above the bottom where the feather starts
         end = min(1.0, x / 56.0, (w - 1 - x) / 56.0)
         end = end * end * (3 - 2 * end)
         for y in range(h):
@@ -626,7 +626,7 @@ def keep_mist():
             else:
                 t = (up - (crest - 5)) / 8.0
                 a = max(0.0, 1.0 - t) ** 1.6
-            a *= end * 0.62
+            a *= end * 0.75
             k = int(a * 8 + 0.5)
             if k > 0:
                 im.set(x, y, (r, g, b, min(255, 32 * k - 1)))
@@ -1012,34 +1012,33 @@ JAMB_SPRING = (64, 20)   # the gatehouse's gateway springs at about y 62, the po
 
 
 def gate_jamb(seed, spring):
-    """The near jamb of a gate passage in the foreground while the lord passes: 12 px of dark coursed stone (the wall's
-    thickness, nearest the eye) from under the lane up to the passage's springing, where it curls a few px into the
-    arch's soffit and feathers out over 14 rows; a warm lit edge on its left (toward the passage and its torch), a
-    shaded right edge. A doorpost, never a bar across the screen (round lh-w2f1-1 drew it to the screen's top)."""
+    """The near jamb of a gate passage in the foreground while the lord passes: an opaque pier of 12 px of coursed stone
+    in the passage's shade (the wall's thickness, nearest the eye), standing beside the opening's east edge from 6 rows
+    under the lane (it stands nearer than the gate's own foot) up to the passage's springing, where its top is cut as
+    the arch begins (rising toward the opening); a warm lit edge on its left and along that cut (the torch inside), a
+    shaded right edge. A doorpost that frames the lord, never a bar across the screen (round lh-w2f1-1 drew it to the
+    screen's top) and never a ghost (round lh-w2f1-2 drew it see-through)."""
     c = C(JAMB_W, JAMB_H)
     x0, x1 = 2, 13
-    top = JAMB_UNDER + spring                       # rows from the bottom where the post's full stone ends
-    for up in range(JAMB_H):
-        y = JAMB_H - 1 - up
-        k = up // 6
-        off = int(h01(seed, k) * 7)
-        curl = max(0, up - top)                     # the soffit leans toward the opening (left) as it rises
-        fade = 1.0 if up <= top else max(0.0, 1 - (up - top) / 14.0)
-        if fade <= 0:
-            continue
-        for x in range(x0 - min(2, curl // 3), x1 + 1):
+    foot = JAMB_UNDER - 6                           # rows from the sprite's bottom where the pier stands
+    for x in range(x0, x1 + 1):
+        top = foot + 6 + spring + (x1 - x) // 2     # the cut rises 5 rows toward the opening (left)
+        for up in range(foot, top + 1):
+            y = JAMB_H - 1 - up
+            k = up // 6
+            off = int(h01(seed, k) * 7)
             joint = (up % 6 == 0) or ((x + off) % 9 == 0)
-            if x <= x0 - min(2, curl // 3):
+            if up == top or up == top - 1 and x < x1 - 2:
+                name = "woodLight" if up == top else "wood"   # the cut catches the passage's torch
+            elif x == x0:
                 name = "wood" if joint else "woodLight"
-            elif x == x0 - min(2, curl // 3) + 1:
+            elif x == x0 + 1:
                 name = "stoneDark" if joint else "rockDark"
             elif x == x1:
                 name = "nightBlue"
             else:
                 name = "nightSlate" if joint else ("stoneDark" if h01(seed, k, (x + off) // 9) < 0.55 else "nightSlate")
-            r, g, b, _ = col(name)
-            a = fade * (0.92 if up > JAMB_UNDER - 4 else 0.92 * max(0.35, (up + 4) / float(JAMB_UNDER)))
-            c.im.set(x, y, (r, g, b, int(255 * a)))
+            c.set(x, y, name)
     return c.im
 
 

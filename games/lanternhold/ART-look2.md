@@ -1966,8 +1966,8 @@ hashes of the position, byte for byte); the layout is DESIGN.md's "Step world-2,
   the roof's foot (`keepFireGlow`) burn at dusk and night. Each lit window has a 2 px warm bloom (`keepPaneHalo`). At the
   golden hour and dusk a warm rim lies on every edge of the silhouette that faces west (`keepRim…`, derived from the
   keep's own pixels, shown by the hour's warmth until the moon is up).
-- **Mist at its foot** (`keepMist`): a bank 18 rows high on the mistBand plane whose billows stand over the curtain's
-  crenels and feather out, at dawn, dusk and night.
+- **Mist at its foot** (`keepMist`): a bank 22 rows high moving with the mistBand plane, drawn on fog A in the hour's
+  fog colour, whose billows stand over the curtain's crenels and feather out, at dawn, dusk and night.
 - **The building states read at phone size:** scaffolding of two-px standards and light ledgers, a crane whose jib
   stands over the roof line; the cones' timber frames in light wood, rafters two px wide with battens every three rows.
 
@@ -1991,14 +1991,15 @@ hashes of the position, byte for byte); the layout is DESIGN.md's "Step world-2,
   stands on, a tall narrow cone up the wall over its flame and a small hot core, in fire-gold and a third smaller than
   before. A scene light can shape its pool now (`LightSource.squash`, scene only; the battle's field is untouched).
 - **Smoke in puffs** (`smokePuff`, `CastleSmoke`): seven puffs of 3 to 5 px a chimney, rising 36 rows in 7 s, growing,
-  drifting with the wind; white × 0.86, so the hour's light gives them a value over the rock. The bakehouse's chimney
-  mouth glows a little, which lights its smoke warm from below. With Reduce Motion they hang still.
+  drifting with the wind; white × 0.86 by day; from the dusk they catch the moon, and over the bakehouse the oven's
+  glow from below, so they stand a value over the night's rock. With Reduce Motion they hang still.
 - **The postern's passage** has depth: the jambs' inner faces and the vault in shadow, cobbles receding to a far
   opening that shows the valley's daylight (lantern-warm at night, `posternFarGlow`).
 - **The curtain's blocked arch** is a recess: rubble a value darker, the intrados's shadow, voussoirs lit only on the
   left haunch, no pale outline.
-- **The gates' near jambs** (`gateArchFg`): 14 px of dark coursed stone in the foreground with a warm lit edge, only while
-  the lord passes; not the black arch of round lh-w2-1.
+- **The gates' near jambs** (`gateArchFg`): an opaque pier of 12 px of dark coursed stone in the foreground beside each
+  opening, up to the passage's springing, its top cut as the arch begins, a warm lit edge, only while the lord passes;
+  not the black arch of round lh-w2-1, not a pole to the screen's top, not a see-through ghost.
 
 ### 24.4 Rebuild
 

@@ -247,7 +247,8 @@ final class Look2FrameTests: XCTestCase {
                 most = max(most, desc.counts.instances)
                 mostLights = max(mostLights, desc.counts.lights)
                 XCTAssertLessThanOrEqual(desc.counts.lights, 64, "lights at \(focus)")
-                XCTAssertEqual(desc.layer(.fogA).sprites.first?.sprite, .d2FogBank, "the bank at \(focus)")
+                // World-2 fix round 1: the keep's mist bank lies on fog A too (under the hour's fog tiles).
+                XCTAssertTrue(desc.layer(.fogA).sprites.contains { $0.sprite == .d2FogBank }, "the bank at \(focus)")
                 XCTAssertEqual(desc.layer(.fogB).sprites.first?.sprite, .d2FogLow)
                 XCTAssertEqual(desc.layer(.mistBand).sprites.first?.sprite, .d2MistBand)
                 XCTAssertLessThanOrEqual(desc.rooms.count, 2)

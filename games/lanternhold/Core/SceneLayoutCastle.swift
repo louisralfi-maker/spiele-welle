@@ -138,7 +138,7 @@ extension SceneLayout {
     /// The keep's mist bank: its bottom row's height (its billows reach about 16 rows over the curtain's wall walk at
     /// y 64) and its share of the hour's mist strength (× `FrameBuilder.look2CastleMist`).
     static let castleKeepMistY = 60.0
-    static let castleKeepMistShare: Float = 2.6
+    static let castleKeepMistShare: Float = 3.4
 
     // MARK: The entries
 
@@ -245,7 +245,7 @@ extension SceneLayout {
                                               .glass(dx: 63, dy: 23, width: 5, height: 5)],
                                    lights: [Light(kind: .brazier, x: bake + 18, y: 10, radius: 22, squash: 1.8),
                                             Light(kind: .window, x: bake + 65.5, y: 25, radius: 10),
-                                            Light(kind: .lantern, x: bake + 75, y: 63, radius: 13, intensity: 0.6)])))
+                                            Light(kind: .lantern, x: bake + 75, y: 70, radius: 9, intensity: 0.35)])))
 
         // The postern: lanterns either side of the passage, from tier 2 the great lantern over it.
         let post = castlePosternX

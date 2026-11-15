@@ -3546,8 +3546,8 @@ burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24
   round stair turret and its stair hall on the west. Light of its own: a brazier on the wall walk (`brazierFlame`, its
   light `keepFireGlow` at dusk and night; none among the builders), a 2 px bloom round every lit twin window
   (`keepPaneHalo`; a dark window loses it), a warm rim on its west edges at the golden hour and dusk (`keepRim…`, by
-  `FrameBuilder.keepRimShare`: the hour's warmth, gone once the moon is up). Mist at its foot: `keepMist` (fog A picture,
-  moving with the mist band, y 60, the hour's fog colour at 2.6 of the hour's mist; `FrameBuilder.addProp` tints a mist
+  `FrameBuilder.keepRimShare`: the hour's warmth, gone once the moon is up). Mist at its foot: `keepMist` (320x22, fog A picture,
+  moving with the mist band, y 60, the hour's fog colour at 3.4 of the hour's mist; `FrameBuilder.addProp` tints a mist
   bank on a fog plane like the fog's tiles), its billows over the curtain's crenels at dawn, dusk and night (round
   lh-w2f1-1 had it in the near picture, where the night's ambient made it vanish). A fifth pane, the stair hall's small window (53,70,3,7), lights at night at every tier.
 - **The hall door (blocker 2):** the open frame shows a view into the lit hall (`hallDoorGlow`, 20x32: flagstones
@@ -3566,8 +3566,10 @@ burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24
   fire-gold, the pool 34 px (was 56); the forebuilding's two torches light one flat band; the postern's lanterns and the
   bakehouse's oven flatter pools.
 - **Smoke (high 3):** puffs (`smokePuff`, `Core/CastleSmoke.swift`): seven a chimney, 3 to 5 px, rising 36 rows in 7 s
-  with the wind's drift, a pale value; a glow at the bakehouse's chimney mouth lights its smoke warm from below; still
-  with Reduce Motion.
+  with the wind's drift, a pale value; from the dusk each puff also catches the moon (the same sprite in the emissive
+  pass, `CastleSmoke.moonGlow`), and over the bakehouse the oven's glow lights them from below over their first 16
+  rows (`fireGlow`), so they stand a value over the night's rock (round lh-w2f1-2: as albedo alone they sank into it);
+  still with Reduce Motion.
 - **The postern's passage (high 4):** the jambs' faces and the vault in shadow, receding cobbles, a far opening with the
   valley's daylight, lantern-warm at night (`posternFarGlow`).
 - **The forebuilding (high 5):** a slate roof sloping back to its ridge, a dormer with a thick coping (the lord's
@@ -3576,13 +3578,14 @@ burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24
 - **The curtain's blind arch (high 6):** `curtainB`'s blocked arch is a recess a value darker with the intrados's shadow,
   lit only on its left haunch.
 - **The gates' frame (high 7):** `gateArchFg` is the near jamb of each passage (16x116, 2 frames, foreground, moving
-  with the world plane, at the passage's east end − 8): a doorpost of 12 px of dark coursed stone up to the passage's
-  springing, curling into the soffit and feathering out, with a warm lit edge, only while the lord passes
-  (`archTenths`). Round lh-w2f1-1 drew it up over the screen's top: a pole across the gatehouse.
+  with the world plane, its lit edge at the opening's east edge, `CastleRooms.jambInset`): an opaque pier of 12 px of
+  dark coursed stone beside the opening, from 6 rows under the lane to the passage's springing, its top cut as the arch
+  begins, with a warm lit edge, only while the lord passes (`archTenths`). Round lh-w2f1-1 drew it up over the screen's
+  top (a pole across the gatehouse), round lh-w2f1-2 see-through over the opening (a ghost).
 - **The building states (high 8):** heavy scaffolding, a crane whose jib stands over the roof line (tier 2), timber
   cones in light wood with two-px rafters (tier 3).
 - **The moon (high 10):** inside the walls it stands on the sky, still on the screen (`FrameBuilder.wedgeMoon`: column
-  96, 34 rows under the top, under the HUD), laid into the emissive pass before the mid plane's rock, so the cleft wall
+  106, 34 rows under the top, under the HUD, clear of the gatehouse's tower), laid into the emissive pass before the mid plane's rock, so the cleft wall
   hides it but where a wedge of sky passes over it (the Throat's wedge, camera about 1600, the keep far to its right);
   its emitter on `cleftWallA` is gone.
 - **Story (L6, high 9):** `WorldStoryUITests` shows both rewritten lines in game on the first day (`92-l6-hesper-en`,

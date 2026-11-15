@@ -23,6 +23,11 @@ enum CastleSmoke {
     /// The puffs' albedo (white, × the hour's light): a value step over the rock behind them at dusk and night.
     static let value: Float = 0.86
     static let alphaMax = 0.75
+    /// From the dusk: the moonlight the puffs catch, and over the bakehouse the oven's glow on their undersides, which
+    /// fades over their first `warmRise` rows (emissive shares).
+    static let moonGlow: Float = 0.2
+    static let fireGlow: Float = 0.5
+    static let warmRise = 16.0
 
     /// The puffs of one chimney at `time` in a wind of `wind`; `seed` staggers chimneys against each other.
     static func puffs(time: Double, wind: Double, seed: Int) -> [Puff] {

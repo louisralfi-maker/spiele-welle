@@ -374,7 +374,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .posternT1, .posternT2, .posternT3: return PixelSize(width: 176, height: 112)
         case .gateArchFg: return PixelSize(width: 16, height: 116)
         // World-2 fix round 1 (tools/keepfix.py).
-        case .keepMist: return PixelSize(width: 320, height: 18)
+        case .keepMist: return PixelSize(width: 320, height: 22)
         case .keepRimT1, .keepRimT2, .keepRimT3, .keepRimT2Build, .keepRimT3Build: return PixelSize(width: 260, height: 175)
         case .keepPaneHalo: return PixelSize(width: 11, height: 14)
         case .keepFireGlow: return PixelSize(width: 36, height: 24)

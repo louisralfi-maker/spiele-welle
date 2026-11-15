@@ -202,7 +202,8 @@ enum FrameBuilder {
                 // World rebuild, step world-2: the castle's chimneys smoke, the keep's in the near plane's picture
                 // (moving with the mist band), the bakehouse's on the world plane.
                 planeSprites[plane.rawValue] += castleSmoke(props: ordered, plane: plane, animTime: animTime,
-                                                            reduceMotion: options.reduceMotion, geometry: geometry)
+                                                            reduceMotion: options.reduceMotion, geometry: geometry,
+                                                            ambient: ambient, glow: &glow)
             }
             if plane == .mid && options.look == .two {
                 // Fix round 1: the threads of water falling down the cleft wall, in front of it.
@@ -529,16 +530,19 @@ enum FrameBuilder {
     /// (`CastleSmoke`), white × a pale value, so the hour's light gives them a value over the rock behind; the
     /// bakehouse's take the warm glow of its chimney's mouth from below. Reduce Motion: they stand still.
     private static func castleSmoke(props: [Prop], plane: Plane, animTime: Double, reduceMotion: Bool,
-                                    geometry: Geometry) -> [SpriteInstance] {
+                                    geometry: Geometry, ambient: AmbientSample,
+                                    glow: inout EmissiveList) -> [SpriteInstance] {
         let weather = geometry.weather
         let size = SpriteID.smokePuff.size
         let value = CastleSmoke.value
+        let night = ambient.torchStrength
         var list: [SpriteInstance] = []
         for prop in props where prop.plane == plane {
             guard let chimney = SceneLayout.castleChimney(prop) else { continue }
             let whole = geometry.whole(prop.movesWith ?? prop.plane)
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
             let time = reduceMotion ? 0 : animTime
+            let fire = prop.sprite == .bakehouse
             for puff in CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x)) where puff.alpha > 0.02 {
                 let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
                 guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
@@ -546,6 +550,16 @@ enum FrameBuilder {
                 let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
                 list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
                                            tint: SIMD4<Float>(value, value, value * 1.02, puff.alpha), flipped: false))
+                // Round lh-w2f1-2: lit only as albedo, the puffs sank into the night's rock. From the dusk they catch
+                // the moon (and over the bakehouse the oven's glow from below), a value step over the rock behind.
+                guard night > 0.05 else { continue }
+                var rgb = GamePalette.moon * (CastleSmoke.moonGlow * night)
+                if fire {
+                    let low = Float(max(0, 1 - puff.rise / CastleSmoke.warmRise))
+                    rgb += GamePalette.fireOrange * (CastleSmoke.fireGlow * night * low * low)
+                }
+                glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane, rect: rect,
+                                          color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, puff.alpha), frame: puff.frame))
             }
         }
         return list
@@ -562,7 +576,7 @@ enum FrameBuilder {
         min(1, max(0, ambient.warmth / 0.25)) * (1 - wedgeMoonShare(ambient))
     }
 
-    static let wedgeMoonX = 96.0
+    static let wedgeMoonX = 106.0
     static let wedgeMoonTop = 34.0
     private static func wedgeMoon(ambient: AmbientSample, geometry: Geometry) -> EmissiveInstance? {
         let share = Float(cleftShare(focus: geometry.focusX)) * ambient.torchStrength * wedgeMoonShare(ambient)
