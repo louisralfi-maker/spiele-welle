@@ -87,4 +87,14 @@ final class WorldThreeFix3Tests: XCTestCase {
         XCTAssertGreaterThan(dark.z, dark.x * 1.1, "bluer at night")
         XCTAssertLessThan(dark.x, noon.x, "red down at night")
     }
+
+    /// High 9: at dusk the postern's view takes the hour (the night view over the painted day's, most of it) and the
+    /// far glow is dimmer than without it, still warm; none of it by day.
+    func testThePosternsViewTakesTheDusk() {
+        let dusk = AmbientRamp.sample(at: 19.2, look: .two)
+        XCTAssertGreaterThan(SceneLayout.posternNightShare(dusk), 0.3, "the hour's view at dusk")
+        XCTAssertEqual(SceneLayout.posternNightShare(AmbientRamp.sample(at: 12, look: .two)), 0, accuracy: 1e-4)
+        let glow = SceneLayout.posternFarColor(dusk)
+        XCTAssertGreaterThan(glow.x, glow.z, "still warm at dusk")
+    }
 }

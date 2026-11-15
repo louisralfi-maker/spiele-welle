@@ -22,3 +22,10 @@ extension SceneLayout {
         return SIMD3<Float>(repeating: 1) + (beaconNightCold - SIMD3<Float>(repeating: 1)) * share
     }
 }
+
+// MARK: - High 9: the postern's view at dusk
+
+extension SceneLayout {
+    /// How much of the hour's view (`posternNightView`) lies over the painted day's at dusk, while the torches burn.
+    static let posternDuskViewShare: Float = 0.75
+}

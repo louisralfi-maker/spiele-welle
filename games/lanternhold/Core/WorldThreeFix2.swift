@@ -99,8 +99,11 @@ extension SceneLayout {
     static let posternNightViewAt = (dx: 95.0, dy: 4.0)
 
     /// How much of the night view stands (0 by day and while the evening is warm, 1 under the moon).
+    /// World-3 fix round 3 (the critic's high 9 of look 3: "the painted day view is a pale panel against the purple
+    /// dusk"): from the dusk on, while the torches burn, the hour's view stands at `posternDuskViewShare` (lit by the
+    /// dusk's ambient on the world plane it reads purple-dark like the valley beside it), whole under the moon.
     static func posternNightShare(_ ambient: AmbientSample) -> Float {
-        FrameBuilder.wedgeMoonShare(ambient)
+        max(FrameBuilder.wedgeMoonShare(ambient), posternDuskViewShare * min(1, ambient.torchStrength))
     }
 
     /// The passage's far glow at night is a fraction of the dusk's (it lifted the pale view over the valley).

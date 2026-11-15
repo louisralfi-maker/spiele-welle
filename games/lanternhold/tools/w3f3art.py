@@ -15,6 +15,10 @@ randomness, so a run reproduces its files byte for byte. Every pass starts from 
         cliff's own granite, one step under the lit face and a little bluer (no navy-black nightDeep, no slate)
   oldWall1          84x60    the first line's rubble (high 1): the porcelain stone ramp down onto the granite ramp, the
         lit tops at most rockLight, the moss a step darker in shadow
+  castleFront3, castleFront3Build   the gate banners' lantern emblems (high 6): a dull gold thread one step over the
+        cloth, lit only on the side toward the gate's torch, no neon outline
+  bakehouse         100x62   the chimney over the battlement (high 8): the stack in the wall's stone, a pot with a dark
+        mouth, no pale fill (the light at its mouth is gone in SceneLayoutCastle)
 
   w3f3art.py build <id> [<id> ...] --out <Resources/Art>
 """
@@ -320,6 +324,59 @@ def _greenish(c):
     return g > r + 8 and g > b
 
 
+# ------------------------------------------------------------------------------------------- high 6: banner emblems
+THREAD = (86, 72, 44, 255)             # dull gold thread, one value step over the cloth (roofDeep, 27 58 78)
+THREAD_LIT = (124, 98, 54, 255)        # its side toward the gate's torch, a step more
+
+
+def castle_front3(name):
+    """The gate banners' lantern emblems (t-3-1360, w-1400-night: orange outline lanterns that glowed like neon under
+    the torches): the emblem's gold a thread one step over the cloth, lit only on the side toward the torch between
+    the banner and the gate (the left banner's right side, the right banner's left side); the lantern's glass the
+    cloth again."""
+    im = F2.castle_front3(name)
+    gold = [(x, y) for y in range(im.h) for x in range(im.w) if name_at(im, x, y) == "gold"]
+    for side in (0, 1):
+        pts = [(x, y) for x, y in gold if (x < im.w // 2) == (side == 0)]
+        if not pts:
+            continue
+        x0, x1 = min(p[0] for p in pts), max(p[0] for p in pts)
+        y0, y1 = min(p[1] for p in pts), max(p[1] for p in pts)
+        mid = (x0 + x1) / 2.0
+        for x, y in pts:
+            lit = x > mid if side == 0 else x < mid
+            im.set(x, y, THREAD_LIT if lit else THREAD)
+        for y in range(y0, y1 + 1):                    # the glass inside the frame
+            for x in range(x0 + 1, x1):
+                if name_at(im, x, y) in ("stone", "stoneLight", "stonePale", "parchment"):
+                    put(im, x, y, "roofDeep")
+    return im
+
+
+# ------------------------------------------------------------------------------------------- high 8: the chimney pot
+def bakehouse():
+    """The bakehouse's chimney over the curtain's battlement (w-2400-dusk, w-2330-dusk, w-2200-night: a pale box with
+    a lit squiggle, read as a "?" glyph): the stack in the wall's stone, lit on the left and in shade on the right (no
+    pale fill), and a pot with a dark mouth seen a little from above, so the smoke starts over it."""
+    im = F2.F1.bakehouse()
+    stack = range(72, 79)                              # inside the stack's ink outline (cols 71 and 78/79)
+    for y in range(0, 15):
+        for x in stack:
+            nm = name_at(im, x, y)
+            if nm in (None, "ink"):
+                continue
+            t = (x - 72) / 6.0
+            v = "stone" if t < 0.3 else "stoneMid" if t < 0.75 else "stoneDark"
+            if y >= 4 and (y - 4) % 4 == 3:
+                v = "stoneMid" if t < 0.75 else "stoneDark"     # a course joint
+            put(im, x, y, v)
+    # the pot: its rim (row 1) lit, its mouth (row 0) dark inside the rim's ends
+    for x in range(72, 79):
+        put(im, x, 0, "stoneMid" if x in (72, 78) else "ink" if 73 < x < 77 else "rockDeep")
+        put(im, x, 1, "stoneLight" if x < 75 else "stone" if x < 77 else "stoneMid")
+    return im
+
+
 BUILDERS = {
     "beaconTower": lambda: beacon_tower()[0],
     "beaconTowerRim": tower_rim,
@@ -329,6 +386,9 @@ BUILDERS = {
     "gateRockL": lambda: gate_rock("gateRockL"),
     "gateRockR": lambda: gate_rock("gateRockR"),
     "oldWall1": old_wall_one,
+    "bakehouse": bakehouse,
+    "castleFront3": lambda: castle_front3("castleFront3"),
+    "castleFront3Build": lambda: castle_front3("castleFront3Build"),
 }
 
 

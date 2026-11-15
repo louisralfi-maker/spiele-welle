@@ -108,7 +108,8 @@ extension SceneLayout {
     static func posternFarColor(_ ambient: AmbientSample) -> SIMD3<Float> {
         let warm = min(1, max(0, ambient.warmth / 0.25)) * (1 - FrameBuilder.wedgeMoonShare(ambient))
         // Fix round 2 (the critic's high 4): under the moon a fraction of it (it lifted the view over the valley).
-        let dim = 1 - (1 - posternFarNightDim) * FrameBuilder.wedgeMoonShare(ambient)
+        // World-3 fix round 3 (high 9): at dusk a part of that too, with the hour's view over the painted one.
+        let dim = 1 - (1 - posternFarNightDim) * posternNightShare(ambient)
         return (posternFarMoon + (posternFarDusk - posternFarMoon) * warm) * dim
     }
 }
