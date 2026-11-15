@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.TableUITests testTheLongestAndTheLostReportFit]' passed (47.683 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheMiddleOfTheChapterFillsTheHooks]' passed (56.440 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheRailTellsWhoIsAway]' passed (16.949 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport]' passed (73.816 seconds).
+exit=0
+screenshots: 10
