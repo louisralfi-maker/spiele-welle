@@ -49,6 +49,15 @@ extension GameModel {
     /// chapter" makes it (the Chronicle stays; the name entry asks who holds it).
     func beginAgain() {
         guard slides.endCard != nil else { return }
+        // The chapter end's last Continue (the ads lane's hook, docs/lanes/ads.md): an interstitial at most once per
+        // chapter's ending, never between the finale's report, the ending and this card.
+        AdDirector.shared.chapterEndContinues(chapter: 1, day: driver?.state.day ?? 0) { [weak self] in
+            self?.beginAgainNow()
+        }
+    }
+
+    private func beginAgainNow() {
+        guard slides.endCard != nil else { return }
         slides.endCard = nil
         feedback.play(.cardClosed)
         setOverlay(.pause)
@@ -58,6 +67,13 @@ extension GameModel {
     /// "Hold the realm": the realm goes on into the Long Watch from the morning of day 21 (Core's endless mode; the
     /// save counts it on the endless track from now on).
     func holdTheRealm() {
+        guard slides.endCard != nil, canHoldTheRealm else { return }
+        AdDirector.shared.chapterEndContinues(chapter: 1, day: driver?.state.day ?? 0) { [weak self] in
+            self?.holdTheRealmNow()
+        }
+    }
+
+    private func holdTheRealmNow() {
         guard slides.endCard != nil, canHoldTheRealm else { return }
         slides.endCard = nil
         feedback.play(.cardClosed)
