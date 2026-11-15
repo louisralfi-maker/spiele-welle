@@ -3447,6 +3447,10 @@ highs). What changed (new values in `Core/HallLight.swift` and `HallCourt`):
   `HallRenderTests` renders the hall's stills off screen (`hall-r-*` in the unit step's results: the lantern at night,
   the pillar by day and at night, the benches, the greeting and the room settled, the passing look, the first morning
   at the throne, the hearth at night over the dais, the audience framing), so a look round needs no simulator.
+- **Rounds** (the gate by the director's notes, one round, English): `lh-s1f2-1` to `lh-s1f2-3` (build and the hall's
+  unit classes, the off-screen renders judged after each: the lantern too faint after the second, right after the
+  third) ALL PASSED; **`lh-s1f2-4` build, unit, ui Hall, FirstDay, Audience and Lord ALL PASSED on bb0c4a0.** No sprite
+  changed its size, so the atlas gains no rows; no new player-facing strings.
 
 ## Risks
 
