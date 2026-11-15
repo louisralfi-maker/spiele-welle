@@ -84,7 +84,11 @@ final class HearthTests: XCTestCase {
         XCTAssertTrue(hearth.broken)
         XCTAssertEqual(hearth.before, .bright)
         XCTAssertEqual(hearth.after, .embers)
-        XCTAssertEqual(hearth.lines().last, HearthLine(key: HearthLine.embers), "\"Only embers glow in the hearth.\"")
+        XCTAssertTrue(hearth.lastStand, "two steps a breach: at embers the next one puts it out")
+        XCTAssertFalse(hearth.wallsRaised, "no wall lay in rubble")
+        XCTAssertEqual(hearth.lines().suffix(2), [HearthLine(key: HearthLine.embers), HearthLine(key: HearthLine.last)],
+                       "\"Only embers glow in the hearth.\" and the stake")
+        XCTAssertTrue(Hearth.woodGiftOffered(s, balance: balance), "the video's wood is offered this morning")
     }
 
     func testWithOneStepABreachTakesABrightFireToLow() throws {
@@ -96,6 +100,34 @@ final class HearthTests: XCTestCase {
         while !s.defeated && s.day == 6 { Sim.step(&s, dt: 0.1, balance: one, events: &events) }
         XCTAssertEqual(s.hearthFire?.level, .low, "the spec's starting value: one step")
         XCTAssertEqual(s.lastReport?.hearth?.lines().last, HearthLine(key: HearthLine.low), "\"The hearth burns low.\"")
+        XCTAssertEqual(s.lastReport?.hearth?.lastStand, false, "with one step a low fire outlasts a breach")
+    }
+
+    /// High 1 of the fix round: what a breach leaves, under the chosen rule and the two others, and when the fire is
+    /// frail (the next breach puts it out), which the report says and the picture shows.
+    func testWhatABreachLeavesAndWhenTheFireIsFrail() {
+        func leaves(_ rule: HearthRule) -> [HearthLevel] {
+            HearthLevel.allCases.reversed().map { Hearth.afterBreach($0, tuning: rule.applied(to: balance).front.hearth) }
+        }
+        // From bright, low, embers, out:
+        XCTAssertEqual(leaves(.twoSteps), [.embers, .out, .out, .out], "the chosen rule")
+        XCTAssertEqual(leaves(.oneStep), [.low, .embers, .out, .out], "the spec's starting value")
+        XCTAssertEqual(leaves(.toEmbers), [.embers, .embers, .out, .out], "the other rule: down to embers at most")
+        XCTAssertTrue(HearthRule.twoSteps.matches(tuning), "two steps a breach, no ceiling")
+        func frail(_ rule: HearthRule) -> [Bool] {
+            HearthLevel.allCases.reversed().map { Hearth.frail($0, tuning: rule.applied(to: balance).front.hearth) }
+        }
+        XCTAssertEqual(frail(.twoSteps), [false, true, true, false], "low and embers alike; out is not frail, it is out")
+        XCTAssertEqual(frail(.oneStep), [false, false, true, false])
+        XCTAssertEqual(frail(.toEmbers), [false, false, true, false])
+        var s = GameState.newRealm(seed: 2, balance: balance)
+        Hearth.adopt(&s)
+        XCTAssertFalse(Hearth.picture(s, balance: balance).frail, "a bright fire burns steady")
+        for level in [HearthLevel.low, .embers] {
+            s.hearthFire?.level = level
+            XCTAssertTrue(Hearth.picture(s, balance: balance).frail, "\(level) sputters")
+        }
+        XCTAssertFalse(Hearth.picture(GameState.newRealm(seed: 2, balance: balance), balance: balance).frail)
     }
 
     func testABrokenNightsCost() throws {
@@ -260,8 +292,9 @@ final class HearthTests: XCTestCase {
             XCTAssertEqual(report.before, from)
             XCTAssertEqual(report.after, to)
             let expected: [HearthLine] = from == .low ? [HearthLine(key: HearthLine.bright)]
-                : from == .embers ? [HearthLine(key: HearthLine.low)] : []
-            XCTAssertEqual(report.lines(), expected)
+                : from == .embers ? [HearthLine(key: HearthLine.low), HearthLine(key: HearthLine.last)] : []
+            XCTAssertEqual(report.lines(), expected, "a low fire after a held night is still frail: the stake says so")
+            XCTAssertEqual(report.lastStand, to == .low)
         }
     }
 
@@ -324,16 +357,143 @@ final class HearthTests: XCTestCase {
         XCTAssertFalse(pending.dead.isEmpty, "the night's cost is taken")
         XCTAssertNil(Hearth.feedOffer(s, balance: balance))
 
-        // The defeat card's second chance (the rewarded video): the fire glows again at embers, the cost stands.
+        // High 3 of the fix round (Louis: "Ganz vorbei ist es nur, wenn das Herdfeuer ausgeht"): at out the fall card
+        // offers the kept mornings and a new realm, and no video; the driver refuses it too.
+        XCTAssertFalse(Hearth.secondChanceOffered(s, balance: balance))
+        var driver = SimDriver(state: s, balance: balance)
+        var refused: [SimEvent] = []
+        driver.secondChance(events: &refused)
+        XCTAssertTrue(driver.state.defeated, "the fire out is the end: no video brings the dawn")
+        XCTAssertEqual(driver.state.hearthFire?.level, .out)
+        XCTAssertTrue(refused.isEmpty)
+
+        // The director's other choice (`videoAtOut`): the video brings the dawn, the fire glows again at embers and
+        // the cost stands.
+        var videoAtOut = balance
+        videoAtOut.front.hearth.videoAtOut = true
+        XCTAssertTrue(Hearth.secondChanceOffered(s, balance: videoAtOut))
         var events2: [SimEvent] = []
-        Sim.secondChance(&s, balance: balance, events: &events2)
+        Sim.secondChance(&s, balance: videoAtOut, events: &events2)
         XCTAssertFalse(s.defeated)
         XCTAssertEqual(s.hearthFire?.level, .embers)
         let report = try XCTUnwrap(s.lastReport?.hearth)
         XCTAssertTrue(report.broken)
         XCTAssertTrue(report.rekindled)
         XCTAssertEqual(report.dead, pending.dead)
-        XCTAssertEqual(report.lines().last, HearthLine(key: HearthLine.rekindled))
+        XCTAssertEqual(report.lines().suffix(2), [HearthLine(key: HearthLine.rekindled), HearthLine(key: HearthLine.last)])
+    }
+
+    func testTheSecondChanceStaysWhereTheFireIsNotOut() {
+        var old = night(rule: false)
+        crowdAtTheHearth(&old)
+        run(&old, seconds: 5)
+        XCTAssertTrue(old.defeated)
+        XCTAssertTrue(Hearth.secondChanceOffered(old, balance: balance), "the old rules: as today")
+        var king = night(day: 20)
+        crowdAtTheHearth(&king)
+        run(&king, seconds: 5)
+        XCTAssertTrue(king.defeated)
+        XCTAssertTrue(Hearth.secondChanceOffered(king, balance: balance), "the Lightless King's night: as today")
+        XCTAssertFalse(Hearth.secondChanceOffered(night(), balance: balance), "no fall, no card")
+    }
+
+    /// High 3 of the fix round: the video moved to a broken night's dawn, where it pays the day's wood. The lord still
+    /// walks to the hearth and throws the log on; once a day, as wood always is.
+    func testTheVideoPaysTheDaysWoodAtABrokenNightsDawn() throws {
+        var s = night()
+        crowdAtTheHearth(&s)
+        run(&s, seconds: 5)
+        XCTAssertEqual(s.hearthFire?.level, .embers)
+        XCTAssertTrue(Hearth.woodGiftOffered(s, balance: balance), "the morning after a broken night")
+        s.gold = 0
+        s.king.x = Realm.hearthX
+        XCTAssertEqual(Hearth.feedOffer(s, balance: balance)?.ready, false, "no coin, no wood")
+        XCTAssertTrue(Hearth.giveWood(&s, balance: balance))
+        XCTAssertFalse(Hearth.woodGiftOffered(s, balance: balance), "once")
+        XCTAssertFalse(Hearth.giveWood(&s, balance: balance))
+        let offer = try XCTUnwrap(Hearth.feedOffer(s, balance: balance))
+        XCTAssertEqual(offer.price, 0)
+        XCTAssertTrue(offer.gift)
+        XCTAssertTrue(offer.ready)
+        XCTAssertTrue(Hearth.feed(&s, balance: balance))
+        XCTAssertEqual(s.hearthFire?.level, .low)
+        XCTAssertEqual(s.gold, 0, "the video paid")
+        XCTAssertFalse(Hearth.feed(&s, balance: balance), "the day's wood, once")
+        s.day += 1
+        XCTAssertFalse(Hearth.woodGiftOffered(s, balance: balance), "only on the broken night's dawn")
+        XCTAssertEqual(Hearth.feedOffer(s, balance: balance)?.price, tuning.feedPrice, "the next day's wood costs again")
+        var held = night()
+        held.hearthFire?.level = .embers
+        var bot = Autoplay.buildsNothing
+        Sim.run(&held, untilHour: 6.5, balance: balance, bot: &bot)
+        XCTAssertEqual(held.lastReport?.hearth?.broken, false)
+        XCTAssertFalse(Hearth.woodGiftOffered(held, balance: balance), "not after a held night")
+        XCTAssertFalse(Hearth.woodGiftOffered(GameState.newRealm(seed: 1, balance: balance), balance: balance))
+    }
+
+    /// High 2 of the fix round: a realm's first broken night puts the walls it left in rubble up again at no cost (a
+    /// young realm cannot pay the gatehouse's 50 the morning after); later broken nights do not.
+    func testARealmsFirstBrokenNightRaisesItsWalls() throws {
+        let gatehouse = try XCTUnwrap(Realm.plotID("l1.wall"))
+        func ruinTheGate(_ s: inout GameState) {
+            s.plots[gatehouse].hp = 0
+            s.plots[gatehouse].isRubble = true
+        }
+        var twin = night()
+        crowdAtTheHearth(&twin)
+        run(&twin, seconds: 5)
+        var s = night()
+        ruinTheGate(&s)
+        crowdAtTheHearth(&s)
+        let events = run(&s, seconds: 5)
+        let brk = try XCTUnwrap(s.hearthFire?.lastBreak)
+        XCTAssertEqual(brk.wallsRaised, [gatehouse])
+        XCTAssertEqual(s.plots[gatehouse].job?.isRebuild, true, "the builders are at it at first light")
+        XCTAssertTrue(events.contains(.buildOrdered(plot: gatehouse)))
+        XCTAssertEqual(s.gold, twin.gold, "at no cost: the purse as in the same night with the gate standing")
+        let report = try XCTUnwrap(s.lastReport?.hearth)
+        XCTAssertTrue(report.wallsRaised)
+        XCTAssertTrue(report.lines().contains(HearthLine(key: HearthLine.walls)))
+        Build.completeAll(&s, balance: balance)
+        XCTAssertFalse(s.plots[gatehouse].isRubble, "the gate stands again")
+
+        // The second broken night pays for its rubble as today.
+        var second = night { $0.day = 8 }
+        second.hearthFire = s.hearthFire
+        second.hearthFire?.level = .bright
+        ruinTheGate(&second)
+        crowdAtTheHearth(&second)
+        run(&second, seconds: 5)
+        XCTAssertEqual(second.hearthFire?.lastBreak?.wallsRaised, [])
+        XCTAssertNil(second.plots[gatehouse].job)
+        XCTAssertEqual(second.lastReport?.hearth?.wallsRaised, false)
+
+        // Off: the first broken night pays too.
+        var off = balance
+        off.front.hearth.firstBreachRaisesWalls = false
+        var plain = night()
+        ruinTheGate(&plain)
+        crowdAtTheHearth(&plain)
+        var plainEvents: [SimEvent] = []
+        while !plain.defeated && plain.day == 6 { Sim.step(&plain, dt: 0.1, balance: off, events: &plainEvents) }
+        XCTAssertEqual(plain.hearthFire?.lastBreak?.wallsRaised, [])
+        XCTAssertNil(plain.plots[gatehouse].job)
+    }
+
+    /// Kept from the critic: on a broken night's dawn the report card does not claim a second chance brought it.
+    func testABrokenNightsDawnIsNoSecondChance() throws {
+        var s = night()
+        crowdAtTheHearth(&s)
+        run(&s, seconds: 5)
+        let report = try XCTUnwrap(s.lastReport)
+        XCTAssertFalse(report.held)
+        XCTAssertFalse(ReportCard.make(report).banners.contains(.secondChance), "the hearth brought this dawn")
+        var rekindled = report
+        rekindled.hearth?.rekindled = true
+        XCTAssertTrue(ReportCard.make(rekindled).banners.contains(.secondChance), "the video at out (if turned on)")
+        var old = report
+        old.hearth = nil
+        XCTAssertTrue(ReportCard.make(old).banners.contains(.secondChance), "the old rules: as today")
     }
 
     func testTheLightlessKingsNightEndsTheChapterAsToday() throws {
@@ -346,6 +506,7 @@ final class HearthTests: XCTestCase {
         XCTAssertEqual(s.hearthFire?.level, .low, "the fire is not touched")
         XCTAssertNil(s.hearthFire?.pending)
         XCTAssertTrue(s.hearthFire?.burnt.isEmpty ?? false, "no cost: the chapter ends")
+        XCTAssertTrue(Hearth.secondChanceOffered(s, balance: balance), "the King's night keeps today's card")
         var later: [SimEvent] = []
         Sim.secondChance(&s, balance: balance, events: &later)
         XCTAssertEqual(s.hearthFire?.level, .low, "a lost night lets no fire rise")
@@ -361,6 +522,13 @@ final class HearthTests: XCTestCase {
         XCTAssertEqual(report.lines(), [HearthLine(key: HearthLine.burntHouses),
                                         HearthLine(key: HearthLine.deadTwo, names: ["Ansel", "Berrit"]),
                                         HearthLine(key: HearthLine.gold), HearthLine(key: HearthLine.low)])
+        report.lastStand = true
+        report.wallsRaised = true
+        XCTAssertEqual(report.lines().suffix(3), [HearthLine(key: HearthLine.walls), HearthLine(key: HearthLine.low),
+                                                  HearthLine(key: HearthLine.last)],
+                       "the walls raised before the fire's line; the stake last, the thing to remember tonight")
+        report.lastStand = false
+        report.wallsRaised = false
         report.burnt = [HearthPlace(plot: 22, item: .field)]
         report.dead = ["Cobb"]
         report.goldTaken = 0
@@ -400,6 +568,8 @@ final class HearthTests: XCTestCase {
             }
         }
         XCTAssertEqual(HearthText.text(HearthLine(key: HearthLine.low), language: "en"), "The hearth burns low.")
+        XCTAssertEqual(HearthText.text(HearthLine(key: HearthLine.last), language: "en"),
+                       "If the Gloom reaches the hearth again, it goes out.")
     }
 
     func testTheTownsfolkNamesBelongToNobodyElse() {
@@ -412,7 +582,37 @@ final class HearthTests: XCTestCase {
         XCTAssertTrue(names.isDisjoint(with: court), "no one of the court, the house or the cast")
         var rng = SeededRandom(seed: 9)
         let used = Set(HearthNames.townsfolk)
-        XCTAssertTrue(HearthNames.pick(&rng, avoiding: used).contains(" "), "all taken: a name with a number")
+        XCTAssertTrue(HearthNames.pick(&rng, avoiding: used).contains(" "), "all taken, nobody to name after: a number")
+    }
+
+    /// Kept from the critic: after forty deaths the name of the one who died longest ago comes round again, never a
+    /// number, never one of tonight's dead, and the stream draws once either way.
+    func testWhenEveryNameIsTakenTheLongDeadAreNamedAgain() {
+        var dead: [HearthDead] = []
+        for (index, name) in HearthNames.townsfolk.enumerated() {
+            dead.append(HearthDead(name: name, night: 100 - index))
+        }
+        let oldest = HearthNames.townsfolk.last ?? ""
+        var rng = SeededRandom(seed: 9)
+        var twin = SeededRandom(seed: 9)
+        let name = HearthNames.pick(&rng, avoiding: Set(HearthNames.townsfolk), dead: dead, night: 101)
+        XCTAssertEqual(name, oldest, "the one dead longest")
+        _ = twin.int(in: 0...(HearthNames.townsfolk.count - 1))
+        XCTAssertEqual(rng, twin, "one draw from the stream")
+        dead.append(HearthDead(name: oldest, night: 101))
+        let next = HearthNames.pick(&rng, avoiding: Set(HearthNames.townsfolk), dead: dead, night: 101)
+        XCTAssertNotEqual(next, oldest, "never one of tonight's dead")
+        XCTAssertFalse(next.contains(" "))
+        XCTAssertEqual(next, HearthNames.townsfolk[HearthNames.townsfolk.count - 2])
+
+        // In a realm: forty-one townspeople dead, the forty-first named after the first.
+        var s = night()
+        s.citizens = 200
+        s.hearthFire?.dead = dead.dropLast().map { $0 }
+        var brk = HearthBreak(at: 0, night: 120, hour: 22, before: .bright, after: .embers)
+        Hearth.takeCost(&s, &brk, balance: balance)
+        XCTAssertFalse(brk.dead.contains { $0.contains(" ") }, "no numbers: \(brk.dead)")
+        XCTAssertEqual(brk.dead.first, oldest)
     }
 
     // MARK: - The dawns kept
@@ -580,6 +780,27 @@ final class HearthTests: XCTestCase {
         XCTAssertEqual(read.lanterns, false)
         let report = try JSONDecoder().decode(HearthDawnReport.self, from: Data("{\"broken\": true}".utf8))
         XCTAssertEqual(report, HearthDawnReport(broken: true))
+        XCTAssertFalse(report.lastStand)
+        XCTAssertFalse(report.wallsRaised)
+        // The fix round's fields: a breach and a state saved before them load with defaults.
+        let oldBreak = """
+        {"at": 3, "night": 6, "hour": 22.5, "before": "bright", "after": "embers", "burnt": [], "dead": ["Cobb"],
+         "goldTaken": 4, "happinessLost": 8, "lanternsLit": true}
+        """
+        let brk = try JSONDecoder().decode(HearthBreak.self, from: Data(oldBreak.utf8))
+        XCTAssertEqual(brk.wallsRaised, [])
+        XCTAssertEqual(brk.dead, ["Cobb"])
+        XCTAssertEqual(brk.after, .embers)
+        XCTAssertEqual(try JSONDecoder().decode(HearthBreak.self, from: Data("{}".utf8)).night, 0)
+        let state = try JSONDecoder().decode(HearthState.self, from: Data("{\"level\": \"low\", \"fedDay\": 4}".utf8))
+        XCTAssertEqual(state.woodGiftDay, 0)
+        XCTAssertEqual(state.level, .low)
+        var full = HearthState()
+        full.woodGiftDay = 9
+        full.lastBreak = brk
+        full.lastBreak?.wallsRaised = [0]
+        let again = try JSONDecoder().decode(HearthState.self, from: JSONEncoder().encode(full))
+        XCTAssertEqual(again, full, "the new fields round-trip")
     }
 
     // MARK: - The reference bots

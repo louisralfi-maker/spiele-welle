@@ -542,8 +542,10 @@ enum HearthTuningRun {
 /// whole build order, wood, rebuilds: does it mend within three days?).
 struct HearthThin: Sendable, Equatable {
     var seed: Int
-    /// The build order stops after this many steps.
+    /// The build order stops after this many steps; `HearthThin.idle` (below 0) is the idle lord of T2 (the bot that
+    /// builds nothing and stands where it is: the earliest broken night there is, night 3).
     var cap: Int
+    static let idle = -1
     var stress: Double
     /// Old rules: the night the realm fell (0: it held to the last night played).
     var oldFell = 0
@@ -570,6 +572,13 @@ extension HearthTuningRun {
     /// The last night a thin realm is played to.
     static let thinLastNight = 14
 
+    /// The thin realm's bot: the reference with its build order cut short, or the idle lord of T2 (who feeds no fire
+    /// and rebuilds nothing either).
+    static func thinBot(cap: Int) -> HearthBot {
+        if cap < 0 { return HearthBot(day: .buildsNothing, feeds: false, rebuilds: false) }
+        return HearthBot(day: .reference(), buildCap: cap)
+    }
+
     /// One thin realm (`HearthThin`): seed, build cap and the night's size.
     static func thin(seed: Int, cap: Int, stress: Double = 1, balance: Balance, lastNight: Int = thinLastNight)
         -> HearthThin {
@@ -579,7 +588,7 @@ extension HearthTuningRun {
 
         // The old rules.
         var old = start
-        var oldBot = HearthBot(day: .reference(), buildCap: cap)
+        var oldBot = thinBot(cap: cap)
         while !old.defeated && old.nightNumber <= lastNight {
             runToDawn(&old, balance: b, bot: &oldBot)
         }
@@ -588,7 +597,7 @@ extension HearthTuningRun {
         // The hearth rule, playing on thin.
         var s = start
         Hearth.adopt(&s)
-        var bot = HearthBot(day: .reference(), buildCap: cap)
+        var bot = thinBot(cap: cap)
         var ring = DawnRing(s, keep: b.front.hearth.dawnsKept)
         var turning: (GameState, HearthBot)?
         while s.nightNumber <= lastNight {
@@ -619,7 +628,11 @@ extension HearthTuningRun {
 
         // From the first broken dawn, played well.
         if case var (well, wellBot)? = turning {
-            wellBot.playWell()
+            if cap < 0 {
+                wellBot = HearthBot(day: .reference())
+            } else {
+                wellBot.playWell()
+            }
             for day in 1...HearthMetrics.mendDays {
                 runToDawn(&well, balance: b, bot: &wellBot)
                 if well.defeated {
@@ -651,7 +664,8 @@ extension HearthTuningRun {
             let well = broke.filter { !($0.wentOut > 0 && $0.wentOut == $0.firstBreak) }
             let mended = well.filter { ($0.wellMendedAfter ?? Int.max) <= HearthMetrics.mendDays }
             let wellFell = well.filter { $0.wellFell }.count
-            var row = "thin cap \(cap) x\(TuningRun.tenths(stress)), seeds 1-\(set.count): old rules fell "
+            let who = cap < 0 ? "idle lord (T2's bot)" : "thin cap \(cap)"
+            var row = "\(who) x\(TuningRun.tenths(stress)), seeds 1-\(set.count): old rules fell "
             row += "\(fellOld.count) (nights \(fellOld.map { String($0.oldFell) }.joined(separator: " "))); "
             row += "the rule: broke \(broke.count), went out playing on thin \(out.count) (nights after the first broken "
             row += "night: \(out.map { String($0.wentOut - $0.firstBreak) }.joined(separator: " "))), the morning before "

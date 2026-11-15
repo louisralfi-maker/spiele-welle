@@ -8,7 +8,8 @@ import XCTest
 final class HearthTuningTests: XCTestCase {
     private static let metrics: HearthMetrics = HearthTuningRun.measure(balance: .standard, seeds: 4, nights: 7...13,
                                                                         stress: 6, doubleSeeds: 2,
-                                                                        doubleNights: [8, 11], doubleSteps: [1, 2])
+                                                                        doubleNights: [8, 11],
+                                                                        doubleRules: [.oneStep, .twoSteps])
 
     private static let losses = HearthTuningRun.lossTable(balance: .standard)
 
@@ -43,7 +44,7 @@ final class HearthTuningTests: XCTestCase {
         XCTAssertTrue(m.passesTwoInThree(steps: chosen), String(line ?? ""))
         let unfed = m.twoInThreeEnd(steps: chosen, feeds: false)
         XCTAssertGreaterThan(unfed.of, 0, "the careless nights broke")
-        let oneStep = m.doubles.filter { $0.steps == 1 && $0.bothBroke && $0.breaks == 2 }
+        let oneStep = m.doubles.filter { $0.rule == .oneStep && $0.bothBroke && $0.breaks == 2 }
         XCTAssertFalse(oneStep.isEmpty)
         XCTAssertTrue(oneStep.allSatisfy { !$0.fell }, "one step a breach: two broken nights never end the realm")
         let fed = m.twoInThreeEnd(steps: chosen, feeds: true, gap: 2)

@@ -113,11 +113,11 @@ say("(\(elapsed()))")
 if doEarly {
     let early = 2...5
     let earlyDoubles = [2, 3, 4]
-    for stress in [2.0, 3.0, 6.0] {
+    for stress in [6.0, 10.0, 15.0] {
         say("")
         say("== early careless nights \(early.lowerBound)-\(early.upperBound), x\(TuningRun.tenths(stress)), the walls raised "
             + "for nothing (the chosen values; the full table)")
-        say(measure(standard, stress: stress, doubles: stress == 3, rules: [.twoSteps], over: early,
+        say(measure(standard, stress: stress, doubles: stress == 10, rules: [.twoSteps], over: early,
                     doublesFrom: earlyDoubles).report)
         say("(\(elapsed()))")
         say("")
@@ -127,7 +127,7 @@ if doEarly {
         say("(\(elapsed()))")
     }
 
-    let caps = [0, 2, 4, 6, 9]
+    let caps = [HearthThin.idle, 0, 2, 4, 6, 9]
     for stress in [1.0, 1.5] {
         say("")
         say("== thin realms (the build order stops after a few steps), x\(TuningRun.tenths(stress)), the chosen values")
