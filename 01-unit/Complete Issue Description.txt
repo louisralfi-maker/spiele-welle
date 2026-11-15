@@ -1,0 +1,1 @@
+XCTAssertGreaterThanOrEqual failed: ("1") is less than ("3") - T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 1 against 3, 88 creatures at its defence on nights 3-14 against 123 (target: none, at least as often, no more: never a trap)

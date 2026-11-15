@@ -1,0 +1,446 @@
+beaconsweep: compiled in 65 s
+beaconsweep: seeds 1-10, nights 9-14, budgets ["1.0", "1.5", "2.0"] (0 s)
+
+== the idle lockstep: the reference bots' runs (T1, T2) with the rule on and nothing raised
+  39 nights, differences: none (0 s)
+  T1 reference seed 1: the bank at dawn 200 under the old rules, 300 with the rule on
+  T1 reference seed 2: the bank at dawn 200 under the old rules, 300 with the rule on
+  T1 reference seed 3: the bank at dawn 200 under the old rules, 300 with the rule on
+  T2 builds nothing seed 1: the bank at dawn 200 under the old rules, 300 with the rule on
+  T2 builds nothing seed 2: the bank at dawn 200 under the old rules, 300 with the rule on
+  T2 builds nothing seed 3: the bank at dawn 200 under the old rules, 300 with the rule on
+
+== T15 at the chosen values (the full table)
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 1377 creatures reached the defence, without 2382: 42 % fewer (target at least 30 %, without at least 300; per budget x1.0 44 %, x1.5 46 %, x2.0 40 %)
+T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 4 against 10, 376 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 241 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 941 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 694 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 174 | 44 % | 15/10 | 16/14 | 0/0 | 0 | 232/2597 | 24.0 (20 % of the arrows, 8 % of the creatures' strength)
+  x1.5: 707 | 380 | 46 % | 64/50 | 30/26 | 0/0 | 23 | 884/3891 | 26.9 (16 % of the arrows, 7 % of the creatures' strength)
+  x2.0: 1363 | 823 | 40 % | 138/100 | 35/30 | 0/0 | 49 | 1919/5052 | 28.3 (13 % of the arrows, 5 % of the creatures' strength)
+
+T15a per night (all budgets): without | with | beacons lost (the furthest falls first)
+  night 9: 83 | 32 | 9
+  night 10: 184 | 92 | 20
+  night 11: 238 | 105 | 20
+  night 12: 546 | 365 | 3
+  night 13: 625 | 359 | 10
+  night 14: 706 | 424 | 10
+
+whole runs x1.0, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: held | 9 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 1 forward: held | 13 | 20 | 0 | 14 | 2 | 2/0 | 150 | yes | 18 | lived
+  seed 1 neglect: FELL 20 | 7 | 12 | 18 | 6 | 12 | 4/11 | 828 | yes | 0 | -
+  seed 1 walless: held | 8 | 35 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 1 outpost: held | 8 | 16 | 0 | 15 | 2 | 2/1 | 170 | yes | 17 | 65
+  seed 2 reference: held | 9 | 41 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: held | 6 | 20 | 0 | 14 | 2 | 2/1 | 170 | yes | 18 | 68
+  seed 2 neglect: FELL 20 | 7 | 16 | 19 | 6 | 10 | 4/8 | 732 | yes | 0 | -
+  seed 2 walless: held | 7 | 21 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 57
+  seed 2 outpost: held | 7 | 12 | 0 | 15 | 3 | 2/1 | 170 | yes | 17 | 60
+  seed 3 reference: held | 11 | 53 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 64
+  seed 3 forward: held | 17 | 48 | 0 | 15 | 2 | 2/0 | 150 | yes | 19 | lived
+  seed 3 neglect: held | 10 | 11 | 16 | 13 | 4 | 4/3 | 608 | yes | 20 | lived
+  seed 3 walless: held | 5 | 49 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 60
+  seed 3 outpost: held | 6 | 32 | 0 | 8 | 3 | 2/1 | 170 | yes | 17 | 67
+  seed 4 reference: held | 8 | 23 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 4 forward: held | 13 | 24 | 0 | 11 | 2 | 2/1 | 170 | no | 19 | 69
+  seed 4 neglect: FELL 20 | 7 | 5 | 15 | 6 | 11 | 4/8 | 764 | yes | 0 | -
+  seed 4 walless: held | 8 | 15 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 56
+  seed 4 outpost: held | 7 | 17 | 0 | 11 | 2 | 2/1 | 170 | no | 17 | 66
+  seed 5 reference: held | 9 | 66 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 61
+  seed 5 forward: held | 12 | 28 | 0 | 15 | 2 | 2/0 | 150 | yes | 19 | lived
+  seed 5 neglect: FELL 20 | 7 | 24 | 16 | 6 | 6 | 4/6 | 728 | yes | 0 | -
+  seed 5 walless: held | 9 | 66 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 5 outpost: held | 7 | 13 | 0 | 14 | 2 | 2/1 | 170 | yes | 17 | 61
+  seed 6 reference: held | 13 | 45 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 62
+  seed 6 forward: held | 8 | 55 | 0 | 13 | 2 | 2/1 | 170 | yes | 18 | 66
+  seed 6 neglect: held | 3 | 11 | 14 | 11 | 3 | 4/3 | 610 | yes | 20 | lived
+  seed 6 walless: held | 0 | 40 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 54
+  seed 6 outpost: held | 5 | 34 | 0 | 16 | 2 | 2/0 | 150 | yes | 16 | 60
+  seed 7 reference: held | 10 | 21 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 61
+  seed 7 forward: held | 11 | 27 | 0 | 13 | 2 | 2/0 | 150 | no | 19 | lived
+  seed 7 neglect: FELL 20 | 3 | 18 | 17 | 6 | 1 | 4/1 | 490 | yes | 0 | -
+  seed 7 walless: held | 10 | 39 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 58
+  seed 7 outpost: held | 0 | 10 | 0 | 16 | 2 | 2/2 | 200 | yes | 17 | 71
+  seed 8 reference: held | 11 | 35 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 8 forward: held | 15 | 53 | 0 | 13 | 2 | 2/1 | 170 | yes | 19 | lived
+  seed 8 neglect: FELL 20 | 3 | 14 | 16 | 13 | 3 | 4/2 | 564 | yes | 0 | -
+  seed 8 walless: held | 9 | 46 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 59
+  seed 8 outpost: held | 6 | 31 | 0 | 17 | 1 | 2/1 | 180 | yes | 17 | 61
+  seed 9 reference: held | 12 | 72 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 66
+  seed 9 forward: held | 11 | 43 | 0 | 14 | 3 | 2/1 | 170 | yes | 17 | 62
+  seed 9 neglect: held | 7 | 10 | 15 | 13 | 5 | 4/4 | 652 | yes | 20 | lived
+  seed 9 walless: held | 3 | 46 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 51
+  seed 9 outpost: held | 8 | 38 | 0 | 13 | 3 | 2/2 | 190 | yes | 17 | 65
+  seed 10 reference: held | 9 | 58 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 65
+  seed 10 forward: held | 21 | 58 | 0 | 13 | 2 | 2/1 | 170 | no | 18 | lived
+  seed 10 neglect: held | 3 | 10 | 14 | 17 | 1 | 4/1 | 520 | yes | 19 | lived
+  seed 10 walless: held | 5 | 61 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 60
+  seed 10 outpost: held | 2 | 38 | 0 | 11 | 3 | 2/2 | 200 | yes | 16 | 74
+
+whole runs x1.5, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: FELL 20 | 19 | 88 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 1 forward: FELL 17 | 16 | 74 | 0 | 10 | 2 | 2/0 | 150 | no | 0 | -
+  seed 1 neglect: FELL 20 | 7 | 25 | 18 | 5 | 16 | 4/14 | 928 | yes | 0 | -
+  seed 1 walless: held | 14 | 40 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 67
+  seed 1 outpost: held | 9 | 41 | 0 | 10 | 2 | 2/0 | 150 | no | 17 | 70
+  seed 2 reference: held | 15 | 55 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: FELL 19 | 17 | 77 | 0 | 8 | 3 | 2/1 | 170 | no | 0 | -
+  seed 2 neglect: FELL 20 | 7 | 32 | 20 | 5 | 15 | 4/14 | 906 | yes | 0 | -
+  seed 2 walless: held | 13 | 43 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 60
+  seed 2 outpost: held | 13 | 46 | 0 | 8 | 3 | 2/1 | 170 | no | 17 | 63
+  seed 3 reference: FELL 18 | 17 | 136 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 3 forward: FELL 19 | 19 | 116 | 0 | 10 | 1 | 1/0 | 60 | no | 0 | -
+  seed 3 neglect: FELL 20 | 12 | 40 | 17 | 4 | 12 | 4/11 | 866 | yes | 0 | -
+  seed 3 walless: held | 2 | 94 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 55
+  seed 3 outpost: held | 13 | 101 | 0 | 10 | 3 | 2/1 | 170 | no | 17 | 65
+  seed 4 reference: held | 21 | 60 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 4 forward: held | 12 | 72 | 0 | 10 | 2 | 2/0 | 150 | no | 19 | 64
+  seed 4 neglect: FELL 20 | 7 | 40 | 17 | 5 | 14 | 4/13 | 946 | yes | 0 | -
+  seed 4 walless: held | 13 | 32 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 62
+  seed 4 outpost: held | 11 | 54 | 0 | 10 | 2 | 2/0 | 150 | no | 18 | 62
+  seed 5 reference: FELL 19 | 17 | 63 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 5 forward: FELL 17 | 15 | 100 | 0 | 9 | 2 | 1/1 | 80 | no | 0 | -
+  seed 5 neglect: FELL 20 | 13 | 57 | 0 | 5 | 15 | 2/14 | 530 | yes | 0 | -
+  seed 5 walless: FELL 19 | 17 | 63 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 5 outpost: held | 14 | 48 | 0 | 10 | 2 | 2/0 | 150 | no | 17 | 66
+  seed 6 reference: held | 25 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 6 forward: FELL 20 | 17 | 110 | 0 | 10 | 2 | 2/0 | 150 | no | 0 | -
+  seed 6 neglect: FELL 20 | 11 | 25 | 20 | 4 | 12 | 4/11 | 840 | yes | 0 | -
+  seed 6 walless: held | 12 | 99 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 59
+  seed 6 outpost: held | 8 | 87 | 0 | 10 | 2 | 2/0 | 150 | no | 16 | 67
+  seed 7 reference: FELL 20 | 18 | 84 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | -
+  seed 7 forward: held | 21 | 58 | 0 | 10 | 1 | 1/1 | 80 | no | 18 | lived
+  seed 7 neglect: FELL 20 | 9 | 29 | 0 | 5 | 16 | 3/14 | 726 | yes | 0 | -
+  seed 7 walless: held | 14 | 56 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 63
+  seed 7 outpost: held | 11 | 57 | 0 | 10 | 2 | 2/0 | 150 | no | 18 | 65
+  seed 8 reference: held | 21 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | lived
+  seed 8 forward: FELL 20 | 17 | 95 | 0 | 8 | 2 | 1/1 | 80 | no | 0 | -
+  seed 8 neglect: FELL 20 | 5 | 26 | 0 | 4 | 14 | 3/12 | 690 | yes | 0 | -
+  seed 8 walless: held | 11 | 70 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 8 outpost: held | 13 | 96 | 0 | 8 | 4 | 2/2 | 190 | no | 17 | 63
+  seed 9 reference: FELL 19 | 16 | 133 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 9 forward: FELL 20 | 15 | 123 | 0 | 10 | 2 | 2/0 | 150 | no | 0 | -
+  seed 9 neglect: FELL 20 | 11 | 32 | 15 | 4 | 12 | 4/11 | 918 | yes | 0 | -
+  seed 9 walless: held | 13 | 96 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 66
+  seed 9 outpost: held | 13 | 77 | 0 | 9 | 3 | 1/2 | 100 | no | 16 | 63
+  seed 10 reference: held | 26 | 137 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 10 forward: FELL 20 | 18 | 116 | 0 | 10 | 2 | 2/0 | 150 | no | 0 | -
+  seed 10 neglect: FELL 20 | 11 | 28 | 16 | 4 | 11 | 4/9 | 896 | yes | 0 | -
+  seed 10 walless: held | 12 | 98 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 60
+  seed 10 outpost: held | 12 | 87 | 0 | 10 | 3 | 2/2 | 190 | no | 17 | 64
+(9 s)
+
+== the controls: the reference and the walls neglected without beacons, whole runs
+  reference x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 10.1, at the defence 3-14 44.3
+  walless x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [16, 15, 15, 15, 17, 14, 15, 15, 15, 15], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 6.4, at the defence 3-14 41.8
+  reference x1.5: fell [20, 0, 18, 0, 19, 0, 20, 0, 19, 0], Great Beacon [0, 16, 17, 17, 0, 17, 18, 18, 17, 17], King slain 1, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 19.5, at the defence 3-14 98.4
+  walless x1.5: fell [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], Great Beacon [17, 16, 15, 15, 0, 15, 16, 16, 15, 15], King slain 9, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 12.1, at the defence 3-14 69.1
+  reference x2.0: fell [17, 17, 17, 17, 14, 16, 17, 15, 17, 17], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 14.8, at the defence 3-14 198.8
+  walless x2.0: fell [0, 0, 17, 0, 14, 0, 0, 0, 0, 0], Great Beacon [17, 16, 0, 15, 0, 16, 16, 16, 16, 16], King slain 8, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 15.0, at the defence 3-14 133.3
+(13 s)
+
+== the beacons' numbers around the chosen values (T15a pairs; whole runs of the forward, neglect and outpost bots against the reference)
+-- front-3's pool 56 and strength 400, tended always: T15a 40 % fewer (x1.0 37 %, x1.5 46 %, x2.0 38 %), beacons lost in the pairs 162
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 8 against 10, 483 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 9 against 10, 308 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 5 seeds [2, 3, 4, 8, 10], slew the King in 0 against 1, 1014 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 715 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 18, 18, 18, 18, 18, 17, 18], King slain 8, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.0, relit 0.4, beacon gold 131.0, defenders lost 11.4, at the defence 3-14 48.3
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [18, 14, 16, 18, 20, 16, 0, 15, 15, 15], lost 7.8, relit 6.8, beacon gold 751.2, defenders lost 6.1, at the defence 3-14 15.4
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 16, 17, 17, 16, 17, 17, 16, 16], King slain 9, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.5, relit 1.9, beacon gold 194.0, defenders lost 5.2, at the defence 3-14 30.8
+   forward x1.5: fell [20, 20, 17, 20, 20, 0, 20, 20, 19, 17], Great Beacon [0, 0, 0, 0, 0, 19, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.9, relit 3.9, beacon gold 138.0, defenders lost 17.7, at the defence 3-14 101.4
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 7, 6, 7, 7, 7, 6, 7], all four from [0, 0, 0, 20, 0, 19, 0, 20, 0, 20], lost 15.9, relit 14.4, beacon gold 756.4, defenders lost 9.9, at the defence 3-14 47.7
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 18, 16, 16, 19, 17, 16, 17], King slain 10, first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 5.4, relit 4.4, beacon gold 148.0, defenders lost 11.3, at the defence 3-14 71.5
+(18 s)
+-- pool 40, strength 400, tended always: T15a 43 % fewer (x1.0 43 %, x1.5 46 %, x2.0 41 %), beacons lost in the pairs 165
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 6 against 10, 475 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 9 against 10, 320 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [2, 3, 4, 6, 8, 10], slew the King in 0 against 1, 1028 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 711 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 20, 19, 18, 18, 18, 18, 17, 18], King slain 6, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.3, beacon gold 129.0, defenders lost 12.7, at the defence 3-14 47.5
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [18, 14, 16, 18, 15, 16, 0, 15, 15, 15], lost 7.9, relit 6.9, beacon gold 768.2, defenders lost 5.4, at the defence 3-14 16.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 16, 17, 17, 16, 17, 17, 16, 16], King slain 9, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.7, relit 1.6, beacon gold 186.0, defenders lost 5.7, at the defence 3-14 32.0
+   forward x1.5: fell [20, 20, 17, 20, 20, 19, 20, 20, 19, 17], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.9, relit 3.9, beacon gold 138.0, defenders lost 17.5, at the defence 3-14 102.8
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 7, 6, 7, 6, 7, 6, 7], all four from [0, 0, 0, 20, 0, 17, 0, 0, 0, 20], lost 16.1, relit 14.6, beacon gold 714.6, defenders lost 10.4, at the defence 3-14 47.8
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 18, 16, 16, 19, 17, 16, 17], King slain 10, first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 5.2, relit 4.5, beacon gold 150.0, defenders lost 10.9, at the defence 3-14 71.1
+(23 s)
+-- pool 40, strength 600, tended always: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [0, 0, 0, 0, 0, 0, 20, 0, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 7 against 10, 355 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 8 against 10, 223 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 1 of 10 (target all); it fell on nights [20, 20, 0, 0, 20, 20, 19, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 5 seeds [1, 2, 6, 8, 10], slew the King in 1 against 1, 936 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 687 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 18, 19, 18, 19, 19, 16, 18], King slain 7, first loss [0, 0, 0, 0, 0, 0, 0, 0, 17, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.1, beacon gold 179.0, defenders lost 7.8, at the defence 3-14 35.5
+   neglect x1.0: fell [0, 0, 0, 0, 0, 0, 20, 0, 0, 0], Great Beacon [19, 18, 20, 18, 19, 19, 0, 20, 19, 19], King slain 4, first loss [0, 0, 0, 0, 0, 0, 20, 0, 0, 0], all four from [15, 14, 14, 14, 14, 14, 15, 15, 14, 14], lost 0.1, relit 0.0, beacon gold 460.0, defenders lost 6.2, at the defence 3-14 13.5
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 16, 17, 17, 16, 17, 17, 17, 16], King slain 8, first loss [0, 0, 0, 0, 0, 17, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 20, 0, 0, 19], lost 0.1, relit 0.0, beacon gold 212.0, defenders lost 5.7, at the defence 3-14 22.3
+   forward x1.5: fell [17, 19, 19, 0, 20, 20, 0, 18, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.7, relit 0.1, beacon gold 125.0, defenders lost 16.7, at the defence 3-14 93.6
+   neglect x1.5: fell [20, 20, 0, 0, 20, 20, 19, 20, 20, 20], Great Beacon [0, 0, 20, 20, 0, 0, 0, 0, 0, 0], King slain 0, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [16, 14, 14, 15, 16, 15, 0, 16, 16, 18], lost 7.0, relit 6.3, beacon gold 748.4, defenders lost 8.8, at the defence 3-14 32.2
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 17, 17], King slain 10, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.4, relit 0.6, beacon gold 162.0, defenders lost 11.6, at the defence 3-14 68.7
+(29 s)
+-- pool 56, strength 600: T15a 41 % fewer (x1.0 36 %, x1.5 45 %, x2.0 40 %), beacons lost in the pairs 69
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 1 seeds [5], slew the King in 4 against 10, 381 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 237 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 972 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 9 against 1, 697 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 20, 0, 0, 0, 0, 0], Great Beacon [19, 18, 19, 18, 0, 18, 19, 20, 17, 18], King slain 4, first loss [13, 14, 15, 13, 13, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.1, relit 0.4, beacon gold 158.0, defenders lost 12.8, at the defence 3-14 38.1
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [17, 18, 16, 16, 16, 14, 17, 16, 15, 14], lost 5.5, relit 4.5, beacon gold 645.6, defenders lost 5.6, at the defence 3-14 12.3
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 17, 17, 16, 17, 17, 16, 16], King slain 10, first loss [15, 15, 13, 11, 14, 16, 16, 17, 12, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.0, relit 0.8, beacon gold 195.0, defenders lost 5.4, at the defence 3-14 23.7
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 18, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.3, beacon gold 120.0, defenders lost 16.3, at the defence 3-14 97.2
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 16, 0, 0, 18, 16], lost 13.1, relit 11.8, beacon gold 828.2, defenders lost 9.0, at the defence 3-14 35.1
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 9, first loss [10, 8, 10, 10, 10, 10, 10, 10, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.4, relit 0.6, beacon gold 153.0, defenders lost 12.6, at the defence 3-14 69.7
+(34 s)
+-- pool 48: T15a 40 % fewer (x1.0 38 %, x1.5 46 %, x2.0 38 %), beacons lost in the pairs 69
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 3 against 10, 355 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 9 against 10, 238 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 953 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 712 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 19, 19, 19, 19, 19, 17, 18], King slain 3, first loss [13, 14, 14, 13, 13, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.3, relit 0.5, beacon gold 160.0, defenders lost 14.2, at the defence 3-14 35.5
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 18, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.9, relit 4.6, beacon gold 650.0, defenders lost 5.6, at the defence 3-14 12.2
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 16, 17, 17, 16, 17, 17, 16, 16], King slain 9, first loss [15, 15, 8, 11, 14, 16, 16, 17, 12, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.2, relit 1.2, beacon gold 205.0, defenders lost 4.9, at the defence 3-14 23.8
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.4, beacon gold 113.0, defenders lost 16.5, at the defence 3-14 95.3
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 16, 0, 0, 15, 16], lost 13.2, relit 12.0, beacon gold 843.2, defenders lost 9.1, at the defence 3-14 33.2
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.7, relit 0.8, beacon gold 157.0, defenders lost 11.9, at the defence 3-14 71.2
+(38 s)
+-- pool 44: T15a 41 % fewer (x1.0 35 %, x1.5 45 %, x2.0 41 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 6 against 10, 367 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 236 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 947 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 693 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 18, 19, 19, 19, 19, 16, 18], King slain 6, first loss [14, 14, 15, 13, 13, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.1, relit 0.4, beacon gold 158.0, defenders lost 11.9, at the defence 3-14 36.7
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 18, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.3, relit 4.6, beacon gold 651.6, defenders lost 6.0, at the defence 3-14 12.9
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 16, 17, 17, 16, 17, 17, 17, 16], King slain 10, first loss [15, 15, 8, 11, 14, 16, 16, 17, 13, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.2, relit 1.4, beacon gold 195.0, defenders lost 5.1, at the defence 3-14 23.6
+   forward x1.5: fell [17, 19, 19, 0, 17, 20, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.0, relit 0.4, beacon gold 122.0, defenders lost 16.9, at the defence 3-14 94.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [20, 20, 17, 17, 0, 16, 0, 19, 15, 16], lost 13.2, relit 11.9, beacon gold 838.4, defenders lost 9.5, at the defence 3-14 34.9
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.7, relit 0.9, beacon gold 159.0, defenders lost 11.8, at the defence 3-14 69.3
+(43 s)
+-- pool 36: T15a 43 % fewer (x1.0 41 %, x1.5 50 %, x2.0 40 %), beacons lost in the pairs 73
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 6 against 10, 392 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 260 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 953 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 692 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [19, 18, 19, 19, 19, 18, 19, 19, 16, 17], King slain 6, first loss [14, 14, 15, 11, 15, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.1, relit 0.6, beacon gold 162.0, defenders lost 12.3, at the defence 3-14 39.2
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 19, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.7, relit 4.9, beacon gold 655.6, defenders lost 6.1, at the defence 3-14 14.5
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 17, 17, 16, 17, 17, 17, 16], King slain 10, first loss [15, 15, 8, 11, 14, 16, 11, 17, 11, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.3, relit 1.1, beacon gold 175.0, defenders lost 5.3, at the defence 3-14 26.0
+   forward x1.5: fell [17, 19, 18, 0, 17, 20, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 8, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.0, relit 0.5, beacon gold 124.0, defenders lost 16.4, at the defence 3-14 95.3
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 0, 19, 0, 15, 0], lost 13.8, relit 12.5, beacon gold 820.4, defenders lost 9.9, at the defence 3-14 32.6
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.7, relit 0.8, beacon gold 157.0, defenders lost 11.7, at the defence 3-14 69.2
+(49 s)
+-- pool 32: T15a 43 % fewer (x1.0 44 %, x1.5 48 %, x2.0 41 %), beacons lost in the pairs 73
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 3 against 10, 410 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 260 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 951 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 695 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 20, 19, 19, 19, 19, 16, 18], King slain 3, first loss [14, 14, 14, 11, 15, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.1, relit 0.4, beacon gold 158.0, defenders lost 13.0, at the defence 3-14 41.0
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 19, 16, 15, 16, 14, 18, 16, 15, 14], lost 6.3, relit 5.3, beacon gold 671.8, defenders lost 5.8, at the defence 3-14 16.3
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 17, 17, 16, 17, 17, 16, 16], King slain 10, first loss [15, 15, 8, 11, 14, 16, 11, 17, 11, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.2, relit 1.2, beacon gold 191.0, defenders lost 5.5, at the defence 3-14 26.0
+   forward x1.5: fell [17, 19, 18, 0, 17, 20, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 8, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.0, relit 0.5, beacon gold 124.0, defenders lost 16.4, at the defence 3-14 95.1
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 19, 16, 18, 15, 0], lost 13.9, relit 12.7, beacon gold 854.4, defenders lost 9.6, at the defence 3-14 36.7
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.7, relit 0.8, beacon gold 157.0, defenders lost 11.7, at the defence 3-14 69.5
+(54 s)
+-- strength 450: T15a 43 % fewer (x1.0 44 %, x1.5 47 %, x2.0 40 %), beacons lost in the pairs 136
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 6 against 10, 447 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 9 against 10, 285 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 4, 8, 9, 10], slew the King in 0 against 1, 1033 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 679 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [19, 18, 19, 19, 18, 19, 18, 18, 17, 17], King slain 6, first loss [10, 10, 10, 10, 10, 10, 10, 10, 14, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.8, relit 0.2, beacon gold 127.0, defenders lost 12.8, at the defence 3-14 44.7
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 10, 5, 5, 10, 5, 10, 11, 10], all four from [20, 20, 14, 20, 0, 14, 19, 17, 14, 15], lost 10.5, relit 9.2, beacon gold 795.6, defenders lost 5.2, at the defence 3-14 13.9
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 16, 17, 17, 16, 17, 16, 17, 16], King slain 9, first loss [10, 10, 8, 10, 10, 8, 10, 10, 13, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.3, relit 2.6, beacon gold 210.0, defenders lost 5.3, at the defence 3-14 28.5
+   forward x1.5: fell [17, 19, 19, 19, 20, 0, 0, 20, 17, 20], Great Beacon [0, 0, 0, 0, 0, 18, 20, 0, 0, 19], King slain 0, first loss [7, 7, 7, 7, 7, 8, 7, 8, 8, 8], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.5, relit 2.5, beacon gold 110.0, defenders lost 17.4, at the defence 3-14 103.3
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [0, 18, 0, 0, 0, 20, 0, 0, 0, 0], lost 19.1, relit 17.1, beacon gold 810.8, defenders lost 9.3, at the defence 3-14 31.2
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 17, 16, 16, 17, 16, 16, 17], King slain 10, first loss [7, 7, 7, 7, 7, 8, 7, 8, 8, 8], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.8, relit 3.4, beacon gold 128.0, defenders lost 11.7, at the defence 3-14 67.9
+(58 s)
+-- strength 800: T15a 43 % fewer (x1.0 44 %, x1.5 47 %, x2.0 40 %), beacons lost in the pairs 20
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 0, 0, 0, 0, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 5 against 10, 357 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 228 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 7 seeds [1, 2, 5, 6, 7, 8, 10], slew the King in 1 against 1, 814 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 9 against 1, 558 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 19, 19, 19, 19, 19, 16, 18], King slain 5, first loss [17, 14, 15, 11, 15, 14, 14, 13, 14, 16], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.0, relit 0.3, beacon gold 156.0, defenders lost 10.8, at the defence 3-14 35.7
+   neglect x1.0: fell [20, 0, 0, 0, 0, 0, 20, 20, 0, 0], Great Beacon [0, 19, 20, 20, 20, 20, 0, 0, 20, 19], King slain 0, first loss [7, 7, 16, 7, 10, 11, 11, 14, 16, 17], all four from [16, 16, 14, 15, 14, 14, 15, 16, 14, 14], lost 3.9, relit 3.4, beacon gold 611.0, defenders lost 6.0, at the defence 3-14 13.5
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 16, 17, 17, 16, 17, 17, 17, 16], King slain 10, first loss [15, 15, 16, 11, 17, 16, 16, 17, 15, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.8, relit 0.8, beacon gold 169.0, defenders lost 6.4, at the defence 3-14 22.8
+   forward x1.5: fell [17, 20, 19, 0, 17, 20, 17, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 0, 0, 0, 0], King slain 1, first loss [13, 8, 13, 14, 9, 13, 13, 8, 13, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.3, relit 0.4, beacon gold 149.0, defenders lost 15.8, at the defence 3-14 81.4
+   neglect x1.5: fell [20, 20, 0, 20, 20, 0, 20, 20, 20, 20], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 0, 0], King slain 0, first loss [6, 6, 9, 6, 6, 11, 6, 12, 8, 13], all four from [18, 17, 14, 19, 17, 15, 17, 15, 16, 15], lost 8.5, relit 6.8, beacon gold 723.4, defenders lost 8.0, at the defence 3-14 36.8
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 17, 17, 17, 18, 17, 17, 17], King slain 9, first loss [11, 8, 14, 14, 13, 13, 11, 8, 9, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.4, relit 0.6, beacon gold 162.0, defenders lost 10.5, at the defence 3-14 55.8
+(64 s)
+-- strength 800, 700, 600, 500: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 114
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 4 against 10, 363 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 230 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 7 seeds [1, 2, 5, 6, 7, 8, 10], slew the King in 1 against 1, 895 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 654 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 19, 19, 18, 19, 19, 16, 18], King slain 4, first loss [14, 14, 15, 11, 15, 14, 14, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.0, relit 0.5, beacon gold 160.0, defenders lost 11.4, at the defence 3-14 36.3
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 20], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [19, 14, 16, 19, 16, 14, 17, 16, 15, 14], lost 6.4, relit 5.0, beacon gold 681.6, defenders lost 5.6, at the defence 3-14 12.7
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 16, 17, 17, 16, 17, 17, 17, 16], King slain 10, first loss [15, 15, 16, 11, 14, 16, 16, 17, 13, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 1.0, beacon gold 173.0, defenders lost 6.5, at the defence 3-14 23.0
+   forward x1.5: fell [17, 20, 19, 0, 17, 20, 17, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 0, 0, 0, 0], King slain 1, first loss [10, 8, 13, 10, 9, 13, 13, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.2, relit 0.4, beacon gold 149.0, defenders lost 15.9, at the defence 3-14 89.5
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 6, 9, 5, 5, 10, 5, 10, 8, 10], all four from [20, 19, 13, 19, 20, 15, 17, 20, 20, 15], lost 11.6, relit 10.2, beacon gold 863.6, defenders lost 8.3, at the defence 3-14 31.9
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 17, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.5, relit 0.7, beacon gold 164.0, defenders lost 12.3, at the defence 3-14 65.4
+(68 s)
+-- strike reach 16: T15a 41 % fewer (x1.0 41 %, x1.5 47 %, x2.0 38 %), beacons lost in the pairs 276
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 8 against 10, 438 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 328 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 7 seeds [2, 3, 4, 6, 8, 9, 10], slew the King in 0 against 1, 1059 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 715 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 19, 18, 17, 20, 18, 17, 17], King slain 8, first loss [7, 7, 8, 8, 8, 8, 7, 7, 8, 8], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.4, relit 2.3, beacon gold 115.0, defenders lost 11.3, at the defence 3-14 43.8
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [0, 20, 0, 20, 0, 19, 0, 0, 0, 0], lost 19.8, relit 17.6, beacon gold 825.4, defenders lost 6.6, at the defence 3-14 15.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 16, 17, 16, 16, 17, 17, 16, 16], King slain 10, first loss [7, 7, 8, 8, 8, 8, 7, 7, 8, 8], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.7, relit 2.8, beacon gold 125.0, defenders lost 6.9, at the defence 3-14 32.8
+   forward x1.5: fell [20, 20, 17, 20, 19, 19, 20, 20, 17, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 5.8, relit 4.8, beacon gold 156.0, defenders lost 16.8, at the defence 3-14 105.9
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [3, 4, 4, 3, 3, 4, 3, 4, 4, 4], all four from [0, 0, 0, 0, 20, 0, 19, 0, 20, 0], lost 24.5, relit 22.4, beacon gold 894.4, defenders lost 10.9, at the defence 3-14 46.7
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 16, 18, 19, 17, 17, 17, 16, 17], King slain 10, first loss [6, 5, 6, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 5.9, relit 5.0, beacon gold 160.0, defenders lost 10.6, at the defence 3-14 71.5
+(74 s)
+-- relight a quarter: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 0, 20, 20, 20, 0, 0, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 5 against 10, 376 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 241 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 5 seeds [1, 2, 6, 8, 10], slew the King in 1 against 1, 931 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 694 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 19, 19, 18, 19, 19, 17, 18], King slain 5, first loss [14, 14, 15, 11, 15, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.2, relit 0.7, beacon gold 160.5, defenders lost 12.7, at the defence 3-14 37.6
+   neglect x1.0: fell [20, 0, 20, 20, 20, 0, 0, 20, 0, 0], Great Beacon [0, 19, 0, 0, 0, 20, 20, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [17, 17, 15, 18, 16, 14, 16, 15, 15, 14], lost 5.8, relit 5.2, beacon gold 624.4, defenders lost 5.5, at the defence 3-14 14.0
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 16, 17, 17, 16, 17, 17, 17, 16], King slain 10, first loss [15, 15, 8, 11, 14, 16, 16, 17, 13, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.3, relit 1.7, beacon gold 193.3, defenders lost 5.0, at the defence 3-14 24.1
+   forward x1.5: fell [17, 19, 19, 0, 20, 20, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.5, beacon gold 121.5, defenders lost 16.9, at the defence 3-14 93.1
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [17, 0, 20, 19, 16, 16, 19, 19, 20, 14], lost 13.9, relit 12.8, beacon gold 790.6, defenders lost 8.9, at the defence 3-14 31.8
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.8, relit 1.2, beacon gold 159.0, defenders lost 11.7, at the defence 3-14 69.4
+(79 s)
+-- a beacon is raised or relit only with a wall beyond the gate: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 0, 20, 0, 20, 0, 20, 20, 20, 20]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 4 against 10, 376 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 241 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 941 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 694 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 19, 19, 18, 19, 19, 17, 18], King slain 4, first loss [14, 14, 15, 11, 15, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.1, relit 0.6, beacon gold 162.0, defenders lost 12.7, at the defence 3-14 37.6
+   neglect x1.0: fell [20, 0, 20, 0, 20, 0, 20, 20, 20, 20], Great Beacon [0, 20, 0, 20, 0, 20, 0, 0, 0, 0], King slain 0, first loss [11, 11, 11, 11, 13, 11, 13, 17, 8, 8], all four from [20, 16, 18, 18, 19, 16, 16, 15, 18, 19], lost 4.8, relit 3.6, beacon gold 607.2, defenders lost 5.6, at the defence 3-14 23.4
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 17, 17, 16, 17, 17, 17, 16], King slain 10, first loss [15, 15, 8, 11, 14, 16, 16, 17, 13, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.3, relit 1.2, beacon gold 177.0, defenders lost 5.6, at the defence 3-14 24.1
+   forward x1.5: fell [17, 19, 19, 0, 17, 20, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.4, beacon gold 122.0, defenders lost 16.7, at the defence 3-14 94.1
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [8, 8, 9, 10, 8, 8, 8, 8, 8, 9], all four from [0, 0, 20, 20, 20, 19, 0, 19, 0, 19], lost 10.6, relit 9.3, beacon gold 669.0, defenders lost 10.4, at the defence 3-14 57.2
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.6, relit 0.8, beacon gold 157.0, defenders lost 11.7, at the defence 3-14 69.4
+(84 s)
+-- the forward bot relights up to 30 gold while saving for the Great Beacon: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 4 against 10, 369 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 223 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 7 seeds [1, 2, 4, 6, 8, 9, 10], slew the King in 0 against 1, 838 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 7 against 1, 543 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 20, 19, 20, 19, 20, 20, 17, 19], King slain 4, first loss [14, 14, 15, 11, 15, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.3, relit 2.6, beacon gold 222.0, defenders lost 10.6, at the defence 3-14 36.9
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 19, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.6, relit 4.7, beacon gold 649.6, defenders lost 5.7, at the defence 3-14 13.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 17, 17, 17, 17], King slain 10, first loss [15, 15, 8, 11, 14, 16, 16, 17, 13, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.0, relit 1.8, beacon gold 200.0, defenders lost 6.2, at the defence 3-14 22.3
+   forward x1.5: fell [18, 20, 20, 20, 20, 20, 20, 20, 18, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 9.5, relit 8.1, beacon gold 359.0, defenders lost 17.2, at the defence 3-14 83.8
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 20, 0, 0, 15, 16], lost 13.7, relit 12.3, beacon gold 824.6, defenders lost 9.3, at the defence 3-14 33.4
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [19, 18, 18, 19, 19, 17, 19, 18, 18, 18], King slain 7, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 8.3, relit 6.5, beacon gold 327.0, defenders lost 8.9, at the defence 3-14 54.3
+(88 s)
+-- the forward bot relights anything while saving for the Great Beacon: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 4 against 10, 369 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 223 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 7 seeds [1, 2, 4, 6, 8, 9, 10], slew the King in 0 against 1, 838 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 7 against 1, 543 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 20, 19, 20, 19, 20, 20, 17, 19], King slain 4, first loss [14, 14, 15, 11, 15, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.3, relit 2.6, beacon gold 222.0, defenders lost 10.6, at the defence 3-14 36.9
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 19, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.6, relit 4.7, beacon gold 649.6, defenders lost 5.7, at the defence 3-14 13.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 17, 17, 17, 17], King slain 10, first loss [15, 15, 8, 11, 14, 16, 16, 17, 13, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.0, relit 1.8, beacon gold 200.0, defenders lost 6.2, at the defence 3-14 22.3
+   forward x1.5: fell [18, 20, 20, 20, 20, 20, 20, 20, 18, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 9.5, relit 8.1, beacon gold 359.0, defenders lost 17.2, at the defence 3-14 83.8
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 20, 0, 0, 15, 16], lost 13.7, relit 12.3, beacon gold 824.6, defenders lost 9.3, at the defence 3-14 33.4
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [19, 18, 18, 19, 19, 17, 19, 18, 18, 18], King slain 7, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 8.3, relit 6.5, beacon gold 327.0, defenders lost 8.9, at the defence 3-14 54.3
+(92 s)
+-- the forward bot's beacons at 6, 12, 22, 22: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 2 seeds [1, 3], slew the King in 1 against 10, 381 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 7 against 10, 269 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 7 seeds [2, 3, 4, 6, 8, 9, 10], slew the King in 0 against 1, 1075 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 679 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [20, 0, 20, 0, 0, 0, 0, 0, 0, 0], Great Beacon [0, 19, 0, 19, 20, 19, 19, 18, 20, 19], King slain 1, first loss [15, 14, 8, 13, 9, 13, 14, 17, 13, 8], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.3, relit 0.5, beacon gold 162.0, defenders lost 16.3, at the defence 3-14 38.1
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 19, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.6, relit 4.7, beacon gold 649.6, defenders lost 5.7, at the defence 3-14 13.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 17, 17, 17, 18, 18, 18, 17], King slain 7, first loss [11, 15, 8, 15, 8, 11, 11, 17, 8, 8], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.5, relit 1.2, beacon gold 179.0, defenders lost 8.2, at the defence 3-14 26.9
+   forward x1.5: fell [20, 20, 17, 18, 19, 19, 20, 20, 17, 19], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [10, 8, 9, 10, 8, 8, 10, 10, 10, 9], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.5, relit 0.5, beacon gold 163.0, defenders lost 16.4, at the defence 3-14 107.5
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 20, 0, 0, 15, 16], lost 13.7, relit 12.3, beacon gold 824.6, defenders lost 9.3, at the defence 3-14 33.4
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 18, 17, 17, 17, 18, 17, 16, 17], King slain 10, first loss [10, 8, 8, 10, 8, 8, 10, 8, 8, 9], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.8, relit 1.0, beacon gold 172.0, defenders lost 11.8, at the defence 3-14 67.9
+(96 s)
+-- the forward bot's beacons at 10, 16, 19, 22: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 4 against 10, 392 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 241 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 941 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 694 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [19, 18, 20, 19, 20, 18, 19, 19, 18, 18], King slain 4, first loss [15, 14, 15, 11, 15, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.4, relit 0.6, beacon gold 214.0, defenders lost 12.7, at the defence 3-14 39.2
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 19, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.6, relit 4.7, beacon gold 649.6, defenders lost 5.7, at the defence 3-14 13.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 17, 17, 17, 18, 17, 18, 18, 18, 16], King slain 10, first loss [15, 16, 8, 11, 14, 16, 16, 13, 13, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.7, relit 0.5, beacon gold 265.0, defenders lost 5.7, at the defence 3-14 24.1
+   forward x1.5: fell [17, 19, 19, 0, 17, 20, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.4, beacon gold 122.0, defenders lost 16.7, at the defence 3-14 94.1
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 20, 0, 0, 15, 16], lost 13.7, relit 12.3, beacon gold 824.6, defenders lost 9.3, at the defence 3-14 33.4
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.6, relit 0.8, beacon gold 157.0, defenders lost 11.7, at the defence 3-14 69.4
+(100 s)
+-- the forward bot's beacons at 10, 22, 22, 22: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 0, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 428 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 9 against 10, 281 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 9], slew the King in 1 against 1, 957 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 695 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], King slain 10, first loss [13, 14, 14, 13, 15, 13, 13, 13, 13, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.1, relit 0.5, beacon gold 70.0, defenders lost 10.2, at the defence 3-14 42.8
+   neglect x1.0: fell [20, 20, 0, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 20, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 19, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.6, relit 4.7, beacon gold 649.6, defenders lost 5.7, at the defence 3-14 13.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [16, 16, 16, 16, 16, 15, 16, 16, 16, 16], King slain 9, first loss [13, 15, 8, 11, 13, 11, 11, 14, 11, 14], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.2, relit 0.8, beacon gold 107.0, defenders lost 7.2, at the defence 3-14 28.1
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.3, relit 0.4, beacon gold 68.0, defenders lost 16.7, at the defence 3-14 95.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 20, 0, 0, 15, 16], lost 13.7, relit 12.3, beacon gold 824.6, defenders lost 9.3, at the defence 3-14 33.4
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 16, 16, 17, 16, 17, 16, 16, 16], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.8, relit 1.2, beacon gold 94.0, defenders lost 10.9, at the defence 3-14 69.5
+(105 s)
+-- no watchtower: T15a 37 % fewer (x1.0 38 %, x1.5 38 %, x2.0 36 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 4 against 10, 384 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 241 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 941 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 694 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 19, 19, 18, 19, 19, 16, 18], King slain 4, first loss [14, 14, 15, 11, 15, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.1, relit 0.6, beacon gold 162.0, defenders lost 12.6, at the defence 3-14 38.4
+   neglect x1.0: fell [20, 20, 20, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 0, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 19, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.8, relit 4.8, beacon gold 655.6, defenders lost 5.4, at the defence 3-14 15.0
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 17, 17, 16, 17, 17, 17, 16], King slain 10, first loss [15, 15, 8, 11, 14, 16, 16, 17, 13, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.3, relit 1.2, beacon gold 177.0, defenders lost 5.6, at the defence 3-14 24.1
+   forward x1.5: fell [17, 19, 19, 0, 17, 20, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.4, beacon gold 122.0, defenders lost 16.7, at the defence 3-14 94.1
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 20, 0, 18, 15, 16], lost 13.6, relit 12.3, beacon gold 845.8, defenders lost 9.8, at the defence 3-14 36.9
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.6, relit 0.8, beacon gold 157.0, defenders lost 11.7, at the defence 3-14 69.4
+(109 s)
+-- no charcoal: T15a 41 % fewer (x1.0 42 %, x1.5 44 %, x2.0 39 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 0, 20, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 4 against 10, 376 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 10, 241 creatures at its defence on nights 3-14 against 443 (target: it does not beat the reference on all three)
+   T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night by night 19 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 10], slew the King in 1 against 1, 941 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+   T15c reported, missed x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 10 against 1, 694 creatures at its defence on nights 3-14 against 984 (target: it does not beat the reference on all three)
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 19, 19, 18, 19, 19, 17, 18], King slain 4, first loss [14, 14, 15, 11, 15, 13, 13, 13, 14, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.1, relit 0.6, beacon gold 162.0, defenders lost 12.7, at the defence 3-14 37.6
+   neglect x1.0: fell [20, 20, 20, 20, 20, 0, 20, 20, 0, 0], Great Beacon [0, 0, 0, 0, 0, 20, 0, 0, 20, 19], King slain 0, first loss [6, 6, 13, 6, 6, 11, 6, 13, 13, 17], all four from [18, 19, 16, 15, 16, 14, 17, 16, 15, 14], lost 5.7, relit 4.8, beacon gold 655.6, defenders lost 5.9, at the defence 3-14 13.6
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 17, 17, 16, 17, 17, 17, 16], King slain 10, first loss [15, 15, 8, 11, 14, 16, 16, 17, 13, 11], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.3, relit 1.2, beacon gold 177.0, defenders lost 5.6, at the defence 3-14 24.1
+   forward x1.5: fell [17, 19, 19, 0, 17, 20, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.4, beacon gold 122.0, defenders lost 16.7, at the defence 3-14 94.1
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 17, 17, 0, 20, 0, 0, 15, 16], lost 13.7, relit 12.3, beacon gold 824.6, defenders lost 9.7, at the defence 3-14 32.6
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 17, 16, 18, 17, 16, 17], King slain 10, first loss [10, 8, 10, 10, 10, 10, 10, 8, 9, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.6, relit 0.8, beacon gold 157.0, defenders lost 11.7, at the defence 3-14 69.4
+(114 s)
+
+beaconsweep: done (114 s)
+beaconsweep: exit 0 after 180 s

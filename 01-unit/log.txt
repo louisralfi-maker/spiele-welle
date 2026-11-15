@@ -1,0 +1,42 @@
+2026-11-15 04:49:53.819292+0000 Lanternhold[24434:75393] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.GorgeBeaconTests testAFallenBeaconIsRelitForAThirdAtOnce]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testALitBeaconBurnsUnderTheLightRules]' passed (0.033 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testAnOldSaveLoadsWithoutTheRule]' passed (0.046 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testARaiseWaitsBeyondAFallenBeaconAndTheSaveAgrees]' passed (0.223 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testCreaturesStrikeTheFurthestBeaconAsTheyPass]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testEachBeaconHoldsTheFogOneStretchBeyondIt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testFromTheFirstNightEveryBeaconPushesTheFogBack]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testRaisingTakesTheBuildersIdleTime]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheBeaconsAreTendedFromTheWall]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheCharcoalBurnersBrightenTheBraziers]' passed (0.001 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeBeaconTests.swift:515: error: -[LanternholdTests.GorgeBeaconTests testTheDawnTellsWhatWasLitAndWhatWasFreed] : XCTAssertEqual failed: ("[Lanternhold.GorgeLine(key: "front.gorge.lit"), Lanternhold.GorgeLine(key: "front.gorge.land.quarry"), Lanternhold.GorgeLine(key: "front.gorge.untended")]") is not equal to ("[Lanternhold.GorgeLine(key: "front.gorge.lit"), Lanternhold.GorgeLine(key: "front.gorge.land.quarry")]")
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheDawnTellsWhatWasLitAndWhatWasFreed]' failed (0.101 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheFogRollsToItsNewLine]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheGorgeLinesReadInEnglishAndGerman]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheGreatBeaconStaysAsItIs]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheNextBeaconIsRaisedByDayFromDayThreeInOrder]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheOldQuarryMakesWallWorkCheaper]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheReferenceBotIgnoresTheGorgesNumbers]' passed (1.765 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheReportsLinesInOrder]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuinedWatchtowerIsAForwardArchersPost]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuleIsDeterministic]' passed (1.767 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuleRoundTripsAndPartialStatesDecodeWithDefaults]' passed (0.108 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheSitesAreFractionsOfTheGorgeAtGrowingDistances]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testWithoutTheRuleNothingChanges]' passed (0.001 seconds).
+Test Suite 'GorgeBeaconTests' failed at 2026-11-15 04:49:59.587.
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15aWithAllFourHeldFewerCreaturesReachTheWall]' passed (85.617 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:39: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertTrue failed - seed 1: neglect first beacon lost night 6, fell night 20; forward fell 0, reference fell 0
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:39: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertTrue failed - seed 2: neglect first beacon lost night 6, fell night 20; forward fell 0, reference fell 0
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:39: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertTrue failed - seed 3: neglect first beacon lost night 13, fell night 0; forward fell 0, reference fell 0
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight]' failed (0.027 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:48: error: -[LanternholdTests.GorgeTuningTests testTarget15cBeaconsWithoutWallsDoNotBeatTheReference] : XCTAssertTrue failed - T15c FAIL x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) fell where the reference held in 0 seeds [], slew the King in 3 against 3, 60 creatures at its defence on nights 3-14 against 123 (target: it does not beat the reference on all three)
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15cBeaconsWithoutWallsDoNotBeatTheReference]' failed (0.014 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:59: error: -[LanternholdTests.GorgeTuningTests testTheForwardWagerIsNeverATrap] : XCTAssertGreaterThanOrEqual failed: ("1") is less than ("3") - T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 1 against 3, 88 creatures at its defence on nights 3-14 against 123 (target: none, at least as often, no more: never a trap)
+Test Case '-[LanternholdTests.GorgeTuningTests testTheForwardWagerIsNeverATrap]' failed (0.015 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheReferenceBotsPlayTheSameWithTheRuleOn]' passed (8.340 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheT15ReportIsAttached]' passed (0.009 seconds).
+Test Suite 'GorgeTuningTests' failed at 2026-11-15 04:51:33.625.
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-15 04:51:33.626.
+Test Suite 'Selected tests' failed at 2026-11-15 04:51:33.627.
+exit=65
+screenshots: 0
