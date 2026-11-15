@@ -536,7 +536,6 @@ enum FrameBuilder {
         let weather = geometry.weather
         let size = SpriteID.smokePuff.size
         let value = CastleSmoke.value
-        let night = ambient.torchStrength
         var list: [SpriteInstance] = []
         for prop in props where prop.plane == plane {
             guard let chimney = SceneLayout.castleChimney(prop) else { continue }
@@ -551,14 +550,9 @@ enum FrameBuilder {
                 let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
                 list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
                                            tint: SIMD4<Float>(value, value, value * 1.02, puff.alpha), flipped: false))
-                // Round lh-w2f1-2: lit only as albedo, the puffs sank into the night's rock. From the dusk they catch
-                // the moon (and over the bakehouse the oven's glow from below), a value step over the rock behind.
-                guard night > 0.05 else { continue }
-                var rgb = GamePalette.moon * (CastleSmoke.moonGlow * night)
-                if fire {
-                    let low = Float(max(0, 1 - puff.rise / CastleSmoke.warmRise))
-                    rgb += GamePalette.fireOrange * (CastleSmoke.fireGlow * night * low * low)
-                }
+                // Round lh-w2f1-2: lit only as albedo, the puffs sank into the night's rock. World-3: a light of
+                // their own at every hour (`CastleSmoke.glow`: day, dusk sky, moon, the chimney's fire from below).
+                let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire)
                 glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane, rect: rect,
                                           color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, puff.alpha), frame: puff.frame))
             }
@@ -727,6 +721,14 @@ enum FrameBuilder {
             tint.y *= dim
             tint.z *= dim
         }
+        if options.look == .two && SceneLayout.townRowSprites.contains(prop.sprite) {
+            // World-3 (M4): the town's back row a step darker as the night comes (the near plane's night haze lifted
+            // its pale plaster over the front houses').
+            let dim = 1 - SceneLayout.look2TownRowNightDim * Look.nightness(ambient)
+            tint.x *= dim
+            tint.y *= dim
+            tint.z *= dim
+        }
         // Scene polish 2: a cast shadow is black at the sun's strength, a mist bank white at the mist's; both are
         // translucent veils that hide no glow.
         var hidesGlow = true
@@ -811,6 +813,10 @@ enum FrameBuilder {
         if SceneLayout.castleKeepRims.contains(part.sprite) {
             // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm.
             strength *= keepRimShare(ambient)
+        }
+        if SceneLayout.beaconRims.contains(part.sprite) {
+            // World-3 (M2): the beacon's moon rim rises with the night's moon, not with the torches.
+            strength *= wedgeMoonShare(ambient)
         }
         if part.sprite == .moon && options.look == .two {
             // World rebuild, fix round 2: the moon in the cleft's wedge rises with the night's moon, not with the
@@ -1481,6 +1487,10 @@ enum FrameBuilder {
             var intensity = source.intensity
             if source.kind.fadesByDay {
                 intensity *= torch
+            } else if options.look == .two && SceneLayout.fadesToADayShare(source.kind) {
+                // World-3 (1f): an open fire's pool falls to a quarter at noon, whole from the dusk.
+                let day = SceneLayout.look2FireDayShare
+                intensity *= day + (1 - day) * torch
             } else {
                 intensity *= 0.35 + 0.65 * torch
             }

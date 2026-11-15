@@ -107,6 +107,11 @@ extension SceneLayout {
     /// The chimney of a castle prop that smokes (its plane's x of the smoke's middle, the smoke's foot), nil for any
     /// other: the keep's on its right slope (none while tier 2's storey is built and the roof is off), the bakehouse's.
     static func castleChimney(_ prop: Prop) -> (x: Double, y: Double)? {
+        // World-3 (M4): the town's back row smokes too (one chimney a sprite; a mirrored sprite mirrors it).
+        if let town = townRowChimney(prop.sprite) {
+            let dx = prop.flipped ? Double(prop.sprite.size.width) - town.dx : town.dx
+            return (prop.x + dx, town.y)
+        }
         switch prop.sprite {
         case .keepT1: return (prop.x + 187.5, 122)
         // (fix round 1, after lh-w2f1-3: tiers 2 and 3 low on the right slope, so the smoke rises under the HUD)
@@ -250,9 +255,14 @@ extension SceneLayout {
         // Fix round 1 (high 3): the chimney's mouth glows a little, so its smoke is lit warm from below at night.
         list.append((.world, Entry(sprite: .bakehouse, x: bake, y: 0, z: -2,
                                    emitters: [.sprite(.bakeHatchGlow, dx: 15, dy: 7, glow: .fireOrange, fades: false),
-                                              .glass(dx: 63, dy: 23, width: 5, height: 5)],
-                                   // fix round 2 (high 3): the hatch's wash low and flat, cut at the west jamb
-                                   lights: [Light(kind: .brazier, x: bake + 18, y: 6, radius: 24, squash: 2.6,
+                                              .glass(dx: 63, dy: 23, width: 5, height: 5),
+                                              // world-3 (the critic's high 1 of look 3): the oven's wedge of light
+                                              // from the sill down the dome's foot and out on the lane, no oval
+                                              .sprite(.bakeHatchWedge, dx: castleBakeWedge.dx, dy: castleBakeWedge.dy,
+                                                      glow: .fireOrange, fades: true)],
+                                   // fix round 2 (high 3): the hatch's wash cut at the west jamb; world-3: a small
+                                   // round glow on the dome around the hatch's mouth, above the ground only
+                                   lights: [Light(kind: .brazier, x: bake + 18, y: 9, radius: 17, squash: 1.5,
                                                   clip: castleBakehouseClip),
                                             Light(kind: .window, x: bake + 65.5, y: 25, radius: 10),
                                             Light(kind: .lantern, x: bake + 75, y: 70, radius: 9, intensity: 0.35)])))

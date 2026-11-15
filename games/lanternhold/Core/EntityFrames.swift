@@ -108,6 +108,9 @@ enum EntityFrames {
     static let beaconLeft = Realm.beaconX - 32
     /// An unlit creature's body at full night (× its albedo): only its glow strip reads.
     static let unlitValue: Float = 0.2
+    /// World-3 (REVIEW-look-2.md L2, look 2): a step lighter, so a creature far from the fires reads as an ash body with
+    /// its cool rim, not as its red glow strip alone ("red line smears" at the outer line).
+    static let unlitValueLook2: Float = 0.3
     /// Creatures reflect at most this much point light (the world 1.6, `kLitCap`; M2b review: their pale ash crusts
     /// blew out to cream in the beacon's and the braziers' light), and an unlit creature's moonlight rim is this
     /// strong at full night (the king's rim is 0.5: on a body at 0.2 it vanished into the ground).
@@ -147,7 +150,7 @@ enum EntityFrames {
 
         defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
                      look: options.look, props: &props)
-        beacon(s, props: &props)
+        beacon(s, look: options.look, props: &props)
         courtyard(s, props: &props)
         town(s, look: options.look, props: &props)
         let townDay = TownLife.Context(reduceMotion: options.reduceMotion,
@@ -526,7 +529,7 @@ enum EntityFrames {
 
     // MARK: - The beacon, the courtyard, the town
 
-    private static func beacon(_ s: GameState, props: inout PropList) {
+    private static func beacon(_ s: GameState, look: LookVersion = .one, props: inout PropList) {
         let plot = s.plots[Realm.beaconPlot]
         if let item = plot.item {
             let sprite: SpriteID
@@ -543,7 +546,13 @@ enum EntityFrames {
             let blaze = sprite == .greatBeacon && s.beaconLit
                 ? [LightSource(kind: .brazier, x: Realm.beaconX, y: 140, radius: 90, intensity: 0.9,
                                flickerSeed: 0x4245_4143)] : []
-            props.add(sprite, x: beaconLeft, z: -1, masks: masks, lights: blaze)
+            // World-3 (M2, look 2): every stage catches the moon on its right and upper edges.
+            var rim: [EmissivePart] = []
+            if look == .two, let id = SceneLayout.beaconRim(sprite) {
+                rim.append(EmissivePart(sprite: id, dx: 0, dy: 0, color: GamePalette.moon, intensity: 1,
+                                        flickerSeed: nil, fadesByDay: true, isFire: false))
+            }
+            props.add(sprite, x: beaconLeft, z: -1, emissive: rim, masks: masks, lights: blaze)
         }
         if plot.job != nil {
             scaffold(&props, centre: Realm.beaconX, width: 64)
@@ -1015,6 +1024,10 @@ enum EntityFrames {
         return 6 + Int((time * 2).rounded(.down)) % 2
     }
 
+    /// World-3 (M3): how many archers one wall walk or tower shows at most in look 2, and how far apart.
+    static let archersDrawnPerWalk = 3
+    static let archerSpacing = 10.0
+
     /// How long an archer holds the loose pose after a shot and draws before the next (M2b review: at 0.18 and 0.45 s
     /// no screenshot caught an archer shooting).
     static let archerLooseSeconds = 0.3
@@ -1101,7 +1114,7 @@ enum EntityFrames {
         // Drawn from left to right, so neighbours always overlap the same way and a crowd separates (M2b review), each
         // body a shade lighter or darker by its id (bosses as painted).
         let night = min(1, max(0, ambient.torchStrength))
-        let value = 1 - (1 - unlitValue) * night
+        let value = 1 - (1 - (look == .two ? unlitValueLook2 : unlitValue)) * night
         var attacked = false
         var order: [Int] = []
         order.reserveCapacity(s.creatures.count)
@@ -1204,10 +1217,25 @@ enum EntityFrames {
 
         // Archers: on their posts (drawing and loosing toward the most advanced lit creature in reach), or on the
         // ground walking to a free post when their wall fell.
+        // World-3 (REVIEW-look-2.md M3, look 2): at most three drawn per wall walk or tower, 10 px apart (six on a
+        // 40 px wall read as a picket fence of heads); the others are implied by their arrows.
+        // A line's wall and its tower keep the 10 px between them too (round lh-w3-1: a tower's archer stood at the
+        // shoulder of the wall's last one).
+        var drawnPosts: [Int: [Double]] = [:]
+        var drawnLine: [Int: [Double]] = [:]
         for soldier in s.soldiers where soldier.kind == .archer {
             switch soldier.state {
             case .posted:
                 guard let spot = archerSpot(soldier, layouts: layouts) else { continue }
+                if look == .two {
+                    let plot = soldier.postPlot
+                    let line = Realm.lines.firstIndex { $0.wall == plot || $0.tower == plot }.map { -1 - $0 } ?? plot
+                    let shown = drawnPosts[plot, default: []]
+                    guard shown.count < archersDrawnPerWalk,
+                          drawnLine[line, default: []].allSatisfy({ abs($0 - spot.x) >= archerSpacing }) else { continue }
+                    drawnPosts[plot, default: []].append(spot.x)
+                    drawnLine[line, default: []].append(spot.x)
+                }
                 var faceRight = false
                 var bestX = -Double.infinity
                 var aiming = false

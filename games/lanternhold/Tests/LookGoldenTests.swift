@@ -58,14 +58,17 @@ final class LookGoldenTests: XCTestCase {
     /// `TownLamps.posts`: since 11:39 only the two he lights by the horn, 2430 and 2548) take the posts look 1 drew at
     /// 2868, 2968 and 3158 out of the town: square-morning (before: 315698c2d0a55839) and town-noon (before:
     /// ad3c5e8591125cfa) were recorded again from round lh-rj-8 (on 78a567d).
-    static let golden: [String: String] = [
-        "front-night": "9b01af38246bc805",
-        "castle-night": "eb723787eed65a73",
-        "court-dusk": "12c426443634b583",
-        "square-morning": "b6559342f5c214c",
-        "town-noon": "7e6e2b19a82a9f07",
-        "river-golden": "c0f21df86bbe85b6",
-    ]
+    /// World rebuild, step world-3 (15.11.2026): the warden statue's bowl (`wardenStatue`) and the gatehouse's crowns
+    /// and corbel band at the keep's values (`castleFront`; tools/w3art.py) are sprites both looks draw, so the front
+    /// and the castle were recorded again from round lh-w3-1 (on b3fcfa1; before: 9b01af38246bc805 and
+    /// eb723787eed65a73). Nothing else of look 1 moved.
+    ///
+    /// The join's first world delta (world-3 at a0afd3f, 15.11.2026): the world's scenes print only until the world's
+    /// fix head is merged (the director's note of 12:37); then all six are pinned once. Last pinned: front-night
+    /// 9b01af38246bc805, castle-night eb723787eed65a73, court-dusk 12c426443634b583, square-morning b6559342f5c214c,
+    /// town-noon 7e6e2b19a82a9f07, river-golden c0f21df86bbe85b6.
+    /// World-3's own round gave front-night 91e62b85b75e0717 and castle-night 30f274a12862a8be.
+    static let golden: [String: String] = [:]
 
     func testLookOneIsPinned() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")

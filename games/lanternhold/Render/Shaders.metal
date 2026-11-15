@@ -239,6 +239,7 @@ struct LightPoolOut {
     float4 position [[position]];
     float4 circle [[flat]];
     float4 color [[flat]];
+    float4 clip [[flat]];   // world-3: the cut, so look 2 feathers it in the fragment
 };
 
 constant float kBayer4[16] = { 0.0f, 8.0f, 2.0f, 10.0f, 12.0f, 4.0f, 14.0f, 6.0f,
@@ -291,6 +292,7 @@ vertex LightPoolOut lh_pool_vertex(uint vid [[vertex_id]],
     out.position = lh_ndc(clamp(l.circle.xy + corner * extent, l.clip.xy, l.clip.zw), u.target.xy);
     out.circle = l.circle;
     out.color = l.color;
+    out.clip = l.clip;
     return out;
 }
 
@@ -922,7 +924,29 @@ vertex LightPoolOut lh_pool2_vertex(uint vid [[vertex_id]],
     out.position = lh_ndc(clamp(l.circle.xy + corner * extent, l.clip.xy, l.clip.zw), u.target.xy);
     out.circle = l.circle;
     out.color = l.color;
+    out.clip = l.clip;
     return out;
+}
+
+// World-3 (the director's note of 15.11. 09:23, items b and e): look 2's lit edge is a soft dithered shoulder over a
+// band around the threshold instead of the smooth style's hard 45 % step. The step drew the lord's lantern pool as a
+// box on the walls (its ring's flanks stood as vertical edges beside the gate, the bakehouse and the chapel) and gave
+// the castle's washes a round outline. The value still drops there, so the edge the creatures respect still reads.
+static inline float lh2_light_level(float d, uint style, uint bands, float edge, float dither) {
+    if (style != 0u) {
+        return lh_light_level(d, style, bands, edge, dither);
+    }
+    float t = saturate(1.0f - d);
+    t = t * t;
+    float s = smoothstep(edge * 0.35f, edge * 1.8f, t + (dither - 0.5f) * edge * 0.5f);
+    return t * mix(0.55f, 1.0f, s);
+}
+
+// World-3: a cut pool fades over its last 3 rows and columns inside the cut (the hall door's wash under the eave, the
+// bakehouse's at its jamb), never a ruler line. No cut: 1.
+static inline float lh2_clip_feather(float2 p, float4 clip) {
+    float inside = min(min(p.x - clip.x, clip.z - p.x), min(p.y - clip.y, clip.w - p.y));
+    return saturate(inside / 3.0f);
 }
 
 fragment float4 lh_pool2_fragment(LightPoolOut in [[stage_in]],
@@ -935,8 +959,8 @@ fragment float4 lh_pool2_fragment(LightPoolOut in [[stage_in]],
         discard_fragment();
     }
     uint2 cell = uint2(uint(p.x) + uint(max(u.target.z, 0.0f)), uint(p.y));
-    float level = lh_light_level(d, u.style.x, u.style.y, u.target.w, lh_bayer(cell));
-    float strength = abs(in.circle.w) * level;
+    float level = lh2_light_level(d, u.style.x, u.style.y, u.target.w, lh_bayer(cell));
+    float strength = abs(in.circle.w) * level * lh2_clip_feather(p, in.clip);
     if (in.circle.w < 0.0f) {
         return float4(0.0f, 0.0f, 0.0f, strength);
     }

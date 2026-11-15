@@ -82,6 +82,14 @@ struct Camera: Sendable, Equatable {
     let viewWidth: Double
     /// World width (game px).
     let worldWidth: Double
+    /// World-3 (`CameraFraming`): the eased walking lead (signed game px) and its speed.
+    private(set) var lead: Double = 0
+    private(set) var leadVelocity: Double = 0
+    /// World-3: the eased share of the danger lead (0 ... 1) and its speed.
+    private(set) var danger: Double = 0
+    private(set) var dangerVelocity: Double = 0
+    /// World-3: the last framing goal (its change per step is fed forward to the follow); nil after a jump.
+    private(set) var lastGoal: Double?
 
     /// A camera centred on `focusX`, clamped to the world.
     init(focusX: Double, viewWidth: Double, worldWidth: Double = WorldLayout.width) {
@@ -136,6 +144,72 @@ struct Camera: Sendable, Equatable {
         } else if x > maxLeft {
             x = maxLeft
             velocity = min(0, velocity)
+        }
+    }
+
+    // MARK: World-3: the framing (REVIEW-look-2.md 2.7, `CameraFraming`)
+
+    /// One step of the world's framing: eases the walking lead toward his facing once he walks, eases the danger
+    /// lead toward its want, and follows the framing goal (the set pieces included) with its change fed forward, so
+    /// a steady walk keeps the lord steady on screen. Reduce Motion: the leads and the goal are instant.
+    mutating func frame(_ input: CameraFraming.Input, dt: Double, reduceMotion: Bool = false) {
+        let step = max(0, dt)
+        let walking = input.velocity != 0
+        // The lead holds once he has walked: it turns with him, it stays when he stops.
+        let leadTarget = walking || lead != 0 || leadVelocity != 0
+            ? CameraFraming.walkLead * (input.facing < 0 ? -1 : 1) : 0
+        let dangerTarget = min(1, max(0, input.danger))
+        if reduceMotion {
+            lead = leadTarget
+            leadVelocity = 0
+            danger = dangerTarget
+            dangerVelocity = 0
+        } else if step > 0 {
+            var value = lead
+            var speed = leadVelocity
+            Camera.ease(&value, &speed, toward: leadTarget, omega: CameraFraming.leadOmega, dt: step)
+            lead = value
+            leadVelocity = speed
+            value = danger
+            speed = dangerVelocity
+            Camera.ease(&value, &speed, toward: dangerTarget, omega: CameraFraming.dangerOmega, dt: step)
+            danger = min(1, max(0, value))
+            dangerVelocity = speed
+        }
+        let goal = CameraFraming.goal(lordX: input.lordX, lead: lead, danger: danger)
+        var goalVelocity = input.velocity
+        if let last = lastGoal, step > 0 {
+            goalVelocity = (goal - last) / step
+        }
+        lastGoal = goal
+        follow(targetX: goal, targetVelocity: goalVelocity, dt: step, reduceMotion: reduceMotion)
+    }
+
+    /// Cuts to the framing goal at once (a restart, travel): the walking lead is cleared, the danger share set to its
+    /// want; the camera stands still afterwards.
+    mutating func reframe(_ input: CameraFraming.Input) {
+        lead = 0
+        leadVelocity = 0
+        danger = min(1, max(0, input.danger))
+        dangerVelocity = 0
+        let goal = CameraFraming.goal(lordX: input.lordX, lead: 0, danger: danger)
+        jump(toFocus: goal)
+        lastGoal = goal
+    }
+
+    /// A critically damped ease of `value` toward `target` (semi-implicit Euler, stable for ω·dt well under 1; the
+    /// step is split when it is not).
+    static func ease(_ value: inout Double, _ velocity: inout Double, toward target: Double, omega: Double,
+                     dt: Double) {
+        let pieces = max(1, Int((omega * dt / 0.25).rounded(.up)))
+        let h = dt / Double(pieces)
+        for _ in 0..<pieces {
+            velocity += (omega * omega * (target - value) - 2 * omega * velocity) * h
+            value += velocity * h
+        }
+        if abs(target - value) < 0.01 && abs(velocity) < 0.05 {
+            value = target
+            velocity = 0
         }
     }
 

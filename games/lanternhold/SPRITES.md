@@ -805,3 +805,28 @@ light and wear to tools/hallart.py's hall.
 - The atlas page: the hall's sprites take it from about 1730 to about 1850 rows of 2048 (one page still; about 200
   rows are left for the world lane's new pieces before the second page SPRITES.md "The great hall as a stage"
   proposes is needed).
+
+## World-3 (world rebuild, step world-3, 15.11.2026; ART-look2.md section 26)
+
+In `SpriteID` (look 2 only). Painted by `tools/w3art.py` (pure python, palette colours, hashes of the position;
+`tools/build-art-world.sh` rebuilds them byte for byte; its passes over existing sprites read their untouched sources
+from `tools/w3src`). Placed by `Core/SceneLayoutWorld3.swift`, the bakehouse's wedge by `Core/SceneLayoutCastle.swift`,
+the beacon stages' rims by `EntityFrames.beacon`. Masks are (dx, dy from the sprite's bottom, w, h).
+
+| id | size | plane | where (plane x) | notes |
+|---|---|---|---|---|
+| `bakeHatchWedge` | 30x14 | world, emissive | bakehouse + (3, −10), dusk and night | the oven's wedge of light (the critic's high 1 of world-2 look 3): its top 4 rows on the oven dome's foot under the hatch, its 10 lower rows on the lane; the hatch's width at the top, four times it at the foot, strongest at the wall's foot, fading toward the viewer; alpha in sixteenths; gold, orange, ember |
+| `beaconRuinRim`, `beaconBaseRim`, `beaconTowerRim`, `greatBeaconRim` | 64x130 | world, emissive (the moon's colour) | each stage + (0, 0) | the moon's rim (M2): 0.85 on every right edge inside the ink outline, 0.38 the next pixel, 0.62 on top edges, a faint wash on the east half's pale stones; by the moon's height (`FrameBuilder.wedgeMoonShare`), so none by day and at the dusk |
+| `townRoofsA`, `townRoofsB`, `townRoofsD` | 120x72 | near, z −2, shade 0.72 | 1930 (A), 2080 (B), 2387 (D), 2567 (A mirrored), 2687 (B mirrored) | the town's back row (M4): tall narrow town houses that overlap (half-timbering, gables to the lane, hipped long roofs in tile, slate and thatch, dormers, small panes in `night1`), a field-stone garden wall with a hedge at their foot that crumbles at the sprite's ends; masks: A (34,24,3,4), (20,30,3,4), (13,51,3,3), (84,22,3,4), (101,18,3,4); B (39,22,3,4), (15,14,3,4), (81,54,3,3), (110,26,3,4); D (58,36,3,4), (53,56,3,3), (34,28,3,4), (106,22,3,4) (a few lit, never a grid; `w3art.py masks` lists every pane); a smoking chimney at A (110.5, 71), B (110.5, 63), D (34.5, 65) |
+| `townRoofsC` | 120x96 | near, z −2, shade 0.72 | 2197 (its tower between the poplars and the linden, behind the square) | the church: a stone tower 20 wide to y 52 with a louvred belfry, a lancet (mask (51,16,2,9)) and a door, a slate spire with a lucarne to y 94 and a gold finial; two houses beside it; masks (26,26,3,4), (72,28,3,4), (104,28,3,4), (90,50,3,2); chimney (104.5, 67) |
+| `riverFarLantern` | 12x26 | near, z 2 | 2985 (the far shore right of the old bridge's second stump, at the river end's clamped view) | a weathered post with an arm and a small iron lantern (mask (8,14,3,4), amber at 0.8) (L4) |
+| `riverSkiff` | 34x10 | near, z 2, y −2 | 2929 (on the water between the stumps; on the mid plane the low mist band swallowed it) | a tarred skiff moored on the far bank, a lit sheer strake, an oar across, its painter to a stake (L4) |
+| `valleyVerge` | 64x10 | world, z −8, y −14 | 2400 + 64 k, k 0 to 19, every other mirrored | where the earth track meets the grass under it (L3): tufts of the meadow's edge growing up into the track, stones bedded in the earth, roots; its lowest rows fade into the band |
+
+Repainted in place (same sizes and anchors): `beaconRuin` (the cage over the broken top is the Great Beacon's cold iron
+bowl, cracked, with grey ash and a charred log end, on a stub of its stem), `wardenStatue` (M5: a stone basin in its
+hands with a warm lip and a shadow under it on the robe; look 2's fire emitter one row higher, dy 156), `castleFront`,
+`castleFront3`, `castleFront3Build` (the crenels' and the corbel band's `night0` and `night1` a slate dark and mid, as
+the keep's, outside the slits' masks and the braziers' niches), `chapelTower` (the bell bronze in shadow), `posternT3`
+(tier 2's slate roof raised on the crown's machicolations, a flag on its point).
+<!-- END world lane: world rebuild, step world-3 -->

@@ -40,7 +40,9 @@ extension SceneLayout {
     /// line of light, the chapel's lancets, the postern's and the bakehouse's windows, the gatehouse's slits.
     static let castleAmberGlass: Set<SpriteID> = [.keepT1, .keepT2, .keepT3, .keepT2Build, .keepT3Build, .forebuilding,
                                                   .chapelTower, .posternT1, .posternT2, .posternT3, .bakehouse,
-                                                  .castleFront, .castleFront3, .castleFront3Build]
+                                                  .castleFront, .castleFront3, .castleFront3Build,
+                                                  // world-3: the town's back row
+                                                  .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD, .riverFarLantern]
     /// The lit core moves from the glass's cream (1, 0.76, 0.42 at a gain that clipped it to cream-white) halfway to
     /// the torch's amber: this times the glass colour, so the core stays under the clip and reads amber; the bloom
     /// (`keepPaneHalo`, the window pools) stays.
@@ -48,15 +50,26 @@ extension SceneLayout {
     /// The chapel's lancets no brighter than the keep's windows (the open hall door stays the brightest thing in the
     /// court): the same share the keep's glass takes (`FrameBuilder.keepGlass`).
     static func castleGlassShare(_ sprite: SpriteID) -> Float {
-        sprite == .chapelTower ? FrameBuilder.keepGlass : 1
+        switch sprite {
+        case .chapelTower: return FrameBuilder.keepGlass
+        // world-3 (the critic's medium of world-2 look 3: "the gate slits' pale core"): a step lower, so the bloom
+        // stays amber to the slit's middle
+        case .castleFront, .castleFront3, .castleFront3Build: return 0.8
+        // world-3 (M4): the town's back row stands back (round lh-w3-1: its panes were cream-white dots)
+        case .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD: return SceneLayout.look2TownRowGlass
+        case .riverFarLantern: return 0.8
+        default: return 1
+        }
     }
 
     // MARK: The valley's warmth (the critic's high 9: "the reveal stays cold purple on the lane and the houses")
 
     /// Through the postern the world's ambient and the fog turn one warm step over world 2330 to 2530 (with the grade's
     /// warmth, `valleyWarmth`): red up, blue down, so the lane and the house fronts read warm by 2530.
-    static let valleyAmbientWarm = SIMD3<Float>(1.18, 1.0, 0.78)
-    static let valleyFogWarm = SIMD3<Float>(1.2, 0.98, 0.76)
+    /// World-3 (the critic's high 4 of look 3, the director's note of 09:23, h): one more warm step by 2530 at dusk
+    /// (1.18, 1, 0.78 and 1.2, 0.98, 0.76 before; w-2600-dusk still read purple).
+    static let valleyAmbientWarm = SIMD3<Float>(1.32, 1.02, 0.68)
+    static let valleyFogWarm = SIMD3<Float>(1.36, 1.0, 0.64)
 
     /// The share of the valley's warm step at camera `focus` (0 inside the walls, 1 from 2530).
     static func valleyShare(focus: Double) -> Float {
@@ -82,15 +95,18 @@ extension SceneLayout {
     /// pull whole, the warm ambient barely showed on the lane and the house fronts at dusk).
     static func valleyColdCut(_ sample: AmbientSample, focus: Double) -> Float {
         let evening = min(1, max(0, sample.warmth / 0.2))
-        return valleyShare(focus: focus) * (0.25 + 0.2 * evening)
+        // world-3: 70 % while the evening is warm (45 % before), 30 % at night
+        return valleyShare(focus: focus) * (0.3 + 0.4 * evening)
     }
 
     // MARK: The light washes (the critic's high 3: "round discs pasted over flat walls")
 
     /// The forebuilding's wash: under its eave (its sprite's row 50, the fascia's shadow under it) and between its
     /// quoined corners (cols 8 to 111), so the torches' light ends where the porch ends.
+    /// World-3 (the critic's high 3 of look 3: "a flat, straight top one course below the eave"): the cut at row 50,
+    /// the fascia's shadow line, so the wash's top fades over its 3 rows under the eave (`lh2_clip_feather`).
     static var castleForebuildingClip: LightClip {
-        LightClip(x0: castleForebuildingX + 8, x1: castleForebuildingX + 112, y0: -40, y1: 48)
+        LightClip(x0: castleForebuildingX + 8, x1: castleForebuildingX + 112, y0: -40, y1: 50)
     }
     /// The postern's one band of lantern light under its porch roof (the slate's underside at row 38, cols 84 to 116),
     /// reaching a little past the two lanterns either side.
@@ -99,9 +115,33 @@ extension SceneLayout {
     }
     /// The bakehouse hatch's wash, cut by the lean-to's west jamb (its col 4), the door's jamb (col 44) and the oven
     /// dome's crown (row 24): it lights the dome, the cobbles before it and nothing of the wall over it.
+    /// World-3 (the critic's high 1 of look 3: "a flat orange ellipse on the cobbles"): the hatch lights the oven's dome
+    /// above the ground line only (its cut 3 rows under it, where the feather fades); the ground takes the wedge
+    /// (`bakeHatchWedge`).
     static var castleBakehouseClip: LightClip {
-        LightClip(x0: castleBakehouseX + 4, x1: castleBakehouseX + 43, y0: -40, y1: 24)
+        LightClip(x0: castleBakehouseX + 4, x1: castleBakehouseX + 43, y0: -3, y1: 24)
     }
+
+    // MARK: World-3: the whole-world pass (the director's notes of 15.11. 09:19 and 09:23)
+
+    /// 1a: the cleft wall behind the castle takes one step of haze by day (lighter, lower contrast, the air's blue), so
+    /// the castle's silhouette reads against it at arm's length; none at dusk and night.
+    static let castleCliffHazeStep: Float = 0.17
+    static func castleCliffHaze(focus: Double, night: Float, warm: Float) -> Float {
+        castleCliffHazeStep * Float(FrameBuilder.cleftShare(focus: focus)) * (1 - night) * (1 - 0.8 * warm)
+    }
+
+    /// 1f: fire by day. Every open fire's pool on walls and ground (braziers, fire towers, firepots: the gate rock's
+    /// fires, the bakehouse's oven, the chapel's brazier, the castle's braziers) falls to this share at noon and is
+    /// whole from the dusk (the torches' kind already fades out by day); the flame itself shows all day. Look 2 only.
+    static let look2FireDayShare = 0.22
+    static func fadesToADayShare(_ kind: LightKind) -> Bool {
+        kind == .brazier || kind == .fireTower || kind == .firepot
+    }
+
+    /// 1c: the bakehouse oven's wedge of light (an emitter on the bakehouse at its col 4, from the hatch's sill down
+    /// over the dome's foot and 7 rows out on the lane), a quarter of it by day.
+    static let castleBakeWedge = (dx: 3.0, dy: -10.0)
 }
 
 /// A light pool's cut (world x from `x0` to `x1`, heights `y0` to `y1` over the ground line): the pool ends in a straight

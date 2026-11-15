@@ -1122,9 +1122,10 @@ def chapel_frame(bell):
     if bell:
         for hh, (a, b) in zip(range(97, 106), ((54, 61), (54, 61), (55, 60), (55, 60), (55, 60), (56, 59),
                                                 (56, 59), (57, 58), (57, 58))):
+            mid = (a + b + 1) // 2                # world-3 (the critic's medium): bronze in the belfry's shadow
             for x in range(a, b + 1):
-                c.set(x, c.r(hh), "gold" if x < (a + b + 1) // 2 else "cloth2")
-        c.set(55, c.r(100), "fireGold")
+                c.set(x, c.r(hh), "cloth2" if x < mid - 1 else "wood" if x < mid + 1 else "woodDark")
+        c.set(55, c.r(100), "woodLight")
         c.set(57, c.r(96), "stoneDark")
     else:
         c.set(57, c.r(105), "soilLight")
@@ -1310,15 +1311,22 @@ def postern(tier):
         c.set(int(mid), c.r(ttop + 24), "gold")
         lantern_bracket(c, 99, c.r(46))           # the great lantern over the passage (glass cols 99-101, dy 41-44)
     else:
+        # world-3 (the critic's medium of world-2 look 3: "tier 3 reads as a step back"): tier 2's slate roof stays,
+        # raised on the crown's machicolations, a flag on its point
         machicolations(c, t0 - 2, t1 + 2, c.r(ttop + 3), period=5, depth=4)
         for x in range(t0 - 3, t1 + 4):
             c.set(x, c.r(ttop + 4), "stoneDark")
             for hh in range(ttop + 5, ttop + 9):
                 c.set(x, c.r(hh), "stone" if x < 160 else "stoneMid")
             c.set(x, c.r(ttop + 9), "stoneLight")
-        merlons(c, t0 - 3, t1 + 3, c.r(ttop + 16), mh=7, mw=6, gap=4, seed=seed + 7)
-        pole(c, 152, c.r(110), c.r(ttop + 10))
-        flag(c, 152, c.r(109), 13, h=6)
+            c.set(x, c.r(ttop + 10), "stoneDark")
+        top, bot = c.r(ttop + 26), c.r(ttop + 11)
+        mid = (t0 + t1) / 2.0
+        TA.roof(c.im, top, bot, lambda y: int(round(mid - 2 - (mid - 2 - (t0 - 4)) * (y - top) / float(bot - top))),
+                lambda y: int(round(mid + 2 + ((t1 + 4) - mid - 2) * (y - top) / float(bot - top))), SLATE, "slate",
+                seed, moss=False, mid=0.5, shade=12)
+        pole(c, int(mid), c.r(111), c.r(ttop + 27))
+        flag(c, int(mid), c.r(111), 11, h=4)
         lantern_bracket(c, 99, c.r(46))
     outline(c)
     return c.im
