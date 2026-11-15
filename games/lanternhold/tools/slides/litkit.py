@@ -195,3 +195,46 @@ def grid_mask(rows, x0, y0, flip=False):
             if ch != "." and ch != " " and 0 <= x0 + q < W and 0 <= y0 + r < H:
                 m[y0 + r, x0 + q] = True
     return m
+
+
+# --- round 2 of the prologue (the director's rules A and B) -----------------------------------------------------------
+def core_glow(pic, cx, cy, r=8, tones=("fireOrange", "ember"), keep=()):
+    """The only light in the air: a small core of two tones with an ordered-dither edge, radius at most 10 px."""
+    for y in range(int(cy - r - 1), int(cy + r + 2)):
+        for x in range(int(cx - r - 1), int(cx + r + 2)):
+            if not (0 <= x < W and 0 <= y < H) or pic.get(x, y) in keep:
+                continue
+            d = math.hypot(x - cx, y - cy)
+            if d < r * 0.5:
+                pic.px(x, y, tones[0])
+            elif d < r * 0.62 and BAYER[y % 4][x % 4] < 8:
+                pic.px(x, y, tones[0])
+            elif d < r * 0.88:
+                pic.px(x, y, tones[1])
+            elif d < r and BAYER[y % 4][x % 4] < 6:
+                pic.px(x, y, tones[1])
+
+
+def lit_figure(pic, parts, lx, ly, near=70, depth=3, tones_near=("tileLight", "tile"), tones_far=("tile", "plum"),
+               lit_part=None):
+    """A figure is a dark mass; only the side that faces the light gets lit planes, 2 to 3 px wide, in two tones
+    (the outer px the brighter); the far side sinks into the dark. No outline anywhere. parts: [(mask, base)];
+    lit_part: optional {base: (light, mid)} for parts with their own lit tones (skin, metal)."""
+    U = np.zeros((H, W), bool)
+    for m, _ in parts:
+        U |= m
+    for m, base in parts:
+        for y, x in zip(*np.where(m)):
+            d = math.hypot(x - lx, y - ly) or 1.0
+            vx, vy = (lx - x) / d, (ly - y) / d
+            facing = 0
+            for k in range(1, depth + 1):
+                qx, qy = int(round(x + vx * k)), int(round(y + vy * k))
+                if not (0 <= qx < W and 0 <= qy < H) or not U[qy, qx]:
+                    facing = k
+                    break
+            if facing:
+                tones = (lit_part or {}).get(base) or (tones_near if d < near else tones_far)
+                pic.px(x, y, tones[0] if facing <= 1 else tones[1])
+            else:
+                pic.px(x, y, base)
