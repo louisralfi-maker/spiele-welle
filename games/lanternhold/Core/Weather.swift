@@ -412,7 +412,8 @@ enum Weather {
     static let sailSurge = 0.12
 
     /// The steady wind's step for the sails: 0 calm, 1 breeze, 2 gusty, 3 storm. By the steady wind, so a gust never
-    /// changes their pace in a jump; the change of the day's wind moves them on by a frame or two once.
+    /// changes their pace in a jump; when the day's wind crosses a step (in the dawn's blend) the sails jump once to a
+    /// new angle.
     static func sailLevel(_ mean: Double) -> Int {
         let force = abs(mean)
         return force < flagStir ? 0 : force < 0.45 ? 1 : force < flagSnap ? 2 : 3
