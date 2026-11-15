@@ -3734,7 +3734,7 @@ M3, then M5 and the lows. Art: `tools/w3art.py` (ART-look2.md section 26); layou
   church spire behind the square, dormers, a few lit panes at night, a smoking chimney per sprite, gardens at their foot.
 - **M5:** the warden statue's bowl, its fire seated in it (look 2's emitter at dy 156).
 - **L3:** the valley lane's verge (`valleyVerge`, world 2400 to 3680). **L4:** a far-shore lantern and a moored skiff
-  (mid plane at the river end). **L2:** in look 2 an unlit creature's ash body is a step lighter (0.3 of its albedo at
+  (on the near plane at the river end's clamped view: on the mid plane the low mist band at its foot swallowed them). **L2:** in look 2 an unlit creature's ash body is a step lighter (0.3 of its albedo at
   full night, 0.2 before; `EntityFrames.unlitValueLook2`), so far from the fires it reads as a body with its cool rim,
   not as its red glow strip alone.
 - **Tests:** `CameraFramingTests` (the lead's ease and direction, the lead held on a stop and cleared by a jump, the

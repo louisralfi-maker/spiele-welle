@@ -180,14 +180,14 @@ final class WorldThreeTests: XCTestCase {
         XCTAssertTrue(verge.contains { $0.flipped } && verge.contains { !$0.flipped }, "every other tile mirrored")
         let skiff = world.props.first { $0.sprite == .riverSkiff }
         let lantern = world.props.first { $0.sprite == .riverFarLantern }
-        XCTAssertEqual(skiff?.plane, .mid)
-        XCTAssertEqual(lantern?.plane, .mid)
+        XCTAssertEqual(skiff?.plane, .near, "out of the mid plane's low mist band (round lh-w3-2)")
+        XCTAssertEqual(lantern?.plane, .near)
         XCTAssertEqual(lantern?.masks.count, 1, "its glass lit at night")
         let river = frame(world, hour: 20.5, focus: 3800)
-        XCTAssertTrue(river.layer(.mid).sprites.contains { $0.sprite == .riverSkiff }, "the skiff at the river end")
-        XCTAssertTrue(river.layer(.mid).sprites.contains { $0.sprite == .riverFarLantern })
+        XCTAssertTrue(river.layer(.near).sprites.contains { $0.sprite == .riverSkiff }, "the skiff at the river end")
+        XCTAssertTrue(river.layer(.near).sprites.contains { $0.sprite == .riverFarLantern })
         XCTAssertTrue(river.layer(.world).sprites.contains { $0.sprite == .valleyVerge })
-        XCTAssertFalse(frame(world, hour: 12, focus: 3000).layer(.mid).sprites.contains { $0.sprite == .riverSkiff })
+        XCTAssertFalse(frame(world, hour: 12, focus: 3000).layer(.near).sprites.contains { $0.sprite == .riverSkiff })
     }
 
     /// 1a: the cleft wall behind the castle takes a step of haze by day, none at night and none outside the walls.

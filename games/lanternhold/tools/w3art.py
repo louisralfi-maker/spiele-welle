@@ -222,12 +222,19 @@ def moon_rim(im):
             if stone and a < 0.2:                   # the face toward the moon: a wash that grows to the east
                 k = (x / float(im.w) - 0.35) / 0.65
                 if k > 0:
-                    a = max(a, 0.06 + 0.16 * k)
+                    a = max(a, 0.22 * k)             # from nothing, so the wash shows no seam (round lh-w3-2)
             if nm in ("leaf", "leafDark", "meadow", "night1", "nightDeep"):
                 a *= 0.4
+            if 0 < a < 0.25:                        # the wash: dithered between neighbouring sixteenths, no bands
+                lv = a * 16
+                lo = int(lv)
+                a = (lo + (1 if (lv - lo) > BAYER4[(y % 4) * 4 + (x % 4)] else 0)) / 16.0
             if a > 0:
                 out.set(x, y, white(a))
     return out
+
+
+BAYER4 = [(v + 0.5) / 16.0 for v in (0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5)]
 
 
 def beacon_rim(name):

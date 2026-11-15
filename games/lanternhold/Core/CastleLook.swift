@@ -42,7 +42,7 @@ extension SceneLayout {
                                                   .chapelTower, .posternT1, .posternT2, .posternT3, .bakehouse,
                                                   .castleFront, .castleFront3, .castleFront3Build,
                                                   // world-3: the town's back row
-                                                  .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD]
+                                                  .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD, .riverFarLantern]
     /// The lit core moves from the glass's cream (1, 0.76, 0.42 at a gain that clipped it to cream-white) halfway to
     /// the torch's amber: this times the glass colour, so the core stays under the clip and reads amber; the bloom
     /// (`keepPaneHalo`, the window pools) stays.
@@ -57,6 +57,7 @@ extension SceneLayout {
         case .castleFront, .castleFront3, .castleFront3Build: return 0.8
         // world-3 (M4): the town's back row stands back (round lh-w3-1: its panes were cream-white dots)
         case .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD: return SceneLayout.look2TownRowGlass
+        case .riverFarLantern: return 0.8
         default: return 1
         }
     }

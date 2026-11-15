@@ -43,13 +43,14 @@ extension SceneLayout {
 
     static let townRowSprites: Set<SpriteID> = [.townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD]
 
-    // MARK: L4: the river end closes (mid plane, on the far shore's waterline)
+    // MARK: L4: the river end closes (near plane, across the water)
 
-    /// The far shore's lantern and a skiff moored below it (mid x; on screen only from about camera centre 3560). The
-    /// river end's view is the clamped camera's: the skiff on the water between the old bridge's two stumps, the
-    /// lantern on the shore right of the second (round lh-w3-1 had the lantern cut by the screen's right edge).
-    static let look2RiverSkiffX = 2064.0
-    static let look2RiverLanternX = 2120.0
+    /// The far shore's lantern and a skiff moored below it (near x; on screen only at the river end, whose view is the
+    /// clamped camera's): the skiff on the water between the old bridge's two stumps, the lantern on the shore right of
+    /// the second. On the near plane: on the mid plane (round lh-w3-2) the low mist band that veils the mid plane's
+    /// foot swallowed the skiff, and round lh-w3-1 had the lantern cut by the screen's right edge.
+    static let look2RiverSkiffX = 2929.0
+    static let look2RiverLanternX = 2985.0
 
     // MARK: L3: the valley lane's verge (world plane, after the lane's tiles)
 
@@ -107,10 +108,9 @@ extension SceneLayout {
             list.append((.near, Entry(sprite: row.sprite, x: row.x, y: 0, z: -2, shade: look2TownRowShade,
                                       flipped: row.flipped, region: .valley, emitters: panes)))
         }
-        list.append((.mid, Entry(sprite: .riverSkiff, x: look2RiverSkiffX, y: -2, z: 3, region: .valley)))
-        list.append((.mid, Entry(sprite: .riverFarLantern, x: look2RiverLanternX, y: 0, z: 3, region: .valley,
-                                 emitters: [.glass(dx: 8, dy: 14, width: 3, height: 4)],
-                                 lights: [Light(kind: .lantern, x: look2RiverLanternX + 9.5, y: 16, radius: 18)])))
+        list.append((.near, Entry(sprite: .riverSkiff, x: look2RiverSkiffX, y: -2, z: 2, region: .valley)))
+        list.append((.near, Entry(sprite: .riverFarLantern, x: look2RiverLanternX, y: 0, z: 2, region: .valley,
+                                  emitters: [.glass(dx: 8, dy: 14, width: 3, height: 4)])))
         for index in 0..<look2VergeCount {
             list.append((.world, Entry(sprite: .valleyVerge, x: look2VergeStart + 64 * Double(index), y: look2VergeY,
                                        z: -8, flipped: index % 2 == 1)))

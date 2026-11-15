@@ -2108,8 +2108,9 @@ steps at a sprite's ends, so no end stands as a cut.
 
 - **The warden statue's bowl (M5):** a stone basin held at its chest, its lip in warm granite where the fire lights it,
   its inside in deep shadow, its body darkening to the right, a shadow under it on the robe; the fire sits in it.
-- **The river end (L4):** a lantern on the far shore and a skiff moored below it, on the mid plane at the far bank's
-  waterline (half the world plane's scale), the lantern's glass lit at dusk and night with a small backdrop pool.
+- **The river end (L4):** a lantern on the far shore and a skiff moored on the water between the old bridge's stumps,
+  on the near plane (on the mid plane the low mist band that veils its foot swallowed them), the lantern's glass lit
+  amber at dusk and night.
 - **The valley's verge (L3):** the earth track's lower edge breaks into tufts of the meadow, half-bedded stones and
   roots; the band under it stays the band.
 - **The bakehouse's oven (the critic's high 1):** no disc on the cobbles: a wedge of warm light from the hatch's sill
