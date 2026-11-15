@@ -3,8 +3,8 @@ import XCTest
 @testable import Lanternhold
 
 /// Build 2 review, core-state-1: a save from before the taxes went on foot (no town key; TestFlight build 86) starts a
-/// new realm, keeps the old file beside it and carries the Chronicle, the settings and the ad pacing; a current save
-/// resumes exactly as before.
+/// new realm, keeps the old file beside it and carries the Chronicle, the settings and the clock between ads (the ad
+/// pacing's days were the old realm's); a current save resumes exactly as before.
 @MainActor
 final class OldSaveTests: XCTestCase {
     private var directory: URL!
@@ -35,7 +35,7 @@ final class OldSaveTests: XCTestCase {
         var book = Chronicle()
         book.chapter = records
         let save = SaveGame(state: state, chronicle: book, settings: SaveSettings(sound: false, haptics: true),
-                            adPacing: AdPacing(lastInterstitialDay: 4, merchantTakenDay: 3))
+                            adPacing: AdPacing(lastInterstitialDay: 4, merchantTakenDay: 3, lastAdAt: 1000))
         try SaveStore(directory: directory).write(save)
         return save
     }
@@ -66,7 +66,7 @@ final class OldSaveTests: XCTestCase {
         XCTAssertNotNil(saved.state.town)
         XCTAssertEqual(saved.chronicle, written.chronicle, "the Chronicle goes on")
         XCTAssertEqual(saved.settings, written.settings, "the settings go on")
-        XCTAssertEqual(saved.adPacing, written.adPacing, "the ad pacing goes on")
+        XCTAssertEqual(saved.adPacing, AdPacing(lastAdAt: written.adPacing?.lastAdAt), "only the ad clock goes on")
         let names = try FileManager.default.contentsOfDirectory(atPath: directory.path)
         let kept = try XCTUnwrap(names.first { $0.hasPrefix("save-before-town-") }, "the old file is kept")
         let backup = SaveGame.decode(try Data(contentsOf: directory.appendingPathComponent(kept)))

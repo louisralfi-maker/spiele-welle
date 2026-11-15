@@ -266,7 +266,8 @@ final class GameModel {
             case .loaded(let save)?:
                 // Build 2 review, core-state-1: a save from before the taxes went on foot (no town, TestFlight build
                 // 86) starts a new realm with the title, the name entry, the prologue and the first morning; the old
-                // file is kept beside it, the Chronicle, the settings and the ad pacing go on.
+                // file is kept beside it, the Chronicle and the settings go on, and of the ad pacing only the clock
+                // between ads (its days count the old realm's, as at `restartChapter`).
                 if save.state.town == nil {
                     store?.keepBeforeTown()
                     beforeTown = true
@@ -276,6 +277,7 @@ final class GameModel {
                 chronicle = args.reset ? nil : save.chronicle
                 loadedSettings = save.settings ?? SaveSettings()
                 adPacing = save.adPacing ?? AdPacing()
+                if beforeTown { adPacing = AdPacing(lastAdAt: save.adPacing?.lastAdAt) }
             case .corrupt?:
                 store?.keepCorrupt()
             case nil:
