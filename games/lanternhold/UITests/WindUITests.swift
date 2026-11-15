@@ -41,7 +41,9 @@ final class WindUITests: XCTestCase {
             ("305-wind-storm-keep", keep + storm + noon(30.4)),
             // A dry storm, so the flags read without the rain before them.
             ("306-wind-storm-dry-keep", keep + storm + ["-GWRain", "0"] + noon(30.4)),
-            ("307-wind-west-keep", keep + ["-GWWeather", "clear", "-GWWind", "-0.6"] + noon(30.4)),
+            // The value starts with a space: the argument domain takes a value that starts with "-" for the next
+            // key, so "-0.6" would never reach the game (DebugArgs trims the space).
+            ("307-wind-west-keep", keep + ["-GWWeather", "clear", "-GWWind", " -0.6"] + noon(30.4)),
             ("308-wind-storm-reduce-motion-keep", keep + storm + ["-GWReduceMotion", "YES"] + noon(30.4)),
         ]
         for still in stills {
