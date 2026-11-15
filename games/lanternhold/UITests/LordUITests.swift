@@ -189,8 +189,9 @@ final class LordUITests: XCTestCase {
             return
         }
         let frame = element.frame
-        XCTAssertGreaterThanOrEqual(frame.width, 44, "\(name) is \(frame.width) pt wide")
-        XCTAssertGreaterThanOrEqual(frame.height, 44, "\(name) is \(frame.height) pt high")
+        // Half a point for the frame's rounding (fix round 1 of stage-3-interface).
+        XCTAssertGreaterThanOrEqual(frame.width, 43.5, "\(name) is \(frame.width) pt wide")
+        XCTAssertGreaterThanOrEqual(frame.height, 43.5, "\(name) is \(frame.height) pt high")
     }
 
     private func attach(_ screenshot: XCUIScreenshot, _ name: String) {

@@ -310,8 +310,10 @@ final class FirstDayUITests: XCTestCase {
             return
         }
         let frame = element.frame
-        XCTAssertGreaterThanOrEqual(frame.width, 44, "\(name) is \(frame.width) pt wide")
-        XCTAssertGreaterThanOrEqual(frame.height, 44, "\(name) is \(frame.height) pt high")
+        // Half a point for the frame's rounding (round lh-s3f1-4: a 44 pt site measured 43.99999999999997), as in
+        // TouchUITests.
+        XCTAssertGreaterThanOrEqual(frame.width, 43.5, "\(name) is \(frame.width) pt wide")
+        XCTAssertGreaterThanOrEqual(frame.height, 43.5, "\(name) is \(frame.height) pt high")
     }
 
     private func field(_ text: String, _ key: String) -> Double? {
