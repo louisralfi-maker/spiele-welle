@@ -15,9 +15,9 @@ enum TownDebug {
         case owed, paid, knock, collector
     }
 
-    /// How far (game px) before the first door that owes a `collector` start puts him: about 13 s of his walk, time
-    /// for a UI test's launch.
-    static let collectorLead = 520.0
+    /// How far (game px) before the first door that owes a `collector` start puts him: about 13 s of his walk at his
+    /// heavy pace (town-3), time for a UI test's launch; never behind his post (he starts there at the dawn).
+    static let collectorLead = 234.0
 
     static func apply(_ s: inout GameState, mode: Mode, balance: Balance) {
         if mode == .collector {
@@ -91,17 +91,19 @@ enum TownDebug {
         town.collectorHired = true
         day.collectorOut = true
         day.collectorBack = nil
+        day.collectorReached = nil
         town.today = day
         s.town = town
         let rules = balance.town
         let post = Town.collectorPost
         let turn = Town.collectorTurn(day)
         let direction: Double = turn >= post ? 1 : -1
-        let doors = day.places.filter(\.owes).map { Town.doorX(plot: $0.plot) }
-        guard let first = doors.min(by: { abs($0 - post) < abs($1 - post) }), abs(turn - post) > 1 else { return }
+        guard let first = Town.collectorRound(day).first(where: { door in
+            day.index(of: door.plot).map { day.places[$0].owes } ?? false
+        })?.x, abs(turn - post) > 1 else { return }
+        // On his way out nobody has paid him yet, so he walks from his post to the first door without a stop.
         let target = first - direction * collectorLead
-        let share = max(0, min(1, (target - post) / (turn - post)))
-        let start = ClockEvent.dawnReport.hour
-        s.hour = start + share * (rules.collectorTurnHour - start)
+        let distance = max(0, (target - post) * direction)
+        s.hour = ClockEvent.dawnReport.hour + distance / Town.collectorPerHour(rules)
     }
 }

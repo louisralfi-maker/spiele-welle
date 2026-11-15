@@ -626,7 +626,8 @@ enum EntityFrames {
                           emissive: rooms.map { [$0] } ?? [], masks: rooms == nil ? masks : [],
                           lights: [windowLight(spec.start + (mirrored ? 50 : 13), 11),
                                    windowLight(spec.start + (mirrored ? 15 : 48), 11)])
-            case .bigHouse?:
+            case .bigHouse?, .townhouse?:
+                // Town-3: a townhouse is drawn as the big house until its own painting comes (the join).
                 let left = centre - 36
                 let rooms = litRooms(of: .bigHouse, look: look, at: left)
                 let masks = [glass(26, 24, 5, 5), glass(41, 24, 5, 5), glass(16, 9, 5, 5), glass(50, 9, 5, 5),
@@ -635,12 +636,12 @@ enum EntityFrames {
                           emissive: rooms.map { [$0] } ?? [], masks: rooms == nil ? masks : [],
                           lights: [windowLight(left + 28, 26), windowLight(left + 43, 26), windowLight(left + 18, 11),
                                    windowLight(left + 52, 11)])
-            case .field?:
+            case .field?, .farmstead?:
                 props.add(.field, x: spec.start, z: -1)
                 props.add(.field, x: spec.start + 80, z: -1)
-            case .market?:
+            case .market?, .marketHall?:
                 props.add(.market, x: spec.start, z: 0)
-            case .tavern?:
+            case .tavern?, .inn?:
                 let rooms = litRooms(of: .tavern, look: look, at: spec.start)
                 let masks = [glass(11, 25, 5, 5), glass(41, 25, 5, 5), glass(69, 25, 5, 5), glass(15, 9, 8, 5),
                              glass(56, 9, 8, 5), glass(32, 10, 1, 2)]
@@ -665,10 +666,10 @@ enum EntityFrames {
     /// The sprite a town item is drawn with (its width sets the scaffolding).
     static func townSprite(_ item: BuildItem) -> SpriteID {
         switch item {
-        case .bigHouse: return .bigHouse
-        case .field: return .field
-        case .market: return .market
-        case .tavern: return .tavern
+        case .bigHouse, .townhouse: return .bigHouse
+        case .field, .farmstead: return .field
+        case .market, .marketHall: return .market
+        case .tavern, .inn: return .tavern
         default: return .house
         }
     }
@@ -682,6 +683,8 @@ enum EntityFrames {
         for index in s.plots.indices where index < Realm.plots.count {
             let plot = s.plots[index]
             guard plot.item == nil, plot.job == nil, s.isUnlocked(plot: index) else { continue }
+            // Town-3's far fields and treasury get their markers with their art at the join (`TownGrowth.newPlots`).
+            if TownGrowth.newPlots.contains(index) { continue }
             let spec = Realm.plots[index]
             var x = drawnCentre(plot: index, layouts: layouts).x
             if spec.line == 1 && spec.slot == .engine { x = spec.x }

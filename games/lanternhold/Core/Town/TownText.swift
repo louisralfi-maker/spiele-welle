@@ -13,7 +13,7 @@ enum TownText {
         "town.report.knockedCount", "town.report.knockedAll", "town.report.levied", "town.report.leviedCount",
         "town.report.leviedAll", "town.report.unrest", "town.report.doubled", "town.report.collector",
         "town.report.collectorEmpty", "town.reason.leftAlone", "town.access.knock", "town.access.door",
-    ] + households.map { $0.name } + households.map { $0.door }
+    ] + households.map { $0.name } + households.map { $0.door } + growthKeys
 
     /// The four households of Tallowford by their house plot (STORY.md: the town grew from the chandlers' and
     /// oil-pressers' camp): the chandler, the oil-presser, the cooper, the weaver; `name` names the household

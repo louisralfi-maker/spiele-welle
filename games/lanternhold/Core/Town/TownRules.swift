@@ -39,10 +39,40 @@ struct TownRules: Sendable, Equatable {
     var collectorWageShare = 0.125
     /// ... and at least this much a day, though never more than he brought (back empty, he takes nothing).
     var collectorWageLeast = 2
-    /// He sets out from his post at the dawn (06:00), reaches the farthest door that pays at this hour ...
-    var collectorTurnHour = 9.0
-    /// ... and is back at his post at this one (noon): the gold arrives with him.
-    var collectorBackHour = 12.0
+    /// He sets out from his post at the dawn (06:00) and pushes his handcart at this pace, there and back (world game px
+    /// per second of the day clock, 12 s an hour): a one-armed man with a laden cart, half the lord's walk (town-3; the
+    /// people lane's figure walks the same pace, the art bar's "heavy step"). His round is the town's doors, the houses
+    /// and the stall; the farmers count their coins into the lord's hand only (docs/TOWN.md section 6).
+    var collectorPace = 18.0
+    /// At each door that pays him he stops this long (seconds of the day clock) while the household hands over its
+    /// coins; a door the lord has been to first he passes by. The gold arrives when he is back at his post.
+    var collectorStop = 1.5
+
+    // MARK: The growing town (docs/TOWN.md section 3, town-3, build 3)
+
+    /// A townhouse, a house's third tier, holds this many (a cottage `Balance.houseRoom`, a big house `bigHouseRoom`).
+    var townhouseRoom = 12
+    /// The market hall, the market's second tier: this share of the tax part instead of `Balance.marketShare`.
+    var marketHallShare = 0.25
+    /// The inn, the tavern's second tier: this much happiness at every dawn instead of `Balance.happinessTavern`.
+    var innHappiness = 2
+    /// A farmstead, a field's second tier (a barn, a haystack, an ox): this much gold a day instead of `fieldGold`.
+    var farmsteadGold = 8
+    /// The town's standing: every point adds this share to the tax part ...
+    var standingTaxShare = 0.03
+    /// ... and it counts at most this many points.
+    var standingMost = 10
+    /// The realm's stages (docs/REALM.md section 2): a hamlet below this standing, a village from it ...
+    var villageFrom = 3
+    /// ... and a town from this one.
+    var townFrom = 7
+
+    // MARK: The treasury (docs/TOWN.md section 2, build 3)
+
+    /// The treasury shows the purse as chests and piles: one more pile for every this much gold ...
+    var treasuryGoldPerPile = 60
+    /// ... and never more than this many.
+    var treasuryPilesMost = 6
 
     // MARK: The toss (the picture's rules, read by the screen)
 

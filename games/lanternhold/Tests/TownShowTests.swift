@@ -401,19 +401,20 @@ final class TownShowTests: XCTestCase {
         town.collectorHired = true
         town.today?.collectorOut = true
         s.town = town
-        // He reaches the chandler's door on his way out from his post.
+        // He reaches the chandler's door, the first of his round, on his way out from his post (town-3: he stops
+        // there while she pays).
         let day = try XCTUnwrap(s.town?.today)
-        let post = Town.collectorPost
-        let turn = Town.collectorTurn(day)
-        let dawn = ClockEvent.dawnReport.hour
-        s.hour = dawn + (Town.doorX(plot: house1) + 0.5 - post) / (turn - post) * (rules.collectorTurnHour - dawn)
+        XCTAssertEqual(Town.collectorRound(day).first?.plot, house1)
+        s.hour = try XCTUnwrap(Town.collectorSchedule(day, rules: rules).arrivals.first)
         Town.stepCollector(&s, balance: balance)
         let place = try XCTUnwrap(s.town?.today?.places.first { $0.plot == house1 })
         let gold = try XCTUnwrap(place.collectorGold)
         let paidAt = try XCTUnwrap(place.tossedAt)
         XCTAssertNil(s.town?.today?.places.first { $0.plot == house3 }?.collectorGold, "the next door still waits")
         let x = try XCTUnwrap(Town.collectorX(s, balance: balance))
+        XCTAssertEqual(x, Town.doorX(plot: house1), accuracy: 1e-9, "he stands at her door")
         let times = TownShow.handTimes(count: Town.coins(for: gold, rules: rules))
+        XCTAssertLessThan(try XCTUnwrap(times.last), rules.collectorStop, "the coins are in his box before he walks on")
         let last = try XCTUnwrap(times.last)
         func scene(_ t: Double, reduceMotion: Bool = false) -> TownShow.Scene {
             TownShow.scene(at(s, paidAt + t), balance: balance, reduceMotion: reduceMotion)
@@ -461,9 +462,9 @@ final class TownShowTests: XCTestCase {
         XCTAssertNotNil(farScene.figures.first { $0.plot == house1 })
         XCTAssertTrue(farScene.coins.isEmpty)
 
-        // Not out (sent away, or back at noon): no collector in the scene.
+        // Not out (sent away, or home again): no collector in the scene.
         var back = s
-        back.hour = rules.collectorBackHour + 0.1
+        back.hour = Town.collectorSchedule(try XCTUnwrap(s.town?.today), rules: rules).home + 0.1
         XCTAssertNil(TownShow.scene(back, balance: balance, reduceMotion: false).collector)
     }
 
@@ -579,8 +580,11 @@ final class TownShowTests: XCTestCase {
         XCTAssertEqual(route.owing, day.owing, "every part owed")
         XCTAssertTrue(Town.collectorWalksToday(sent) && Town.collectorHired(sent))
         let collectorX = try XCTUnwrap(Town.collectorX(sent, balance: balance))
-        let first = try XCTUnwrap(route.places.filter(\.owes).map { Town.doorX(plot: $0.plot) }.min())
-        XCTAssertEqual(first - collectorX, TownDebug.collectorLead, accuracy: 1, "on his way to the first door")
+        let first = try XCTUnwrap(Town.collectorRound(route).first { door in
+            route.index(of: door.plot).map { route.places[$0].owes } ?? false
+        }?.x)
+        XCTAssertEqual(first - collectorX, min(TownDebug.collectorLead, first - Town.collectorPost), accuracy: 1,
+                       "on his way to the first door that owes (never behind his post)")
         XCTAssertEqual(DebugArgs(values: ["GWTown": "collector"]).town, .collector)
 
         XCTAssertEqual(DebugArgs(values: ["GWTown": "owed"]).town, .owed)

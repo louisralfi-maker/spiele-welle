@@ -419,13 +419,10 @@ struct GameState: Codable, Sendable, Equatable {
         return total
     }
 
-    /// Room in the houses (DESIGN.md: a house holds 4, a big house 8).
+    /// Room in the houses (DESIGN.md: a house holds 4, a big house 8; town-3: a townhouse 12, `TownGrowth.room`).
     func houseRoom(_ balance: Balance) -> Int {
         var room = 0
-        for plot in plots {
-            if plot.item == .house { room += balance.houseRoom }
-            if plot.item == .bigHouse { room += balance.bigHouseRoom }
-        }
+        for plot in plots { room += TownGrowth.room(plot.item, balance: balance) }
         return room
     }
 

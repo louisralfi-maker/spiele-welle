@@ -170,7 +170,8 @@ final class TownUITests: XCTestCase {
         XCTAssertTrue(list(status, "owing:").contains(chandler), "the chandler waits for him (\(statusText(status)))")
         XCTAssertTrue(waitFor(status, "hand:", contains: chandler, timeout: 40),
                       "the chandler's coins go to him (\(statusText(status)))")
-        // A moment later he has walked on past her door and the coins are in the air between them.
+        // A moment later he stands at her door (town-3: a stop at every door that pays him) and the coins are in the
+        // air between her hands and his strongbox.
         pause(0.25)
         attach(XCUIScreen.main.screenshot(), "59-collector-\(language)")
         note("59-collector", statusText(status))

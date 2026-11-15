@@ -49,15 +49,17 @@ enum Economy {
 
     /// The day's taxes, `round(taxpayers × taxPerPayer × mood) + fields + market bonus` at the given happiness: the old
     /// Normal rate, the only one since the taxes went on foot (more is a knock at a door, less a house left alone).
+    /// Town-3 (`TownGrowth`): the town's standing adds 3 % a point to the tax part, a farmstead pays more than a field,
+    /// the market hall takes a larger share; a town that never grew computes the old sum bit for bit.
     static func taxes(_ state: GameState, happiness: Int, balance: Balance) -> TaxBreakdown {
         let payers = state.taxpayers
         let mood = Economy.mood(happiness: happiness, balance: balance)
-        let raw = Double(payers) * balance.taxPerPayer * mood
+        let raw = Double(payers) * balance.taxPerPayer * mood * TownGrowth.taxFactor(state, balance: balance)
         let taxPart = Int(raw.rounded())
-        let fields = state.count(.field) * balance.fieldGold
+        let fields = TownGrowth.fieldGold(state, balance: balance)
         var market = 0
-        if state.has(.market) {
-            market = Int((Double(taxPart) * balance.marketShare).rounded())
+        if let share = TownGrowth.marketShare(state, balance: balance) {
+            market = Int((Double(taxPart) * share).rounded())
         }
         return TaxBreakdown(taxpayers: payers, taxPart: taxPart, fields: fields, market: market,
                             unrest: happiness < balance.unrestBelow)
@@ -69,7 +71,9 @@ enum Economy {
         var changes: [HappinessChange] = []
         let spared = Town.spareGain(state, balance: balance)
         if spared != 0 { changes.append(HappinessChange(reason: .leftAlone, delta: spared)) }
-        if state.has(.tavern) { changes.append(HappinessChange(reason: .tavern, delta: balance.happinessTavern)) }
+        if let tavern = TownGrowth.tavernHappiness(state, balance: balance) {
+            changes.append(HappinessChange(reason: .tavern, delta: tavern))
+        }
         if state.chapelBlessed { changes.append(HappinessChange(reason: .chapel, delta: balance.happinessChapel)) }
         if fallen == 0 {
             changes.append(HappinessChange(reason: .noLosses, delta: balance.happinessNoLosses))

@@ -1,12 +1,14 @@
 import XCTest
 @testable import Lanternhold
 
-/// The collector (docs/TOWN.md section 2, Louis 14.11. 14:45; town-1 fix round 1, Core only): hired from the first day
-/// without a treasury, in service from the next morning; at dawn he sets out from his post by the hall door, walks every
-/// door that owes and is back by noon, when the gold arrives less his wage (one coin in eight, at least 2, never more
-/// than he brought). A house the lord reaches first pays the lord in full; he never knocks, the lord may knock at a
-/// house he has been to; in unrest he comes back empty; "double taxes" count for him too. The reference bots never hire
-/// him (`TownNeutralityTests`).
+/// The collector (docs/TOWN.md section 2, Louis 14.11. 14:45; town-1 fix round 1, his round in sim time since town-3):
+/// hired from the first day without a treasury, in service from the next morning; at dawn he sets out from his post just
+/// inside the castle's town gate and pushes his handcart at a heavy pace (18 px a second of the day clock) from door to
+/// door, the houses and the stall, never a field (the farmers pay the lord in person); at each door that pays him he
+/// stops 1.5 s; home again, the gold goes into the purse less his wage (one coin in eight, at least 2, never more than
+/// he brought). A house the lord reaches first pays the lord in full and he passes it; he never knocks, the lord may
+/// knock at a house he has been to; in unrest he comes back empty; "double taxes" count for him too. The reference bots
+/// never hire him (`TownNeutralityTests`).
 final class TownCollectorTests: XCTestCase {
     private let balance = Balance.standard
     private var rules: TownRules { balance.town }
@@ -22,13 +24,26 @@ final class TownCollectorTests: XCTestCase {
     private let house3 = TownCollectorTests.plot("town.house.3")
     private let house4 = TownCollectorTests.plot("town.house.4")
     private let house5 = TownCollectorTests.plot("town.house.5")
+    private let field2 = TownCollectorTests.plot("town.field.2")
+    private let field8 = TownCollectorTests.plot("town.field.8")
+    private let market = TownCollectorTests.plot("town.market.6")
+
+    /// His pace in px per hour and his stop in hours.
+    private var perHour: Double { rules.collectorPace * DayClock.secondsPerHour }
+    private var stop: Double { rules.collectorStop / DayClock.secondsPerHour }
 
     /// A new realm at the dawn of day 2 (06:00): the lord took the first morning's coins, took the collector on during
-    /// day 1 (`hired`), and the first dawn opened the ledger: 16, 11, 11, 11 owed by the four cottages.
-    private func secondMorning(hired: Bool = true, happiness: Int = 60) -> GameState {
+    /// day 1 (`hired`), and the first dawn opened the ledger: 16, 11, 11, 11 owed by the four cottages; with `rich`, two
+    /// fields (5 each) and the market as well.
+    private func secondMorning(hired: Bool = true, happiness: Int = 60, rich: Bool = false) -> GameState {
         var s = GameState.newRealm(seed: 1, balance: balance)
         Town.collectAll(&s, balance: balance)
         if hired { Town.setCollector(&s, hired: true) }
+        if rich {
+            s.plots[field2].item = .field
+            s.plots[field8].item = .field
+            s.plots[market].item = .market
+        }
         s.happiness = happiness
         Town.horn(&s, balance: balance)
         s.day = 2
@@ -38,10 +53,18 @@ final class TownCollectorTests: XCTestCase {
     }
 
     /// Runs the town's part of the day to `hour` in small steps, the lord standing where he is (by the throne).
-    private func walk(_ s: inout GameState, to hour: Double, step: Double = 0.05) {
+    private func walk(_ s: inout GameState, to hour: Double, step: Double = 0.02) {
         while s.hour < hour - 1e-9 {
             s.hour = min(hour, s.hour + step)
+            s.simTime += 1
             Town.step(&s, from: s.king.x, balance: balance)
+        }
+    }
+
+    /// Runs the day until he is home with the box (at most to the horn).
+    private func walkHome(_ s: inout GameState) {
+        while s.town?.today?.collectorBack != true && s.hour < 19 {
+            walk(&s, to: s.hour + 0.02)
         }
     }
 
@@ -90,25 +113,58 @@ final class TownCollectorTests: XCTestCase {
 
     // MARK: - His round
 
-    func testHisRoundFromTheHallDoorToTheLastDoorAndBackByNoon() throws {
+    func testHisRoundDoorByDoorAtAHeavyPaceWithAStopAtEachDoorThatPays() throws {
         var s = secondMorning()
         let post = Town.collectorPost
-        let turn = Town.doorX(plot: house5)
-        XCTAssertEqual(post, Realm.hallX)
-        XCTAssertEqual(Town.collectorTurn(try XCTUnwrap(s.town?.today)), turn, "the farthest paying door")
+        XCTAssertEqual(post, WorldLayout.backGateX - 40, "just inside the castle's town gate")
+        XCTAssertEqual(rules.collectorPace, 18, "half the lord's walk")
+        XCTAssertEqual(rules.collectorStop, 1.5)
+        let day = try XCTUnwrap(s.town?.today)
+        XCTAssertEqual(Town.collectorRound(day).map(\.plot), [house1, house3, house4, house5], "nearest his post first")
+        XCTAssertEqual(Town.collectorTurn(day), Town.doorX(plot: house5), "the last door")
+
+        // Before anyone has paid him: straight out, no stop.
+        let plain = Town.collectorSchedule(day, rules: rules)
+        XCTAssertEqual(plain.arrivals[0], 6 + (Town.doorX(plot: house1) - post) / perHour, accuracy: 1e-9)
+        XCTAssertEqual(plain.home, 6 + 2 * (Town.doorX(plot: house5) - post) / perHour, accuracy: 1e-9)
         XCTAssertEqual(try XCTUnwrap(Town.collectorX(s, balance: balance)), post, accuracy: 0.001, "06:00 at his post")
-        s.hour = 7.5
-        XCTAssertEqual(try XCTUnwrap(Town.collectorX(s, balance: balance)), (post + turn) / 2, accuracy: 0.001)
-        s.hour = rules.collectorTurnHour
-        XCTAssertEqual(try XCTUnwrap(Town.collectorX(s, balance: balance)), turn, accuracy: 0.001, "09:00 at the turn")
-        s.hour = 10.5
-        XCTAssertEqual(try XCTUnwrap(Town.collectorX(s, balance: balance)), (post + turn) / 2, accuracy: 0.001)
-        s.hour = rules.collectorBackHour
-        XCTAssertNil(Town.collectorX(s, balance: balance), "noon: back at his post")
+        s.hour = 6.5
+        XCTAssertEqual(try XCTUnwrap(Town.collectorX(s, balance: balance)), post + 0.5 * perHour, accuracy: 0.001)
+        XCTAssertEqual(Town.collectorHeading(day, hour: s.hour, rules: rules), 1)
+
+        // Every door pays him: four stops of 1.5 s; the farthest door at about 10:14, home at about 14:12.
+        s.hour = 6
+        walkHome(&s)
+        let paid = try XCTUnwrap(s.town?.today)
+        let plan = Town.collectorSchedule(paid, rules: rules)
+        var clock = 6.0
+        var at = post
+        for (index, door) in plan.doors.enumerated() {
+            clock += abs(door.x - at) / perHour
+            at = door.x
+            XCTAssertEqual(plan.arrivals[index], clock, accuracy: 1e-9, "door \(door.plot)")
+            clock += stop
+        }
+        XCTAssertEqual(plan.home, clock + (at - post) / perHour, accuracy: 1e-9)
+        XCTAssertEqual(plan.arrivals[3], 10.227, accuracy: 0.001, "the weaver's door")
+        XCTAssertEqual(plan.home, 14.204, accuracy: 0.001, "home in the early afternoon")
+        XCTAssertEqual(paid.collectorReached, 4)
+
+        // At a door he stands while it pays; then he walks on; on the way home he faces his post.
+        XCTAssertEqual(Town.collectorLeg(paid, hour: plan.arrivals[1] + stop / 2, rules: rules),
+                       .atDoor(plot: house3, x: Town.doorX(plot: house3)))
+        if case .out(let x) = Town.collectorLeg(paid, hour: plan.arrivals[1] + stop + 0.1, rules: rules) {
+            XCTAssertEqual(x, Town.doorX(plot: house3) + 0.1 * perHour, accuracy: 1e-6)
+        } else {
+            XCTFail("he walks on to the next door")
+        }
+        XCTAssertEqual(Town.collectorHeading(paid, hour: 13, rules: rules), -1)
+        XCTAssertEqual(Town.collectorLeg(paid, hour: plan.home, rules: rules), .home)
+        XCTAssertNil(Town.collectorX(s, balance: balance), "home: back at his post")
         XCTAssertNil(Town.collectorX(secondMorning(hired: false), balance: balance), "not in service")
     }
 
-    func testHeCollectsTheDoorsHePassesAndTheGoldArrivesWithHimAtNoon() throws {
+    func testHeCollectsTheDoorsHePassesAndTheGoldArrivesWithHimHome() throws {
         var s = secondMorning()
         let start = s.town
         walk(&s, to: 8)
@@ -119,19 +175,21 @@ final class TownCollectorTests: XCTestCase {
         XCTAssertEqual(Town.waiting(s, balance: balance), [house3, house4, house5])
         XCTAssertEqual(s.gold, purse, "the gold rides in his strongbox")
         XCTAssertEqual(Town.events(before: start, after: s.town), [.paidCollector(plot: house1, gold: 16)])
-        walk(&s, to: rules.collectorTurnHour)
-        XCTAssertEqual(s.town?.today?.collectorBox, 49, "every door by 09:00")
+        walk(&s, to: 10.5)
+        XCTAssertEqual(s.town?.today?.collectorBox, 49, "every door by 10:30")
         XCTAssertEqual(s.town?.today?.owing, 0)
-        walk(&s, to: rules.collectorBackHour - 0.05)
-        XCTAssertEqual(s.gold, purse, "not before noon")
+        let home = Town.collectorSchedule(try XCTUnwrap(s.town?.today), rules: rules).home
+        walk(&s, to: home - 0.05)
+        XCTAssertEqual(s.gold, purse, "not before he is home")
         let before = s.town
-        walk(&s, to: rules.collectorBackHour)
+        walk(&s, to: home + 0.01)
         XCTAssertEqual(s.town?.today?.collectorWage, 6, "one coin in eight of 49")
         XCTAssertEqual(s.gold, purse + 43)
         XCTAssertEqual(Town.events(before: before, after: s.town), [.collectorBack(gold: 43, wage: 6)])
+        XCTAssertEqual(Town.collectorWords(try XCTUnwrap(s.town?.today)), .back)
         let back = s
-        walk(&s, to: 15)
-        XCTAssertEqual(s.town, back.town, "nothing more after he is back")
+        walk(&s, to: 16)
+        XCTAssertEqual(s.town?.today, back.town?.today, "nothing more after he is home")
         XCTAssertEqual(s.gold, back.gold)
 
         // The next dawn tells of him; nobody was left alone.
@@ -148,14 +206,15 @@ final class TownCollectorTests: XCTestCase {
         XCTAssertEqual(english.map(\.text), ["Collected yesterday: 43", "The collector brought 43 (wage 6)"])
     }
 
-    func testThroughTheSimulation() {
+    func testThroughTheSimulation() throws {
         var s = secondMorning()
         var events: [SimEvent] = []
-        while s.hour < rules.collectorBackHour + 0.05 {
+        while s.town?.today?.collectorBack != true && s.hour < 18 {
             Sim.step(&s, dt: Sim.dayStep, balance: balance, events: &events)
         }
-        XCTAssertEqual(s.gold, purse + 43, "Sim.step walks him: by noon the town's 49 less his 6")
+        XCTAssertEqual(s.gold, purse + 43, "Sim.step walks him: the town's 49 less his 6")
         XCTAssertEqual(s.town?.today?.collectorBack, true)
+        XCTAssertEqual(s.hour, 14.2, accuracy: 0.1, "home in the early afternoon")
     }
 
     func testTheWageIsOneCoinInEightAtLeastTwoAndNeverMoreThanHeBrought() {
@@ -166,31 +225,54 @@ final class TownCollectorTests: XCTestCase {
         }
     }
 
-    // MARK: - The lord first
+    // MARK: - The lord first, the farmers
 
-    func testAHouseTheLordReachesFirstPaysTheLordInFull() throws {
+    func testAHouseTheLordReachesFirstPaysTheLordInFullAndHePassesIt() throws {
         var s = secondMorning()
         s.hour = 7
         XCTAssertEqual(Town.collect(&s, plot: house4, balance: balance), 11, "in full, at once")
-        walk(&s, to: rules.collectorBackHour)
+        walkHome(&s)
+        let day = try XCTUnwrap(s.town?.today)
         XCTAssertNil(place(s, house4)?.collectorGold, "the collector found it paid")
-        XCTAssertEqual(s.town?.today?.collectorBox, 38)
-        XCTAssertEqual(s.town?.today?.collectorWage, 5, "one coin in eight of 38")
+        XCTAssertEqual(day.collectorBox, 38)
+        XCTAssertEqual(day.collectorWage, 5, "one coin in eight of 38")
         XCTAssertEqual(s.gold, purse + 11 + 33)
+        XCTAssertEqual(Town.collectorWords(day), .lordFirst)
+        let plan = Town.collectorSchedule(day, rules: rules)
+        XCTAssertEqual(plan.home, 14.204 - stop, accuracy: 0.001, "no stop at the door the lord had been to")
+        XCTAssertNotEqual(Town.collectorLeg(day, hour: plan.arrivals[2] + 0.01, rules: rules),
+                          .atDoor(plot: house4, x: Town.doorX(plot: house4)))
 
         // The lord and the collector at the same door in the same step: the lord is first.
         var t = secondMorning()
         t.king.x = Town.doorX(plot: house1)
-        t.hour = 7.8
+        t.hour = try XCTUnwrap(Town.collectorSchedule(try XCTUnwrap(t.town?.today), rules: rules).arrivals.first) + 0.001
         Town.step(&t, from: t.king.x, balance: balance)
         XCTAssertEqual(place(t, house1)?.tossGold, 16)
         XCTAssertNil(place(t, house1)?.collectorGold)
         XCTAssertEqual(t.gold, purse + 16)
     }
 
+    func testTheFarmersPayOnlyTheLordAndTheStallPaysHim() throws {
+        var s = secondMorning(rich: true)
+        let day = try XCTUnwrap(s.town?.today)
+        XCTAssertEqual(Town.collectorRound(day).map(\.plot), [house1, house3, house4, house5, market],
+                       "the doors and the stall, never a field")
+        walkHome(&s)
+        XCTAssertNotNil(place(s, market)?.collectorGold, "the stall keeper paid him")
+        XCTAssertTrue(try XCTUnwrap(place(s, field2)).owes, "the farmer waits for the lord")
+        XCTAssertTrue(try XCTUnwrap(place(s, field8)).owes)
+        XCTAssertEqual(Town.waiting(s, balance: balance), [field2, field8])
+        XCTAssertEqual(TownText.string(CollectorWords.farmers.key, language: "en"),
+                       "Farmers count into your hand. Nobody else's.")
+        s.king.x = Town.doorX(plot: field2) - 40
+        Town.step(&s, from: Town.doorX(plot: field2) + 1, balance: balance)
+        XCTAssertEqual(place(s, field2)?.tossGold, balance.fieldGold, "the lord takes the farmer's count")
+    }
+
     func testHeNeverKnocksButTheLordMayKnockWhereHeHasBeen() throws {
         var s = secondMorning()
-        walk(&s, to: rules.collectorBackHour)
+        walkHome(&s)
         XCTAssertEqual(s.town?.today?.places.map(\.knocks), [0, 0, 0, 0], "he never knocks")
         XCTAssertTrue(Town.canKnock(s, plot: house3, balance: balance), "the house has paid, whoever collected")
         let gold = s.gold
@@ -205,10 +287,15 @@ final class TownCollectorTests: XCTestCase {
         var s = secondMorning(happiness: 10)
         XCTAssertTrue(try XCTUnwrap(s.town?.today).unrest)
         XCTAssertTrue(Town.collectorWalksToday(s), "he walks all the same")
-        walk(&s, to: rules.collectorBackHour)
-        XCTAssertEqual(s.town?.today?.collectorBack, true)
-        XCTAssertEqual(s.town?.today?.collectorWage, 0, "back empty, he takes nothing")
+        walkHome(&s)
+        let day = try XCTUnwrap(s.town?.today)
+        XCTAssertEqual(day.collectorBack, true)
+        XCTAssertEqual(day.collectorWage, 0, "back empty, he takes nothing")
         XCTAssertEqual(s.gold, purse)
+        XCTAssertEqual(Town.collectorWords(day), .empty)
+        XCTAssertEqual(Town.collectorSchedule(day, rules: rules).home,
+                       6 + 2 * (Town.doorX(plot: house5) - Town.collectorPost) / perHour, accuracy: 1e-9,
+                       "no stop anywhere")
         let summary = try XCTUnwrap(nextDawn(&s).town)
         XCTAssertEqual(summary.collectorGold, 0)
         XCTAssertEqual(TownText.reportLines(summary, lookup: { $0 }).map(\.key), ["town.report.unrest"])
@@ -217,16 +304,33 @@ final class TownCollectorTests: XCTestCase {
         var t = secondMorning()
         walk(&t, to: 8)
         t.happiness = balance.unrestBelow - 1
-        walk(&t, to: rules.collectorBackHour)
+        walkHome(&t)
         XCTAssertEqual(t.town?.today?.collectorBox, 16)
         XCTAssertEqual(t.gold, purse + 14, "house 1's 16 less his 2")
         XCTAssertEqual(t.town?.today?.owing, 33, "the shut doors still owe")
     }
 
+    func testADoorHePassedWhileItWasShutDoesNotPayHimLater() throws {
+        var s = secondMorning()
+        walk(&s, to: 8)
+        XCTAssertEqual(place(s, house1)?.collectorGold, 16)
+        // The schedule with the stop at the chandler's door.
+        let arrivals = Town.collectorSchedule(try XCTUnwrap(s.town?.today), rules: rules).arrivals
+        walk(&s, to: arrivals[1] - 0.05)
+        s.happiness = balance.unrestBelow - 1
+        walk(&s, to: arrivals[1] + 0.05)
+        XCTAssertEqual(s.town?.today?.collectorReached, 2, "he passed the oil-presser's shut door")
+        s.happiness = 60
+        walkHome(&s)
+        XCTAssertNil(place(s, house3)?.collectorGold, "passed is passed")
+        XCTAssertTrue(try XCTUnwrap(place(s, house3)).owes, "the household waits for the lord")
+        XCTAssertNotNil(place(s, house4)?.collectorGold, "the doors after it paid him")
+    }
+
     func testDoubleTaxesCountForWhatHeTakesToo() {
         var s = secondMorning()
         XCTAssertTrue(Town.grantDoubleTaxes(&s))
-        walk(&s, to: rules.collectorBackHour)
+        walkHome(&s)
         XCTAssertEqual(s.town?.today?.collectorBox, 98)
         XCTAssertEqual(s.town?.today?.collectorWage, 12)
         XCTAssertEqual(s.gold, purse + 86)
@@ -234,19 +338,20 @@ final class TownCollectorTests: XCTestCase {
 
     // MARK: - The horn and the save
 
-    func testTheHornBringsHimBackIfNoonNeverCameAndTheRoundIsSaved() throws {
+    func testTheHornBringsHimBackIfHeIsStillOutAndTheRoundIsSaved() throws {
         var s = secondMorning()
         walk(&s, to: 8.5)
         let data = try SaveGame(state: s).encoded()
         guard case .loaded(let save) = SaveGame.decode(data) else { return XCTFail("the save does not load") }
         XCTAssertEqual(save.state, s, "the round in the middle is saved")
         XCTAssertEqual(save.state.town?.collectorHired, true)
+        XCTAssertEqual(save.state.town?.today?.collectorReached, 1)
         Town.horn(&s, balance: balance)
         let day = try XCTUnwrap(s.town?.today)
-        XCTAssertEqual(day.collectorBack, true, "a horn before noon brings him back first")
-        XCTAssertEqual(day.collectorBox, 27)
-        XCTAssertEqual(s.gold, purse + 27 - 3)
-        XCTAssertEqual(day.spared, [house4, house5], "the doors he had not reached were left alone")
+        XCTAssertEqual(day.collectorBack, true, "a horn while he is out brings him back first")
+        XCTAssertEqual(day.collectorBox, 16)
+        XCTAssertEqual(s.gold, purse + 16 - 2)
+        XCTAssertEqual(day.spared, [house3, house4, house5], "the doors he had not reached were left alone")
         XCTAssertNil(Town.collectorX(s, balance: balance))
     }
 }

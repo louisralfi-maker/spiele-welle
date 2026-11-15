@@ -68,6 +68,9 @@ struct TownDay: Codable, Sendable, Equatable {
     var collectorBack: Bool?
     /// The wage he kept when he came back.
     var collectorWage: Int?
+    /// The doors of his round (`Town.collectorRound`) he has reached so far on his way out (town-3): a door he passed
+    /// while the doors were shut is not paid later.
+    var collectorReached: Int?
 
     init(day: Int, places: [TownPlace], unrest: Bool) {
         self.day = day
@@ -106,6 +109,10 @@ struct TownState: Codable, Sendable, Equatable {
     var yesterday: TownDay?
     /// The collector is in service from the next morning on (`Town.setCollector`); nil or false: he is not.
     var collectorHired: Bool?
+    /// The realm's stage as of the last dawn (town-3, `TownGrowth.look`: what the backdrop row shows); nil: a hamlet.
+    var stage: RealmStage?
+    /// The dawn on which the realm came to that stage.
+    var stageDay: Int?
 
     init(today: TownDay? = nil, yesterday: TownDay? = nil) {
         self.today = today
@@ -139,6 +146,9 @@ struct TownSummary: Codable, Sendable, Equatable {
     var collectorOut: Bool?
     var collectorGold: Int?
     var collectorWage: Int?
+    /// The stage the realm reached at this dawn (town-3: the bell, the people in their doors, the report's one line,
+    /// "Lanternhold is a village now."); nil on every other dawn.
+    var stageReached: RealmStage?
 
     /// Everything that reached the purse yesterday: the tosses to the lord, the knocks, the collector's delivery.
     var collected: Int { tossGold + knockGold + (collectorGold ?? 0) }

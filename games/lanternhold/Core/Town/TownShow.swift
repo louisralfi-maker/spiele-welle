@@ -212,7 +212,7 @@ enum TownShow {
                 let column = mirrored ? sprite.size.width - 1 - cottageDoorColumn : cottageDoorColumn
                 list.append(Spot(plot: plot, sprite: sprite, left: spec.start, mirrored: mirrored,
                                  doorX: spec.start + Double(column) + 0.5))
-            case .bigHouse?:
+            case .bigHouse?, .townhouse?:
                 let left = (spec.start + spec.end) / 2 - 36
                 let column = mirrored ? SpriteID.bigHouse.size.width - 1 - bigDoorColumn : bigDoorColumn
                 list.append(Spot(plot: plot, sprite: .bigHouse, left: left, mirrored: mirrored,
@@ -563,11 +563,10 @@ enum TownShow {
         (0..<count).map { handFirst + Double($0) * handGap + handFlight }
     }
 
-    /// Which way the collector walks now: out from his post toward the farthest paying door until `collectorTurnHour`,
-    /// then back (1 right, -1 left).
+    /// Which way the collector faces now: out from his post toward the last door of his round until he turns for home,
+    /// then back (1 right, -1 left; `Town.collectorHeading`, his round in sim time since town-3).
     static func collectorFacing(_ s: GameState, day: TownDay, rules: TownRules) -> Int {
-        let out = Town.collectorTurn(day) >= Town.collectorPost ? 1 : -1
-        return s.hour <= rules.collectorTurnHour ? out : -out
+        Town.collectorHeading(day, hour: s.hour, rules: rules)
     }
 
     /// The household handing the collector its coins at `t` after he reached its door (nil once it is back inside): the

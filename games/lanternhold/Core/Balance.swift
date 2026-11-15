@@ -122,6 +122,12 @@ struct Balance: Sendable, Equatable {
         ItemStats(.field, price: 25, time: 10),
         ItemStats(.market, price: 80, time: 25),
         ItemStats(.tavern, price: 50, time: 18),
+        // Town-3 (docs/TOWN.md sections 2 and 3; the rules are `TownRules`' "growing town" and `TownGrowth`).
+        ItemStats(.townhouse, price: 110, time: 25),
+        ItemStats(.marketHall, price: 120, time: 28),
+        ItemStats(.inn, price: 90, time: 22),
+        ItemStats(.farmstead, price: 45, time: 14),
+        ItemStats(.treasury, price: 90, time: 24),
     ]
 
     // MARK: Walls, towers, braziers

@@ -18,6 +18,10 @@ enum BotStep: Sendable, Equatable {
 struct Autoplay: Sendable, Equatable {
     enum Plan: String, Sendable {
         case reference, buildsNothing
+        /// Town-3 (T12, `TownGrowthTuning`, `Autoplay.order(for:)`): the reference order with the town's growth before
+        /// the beacon, the same with the town of before only, and a bot that grows the town instead of building the
+        /// defence beyond the first line.
+        case grower, oldTown, skipsDefence
     }
 
     var plan: Plan
@@ -115,7 +119,7 @@ struct Autoplay: Sendable, Equatable {
     mutating func act(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent],
                       petitions: PetitionCatalog = .standard) {
         morning(&s, balance: balance)
-        guard plan == .reference else {
+        guard plan != .buildsNothing else {
             s.king.velocity = 0
             return
         }
@@ -139,7 +143,7 @@ struct Autoplay: Sendable, Equatable {
     // MARK: Day
 
     /// The bot's habit in the town for `plan` (the bot that builds nothing collects everything, as the old dawn gave it).
-    var habit: TownHabit { plan == .reference ? TownHabit(tax) : .collect }
+    var habit: TownHabit { plan == .buildsNothing ? .collect : TownHabit(tax) }
 
     /// The bot's morning in the town: it collects (and knocks) as its habit says, at once (`Town.morning`; nothing
     /// happens a second time the same day). `act` begins with it, and `TuningRun.play` calls it right after each dawn,
@@ -181,7 +185,7 @@ struct Autoplay: Sendable, Equatable {
                 if Build.recruit(&s, kind: .guardsman, balance: balance, events: &events) { refillDay = s.day }
             }
         }
-        let order = Autoplay.referenceOrder
+        let order = Autoplay.order(for: plan)
         var guardSteps = 0
         while cursor < order.count && guardSteps < 200 {
             guardSteps += 1

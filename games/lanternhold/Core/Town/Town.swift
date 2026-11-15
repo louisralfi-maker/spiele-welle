@@ -7,22 +7,24 @@
 /// levy. In unrest (happiness below 15) the doors stay shut. "Double taxes" (`grantDoubleTaxes`) makes every payment
 /// of the day count twice. On the first morning the town's first household owes the 16 gold that complete the realm's
 /// starting purse (`firstMorning`), so the toss is met on day 1. The collector (docs/TOWN.md section 2,
-/// `setCollector`) walks every door that owes from the dawn to noon for one coin in eight; the lord can still be first.
+/// `setCollector`) walks the town's doors (the houses and the stall) from the dawn at a heavy pace, stops at each that
+/// pays him and brings the gold home for one coin in eight; the lord can still be first, and the farmers pay only him.
+/// Since town-3 the houses, the market and the fields grow in tiers and the far fields pay too (`TownGrowth`).
 ///
 /// Pure and deterministic: nothing here draws from the realm's random stream, so a bot that collects everything at
 /// dawn plays exactly the game the old dawn sum gave (`TownNeutralityTests`). Everything lives in `GameState.town`.
 enum Town {
     // MARK: - The parts
 
-    /// The town's paying places as the realm stands, left to right: every house (a cottage or a big house), every
-    /// finished field, the market.
+    /// The town's paying places as the realm stands, left to right: every house (a cottage, a big house or a
+    /// townhouse), every finished field or farmstead (the far fields too, town-3), the market or the market hall.
     static func payingPlaces(_ s: GameState) -> [(plot: Int, kind: TownPlaceKind)] {
         var places: [(plot: Int, kind: TownPlaceKind)] = []
-        for plot in Realm.townPlots {
+        for plot in TownGrowth.townPlots where plot < s.plots.count {
             switch s.plots[plot].item {
-            case .house?, .bigHouse?: places.append((plot, .house))
-            case .field?: places.append((plot, .field))
-            case .market?: places.append((plot, .market))
+            case .house?, .bigHouse?, .townhouse?: places.append((plot, .house))
+            case .field?, .farmstead?: places.append((plot, .field))
+            case .market?, .marketHall?: places.append((plot, .market))
             default: break
             }
         }
@@ -53,17 +55,18 @@ enum Town {
         return shares
     }
 
-    /// The room of every house among `places`, left to right (a cottage 4, a big house 8).
+    /// The room of every house among `places`, left to right (a cottage 4, a big house 8, a townhouse 12).
     static func houseRooms(_ s: GameState, places: [(plot: Int, kind: TownPlaceKind)], balance: Balance) -> [Int] {
         var rooms: [Int] = []
         for place in places where place.kind == .house {
-            rooms.append(s.plots[place.plot].item == .bigHouse ? balance.bigHouseRoom : balance.houseRoom)
+            rooms.append(TownGrowth.room(s.plots[place.plot].item, balance: balance))
         }
         return rooms
     }
 
     /// The day's ledger from the dawn's taxes: the taxpayers spread over the houses by their room, the tax part split
-    /// over the houses by those taxpayers, each field its gold, the market its share. In unrest every part is 0.
+    /// over the houses by those taxpayers, each field its gold (a farmstead's more), the market its share. In unrest
+    /// every part is 0.
     static func ledger(_ s: GameState, taxes: TaxBreakdown, balance: Balance) -> TownDay {
         let places = payingPlaces(s)
         let payers = split(taxes.taxpayers, weights: houseRooms(s, places: places, balance: balance))
@@ -76,8 +79,8 @@ enum Town {
                 list.append(TownPlace(plot: place.plot, kind: .house, taxpayers: payers[house], owed: parts[house]))
                 house += 1
             case .field:
-                list.append(TownPlace(plot: place.plot, kind: .field, taxpayers: 0,
-                                      owed: taxes.unrest ? 0 : balance.fieldGold))
+                let gold = TownGrowth.fieldGold(s.plots[place.plot].item, balance: balance)
+                list.append(TownPlace(plot: place.plot, kind: .field, taxpayers: 0, owed: taxes.unrest ? 0 : gold))
             case .market:
                 list.append(TownPlace(plot: place.plot, kind: .market, taxpayers: 0,
                                       owed: taxes.unrest ? 0 : taxes.market))
@@ -161,12 +164,14 @@ enum Town {
     }
 
     /// The dawn turns the page: yesterday's ledger (closed by the horn, or here when no horn came) becomes yesterday,
-    /// `ledger` becomes today, and the collector walks it when he is in service. Returns what the dawn report tells of
-    /// yesterday (nil when there was no yesterday: a save from before the taxes went on foot; the first dawn tells of
-    /// the first morning). `Economy.dawn` calls it after the happiness changes, which read `spareGain` first.
+    /// `ledger` becomes today, and the collector walks it when he is in service; the realm's stage follows the standing
+    /// (`TownGrowth.dawn`, town-3). Returns what the dawn report tells of yesterday (nil when there was no yesterday: a
+    /// save from before the taxes went on foot; the first dawn tells of the first morning), with the stage reached at
+    /// this dawn. `Economy.dawn` calls it after the happiness changes, which read `spareGain` first.
     @discardableResult
     static func open(_ s: inout GameState, ledger: TownDay, balance: Balance) -> TownSummary? {
         horn(&s, balance: balance)
+        let reached = TownGrowth.dawn(&s, balance: balance)
         var town = s.town ?? TownState()
         let past = town.today
         var today = ledger
@@ -189,7 +194,7 @@ enum Town {
                            unrest: day.unrest, happinessGain: gain, happinessCost: knockCost(day, balance: balance),
                            houses: day.places.filter { $0.kind == .house && $0.owed > 0 }.count,
                            collectorOut: walked ? true : nil, collectorGold: walked ? day.collectorDelivered : nil,
-                           collectorWage: walked ? (day.collectorWage ?? 0) : nil)
+                           collectorWage: walked ? (day.collectorWage ?? 0) : nil, stageReached: reached)
     }
 
     // MARK: - At the doors
@@ -303,11 +308,30 @@ enum Town {
         return true
     }
 
-    // MARK: - The collector (docs/TOWN.md section 2)
+    // MARK: - The collector (docs/TOWN.md section 2; his round in sim time since town-3)
 
-    /// Where the collector keeps his post and starts his round: by the hall door (world game px), until the rebuilt
-    /// world brings its anchor (the join).
-    static var collectorPost: Double { Realm.hallX }
+    /// Where the collector keeps his post and starts and ends his round: just inside the castle's town gate (town-3, as
+    /// the people lane's Saul Bracken stands; from the hall door a round at a heavy step could not be back before the
+    /// horn), until the rebuilt world brings its anchor.
+    static var collectorPost: Double { WorldLayout.backGateX - 40 }
+
+    /// One door of his round: its plot and where he stops.
+    struct CollectorDoor: Sendable, Equatable {
+        var plot: Int
+        var x: Double
+    }
+
+    /// Where the collector is in his round.
+    enum CollectorLeg: Sendable, Equatable {
+        /// Pushing his cart out toward the next door.
+        case out(x: Double)
+        /// Stopped at a door while its household pays him.
+        case atDoor(plot: Int, x: Double)
+        /// On his way home from the last door.
+        case back(x: Double)
+        /// At his post again (or not out today).
+        case home
+    }
 
     /// The collector is in service from the next morning on.
     static func collectorHired(_ s: GameState) -> Bool {
@@ -340,41 +364,85 @@ enum Town {
         return hired
     }
 
-    /// The door of the day's paying places farthest from his post: where his round turns.
+    /// The doors of his round today, nearest his post first (ties: the lower plot): every house and the stall that pay
+    /// today, never a field (the farmer leaves his hoe only for the lord: docs/TOWN.md section 6). Fixed for the day by
+    /// its ledger. The town lies on one side of his post, so nearest first is the order of the road.
+    static func collectorRound(_ day: TownDay) -> [CollectorDoor] {
+        let post = collectorPost
+        return day.places.filter { $0.kind != .field }
+            .map { CollectorDoor(plot: $0.plot, x: doorX(plot: $0.plot)) }
+            .sorted { abs($0.x - post) != abs($1.x - post) ? abs($0.x - post) < abs($1.x - post) : $0.plot < $1.plot }
+    }
+
+    /// The last door of his round, where he turns for home (his post when there is none).
     static func collectorTurn(_ day: TownDay) -> Double {
-        let post = collectorPost
-        var far = post
-        for place in day.places {
-            let door = doorX(plot: place.plot)
-            if abs(door - post) > abs(far - post) { far = door }
+        collectorRound(day).last?.x ?? collectorPost
+    }
+
+    /// His pace in world game px per hour of the day clock.
+    static func collectorPerHour(_ rules: TownRules) -> Double {
+        max(0.001, rules.collectorPace * DayClock.secondsPerHour)
+    }
+
+    /// His day as the round stands now: the hour he reaches each door of `collectorRound` (out from the dawn at his
+    /// pace, a stop at every door that paid him so far) and the hour he is back at his post.
+    static func collectorSchedule(_ day: TownDay, rules: TownRules) -> (doors: [CollectorDoor], arrivals: [Double],
+                                                                         home: Double) {
+        let pace = collectorPerHour(rules)
+        let stop = max(0, rules.collectorStop / DayClock.secondsPerHour)
+        let doors = collectorRound(day)
+        var clock = ClockEvent.dawnReport.hour
+        var at = collectorPost
+        var arrivals: [Double] = []
+        for door in doors {
+            clock += abs(door.x - at) / pace
+            at = door.x
+            arrivals.append(clock)
+            if let index = day.index(of: door.plot), day.places[index].paidCollector { clock += stop }
         }
-        return far
+        return (doors, arrivals, clock + abs(at - collectorPost) / pace)
     }
 
-    /// The farthest point of his round he has reached by `hour`: his post before the dawn, then out at an even pace to
-    /// the turn by `collectorTurnHour`, and the turn from then on (he collects on the way out).
-    static func collectorReached(_ day: TownDay, hour: Double, rules: TownRules) -> Double {
-        let start = ClockEvent.dawnReport.hour
-        let post = collectorPost
-        let turn = collectorTurn(day)
-        guard hour > start else { return post }
-        guard hour < rules.collectorTurnHour else { return turn }
-        return post + (turn - post) * (hour - start) / max(0.01, rules.collectorTurnHour - start)
+    /// Where he is in his round at `hour`: a pure function of the day's ledger and the hour.
+    static func collectorLeg(_ day: TownDay, hour: Double, rules: TownRules) -> CollectorLeg {
+        let plan = collectorSchedule(day, rules: rules)
+        let pace = collectorPerHour(rules)
+        let stop = max(0, rules.collectorStop / DayClock.secondsPerHour)
+        var from = collectorPost
+        var left = ClockEvent.dawnReport.hour
+        guard hour >= left else { return .out(x: from) }
+        for (index, door) in plan.doors.enumerated() {
+            let arrival = plan.arrivals[index]
+            if hour < arrival {
+                return .out(x: from + (door.x >= from ? 1 : -1) * (hour - left) * pace)
+            }
+            from = door.x
+            left = arrival
+            if let place = day.index(of: door.plot), day.places[place].paidCollector {
+                if hour < arrival + stop { return .atDoor(plot: door.plot, x: door.x) }
+                left += stop
+            }
+        }
+        guard hour < plan.home else { return .home }
+        return .back(x: from + (collectorPost >= from ? 1 : -1) * (hour - left) * pace)
     }
 
-    /// Where the collector is on his round now (world game px): from his post at the dawn out to the farthest paying
-    /// door by 09:00 and back by noon. nil when he is not out: not in service today, back at his post, after the horn.
+    /// Where the collector is on his round now (world game px): out from his post door by door, standing at a door
+    /// while it pays him, home again. nil when he is not out: not in service today, back at his post, after the horn.
     static func collectorX(_ s: GameState, balance: Balance) -> Double? {
-        guard let day = s.town?.today, day.collectorOut == true, day.collectorBack != true, !day.closed else {
-            return nil
+        guard let day = s.town?.today, day.collectorOut == true, day.collectorBack != true, !day.closed,
+              s.hour >= ClockEvent.dawnReport.hour else { return nil }
+        switch collectorLeg(day, hour: s.hour, rules: balance.town) {
+        case .out(let x), .back(let x), .atDoor(_, let x): return x
+        case .home: return nil
         }
-        let rules = balance.town
-        let hour = s.hour
-        guard hour >= ClockEvent.dawnReport.hour, hour < rules.collectorBackHour else { return nil }
-        if hour <= rules.collectorTurnHour { return collectorReached(day, hour: hour, rules: rules) }
-        let turn = collectorTurn(day)
-        let back = (hour - rules.collectorTurnHour) / max(0.01, rules.collectorBackHour - rules.collectorTurnHour)
-        return turn + (collectorPost - turn) * back
+    }
+
+    /// Which way he faces now: outward from his post toward the last door (1 right, -1 left) until he turns, then home.
+    static func collectorHeading(_ day: TownDay, hour: Double, rules: TownRules) -> Int {
+        let out = collectorTurn(day) >= collectorPost ? 1 : -1
+        if case .back = collectorLeg(day, hour: hour, rules: rules) { return -out }
+        return out
     }
 
     /// His wage for a strongbox of `box`: one coin in eight (rounded), at least 2, never more than he brought.
@@ -384,28 +452,33 @@ enum Town {
         return min(box, max(rules.collectorWageLeast, share))
     }
 
-    /// One sim step of the collector's round: every household that still owes and whose door he has passed pays him
-    /// its part (twice on a "double taxes" day) into his strongbox; at noon he is back and the box goes into the purse,
-    /// less his wage. He never knocks. With the doors shut (unrest) nobody pays him: he comes back with what he has.
+    /// One sim step of the collector's round: each door of his round he reaches by now, in order, pays him its part
+    /// (twice on a "double taxes" day) into his strongbox if it still owes and its door is open, and he stops there; a
+    /// door the lord has been to first, or one shut, he passes. Once he is home the box goes into the purse, less his
+    /// wage. He never knocks. With the doors shut (unrest) nobody pays him: he comes back with what he has.
     static func stepCollector(_ s: inout GameState, balance: Balance) {
         guard var town = s.town, var day = town.today, day.collectorOut == true, day.collectorBack != true,
               !day.closed else { return }
         let rules = balance.town
-        if doorsOpen(s, balance: balance) {
-            let reached = collectorReached(day, hour: s.hour, rules: rules)
-            let low = min(collectorPost, reached) - 1e-6
-            let high = max(collectorPost, reached) + 1e-6
-            for index in day.places.indices where day.places[index].owes {
-                let door = doorX(plot: day.places[index].plot)
-                guard door >= low && door <= high else { continue }
+        let open = doorsOpen(s, balance: balance)
+        let doors = collectorRound(day)
+        let start = day.collectorReached ?? 0
+        var reached = start
+        // A payment adds a stop and so moves every later arrival: the schedule is worked out again at every door.
+        while reached < doors.count, collectorSchedule(day, rules: rules).arrivals[reached] <= s.hour + 1e-9 {
+            if open, let index = day.index(of: doors[reached].plot), day.places[index].owes {
                 day.places[index].collected = true
                 day.places[index].collectorGold = day.places[index].owed * (day.doubled ? 2 : 1)
                 day.places[index].tossedAt = s.simTime
             }
+            reached += 1
+        }
+        if reached != start {
+            day.collectorReached = reached
             town.today = day
             s.town = town
         }
-        if s.hour >= rules.collectorBackHour { bringCollectorBack(&s, balance: balance) }
+        if s.hour >= collectorSchedule(day, rules: rules).home - 1e-9 { bringCollectorBack(&s, balance: balance) }
     }
 
     /// The collector is back at his post: his strongbox goes into the purse, less his wage. Nothing when he is not out
