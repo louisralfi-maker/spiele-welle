@@ -757,8 +757,9 @@ strings, T1 to T8, no new saved state).
    in his box after at most 0.86 s. Nothing in Core changed here. On screen: `Scene.collector.still` says he stands at
    a door (`Town.CollectorLeg.atDoor`), and the stand-in then shows the townsfolk's idle, not a frozen stride; a
    hand-set strongbox (`townStrongbox`, 6x5, one frame, open mouth, gold hasp) is drawn before him at
-   `TownShow.collectorBox` (dx 7, its lid at dy 9 where the coins land; `TownSprites.strongboxLift` 4) whenever the
-   stand-in is drawn. The bots never hire him, so T1 to T8 hold.
+   `TownShow.collectorBox` (then dx 7, its lid at dy 9 where the coins land; `TownSprites.strongboxLift` 4) whenever the
+   stand-in is drawn. **Since the pre-join (15.11.2026) `collectorBox` is (12, 16), the slot painted on the people
+   lane's handcart; the stand-in and its strongbox are deleted.** The bots never hire him, so T1 to T8 hold.
 4. **The first morning is met** (town-1's high). The chandler's household walks: `Town.firstMorningStand(at:)` from
    `firstMorningEnters` (hall x + 60, in the hall ahead of the lord at the throne; she came from her door before the
    first frame) west at `firstMorningPace` 14 px/s to `firstMorningX` (hall x − 10, the courtyard), about 5 s, and
@@ -788,7 +789,7 @@ strings, T1 to T8, no new saved state).
   knock's spots are `TownShow.knockStand`/`knockBackStand` from the door anchor (`Spot.doorX`).
 - **people-2's collector:** keep his stop at 1.5 s per door (`TownRules.collectorStop`, the people lane's figure
   stops the same) and his standing pose on `Scene.collector.still`; put his handcart's strongbox mouth at
-  `collectorBox` (dx 7 before him, dy 9); then set `TownFrames.drawsCollectorStandIn = false`, delete the stand-in
+  `collectorBox` (now (12, 16), the cart's painted slot; it was dx 7, dy 9); then set `TownFrames.drawsCollectorStandIn = false`, delete the stand-in
   block with its strongbox, and the `townStrongbox` sprite if his cart carries its own.
 - **The lord's palm:** a new lord body (the house lane's heir, the stage lane) keeps the palm of `kingKnock` frame 2
   at `TownShow.lordHand` (5, 12) and frame 3 a pixel down and back; the step back needs nothing but `stepTown`.

@@ -161,7 +161,8 @@ What follows is the first plan; where it differs, the lines above win.
   pace), there and back. His round (`Town.collectorRound`) is the town's doors, the houses and the stall, nearest his
   post first; **never a field: the farmers count their coins into the lord's hand only** (section 6), so a farmer still
   waits at his fence after the collector has passed, and the farmers are a reason to walk out even with a collector.
-  At each door that pays him he stops `collectorStop` 1.5 s (the hand-over, the coins into the box), standing
+  At each door that pays him he stops `collectorStop` 1.5 s (the hand-over, the coins into the box: they land at
+  `TownShow.collectorBox` (12, 16), the slot painted on the people lane's handcart, 12 px before him, 16 up), standing
   `collectorStandOff` 20 px short of the door on his way out, so his cart stands before the household and the coins
   cross a gap you can see; a door the lord has been to first, or one that is shut, he passes without a stop. A door he passed while it was shut does not pay him
   later (`TownDay.collectorReached`). The gold goes into the purse when he is home, less his wage (one coin in eight,
