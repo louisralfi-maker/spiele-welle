@@ -1,0 +1,10 @@
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (209.785 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (25.589 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (67.771 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testFogDriftAndItsFreeze]' passed (27.848 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepDusk]' passed (47.445 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepFog]' passed (33.131 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepNight]' passed (44.295 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepNoon]' passed (42.154 seconds).
+exit=0
+screenshots: 80
