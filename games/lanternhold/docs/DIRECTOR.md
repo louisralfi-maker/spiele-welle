@@ -710,3 +710,16 @@ schneller geht."
   - The title's frame 00d from this round has the new lord and clean corners; it went to Louis. The collector's bubble stands above the slip (59b).
   - The world lane: lh-w3f2-2 failed in unit (look 1's goldens with the clouds' second painting); head 8aabfe7, merged by the join (2eaa6cc); lh-w3f2-3 runs. Round A runs again as lh-rj-17 on 7dc77b1.
   - The stage's fix round 2: five commits (5d8a556 to a8e6c27) in seven minutes, gate lh-s3f2-1 sent at 16:58. I judge its frames before anything goes to Louis.
+
+- **The world's fix round 2 and round A are green; the stage's gate passed, but its agent had stopped early (15.11.2026, 17:39).**
+  - World: lh-w3f2-3 ALL PASSED on 8aabfe7 (head 823a0f6 adds docs). My own look: the buttress now reads as the
+    cliff's rock (w-1200-noon), the beacon as a broken tower with its bowl and no eyes on it (w-0400-night). Not a
+    blocker any more. Picture notes for after build 2: the beacon's stone is one flat grey with ruled courses (it needs
+    a lit and a shaded side); the buttress's shadow faces are near black at noon; `oldWall1` is pale and blocky.
+  - Join: round A (lh-rj-17) ALL PASSED, 13 tests; `w-2800-dusk` and `w-1400-night` sent to Louis. The join merged the
+    world's docs head (0a1be7d). lh-rj-18 (the person rule) still runs.
+  - Stage: the gate lh-s3f2-1 is ALL PASSED on a8e6c27, but the agent had ended its turn on "Waiting." while the
+    round ran, so nothing was pushed and no report was written. Resumed with a message: push first, then frames,
+    records and the report.
+  - **Lesson:** an agent that ends its turn while its round runs is finished; a background job does not wake it. Every
+    brief must say: wait in a foreground until-loop, and the report file is the end of the task.
