@@ -1,0 +1,18 @@
+Application, 0x103acf350, pid: 17012, label: 'Lanternhold' <App element pid: 17012>
+  Window (Main), 0x108b074e0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 17012, elementOrHash.elementID: 4323428048.4>
+    Other, 0x108b09d40, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 17012, elementOrHash.elementID: 4325483984.5>
+      Other, 0x108b0a150, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 17012, elementOrHash.elementID: 4325919920.6>
+        Other, 0x108b09bf0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 17012, elementOrHash.elementID: 4323413664.7>
+          Other, 0x108b07e50, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 17012, elementOrHash.elementID: 4323588976.8>
+            Other, 0x108b0a270, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 17012, elementOrHash.elementID: 4323587872.9>
+              Other, 0x108b0a390, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:430 ready da... <AX element pid: 17012, elementOrHash.elementID: 4324742352.10>
+              Other, 0x108b0a4b0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 17012, elementOrHash.elementID: 4323574864.11>
+              Other, 0x108b0a5d0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 17012, elementOrHash.elementID: 4323577008.12>
+              Other, 0x103767210, {{437.0, 2.0}, {0.0, 4.0}} <AX element pid: 17012, elementOrHash.elementID: 4324787104.22>
+              Other, 0x103781f30, {{415.0, 222.0}, {430.0, 140.0}} <AX element pid: 17012, elementOrHash.elementID: 4323586768.14>
+                Button, 0x103776140, {{415.0, 290.0}, {44.0, 60.0}}, identifier: 'touch-lord', label: 'Robin, day 1, 60 gold, the town is glad, 14 people' <AX element pid: 17012, elementOrHash.elementID: 4323579904.16>
+                Button, 0x10377ba20, {{495.0, 270.0}, {44.0, 92.0}}, identifier: 'touch-plot-5', label: 'Build: Trap', value: 15 gold <AX element pid: 17012, elementOrHash.elementID: 4323581248.17>
+                Button, 0x103767560, {{565.0, 270.0}, {44.0, 92.0}}, identifier: 'touch-plot-2', label: 'Build: Brazier', value: 12 gold <AX element pid: 17012, elementOrHash.elementID: 4323582352.18>
+                Button, 0x103778dc0, {{613.0, 270.0}, {44.0, 92.0}}, identifier: 'touch-plot-3', label: 'Build: Brazier', value: 12 gold <AX element pid: 17012, elementOrHash.elementID: 4323583456.19>
+                Button, 0x10377edf0, {{635.0, 270.0}, {44.0, 92.0}}, identifier: 'touch-plot-1', label: 'Build: Tower', value: 40 gold <AX element pid: 17012, elementOrHash.elementID: 4323584560.20>
+                Button, 0x103774f50, {{749.0, 222.0}, {96.0, 140.0}}, identifier: 'touch-plot-0', label: 'Upgrade: Wall', value: 90 gold <AX element pid: 17012, elementOrHash.elementID: 4323585664.21>

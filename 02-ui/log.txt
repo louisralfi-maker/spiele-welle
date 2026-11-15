@@ -1,0 +1,19 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (137.121 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (126.424 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (51.575 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (223.911 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (217.630 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (26.651 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (68.849 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (69.265 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (211.170 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (12.644 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (41.788 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (107.738 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:411: error: -[LanternholdUITests.TouchUITests testTouchTheWorld] : failed - the lord's hint did not show
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' failed (175.601 seconds).
+Test Suite 'TouchUITests' failed at 2026-11-15 11:50:47.608.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 11:50:47.609.
+Test Suite 'Selected tests' failed at 2026-11-15 11:50:47.610.
+exit=65
+screenshots: 123
