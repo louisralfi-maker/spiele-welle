@@ -405,7 +405,10 @@ final class TouchWorldTests: XCTestCase {
         let cart = CGPoint(x: framing.deviceX(stageX: CourtLayout.marekCartX + 14) / 3,
                            y: framing.deviceY(lift: 12) / 3)
         XCTAssertEqual(game.thingAt(cart, in: proPoints)?.kind, .recruit, "the cart stands in the barracks' area")
-        game.tap(at: cart, in: proPoints)
+        // Build 3: through the finger's own path (down, then lift), where the count could take the touch first.
+        game.touchChanged(start: cart, at: cart, translation: .zero, in: proPoints)
+        XCTAssertNil(game.touch.count, "no recruit's count starts on his cart while the offer is open")
+        game.touchEnded(at: cart, translation: .zero, in: proPoints)
         XCTAssertTrue(ads.merchantCardOpen, "the touch on the cart opens his card")
         XCTAssertEqual(game.touch.lastTap, "merchant")
         XCTAssertNil(game.touch.errand, "no walk to the barracks")
@@ -413,12 +416,19 @@ final class TouchWorldTests: XCTestCase {
         // No offer open (no video ready): the barracks' touch as before.
         stub.rewardedReady = false
         XCTAssertNil(ads.merchantOffer)
-        game.tap(at: cart, in: proPoints)
+        game.touchChanged(start: cart, at: cart, translation: .zero, in: proPoints)
+        game.touchEnded(at: cart, translation: .zero, in: proPoints)
         XCTAssertFalse(ads.merchantCardOpen)
         // Build 3: the cart stands before the archer's half; its board comes up and he sets off to it.
         XCTAssertEqual(game.touch.lastTap, "touch-recruit-archer")
         XCTAssertEqual(game.touch.count?.thing, "touch-recruit-archer", "the archer's board comes up")
         XCTAssertEqual(game.touch.errand?.id, "touch-recruit-archer", "he sets off to the barracks")
+        // His card, opened over the standing board, cuts the count off (it holds the world without an overlay).
+        stub.rewardedReady = true
+        ads.openMerchantCard()
+        XCTAssertTrue(ads.merchantCardOpen)
+        run(game, seconds: 0.1)
+        XCTAssertEqual(game.touch.count?.result, .cutOff, "a card cuts a count off")
     }
 
     /// Build 2 fix A's review: the background under Marek's card raises the lantern moment behind it; closing the card

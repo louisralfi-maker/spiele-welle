@@ -53,10 +53,14 @@ extension GameModel {
             pressCount(thing)
             return true
         }
+        // A town door is not bought: the lift knocks (`tap(at:)`, the taxes on foot), though the house's area covers it.
+        if stage != .hall, townDoor(at: point, in: size) != nil { return false }
         guard let thing = TouchRules.pick(x: place.x, lift: place.lift, things: touch.things,
                                           minimum: place.minimum) else { return false }
         // The lord's own body keeps its touch (the lantern), as `tap(at:)` decides it.
         if isOnLordsBody(place), prefersLord(over: thing, x: place.x) { return false }
+        // Marek's cart while his offer is open: the lift opens his gift card (`tap(at:)`), never a recruit's count.
+        if thing.kind == .recruit, isOnMarekCart(place), merchantOpen?() == true { return false }
         if touch.count?.isOpen == true, touch.count?.thing == thing.id {
             pressCount(thing)
             return true
@@ -91,10 +95,11 @@ extension GameModel {
     func countLift() {
         guard touch.countPress else { return }
         touch.countPress = false
-        guard var count = touch.count else { return }
-        count.lift(tap: !touch.countFirst)
-        touch.count = count
+        let first = touch.countFirst
         touch.countFirst = false
+        guard var count = touch.count else { return }
+        count.lift(tap: !first)
+        touch.count = count
         if !touch.countSent && count.isOpen { sendLordToCount() }
     }
 
@@ -192,8 +197,8 @@ extension GameModel {
         guard var count = touch.count, count.isOpen else { return }
         count.cut()
         touch.count = count
-        touch.countPress = false
-        touch.countFirst = false
+        // The finger still down keeps `countPress` (cleared only by its lift, a drag or `resetTouch`), so its lift
+        // does nothing more: never a tap that brings the board again.
         touch.countLast = "cutOff:\(count.thing)"
         if count.placed > 0 { feedback.play(.coinsBack) }
     }
@@ -205,7 +210,9 @@ extension GameModel {
     func stepCount(_ seconds: Double) {
         playCountCues()
         guard var count = touch.count else { return }
-        if count.isOpen && (stage != .world || stageChange != nil || overlay != nil) {
+        // Any card cuts it: the model's own, and those that hold the world without one (Marek's card, the consent
+        // form, a video on screen: `AdDirector.holdWorld`).
+        if count.isOpen && (stage != .world || stageChange != nil || overlay != nil || isPaused) {
             cutCount()
             count = touch.count ?? count
         }
@@ -223,7 +230,10 @@ extension GameModel {
             sendLordToCount()
             count = touch.count ?? count
         }
-        let gold = driver?.state.gold ?? 0
+        // The gold the player sees (taxes still in the air are not his yet); the seal pays from the treasury, which
+        // holds at least this much.
+        var gold = 0
+        if let game = driver { gold = townShownGold(game.state, balance: game.balance) }
         let beats = count.step(seconds, gold: gold)
         for beat in beats {
             switch beat {
@@ -242,6 +252,7 @@ extension GameModel {
                     // The treasury or the offer changed under the count: nothing paid, the coins go back.
                     count.unseal()
                     feedback.play(.refused)
+                    if count.placed > 0 { feedback.play(.coinsBack) }
                     touch.countLast = "refused:\(count.thing)"
                 }
             case .short:
@@ -255,10 +266,9 @@ extension GameModel {
             }
         }
         if count.isGone {
+            // A finger held past the board's life keeps `countPress`: its lift ends here and opens nothing.
             touch.count = nil
             touch.countBoard = nil
-            touch.countPress = false
-            touch.countFirst = false
             if touch.errand?.id == count.thing { cancelErrand() }
         } else {
             touch.count = count

@@ -230,6 +230,8 @@ extension GameModel {
         // Build 2 review, app-ui-3: Marek's cart stands before the barracks; while his offer is open a touch on it opens
         // his gift card, else it is the barracks' touch as before.
         if stage == .world, picked?.kind == .recruit, isOnMarekCart(place), merchantTouch?() == true {
+            // Build 3 (PAY.md 4): his card cuts a count off; it pays nothing.
+            cutCount()
             touch.lastTap = "merchant"
             return
         }
@@ -348,8 +350,12 @@ extension GameModel {
     /// VoiceOver or Switch Control activated a thing's element: the same as a tap on it.
     func touchSpot(_ id: String) {
         guard let thing = touch.things.first(where: { $0.id == id }) else { return }
-        // Build 3, the count (PAY.md section 2): VoiceOver's double tap pays in one step.
-        if countAtOnce(thing) { return }
+        // Build 3, the count (PAY.md section 2): VoiceOver's double tap pays in one step; a thing that is bought never
+        // falls through to `touchThing` (a refused one would decline twice).
+        if countOffer(thing) != nil {
+            countAtOnce(thing)
+            return
+        }
         touchThing(thing)
     }
 

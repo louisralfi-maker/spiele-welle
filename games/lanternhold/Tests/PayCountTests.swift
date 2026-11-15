@@ -407,6 +407,70 @@ final class PayCountTests: XCTestCase {
         }
     }
 
+    /// The review's must-fix 3: the finger owns its press, not the board. A hold that pays in full and stays down past
+    /// the board's life lifts into nothing: no build card, no errand, no new board.
+    func testAFingerHeldPastTheBoardOpensNothingWhenItLifts() throws {
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        let framing = try XCTUnwrap(game.touch.framing)
+        let p = CGPoint(x: framing.deviceX(stageX: gate.x) / 3, y: framing.deviceY(lift: 20) / 3)
+        guard game.thingAt(p, in: proPoints)?.id == gate.id else {
+            throw XCTSkip("someone stands before the gate")
+        }
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        run(game, seconds: 12) { game.touch.countLast.hasPrefix("paid") }
+        XCTAssertEqual(game.touch.countLast, "paid:\(gate.id)", "the hold paid it")
+        run(game, seconds: 3)
+        XCTAssertNil(game.touch.count, "the board went down under the finger")
+        game.touchEnded(at: p, translation: .zero, in: proPoints)
+        XCTAssertNil(game.overlay, "no card")
+        XCTAssertNil(game.touch.errand, "no errand")
+        XCTAssertNil(game.touch.count, "no new board")
+        run(game, seconds: 4)
+        XCTAssertNil(game.overlay, "and none later")
+        XCTAssertEqual(game.driver?.state.gold, 200 - Balance.standard.price(.ironGate), "paid once")
+    }
+
+    /// PAY.md 4: the horn cuts a count off, it pays nothing (the review's should-fix: the horn was untested).
+    func testTheHornCutsACountOff() throws {
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "18.95", "GWCameraX": "1240",
+                          "GWGold": "200"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        var count = try XCTUnwrap(game.touch.count, "the board comes up before the horn")
+        count.press()
+        game.touch.count = count
+        run(game, seconds: 3) { (game.driver?.state.hour ?? 0) >= 19 }
+        XCTAssertGreaterThanOrEqual(game.driver?.state.hour ?? 0, 19, "the horn sounded")
+        XCTAssertEqual(game.touch.count?.result, .cutOff, "the horn cut the count off")
+        XCTAssertEqual(game.touch.countLast, "cutOff:\(gate.id)")
+        run(game, seconds: 3)
+        XCTAssertEqual(game.driver?.state.gold, 200, "and it paid nothing")
+        XCTAssertNil(game.driver?.state.plots[0].job, "no work ordered")
+    }
+
+    /// The review's must-fix 1: by day a touch on a town door knocks (the taxes on foot), though the house's area,
+    /// which a count could buy, covers the door.
+    func testATouchOnATownDoorKnocksAndBringsNoBoard() throws {
+        let game = model(["GWStage": "world", "GWDay": "2", "GWTown": "owed", "GWClock": "14", "GWHappiness": "66",
+                          "GWCameraX": "2400"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        game.refreshTownMarks()
+        let doors = game.townMarks.map { CGPoint(x: $0.x * proPoints.width, y: $0.y * proPoints.height) }
+            .filter { game.townDoor(at: $0, in: proPoints) != nil }
+            .filter { point in game.stagePoint(point, in: proPoints).map { !game.isOnLordsBody($0) } ?? false }
+        XCTAssertFalse(doors.isEmpty, "doors on screen, the lord on none")
+        // The door inside a house's touch area if there is one (the case the count took), else any door.
+        let door = try XCTUnwrap(doors.first { game.thingAt($0, in: proPoints) != nil } ?? doors.first)
+        game.touchChanged(start: door, at: door, translation: .zero, in: proPoints)
+        XCTAssertNil(game.touch.count, "no board for a door")
+        game.touchEnded(at: door, translation: .zero, in: proPoints)
+        XCTAssertEqual(game.touch.lastTap, "door", "the lift knocks")
+        XCTAssertNotNil(game.townRun.walk, "he walks to the door")
+        XCTAssertNil(game.touch.count)
+    }
+
     func testTheRepairIsPaidByItsCount() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWNight": "1", "GWHour": "22", "GWGold": "50",
                           "GWCameraX": "1280"])

@@ -125,7 +125,7 @@ extension GameModel {
         let visible = overlay == nil && stageChange == nil && lanternMoment == nil && game.bot == nil && !isShowcase
         // Build 3, the count: the coins on the board are shown as gone from the purse (HUD.md 3: the gold runs down coin
         // by coin), though nothing leaves the treasury before the seal.
-        purse.update(gold: townShownGold(state, balance: game.balance) - countHeld, now: clock.elapsed,
+        purse.update(gold: max(0, townShownGold(state, balance: game.balance) - countHeld), now: clock.elapsed,
                      visible: visible)
         notes.update(happiness: state.happiness, people: state.citizens, clock: clock.elapsed, visible: visible)
         // Fix round 2 (the critic's high 5): the call's strip waits while the first minute's hint slip stands.
