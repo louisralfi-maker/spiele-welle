@@ -626,6 +626,25 @@ def coins():
     return fade(normalize(lowpass(x, 5500)), 0.001, 0.08)
 
 
+def coins_back():
+    """The count let go (PAY.md section 1.4): the coins slide off the tally board back into the purse. A soft rustle of
+    leather swelling and falling over a third of a second, and under it three muted clinks, low and close together, as
+    coins settle against each other inside the pouch. Quiet and short: nothing was lost."""
+    rng = Rng(141)
+    x = zeros(secs(0.45))
+    n = secs(0.36)
+    rustle = biquad([rng.bipolar() for _ in range(n)], "bp", 1900, 0.9)
+    env = [math.sin(math.pi * min(1.0, i / n)) ** 1.6 * (0.75 + 0.25 * math.sin(i / SR * TWO_PI * 23))
+           for i in range(n)]
+    add_into(x, [a * b for a, b in zip(rustle, env)], 0, 0.8)
+    add_into(x, lowpass([rng.bipolar() * math.exp(-i / (0.05 * SR)) for i in range(secs(0.15))], 380), secs(0.2), 0.9)
+    t = 0.14
+    for k in range(3):
+        add_into(x, lowpass(coin_clink(rng, rng.uniform(1100, 1350), 0.42 - 0.08 * k), 2600), secs(t))
+        t += rng.uniform(0.045, 0.07)
+    return fade(normalize(lowpass(x, 4800), 0.6), 0.004, 0.08)
+
+
 def hammer_tap(rng, g=1.0):
     n = secs(0.16)
     body = grain(n, rng.uniform(200, 225), 0.035)
@@ -984,6 +1003,8 @@ SOUNDS = [
     ("creature_hit", creature_hit), ("dissolve", dissolve), ("wall_hit", wall_hit), ("wall_break", wall_break),
     ("gate", gate), ("step_1", step_1), ("step_2", step_2), ("parchment", parchment), ("tap", tap),
     ("seal", seal), ("decline", decline), ("engine", engine),
+    # build 3, the count (PAY.md): the coins sliding back into the purse
+    ("coins_back", coins_back),
     ("door_creak", door_creak), ("door_latch", door_latch),
     ("amb_throat", amb_throat), ("amb_bailey", amb_bailey), ("amb_valley", amb_valley), ("amb_river", amb_river),
 ]
@@ -1064,7 +1085,9 @@ def main(argv):
         manifest[name] = (str(size), digest)
         print(f"{name:14s} {len(x) / SR:5.2f} s {size / 1024:7.1f} KB  {time.time() - began:5.1f} s", flush=True)
         time.sleep(1)
+    # Lines another tool wrote (taxsound.py's knock) stay, after this script's own.
     names = [n for n, _ in SOUNDS if n in manifest]
+    names += [n for n in manifest if n not in names]
     with open(path, "w") as f:
         for n in names:
             f.write(f"{n} {manifest[n][0]} {manifest[n][1]}\n")

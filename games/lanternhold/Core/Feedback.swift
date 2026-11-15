@@ -25,6 +25,9 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     case touched
     // Raise the lantern (stage lane, step stage-2): he lifts the house's lantern over his head
     case lanternRaised
+    // The count (build 3, PAY.md): a coin lands on the tally board (its clink rises and its tick grows through the
+    // count: `FeedbackHub.countCoin`), the seal falls, the site lantern is lit, the coins slide back into the purse
+    case countCoin, countSeal, countLantern, coinsBack
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").

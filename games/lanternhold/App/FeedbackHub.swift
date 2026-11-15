@@ -9,6 +9,10 @@ protocol FeedbackHub: AnyObject {
     var soundOn: Bool { get set }
     var hapticsOn: Bool { get set }
     func play(_ cue: FeedbackCue)
+    /// One coin of the count (build 3, PAY.md section 2): the clink at playback rate `rate` (each coin a little higher,
+    /// at most an octave in all) and a tick of `strength` (0 ... 1, growing through the count). Never throttled away:
+    /// every coin is heard on its own.
+    func countCoin(rate: Double, strength: Double)
     /// The ambience's target mix for this frame (the hub crossfades toward it).
     func ambience(_ mix: AmbienceMix)
 }
@@ -22,6 +26,8 @@ final class SilentFeedback: FeedbackHub {
     private(set) var last: FeedbackCue?
     private(set) var played: [FeedbackCue] = []
     private(set) var lastMix: AmbienceMix?
+    /// The count's coins: the rate and strength each was played at.
+    private(set) var coins: [(rate: Double, strength: Double)] = []
 
     init() {}
 
@@ -29,6 +35,11 @@ final class SilentFeedback: FeedbackHub {
         count += 1
         last = cue
         if played.count < 512 { played.append(cue) }
+    }
+
+    func countCoin(rate: Double, strength: Double) {
+        play(.countCoin)
+        if coins.count < 512 { coins.append((rate: rate, strength: strength)) }
     }
 
     func ambience(_ mix: AmbienceMix) {

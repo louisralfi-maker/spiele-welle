@@ -82,6 +82,20 @@ final class SoundDirector: FeedbackHub {
         player.play()
     }
 
+    func countCoin(rate: Double, strength: Double) {
+        // Every coin on its own (the count's gaps fall to 0.05 s, under the coin's own throttle): no throttle, no
+        // jitter (each coin must sound a little higher than the last), and the oldest voice cut for a new one.
+        if hapticsOn {
+            softImpact.impactOccurred(intensity: CGFloat(max(0.2, min(1, strength))))
+        }
+        guard soundOn, let sound = FeedbackCue.countCoin.sound, let player = voice(sound.id) else { return }
+        player.volume = Float(max(0, min(1, sound.volume)))
+        player.rate = Float(max(0.5, min(2, sound.rate * rate)))
+        player.currentTime = 0
+        activateSession()
+        player.play()
+    }
+
     func ambience(_ mix: AmbienceMix) {
         let now = CACurrentMediaTime()
         let dt = min(0.25, max(0, now - (lastAmbience ?? now)))

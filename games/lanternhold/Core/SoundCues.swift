@@ -15,6 +15,8 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     case knock
     // The hall stage (stage lane, 14.11.2026): the hall's door opening on its iron hinges, and its latch falling
     case doorCreak = "door_creak", doorLatch = "door_latch"
+    // The count (build 3, PAY.md; tools/soundsynth.py): the coins sliding back into the purse, a soft rustle
+    case coinsBack = "coins_back"
 
     static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall,
                                    .ambThroat, .ambBailey, .ambValley, .ambRiver]
@@ -36,6 +38,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .step1, .step2: return 0.12
         case .bow, .arrowHit: return 0.1
         case .coin, .coins, .seal, .decline, .knock: return 0.08
+        case .coinsBack: return 0.2
         case .tap: return 0.06
         case .ambDay, .ambNight, .ambRain, .ambFire, .ambHall: return 0
         case .ambThroat, .ambBailey, .ambValley, .ambRiver: return 0
@@ -122,6 +125,12 @@ extension FeedbackCue {
         case .doorShut: return SoundPlay(id: .doorLatch, volume: 0.75)
         case .touched: return SoundPlay(id: .tap, volume: 0.22, rate: 1.25)
         case .lanternRaised: return SoundPlay(id: .lantern, volume: 0.8, rate: 1.3)
+        // The count: a coin as the plain clink (the hub's `countCoin` gives it its rising pitch); the seal deep and
+        // full; the site lantern catching; the coins going back, soft.
+        case .countCoin: return SoundPlay(id: .coin, volume: 0.6)
+        case .countSeal: return SoundPlay(id: .seal, volume: 0.85, rate: 0.82)
+        case .countLantern: return SoundPlay(id: .lantern, volume: 0.7, rate: 1.1)
+        case .coinsBack: return SoundPlay(id: .coinsBack, volume: 0.55)
         }
     }
 
@@ -136,6 +145,9 @@ extension FeedbackCue {
         case .doorShut: return .soft
         case .touched: return .light
         case .lanternRaised: return .medium
+        // The count (PAY.md section 2): a light tick per coin (`countCoin` grows it), one heavy beat at the seal.
+        case .countCoin: return .soft
+        case .countSeal: return .heavy
         case .taxesCounted: return .success
         case .defeat: return .error
         case .knock: return .rigid
