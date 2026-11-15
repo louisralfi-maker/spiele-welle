@@ -385,12 +385,6 @@ CLAWS = [  # (start, angle in degrees, length, root thickness): long, distinct, 
     ((132, 112), -6, 46, 4),
     ((124, 28), 18, 50, 4),
     ((130, 140), 6, 40, 3)]
-EYES = [  # (x, y, size 1..4): the two largest near the front, many small deep in
-    (112, 80, 4), (104, 124, 4), (90, 100, 3), (70, 60, 2), (60, 140, 2), (30, 30, 1), (48, 84, 1), (20, 104, 1),
-    (78, 22, 1), (36, 160, 1), (14, 130, 1), (84, 152, 2), (54, 112, 1), (24, 66, 1)]
-HEADS = [(112, 80), (104, 124)]
-
-
 def dark_front(y):
     f = 124 + 7 * math.sin(y / 13.0) + 4 * math.sin(y / 5.3 + 1.0)
     if y < 26:
@@ -429,10 +423,15 @@ def dark_mask():
     return m
 
 
-HORN = [(30, 58), (34, 52), (38, 47), (43, 43), (49, 40), (55, 39), (60, 40), (63, 42), (60, 41), (55, 41),
-        (50, 43), (45, 47), (41, 52), (38, 58), (35, 63)]
-HAND = [(118, 98), (124, 96), (128, 92), (130, 88), (132, 90), (130, 95), (134, 92), (137, 90), (138, 92),
-        (134, 97), (139, 96), (141, 95), (141, 98), (136, 101), (140, 102), (138, 105), (130, 106), (120, 108)]
+# the hand that reaches out of the dark onto the lit cliff: a solid silhouette with four claws (round 5)
+PALM = [(122, 94), (136, 92), (142, 96), (142, 104), (136, 108), (122, 110)]
+FINGERS = [((140, 93), (151, 87)), ((142, 97), (153, 95)), ((142, 101), (152, 104)), ((139, 106), (147, 112))]
+EYE_PAIRS = [  # (x, y, w, h, gap, right eye dy, right eye h, colour): no two alike, no outline, no halo
+    (112, 80, 3, 2, 4, 0, 2, "wraithWhite"), (102, 124, 2, 2, 5, -1, 1, "wraithWhite"),
+    (90, 100, 2, 1, 3, 0, 1, "wraithGlow"), (70, 60, 1, 1, 3, 1, 1, "wraithGlow"), (60, 140, 2, 1, 2, 0, 1, "wraithGlow"),
+    (84, 152, 1, 2, 3, 0, 2, "wraithGlow"), (30, 30, 1, 1, 2, 0, 1, "wraithDim"), (48, 84, 1, 1, 3, -1, 1, "wraithDim"),
+    (20, 104, 1, 1, 2, 0, 1, "wraithDim"), (78, 22, 2, 1, 4, 0, 1, "wraithDim"), (36, 160, 1, 1, 3, 0, 1, "wraithDim"),
+    (14, 130, 1, 1, 4, 1, 1, "wraithDim"), (54, 112, 1, 1, 2, 1, 1, "wraithDim"), (24, 66, 2, 1, 2, 0, 1, "wraithDim")]
 
 
 def draw_dark(L, m, ground=False):
@@ -443,36 +442,22 @@ def draw_dark(L, m, ground=False):
             L.px(x, y, "night0")      # one near black; the violet lives in the forms and the heads
     if ground:
         return
-    # the horn and the hand: shapes read at phone size, violet on black
-    for poly, fill in ((HORN, "night1"), (HAND, "night1")):
-        pm = poly_mask(poly) & m
-        L.mask(pm, fill)
-        edge = pm & ~(np.roll(pm, 1, 0) & np.roll(pm, -1, 0) & np.roll(pm, 1, 1) & np.roll(pm, -1, 1))
-        ys, xs = np.where(edge)
-        for y, x in zip(ys, xs):
-            if y < 60 or x > 120 or (x + y) % 3:
-                L.px(x, y, "violetDim")
-    # heads: a faint violet outline round the two largest pairs of eyes
-    for (hx, hy) in HEADS:
-        for a in range(0, 360, 6):
-            r = math.radians(a)
-            x = int(round(hx + 4 + 9 * math.cos(r)))
-            y = int(round(hy + 1 + 7 * math.sin(r)))
-            if 0 <= x < W and 0 <= y < H and m[y, x] and a % 48 < 36:
-                L.px(x, y, "violetDim")
-    for (x, y, sz) in EYES:
-        if not m[y, x]:
-            continue
-        col = ("wraithDim", "wraithGlow", "wraithWhite", "wraithWhite")[sz - 1]
-        w_ = (1, 1, 2, 3)[sz - 1]
-        gap = (2, 3, 3, 4)[sz - 1]
-        for ex in (x, x + w_ + gap):
+    # the hand: solid, in the dark's own black, its claws on the lit cliff face
+    L.mask(poly_mask(PALM), "night0")
+    for (ax, ay), (bx, by) in FINGERS:
+        n = int(max(abs(bx - ax), abs(by - ay)))
+        for k in range(n + 1):
+            t = k / float(n)
+            x, y = int(round(ax + (bx - ax) * t)), int(round(ay + (by - ay) * t))
+            L.px(x, y, "night0")
+            if t < 0.55:
+                L.px(x, y + 1, "night0")      # thick at the knuckle, one px at the claw
+    for (x, y, w_, h_, gap, dyr, hr, col) in EYE_PAIRS:
+        for (ex, ey, eh) in ((x, y, h_), (x + w_ + gap, y + dyr, hr)):
             for dx in range(w_):
-                L.px(ex + dx, y, col)
-                if sz == 4:
-                    L.px(ex + dx, y + 1, "wraithGlow")
-            if sz >= 3:
-                L.px(ex - 1, y, "wraithDim"); L.px(ex + w_, y, "wraithDim")
+                for dy in range(eh):
+                    if m[ey + dy, ex + dx]:
+                        L.px(ex + dx, ey + dy, col if dy == 0 or col != "wraithWhite" else "wraithGlow")
 
 
 # ----------------------------------------------------------------------------- layer 4: the wall, the keep, the town
@@ -1266,7 +1251,7 @@ def gear(big):
     return over(big, g, big.width - g.width - 54, 42)
 
 
-def write_proofs(proofdir=PROOF, sfx="-r4", which="title"):
+def write_proofs(proofdir=PROOF, sfx="-r5", which="title"):
     os.makedirs(proofdir, exist_ok=True)
     layers, sprites, unlit, litl, boxes = build_all()
     if which in ("loading", "all"):
