@@ -1,0 +1,9 @@
+Test Case '-[LanternholdUITests.WorldSweepUITests testCastleSetPieces]' passed (62.719 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testCastleTiers]' passed (76.988 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testFogDriftAndItsFreeze]' passed (35.151 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepDusk]' passed (78.742 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepFog]' passed (33.960 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepNight]' passed (66.149 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepNoon]' passed (69.550 seconds).
+exit=0
+screenshots: 107
