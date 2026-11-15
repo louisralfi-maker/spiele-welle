@@ -523,6 +523,24 @@
         }
       }
     },
+    "slides.ending2.1.slain" : {
+      "comment" : "The Shuttered Lantern when the King was slain on night 20 (a middling town, or Seren handed over), slide 1 of 3: the iron crown on the stone, Aldric alive under the mantle; the town watches from behind its shutters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die eiserne Krone rollte über den Stein, und Aldric atmete.\nTallowford sah hinter geschlossenen Läden zu."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The iron crown rolled across the stone, and Aldric breathed.\nTallowford watched from behind its shutters."
+          }
+        }
+      }
+    },
     "slides.ending2.3" : {
       "comment" : "The Shuttered Lantern, slide 3 of 3: Bram washes the herald's banner; under the soot the old arms in gold thread, the house's lantern under half a sun.",
       "extractionState" : "manual",
