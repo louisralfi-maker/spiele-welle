@@ -42,8 +42,8 @@ final class TownUITests: XCTestCase {
             XCTAssertTrue(owing.contains(plot), "house \(plot) owes (\(statusText(status)))")
         }
         attach(XCUIScreen.main.screenshot(), "50-tax-waiting-\(language)")
-        let gold = element(app, "hud-gold")
-        let before = Int((gold.value as? String) ?? "") ?? -1
+        // The join: no HUD on the walked world since stage-3; the treasury is the scene's `gold:`.
+        let before = sceneGold(app)
 
         // A touch on the chandler's door: the lord walks up and the household tosses its coins.
         let door = element(app, "town-door-\(chandler)")
@@ -55,13 +55,12 @@ final class TownUITests: XCTestCase {
         attach(XCUIScreen.main.screenshot(), "51-toss-\(language)")
         note("51-toss", statusText(status))
         pause(2)
-        let after = Int((gold.value as? String) ?? "") ?? -1
+        let after = sceneGold(app)
         XCTAssertGreaterThanOrEqual(after - before, 3, "the chandler's coins reached the purse as they landed")
         XCTAssertTrue(statusText(status).hasSuffix("held:0"), "every coin landed (\(statusText(status)))")
 
         // Through the town: every door that owes pays as the lord passes.
-        let strip = element(app, "realm-strip")
-        tapStrip(strip, worldX: 3580)
+        tapRealmStrip(app, worldX: 3580)
         let started = Date()
         while Date().timeIntervalSince(started) < 30 && !list(status, "owing:").isEmpty {
             pause(0.4)
@@ -70,7 +69,7 @@ final class TownUITests: XCTestCase {
         note("town-paid", statusText(status))
 
         // The knock at the cooper's: walk back, touch the door.
-        tapStrip(strip, worldX: 2880)
+        tapRealmStrip(app, worldX: 2880)
         XCTAssertTrue(waitForKing(app, near: 2880, within: 14, timeout: 20), "back before the cooper's")
         pause(0.4)
         let cooperDoor = element(app, "town-door-\(cooper)")
@@ -90,7 +89,7 @@ final class TownUITests: XCTestCase {
 
         // The night: the cooper's window stays dark behind its shutters. The lord steps away to the well, so his own
         // lantern does not light the house.
-        tapStrip(strip, worldX: 3060)
+        tapRealmStrip(app, worldX: 3060)
         XCTAssertTrue(waitForKing(app, near: 3060, within: 14, timeout: 20), "at the well")
         let scene = element(app, "world-scene")
         let night = Date()
@@ -113,20 +112,18 @@ final class TownUITests: XCTestCase {
         let status = element(app, "town-status")
         XCTAssertTrue(status.waitForExistence(timeout: 10))
         XCTAssertTrue(list(status, "owing:").contains(chandler), "her coins wait (\(statusText(status)))")
-        let gold = element(app, "hud-gold")
-        XCTAssertEqual(gold.value as? String, "44")
+        XCTAssertEqual(sceneGold(app), 44, "the first household still holds 16 of the 60")
         // Fix round 2: the first frame finds her crossing the hall ahead of the lord, to her place in the courtyard.
         attach(XCUIScreen.main.screenshot(), "54a-first-morning-crossing-\(language)")
         pause(6)
         XCTAssertTrue(list(status, "owing:").contains(chandler), "she waits in the courtyard (\(statusText(status)))")
         // The lord steps out of the hall toward the gate and stops beside her: she tosses, he holds out his palm.
-        let strip = element(app, "realm-strip")
-        tapStrip(strip, worldX: 1712)
+        tapRealmStrip(app, worldX: 1712)
         XCTAssertTrue(waitFor(status, "paid:", contains: chandler, timeout: 20), "the toss (\(statusText(status)))")
         pause(0.55)
         attach(XCUIScreen.main.screenshot(), "54-first-morning-\(language)")
         note("54-first-morning", statusText(status))
-        XCTAssertTrue(waitForValue(gold, "60", timeout: 6), "the first 16 coins (\(String(describing: gold.value)))")
+        XCTAssertTrue(waitForSceneGold(app, 60, timeout: 6), "the first 16 coins (\(sceneGold(app)))")
         app.terminate()
     }
 
@@ -148,12 +145,11 @@ final class TownUITests: XCTestCase {
         XCTAssertTrue(owing.contains(market) && owing.contains(field) && owing.contains(cooper),
                       "the stall, the field and the big house owe (\(statusText(status)))")
         attach(XCUIScreen.main.screenshot(), "56-grown-waiting-\(language)")
-        let strip = element(app, "realm-strip")
-        tapStrip(strip, worldX: 3222)
+        tapRealmStrip(app, worldX: 3222)
         XCTAssertTrue(waitFor(status, "paid:", contains: market, timeout: 15), "the stall (\(statusText(status)))")
         pause(0.3)
         attach(XCUIScreen.main.screenshot(), "57-stall-toss-\(language)")
-        tapStrip(strip, worldX: 2703)
+        tapRealmStrip(app, worldX: 2703)
         XCTAssertTrue(waitFor(status, "paid:", contains: field, timeout: 20), "the field (\(statusText(status)))")
         pause(0.45)
         attach(XCUIScreen.main.screenshot(), "58-farmer-count-\(language)")

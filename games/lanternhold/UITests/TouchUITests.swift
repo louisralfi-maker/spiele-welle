@@ -53,7 +53,8 @@ final class TouchUITests: XCTestCase {
             XCTAssertTrue(openLantern(first), "a touch on the lord raises the lantern")
             pause(0.4)
             attach(XCUIScreen.main.screenshot(), "160-lantern-moment-\(language)")
-            XCTAssertEqual(element(first, "hud-gold").value as? String, "60")
+            // The join: the first household still holds 16 of the 60 (town-1, the taxes on foot).
+            XCTAssertEqual(element(first, "hud-gold").value as? String, "44")
             XCTAssertTrue(element(first, "hud-happiness").exists)
             XCTAssertTrue(element(first, "hud-people").exists)
             let hour = sceneField(first, "hour:")

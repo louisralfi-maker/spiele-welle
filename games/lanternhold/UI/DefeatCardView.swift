@@ -356,6 +356,25 @@ struct PauseSheetView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("pause-restart")
+                    // The join (item 10): Google's privacy choices, where they are required, as quiet words too.
+                    if AdDirector.shared.privacyOptionsRequired {
+                        Button {
+                            Task { await AdDirector.shared.presentPrivacyOptions() }
+                        } label: {
+                            Label {
+                                Text("Privacy choices", tableName: "Ads", comment: "Settings: Google's privacy options form.")
+                            } icon: {
+                                Image(systemName: "hand.raised")
+                            }
+                            .font(Theme.italic(.subheadline))
+                            .foregroundStyle(NightGlass.mist)
+                            .padding(.horizontal, 4)
+                            .frame(minWidth: 44, minHeight: 44, alignment: .leading)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("settings-privacy")
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 4)

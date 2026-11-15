@@ -50,10 +50,9 @@ final class AdsUITests: XCTestCase {
         attach(XCUIScreen.main.screenshot(), "ads-02-double-done-\(language)")
         element(app, "report-continue").tap()
         XCTAssertTrue(waitForGone(element(app, "report-root"), timeout: 6), "Continue starts the day")
-        let gold = element(app, "hud-gold")
-        XCTAssertTrue(gold.waitForExistence(timeout: 6))
-        XCTAssertTrue(waitForValue(gold, "\(after)", timeout: 4),
-                      "the HUD has the treasury the report showed (\(gold.value as? String ?? "?") for \(after))")
+        // The join: no HUD on the walked world since stage-3; the treasury is the scene's `gold:`.
+        XCTAssertTrue(waitForSceneGold(app, after, timeout: 6),
+                      "the realm has the treasury the report showed (\(sceneGold(app)) for \(after))")
         XCTAssertTrue(log(app).contains("interstitial:0"), "never right after a rewarded video: \(log(app))")
         XCTAssertTrue(log(app).contains("verdict:afterRewarded"), log(app))
         app.terminate()
@@ -104,8 +103,7 @@ final class AdsUITests: XCTestCase {
         checkTarget(element(app, "merchant-close"), "close")
         let amount = reward(gift.label)
         XCTAssertGreaterThanOrEqual(amount, 15, "the button names the gift, at least 15 gold (\(gift.label))")
-        let gold = element(app, "hud-gold")
-        let before = Int((gold.value as? String) ?? "") ?? -1
+        let before = sceneGold(app)
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "ads-05-merchant-\(language)")
         gift.tap()
@@ -113,8 +111,8 @@ final class AdsUITests: XCTestCase {
         pause(0.4)
         attach(XCUIScreen.main.screenshot(), "ads-06-merchant-after-\(language)")
         XCTAssertTrue(waitForGone(card, timeout: 6), "the card closes")
-        XCTAssertTrue(waitForValue(gold, "\(before + amount)", timeout: 4),
-                      "the gift lands (\(gold.value as? String ?? "?"), was \(before), gift \(amount))")
+        XCTAssertTrue(waitForSceneGold(app, before + amount, timeout: 4),
+                      "the gift lands (\(sceneGold(app)), was \(before), gift \(amount))")
         XCTAssertTrue(log(app).contains("rewarded:1"), log(app))
         app.terminate()
     }

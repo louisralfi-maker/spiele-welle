@@ -41,6 +41,21 @@ extension XCTestCase {
         let text = (scene.value as? String) ?? ""
         return text.split(separator: " ").first { $0.hasPrefix(key) }.map { String($0.dropFirst(key.count)) }
     }
+
+    /// The join: the treasury from the scene's value (`gold:`), since no HUD stands on the walked world (stage-3).
+    func sceneGold(_ app: XCUIApplication) -> Int {
+        sceneField(app, "gold:").flatMap { Int($0) } ?? -1
+    }
+
+    /// Waits until the scene's treasury reads `gold`.
+    func waitForSceneGold(_ app: XCUIApplication, _ gold: Int, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            if sceneGold(app) == gold { return true }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        return false
+    }
 }
 
 @MainActor
