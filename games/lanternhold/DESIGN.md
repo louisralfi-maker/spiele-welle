@@ -3955,6 +3955,19 @@ passes start from fix round 2's painting, no new sources); tests: `WorldThreeFix
 - **Open:** high 2 (the creatures in the bank), high 4 (the far lantern), high 5 (the lone squares), high 7 (the fog
   at the Throat); a pale mossy stump behind the lord in `w-1200-noon` is not `oldWall1` (still to find); the beacon at
   night is dark and its dish reads as a flat dark disc at phone size.
+
+#### Step world-3, fix round 4 (the director's two items after fix round 3; 15.11.2026)
+
+- **The beacon at phone size.** `beaconTower`'s bowl is a deep beacon bowl (`tools/w3f3art.py` `deep_bowl`): its side
+  wall a third of its width tall, the rim ellipse open toward the viewer, dark inside with the grey ash, the moon side
+  of rim and wall cool grey, on two iron struts with sky between it and the masonry; the top course is broken (uneven
+  blocks, one missing); the moonlit right face (`beaconTowerRim`) a value step brighter. `greatBeacon` (noon, dusk)
+  is untouched.
+- **The creatures deep in the bank.** The director's decision: deep in the bank an unlit creature shows no body and
+  no red line, only the bank's ember eyes; over the last 16 px behind the edge its body comes in whole
+  (`CreatureLook.bodyShare`, `bankGlowShare` 0, `GloomFog.bodyFloor` 0). The creatures outside the bank and the lit
+  ones are drawn as before. Tests: `WorldThreeFix3Tests.testDeepInTheBankOnlyTheEyesShow`, `GloomFogTests`.
+- **Round** lh-w3f4-1 on 7d5e0a47 ALL PASSED (world-3's gate, English only). Look 1's goldens did not move.
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
