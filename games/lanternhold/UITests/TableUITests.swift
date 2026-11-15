@@ -90,6 +90,11 @@ final class TableUITests: XCTestCase {
         // Back, and the next morning: the debug argument plays the day and the night and opens the table again.
         let back = element(app, "table-back")
         checkTarget(back, "Back")
+        let screen = app.windows.firstMatch.frame
+        note("table-safe", "screen \(screen) back \(back.frame) column \(element(app, "table-column").frame)")
+        XCTAssertLessThanOrEqual(back.frame.maxX, screen.maxX - 40, "Back stays inside the safe area")
+        XCTAssertLessThanOrEqual(element(app, "table-column").frame.maxX, screen.maxX - 40,
+                                 "the column stays inside the safe area")
         back.tap()
         let report = element(app, "table-report")
         XCTAssertTrue(report.waitForExistence(timeout: 90), "Pip's report waits at dawn 3")

@@ -38,6 +38,8 @@ struct TableScreen: View {
     /// end only when it does not (the critic of quests-3).
     @State private var openHeight: CGFloat = 0
     @State private var viewport: CGFloat = 0
+    /// The slip whose lantern just left: the column brings it (and its Call back) into view.
+    @State private var justSent: String?
     @Environment(\.displayScale) private var displayScale
 
     init(model: GameModel, close: @escaping () -> Void) {
@@ -79,6 +81,9 @@ struct TableScreen: View {
                     .position(x: layout.columnX + layout.column / 2, y: layout.columnTop + layout.columnHeight / 2)
             }
             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
+            // The layout works in the whole screen's coordinates: without this the reader would still place its
+            // content at the safe area's corner (round lh-q3f1-1 showed everything 62 pt to the right).
+            .ignoresSafeArea()
         }
         .ignoresSafeArea()
         .accessibilityElement(children: .contain)
@@ -481,6 +486,15 @@ struct TableScreen: View {
                         Task { @MainActor in reveal(reader) }
                     }
                     .onChange(of: openHeight) { _, _ in reveal(reader) }
+                    .onChange(of: justSent) { _, sent in
+                        guard let sent else { return }
+                        Task { @MainActor in
+                            withAnimation(still ? nil : .easeOut(duration: 0.25)) {
+                                reader.scrollTo("sent-\(sent)", anchor: .top)
+                            }
+                            justSent = nil
+                        }
+                    }
                 }
             }
             .background(ParchmentBackground())
@@ -680,6 +694,9 @@ struct TableScreen: View {
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(SlipBackground())
+        .background(alignment: .top) {
+            Color.clear.frame(height: 1).alignmentGuide(.top) { d in d[.top] + 6 }.id("sent-\(sending.errand)")
+        }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("table-sent-\(sending.errand)")
     }
@@ -689,6 +706,7 @@ struct TableScreen: View {
     @ViewBuilder
     private func slip(_ errand: Errand, _ realm: GameState) -> some View {
         let open = selected == errand.id
+        let margin = slipMargin
         let sealed = errand.orders.indices.contains { ErrandEngine.sealHolds(errand, order: $0, realm) }
         VStack(alignment: .leading, spacing: 6) {
             Button {
@@ -744,7 +762,7 @@ struct TableScreen: View {
         }
         .background(SlipBackground(teal: open))
         .background(alignment: .top) {
-            Color.clear.frame(height: 1).alignmentGuide(.top) { d in d[.top] + slipMargin }.id("top-\(errand.id)")
+            Color.clear.frame(height: 1).alignmentGuide(.top) { d in d[.top] + margin }.id("top-\(errand.id)")
         }
         .background(alignment: .bottom) {
             Color.clear.frame(height: 1).alignmentGuide(.bottom) { d in d[.bottom] - 8 }.id("end-\(errand.id)")
@@ -789,6 +807,7 @@ struct TableScreen: View {
         selected = nil
         focus = nil
         hookNote = nil
+        justSent = errand.id
         if still {
             tick += 1
             return
