@@ -673,7 +673,8 @@ def keep(tier, building=False):
     t = dict(TIERS[tier - 1] if building else TIERS[tier])
     if not building or tier == 3:
         keep_roof(c, t, seed)
-    keep_body(c, t, tier - 1 if building else tier, seed, building)
+    # (tier 3 under way stands on tier 2's finished storey: its windows are there)
+    keep_body(c, t, tier - 1 if building else tier, seed, building and tier == 2)
     if tier == 3 and not building:
         keep_crown(c, t, seed)
     if tier >= 2 and not building:
@@ -995,9 +996,10 @@ def forebuilding_frame(open_):
         for y in range(c.r(24), c.r(13)):        # a banner hanging inside
             for x in (63, 64, 65):
                 c.set(x, y, "crimsonDeep")
-    for x in range(40, 80):                      # two steps before the portal
+    for x in range(40, 80):                      # two steps before the portal (the door's sill and gap stay)
         c.set(x, c.r(0), "stoneMid")
-        c.set(x, c.r(1), "stonePale" if x < 74 else "stoneLight")
+        if not (DOOR[0] < x < DOOR[1]):
+            c.set(x, c.r(1), "stonePale" if x < 74 else "stoneLight")
     for x in range(42, 78):
         if not (DOOR[0] <= x <= DOOR[1]):
             c.set(x, c.r(2), "stoneLight")

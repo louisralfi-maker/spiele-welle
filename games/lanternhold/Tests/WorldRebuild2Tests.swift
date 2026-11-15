@@ -151,4 +151,30 @@ final class WorldRebuild2Tests: XCTestCase {
         XCTAssertEqual(tint(0.5) ?? 0, 1, accuracy: 1e-4)
         XCTAssertEqual(tint(0.97) ?? 0, 1 - SceneLayout.look2CleftNightDim, accuracy: 0.02)
     }
+
+    /// Every window mask of the castle's exteriors lies on painted glass (night0, night1 or ink) in its sprite's
+    /// frame: the keep's panes, the lord's chamber and the line under the shut hall door, the chapel's lancets, the
+    /// bakehouse's and the postern's windows (round lh-w2-2: a step drawn over the door's sill hid its line of light).
+    func testEveryCastleMaskLiesOnGlass() {
+        let layout = AtlasLayout.shared
+        let glass: Set<RGBA> = [RGBA(0x0E0B1E), RGBA(0x1C1838), RGBA(0x2A2230)]
+        let castle: Set<SpriteID> = [.keepT1, .keepT2, .keepT3, .keepT2Build, .keepT3Build, .forebuilding, .chapelTower,
+                                     .bakehouse, .posternT1, .posternT2, .posternT3]
+        for stage in [CastleStage(tier: 1), CastleStage(tier: 2), CastleStage(tier: 3, building: true)] {
+            for prop in PlaceholderScene.world(look: .two, castle: stage).props where castle.contains(prop.sprite) {
+                let cell = layout.cell(prop.sprite, frame: prop.frame)
+                for mask in prop.masks {
+                    var found = 0
+                    for row in 0..<mask.height {
+                        for column in 0..<mask.width {
+                            let x = cell.x + Int(mask.dx) + column
+                            let y = cell.y + cell.height - 1 - Int(mask.dy) - row
+                            if glass.contains(layout.image[x, y]) { found += 1 }
+                        }
+                    }
+                    XCTAssertGreaterThan(found, 0, "\(prop.sprite) mask \(mask.dx),\(mask.dy) on glass")
+                }
+            }
+        }
+    }
 }
