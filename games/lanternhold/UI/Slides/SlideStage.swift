@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import QuartzCore
 import UIKit
 
 /// The slide stage's state (panels lane): which show is up, which slide, and what happens when it ends. The view is
@@ -41,8 +42,9 @@ final class SlideStage {
     @ObservationIgnored private var onFinish: (() -> Void)?
     /// `-GWSlides` is looked at once per run.
     @ObservationIgnored var launchHandled = false
-    /// Seconds on a steady clock (tests set their own).
-    @ObservationIgnored var clock: () -> Double = { ProcessInfo.processInfo.systemUptime }
+    /// Seconds on a steady clock (tests set their own). CACurrentMediaTime, as GameView's frame clock: the system's
+    /// uptime is a required-reason API (boot time) the privacy manifest does not declare.
+    @ObservationIgnored var clock: () -> Double = { CACurrentMediaTime() }
 
     init() {}
 
