@@ -1,0 +1,1067 @@
+hearthsweep: compiled in 93 s
+hearthsweep: seeds 1-10, careless nights 6-14, doubles from nights [7, 9, 11, 13] of seeds 1-5 (0 s)
+
+== the loss table: T1 to T8 count the same nights as lost (lockstep, old rules against the hearth rule)
+  old:  T1 reference seed 1: held every night
+  rule: T1 reference seed 1: held every night
+  old:  T2 builds nothing seed 1: lost night 3 at 11, fallen 1, killed 1, walls 0, spawned 23
+  rule: T2 builds nothing seed 1: lost night 3 at 11, fallen 1, killed 1, walls 0, spawned 23
+  old:  T1 reference seed 2: held every night
+  rule: T1 reference seed 2: held every night
+  old:  T2 builds nothing seed 2: lost night 3 at 219, fallen 1, killed 8, walls 0, spawned 36
+  rule: T2 builds nothing seed 2: lost night 3 at 219, fallen 1, killed 8, walls 0, spawned 36
+  old:  T1 reference seed 3: held every night
+  rule: T1 reference seed 3: held every night
+  old:  T2 builds nothing seed 3: lost night 3 at 267, fallen 1, killed 10, walls 0, spawned 39
+  rule: T2 builds nothing seed 3: lost night 3 at 267, fallen 1, killed 10, walls 0, spawned 39
+  old:  x6.0 seed 1 night 9: held every night
+  rule: x6.0 seed 1 night 9: held every night
+  old:  x6.0 seed 1 night 12: lost night 12 at 428, fallen 10, killed 218, walls 2, spawned 422
+  rule: x6.0 seed 1 night 12: lost night 12 at 428, fallen 10, killed 218, walls 2, spawned 422
+  old:  x6.0 seed 1 night 14: lost night 14 at 412, fallen 10, killed 198, walls 2, spawned 490
+  rule: x6.0 seed 1 night 14: lost night 14 at 412, fallen 10, killed 198, walls 2, spawned 490
+  old:  x6.0 seed 2 night 9: held every night
+  rule: x6.0 seed 2 night 9: held every night
+  old:  x6.0 seed 2 night 12: lost night 12 at 350, fallen 9, killed 161, walls 2, spawned 401
+  rule: x6.0 seed 2 night 12: lost night 12 at 350, fallen 9, killed 161, walls 2, spawned 401
+  old:  x6.0 seed 2 night 14: lost night 14 at 366, fallen 9, killed 238, walls 2, spawned 507
+  rule: x6.0 seed 2 night 14: lost night 14 at 366, fallen 9, killed 238, walls 2, spawned 507
+  old:  x6.0 seed 3 night 9: held every night
+  rule: x6.0 seed 3 night 9: held every night
+  old:  x6.0 seed 3 night 12: lost night 12 at 357, fallen 10, killed 139, walls 2, spawned 406
+  rule: x6.0 seed 3 night 12: lost night 12 at 357, fallen 10, killed 139, walls 2, spawned 406
+  old:  x6.0 seed 3 night 14: lost night 14 at 344, fallen 8, killed 120, walls 2, spawned 438
+  rule: x6.0 seed 3 night 14: lost night 14 at 344, fallen 8, killed 120, walls 2, spawned 438
+  differences: none (2 s)
+
+== T14 at the standard values, the careless night x6 (the full table)
+T14a PASS careless nights 6-14, seeds 1-10, night x6.0, the lord at the throne: 90 of 90 broke (target at least 10), 90 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 90 of 90
+  mended after (dawns): fire bright 1.2, rebuilt 1.0, both 1.2; not within 3: 
+  a broken night's cost (mean): burnt 1.0, dead 2.1, gold 11.3, happiness 8.0, walls lost 2.0, raised for nothing 2.0, the purse at the broken dawn 138.6
+  after 3 days against the costless twin (mean): gold -19.3, happiness -6.9, citizens -3.2; wood bought 0.9, rebuilds 1.0; broke again 1, fell later 0
+T14b FAIL two broken nights within three, breachSteps 1, no wood between: in a row ended 0/20 (else embers 20); one held night between ended 0/20 (else low 20)
+T14b FAIL two broken nights within three, breachSteps 1, fed between: in a row ended 0/20 (else embers 5, low 15); one held night between ended 0/20 (else low 20)
+T14b PASS two broken nights within three, breachSteps 2 (chosen), no wood between: in a row ended 20/20; one held night between ended 20/20
+T14b PASS two broken nights within three, breachSteps 2 (chosen), fed between: in a row ended 20/20; one held night between ended 4/20 (else embers 16)
+T14b FAIL two broken nights within three, 1 step down to embers at most, no wood between: in a row ended 20/20; one held night between ended 0/20 (else embers 20)
+T14b FAIL two broken nights within three, 1 step down to embers at most, fed between: in a row ended 5/20 (else embers 15); one held night between ended 0/20 (else embers 20)
+
+careless nights: seed.night broke before>after | burnt dead gold happiness walls purse | bright, rebuilt, mended after | gaps gold happiness citizens | wood rebuilds
+  1.6 bright>embers | 1 1 2 8 2/2 raised purse 68 | 1, 1, 1 | -4 -12 -4 | 1 1
+  1.7 bright>embers | 1 1 2 8 2/2 raised purse 78 | 2, 1, 2 | -11 -2 -1 | 0 1
+  1.8 bright>embers | 1 3 6 8 2/2 raised purse 84 | 1, 1, 1 | -24 -7 -4 | 1 1
+  1.9 bright>embers | 1 2 7 8 2/2 raised purse 99 | 1, 1, 1 | -57 1 -1 | 1 1
+  1.10 bright>embers | 1 3 5 8 2/2 raised purse 109 | 2, 1, 2 | -35 1 -3 | 1 1
+  1.11 bright>embers | 1 2 16 8 2/2 raised purse 176 | 2, 1, 2 | -151 -10 -5 | 1 1
+  1.12 bright>embers | 1 2 18 8 2/2 raised purse 189 | 1, 1, 1 | -105 -2 -2 | 1 1
+  1.13 bright>embers | 1 3 35 8 2/2 raised purse 250 | 1, 1, 1 | -186 -7 -6 | 1 1
+  1.14 bright>embers | 1 3 19 8 2/2 raised purse 188 | 1, 1, 1 | 166 -7 -5 | 1 1
+  2.6 bright>embers | 1 2 8 8 2/2 raised purse 87 | 1, 1, 1 | 4 -10 -3 | 1 1
+  2.7 bright>embers | 1 1 0 8 2/2 raised purse 71 | 1, 1, 1 | 13 -7 -3 | 1 1
+  2.8 bright>embers | 1 1 2 8 2/2 raised purse 76 | 2, 1, 2 | -10 -8 -2 | 0 1
+  2.9 bright>embers | 1 3 15 8 2/2 raised purse 131 | 1, 1, 1 | -2 -10 -5 | 1 1
+  2.10 bright>embers | 1 3 3 8 2/2 raised purse 109 | 1, 1, 1 | -28 3 -1 | 1 1
+  2.11 bright>embers | 1 3 1 8 2/2 raised purse 119 | 1, 1, 1 | 50 -18 -9 | 1 1
+  2.12 bright>embers | 1 1 21 8 2/2 raised purse 219 | 1, 1, 1 | -111 -5 -2 | 1 1
+  2.13 bright>embers | 1 3 10 8 2/2 raised purse 162 | 1, 1, 1 | 223 -8 -4 | 1 1
+  2.14 bright>embers | 1 2 34 8 2/2 raised purse 262 | 1, 1, 1 | 18 -3 -2 | 1 1
+  3.6 bright>embers | 1 2 2 8 2/2 raised purse 67 | 1, 1, 1 | -13 -8 -2 | 1 1
+  3.7 bright>embers | 1 2 6 8 2/2 raised purse 88 | 2, 1, 2 | -58 -8 -2 | 0 1
+  3.8 bright>embers | 1 1 2 8 2/2 raised purse 80 | 2, 1, 2 | -36 -7 -2 | 1 1
+  3.9 bright>embers | 1 1 5 8 2/2 raised purse 104 | 1, 1, 1 | -58 -12 -3 | 1 1
+  3.10 bright>embers | 1 1 7 8 2/2 raised purse 140 | 1, 1, 1 | -83 -8 -1 | 1 1
+  3.11 bright>embers | 1 1 15 8 2/2 raised purse 180 | 1, 1, 1 | -57 -5 -2 | 1 1
+  3.12 bright>embers | 1 3 19 8 2/2 raised purse 184 | 1, 1, 1 | 74 3 -2 | 1 1
+  3.13 bright>embers | 1 2 36 8 2/2 raised purse 260 | 1, 1, 1 | -129 -3 -2 | 1 1
+  3.14 bright>embers | 1 2 16 8 2/2 raised purse 182 | 1, 1, 1 | 189 -12 -3 | 1 1 | broke again 1
+  4.6 bright>embers | 1 3 8 8 2/2 raised purse 88 | 1, 1, 1 | -30 -7 -3 | 1 1
+  4.7 bright>embers | 1 1 0 8 2/2 raised purse 68 | 2, 1, 2 | 26 -9 -1 | 0 1
+  4.8 bright>embers | 1 2 3 8 2/2 raised purse 82 | 1, 1, 1 | -66 -11 -4 | 1 1
+  4.9 bright>embers | 1 2 13 8 2/2 raised purse 126 | 1, 1, 1 | 11 -2 -2 | 1 1
+  4.10 bright>embers | 1 1 5 8 2/2 raised purse 125 | 1, 1, 1 | -36 -9 -3 | 1 1
+  4.11 bright>embers | 1 3 6 8 2/2 raised purse 137 | 1, 1, 1 | 50 -5 -5 | 1 1
+  4.12 bright>embers | 1 3 31 8 2/2 raised purse 241 | 1, 1, 1 | -114 -8 -4 | 1 1
+  4.13 bright>embers | 1 3 11 8 2/2 raised purse 156 | 1, 1, 1 | -57 -8 -4 | 1 1
+  4.14 bright>embers | 1 2 36 8 2/2 raised purse 267 | 1, 1, 1 | 289 14 3 | 1 1
+  5.6 bright>embers | 1 3 11 8 2/2 raised purse 95 | 1, 1, 1 | -10 -7 -3 | 1 1
+  5.7 bright>embers | 1 2 0 8 2/2 raised purse 63 | 2, 1, 2 | -13 -9 -3 | 0 1
+  5.8 bright>embers | 1 1 3 8 2/2 raised purse 84 | 1, 1, 1 | -35 -10 -3 | 1 1
+  5.9 bright>embers | 1 2 4 8 2/2 raised purse 93 | 1, 1, 1 | -22 2 0 | 1 1
+  5.10 bright>embers | 1 1 4 8 2/2 raised purse 128 | 1, 1, 1 | -60 -8 -4 | 1 1
+  5.11 bright>embers | 1 2 16 8 2/2 raised purse 175 | 1, 1, 1 | 145 5 1 | 1 1
+  5.12 bright>embers | 1 3 22 8 2/2 raised purse 195 | 1, 1, 1 | -146 -3 -4 | 1 1
+  5.13 bright>embers | 1 2 3 8 2/2 raised purse 124 | 1, 1, 1 | -86 -10 -4 | 1 1
+  5.14 bright>embers | 1 3 21 8 2/2 raised purse 196 | 1, 1, 1 | 219 -2 -3 | 1 1
+  6.6 bright>embers | 1 3 6 8 2/2 raised purse 80 | 1, 1, 1 | -28 -10 -3 | 1 1
+  6.7 bright>embers | 1 1 0 8 2/2 raised purse 75 | 2, 1, 2 | -45 -9 -3 | 1 1
+  6.8 bright>embers | 1 3 9 8 2/2 raised purse 97 | 1, 1, 1 | 7 -8 -4 | 1 1
+  6.9 bright>embers | 1 3 11 8 2/2 raised purse 116 | 1, 1, 1 | -2 -14 -8 | 1 1
+  6.10 bright>embers | 1 2 4 8 2/2 raised purse 118 | 1, 1, 1 | -67 -8 -4 | 1 1
+  6.11 bright>embers | 1 3 6 8 2/2 raised purse 129 | 1, 1, 1 | 114 0 -2 | 1 1
+  6.12 bright>embers | 1 3 32 8 2/2 raised purse 239 | 1, 1, 1 | -160 -13 -6 | 1 1
+  6.13 bright>embers | 1 3 12 8 2/2 raised purse 160 | 1, 1, 1 | -130 -8 -4 | 1 1
+  6.14 bright>embers | 1 2 43 8 2/2 raised purse 291 | 1, 1, 1 | -27 -5 -2 | 1 1
+  7.6 bright>embers | 1 1 2 8 2/2 raised purse 70 | 1, 1, 1 | -13 -10 -2 | 1 1
+  7.7 bright>embers | 1 3 3 8 2/2 raised purse 69 | 1, 1, 1 | -55 -11 -5 | 1 1
+  7.8 bright>embers | 1 2 1 8 2/2 raised purse 77 | 2, 1, 2 | -21 -8 -4 | 1 1
+  7.9 bright>embers | 1 3 10 8 2/2 raised purse 109 | 1, 1, 1 | -95 -15 -5 | 1 1
+  7.10 bright>embers | 1 1 0 8 2/2 raised purse 91 | 2, 1, 2 | -10 -7 -1 | 1 1
+  7.11 bright>embers | 1 1 8 8 2/2 raised purse 140 | 2, 1, 2 | -34 -13 -3 | 1 1
+  7.12 bright>embers | 1 2 10 8 2/2 raised purse 157 | 1, 1, 1 | -68 -21 -8 | 1 1
+  7.13 bright>embers | 1 3 25 8 2/2 raised purse 214 | 1, 1, 1 | -132 -13 -8 | 1 1
+  7.14 bright>embers | 1 3 7 8 2/2 raised purse 135 | 1, 1, 1 | -104 -2 -4 | 1 1
+  8.6 bright>embers | 1 3 5 8 2/2 raised purse 73 | 1, 1, 1 | -31 -7 -4 | 1 1
+  8.7 bright>embers | 1 1 6 8 2/2 raised purse 94 | 2, 1, 2 | -13 -12 -1 | 0 1
+  8.8 bright>embers | 1 3 11 8 2/2 raised purse 104 | 1, 1, 1 | -13 -9 -5 | 1 1
+  8.9 bright>embers | 1 2 15 8 2/2 raised purse 128 | 1, 1, 1 | -104 -6 -2 | 1 1
+  8.10 bright>embers | 1 3 1 8 2/2 raised purse 94 | 1, 1, 1 | -133 -1 -3 | 1 1
+  8.11 bright>embers | 1 1 2 8 2/2 raised purse 124 | 1, 1, 1 | -63 -2 -3 | 1 1
+  8.12 bright>embers | 1 1 23 8 2/2 raised purse 225 | 1, 1, 1 | -70 0 1 | 1 1
+  8.13 bright>embers | 1 1 9 8 2/2 raised purse 167 | 1, 1, 1 | -57 -9 -3 | 1 1
+  8.14 bright>embers | 1 3 33 8 2/2 raised purse 253 | 1, 1, 1 | 260 -19 -8 | 1 1
+  9.6 bright>embers | 1 1 6 8 2/2 raised purse 92 | 1, 1, 1 | 11 -8 -1 | 1 1
+  9.7 bright>embers | 1 1 1 8 2/2 raised purse 74 | 1, 1, 1 | -44 -4 -1 | 1 1
+  9.8 bright>embers | 1 3 4 8 2/2 raised purse 83 | 1, 1, 1 | 4 -12 -5 | 1 1
+  9.9 bright>embers | 1 1 1 8 2/2 raised purse 106 | 2, 1, 2 | 2 -4 -1 | 1 1
+  9.10 bright>embers | 1 3 5 8 2/2 raised purse 124 | 1, 1, 1 | -125 -3 -4 | 1 1
+  9.11 bright>embers | 1 3 11 8 2/2 raised purse 154 | 1, 1, 1 | -120 -1 -3 | 1 1
+  9.12 bright>embers | 1 2 34 8 2/2 raised purse 259 | 1, 1, 1 | -122 -3 -3 | 1 1
+  9.13 bright>embers | 1 2 16 8 2/2 raised purse 188 | 1, 1, 1 | 210 -8 -5 | 1 1
+  9.14 bright>embers | 1 1 40 8 2/2 raised purse 291 | 1, 1, 1 | -31 -10 -4 | 1 1
+  10.6 bright>embers | 1 1 9 8 2/2 raised purse 104 | 1, 1, 1 | 19 -6 -1 | 1 1
+  10.7 bright>embers | 1 3 1 8 2/2 raised purse 60 | 2, 1, 2 | -11 -8 -4 | 1 1
+  10.8 bright>embers | 1 2 2 8 2/2 raised purse 77 | 1, 1, 1 | -20 -8 -3 | 1 1
+  10.9 bright>embers | 1 1 2 8 2/2 raised purse 104 | 1, 1, 1 | -31 -12 -3 | 1 1
+  10.10 bright>embers | 1 3 6 8 2/2 raised purse 120 | 1, 1, 1 | -137 -3 -3 | 1 1
+  10.11 bright>embers | 1 2 6 8 2/2 raised purse 147 | 1, 1, 1 | 81 -16 -7 | 1 1
+  10.12 bright>embers | 1 3 28 8 2/2 raised purse 230 | 2, 1, 2 | -155 -5 -5 | 1 1
+  10.13 bright>embers | 1 3 10 8 2/2 raised purse 158 | 1, 1, 1 | 175 -7 -3 | 1 1
+  10.14 bright>embers | 1 2 35 8 2/2 raised purse 268 | 1, 1, 1 | 4 -3 -2 | 1 1
+
+doubles: seed.night gap steps wood | the fire at each dawn
+  1.7 +1 x1 unfed | low > embers
+  1.7 +2 x1 unfed | low > bright > low
+  1.7 +1 x1 fed | low > embers
+  1.7 +2 x1 fed | low > bright > low
+  1.7 +1 x2 unfed | embers > out FELL
+  1.7 +2 x2 unfed | embers > low > out FELL
+  1.7 +1 x2 fed | embers > out FELL
+  1.7 +2 x2 fed | embers > low > out FELL
+  1.7 +1 x1<=embers unfed | embers > out FELL
+  1.7 +2 x1<=embers unfed | embers > low > embers
+  1.7 +1 x1<=embers fed | embers > out FELL
+  1.7 +2 x1<=embers fed | embers > low > embers
+  1.9 +1 x1 unfed | low > embers
+  1.9 +2 x1 unfed | low > bright > low
+  1.9 +1 x1 fed | low > low
+  1.9 +2 x1 fed | low > bright > low
+  1.9 +1 x2 unfed | embers > out FELL
+  1.9 +2 x2 unfed | embers > low > out FELL
+  1.9 +1 x2 fed | embers > out FELL
+  1.9 +2 x2 fed | embers > bright > embers
+  1.9 +1 x1<=embers unfed | embers > out FELL
+  1.9 +2 x1<=embers unfed | embers > low > embers
+  1.9 +1 x1<=embers fed | embers > embers
+  1.9 +2 x1<=embers fed | embers > bright > embers
+  1.11 +1 x1 unfed | low > embers
+  1.11 +2 x1 unfed | low > bright > low
+  1.11 +1 x1 fed | low > embers
+  1.11 +2 x1 fed | low > bright > low
+  1.11 +1 x2 unfed | embers > out FELL
+  1.11 +2 x2 unfed | embers > low > out FELL
+  1.11 +1 x2 fed | embers > out FELL
+  1.11 +2 x2 fed | embers > low > embers
+  1.11 +1 x1<=embers unfed | embers > out FELL
+  1.11 +2 x1<=embers unfed | embers > low > embers
+  1.11 +1 x1<=embers fed | embers > out FELL
+  1.11 +2 x1<=embers fed | embers > low > embers
+  1.13 +1 x1 unfed | low > embers
+  1.13 +2 x1 unfed | low > bright > low
+  1.13 +1 x1 fed | low > low
+  1.13 +2 x1 fed | low > bright > low
+  1.13 +1 x2 unfed | embers > out FELL
+  1.13 +2 x2 unfed | embers > low > out FELL
+  1.13 +1 x2 fed | embers > out FELL
+  1.13 +2 x2 fed | embers > bright > embers
+  1.13 +1 x1<=embers unfed | embers > out FELL
+  1.13 +2 x1<=embers unfed | embers > low > embers
+  1.13 +1 x1<=embers fed | embers > embers
+  1.13 +2 x1<=embers fed | embers > bright > embers
+  2.7 +1 x1 unfed | low > embers
+  2.7 +2 x1 unfed | low > bright > low
+  2.7 +1 x1 fed | low > low
+  2.7 +2 x1 fed | low > bright > low
+  2.7 +1 x2 unfed | embers > out FELL
+  2.7 +2 x2 unfed | embers > low > out FELL
+  2.7 +1 x2 fed | embers > out FELL
+  2.7 +2 x2 fed | embers > bright > embers
+  2.7 +1 x1<=embers unfed | embers > out FELL
+  2.7 +2 x1<=embers unfed | embers > low > embers
+  2.7 +1 x1<=embers fed | embers > embers
+  2.7 +2 x1<=embers fed | embers > bright > embers
+  2.9 +1 x1 unfed | low > embers
+  2.9 +2 x1 unfed | low > bright > low
+  2.9 +1 x1 fed | low > low
+  2.9 +2 x1 fed | low > bright > low
+  2.9 +1 x2 unfed | embers > out FELL
+  2.9 +2 x2 unfed | embers > low > out FELL
+  2.9 +1 x2 fed | embers > out FELL
+  2.9 +2 x2 fed | embers > bright > embers
+  2.9 +1 x1<=embers unfed | embers > out FELL
+  2.9 +2 x1<=embers unfed | embers > low > embers
+  2.9 +1 x1<=embers fed | embers > embers
+  2.9 +2 x1<=embers fed | embers > bright > embers
+  2.11 +1 x1 unfed | low > embers
+  2.11 +2 x1 unfed | low > bright > low
+  2.11 +1 x1 fed | low > low
+  2.11 +2 x1 fed | low > bright > low
+  2.11 +1 x2 unfed | embers > out FELL
+  2.11 +2 x2 unfed | embers > low > out FELL
+  2.11 +1 x2 fed | embers > out FELL
+  2.11 +2 x2 fed | embers > bright > embers
+  2.11 +1 x1<=embers unfed | embers > out FELL
+  2.11 +2 x1<=embers unfed | embers > low > embers
+  2.11 +1 x1<=embers fed | embers > embers
+  2.11 +2 x1<=embers fed | embers > bright > embers
+  2.13 +1 x1 unfed | low > embers
+  2.13 +2 x1 unfed | low > bright > low
+  2.13 +1 x1 fed | low > low
+  2.13 +2 x1 fed | low > bright > low
+  2.13 +1 x2 unfed | embers > out FELL
+  2.13 +2 x2 unfed | embers > low > out FELL
+  2.13 +1 x2 fed | embers > out FELL
+  2.13 +2 x2 fed | embers > bright > embers
+  2.13 +1 x1<=embers unfed | embers > out FELL
+  2.13 +2 x1<=embers unfed | embers > low > embers
+  2.13 +1 x1<=embers fed | embers > embers
+  2.13 +2 x1<=embers fed | embers > bright > embers
+  3.7 +1 x1 unfed | low > embers
+  3.7 +2 x1 unfed | low > bright > low
+  3.7 +1 x1 fed | low > embers
+  3.7 +2 x1 fed | low > bright > low
+  3.7 +1 x2 unfed | embers > out FELL
+  3.7 +2 x2 unfed | embers > low > out FELL
+  3.7 +1 x2 fed | embers > out FELL
+  3.7 +2 x2 fed | embers > low > out FELL
+  3.7 +1 x1<=embers unfed | embers > out FELL
+  3.7 +2 x1<=embers unfed | embers > low > embers
+  3.7 +1 x1<=embers fed | embers > out FELL
+  3.7 +2 x1<=embers fed | embers > low > embers
+  3.9 +1 x1 unfed | low > embers
+  3.9 +2 x1 unfed | low > bright > low
+  3.9 +1 x1 fed | low > low
+  3.9 +2 x1 fed | low > bright > low
+  3.9 +1 x2 unfed | embers > out FELL
+  3.9 +2 x2 unfed | embers > low > out FELL
+  3.9 +1 x2 fed | embers > out FELL
+  3.9 +2 x2 fed | embers > bright > embers
+  3.9 +1 x1<=embers unfed | embers > out FELL
+  3.9 +2 x1<=embers unfed | embers > low > embers
+  3.9 +1 x1<=embers fed | embers > embers
+  3.9 +2 x1<=embers fed | embers > bright > embers
+  3.11 +1 x1 unfed | low > embers
+  3.11 +2 x1 unfed | low > bright > low
+  3.11 +1 x1 fed | low > low
+  3.11 +2 x1 fed | low > bright > low
+  3.11 +1 x2 unfed | embers > out FELL
+  3.11 +2 x2 unfed | embers > low > out FELL
+  3.11 +1 x2 fed | embers > out FELL
+  3.11 +2 x2 fed | embers > bright > embers
+  3.11 +1 x1<=embers unfed | embers > out FELL
+  3.11 +2 x1<=embers unfed | embers > low > embers
+  3.11 +1 x1<=embers fed | embers > embers
+  3.11 +2 x1<=embers fed | embers > bright > embers
+  3.13 +1 x1 unfed | low > embers
+  3.13 +2 x1 unfed | low > bright > low
+  3.13 +1 x1 fed | low > low
+  3.13 +2 x1 fed | low > bright > low
+  3.13 +1 x2 unfed | embers > out FELL
+  3.13 +2 x2 unfed | embers > low > out FELL
+  3.13 +1 x2 fed | embers > out FELL
+  3.13 +2 x2 fed | embers > bright > embers
+  3.13 +1 x1<=embers unfed | embers > out FELL
+  3.13 +2 x1<=embers unfed | embers > low > embers
+  3.13 +1 x1<=embers fed | embers > embers
+  3.13 +2 x1<=embers fed | embers > bright > embers
+  4.7 +1 x1 unfed | low > embers
+  4.7 +2 x1 unfed | low > bright > low
+  4.7 +1 x1 fed | low > embers
+  4.7 +2 x1 fed | low > bright > low
+  4.7 +1 x2 unfed | embers > out FELL
+  4.7 +2 x2 unfed | embers > low > out FELL
+  4.7 +1 x2 fed | embers > out FELL
+  4.7 +2 x2 fed | embers > low > out FELL
+  4.7 +1 x1<=embers unfed | embers > out FELL
+  4.7 +2 x1<=embers unfed | embers > low > embers
+  4.7 +1 x1<=embers fed | embers > out FELL
+  4.7 +2 x1<=embers fed | embers > low > embers
+  4.9 +1 x1 unfed | low > embers
+  4.9 +2 x1 unfed | low > bright > low
+  4.9 +1 x1 fed | low > low
+  4.9 +2 x1 fed | low > bright > low
+  4.9 +1 x2 unfed | embers > out FELL
+  4.9 +2 x2 unfed | embers > low > out FELL
+  4.9 +1 x2 fed | embers > out FELL
+  4.9 +2 x2 fed | embers > bright > embers
+  4.9 +1 x1<=embers unfed | embers > out FELL
+  4.9 +2 x1<=embers unfed | embers > low > embers
+  4.9 +1 x1<=embers fed | embers > embers
+  4.9 +2 x1<=embers fed | embers > bright > embers
+  4.11 +1 x1 unfed | low > embers
+  4.11 +2 x1 unfed | low > bright > low
+  4.11 +1 x1 fed | low > low
+  4.11 +2 x1 fed | low > bright > low
+  4.11 +1 x2 unfed | embers > out FELL
+  4.11 +2 x2 unfed | embers > low > out FELL
+  4.11 +1 x2 fed | embers > out FELL
+  4.11 +2 x2 fed | embers > bright > embers
+  4.11 +1 x1<=embers unfed | embers > out FELL
+  4.11 +2 x1<=embers unfed | embers > low > embers
+  4.11 +1 x1<=embers fed | embers > embers
+  4.11 +2 x1<=embers fed | embers > bright > embers
+  4.13 +1 x1 unfed | low > embers
+  4.13 +2 x1 unfed | low > bright > low
+  4.13 +1 x1 fed | low > low
+  4.13 +2 x1 fed | low > bright > low
+  4.13 +1 x2 unfed | embers > out FELL
+  4.13 +2 x2 unfed | embers > low > out FELL
+  4.13 +1 x2 fed | embers > out FELL
+  4.13 +2 x2 fed | embers > bright > embers
+  4.13 +1 x1<=embers unfed | embers > out FELL
+  4.13 +2 x1<=embers unfed | embers > low > embers
+  4.13 +1 x1<=embers fed | embers > embers
+  4.13 +2 x1<=embers fed | embers > bright > embers
+  5.7 +1 x1 unfed | low > embers
+  5.7 +2 x1 unfed | low > bright > low
+  5.7 +1 x1 fed | low > embers
+  5.7 +2 x1 fed | low > bright > low
+  5.7 +1 x2 unfed | embers > out FELL
+  5.7 +2 x2 unfed | embers > low > out FELL
+  5.7 +1 x2 fed | embers > out FELL
+  5.7 +2 x2 fed | embers > low > out FELL
+  5.7 +1 x1<=embers unfed | embers > out FELL
+  5.7 +2 x1<=embers unfed | embers > low > embers
+  5.7 +1 x1<=embers fed | embers > out FELL
+  5.7 +2 x1<=embers fed | embers > low > embers
+  5.9 +1 x1 unfed | low > embers
+  5.9 +2 x1 unfed | low > bright > low
+  5.9 +1 x1 fed | low > low
+  5.9 +2 x1 fed | low > bright > low
+  5.9 +1 x2 unfed | embers > out FELL
+  5.9 +2 x2 unfed | embers > low > out FELL
+  5.9 +1 x2 fed | embers > out FELL
+  5.9 +2 x2 fed | embers > bright > embers
+  5.9 +1 x1<=embers unfed | embers > out FELL
+  5.9 +2 x1<=embers unfed | embers > low > embers
+  5.9 +1 x1<=embers fed | embers > embers
+  5.9 +2 x1<=embers fed | embers > bright > embers
+  5.11 +1 x1 unfed | low > embers
+  5.11 +2 x1 unfed | low > bright > low
+  5.11 +1 x1 fed | low > low
+  5.11 +2 x1 fed | low > bright > low
+  5.11 +1 x2 unfed | embers > out FELL
+  5.11 +2 x2 unfed | embers > low > out FELL
+  5.11 +1 x2 fed | embers > out FELL
+  5.11 +2 x2 fed | embers > bright > embers
+  5.11 +1 x1<=embers unfed | embers > out FELL
+  5.11 +2 x1<=embers unfed | embers > low > embers
+  5.11 +1 x1<=embers fed | embers > embers
+  5.11 +2 x1<=embers fed | embers > bright > embers
+  5.13 +1 x1 unfed | low > embers
+  5.13 +2 x1 unfed | low > bright > low
+  5.13 +1 x1 fed | low > low
+  5.13 +2 x1 fed | low > bright > low
+  5.13 +1 x2 unfed | embers > out FELL
+  5.13 +2 x2 unfed | embers > low > out FELL
+  5.13 +1 x2 fed | embers > out FELL
+  5.13 +2 x2 fed | embers > bright > embers
+  5.13 +1 x1<=embers unfed | embers > out FELL
+  5.13 +2 x1<=embers unfed | embers > low > embers
+  5.13 +1 x1<=embers fed | embers > embers
+  5.13 +2 x1<=embers fed | embers > bright > embers
+(13 s)
+
+== T14, the careless night x4.0
+T14a PASS careless nights 6-14, seeds 1-10, night x4.0, the lord at the throne: 69 of 90 broke (target at least 10), 69 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 69 of 69
+  mended after (dawns): fire bright 1.1, rebuilt 1.0, both 1.1; not within 3: 
+  a broken night's cost (mean): burnt 1.0, dead 2.1, gold 13.0, happiness 8.0, walls lost 2.0, raised for nothing 2.0, the purse at the broken dawn 152.4
+  after 3 days against the costless twin (mean): gold -25.0, happiness -7.9, citizens -3.7; wood bought 1.0, rebuilds 1.0; broke again 0, fell later 0
+
+(17 s)
+
+== T14, the careless night x8.0
+T14a PASS careless nights 6-14, seeds 1-10, night x8.0, the lord at the throne: 90 of 90 broke (target at least 10), 90 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 90 of 90
+  mended after (dawns): fire bright 1.2, rebuilt 1.0, both 1.2; not within 3: 
+  a broken night's cost (mean): burnt 1.0, dead 2.1, gold 11.3, happiness 8.0, walls lost 2.0, raised for nothing 2.0, the purse at the broken dawn 138.6
+  after 3 days against the costless twin (mean): gold -9.1, happiness -7.3, citizens -3.4; wood bought 0.9, rebuilds 1.0; broke again 0, fell later 0
+
+(20 s)
+
+== T14, the careless night x10.0
+T14a PASS careless nights 6-14, seeds 1-10, night x10.0, the lord at the throne: 90 of 90 broke (target at least 10), 90 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 90 of 90
+  mended after (dawns): fire bright 1.2, rebuilt 1.0, both 1.2; not within 3: 
+  a broken night's cost (mean): burnt 1.0, dead 2.1, gold 11.3, happiness 8.0, walls lost 2.0, raised for nothing 2.0, the purse at the broken dawn 138.6
+  after 3 days against the costless twin (mean): gold -18.0, happiness -8.0, citizens -3.6; wood bought 0.9, rebuilds 1.0; broke again 0, fell later 0
+
+(23 s)
+
+== the first broken night without the walls raised for nothing (front-2 as it was; careless nights 6-14, x6)
+T14a PASS careless nights 6-14, seeds 1-10, night x6.0, the lord at the throne: 90 of 90 broke (target at least 10), 84 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 87 of 87
+  mended after (dawns): fire bright 1.6, rebuilt 1.5, both 1.7; not within 3: 2.8, 4.7, 5.7, 7.6, 7.7, 10.9
+  a broken night's cost (mean): burnt 1.0, dead 2.1, gold 11.3, happiness 8.0, walls lost 2.0, raised for nothing 0.0, the purse at the broken dawn 138.6
+  after 3 days against the costless twin (mean): gold -16.3, happiness -6.9, citizens -3.2; wood bought 0.6, rebuilds 0.9; broke again 4, fell later 3
+
+(26 s)
+
+== the other rule: a breach drops the fire to embers, at embers it goes out (high 1, option b; careless x6)
+T14a PASS careless nights 6-14, seeds 1-10, night x6.0, the lord at the throne: 90 of 90 broke (target at least 10), 90 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 90 of 90
+  mended after (dawns): fire bright 1.2, rebuilt 1.0, both 1.2; not within 3: 
+  a broken night's cost (mean): burnt 1.0, dead 2.1, gold 11.3, happiness 8.0, walls lost 2.0, raised for nothing 2.0, the purse at the broken dawn 138.6
+  after 3 days against the costless twin (mean): gold -19.3, happiness -6.9, citizens -3.2; wood bought 0.9, rebuilds 1.0; broke again 1, fell later 0
+
+(30 s)
+
+== early careless nights 2-5, x6.0, the walls raised for nothing (the chosen values; the full table)
+T14a FAIL careless nights 2-5, seeds 1-10, night x6.0, the lord at the throne: 9 of 40 broke (target at least 10), 9 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 9 of 9
+  mended after (dawns): fire bright 1.2, rebuilt 1.0, both 1.2; not within 3: 
+  a broken night's cost (mean): burnt 1.0, dead 2.2, gold 6.4, happiness 8.0, walls lost 2.0, raised for nothing 2.0, the purse at the broken dawn 77.0
+  after 3 days against the costless twin (mean): gold 0.2, happiness -6.8, citizens -2.1; wood bought 1.0, rebuilds 1.0; broke again 0, fell later 0
+
+careless nights: seed.night broke before>after | burnt dead gold happiness walls purse | bright, rebuilt, mended after | gaps gold happiness citizens | wood rebuilds
+  1.2 held
+  1.3 held
+  1.4 held
+  1.5 bright>embers | 1 3 6 8 2/2 raised purse 70 | 1, 1, 1 | -32 -10 -5 | 1 1
+  2.2 held
+  2.3 held
+  2.4 held
+  2.5 bright>embers | 1 2 10 8 2/2 raised purse 91 | 1, 1, 1 | 31 -4 -1 | 1 1
+  3.2 held
+  3.3 held
+  3.4 held
+  3.5 bright>embers | 1 2 5 8 2/2 raised purse 70 | 1, 1, 1 | 5 -10 -2 | 1 1
+  4.2 held
+  4.3 held
+  4.4 held
+  4.5 bright>embers | 1 1 9 8 2/2 raised purse 99 | 1, 1, 1 | 9 -3 0 | 1 1
+  5.2 held
+  5.3 held
+  5.4 held
+  5.5 bright>embers | 1 3 1 8 2/2 raised purse 50 | 2, 1, 2 | 6 -8 -3 | 1 1
+  6.2 held
+  6.3 held
+  6.4 held
+  6.5 bright>embers | 1 2 7 8 2/2 raised purse 84 | 1, 1, 1 | 24 -10 -2 | 1 1
+  7.2 held
+  7.3 held
+  7.4 held
+  7.5 bright>embers | 1 3 4 8 2/2 raised purse 62 | 1, 1, 1 | -35 -1 -2 | 1 1
+  8.2 held
+  8.3 held
+  8.4 held
+  8.5 bright>embers | 1 3 8 8 2/2 raised purse 76 | 1, 1, 1 | 0 -7 -3 | 1 1
+  9.2 held
+  9.3 held
+  9.4 held
+  9.5 held
+  10.2 held
+  10.3 held
+  10.4 held
+  10.5 bright>embers | 1 1 8 8 2/2 raised purse 91 | 2, 1, 2 | -6 -8 -1 | 1 1
+(30 s)
+
+== early careless nights 2-5, x6.0, without (front-2 as it was; the full table)
+T14a FAIL careless nights 2-5, seeds 1-10, night x6.0, the lord at the throne: 9 of 40 broke (target at least 10), 7 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 7 of 7
+  mended after (dawns): fire bright 2.0, rebuilt 1.6, both 2.0; not within 3: 1.5, 5.5
+  a broken night's cost (mean): burnt 1.0, dead 2.2, gold 6.4, happiness 8.0, walls lost 2.0, raised for nothing 0.0, the purse at the broken dawn 77.0
+  after 3 days against the costless twin (mean): gold -16.4, happiness -9.7, citizens -2.7; wood bought 0.6, rebuilds 0.8; broke again 2, fell later 2
+
+careless nights: seed.night broke before>after | burnt dead gold happiness walls purse | bright, rebuilt, mended after | gaps gold happiness citizens | wood rebuilds
+  1.2 held
+  1.3 held
+  1.4 held
+  1.5 bright>embers | 1 3 6 8 2 purse 70 | -, -, - | -59 -15 -4 | 0 0 | broke again 1, fell
+  2.2 held
+  2.3 held
+  2.4 held
+  2.5 bright>embers | 1 2 10 8 2 purse 91 | 2, 1, 2 | 29 -8 -2 | 1 1
+  3.2 held
+  3.3 held
+  3.4 held
+  3.5 bright>embers | 1 2 5 8 2 purse 70 | 2, 2, 2 | -20 -10 -2 | 0 1
+  4.2 held
+  4.3 held
+  4.4 held
+  4.5 bright>embers | 1 1 9 8 2 purse 99 | 2, 2, 2 | -23 -7 -1 | 1 1
+  5.2 held
+  5.3 held
+  5.4 held
+  5.5 bright>embers | 1 3 1 8 2 purse 50 | -, -, - | -43 -16 -6 | 0 0 | broke again 1, fell
+  6.2 held
+  6.3 held
+  6.4 held
+  6.5 bright>embers | 1 2 7 8 2 purse 84 | 2, 2, 2 | -16 -10 -2 | 1 1
+  7.2 held
+  7.3 held
+  7.4 held
+  7.5 bright>embers | 1 3 4 8 2 purse 62 | 2, 1, 2 | -10 -6 -3 | 0 1
+  8.2 held
+  8.3 held
+  8.4 held
+  8.5 bright>embers | 1 3 8 8 2 purse 76 | 2, 2, 2 | 0 -7 -3 | 1 1
+  9.2 held
+  9.3 held
+  9.4 held
+  9.5 held
+  10.2 held
+  10.3 held
+  10.4 held
+  10.5 bright>embers | 1 1 8 8 2 purse 91 | 2, 1, 2 | -6 -8 -1 | 1 1
+(31 s)
+
+== early careless nights 2-5, x10.0, the walls raised for nothing (the chosen values; the full table)
+T14a PASS careless nights 2-5, seeds 1-10, night x10.0, the lord at the throne: 18 of 40 broke (target at least 10), 18 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 18 of 18
+  mended after (dawns): fire bright 1.3, rebuilt 1.0, both 1.3; not within 3: 
+  a broken night's cost (mean): burnt 1.0, dead 2.0, gold 4.1, happiness 8.0, walls lost 1.8, raised for nothing 1.8, the purse at the broken dawn 68.3
+  after 3 days against the costless twin (mean): gold -1.0, happiness -7.5, citizens -2.2; wood bought 0.9, rebuilds 1.0; broke again 0, fell later 0
+T14b PASS two broken nights within three, breachSteps 2 (chosen), no wood between: in a row ended 4/4; one held night between ended 4/4; 22 runs where a careless night held (not counted)
+T14b PASS two broken nights within three, breachSteps 2 (chosen), fed between: in a row ended 4/4; one held night between ended 0/4 (else embers 4); 22 runs where a careless night held (not counted)
+
+careless nights: seed.night broke before>after | burnt dead gold happiness walls purse | bright, rebuilt, mended after | gaps gold happiness citizens | wood rebuilds
+  1.2 held
+  1.3 bright>embers | 1 1 1 8 1/1 raised purse 61 | 1, 1, 1 | -41 -5 -1 | 1 1
+  1.4 held
+  1.5 bright>embers | 1 3 6 8 2/2 raised purse 70 | 1, 1, 1 | -20 -3 -3 | 1 1
+  2.2 held
+  2.3 bright>embers | 1 1 0 8 1/1 raised purse 58 | 2, 1, 2 | -10 -7 -1 | 1 1
+  2.4 held
+  2.5 bright>embers | 1 2 10 8 2/2 raised purse 91 | 1, 1, 1 | 8 -9 -2 | 1 1
+  3.2 held
+  3.3 bright>embers | 1 1 2 8 2/2 raised purse 63 | 1, 1, 1 | -46 -6 -1 | 1 1
+  3.4 held
+  3.5 bright>embers | 1 2 5 8 2/2 raised purse 70 | 1, 1, 1 | 8 -12 -2 | 1 1
+  4.2 held
+  4.3 held
+  4.4 held
+  4.5 bright>embers | 1 1 9 8 2/2 raised purse 99 | 1, 1, 1 | 47 -7 -1 | 1 1
+  5.2 held
+  5.3 bright>embers | 1 2 0 8 1/1 raised purse 52 | 2, 1, 2 | 28 -10 -3 | 1 1
+  5.4 held
+  5.5 bright>embers | 1 3 1 8 2/2 raised purse 50 | 2, 1, 2 | -4 -8 -3 | 1 1
+  6.2 held
+  6.3 held
+  6.4 held
+  6.5 bright>embers | 1 2 7 8 2/2 raised purse 84 | 1, 1, 1 | 14 -10 -2 | 1 1
+  7.2 held
+  7.3 bright>embers | 1 2 1 8 1/1 raised purse 56 | 2, 1, 2 | -27 -8 -4 | 0 1
+  7.4 held
+  7.5 bright>embers | 1 3 4 8 2/2 raised purse 62 | 1, 1, 1 | -15 -6 -3 | 1 1
+  8.2 held
+  8.3 bright>embers | 1 3 2 8 2/2 raised purse 52 | 1, 1, 1 | 13 -8 -3 | 1 1
+  8.4 held
+  8.5 bright>embers | 1 3 8 8 2/2 raised purse 76 | 1, 1, 1 | -9 -8 -3 | 1 1
+  9.2 held
+  9.3 bright>embers | 1 2 1 8 2/2 raised purse 54 | 1, 1, 1 | 5 -8 -2 | 1 1
+  9.4 held
+  9.5 bright>embers | 1 3 7 8 2/2 raised purse 79 | 1, 1, 1 | 17 -4 -3 | 1 1
+  10.2 held
+  10.3 bright>embers | 1 1 2 8 2/2 raised purse 62 | 1, 1, 1 | 10 -8 -1 | 1 1
+  10.4 held
+  10.5 bright>embers | 1 1 8 8 2/2 raised purse 91 | 2, 1, 2 | 4 -8 -1 | 1 1
+
+doubles: seed.night gap steps wood | the fire at each dawn
+  1.2 +1 x2 unfed | bright > bright (a careless night held)
+  1.2 +2 x2 unfed | bright > bright > bright (a careless night held)
+  1.2 +1 x2 fed | bright > bright (a careless night held)
+  1.2 +2 x2 fed | bright > bright > bright (a careless night held)
+  1.3 +1 x2 unfed | embers > out FELL
+  1.3 +2 x2 unfed | embers > low > out FELL
+  1.3 +1 x2 fed | embers > out FELL
+  1.3 +2 x2 fed | embers > bright > embers
+  1.4 +1 x2 unfed | bright > embers (a careless night held)
+  1.4 +2 x2 unfed | bright > bright > embers (a careless night held)
+  1.4 +1 x2 fed | bright > embers (a careless night held)
+  1.4 +2 x2 fed | bright > bright > embers (a careless night held)
+  2.2 +1 x2 unfed | bright > embers (a careless night held)
+  2.2 +2 x2 unfed | bright > bright > embers (a careless night held)
+  2.2 +1 x2 fed | bright > embers (a careless night held)
+  2.2 +2 x2 fed | bright > bright > embers (a careless night held)
+  2.3 +1 x2 unfed | embers > out FELL
+  2.3 +2 x2 unfed | embers > low > out FELL
+  2.3 +1 x2 fed | embers > out FELL
+  2.3 +2 x2 fed | embers > low > embers
+  2.4 +1 x2 unfed | bright > embers (a careless night held)
+  2.4 +2 x2 unfed | bright > bright > embers (a careless night held)
+  2.4 +1 x2 fed | bright > embers (a careless night held)
+  2.4 +2 x2 fed | bright > bright > embers (a careless night held)
+  3.2 +1 x2 unfed | bright > bright (a careless night held)
+  3.2 +2 x2 unfed | bright > bright > bright (a careless night held)
+  3.2 +1 x2 fed | bright > bright (a careless night held)
+  3.2 +2 x2 fed | bright > bright > bright (a careless night held)
+  3.3 +1 x2 unfed | embers > out FELL
+  3.3 +2 x2 unfed | embers > low > out FELL
+  3.3 +1 x2 fed | embers > out FELL
+  3.3 +2 x2 fed | embers > bright > embers
+  3.4 +1 x2 unfed | bright > embers (a careless night held)
+  3.4 +2 x2 unfed | bright > bright > embers (a careless night held)
+  3.4 +1 x2 fed | bright > embers (a careless night held)
+  3.4 +2 x2 fed | bright > bright > embers (a careless night held)
+  4.2 +1 x2 unfed | bright > embers (a careless night held)
+  4.2 +2 x2 unfed | bright > bright > embers (a careless night held)
+  4.2 +1 x2 fed | bright > embers (a careless night held)
+  4.2 +2 x2 fed | bright > bright > embers (a careless night held)
+  4.3 +1 x2 unfed | bright > embers (a careless night held)
+  4.3 +2 x2 unfed | bright > bright > embers (a careless night held)
+  4.3 +1 x2 fed | bright > embers (a careless night held)
+  4.3 +2 x2 fed | bright > bright > embers (a careless night held)
+  4.4 +1 x2 unfed | bright > embers (a careless night held)
+  4.4 +2 x2 unfed | bright > bright > embers (a careless night held)
+  4.4 +1 x2 fed | bright > embers (a careless night held)
+  4.4 +2 x2 fed | bright > bright > embers (a careless night held)
+  5.2 +1 x2 unfed | bright > embers (a careless night held)
+  5.2 +2 x2 unfed | bright > bright > embers (a careless night held)
+  5.2 +1 x2 fed | bright > embers (a careless night held)
+  5.2 +2 x2 fed | bright > bright > embers (a careless night held)
+  5.3 +1 x2 unfed | embers > out FELL
+  5.3 +2 x2 unfed | embers > low > out FELL
+  5.3 +1 x2 fed | embers > out FELL
+  5.3 +2 x2 fed | embers > low > embers
+  5.4 +1 x2 unfed | bright > embers (a careless night held)
+  5.4 +2 x2 unfed | bright > bright > embers (a careless night held)
+  5.4 +1 x2 fed | bright > embers (a careless night held)
+  5.4 +2 x2 fed | bright > bright > embers (a careless night held)
+(32 s)
+
+== early careless nights 2-5, x10.0, without (front-2 as it was; the full table)
+T14a FAIL careless nights 2-5, seeds 1-10, night x10.0, the lord at the throne: 18 of 40 broke (target at least 10), 16 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 16 of 16
+  mended after (dawns): fire bright 2.0, rebuilt 1.7, both 2.0; not within 3: 1.5, 5.5
+  a broken night's cost (mean): burnt 1.0, dead 2.0, gold 4.1, happiness 8.0, walls lost 1.8, raised for nothing 0.0, the purse at the broken dawn 68.3
+  after 3 days against the costless twin (mean): gold -16.4, happiness -8.6, citizens -2.2; wood bought 0.4, rebuilds 0.9; broke again 2, fell later 2
+
+careless nights: seed.night broke before>after | burnt dead gold happiness walls purse | bright, rebuilt, mended after | gaps gold happiness citizens | wood rebuilds
+  1.2 held
+  1.3 bright>embers | 1 1 1 8 1 purse 61 | 2, 2, 2 | 19 -5 -1 | 1 1
+  1.4 held
+  1.5 bright>embers | 1 3 6 8 2 purse 70 | -, -, - | -59 -15 -4 | 0 0 | broke again 1, fell
+  2.2 held
+  2.3 bright>embers | 1 1 0 8 1 purse 58 | 2, 2, 2 | -36 -7 -1 | 0 1
+  2.4 held
+  2.5 bright>embers | 1 2 10 8 2 purse 91 | 2, 1, 2 | -32 -9 -2 | 1 1
+  3.2 held
+  3.3 bright>embers | 1 1 2 8 2 purse 63 | 2, 2, 2 | -66 -6 -1 | 0 1
+  3.4 held
+  3.5 bright>embers | 1 2 5 8 2 purse 70 | 2, 2, 2 | -27 -12 -2 | 0 1
+  4.2 held
+  4.3 held
+  4.4 held
+  4.5 bright>embers | 1 1 9 8 2 purse 99 | 2, 2, 2 | 27 -7 -1 | 1 1
+  5.2 held
+  5.3 bright>embers | 1 2 0 8 1 purse 52 | 2, 2, 2 | -6 -10 -3 | 0 1
+  5.4 held
+  5.5 bright>embers | 1 3 1 8 2 purse 50 | -, -, - | -43 -16 -6 | 0 0 | broke again 1, fell
+  6.2 held
+  6.3 held
+  6.4 held
+  6.5 bright>embers | 1 2 7 8 2 purse 84 | 2, 2, 2 | 4 -10 -2 | 1 1
+  7.2 held
+  7.3 bright>embers | 1 2 1 8 1 purse 56 | 2, 2, 2 | -19 -8 -1 | 0 1
+  7.4 held
+  7.5 bright>embers | 1 3 4 8 2 purse 62 | 2, 1, 2 | -20 -6 -3 | 0 1
+  8.2 held
+  8.3 bright>embers | 1 3 2 8 2 purse 52 | 2, 1, 2 | -18 -8 -3 | 0 1
+  8.4 held
+  8.5 bright>embers | 1 3 8 8 2 purse 76 | 2, 2, 2 | -4 -8 -3 | 0 1
+  9.2 held
+  9.3 bright>embers | 1 2 1 8 2 purse 54 | 2, 2, 2 | -46 -8 -2 | 0 1
+  9.4 held
+  9.5 bright>embers | 1 3 7 8 2 purse 79 | 2, 1, 2 | 17 -4 -3 | 1 1
+  10.2 held
+  10.3 bright>embers | 1 1 2 8 2 purse 62 | 2, 2, 2 | 10 -8 -1 | 1 1
+  10.4 held
+  10.5 bright>embers | 1 1 8 8 2 purse 91 | 2, 1, 2 | 4 -8 -1 | 1 1
+(33 s)
+
+== early careless nights 2-5, x15.0, the walls raised for nothing (the chosen values; the full table)
+T14a PASS careless nights 2-5, seeds 1-10, night x15.0, the lord at the throne: 29 of 40 broke (target at least 10), 29 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 29 of 29
+  mended after (dawns): fire bright 1.4, rebuilt 1.0, both 1.4; not within 3: 
+  a broken night's cost (mean): burnt 1.0, dead 2.0, gold 3.6, happiness 8.0, walls lost 1.5, raised for nothing 1.5, the purse at the broken dawn 63.7
+  after 3 days against the costless twin (mean): gold -12.3, happiness -8.3, citizens -2.2; wood bought 0.9, rebuilds 1.0; broke again 0, fell later 0
+
+careless nights: seed.night broke before>after | burnt dead gold happiness walls purse | bright, rebuilt, mended after | gaps gold happiness citizens | wood rebuilds
+  1.2 held
+  1.3 bright>embers | 1 1 1 8 1/1 raised purse 61 | 1, 1, 1 | -41 -5 -1 | 1 1
+  1.4 bright>embers | 1 1 1 8 1/1 raised purse 50 | 2, 1, 2 | -16 -8 -2 | 1 1
+  1.5 bright>embers | 1 3 6 8 2/2 raised purse 70 | 1, 1, 1 | -50 -8 -4 | 1 1
+  2.2 held
+  2.3 bright>embers | 1 1 0 8 1/1 raised purse 58 | 2, 1, 2 | -10 -7 -1 | 1 1
+  2.4 bright>embers | 1 2 9 8 1/1 raised purse 79 | 1, 1, 1 | 14 -9 -2 | 1 1
+  2.5 bright>embers | 1 2 10 8 2/2 raised purse 91 | 1, 1, 1 | -2 -9 -2 | 1 1
+  3.2 held
+  3.3 bright>embers | 1 1 2 8 2/2 raised purse 63 | 1, 1, 1 | -46 -6 -1 | 1 1
+  3.4 bright>embers | 1 1 0 8 1/1 raised purse 43 | 2, 1, 2 | -8 -6 -2 | 1 1
+  3.5 bright>embers | 1 2 5 8 2/2 raised purse 70 | 1, 1, 1 | -12 -12 -2 | 1 1
+  4.2 held
+  4.3 bright>embers | 1 2 1 8 1/1 raised purse 56 | 1, 1, 1 | -70 -10 -2 | 1 1
+  4.4 bright>embers | 1 3 2 8 1/1 raised purse 48 | 2, 1, 2 | -23 -10 -3 | 1 1
+  4.5 bright>embers | 1 1 9 8 2/2 raised purse 99 | 1, 1, 1 | 7 -7 -1 | 1 1
+  5.2 held
+  5.3 bright>embers | 1 2 0 8 1/1 raised purse 52 | 2, 1, 2 | 28 -10 -3 | 1 1
+  5.4 bright>embers | 1 2 6 8 1/1 raised purse 72 | 2, 1, 2 | -13 -9 -3 | 0 1
+  5.5 bright>embers | 1 3 1 8 2/2 raised purse 50 | 2, 1, 2 | -4 -8 -3 | 1 1
+  6.2 held
+  6.3 bright>embers | 1 2 1 8 2/2 raised purse 54 | 1, 1, 1 | -54 -9 -2 | 1 1
+  6.4 bright>embers | 1 2 1 8 1/1 raised purse 47 | 1, 1, 1 | -53 -10 -2 | 1 1
+  6.5 bright>embers | 1 2 7 8 2/2 raised purse 84 | 1, 1, 1 | 4 -10 -2 | 1 1
+  7.2 held
+  7.3 bright>embers | 1 2 1 8 1/1 raised purse 56 | 2, 1, 2 | 6 -12 -3 | 1 1
+  7.4 bright>embers | 1 2 7 8 1/1 raised purse 76 | 2, 1, 2 | 11 -8 -2 | 0 1
+  7.5 bright>embers | 1 3 4 8 2/2 raised purse 62 | 1, 1, 1 | 30 -8 -3 | 1 1
+  8.2 held
+  8.3 bright>embers | 1 3 2 8 2/2 raised purse 52 | 1, 1, 1 | 13 -8 -3 | 1 1
+  8.4 held
+  8.5 bright>embers | 1 3 8 8 2/2 raised purse 76 | 1, 1, 1 | -19 -8 -3 | 1 1
+  9.2 held
+  9.3 bright>embers | 1 2 1 8 2/2 raised purse 54 | 1, 1, 1 | 5 -8 -2 | 1 1
+  9.4 bright>embers | 1 2 1 8 1/1 raised purse 47 | 2, 1, 2 | -61 -6 -2 | 0 1
+  9.5 bright>embers | 1 3 7 8 2/2 raised purse 79 | 1, 1, 1 | 27 -4 -3 | 1 1
+  10.2 held
+  10.3 bright>embers | 1 1 2 8 2/2 raised purse 62 | 1, 1, 1 | -22 -9 -1 | 1 1
+  10.4 bright>embers | 1 3 1 8 1/1 raised purse 45 | 2, 1, 2 | -31 -8 -3 | 1 1
+  10.5 bright>embers | 1 1 8 8 2/2 raised purse 91 | 2, 1, 2 | 34 -8 -1 | 1 1
+(34 s)
+
+== early careless nights 2-5, x15.0, without (front-2 as it was; the full table)
+T14a PASS careless nights 2-5, seeds 1-10, night x15.0, the lord at the throne: 29 of 40 broke (target at least 10), 27 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 27 of 27
+  mended after (dawns): fire bright 2.0, rebuilt 1.7, both 2.0; not within 3: 1.5, 5.5
+  a broken night's cost (mean): burnt 1.0, dead 2.0, gold 3.6, happiness 8.0, walls lost 1.5, raised for nothing 0.0, the purse at the broken dawn 63.7
+  after 3 days against the costless twin (mean): gold -17.2, happiness -8.8, citizens -2.4; wood bought 0.3, rebuilds 0.9; broke again 2, fell later 2
+
+careless nights: seed.night broke before>after | burnt dead gold happiness walls purse | bright, rebuilt, mended after | gaps gold happiness citizens | wood rebuilds
+  1.2 held
+  1.3 bright>embers | 1 1 1 8 1 purse 61 | 2, 2, 2 | 19 -5 -1 | 1 1
+  1.4 bright>embers | 1 1 1 8 1 purse 50 | 2, 2, 2 | -11 -8 -2 | 0 1
+  1.5 bright>embers | 1 3 6 8 2 purse 70 | -, -, - | -59 -15 -4 | 0 0 | broke again 1, fell
+  2.2 held
+  2.3 bright>embers | 1 1 0 8 1 purse 58 | 2, 2, 2 | -36 -7 -1 | 0 1
+  2.4 bright>embers | 1 2 9 8 1 purse 79 | 2, 1, 2 | -16 -9 -2 | 1 1
+  2.5 bright>embers | 1 2 10 8 2 purse 91 | 2, 1, 2 | -22 -9 -2 | 1 1
+  3.2 held
+  3.3 bright>embers | 1 1 2 8 2 purse 63 | 2, 2, 2 | -66 -6 -1 | 0 1
+  3.4 bright>embers | 1 1 0 8 1 purse 43 | 2, 2, 2 | -22 -6 -5 | 0 1
+  3.5 bright>embers | 1 2 5 8 2 purse 70 | 2, 2, 2 | -17 -12 -2 | 0 1
+  4.2 held
+  4.3 bright>embers | 1 2 1 8 1 purse 56 | 2, 2, 2 | 10 -10 -2 | 0 1
+  4.4 bright>embers | 1 3 2 8 1 purse 48 | 2, 2, 2 | -63 -10 -3 | 0 1
+  4.5 bright>embers | 1 1 9 8 2 purse 99 | 2, 2, 2 | 27 -7 -1 | 1 1
+  5.2 held
+  5.3 bright>embers | 1 2 0 8 1 purse 52 | 2, 2, 2 | -6 -10 -3 | 0 1
+  5.4 bright>embers | 1 2 6 8 1 purse 72 | 1, 1, 1 | -48 -9 -3 | 1 1
+  5.5 bright>embers | 1 3 1 8 2 purse 50 | -, -, - | -43 -16 -6 | 0 0 | broke again 1, fell
+  6.2 held
+  6.3 bright>embers | 1 2 1 8 2 purse 54 | 2, 2, 2 | 1 -9 -2 | 0 1
+  6.4 bright>embers | 1 2 1 8 1 purse 47 | 2, 1, 2 | 7 -10 -2 | 0 1
+  6.5 bright>embers | 1 2 7 8 2 purse 84 | 2, 2, 2 | -16 -10 -2 | 1 1
+  7.2 held
+  7.3 bright>embers | 1 2 1 8 1 purse 56 | 2, 3, 3 | -9 -12 -3 | 0 1
+  7.4 bright>embers | 1 2 7 8 1 purse 76 | 2, 1, 2 | 11 -8 -2 | 1 1
+  7.5 bright>embers | 1 3 4 8 2 purse 62 | 2, 1, 2 | -25 -8 -3 | 0 1
+  8.2 held
+  8.3 bright>embers | 1 3 2 8 2 purse 52 | 2, 1, 2 | -18 -8 -3 | 0 1
+  8.4 held
+  8.5 bright>embers | 1 3 8 8 2 purse 76 | 2, 2, 2 | -4 -8 -3 | 0 1
+  9.2 held
+  9.3 bright>embers | 1 2 1 8 2 purse 54 | 2, 2, 2 | -46 -8 -2 | 0 1
+  9.4 bright>embers | 1 2 1 8 1 purse 47 | 2, 3, 3 | -1 -6 -2 | 0 1
+  9.5 bright>embers | 1 3 7 8 2 purse 79 | 2, 1, 2 | 27 -4 -3 | 1 1
+  10.2 held
+  10.3 bright>embers | 1 1 2 8 2 purse 62 | 2, 2, 2 | -17 -9 -1 | 0 1
+  10.4 bright>embers | 1 3 1 8 1 purse 45 | 2, 2, 2 | -61 -8 -3 | 0 1
+  10.5 bright>embers | 1 1 8 8 2 purse 91 | 2, 1, 2 | 4 -8 -1 | 1 1
+(35 s)
+
+== thin realms (the build order stops after a few steps), x1.0, the chosen values
+idle lord (T2's bot) x1.0, seeds 1-10: old rules fell 10 (nights 3 3 3 3 3 3 3 3 3 3); the rule: broke 10, went out playing on thin 10 (nights after the first broken night: 1 1 2 2 2 2 1 2 2 2), the morning before the trouble kept 10 of 10; played well from the first broken dawn: mended within 3 days 10 of 10, fell 0
+thin cap 0 x1.0, seeds 1-10: old rules fell 3 (nights 14 13 14); the rule: broke 3, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 3 of 3, fell 0
+thin cap 2 x1.0, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+thin cap 4 x1.0, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+thin cap 6 x1.0, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+thin cap 9 x1.0, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+
+thin realms: seed cap xN | old fell | first broken night (purse, walls lost/raised) | broken nights | the fire at each dawn | out, eve kept | played well: mended after, broken, fell
+  1 cap -1 x1.0 | night 3 | night 3 (purse 184, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 1, 0, stood
+  2 cap -1 x1.0 | night 3 | night 3 (purse 184, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  3 cap -1 x1.0 | night 3 | night 3 (purse 184, walls 0/1) | 3 5 | embers > low > out | out night 5, eve kept yes | 1, 0, stood
+  4 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/1) | 3 5 | embers > low > out | out night 5, eve kept yes | 2, 0, stood
+  5 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/1) | 3 5 | embers > low > out | out night 5, eve kept yes | 2, 0, stood
+  6 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/1) | 3 5 | embers > low > out | out night 5, eve kept yes | 2, 0, stood
+  7 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  8 cap -1 x1.0 | night 3 | night 3 (purse 174, walls 0/1) | 3 5 | embers > low > out | out night 5, eve kept yes | 2, 0, stood
+  9 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/1) | 3 5 | embers > low > out | out night 5, eve kept yes | 1, 0, stood
+  10 cap -1 x1.0 | night 3 | night 3 (purse 184, walls 0/1) | 3 5 | embers > low > out | out night 5, eve kept yes | 2, 0, stood
+  1 cap 0 x1.0 | held | never broke
+  2 cap 0 x1.0 | night 14 | night 14 (purse 770, walls 1/1) | 14 | embers | stood | 1, 0, stood
+  3 cap 0 x1.0 | night 13 | night 13 (purse 723, walls 1/1) | 13 | embers > bright | stood | 1, 0, stood
+  4 cap 0 x1.0 | held | never broke
+  5 cap 0 x1.0 | held | never broke
+  6 cap 0 x1.0 | held | never broke
+  7 cap 0 x1.0 | night 14 | night 14 (purse 683, walls 1/1) | 14 | embers | stood | 1, 1, stood
+  8 cap 0 x1.0 | held | never broke
+  9 cap 0 x1.0 | held | never broke
+  10 cap 0 x1.0 | held | never broke
+  1 cap 2 x1.0 | held | never broke
+  2 cap 2 x1.0 | held | never broke
+  3 cap 2 x1.0 | held | never broke
+  4 cap 2 x1.0 | held | never broke
+  5 cap 2 x1.0 | held | never broke
+  6 cap 2 x1.0 | held | never broke
+  7 cap 2 x1.0 | held | never broke
+  8 cap 2 x1.0 | held | never broke
+  9 cap 2 x1.0 | held | never broke
+  10 cap 2 x1.0 | held | never broke
+  1 cap 4 x1.0 | held | never broke
+  2 cap 4 x1.0 | held | never broke
+  3 cap 4 x1.0 | held | never broke
+  4 cap 4 x1.0 | held | never broke
+  5 cap 4 x1.0 | held | never broke
+  6 cap 4 x1.0 | held | never broke
+  7 cap 4 x1.0 | held | never broke
+  8 cap 4 x1.0 | held | never broke
+  9 cap 4 x1.0 | held | never broke
+  10 cap 4 x1.0 | held | never broke
+  1 cap 6 x1.0 | held | never broke
+  2 cap 6 x1.0 | held | never broke
+  3 cap 6 x1.0 | held | never broke
+  4 cap 6 x1.0 | held | never broke
+  5 cap 6 x1.0 | held | never broke
+  6 cap 6 x1.0 | held | never broke
+  7 cap 6 x1.0 | held | never broke
+  8 cap 6 x1.0 | held | never broke
+  9 cap 6 x1.0 | held | never broke
+  10 cap 6 x1.0 | held | never broke
+  1 cap 9 x1.0 | held | never broke
+  2 cap 9 x1.0 | held | never broke
+  3 cap 9 x1.0 | held | never broke
+  4 cap 9 x1.0 | held | never broke
+  5 cap 9 x1.0 | held | never broke
+  6 cap 9 x1.0 | held | never broke
+  7 cap 9 x1.0 | held | never broke
+  8 cap 9 x1.0 | held | never broke
+  9 cap 9 x1.0 | held | never broke
+  10 cap 9 x1.0 | held | never broke
+(39 s)
+
+== thin realms, x1.0, without the walls raised for nothing
+idle lord (T2's bot) x1.0, seeds 1-10: old rules fell 10 (nights 3 3 3 3 3 3 3 3 3 3); the rule: broke 10, went out playing on thin 10 (nights after the first broken night: 1 1 1 1 1 1 1 1 1 1), the morning before the trouble kept 10 of 10; played well from the first broken dawn: mended within 3 days 10 of 10, fell 0
+thin cap 0 x1.0, seeds 1-10: old rules fell 3 (nights 14 13 14); the rule: broke 3, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 3 of 3, fell 0
+thin cap 2 x1.0, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+thin cap 4 x1.0, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+thin cap 6 x1.0, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+thin cap 9 x1.0, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+
+thin realms: seed cap xN | old fell | first broken night (purse, walls lost/raised) | broken nights | the fire at each dawn | out, eve kept | played well: mended after, broken, fell
+  1 cap -1 x1.0 | night 3 | night 3 (purse 184, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  2 cap -1 x1.0 | night 3 | night 3 (purse 184, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  3 cap -1 x1.0 | night 3 | night 3 (purse 184, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  4 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  5 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  6 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  7 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  8 cap -1 x1.0 | night 3 | night 3 (purse 174, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  9 cap -1 x1.0 | night 3 | night 3 (purse 179, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  10 cap -1 x1.0 | night 3 | night 3 (purse 184, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  1 cap 0 x1.0 | held | never broke
+  2 cap 0 x1.0 | night 14 | night 14 (purse 770, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  3 cap 0 x1.0 | night 13 | night 13 (purse 723, walls 1/0) | 13 | embers > bright | stood | 2, 0, stood
+  4 cap 0 x1.0 | held | never broke
+  5 cap 0 x1.0 | held | never broke
+  6 cap 0 x1.0 | held | never broke
+  7 cap 0 x1.0 | night 14 | night 14 (purse 683, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  8 cap 0 x1.0 | held | never broke
+  9 cap 0 x1.0 | held | never broke
+  10 cap 0 x1.0 | held | never broke
+  1 cap 2 x1.0 | held | never broke
+  2 cap 2 x1.0 | held | never broke
+  3 cap 2 x1.0 | held | never broke
+  4 cap 2 x1.0 | held | never broke
+  5 cap 2 x1.0 | held | never broke
+  6 cap 2 x1.0 | held | never broke
+  7 cap 2 x1.0 | held | never broke
+  8 cap 2 x1.0 | held | never broke
+  9 cap 2 x1.0 | held | never broke
+  10 cap 2 x1.0 | held | never broke
+  1 cap 4 x1.0 | held | never broke
+  2 cap 4 x1.0 | held | never broke
+  3 cap 4 x1.0 | held | never broke
+  4 cap 4 x1.0 | held | never broke
+  5 cap 4 x1.0 | held | never broke
+  6 cap 4 x1.0 | held | never broke
+  7 cap 4 x1.0 | held | never broke
+  8 cap 4 x1.0 | held | never broke
+  9 cap 4 x1.0 | held | never broke
+  10 cap 4 x1.0 | held | never broke
+  1 cap 6 x1.0 | held | never broke
+  2 cap 6 x1.0 | held | never broke
+  3 cap 6 x1.0 | held | never broke
+  4 cap 6 x1.0 | held | never broke
+  5 cap 6 x1.0 | held | never broke
+  6 cap 6 x1.0 | held | never broke
+  7 cap 6 x1.0 | held | never broke
+  8 cap 6 x1.0 | held | never broke
+  9 cap 6 x1.0 | held | never broke
+  10 cap 6 x1.0 | held | never broke
+  1 cap 9 x1.0 | held | never broke
+  2 cap 9 x1.0 | held | never broke
+  3 cap 9 x1.0 | held | never broke
+  4 cap 9 x1.0 | held | never broke
+  5 cap 9 x1.0 | held | never broke
+  6 cap 9 x1.0 | held | never broke
+  7 cap 9 x1.0 | held | never broke
+  8 cap 9 x1.0 | held | never broke
+  9 cap 9 x1.0 | held | never broke
+  10 cap 9 x1.0 | held | never broke
+(42 s)
+
+== thin realms (the build order stops after a few steps), x1.5, the chosen values
+idle lord (T2's bot) x1.5, seeds 1-10: old rules fell 10 (nights 3 3 3 3 3 3 3 3 3 3); the rule: broke 10, went out playing on thin 10 (nights after the first broken night: 1 1 1 1 1 1 1 1 1 1), the morning before the trouble kept 10 of 10; played well from the first broken dawn: mended within 3 days 10 of 10, fell 0
+thin cap 0 x1.5, seeds 1-10: old rules fell 9 (nights 13 14 13 14 13 14 14 14 14); the rule: broke 9, went out playing on thin 3 (nights after the first broken night: 1 1 1), the morning before the trouble kept 3 of 3; played well from the first broken dawn: mended within 3 days 8 of 9, fell 1
+thin cap 2 x1.5, seeds 1-10: old rules fell 4 (nights 13 14 13 14); the rule: broke 4, went out playing on thin 2 (nights after the first broken night: 1 1), the morning before the trouble kept 2 of 2; played well from the first broken dawn: mended within 3 days 4 of 4, fell 0
+thin cap 4 x1.5, seeds 1-10: old rules fell 4 (nights 13 14 13 14); the rule: broke 4, went out playing on thin 2 (nights after the first broken night: 1 1), the morning before the trouble kept 2 of 2; played well from the first broken dawn: mended within 3 days 4 of 4, fell 0
+thin cap 6 x1.5, seeds 1-10: old rules fell 3 (nights 12 11 14); the rule: broke 3, went out playing on thin 1 (nights after the first broken night: 1), the morning before the trouble kept 1 of 1; played well from the first broken dawn: mended within 3 days 3 of 3, fell 1
+thin cap 9 x1.5, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+
+thin realms: seed cap xN | old fell | first broken night (purse, walls lost/raised) | broken nights | the fire at each dawn | out, eve kept | played well: mended after, broken, fell
+  1 cap -1 x1.5 | night 3 | night 3 (purse 163, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 1, 0, stood
+  2 cap -1 x1.5 | night 3 | night 3 (purse 163, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  3 cap -1 x1.5 | night 3 | night 3 (purse 163, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 1, 0, stood
+  4 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  5 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  6 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  7 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  8 cap -1 x1.5 | night 3 | night 3 (purse 154, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  9 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  10 cap -1 x1.5 | night 3 | night 3 (purse 163, walls 0/1) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  1 cap 0 x1.5 | night 13 | night 13 (purse 687, walls 1/1) | 13 14 | embers > out | out night 14, eve kept yes | 1, 1, stood
+  2 cap 0 x1.5 | night 14 | night 14 (purse 760, walls 1/1) | 14 | embers | stood | 1, 0, stood
+  3 cap 0 x1.5 | held | never broke
+  4 cap 0 x1.5 | night 13 | night 13 (purse 718, walls 1/1) | 13 14 | embers > out | out night 14, eve kept yes | 1, 0, stood
+  5 cap 0 x1.5 | night 14 | night 14 (purse 780, walls 1/1) | 14 | embers | stood | 1, 1, stood
+  6 cap 0 x1.5 | night 13 | night 13 (purse 706, walls 1/1) | 13 14 | embers > out | out night 14, eve kept yes | 1, 0, stood
+  7 cap 0 x1.5 | night 14 | night 14 (purse 682, walls 1/1) | 14 | embers | stood | 1, 1, stood
+  8 cap 0 x1.5 | night 14 | night 14 (purse 727, walls 1/1) | 14 | embers | stood | 1, 0, stood
+  9 cap 0 x1.5 | night 14 | night 14 (purse 806, walls 1/1) | 14 | embers | stood | 1, 0, stood
+  10 cap 0 x1.5 | night 14 | night 14 (purse 806, walls 1/1) | 14 | embers | stood | -, 1, fell
+  1 cap 2 x1.5 | night 13 | night 13 (purse 667, walls 1/1) | 13 14 | embers > out | out night 14, eve kept yes | 1, 0, stood
+  2 cap 2 x1.5 | held | never broke
+  3 cap 2 x1.5 | held | never broke
+  4 cap 2 x1.5 | held | never broke
+  5 cap 2 x1.5 | night 14 | night 14 (purse 741, walls 1/1) | 14 | embers | stood | 1, 0, stood
+  6 cap 2 x1.5 | night 13 | night 13 (purse 667, walls 1/1) | 13 14 | embers > out | out night 14, eve kept yes | 1, 1, stood
+  7 cap 2 x1.5 | held | never broke
+  8 cap 2 x1.5 | night 14 | night 14 (purse 688, walls 1/1) | 14 | embers | stood | 1, 0, stood
+  9 cap 2 x1.5 | held | never broke
+  10 cap 2 x1.5 | held | never broke
+  1 cap 4 x1.5 | night 13 | night 13 (purse 702, walls 1/1) | 13 14 | embers > out | out night 14, eve kept yes | 1, 1, stood
+  2 cap 4 x1.5 | held | never broke
+  3 cap 4 x1.5 | held | never broke
+  4 cap 4 x1.5 | held | never broke
+  5 cap 4 x1.5 | night 14 | night 14 (purse 781, walls 1/1) | 14 | embers | stood | 1, 0, stood
+  6 cap 4 x1.5 | night 13 | night 13 (purse 702, walls 1/1) | 13 14 | embers > out | out night 14, eve kept yes | 1, 1, stood
+  7 cap 4 x1.5 | held | never broke
+  8 cap 4 x1.5 | night 14 | night 14 (purse 728, walls 1/1) | 14 | embers | stood | 1, 0, stood
+  9 cap 4 x1.5 | held | never broke
+  10 cap 4 x1.5 | held | never broke
+  1 cap 6 x1.5 | held | never broke
+  2 cap 6 x1.5 | held | never broke
+  3 cap 6 x1.5 | night 12 | night 12 (purse 414, walls 2/2) | 12 13 | embers > out | out night 13, eve kept yes | 1, 0, stood
+  4 cap 6 x1.5 | held | never broke
+  5 cap 6 x1.5 | held | never broke
+  6 cap 6 x1.5 | held | never broke
+  7 cap 6 x1.5 | held | never broke
+  8 cap 6 x1.5 | held | never broke
+  9 cap 6 x1.5 | night 11 | night 11 (purse 275, walls 2/2) | 11 14 | embers > bright > bright > embers | stood | 1, 1, stood
+  10 cap 6 x1.5 | night 14 | night 14 (purse 325, walls 2/2) | 14 | embers | stood | 1, 2, fell
+  1 cap 9 x1.5 | held | never broke
+  2 cap 9 x1.5 | held | never broke
+  3 cap 9 x1.5 | held | never broke
+  4 cap 9 x1.5 | held | never broke
+  5 cap 9 x1.5 | held | never broke
+  6 cap 9 x1.5 | held | never broke
+  7 cap 9 x1.5 | held | never broke
+  8 cap 9 x1.5 | held | never broke
+  9 cap 9 x1.5 | held | never broke
+  10 cap 9 x1.5 | held | never broke
+(48 s)
+
+== thin realms, x1.5, without the walls raised for nothing
+idle lord (T2's bot) x1.5, seeds 1-10: old rules fell 10 (nights 3 3 3 3 3 3 3 3 3 3); the rule: broke 10, went out playing on thin 10 (nights after the first broken night: 1 1 1 1 1 1 1 1 1 1), the morning before the trouble kept 10 of 10; played well from the first broken dawn: mended within 3 days 10 of 10, fell 0
+thin cap 0 x1.5, seeds 1-10: old rules fell 9 (nights 13 14 13 14 13 14 14 14 14); the rule: broke 9, went out playing on thin 3 (nights after the first broken night: 1 1 1), the morning before the trouble kept 3 of 3; played well from the first broken dawn: mended within 3 days 9 of 9, fell 0
+thin cap 2 x1.5, seeds 1-10: old rules fell 4 (nights 13 14 13 14); the rule: broke 4, went out playing on thin 2 (nights after the first broken night: 1 1), the morning before the trouble kept 2 of 2; played well from the first broken dawn: mended within 3 days 3 of 4, fell 1
+thin cap 4 x1.5, seeds 1-10: old rules fell 4 (nights 13 14 13 14); the rule: broke 4, went out playing on thin 2 (nights after the first broken night: 1 1), the morning before the trouble kept 2 of 2; played well from the first broken dawn: mended within 3 days 4 of 4, fell 0
+thin cap 6 x1.5, seeds 1-10: old rules fell 3 (nights 12 11 14); the rule: broke 3, went out playing on thin 1 (nights after the first broken night: 1), the morning before the trouble kept 1 of 1; played well from the first broken dawn: mended within 3 days 3 of 3, fell 1
+thin cap 9 x1.5, seeds 1-10: old rules fell 0 (nights ); the rule: broke 0, went out playing on thin 0 (nights after the first broken night: ), the morning before the trouble kept 0 of 0; played well from the first broken dawn: mended within 3 days 0 of 0, fell 0
+
+thin realms: seed cap xN | old fell | first broken night (purse, walls lost/raised) | broken nights | the fire at each dawn | out, eve kept | played well: mended after, broken, fell
+  1 cap -1 x1.5 | night 3 | night 3 (purse 163, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  2 cap -1 x1.5 | night 3 | night 3 (purse 163, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  3 cap -1 x1.5 | night 3 | night 3 (purse 163, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  4 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 1, 0, stood
+  5 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  6 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  7 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  8 cap -1 x1.5 | night 3 | night 3 (purse 154, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  9 cap -1 x1.5 | night 3 | night 3 (purse 158, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 2, 0, stood
+  10 cap -1 x1.5 | night 3 | night 3 (purse 163, walls 0/0) | 3 4 | embers > out | out night 4, eve kept yes | 1, 0, stood
+  1 cap 0 x1.5 | night 13 | night 13 (purse 687, walls 1/0) | 13 14 | embers > out | out night 14, eve kept yes | 2, 0, stood
+  2 cap 0 x1.5 | night 14 | night 14 (purse 760, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  3 cap 0 x1.5 | held | never broke
+  4 cap 0 x1.5 | night 13 | night 13 (purse 718, walls 1/0) | 13 14 | embers > out | out night 14, eve kept yes | 2, 0, stood
+  5 cap 0 x1.5 | night 14 | night 14 (purse 780, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  6 cap 0 x1.5 | night 13 | night 13 (purse 706, walls 1/0) | 13 14 | embers > out | out night 14, eve kept yes | 2, 0, stood
+  7 cap 0 x1.5 | night 14 | night 14 (purse 682, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  8 cap 0 x1.5 | night 14 | night 14 (purse 727, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  9 cap 0 x1.5 | night 14 | night 14 (purse 806, walls 1/0) | 14 | embers | stood | 1, 0, stood
+  10 cap 0 x1.5 | night 14 | night 14 (purse 806, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  1 cap 2 x1.5 | night 13 | night 13 (purse 667, walls 1/0) | 13 14 | embers > out | out night 14, eve kept yes | -, 1, fell
+  2 cap 2 x1.5 | held | never broke
+  3 cap 2 x1.5 | held | never broke
+  4 cap 2 x1.5 | held | never broke
+  5 cap 2 x1.5 | night 14 | night 14 (purse 741, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  6 cap 2 x1.5 | night 13 | night 13 (purse 667, walls 1/0) | 13 14 | embers > out | out night 14, eve kept yes | 2, 1, stood
+  7 cap 2 x1.5 | held | never broke
+  8 cap 2 x1.5 | night 14 | night 14 (purse 688, walls 1/0) | 14 | embers | stood | 2, 1, stood
+  9 cap 2 x1.5 | held | never broke
+  10 cap 2 x1.5 | held | never broke
+  1 cap 4 x1.5 | night 13 | night 13 (purse 702, walls 1/0) | 13 14 | embers > out | out night 14, eve kept yes | 1, 0, stood
+  2 cap 4 x1.5 | held | never broke
+  3 cap 4 x1.5 | held | never broke
+  4 cap 4 x1.5 | held | never broke
+  5 cap 4 x1.5 | night 14 | night 14 (purse 781, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  6 cap 4 x1.5 | night 13 | night 13 (purse 702, walls 1/0) | 13 14 | embers > out | out night 14, eve kept yes | 2, 1, stood
+  7 cap 4 x1.5 | held | never broke
+  8 cap 4 x1.5 | night 14 | night 14 (purse 728, walls 1/0) | 14 | embers | stood | 2, 0, stood
+  9 cap 4 x1.5 | held | never broke
+  10 cap 4 x1.5 | held | never broke
+  1 cap 6 x1.5 | held | never broke
+  2 cap 6 x1.5 | held | never broke
+  3 cap 6 x1.5 | night 12 | night 12 (purse 414, walls 2/0) | 12 13 | embers > out | out night 13, eve kept yes | 1, 0, stood
+  4 cap 6 x1.5 | held | never broke
+  5 cap 6 x1.5 | held | never broke
+  6 cap 6 x1.5 | held | never broke
+  7 cap 6 x1.5 | held | never broke
+  8 cap 6 x1.5 | held | never broke
+  9 cap 6 x1.5 | night 11 | night 11 (purse 275, walls 2/0) | 11 14 | embers > bright > bright > embers | stood | 1, 0, stood
+  10 cap 6 x1.5 | night 14 | night 14 (purse 325, walls 2/0) | 14 | embers | stood | 1, 2, fell
+  1 cap 9 x1.5 | held | never broke
+  2 cap 9 x1.5 | held | never broke
+  3 cap 9 x1.5 | held | never broke
+  4 cap 9 x1.5 | held | never broke
+  5 cap 9 x1.5 | held | never broke
+  6 cap 9 x1.5 | held | never broke
+  7 cap 9 x1.5 | held | never broke
+  8 cap 9 x1.5 | held | never broke
+  9 cap 9 x1.5 | held | never broke
+  10 cap 9 x1.5 | held | never broke
+(53 s)
+
+hearthsweep: done (53 s)
+hearthsweep: exit 0 after 146 s
