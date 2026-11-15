@@ -128,6 +128,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case curtainA, curtainB, curtainC, curtainStair, curtainTower, curtainHoard, castleBanner
     case forebuilding, hallDoorGlow, hallDoorWedge, chapelTower, bakehouse, bakeHatchGlow
     case posternT1, posternT2, posternT3, gateArchFg, laneScreeCobble
+    // World-2 fix round 1 (tools/keepfix.py): the mist bank at the keep's foot, the bloom around its lit windows, its
+    // brazier's light, a puff of chimney smoke (three sizes), the postern's far end lit at night
+    case keepMist, keepPaneHalo, keepFireGlow, smokePuff, posternFarGlow
     // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
     // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
@@ -354,20 +357,26 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .cloudDeck: return PixelSize(width: 720, height: 100)   // fix round 2: room for the towers
         case .cleftWater: return PixelSize(width: 14, height: 54)
         // World rebuild, step world-2 (tools/keepart.py).
-        case .keepT1, .keepT2, .keepT3, .keepT2Build, .keepT3Build: return PixelSize(width: 200, height: 175)
+        case .keepT1, .keepT2, .keepT3, .keepT2Build, .keepT3Build: return PixelSize(width: 260, height: 175)
         case .curtainA, .curtainB, .curtainC: return PixelSize(width: 64, height: 74)
         case .curtainStair: return PixelSize(width: 52, height: 66)
         case .curtainTower: return PixelSize(width: 44, height: 104)
         case .curtainHoard: return PixelSize(width: 64, height: 22)
         case .castleBanner: return PixelSize(width: 12, height: 30)
         case .forebuilding: return PixelSize(width: 120, height: 96)
-        case .hallDoorGlow: return PixelSize(width: 20, height: 30)
-        case .hallDoorWedge: return PixelSize(width: 60, height: 12)
+        case .hallDoorGlow: return PixelSize(width: 20, height: 32)
+        case .hallDoorWedge: return PixelSize(width: 60, height: 19)
         case .chapelTower: return PixelSize(width: 110, height: 132)
         case .bakehouse: return PixelSize(width: 100, height: 62)
         case .bakeHatchGlow: return PixelSize(width: 6, height: 6)
         case .posternT1, .posternT2, .posternT3: return PixelSize(width: 176, height: 112)
-        case .gateArchFg: return PixelSize(width: 64, height: 120)
+        case .gateArchFg: return PixelSize(width: 16, height: 205)
+        // World-2 fix round 1 (tools/keepfix.py).
+        case .keepMist: return PixelSize(width: 320, height: 18)
+        case .keepPaneHalo: return PixelSize(width: 11, height: 14)
+        case .keepFireGlow: return PixelSize(width: 36, height: 24)
+        case .smokePuff: return PixelSize(width: 6, height: 6)
+        case .posternFarGlow: return PixelSize(width: 10, height: 16)
         case .moorRuin: return PixelSize(width: 50, height: 36)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
         case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:
@@ -422,7 +431,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bankSheetA, .bankSheetB, .bankSheetC: return 2
         case .cleftWater: return 12   // fix round 2: six frames per thread, the second thread's from frame 6
         case .forebuilding, .chapelTower: return 2   // world-2: the hall door closed and open; the bell, gone
-        case .gateArchFg: return 2                   // world-2: the gatehouse's passage, the postern's
+        case .gateArchFg: return 2                   // world-2: the gatehouse's near jamb, the postern's
+        case .smokePuff: return 3                    // world-2 fix round 1: three sizes
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9

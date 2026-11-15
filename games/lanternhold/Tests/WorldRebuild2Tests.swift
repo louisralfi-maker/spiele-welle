@@ -27,16 +27,17 @@ final class WorldRebuild2Tests: XCTestCase {
         let keep = door.layer(.near).sprites.first { WorldRebuild2Tests.keeps.contains($0.sprite) }
         XCTAssertNotNil(keep, "the keep in the near plane's picture")
         if let keep {
-            let middle = Double(keep.rect.x + keep.rect.z / 2)
-            XCTAssertEqual(middle, Double(door.targetWidth) / 2, accuracy: 2, "centred over the hall door")
+            let middle = Double(keep.rect.x) + SceneLayout.castleKeepMiddle
+            XCTAssertEqual(middle, Double(door.targetWidth) / 2, accuracy: 2, "its main block centred over the hall door")
         }
-        // From the front gate its corner stands at the right edge; from the back gate on it is gone.
+        // From the front gate its west corner (fix round 1: the stair turret, about 60 px further in) stands at the
+        // right edge; from the back gate on it is gone.
         let gate = frame(world, timeOfDay: 0.5, focus: 1360)
         let corner = gate.layer(.near).sprites.first { WorldRebuild2Tests.keeps.contains($0.sprite) }
         XCTAssertNotNil(corner, "the keep's corner from the front gate")
         if let corner {
-            XCTAssertGreaterThan(Int(corner.rect.x), gate.targetWidth - 40)
-            XCTAssertLessThan(Int(corner.rect.x), gate.targetWidth - 10)
+            XCTAssertGreaterThan(Int(corner.rect.x), gate.targetWidth - 100)
+            XCTAssertLessThan(Int(corner.rect.x), gate.targetWidth - 70)
         }
         for focus in [1100.0, 2420, 2800, 3600] {
             XCTAssertNil(frame(world, timeOfDay: 0.5, focus: focus).layer(.near).sprites
@@ -68,8 +69,9 @@ final class WorldRebuild2Tests: XCTestCase {
                 for column in 0..<cell.width {
                     let p = layout.image[cell.x + column, cell.y + row]
                     guard p.a > 0 else { continue }
-                    // The banner and its pole stand on columns 99 to 111 of the keep.
-                    if skipBanner && (99...111).contains(column) { continue }
+                    // The great banner and its pole stand on columns 155 to 171 of the keep, the stair turret's
+                    // flag on 26 to 44 (fix round 1).
+                    if skipBanner && ((155...171).contains(column) || (26...44).contains(column)) { continue }
                     return cell.height - row
                 }
             }
@@ -105,7 +107,9 @@ final class WorldRebuild2Tests: XCTestCase {
         }
         let fore = props.first { $0.sprite == .forebuilding }
         XCTAssertEqual((fore?.x ?? 0) + 60, SceneLayout.castleHallDoorX)
-        XCTAssertEqual(fore?.lights.filter { $0.kind == .torch }.count, 2, "two torches at the hall door")
+        XCTAssertEqual(fore?.emissive.filter { $0.sprite == .flame }.count, 2, "two torches at the hall door")
+        XCTAssertEqual(fore?.lights.filter { $0.kind == .torch }.count, 1, "their light one flat band (fix round 1)")
+        XCTAssertGreaterThan(fore?.lights.first { $0.kind == .torch }?.squash ?? 0, 1.5)
         let chapel = props.first { $0.sprite == .chapelTower }
         XCTAssertEqual(chapel?.masks.count, 3, "three lancets lit from inside")
         XCTAssertTrue(props.contains { $0.sprite == .brazier && abs($0.x - (SceneLayout.castleChapelX + 31)) < 1 },
@@ -120,12 +124,14 @@ final class WorldRebuild2Tests: XCTestCase {
     func testTheCastleChimneysSmoke() {
         let world = PlaceholderScene.world(look: .two)
         let door = frame(world, timeOfDay: 0.8, focus: SceneLayout.castleHallDoorX)
-        XCTAssertTrue(door.layer(.near).sprites.contains { $0.sprite == .d2Smoke }, "the keep's smoke")
+        XCTAssertGreaterThanOrEqual(door.layer(.near).sprites.filter { $0.sprite == .smokePuff }.count, 4,
+                                    "the keep's smoke")
         let bake = frame(world, timeOfDay: 0.8, focus: SceneLayout.castleBakehouseX + 60)
-        XCTAssertTrue(bake.layer(.world).sprites.contains { $0.sprite == .d2Smoke }, "the bakehouse's smoke")
+        XCTAssertGreaterThanOrEqual(bake.layer(.world).sprites.filter { $0.sprite == .smokePuff }.count, 4,
+                                    "the bakehouse's smoke")
         let building = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2, building: true))
         XCTAssertFalse(frame(building, timeOfDay: 0.8, focus: SceneLayout.castleHallDoorX).layer(.near).sprites
-            .contains { $0.sprite == .d2Smoke }, "no smoke while the keep's roof is off")
+            .contains { $0.sprite == .smokePuff }, "no smoke while the keep's roof is off")
     }
 
     /// 2.8, item 4: the picture's grade turns warm through the postern, over world 2330 to 2530.

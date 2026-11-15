@@ -173,6 +173,10 @@ enum FrameBuilder {
         let ordered = props.sorted { ($0.plane, $0.z, $0.id) < ($1.plane, $1.z, $1.id) }
         var next = 0
         for plane in Plane.allCases {
+            if plane == .mid && options.look == .two, let moon = wedgeMoon(ambient: ambient, geometry: geometry) {
+                // World-2 fix round 1: the moon on the sky, behind the cleft's rock (`wedgeMoon`).
+                glow.add(moon)
+            }
             if plane == .world {
                 let tiles = options.look == .two ? laneTiles(geometry: geometry) : groundTiles(geometry: geometry)
                 for tile in tiles {
@@ -520,24 +524,48 @@ enum FrameBuilder {
 
     // MARK: World rebuild, step world-2 (SceneLayoutCastle.swift)
 
-    /// The castle's chimney smoke (`SceneLayout.castleChimney`): the same veil as the cottages', on the plane of its
-    /// prop, placed by the plane the prop moves with (the keep's moves with the mist band).
+    /// The castle's chimney smoke (`SceneLayout.castleChimney`) on the plane of its prop, placed by the plane the prop
+    /// moves with (the keep's moves with the mist band). Fix round 1 (the critic's high 3): puffs that rise and drift
+    /// (`CastleSmoke`), white × a pale value, so the hour's light gives them a value over the rock behind; the
+    /// bakehouse's take the warm glow of its chimney's mouth from below. Reduce Motion: they stand still.
     private static func castleSmoke(props: [Prop], plane: Plane, animTime: Double, reduceMotion: Bool,
                                     geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
-        let size = SpriteID.d2Smoke.size
+        let size = SpriteID.smokePuff.size
+        let value = CastleSmoke.value
         var list: [SpriteInstance] = []
         for prop in props where prop.plane == plane {
             guard let chimney = SceneLayout.castleChimney(prop) else { continue }
-            let left = chimney.x - Double(size.width / 2) - geometry.whole(prop.movesWith ?? prop.plane)
-            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
-            let top = geometry.top(y: chimney.y, height: Double(size.height))
-            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-            let column = SpriteInstance(sprite: .d2Smoke, frame: 0, rect: rect, tint: look2SmokeTint, flipped: false)
+            let whole = geometry.whole(prop.movesWith ?? prop.plane)
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
-            list += sheared(column, offset: Int((wind * smokeLean).rounded()), bands: 10, bend: false)
+            let time = reduceMotion ? 0 : animTime
+            for puff in CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x)) where puff.alpha > 0.02 {
+                let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
+                guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+                let top = geometry.top(y: (chimney.y + puff.rise).rounded(), height: Double(size.height))
+                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+                list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
+                                           tint: SIMD4<Float>(value, value, value * 1.02, puff.alpha), flipped: false))
+            }
         }
         return list
+    }
+
+    /// Fix round 1 (the critic's high 10: "the moon moves at about half the camera and sits on the keep's roof line"):
+    /// inside the walls the moon stands on the sky, still on the screen (factor 0), `wedgeMoonX` columns from its left
+    /// and `wedgeMoonTop` rows under its top (under the HUD). It goes into the emissive pass before the mid plane's
+    /// rock, so the cleft wall hides it but where a wedge of sky passes over it (the Throat's wedge, the camera about
+    /// 1600), clear of the keep, which stands far to its right there; at dusk it is not up yet.
+    static let wedgeMoonX = 96.0
+    static let wedgeMoonTop = 34.0
+    private static func wedgeMoon(ambient: AmbientSample, geometry: Geometry) -> EmissiveInstance? {
+        let share = Float(cleftShare(focus: geometry.focusX)) * ambient.torchStrength * wedgeMoonShare(ambient)
+        guard share > 0.01 else { return nil }
+        let size = SpriteID.moon.size
+        let rect = SIMD4<Float>(Float(wedgeMoonX) - Float(size.width / 2), Float(wedgeMoonTop), Float(size.width),
+                                Float(size.height))
+        let moon = GamePalette.moon * share
+        return EmissiveInstance(sprite: .moon, plane: .mid, rect: rect, color: SIMD4<Float>(moon.x, moon.y, moon.z, 1))
     }
 
     /// Look 2: the cut-away rooms on screen (`SceneLayout.look2Interior`), at most two, each as x0, y0, x1, y1 in
@@ -1433,8 +1461,9 @@ enum FrameBuilder {
             let centreY = Double(geometry.groundRow) - source.y
             let circle = SIMD4<Float>(Float(centreX), Float(centreY), Float(radius), Float(intensity))
             let rgba = SIMD4<Float>(color.x, color.y, color.z, 0)
-            list.append(FrameLight(circle: circle, color: rgba, ellipseY: Float(LightField.ellipseY), kind: source.kind,
-                                   plane: plane))
+            // World-2 fix round 1: a scene light may shape its pool (flat on the cobbles, a cone up a wall).
+            list.append(FrameLight(circle: circle, color: rgba, ellipseY: Float(source.squash ?? LightField.ellipseY),
+                                   kind: source.kind, plane: plane))
         }
         return list
     }

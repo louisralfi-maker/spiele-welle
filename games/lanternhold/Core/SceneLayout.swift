@@ -34,6 +34,11 @@ enum SceneLayout {
         let x: Double
         let y: Double
         let radius: Double
+        /// World-2 fix round 1: the pool's vertical squash in the picture (nil: the light field's own), and its colour
+        /// and strength when they differ from its kind's.
+        var squash: Double?
+        var color: SIMD3<Float>?
+        var intensity: Double?
     }
 
     /// One sprite instance.

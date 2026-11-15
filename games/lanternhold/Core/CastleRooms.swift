@@ -69,8 +69,10 @@ enum CastleRooms {
 
     /// The door opens while the lord stands this close to its middle.
     static let doorReach = 18.0
-    /// The gate passage's arch fades in and out over this many px either side of a passage.
+    /// The gate passage's near jamb fades in and out over this many px either side of a passage.
     static let archFade = 12.0
+    /// The jamb's left edge stands this far inside the passage's east end (fix round 1: its lit edge 1 px in from it).
+    static let jambInset = 8.0
     /// The hall's light through the open door, its wedge on the cobbles and the lantern-warm pool before it.
     static let doorGlowColor = SIMD3<Float>(0.92, 0.8, 0.62)
     static let doorGlowByDay: Float = 0.5
@@ -123,8 +125,10 @@ enum CastleRooms {
             case (.world, .chapelTower):
                 prop.frame = key.bellGone ? 1 : 0
             case (_, _) where key.darkKeep && SceneLayout.keepTops.contains(prop.sprite) && prop.masks.count > 1:
-                // The keep's right window of its lowest lit row stays dark: the Throat can see we remember.
-                prop.masks.remove(at: 1)
+                // The keep's right window of its lowest lit row stays dark: the Throat can see we remember (and its
+                // bloom with it, fix round 1).
+                let pane = prop.masks.remove(at: 1)
+                prop.emissive.removeAll { $0.sprite == .keepPaneHalo && $0.dx == pane.dx - 2 && $0.dy == pane.dy - 2 }
             case (.mid, .keepFar) where key.darkKeep:
                 // Look 1: the upper row's right window of the far keeps, named in `SceneLayout`.
                 prop.masks = prop.masks.filter { !SceneLayout.isKeepFarDarkPane(dx: $0.dx, dy: $0.dy) }
@@ -137,9 +141,10 @@ enum CastleRooms {
                                     || $0.sprite == .posternT2 || $0.sprite == .posternT3 }) {
             var id = (base.props.map(\.id).max() ?? 0) + 1
             for (index, tenths) in key.arches.enumerated() where tenths > 0 {
+                // Fix round 1 (the critic's high 7): the passage's near jamb, its lit edge at the passage's east end,
+                // frames the lord while he passes; not the full arch.
                 let passage = SceneLayout.castlePassages[index]
-                let width = Double(SpriteID.gateArchFg.size.width)
-                let x = ((passage.lowerBound + passage.upperBound) / 2 - width / 2).rounded()
+                let x = (passage.upperBound - jambInset).rounded()
                 props.append(Prop(id: id, sprite: .gateArchFg, plane: .foreground, x: x,
                                   y: -Double(WorldLayout.groundRowsBelow), z: 9, region: .castle, movesWith: .world,
                                   frame: index, alpha: Float(tenths) / 10))
@@ -150,9 +155,10 @@ enum CastleRooms {
         return scene
     }
 
-    /// The forebuilding with its door open: the open frame, the hall's warm light in it (dim by day, full at dusk and
-    /// night), the warm wedge on the cobbles before it at dusk and night, a lantern-warm pool there; no line under the
-    /// door.
+    /// The forebuilding with its door open: the open frame, the view into the lit hall in it (dim by day, full at dusk
+    /// and night), the warm wedge over the steps and the cobbles at dusk and night, a flat lantern-warm pool at the
+    /// steps' foot; no line under the door. Fix round 1 (blocker 2: "the lord becomes an orange ghost"): the pool lies
+    /// low and flat, so the lord in the doorway stays a dark figure against the hall's light, warm only at his feet.
     static func openDoor(_ base: Prop) -> Prop {
         var prop = base
         prop.frame = 1
@@ -170,8 +176,8 @@ enum CastleRooms {
         prop.emissive.append(EmissivePart(sprite: .hallDoorWedge, dx: wedge.dx, dy: wedge.dy, color: doorWedgeColor,
                                           intensity: 0.8, flickerSeed: 0x5745_4447, fadesByDay: true, isFire: false,
                                           flickerAmount: 0.3, flickerPace: 0.5))
-        prop.lights.append(LightSource(kind: .lantern, x: SceneLayout.castleHallDoorX, y: 4, radius: 36,
-                                       intensity: 0.55, flickerSeed: 0x4841_4C4C))
+        prop.lights.append(LightSource(kind: .lantern, x: SceneLayout.castleHallDoorX, y: -4, radius: 30,
+                                       intensity: 0.5, flickerSeed: 0x4841_4C4C, squash: 2.6))
         return prop
     }
 

@@ -82,8 +82,8 @@ final class Look2FrameTests: XCTestCase {
         guard let keep = only(first, .keepT1, .near), let front = only(first, .castleFront),
               let wall = only(first, .weltmauer, .far) else { return }
         XCTAssertEqual(keep.movesWith, .mistBand)
-        XCTAssertEqual(keep.x, 1118, "REVIEW-look-2.md 2.4: centred over the hall door at 1830")
-        XCTAssertEqual(keep.masks.count, 2, "tier 1: two lit windows at night")
+        XCTAssertEqual(keep.x, 1058, "REVIEW-look-2.md 2.4: its main block centred over the hall door at 1830")
+        XCTAssertEqual(keep.masks.count, 3, "tier 1: two lit windows at night, and the stair hall's")
         XCTAssertEqual(wall.emissive.count, 0)
         for gone in [SpriteID.keepTop, .castleBackGate, .hallInterior, .throne, .hearth, .chapel, .kitchen, .castleWall,
                      .keepFar] {
@@ -98,18 +98,18 @@ final class Look2FrameTests: XCTestCase {
 
         let second = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2)).props
         XCTAssertEqual(only(second, .keepT2, .near)?.x, keep.x)
-        XCTAssertEqual(only(second, .keepT2, .near)?.masks.count, 5, "two below, three of the four above")
+        XCTAssertEqual(only(second, .keepT2, .near)?.masks.count, 6, "two below, three of the four above, the stair's")
         XCTAssertEqual(only(second, .castleFront), front, "tier 2 keeps the gatehouse")
         XCTAssertNotNil(only(second, .posternT2))
         XCTAssertEqual(count(second, .curtainHoard), 3)
 
         let building = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2, building: true)).props
-        XCTAssertEqual(only(building, .keepT2Build, .near)?.masks.count, 2, "the new storey has no lit panes yet")
+        XCTAssertEqual(only(building, .keepT2Build, .near)?.masks.count, 3, "the new storey has no lit panes yet")
         XCTAssertNotNil(only(building, .posternT1), "the postern grows when the builders are done")
 
         let third = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3)).props
         XCTAssertEqual(count(third, .castleFront), 0)
-        XCTAssertEqual(only(third, .keepT3, .near)?.masks.count, 5)
+        XCTAssertEqual(only(third, .keepT3, .near)?.masks.count, 6)
         XCTAssertEqual(count(third, .curtainTower), 2, "tier 3: a second wall tower")
         XCTAssertEqual(count(third, .castleBanner), 3)
         XCTAssertNotNil(only(third, .posternT3))

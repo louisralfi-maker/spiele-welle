@@ -386,9 +386,10 @@ private struct SceneBuilder {
         for light in entry.lights {
             let seed = nextLightSeed()
             seeds.append(seed)
-            let intensity = light.kind == .window ? 0.8 : 1
+            let intensity = light.intensity ?? (light.kind == .window ? 0.8 : 1)
             lights.append(LightSource(kind: light.kind, x: light.x, y: light.y, radius: light.radius,
-                                      intensity: intensity, flickerSeed: seed))
+                                      color: light.color, intensity: intensity, flickerSeed: seed,
+                                      squash: light.squash))
         }
         var parts: [EmissivePart] = []
         var masks: [GlassMask] = []

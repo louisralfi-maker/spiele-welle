@@ -113,8 +113,10 @@ final class CastleRoomsTests: XCTestCase {
         let wedge = desc.emissives.first { $0.sprite == .hallDoorWedge }
         XCTAssertNotNil(wedge)
         if let wedge {
-            XCTAssertGreaterThanOrEqual(Int(wedge.rect.y), Camera.groundRow(targetHeight: desc.targetHeight),
-                                        "under the ground line")
+            // Fix round 1: from the threshold over the steps out onto the cobbles, 12 rows under the ground line.
+            let ground = Camera.groundRow(targetHeight: desc.targetHeight)
+            XCTAssertEqual(Int(wedge.rect.y + wedge.rect.w), ground + 12, "it reaches 12 rows out on the cobbles")
+            XCTAssertLessThan(Int(wedge.rect.y), ground, "it starts on the steps")
         }
         let day = FrameBuilder.build(scene: scene, clock: DayClock(hour: 12, day: 2), camera: camera,
                                      pixelScale: pixelScale, options: options)
@@ -141,7 +143,8 @@ final class CastleRoomsTests: XCTestCase {
             XCTAssertEqual(inside.first?.alpha ?? 0, 1, accuracy: 1e-6)
             XCTAssertEqual(inside.first?.plane, .foreground)
             XCTAssertEqual(inside.first?.movesWith, .world, "it stands with the gate's masonry")
-            XCTAssertEqual((inside.first?.x ?? 0) + 32, middle, accuracy: 0.5)
+            XCTAssertEqual(inside.first?.x ?? 0, passage.upperBound - CastleRooms.jambInset, accuracy: 0.5,
+                           "the near jamb at the passage's east end (fix round 1)")
             let edge = arches(passage.upperBound + CastleRooms.archFade / 2)
             XCTAssertLessThan(edge.first?.alpha ?? 0, 1, "fading out past the passage")
         }

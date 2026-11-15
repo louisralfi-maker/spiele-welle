@@ -35,7 +35,7 @@ def pieces(tier, building=False):
     post = "posternT%d" % max(1, min(3, built))
     out = [("mid", "throatStepC", 600, 0, "top", 0), ("mid", "cleftWallA", 824, 0, "top", 0),
            ("mid", "cleftWallB", 1080, 0, "top", 0), ("mid", "cleftWallC", 1336, 0, "top", 0),
-           ("mistBand", keep, 1118, 0, "ground", 0)]
+           ("mistBand", keep, 1058, 0, "ground", 0)]
     tiles = ["curtainA", "curtainC", "curtainB", "curtainA", "curtainC", "curtainA", "curtainB", "curtainC",
              "curtainA", "curtainB", "curtainA", "curtainC"]
     for i, t in enumerate(tiles):

@@ -203,10 +203,8 @@ extension SceneLayout {
         // Fix round 1: at night the moon stands in the wedge of sky over the bailey (mid 1010: seen from world 1600
         // to 2100), low in the wedge. Fix round 2: its top `look2SlitMoonTop` rows under the wall's top, under every
         // rectangle of the HUD at every camera; at dusk it is not up yet (`FrameBuilder.wedgeMoonShare`).
+        // World-2 fix round 1: the moon left the wall for the sky (`FrameBuilder.wedgeMoon`).
         (.mid, Entry(sprite: .cleftWallA, x: look2CleftX[0], y: 0, z: 3, anchor: .top, region: .castle,
-                     emitters: [.sprite(.moon, dx: look2SlitMoonX - look2CleftX[0] - 7,
-                                        dy: 200 - 14 - look2SlitMoonTop, glow: .moon,
-                                        fades: true)],
                      lights: [Light(kind: .lantern, x: 884, y: 92, radius: 96),
                               Light(kind: .lantern, x: 1024, y: 98, radius: 104)])),
         (.mid, Entry(sprite: .cleftWallB, x: look2CleftX[1], y: 0, z: 3, anchor: .top, region: .castle,

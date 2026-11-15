@@ -50,10 +50,11 @@ enum PlaceholderArt {
              .laneEarthD, .laneCobbleEnd, .laneScreeCobble:
             frames = [ground(salt)]
         case .d2FogBank, .d2MistBand, .d2FogLow, .d2Smoke, .gloomFogBack, .gloomFogMid, .gloomFogFront, .gloomWisp,
-             .cleftShaft, .bankSheetA, .bankSheetB, .bankSheetC, .bankEnd, .cloudDeck:
+             .cleftShaft, .bankSheetA, .bankSheetB, .bankSheetC, .bankEnd, .cloudDeck, .keepMist, .smokePuff:
             frames = [mistBank(salt, size: size)]
         case .d2Fireflies, .d2Sparks, .darknessBankGlow, .houseLit, .houseBLit, .houseCLit, .bigHouseLit,
-             .tavernLit, .gloomFogEyes, .cleftWater, .hallDoorGlow, .hallDoorWedge, .bakeHatchGlow:
+             .tavernLit, .gloomFogEyes, .cleftWater, .hallDoorGlow, .hallDoorWedge, .bakeHatchGlow,
+             .keepPaneHalo, .keepFireGlow, .posternFarGlow:
             frames = [glowStandIn(salt, size: size)]
         default:
             // M2b first (the strips of SPRITES.md), then the milestone 1 buildings and grids.
