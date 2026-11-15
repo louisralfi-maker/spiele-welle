@@ -277,9 +277,23 @@ struct StripCall: Sendable, Equatable {
     var shownAt = -1_000.0
     /// The clock's second it goes.
     var until = 0.0
+    /// Fix lane D (player-loop-1): the day whose owing doors last raised the strip (0: none yet).
+    var doorsShown = 0
+    /// The clock's second the doors' own raise goes (kept apart from the calls', so an answered call still goes at
+    /// once).
+    var doorsUntil = 0.0
 
     static let seconds = 6.0
     static let again = 45.0
+    /// The days on whose morning the owing doors raise the strip once by themselves; later their tag shows only in
+    /// the lantern moment's strip.
+    static let doorsDays = 2...3
+
+    /// The day whose owing doors call now (2 or 3 while a door owes; 0 otherwise).
+    static func doorsDay(_ strip: RealmStrip?) -> Int {
+        guard let strip, strip.owingDoors > 0, doorsDays.contains(strip.day) else { return 0 }
+        return strip.day
+    }
 
     /// What calls now: waiting petitioners (not while he is in the hall), the Stranger, and at night a wall below half.
     static func size(_ strip: RealmStrip?) -> Int {
@@ -295,24 +309,36 @@ struct StripCall: Sendable, Equatable {
     /// One frame: true while the strip stands by itself. `held` (fix round 2, the critic's high 5: a hint slip stands
     /// at the top centre) keeps the call waiting, not seen: its 6 s start once the slip has gone, so a hint slip and
     /// the call's strip never stand at the top centre together.
+    /// Fix lane D (player-loop-1): on the mornings of days 2 and 3 the owing doors raise it once, as a new call does,
+    /// as soon as it may stand (the dawn report closed, no hint slip); it goes when the last door has paid.
     mutating func update(_ strip: RealmStrip?, hour: Double, clock: Double, allowed: Bool, held: Bool = false) -> Bool {
         let now = StripCall.size(strip)
-        guard now > 0 else {
-            size = now
+        let doors = StripCall.doorsDay(strip)
+        if now == 0 {
+            // Answered: the call's strip goes at once, even while the doors still owe.
+            size = 0
             until = 0
+        }
+        guard now > 0 || doors > 0 else {
+            doorsUntil = 0
             return false
         }
         if held {
             until = 0
+            doorsUntil = 0
             return false
         }
         defer { size = now }
         guard allowed else { return false }
-        if now > size || clock - shownAt >= StripCall.again {
+        if now > 0 && (now > size || clock - shownAt >= StripCall.again) {
             shownAt = clock
             until = clock + StripCall.seconds
         }
-        return clock < until
+        if doors > 0 && doors != doorsShown {
+            doorsShown = doors
+            doorsUntil = clock + StripCall.seconds
+        }
+        return clock < max(until, doors > 0 ? doorsUntil : 0)
     }
 }
 

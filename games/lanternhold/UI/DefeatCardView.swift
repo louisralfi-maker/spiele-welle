@@ -44,23 +44,41 @@ struct DefeatCardView: View {
             VStack(spacing: 10) {
                 // The ads (Ads/AdViews.swift): the second chance's rewarded video, only while one is ready.
                 SecondChanceOffer(info: info, model: model)
-                Button {
-                    model.replayDay()
-                } label: {
-                    VStack(spacing: 2) {
-                        GlyphLabel("Replay the day", glyph: .replay)
-                        Text(inked: String(localized: "Back to the morning of day \(info.replayDay)"), .footnote)
-                            .font(Theme.serif(.footnote))
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .frame(maxWidth: .infinity)
+                // Fix lane D (the review of build 2): without the second chance's button, Replay is the card's only
+                // way on and wears the main button's style; beside the offer it stays quiet.
+                if DefeatCardView.replayIsMain(info, director: AdDirector.shared) {
+                    replayButton
+                        .buttonStyle(GoldButtonStyle())
+                        .accessibilityIdentifier("defeat-replay")
+                } else {
+                    replayButton
+                        .buttonStyle(QuietButtonStyle(onDark: true))
+                        .accessibilityIdentifier("defeat-replay")
                 }
-                .buttonStyle(QuietButtonStyle(onDark: true))
-                .accessibilityIdentifier("defeat-replay")
             }
         }
         .padding(.horizontal, 22)
         .padding(.vertical, 18)
+    }
+
+    private var replayButton: some View {
+        Button {
+            model.replayDay()
+        } label: {
+            VStack(spacing: 2) {
+                GlyphLabel("Replay the day", glyph: .replay)
+                Text(inked: String(localized: "Back to the morning of day \(info.replayDay)"), .footnote)
+                    .font(Theme.serif(.footnote))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    /// True when "Replay the day" is the card's main button: the second chance's video is not offered (none ready,
+    /// ads off, consent refused, or not again before a later night).
+    static func replayIsMain(_ info: GameModel.DefeatInfo, director: AdDirector) -> Bool {
+        !director.secondChanceOffered(info)
     }
 }
 

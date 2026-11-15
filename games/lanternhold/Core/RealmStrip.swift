@@ -55,6 +55,12 @@ struct RealmStrip: Sendable, Equatable {
     /// The hall stage (stage lane, 14.11.2026): the lord is inside the great hall; the strip marks the hall instead of
     /// a window of the world.
     var inHall = false
+    /// Fix lane D (the review of build 2, player-loop-1: from day 2 every coin waits at the town's doors and nothing
+    /// pointed there): the paying places that still owe today, while it is day and their doors are open, never on the
+    /// first morning (its lesson is the courtyard's toss); 0 otherwise. Their tag stands over the town. And the day,
+    /// for the mornings on which they raise the strip once by themselves (`StripCall`).
+    var owingDoors = 0
+    var day = 0
 
     /// Where the waiting petitioners and the Stranger are marked.
     static let hallPosition = fraction(Realm.throneX)
@@ -111,11 +117,22 @@ struct RealmStrip: Sendable, Equatable {
             }
             buckets.sort()
         }
-        return RealmStrip(king: fraction(s.king.x), target: travelTarget.map { fraction($0) },
-                          bank: fraction(s.bankEdge), lines: lines,
-                          beaconStage: s.beaconStage, beaconLit: s.beaconLit,
-                          beaconOpen: s.day >= Realm.beaconUnlockDay, creatures: buckets, isNight: night,
-                          window: window, petitioners: AudienceRules.hall(s, catalog: catalog).count,
-                          strangerAtGate: AudienceRules.gate(s, catalog: catalog) != nil)
+        var strip = RealmStrip(king: fraction(s.king.x), target: travelTarget.map { fraction($0) },
+                               bank: fraction(s.bankEdge), lines: lines,
+                               beaconStage: s.beaconStage, beaconLit: s.beaconLit,
+                               beaconOpen: s.day >= Realm.beaconUnlockDay, creatures: buckets, isNight: night,
+                               window: window, petitioners: AudienceRules.hall(s, catalog: catalog).count,
+                               strangerAtGate: AudienceRules.gate(s, catalog: catalog) != nil)
+        strip.owingDoors = doorsOwing(s, balance: balance)
+        strip.day = s.day
+        return strip
+    }
+
+    /// The paying places that still owe today (fix lane D, player-loop-1): by day, with the doors open, after the
+    /// first morning; 0 otherwise.
+    static func doorsOwing(_ s: GameState, balance: Balance) -> Int {
+        guard DayClock.phase(at: s.hour) == .day, let today = s.town?.today, !Town.isFirstMorning(today),
+              Town.doorsOpen(s, balance: balance) else { return 0 }
+        return today.places.filter { $0.owes }.count
     }
 }

@@ -229,10 +229,14 @@ extension GameModel {
         }
     }
 
-    /// True for a point on the middle of the lord's body, below where the marks hang (stage-3-interface).
+    /// True for a point on the lord's drawn figure with his lantern (stage-3-interface; fix lane D, player-first-2: a
+    /// touch on his head or on the glinting lantern did the errand of the door he stood at): the 16 px of his strip,
+    /// all of them painted (8 px each side of his anchor), from the ground to 2 px over the top of his head.
     func isOnLordsBody(_ place: (x: Double, lift: Double, minimum: Double)) -> Bool {
         let ground = stage == .hall ? HallLayout.lift(at: stageLordX) : 0
-        return abs(place.x - stageLordX) <= 7 && place.lift >= ground + 3 && place.lift <= ground + 20
+        let half = Double(SpriteID.king.size.width) / 2
+        return abs(place.x - stageLordX) <= half && place.lift >= ground
+            && place.lift <= ground + Double(HUDKit.lordHead) + 2
     }
 
     /// The lord before a thing under the same finger: not while he waits there to pay, never before a person standing

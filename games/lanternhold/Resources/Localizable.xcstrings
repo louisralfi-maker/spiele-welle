@@ -710,6 +710,9 @@
         }
       }
     },
+    "Doors owing: %lld" : {
+      "comment" : "VoiceOver: the realm strip's value while the town's doors still owe today (fix lane D, player-loop-1; English only in build 2)."
+    },
     "Double tap to go on" : {
       "comment" : "VoiceOver hint on the lantern moment (stage-3-interface): any touch lowers the lantern and the world runs on.",
       "localizations" : {
