@@ -275,4 +275,146 @@ final class WeatherTests: XCTestCase {
         XCTAssertTrue(Weather.steams(.brazier))
         XCTAssertFalse(Weather.steams(.torch))
     }
+
+    // MARK: - Build 3, POLISH pass 1: the wind seen (docs/POLISH.md section 2, lane 3)
+
+    /// A fixed weather at noon of day 12 (seed 3).
+    private func fixed(_ override: WeatherOverride, reduceMotion: Bool = false) -> WeatherSample {
+        Weather.sample(seed: 3, day: 12, hour: 12, time: 0, override: override, reduceMotion: reduceMotion)
+    }
+
+    /// The flag's frames over `seconds` of play at 60 frames a second.
+    private func flagFrames(x: Double, _ sample: WeatherSample, seconds: Double = 12, from start: Double = 3,
+                            reduceMotion: Bool = false) -> [Int] {
+        (0..<Int(seconds * 60)).map {
+            Weather.flagFrame(x: x, sample, time: start + Double($0) / 60, reduceMotion: reduceMotion)
+        }
+    }
+
+    private func changes(_ frames: [Int]) -> Int {
+        zip(frames, frames.dropFirst()).filter { $0 != $1 }.count
+    }
+
+    func testACalmDayLeavesTheFlagsLimpAndTheSailsStanding() throws {
+        let day = try XCTUnwrap((3...80).first { Weather.windClass(seed: 3, day: $0) == .calm }, "a calm day")
+        let natural = Weather.sample(seed: 3, day: day, hour: 13, time: 0)
+        XCTAssertLessThan(abs(natural.mean), Weather.flagStir)
+        let still = fixed(WeatherOverride(mode: .clear, wind: 0.08))
+        for sample in [natural, still, WeatherSample.clear] {
+            for x in [180.0, 1730, 1890, 2101] {
+                XCTAssertEqual(Set(flagFrames(x: x, sample)), [0], "limp at \(x)")
+                for index in 0..<240 {
+                    XCTAssertEqual(Weather.sailFrame(x: x, sample, time: Double(index) * 0.05), 0, "the sails stand")
+                }
+                XCTAssertEqual(Weather.fireLean(x: x, sample, time: 4), 0, "the fires stand up")
+            }
+        }
+    }
+
+    func testABreezeFliesTheFlagsAndAStormSnapsThemFastest() {
+        let breeze = fixed(WeatherOverride(mode: .breeze))
+        let storm = fixed(WeatherOverride(mode: .storm))
+        let flying = flagFrames(x: 1890, breeze)
+        let snapping = flagFrames(x: 1890, storm)
+        XCTAssertEqual(Set(flying), [2, 3], "a breeze flies it and snaps it now and then")
+        XCTAssertGreaterThan(flying.filter { $0 == 2 }.count, flying.filter { $0 == 3 }.count)
+        XCTAssertEqual(Set(snapping), [2, 3], "a storm never lets it fall")
+        XCTAssertGreaterThan(snapping.filter { $0 == 3 }.count, snapping.filter { $0 == 2 }.count,
+                             "in a storm it shows the snapping frame most")
+        XCTAssertGreaterThan(changes(snapping), changes(flying), "and beats fastest")
+        XCTAssertEqual(Weather.flagPace(1), Weather.flagBeats.max())
+        XCTAssertEqual(Weather.flagLevel(0.1), 0)
+        XCTAssertEqual(Weather.flagLevel(0.2), 1)
+        XCTAssertEqual(Weather.flagLevel(0.4), 2)
+        XCTAssertEqual(Weather.flagLevel(0.9), 3)
+        // A light air stirs it: it lifts and falls back.
+        let light = flagFrames(x: 1890, fixed(WeatherOverride(mode: .clear, wind: 0.2)))
+        XCTAssertEqual(Set(light), [0, 1])
+        // The gusts of a gusty day fly it and snap it in turn.
+        let gusty = flagFrames(x: 1890, fixed(WeatherOverride(mode: .gusty)), seconds: 60)
+        XCTAssertTrue(gusty.allSatisfy { $0 >= 2 })
+        // It streams with the wind: toward the valley, toward the shadow land in a west wind.
+        XCTAssertFalse(Weather.blowsWest(at: 1890, storm, time: 3))
+        XCTAssertTrue(Weather.blowsWest(at: 1890, fixed(WeatherOverride(mode: .clear, wind: -0.5)), time: 3))
+        XCTAssertFalse(Weather.blowsWest(at: 1890, .clear, time: 3), "still air leaves it as drawn")
+    }
+
+    func testTheSameMomentGivesTheSameFrameAndTwoFlagsNeverMoveInStep() {
+        let storm = fixed(WeatherOverride(mode: .storm))
+        let again = fixed(WeatherOverride(mode: .storm))
+        XCTAssertEqual(storm, again)
+        for index in 0..<200 {
+            let time = 5 + Double(index) * 0.083
+            XCTAssertEqual(Weather.flagFrame(x: 1890, storm, time: time), Weather.flagFrame(x: 1890, again, time: time))
+            XCTAssertEqual(Weather.sailFrame(x: 2101, storm, time: time), Weather.sailFrame(x: 2101, again, time: time))
+            XCTAssertEqual(Weather.fireLean(x: 1500, storm, time: time), Weather.fireLean(x: 1500, again, time: time))
+        }
+        // The keep's two flags (the great pole and the stair turret's), the curtain's banners.
+        let poles = [1890.0, 1760, 1500, 1906, 2084]
+        for (a, b) in zip(poles, poles.dropFirst()) {
+            for sample in [storm, fixed(WeatherOverride(mode: .breeze)), fixed(WeatherOverride(mode: .gusty))] {
+                XCTAssertNotEqual(flagFrames(x: a, sample), flagFrames(x: b, sample), "\(a) and \(b) in step")
+            }
+        }
+    }
+
+    func testTheSailsTurnWithTheWindAndNeverBlur() {
+        func turning(_ sample: WeatherSample, seconds: Double = 20) -> (frames: Set<Int>, steps: Int) {
+            var frames = Set<Int>()
+            var steps = 0
+            var last = Weather.sailFrame(x: 2101, sample, time: 7)
+            for index in 1...Int(seconds * 60) {
+                let frame = Weather.sailFrame(x: 2101, sample, time: 7 + Double(index) / 60)
+                XCTAssertTrue((0..<Weather.sailFrames).contains(frame))
+                let step = (frame - last + Weather.sailFrames) % Weather.sailFrames
+                XCTAssertLessThanOrEqual(step, 1, "a frame at a time, never backward")
+                steps += step
+                frames.insert(frame)
+                last = frame
+            }
+            return (frames, steps)
+        }
+        let breeze = turning(fixed(WeatherOverride(mode: .breeze)))
+        let gusty = turning(fixed(WeatherOverride(mode: .gusty)))
+        let storm = turning(fixed(WeatherOverride(mode: .storm)))
+        XCTAssertEqual(breeze.frames.count, Weather.sailFrames, "a breeze turns them")
+        XCTAssertGreaterThan(gusty.steps, breeze.steps)
+        XCTAssertGreaterThan(storm.steps, gusty.steps, "a storm turns them fastest")
+        XCTAssertLessThanOrEqual(Double(storm.steps) / 20, 7.5, "but never a blur")
+        XCTAssertEqual(Weather.sailLevel(0.08), 0)
+        XCTAssertEqual(Weather.sailLevel(-0.35), 1)
+        XCTAssertEqual(Weather.sailLevel(0.55), 2)
+        XCTAssertEqual(Weather.sailLevel(0.85), 3)
+    }
+
+    func testReduceMotionStandsTheFlagsTheSailsAndTheFires() {
+        for mode in [WeatherOverride.Mode.breeze, .gusty, .storm] {
+            let still = fixed(WeatherOverride(mode: mode), reduceMotion: true)
+            let flags = flagFrames(x: 1890, still, seconds: 30, reduceMotion: true)
+            XCTAssertEqual(Set(flags).count, 1, "\(mode): the flag stands")
+            XCTAssertEqual(flags.first, Weather.flagLevel(abs(still.mean)), "\(mode): in the steady wind's pose")
+            for index in 0..<300 {
+                let time = Double(index) * 0.1
+                XCTAssertEqual(Weather.sailFrame(x: 2101, still, time: time, reduceMotion: true), 0, "\(mode)")
+                XCTAssertEqual(Weather.fireLean(x: 1500, still, time: time, reduceMotion: true),
+                               Weather.fireLean(x: 1500, still, time: 0, reduceMotion: true), "\(mode)")
+            }
+        }
+    }
+
+    func testTheFiresLeanAndGutterWithTheWind() {
+        XCTAssertEqual(Weather.fireLean(x: 1500, .clear, time: 2), 0)
+        let storm = fixed(WeatherOverride(mode: .storm))
+        XCTAssertGreaterThan(Weather.fireLean(x: 1500, storm, time: 2), 0.9, "a storm bends them toward the valley")
+        let west = fixed(WeatherOverride(mode: .clear, wind: -0.5))
+        let lean = Weather.fireLean(x: 1500, west, time: 2)
+        XCTAssertLessThan(lean, -0.3)
+        XCTAssertGreaterThan(lean, -1)
+        for kind in [LightKind.torch, .brazier, .fireTower, .firepot, .beacon] {
+            XCTAssertTrue(Weather.leans(kind), "\(kind) leans")
+        }
+        for kind in [LightKind.fireArrow, .lantern, .hearth, .window, .candle, .moon] {
+            XCTAssertFalse(Weather.leans(kind), "\(kind) stands")
+        }
+    }
 }

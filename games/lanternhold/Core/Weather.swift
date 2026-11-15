@@ -351,4 +351,109 @@ enum Weather {
     static func steams(_ kind: LightKind) -> Bool {
         kind == .brazier || kind == .fireTower || kind == .firepot || kind == .beacon
     }
+
+    // MARK: - Build 3, POLISH pass 1: the wind seen (docs/POLISH.md section 2, lane 3)
+
+    /// The wind's force at world x, 0 ... 1: the steady wind with the gust that has reached x; with Reduce Motion the
+    /// steady wind alone.
+    static func force(at x: Double, _ sample: WeatherSample, time: Double, reduceMotion: Bool = false) -> Double {
+        min(1, abs(reduceMotion ? sample.mean : wind(at: x, sample, time: time)))
+    }
+
+    /// True while the wind at x blows toward the shadow land: a flag there streams to the left.
+    static func blowsWest(at x: Double, _ sample: WeatherSample, time: Double, reduceMotion: Bool = false) -> Bool {
+        (reduceMotion ? sample.mean : wind(at: x, sample, time: time)) < 0
+    }
+
+    /// The forces at which a flag stirs, flies and snaps. A calm day's wind (0.08, its gusts to 0.12) stays under the
+    /// first, a breeze (0.35 to 0.47) flies it, a gusty day (0.55 to 0.9) snaps it in its gusts, a storm (0.85 to 1)
+    /// snaps it all day.
+    static let flagStir = 0.15
+    static let flagFly = 0.3
+    static let flagSnap = 0.7
+    /// A flag's beats per second while it stirs, flies and snaps: a storm beats fastest.
+    static let flagBeats: [Double] = [0, 0.9, 2.6, 6.5]
+
+    /// A flag's pose for a force: 0 limp, 1 stirring, 2 flying, 3 snapping.
+    static func flagLevel(_ force: Double) -> Int {
+        force < flagStir ? 0 : force < flagFly ? 1 : force < flagSnap ? 2 : 3
+    }
+
+    /// A flag's beats per second at a force (none while it hangs limp).
+    static func flagPace(_ force: Double) -> Double {
+        flagBeats[flagLevel(force)]
+    }
+
+    /// The frame of a flag or a banner whose pole stands at world x (`keepFlag`, `castleBanner`): 0 limp, 1 stirring,
+    /// 2 flying, 3 snapping. Calm leaves it limp; stirring, it lifts and falls back; flying, it snaps every third
+    /// beat; snapping, it slackens every third beat, beating fastest. Each flag beats at a phase and a pace of its own
+    /// (by its x) and reads the gust where it stands, so two flags never move in step. With Reduce Motion it stands
+    /// in the steady wind's pose.
+    static func flagFrame(x: Double, _ sample: WeatherSample, time: Double, reduceMotion: Bool = false) -> Int {
+        let level = flagLevel(force(at: x, sample, time: time, reduceMotion: reduceMotion))
+        guard level > 0, !reduceMotion else { return level }
+        let own = unit(SeededRandom.hash(0x46_4C_4147, Int64(x.rounded())))
+        let beats = max(0, time) * flagBeats[level] * (0.9 + 0.2 * own) + own * 7
+        let accent = Int(min(1.0e15, beats).rounded(.down)) % 3 == 2
+        switch level {
+        case 1: return accent ? 0 : 1
+        case 2: return accent ? 3 : 2
+        default: return accent ? 2 : 3
+        }
+    }
+
+    /// The frames of the windmill's sails (`windmillSails`): a quarter turn of its four sails, 15 degrees a frame.
+    static let sailFrames = 6
+    /// The sails' turns per second by the steady wind's step: they stand on a calm day, turn slowly in a breeze and
+    /// briskly on a gusty day, and a storm turns them no faster than the last (six frames a second: never a blur).
+    static let sailTurns: [Double] = [0, 0.1, 0.18, 0.26]
+    /// How far a whole gust carries the sails ahead, in turns. A gust's own pace (at most 0.375 of this a second)
+    /// stays under the slowest turn, so they never turn back.
+    static let sailSurge = 0.12
+
+    /// The steady wind's step for the sails: 0 calm, 1 breeze, 2 gusty, 3 storm. By the steady wind, so a gust never
+    /// changes their pace in a jump; the change of the day's wind moves them on by a frame or two once.
+    static func sailLevel(_ mean: Double) -> Int {
+        let force = abs(mean)
+        return force < flagStir ? 0 : force < 0.45 ? 1 : force < flagSnap ? 2 : 3
+    }
+
+    /// The frame of the windmill's sails whose hub stands at world x: they turn at the steady wind's pace and surge
+    /// ahead with the gust that reaches them. With Reduce Motion, and on a calm day, they stand.
+    static func sailFrame(x: Double, _ sample: WeatherSample, time: Double, reduceMotion: Bool = false) -> Int {
+        let level = sailLevel(sample.mean)
+        guard level > 0, !reduceMotion else { return 0 }
+        var surge = 0.0
+        if sample.gust != 0 {
+            let lead = max(-1, min(1, sample.mean * 12))
+            let share = min(1, abs(sample.gust) / WindClass.gusty.gust)
+            surge = sailSurge * share * gustNoise(seed: sample.gustSeed, time: time - lead * x / gustTravel)
+        }
+        let turns = max(0, time) * sailTurns[level] + surge
+        let step = Int(min(1.0e15, turns * 4 * Double(sailFrames)).rounded(.down))
+        return step % sailFrames
+    }
+
+    /// The open fires that lean and gutter in the wind (a lantern's flame is behind glass, a hearth is indoors, a fire
+    /// arrow flies).
+    static func leans(_ kind: LightKind) -> Bool {
+        switch kind {
+        case .torch, .brazier, .fireTower, .firepot, .beacon: return true
+        case .fireArrow, .lantern, .hearth, .window, .candle, .moon: return false
+        }
+    }
+
+    /// How far an open fire at world x leans and gutters, -1 ... 1 (+ toward the valley): nothing under a force of
+    /// 0.15, the whole lean from 0.8. One value: its light leans and sinks by it and dims by `fireGutter` of it, its
+    /// flame dims with it. With Reduce Motion it stands in the steady wind.
+    static func fireLean(x: Double, _ sample: WeatherSample, time: Double, reduceMotion: Bool = false) -> Double {
+        let wind = reduceMotion ? sample.mean : Weather.wind(at: x, sample, time: time)
+        let share = smooth(0.15, 0.8, abs(wind))
+        return wind < 0 ? -share : share
+    }
+
+    /// Pixels a leaning fire's light moves downwind and down at the whole lean, and the share it dims by.
+    static let fireLeanReach = 2.0
+    static let fireLeanSink = 1.0
+    static let fireGutter = 0.14
 }
