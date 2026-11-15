@@ -257,6 +257,15 @@ def loopify(x, length, cross):
     return out
 
 
+def turn(x, k):
+    """The same seamless loop, begun `k` samples later. A loop from `loopify` runs on without a step wherever it starts,
+    so its start is put where the bed is steady: the file's last and first quarter second then carry the same level
+    (no bird call, hammer run or loud crackle on one side of the seam only). Fix lane E, 15.11.2026: amb_fire,
+    amb_bailey and amb_valley had 1.6 to 2.5 times the level on one side; the offsets were chosen by measuring."""
+    k %= len(x)
+    return x[k:] + x[:k]
+
+
 def grain(n, f, tau, rng=None, noisy=0.0):
     """A short struck grain: a decaying sine with some noise."""
     out = [0.0] * n
@@ -390,7 +399,7 @@ def amb_fire():
     rng = Rng(404)
     L, F = secs(6.0), secs(1.0)
     x = fire_bed(L + F, rng)
-    return normalize(loopify(x, L, F), 0.7)
+    return normalize(turn(loopify(x, L, F), 33220), 0.7)
 
 
 def amb_hall():
@@ -517,7 +526,7 @@ def amb_bailey():
     talk = lowpass(lowpass(talk, 1100), 1100)
     add_into(x, talk, 0, 0.8)
     x = reverb(x, wet=0.3, size=1.3, damp=0.4)
-    return normalize(loopify(x, L, F), 0.62)
+    return normalize(turn(loopify(x, L, F), 133540), 0.62)
 
 
 def chirp(rng, f0, f1, length):
@@ -558,7 +567,7 @@ def amb_valley():
             add_into(x, chirp(rng, 5600, 5000, 0.02), secs(t), 0.1)
         t += rng.uniform(0.25, 0.9)
     x = reverb(x, wet=0.25, size=1.1, damp=0.3)
-    return normalize(loopify(x, L, F), 0.55)
+    return normalize(turn(loopify(x, L, F), 111980), 0.55)
 
 
 def amb_river():
