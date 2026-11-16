@@ -24,7 +24,8 @@ final class HordeRenderTests: XCTestCase {
         let renderer = try Renderer(context: context)
         let balance = Balance.standard
         var s = GameFrameSupport.demoNight(hour: 23.2)
-        // A file of small ones in the open before the outer wall; id 6 (a crawler) falls at x 587, left of the brazier.
+        // A file of small ones in the open before the outer wall; id 6 (a runt by the hash, step 7) falls at x 587, left
+        // of the brazier.
         s.creatures = (0..<9).map { k in
             GameFrameSupport.creature(.sootling, x: 560 + Double(k) * 9, id: 3 + k, lit: true)
         }
@@ -33,7 +34,7 @@ final class HordeRenderTests: XCTestCase {
         s.creatures.removeAll { $0.id == 6 }
         effects.note([.creatureKilled(kind: .sootling, x: 587)], state: s, balance: balance, time: 1.0)
         XCTAssertEqual(effects.items.map(\.kind), [.fall])
-        XCTAssertEqual(effects.items.first?.body, HordeLook.Body.crawler.rawValue)
+        XCTAssertEqual(effects.items.first?.body, HordeLook.body(id: 6).rawValue)
 
         var settings = RenderSettings()
         var crops: [[SIMD3<Float>]] = []
