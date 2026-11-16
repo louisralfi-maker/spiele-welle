@@ -13,9 +13,9 @@ import XCTest
 ///   wall, twelve at the wall, a heap of two levels), then the battle runs that many seconds. The lord stands behind
 ///   the outer wall (x 660), so the camera holds the open and the wall and no small one hides behind the Dynamic
 ///   Island (the island covers about the first 25 game px on the left; the open starts 16 px out of the bank, about
-///   45 px into the frame). Shots: calm and in a gust (the threads' lean at a glance), Reduce Motion, and a filmstrip of
-///   eight frames 0.1 s of battle apart (`-GWHorde 1.0` ... `1.7`), so the walk, the climb and the threads' sway can
-///   be judged without a video.
+///   45 px into the frame). Shots: calm and in a gust (the threads' lean at a glance), Reduce Motion, the dark open
+///   (step 3, M1: `-GWHorde dark`, the outer fires out, the small ones unlit), and a filmstrip of eight shots of one
+///   live launch of the dark proof (step 3, M4), so the march, the climb and a fall can be judged without a video.
 /// The falls live only in the live loop's `BattleEffects`, so no still shot holds one: their proof is the unit test
 /// `HordeRenderTests` (`horde-fall-filmstrip`, rendered through the game's renderer) and scripts/ci/sim-clip.sh's live
 /// clip of the same proof (`-GWHorde dark`), where the catapult's firepots fall on the heap.
@@ -35,6 +35,9 @@ final class HordeUITests: XCTestCase {
     /// The proof's hour (any hour of the night: the proof sends its own wave) and the lord's place behind the wall.
     private static let proofHour = 23.0
     private static let proofX = 660
+    /// Step 3: the dark proof's place for the lord, his lantern (40 px) short of the heap at the wall (x 640), the
+    /// bank's edge (x 500) still clear of the Dynamic Island.
+    private static let darkX = 690
 
     /// Night 12 of the demo realm at `hour`, the lord at `x`, held still.
     private func night(_ hour: Double, x: Int) -> [String] {
@@ -63,15 +66,41 @@ final class HordeUITests: XCTestCase {
             XCTAssertGreaterThanOrEqual(HordeUITests.count("seen", in: value), 15,
                                         "the \(name) proof draws the horde on screen (\(value))")
         }
+        // step 3 (M1): the proof in the dark open at 23:00, the outer line's fires out (`-GWHorde dark`) and the lord a
+        // little farther back (x 690), so his lantern does not reach the heap and the small ones stand unlit between
+        // the bank and the wall: the live check of the rag's night read
+        let dark = shoot("223-horde-proof-dark-open",
+                         night(HordeUITests.proofHour, x: HordeUITests.darkX) + ["-GWHorde", "dark:1.00"] + clear)
+        let seen = HordeUITests.count("seen", in: dark)
+        XCTAssertGreaterThanOrEqual(seen, 8, "the dark proof draws the horde (\(dark))")
+        XCTAssertGreaterThanOrEqual(seen - HordeUITests.count("lit", in: dark), 4, "small ones unlit in view (\(dark))")
     }
 
-    /// Eight shots of the proof 0.1 s of battle apart.
+    /// Step 3 (M4: the film must show a march and a live fall): eight shots of one live launch of the dark proof
+    /// (`-GWHorde dark`, the night clock running, no held time), taken one after another, so the stream is seen
+    /// stepping out of the bank and crossing the open while the catapult's firepots fall on the heap. A fall lives only
+    /// in the live loop, so a held shot never holds one; here a fall is caught when one happens between two shots
+    /// (the still proof of a fall stays `HordeRenderTests`' filmstrip).
     func testHordeFilmstrip() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        let breeze = ["-GWWeather", "breeze"]
-        for k in 0..<8 {
-            shoot("23\(k)-horde-film-\(k)", proof(1 + Double(k) * 0.1) + breeze)
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWNight", "12", "-GWHour", String(format: "%.5f", HordeUITests.proofHour),
+                               "-GWBuild", "demo", "-GWCameraX", "\(HordeUITests.darkX)", "-GWLook", "2",
+                               "-GWHorde", "dark:0", "-GWWeather", "breeze"]
+        app.launch()
+        guard waitUntilReady(app, name: "230-horde-film") else {
+            app.terminate()
+            return
         }
+        var values: [String] = []
+        for k in 0..<8 {
+            let value = (element(app, "world-scene").value as? String) ?? ""
+            attach(XCUIScreen.main.screenshot(), "23\(k)-horde-film-\(k)-\(language)")
+            values.append("shot 23\(k): " + value)
+            pause(0.35)
+        }
+        note("230-horde-film-values", values.joined(separator: "\n"))
+        app.terminate()
     }
 
     // MARK: - Helpers
@@ -128,7 +157,8 @@ final class HordeUITests: XCTestCase {
             pause(0.8)
             attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
             value = (element(app, "world-scene").value as? String) ?? ""
-            note("\(name)-value", value)
+            // step 3 (M5): the shot's own name first; the value's `frame:` is the frames drawn so far, not a shot
+            note("\(name)-value", "shot \(name): " + value)
         }
         app.terminate()
         return value
