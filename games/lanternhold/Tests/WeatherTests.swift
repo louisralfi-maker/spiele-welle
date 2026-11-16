@@ -858,6 +858,52 @@ final class WeatherTests: XCTestCase {
         XCTAssertEqual(pose(-0.5)?.dx, 0, "it turns on its rod")
     }
 
+    /// Step 3 (part B, POLISH.md 2 item 5): a gust carries leaves and the lane's dust across the screen: none in a calm, a
+    /// few in a breeze, more in a gusty day's gusts and a storm; never west of the outermost standing wall, never with
+    /// Reduce Motion; the same moment gives the same leaves.
+    func testTheGustCarriesLeavesAndDust() {
+        let world = PlaceholderScene.world(look: .two)
+        func leaves(_ override: WeatherOverride, focus: Double, time: Double, reduceMotion: Bool = false)
+            -> [SpriteInstance] {
+            let sample = Weather.sample(seed: 3, day: 12, hour: 12, time: time, override: override,
+                                        reduceMotion: reduceMotion)
+            return windFrame(world, focus: focus, weather: sample, time: time, reduceMotion: reduceMotion)
+                .layer(.world).sprites.filter { $0.sprite == .gustLeaf }
+        }
+        func most(_ override: WeatherOverride, focus: Double = 2900) -> (most: Int, total: Int, dust: Int) {
+            var most = 0
+            var total = 0
+            var dust = 0
+            for index in 0..<40 {
+                let found = leaves(override, focus: focus, time: 5 + Double(index) * 0.77)
+                most = max(most, found.count)
+                total += found.count
+                dust += found.filter { $0.frame >= 12 }.count
+            }
+            return (most, total, dust)
+        }
+        XCTAssertEqual(most(WeatherOverride(mode: .clear, wind: 0.08)).total, 0, "a calm: none")
+        let breeze = most(WeatherOverride(mode: .breeze))
+        XCTAssertGreaterThan(breeze.total, 0, "a breeze: a few")
+        XCTAssertLessThanOrEqual(breeze.most, FrameBuilder.gustLeafCounts[1])
+        XCTAssertEqual(breeze.dust, 0, "no dust in a breeze")
+        let storm = most(WeatherOverride(mode: .storm, rain: 0))
+        XCTAssertGreaterThan(storm.total, breeze.total, "more in a storm")
+        XCTAssertLessThanOrEqual(storm.most, FrameBuilder.gustLeafCounts[3] + FrameBuilder.gustDustCounts[3])
+        XCTAssertGreaterThan(most(WeatherOverride(mode: .gusty)).dust + storm.dust, 0, "the lane's dust in the gusts")
+        XCTAssertEqual(most(WeatherOverride(mode: .storm, rain: 0), focus: 300).total, 0,
+                       "never on the shadow side of the outermost wall")
+        XCTAssertTrue(leaves(WeatherOverride(mode: .storm, rain: 0), focus: 2900, time: 7, reduceMotion: true).isEmpty,
+                      "Reduce Motion: none")
+        XCTAssertEqual(leaves(WeatherOverride(mode: .breeze), focus: 2900, time: 7.3),
+                       leaves(WeatherOverride(mode: .breeze), focus: 2900, time: 7.3), "the same moment, the same leaves")
+        for leaf in (0..<20).flatMap({ leaves(WeatherOverride(mode: .storm, rain: 0), focus: 2900,
+                                              time: 5 + Double($0) * 0.5) }) {
+            XCTAssertFalse(leaf.flipped, "a storm toward the valley carries them east")
+            XCTAssertLessThan(leaf.frame, 15)
+        }
+    }
+
     func testTheFiresLeanAndGutterWithTheWind() {
         XCTAssertEqual(Weather.fireLean(x: 1500, .clear, time: 2), 0)
         let storm = fixed(WeatherOverride(mode: .storm))

@@ -268,6 +268,12 @@ enum FrameBuilder {
                     planeSprites[plane.rawValue] += ash.sprites
                     ashGlow = ash.glow
                 }
+                if options.look == .two && geometry.weather != .clear && !options.reduceMotion {
+                    // Step 3 (part B): what a gust carries across the lane, east of the outermost standing wall.
+                    planeSprites[plane.rawValue] += gustLeaves(props: ordered, animTime: animTime,
+                                                               seam: rains ? rainSeam : RainLook.seam(ordered),
+                                                               geometry: geometry)
+                }
                 for item in entities?.emissives(worldWhole: geometry.whole(.world), groundRow: geometry.groundRow,
                                                 targetWidth: geometry.targetWidth) ?? [] {
                     glow.add(item)
@@ -1972,6 +1978,116 @@ enum FrameBuilder {
             }
         }
         return (list, glow)
+    }
+
+    // MARK: Build 3 step 3, part B: the gust's leaves and dust (docs/POLISH.md 2 item 5; lane 3)
+
+    /// Leaves in the air by the steady wind's step (`Weather.sailLevel`: calm, breeze, gusty, storm): none in a calm, a
+    /// few in a breeze (always), more on a gusty day and in a storm (while a gust is up where they fly; a storm keeps
+    /// some aloft between its gusts). Puffs of the lane's dust only in a gusty day's or a storm's gusts.
+    static let gustLeafCounts = [0, 3, 7, 10]
+    static let gustDustCounts = [0, 0, 4, 5]
+    /// A leaf crosses the screen at this speed plus `gustLeafDrive` × the steady wind (target px/s), sinking
+    /// `gustLeafSink` px/s and bobbing `gustLeafBob` px; a slot waits a share of its flight between flights.
+    static let gustLeafSpeed = 50.0
+    static let gustLeafDrive = 90.0
+    static let gustLeafSink = 6.0
+    static let gustLeafBob = 3.0
+    /// A puff of dust lives this long (s), drifting `gustDustReach` px downwind.
+    static let gustDustLife = 1.2
+    static let gustDustReach = 22.0
+
+    /// How far the gust is up at world x, 0 ... 1: the wind there over the steady wind, against the day's whole gust.
+    static func gustShare(at x: Double, _ weather: WeatherSample, time: Double) -> Double {
+        guard weather.gust != 0 else { return 0 }
+        let over = abs(Weather.wind(at: x, weather, time: time)) - abs(weather.mean)
+        return min(1, max(0, over / max(0.05, abs(weather.gust))))
+    }
+
+    /// The leaves and dust a gust carries across the lane's plane, each a pure function of its slot and the time: a leaf
+    /// sets off from the crown of a tree on the screen (else from the upwind edge), tumbles downwind with a bob and a
+    /// slow sink, in the trees' own greens or (one in four) an autumn straw; it shows while the gust is up where it
+    /// flies and fades as the gust eases. Never west of the outermost standing wall (the ash is the weather there),
+    /// never with Reduce Motion, none in a calm.
+    private static func gustLeaves(props: [Prop], animTime: Double, seam: Double,
+                                   geometry: Geometry) -> [SpriteInstance] {
+        let weather = geometry.weather
+        let level = Weather.sailLevel(weather.mean)
+        guard level > 0 else { return [] }
+        let size = SpriteID.gustLeaf.size
+        let width = Double(geometry.targetWidth)
+        let lane = geometry.whole(.world)
+        let ground = Double(geometry.groundRow)
+        let downwind: Double = weather.mean < 0 ? -1 : 1
+        let speed = gustLeafSpeed + gustLeafDrive * abs(weather.mean)
+        let flight = (width + 40) / speed
+        // The crowns of the lane plane's trees on the screen, as screen x and the row of their upper third.
+        var crowns: [(x: Double, y: Double)] = []
+        for prop in props where prop.plane == .world && swaying.contains(prop.sprite) {
+            let left = prop.x - lane
+            guard geometry.isVisible(left: left, width: Double(prop.width)) else { continue }
+            crowns.append((x: left + Double(prop.width) / 2,
+                           y: geometry.top(y: prop.y, height: Double(prop.height)) + Double(prop.height) * 0.3))
+        }
+        let key = SeededRandom.hash(weather.gustSeed ^ 0x4C45_4146, 11)
+        var list: [SpriteInstance] = []
+        for slot in 0..<gustLeafCounts[level] {
+            let own = unit(SeededRandom.hash(key, Int64(slot)))
+            let cycle = flight * (1.3 + 0.7 * own)
+            let clock = max(0, animTime) + own * cycle
+            let turn = (clock / cycle).rounded(.down)
+            let along = clock - turn * cycle
+            guard along < flight else { continue }
+            let pick = SeededRandom.hash(SeededRandom.hash(key, Int64(max(-1.0e15, min(1.0e15, turn)))), Int64(slot))
+            var x0 = downwind > 0 ? -8 : width + 8
+            var y0 = ground - 24 - 70 * unit(SeededRandom.hash(pick, 1))
+            if !crowns.isEmpty && unit(SeededRandom.hash(pick, 2)) < 0.7 {
+                let crown = crowns[Int(unit(SeededRandom.hash(pick, 3)) * Double(crowns.count)) % crowns.count]
+                x0 = crown.x
+                y0 = crown.y
+            }
+            let phase = unit(SeededRandom.hash(pick, 4)) * 2 * Double.pi
+            let x = x0 + downwind * speed * along
+            let y = min(ground - 4, y0 + gustLeafSink * along + gustLeafBob * sin(along * 3.7 + phase))
+            guard x > -Double(size.width), x < width, x + lane > seam else { continue }
+            var alpha = 1.0
+            if level >= 2 {
+                let share = AmbientRamp.smoothstep((gustShare(at: x + lane, weather, time: animTime) - 0.2) / 0.35)
+                alpha = max(level == 3 && slot % 2 == 0 ? 0.8 : 0, share)
+            }
+            // Fade in as it leaves the crown, out at the end of its flight.
+            alpha *= min(1, along / 0.25) * min(1, (flight - along) / 0.4)
+            guard alpha > 0.03 else { continue }
+            let tone = unit(SeededRandom.hash(pick, 5)) < 0.25 ? 2 : Int(unit(SeededRandom.hash(pick, 6)) * 2)
+            let tumble = Int(min(1.0e15, along * (6 + 4 * abs(weather.mean)) + phase).rounded(.down)) % 4
+            list.append(SpriteInstance(sprite: .gustLeaf, frame: tone * 4 + tumble,
+                                       rect: SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)),
+                                                          Float(size.width), Float(size.height)),
+                                       tint: SIMD4<Float>(1, 1, 1, Float(alpha)), flipped: downwind < 0))
+        }
+        // The lane's dust: puffs low over the cobbles, only while a gust is up there.
+        let dustKey = SeededRandom.hash(key, 0x4455)
+        for slot in 0..<gustDustCounts[level] {
+            let own = unit(SeededRandom.hash(dustKey, Int64(slot)))
+            let cycle = gustDustLife * (1.6 + own)
+            let clock = max(0, animTime) + own * cycle
+            let turn = (clock / cycle).rounded(.down)
+            let along = clock - turn * cycle
+            guard along < gustDustLife else { continue }
+            let pick = SeededRandom.hash(SeededRandom.hash(dustKey, Int64(max(-1.0e15, min(1.0e15, turn)))),
+                                         Int64(slot))
+            let x = unit(pick) * width + downwind * gustDustReach * along / gustDustLife
+            guard x + lane > seam else { continue }
+            let share = AmbientRamp.smoothstep((gustShare(at: x + lane, weather, time: animTime) - 0.35) / 0.3)
+            guard share > 0.03 else { continue }
+            let frame = 12 + min(2, Int(along / gustDustLife * 3))
+            let top = ground - Double(size.height) + 1 + Double(slot % 2)
+            list.append(SpriteInstance(sprite: .gustLeaf, frame: frame,
+                                       rect: SIMD4<Float>(Float(x.rounded(.down)), Float(top), Float(size.width),
+                                                          Float(size.height)),
+                                       tint: SIMD4<Float>(1, 1, 1, Float(0.85 * share)), flipped: downwind < 0))
+        }
+        return list
     }
 
     /// A wisp of steam over each large fire of the world plane while it rains (at most eight): the smoke's lower
