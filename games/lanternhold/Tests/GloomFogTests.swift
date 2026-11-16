@@ -221,7 +221,9 @@ final class GloomFogTests: XCTestCase {
         XCTAssertEqual(bodies.count, 2, "the one in the open and the lit one; none deep in the bank")
         XCTAssertTrue(bodies.allSatisfy { $0.tint.w > 0.98 }, "whole")
         XCTAssertEqual(foggy.actors.filter { [SpriteID.sootlingGlow, .sootlingBGlow, .tumblerGlow].contains($0.sprite) }.count, 2, "no glow strip deep in the bank")
-        XCTAssertEqual(foggy.actors.filter { $0.sprite == .sootThread }.count, 2, "no thread deep in the bank")
+        // b3-horde step 3: about every second one carries a thread (`HordeLook.hasThread`)
+        XCTAssertEqual(foggy.actors.filter { $0.sprite == .sootThread }.count,
+                       [3, 4].filter { HordeLook.hasThread(id: $0) }.count, "no thread deep in the bank")
         XCTAssertEqual(foggy.lights.map(\.source), plain.lights.map(\.source), "the fog changes no light")
         XCTAssertEqual(foggy.props, plain.props)
         XCTAssertEqual(layer(s, focus: edge, gloom: fog, look: .one).actors,

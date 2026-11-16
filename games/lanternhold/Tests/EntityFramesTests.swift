@@ -28,7 +28,9 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(unlit.count, 2)
         XCTAssertTrue(unlit.allSatisfy { $0.tint.x < 0.4 && $0.tint.w == 1 && !$0.isEmissive },
                       "an unlit body at a very low value")
-        XCTAssertTrue(lit.allSatisfy { $0.tint.x >= 0.85 && $0.tint.x <= 1 }, "a lit body as painted, a shade by its id")
+        // b3-horde step 3: the small ones take a navy value step by id (0.84, 1 or 1.16), the others a shade by id
+        XCTAssertTrue(lit.allSatisfy { $0.tint.x >= 0.84 - 1e-6 && $0.tint.x <= 1.16 + 1e-6 },
+                      "a lit body as painted, a shade by its id")
         XCTAssertTrue(bodies.allSatisfy { $0.lightCap == EntityFrames.creatureLightCap }, "creatures reflect less light")
         XCTAssertTrue(unlit.allSatisfy { $0.moonRim > 0.5 }, "an unlit body keeps a strong moonlight rim")
         XCTAssertTrue(lit.allSatisfy { $0.moonRim == 0 })
@@ -500,7 +502,9 @@ final class EntityFramesTests: XCTestCase {
             c.target = wall
             return c
         }
-        s.creatures = (0..<4).map { small(10 + $0, 630 - Double($0) * 2) }
+        // step 3: ids that stand on the ground line (the pixel of height by id is tested on its own)
+        let ids = (10..<400).filter { HordeLook.stand(id: $0) == 0 }
+        s.creatures = (0..<4).map { small(ids[$0], 630 - Double($0) * 2) }
         XCTAssertTrue(HordeLook.heapLifts(s.creatures).isEmpty, "four at a wall stand on the ground")
         var bodies = GameFrameSupport.frame(s, focus: 640).layer.actors
             .filter { EntityFramesTests.smallSprites.contains($0.sprite) }
@@ -509,12 +513,13 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertTrue(bodies.allSatisfy { $0.rect.y + $0.rect.w == ground }, "all on the ground line")
         let scale = bodies[0].rect.z / 14
 
-        s.creatures += (4..<7).map { small(10 + $0, 630 - Double($0) * 2) }
-        var other = small(41, 900)
+        s.creatures += (4..<7).map { small(ids[$0], 630 - Double($0) * 2) }
+        var other = small(ids[9], 900)
         other.target = Realm.lines[1].wall
-        s.creatures += [GameFrameSupport.creature(.sootling, x: 600, id: 40, lit: true), other]
+        s.creatures += [GameFrameSupport.creature(.sootling, x: 600, id: ids[8], lit: true), other]
         let lifts = HordeLook.heapLifts(s.creatures)
-        XCTAssertEqual(Set(lifts.keys), [14, 15, 16], "the fifth, sixth and seventh at the wall climb; nobody else")
+        XCTAssertEqual(Set(lifts.keys), [ids[4], ids[5], ids[6]],
+                       "the fifth, sixth and seventh at the wall climb; nobody else")
         XCTAssertTrue(lifts.values.allSatisfy { $0 == HordeLook.heapLift })
         let actors = GameFrameSupport.frame(s, focus: 640).layer.actors
         bodies = actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
@@ -528,13 +533,31 @@ final class EntityFramesTests: XCTestCase {
     }
 
     func testEverySmallOneCarriesAThreadThatLeansWithTheWind() {
+        // step 3 (the director's call 7): about every second one carries a thread, chosen by id, not by body
+        let carriers = (0..<90).filter { HordeLook.hasThread(id: $0) }
+        XCTAssertTrue((30...60).contains(carriers.count), "about every second one (\(carriers.count) of 90)")
+        for body in HordeLook.Body.allCases {
+            let ids = (0..<90).filter { HordeLook.body(id: $0) == body }
+            XCTAssertTrue((8...22).contains(ids.filter { HordeLook.hasThread(id: $0) }.count), "\(body)s: about half")
+        }
+        XCTAssertGreaterThanOrEqual(Set(carriers.prefix(12).map { HordeLook.threadCurl(id: $0) }).count, 2,
+                                    "their curls differ by id")
+        func carrier(_ body: HordeLook.Body) -> Int {
+            (0..<90).first { HordeLook.body(id: $0) == body && HordeLook.hasThread(id: $0) } ?? 0
+        }
+        let bare = (0..<90).first { !HordeLook.hasThread(id: $0) } ?? 0
         var s = GameFrameSupport.demoNight()
-        s.creatures = [GameFrameSupport.creature(.sootling, x: 600, id: 9, lit: true),
-                       GameFrameSupport.creature(.sootling, x: 640, id: 10, lit: true),
-                       GameFrameSupport.creature(.sootling, x: 680, id: 11, lit: true, action: .attackingWall)]
+        s.creatures = [GameFrameSupport.creature(.sootling, x: 600, id: carrier(.crawler), lit: true),
+                       GameFrameSupport.creature(.sootling, x: 640, id: carrier(.loper), lit: true),
+                       GameFrameSupport.creature(.sootling, x: 680, id: carrier(.tumbler), lit: true,
+                                                 action: .attackingWall)]
+        var without = s
+        without.creatures = [GameFrameSupport.creature(.sootling, x: 640, id: bare, lit: true)]
+        XCTAssertTrue(hordeLayer(without, focus: 640).actors.allSatisfy { $0.sprite != .sootThread },
+                      "one without a thread draws none")
         let calm = hordeLayer(s, focus: 640)
         let threads = calm.actors.filter { $0.sprite == .sootThread }
-        XCTAssertEqual(threads.count, 3, "a thread over every body")
+        XCTAssertEqual(threads.count, 3, "a thread over each that carries one")
         XCTAssertTrue(threads.allSatisfy { $0.isEmissive && $0.tint.w > 0.5 }, "a pale wisp that reads at night")
         let windy = hordeLayer(s, focus: 640, wind: 0.8)
         let still = hordeLayer(s, focus: 640, wind: 0.8, reduceMotion: true)
@@ -562,8 +585,9 @@ final class EntityFramesTests: XCTestCase {
             XCTAssertEqual(thread.rect.x + 7 * scale, bodyActor.rect.x + Float(7 + root.dx) * scale, accuracy: 1)
             XCTAssertGreaterThan(calm.actors.firstIndex(of: thread) ?? -1, calm.actors.firstIndex(of: bodyActor) ?? 0,
                                  "drawn over the body")
-            XCTAssertEqual(thread.frame / 18 + HordeLook.threadLengths.lowerBound, HordeLook.threadLength(id: c.id),
-                           "its own length")
+            XCTAssertEqual((thread.frame / 18) % 8 + HordeLook.threadLengths.lowerBound,
+                           HordeLook.threadLength(id: c.id), "its own length")
+            XCTAssertEqual(thread.frame / (18 * 8), HordeLook.threadCurl(id: c.id), "its own curl")
             let running = c.action == .walking
             XCTAssertEqual((thread.frame / 2) % 9 - 4, running ? -2 : 0, "calm: streamed back while it runs, straight as it waits")
             XCTAssertEqual((blown.frame / 2) % 9 - 4, running ? 2 : 3, "the wind leans it toward the valley")
@@ -628,7 +652,8 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(lights.first?.kind, .torch, "the giant's heart keeps its place")
         for c in s.creatures.prefix(2) {
             let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: EntityFrames.creatureFrame(c, time: 0.2))
-            XCTAssertTrue(cold.contains { $0.x == c.x + eye.dx && $0.y == eye.dy }, "at the socket of \(c.id)")
+            XCTAssertTrue(cold.contains { $0.x == c.x + eye.dx && $0.y == eye.dy + HordeLook.stand(id: c.id) },
+                          "at the socket of \(c.id), where it is drawn")
         }
         XCTAssertTrue(cold.allSatisfy { !$0.kind.affectsBattle && $0.color.x < $0.color.z }, "render only, and cold")
         var crowd = s
@@ -720,7 +745,9 @@ final class EntityFramesTests: XCTestCase {
 
     func testEverySmallOneWearsTheGiantsRagAndOneColdPoint() {
         // The giant's cloak tones (tools/palette.txt moor, moorDark, soilDark) and the moon's grey on the rag's edge;
-        // the outline (nightDeep); the glow strips' cold light only.
+        // the outline (nightDeep); the glow strips' cold light only. Step 3 (the director's calls 1 and 3: the body is
+        // the shadow, the rag the accent): the rag stands on the upper contour (the mantle) but is at most a third of
+        // the filled pixels, flat, with no checker dither; the tumbler, a wheel of rags, is judged by call 8.
         let ragHex: [UInt32] = [0x4A4536, 0x2A2922, 0x2B2421, 0x5E6170]
         let coldHex: [UInt32] = [0xE4F2FF, 0x7FB0D8, 0x34557A]
         let rag = Set(ragHex.map { EntityFramesTests.rgb($0) })
@@ -736,20 +763,40 @@ final class EntityFramesTests: XCTestCase {
                 XCTFail("\(sprite) and its glow strip are in the bundle")
                 continue
             }
-            for frame in 0..<4 {
-                // the upper outline: per column the first pixel under the outline
-                var columns = 0
+            for frame in 0..<sprite.frameCount where body != .tumbler {
+                // the upper contour: per column the first pixel that is not outline
                 var ragged = 0
                 for x in 0..<14 {
                     let px = frame * 14 + x
                     guard let y = (0..<14).first(where: { image[px, $0].a > 0 && image[px, $0] != outline }) else {
                         continue
                     }
-                    columns += 1
                     if rag.contains(image[px, y]) { ragged += 1 }
                 }
-                XCTAssertGreaterThanOrEqual(Double(ragged), Double(columns) / 3,
-                                            "\(sprite) frame \(frame): the rag covers a third of its upper outline")
+                XCTAssertGreaterThanOrEqual(ragged, 2, "\(sprite) frame \(frame): a mantle on the shoulders")
+                var filled = 0
+                var cloth = 0
+                var checkers = 0
+                for y in 0..<14 {
+                    for x in 0..<14 {
+                        let c = image[frame * 14 + x, y]
+                        guard c.a > 0, c != outline else { continue }
+                        filled += 1
+                        if rag.contains(c) { cloth += 1 }
+                        guard x < 13, y < 13 else { continue }
+                        let right = image[frame * 14 + x + 1, y]
+                        let below = image[frame * 14 + x, y + 1]
+                        let across = image[frame * 14 + x + 1, y + 1]
+                        if right.a > 0, below.a > 0, across == c, below == right, c != right,
+                           rag.contains(c) || rag.contains(right) {
+                            checkers += 1
+                        }
+                    }
+                }
+                XCTAssertLessThanOrEqual(Double(cloth), Double(filled) / 3,
+                                         "\(sprite) frame \(frame): the rag is an accent, a third of it at most")
+                XCTAssertGreaterThanOrEqual(Double(cloth), Double(filled) / 6, "\(sprite) frame \(frame): it wears one")
+                XCTAssertEqual(checkers, 0, "\(sprite) frame \(frame): flat tones, no checker dither")
             }
             for frame in 0..<sprite.frameCount {
                 var points = 0
@@ -778,8 +825,9 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(HordeLook.threadLean(wind: 1, running: false), 4, "a gust: four pixels at the tip")
         XCTAssertEqual(HordeLook.threadLean(wind: 0.8, running: true), 2, "a tail wind straightens a runner's thread")
         XCTAssertEqual(HordeLook.threadLean(wind: -1, running: true), -4)
-        XCTAssertEqual(SpriteID.sootThread.frameCount, HordeLook.threadLengths.count * 9 * 2)
-        XCTAssertEqual(HordeLook.threadFrame(length: 17, lean: 4, sway: 1), SpriteID.sootThread.frameCount - 1)
+        XCTAssertEqual(SpriteID.sootThread.frameCount, HordeLook.threadCurls * HordeLook.threadLengths.count * 9 * 2)
+        XCTAssertEqual(HordeLook.threadFrame(length: 17, lean: 4, sway: 1, curl: HordeLook.threadCurls - 1),
+                       SpriteID.sootThread.frameCount - 1)
         // the strip: dense at the root (two pixels wide), broken into wisps in its top third
         guard let url = AtlasBuilder.artURL(for: .sootThread, bundle: .main), let image = PNGDecoder.load(url: url) else {
             XCTFail("sootThread.png is in the bundle")
@@ -787,14 +835,29 @@ final class EntityFramesTests: XCTestCase {
         }
         let size = SpriteID.sootThread.size
         XCTAssertEqual(image.width, size.width * SpriteID.sootThread.frameCount)
-        for length in [10, 14, 17] {
-            let frame = HordeLook.threadFrame(length: length, lean: 0, sway: 0)
-            let row = { (y: Int) in (0..<size.width).filter { image[frame * size.width + $0, y].a > 0 }.count }
-            XCTAssertEqual(row(size.height - 1), 2, "\(length) px: two pixels wide at the root")
-            let rows = (0..<size.height).map(row)
-            let top = rows.firstIndex { $0 > 0 } ?? 0
-            let gaps = rows[top..<(size.height - length * 2 / 3)].filter { $0 == 0 }.count
-            XCTAssertGreaterThan(gaps, 0, "\(length) px: its top third breaks into wisps")
+        // step 3 (call 7): soot, never rain: the lower two thirds unbroken and darker than the wisps above them
+        func luma(_ c: RGBA) -> Double { 0.299 * Double(c.r) + 0.587 * Double(c.g) + 0.114 * Double(c.b) }
+        for curl in 0..<HordeLook.threadCurls {
+            for length in [10, 14, 17] {
+                let frame = HordeLook.threadFrame(length: length, lean: 0, sway: 0, curl: curl)
+                let row = { (y: Int) in (0..<size.width).filter { image[frame * size.width + $0, y].a > 0 }.count }
+                XCTAssertEqual(row(size.height - 1), 2, "\(length) px, curl \(curl): two pixels wide at the root")
+                let rows = (0..<size.height).map(row)
+                let top = rows.firstIndex { $0 > 0 } ?? 0
+                let lowerFrom = size.height - length * 2 / 3
+                let gaps = rows[top..<lowerFrom].filter { $0 == 0 }.count
+                XCTAssertGreaterThan(gaps, 0, "\(length) px, curl \(curl): its top third breaks into wisps")
+                XCTAssertTrue(rows[lowerFrom...].allSatisfy { $0 > 0 }, "\(length) px, curl \(curl): unbroken below")
+                let pixels = { (ys: Range<Int>) -> [RGBA] in
+                    ys.flatMap { y in (0..<size.width).map { image[frame * size.width + $0, y] }.filter { $0.a > 0 } }
+                }
+                let low = pixels(lowerFrom..<size.height).map(luma)
+                let high = pixels(top..<lowerFrom).map(luma)
+                XCTAssertLessThan(low.reduce(0, +) / Double(max(1, low.count)),
+                                  high.reduce(0, +) / Double(max(1, high.count)),
+                                  "\(length) px, curl \(curl): dark soot below, paler wisps above")
+                XCTAssertLessThan(low.max() ?? 255, 90, "\(length) px, curl \(curl): the lower part is dark")
+            }
         }
         // The wind's lean outweighs the sway (the review of step 2): the mean tip (the top three drawn rows) of both
         // sway frames at lean 3 stands at least 2 px right of the calm, farther than one sway swing, and a calm
@@ -806,15 +869,17 @@ final class EntityFramesTests: XCTestCase {
             let xs: [Int] = rows.flatMap { y in (0..<size.width).filter { image[frame * size.width + $0, y].a > 0 } }
             return Double(xs.reduce(0, +)) / Double(max(1, xs.count)) - 7
         }
-        for length in HordeLook.threadLengths {
-            let still = tip(HordeLook.threadFrame(length: length, lean: 0, sway: 0))
-            let swung = tip(HordeLook.threadFrame(length: length, lean: 0, sway: 1))
-            let calm = (still + swung) / 2
-            let gust = (tip(HordeLook.threadFrame(length: length, lean: 3, sway: 0))
-                        + tip(HordeLook.threadFrame(length: length, lean: 3, sway: 1))) / 2
-            XCTAssertGreaterThanOrEqual(gust - calm, 2, "\(length) px: a gust leans the tip at a glance")
-            XCTAssertGreaterThan(gust - calm, abs(swung - still), "\(length) px: the lean outweighs the sway")
-            XCTAssertLessThanOrEqual(abs(calm), 1, "\(length) px: a calm thread stands about its root")
+        for curl in 0..<HordeLook.threadCurls {
+            for length in HordeLook.threadLengths {
+                let still = tip(HordeLook.threadFrame(length: length, lean: 0, sway: 0, curl: curl))
+                let swung = tip(HordeLook.threadFrame(length: length, lean: 0, sway: 1, curl: curl))
+                let calm = (still + swung) / 2
+                let gust = (tip(HordeLook.threadFrame(length: length, lean: 3, sway: 0, curl: curl))
+                            + tip(HordeLook.threadFrame(length: length, lean: 3, sway: 1, curl: curl))) / 2
+                XCTAssertGreaterThanOrEqual(gust - calm, 2, "\(length) px: a gust leans the tip at a glance")
+                XCTAssertGreaterThan(gust - calm, abs(swung - still), "\(length) px: the lean outweighs the sway")
+                XCTAssertLessThanOrEqual(abs(calm), 1, "\(length) px: a calm thread stands about its root")
+            }
         }
     }
 
@@ -845,7 +910,7 @@ final class EntityFramesTests: XCTestCase {
                        [true, false, true, false])
         XCTAssertEqual(HordeLook.litSockets([(x: 600, y: 3.5), (x: 591, y: 3.5)]), [true, true], "9 px apart: both")
         let heights = HordeLook.Body.allCases.map { HordeLook.socket($0, frame: 0).dy }
-        XCTAssertEqual(Set(heights).count, 2, "the crawler low, the loper and the tumbler higher on walk frame 0")
+        XCTAssertEqual(Set(heights).count, 2, "the tumbler's in its hub, lower than the other two on walk frame 0")
         XCTAssertGreaterThan(Set(HordeLook.sockets[HordeLook.Body.loper.rawValue].map { $0.dy }).count, 2,
                              "the loper's socket bobs with its vault")
         var s = GameFrameSupport.demoNight(hour: 23.2)
@@ -882,8 +947,16 @@ final class EntityFramesTests: XCTestCase {
                       "under Reduce Motion nothing flares")
         XCTAssertTrue(EntityFrames.creatureLights(s, time: 1.15, effects: effects, animTime: 1.15).isEmpty,
                       "then it is out")
-        let puffed = hordeLayer(s, focus: 640, time: 1.3, effects: effects).actors.filter { $0.sprite == .shard }
-        XCTAssertEqual(puffed.count, HordeLook.puffFlakes, "half of build 2's soot puff")
+        // step 3 (the director's call 6): a few grey flakes that thin to nothing by 0.8 s, never a V (the shard)
+        let puffed = hordeLayer(s, focus: 640, time: 1.3, effects: effects).actors.filter { $0.sprite == .sootFlake }
+        XCTAssertEqual(puffed.count, HordeLook.puffFlakes, "the puff's flakes")
+        XCTAssertTrue(hordeLayer(s, focus: 640, time: 1.3, effects: effects).actors.allSatisfy { $0.sprite != .shard },
+                      "no shard: a kill never throws up a V")
+        let thinner = hordeLayer(s, focus: 640, time: 1.6, effects: effects).actors.filter { $0.sprite == .sootFlake }
+        XCTAssertEqual(thinner.count, HordeLook.puffFlakes)
+        XCTAssertLessThan(thinner.map(\.tint.w).max() ?? 1, puffed.map(\.tint.w).min() ?? 0, "they thin")
+        XCTAssertTrue(hordeLayer(s, focus: 640, time: 1.81, effects: effects).actors.allSatisfy { $0.sprite != .sootFlake },
+                      "gone by 0.8 s")
         guard let early = hordeLayer(s, focus: 640, time: 1.1, effects: effects).actors
                 .first(where: { $0.sprite == .sootThread }),
               let later = hordeLayer(s, focus: 640, time: 1.4, effects: effects).actors
@@ -892,8 +965,9 @@ final class EntityFramesTests: XCTestCase {
             return
         }
         XCTAssertGreaterThan(early.tint.x, later.tint.x, "bright for its first 0.2 s")
-        XCTAssertEqual(early.frame / 18 + HordeLook.threadLengths.lowerBound, HordeLook.threadLength(id: 7),
+        XCTAssertEqual((early.frame / 18) % 8 + HordeLook.threadLengths.lowerBound, HordeLook.threadLength(id: 7),
                        "its own thread")
+        XCTAssertEqual(early.frame / (18 * 8), HordeLook.threadCurl(id: 7), "its own curl")
     }
 
     func testAnUnlitOneFallsAtTheNightsValue() {
@@ -913,5 +987,112 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertLessThan(heap.tint.x, 0.99, "at the night's value")
         XCTAssertGreaterThan(heap.moonRim, 0, "with its moon rim")
         XCTAssertFalse(heap.isLit)
+    }
+
+    // MARK: - The horde, step 3 (the director's calls of 16.11.2026 04:10: the body is the shadow, the rag the accent)
+
+    func testTheBodyIsTheShadowWithTornClothBehind() {
+        // Call 3, on the drawn strips (the crawler and the loper, every walk frame): the head, with its cold point, sits
+        // lower than the back's highest point; under the body three or more columns of clear ground two pixels high
+        // between its thin limbs; the strips trail past the rear outline (the leftmost column holds cloth); a rim over
+        // the body (nightHaze) and no outline over the upper contour, so the moon catches the rag's top and the rim.
+        let rag = Set(([0x4A4536, 0x2A2922, 0x2B2421, 0x5E6170] as [UInt32]).map { EntityFramesTests.rgb($0) })
+        let rim = EntityFramesTests.rgb(0x2F3F72)
+        let outline = EntityFramesTests.rgb(0x0A1124)
+        let white = EntityFramesTests.rgb(0xE4F2FF)
+        for body in [HordeLook.Body.crawler, .loper] {
+            let sprite = HordeLook.sprite(body)
+            guard let glowSprite = EntityFrames.glowStrip(sprite),
+                  let url = AtlasBuilder.artURL(for: sprite, bundle: .main), let image = PNGDecoder.load(url: url),
+                  let glowURL = AtlasBuilder.artURL(for: glowSprite, bundle: .main),
+                  let glow = PNGDecoder.load(url: glowURL) else {
+                XCTFail("\(sprite) and its glow strip are in the bundle")
+                continue
+            }
+            for frame in 0..<4 {
+                let at = { (x: Int, y: Int) -> RGBA in image[frame * 14 + x, y] }
+                guard let top = (0..<14).first(where: { y in (0..<14).contains { at($0, y).a > 0 } }),
+                      let eye = (0..<14).first(where: { y in (0..<14).contains { glow[frame * 14 + $0, y] == white } }),
+                      let left = (0..<14).first(where: { x in (0..<14).contains { at(x, $0).a > 0 } }) else {
+                    XCTFail("\(sprite) frame \(frame) is drawn")
+                    continue
+                }
+                XCTAssertGreaterThan(eye, top + 1, "\(sprite) frame \(frame): the head below the back's highest point")
+                let span = (0..<14).filter { x in (0..<10).contains { at(x, $0).a > 0 } }
+                let clear = span.filter { at($0, 11).a == 0 && at($0, 12).a == 0 }
+                XCTAssertGreaterThanOrEqual(clear.count, 3, "\(sprite) frame \(frame): clear ground under the belly")
+                XCTAssertTrue((0..<14).contains { rag.contains(at(left, $0)) },
+                              "\(sprite) frame \(frame): the strips trail past the rear outline")
+                var rims = 0
+                var capped = 0
+                for x in 0..<14 {
+                    guard let y = (0..<14).first(where: { at(x, $0).a > 0 }) else { continue }
+                    if at(x, y) == rim { rims += 1 }
+                    if at(x, y) == outline && y < 13 && at(x, y + 1).a > 0 && at(x, y + 1) != outline { capped += 1 }
+                }
+                XCTAssertGreaterThanOrEqual(rims, 1, "\(sprite) frame \(frame): a rim over the body")
+                XCTAssertEqual(capped, 0, "\(sprite) frame \(frame): no outline over the upper contour")
+            }
+        }
+    }
+
+    func testNeighboursSeparateByAValueStepAndAPixel() {
+        // Call 4: a navy value step by id (never the same for neighbouring ids, nor for two of one body three ids
+        // apart) and a pixel of height by id (about every second one stands a pixel lower, nearer in the lane).
+        for id in 0..<60 {
+            XCTAssertNotEqual(HordeLook.shade(id: id), HordeLook.shade(id: id + 1), "\(id) and its neighbour")
+            XCTAssertNotEqual(HordeLook.shade(id: id), HordeLook.shade(id: id + 3), "\(id) and the next of its body")
+        }
+        XCTAssertEqual(Set((0..<60).map { HordeLook.shade(id: $0) }), Set(HordeLook.shades))
+        XCTAssertTrue((0..<60).allSatisfy { [0, -1].contains(HordeLook.stand(id: $0)) })
+        XCTAssertTrue((18...42).contains((0..<60).filter { HordeLook.stand(id: $0) < 0 }.count),
+                      "about every second one a pixel lower")
+        let high = (0..<60).first { HordeLook.stand(id: $0) == 0 } ?? 0
+        let low = (0..<60).first { HordeLook.stand(id: $0) < 0 && HordeLook.body(id: $0) == HordeLook.body(id: high) }
+            ?? 1
+        var s = GameFrameSupport.demoNight()
+        s.creatures = [GameFrameSupport.creature(.sootling, x: 600, id: high, lit: true),
+                       GameFrameSupport.creature(.sootling, x: 660, id: low, lit: true)]
+        let bodies = hordeLayer(s, focus: 640).actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+        XCTAssertEqual(bodies.count, 2)
+        guard bodies.count == 2 else { return }
+        let scale = bodies[0].rect.z / 14
+        XCTAssertEqual(bodies[1].rect.y + bodies[1].rect.w - (bodies[0].rect.y + bodies[0].rect.w), scale,
+                       "a pixel lower")
+        XCTAssertEqual(bodies[0].tint.x, HordeLook.shade(id: high), "lit, at its value step")
+        XCTAssertEqual(bodies[1].tint.x, HordeLook.shade(id: low))
+    }
+
+    func testTheClimbersTakeAClimbPose() {
+        // Call 4: in a heap the ones above hold a climb pose (the crawler and the loper reach up, frame 4, and claw
+        // down, 5; the tumbler unfolds, 5, and claws, 6), the reach most of the time; the ones below keep striking.
+        let wall = Realm.lines[2].wall
+        let ids = (10..<400).filter { HordeLook.stand(id: $0) == 0 }
+        var s = GameFrameSupport.demoNight()
+        s.creatures = (0..<9).map {
+            var c = GameFrameSupport.creature(.sootling, x: 630 - Double($0) * 2, id: ids[$0], lit: true,
+                                              action: .attackingWall)
+            c.target = wall
+            return c
+        }
+        XCTAssertEqual(HordeLook.heapLifts(s.creatures).count, 5)
+        for time in [0.1, 0.3, 0.5, 0.7] {
+            s.simTime = time
+            let bodies = hordeLayer(s, focus: 640, time: time).actors
+                .filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+            let ground = bodies.map { $0.rect.y + $0.rect.w }.max() ?? 0
+            let raised = bodies.filter { $0.rect.y + $0.rect.w < ground }
+            XCTAssertEqual(raised.count, 5, "five climb at \(time) s")
+            for climber in raised {
+                let pose = climber.sprite == .tumbler ? [5, 6] : [4, 5]
+                XCTAssertTrue(pose.contains(climber.frame), "\(climber.sprite) climbs on \(climber.frame)")
+            }
+        }
+        for id in ids.prefix(6) {
+            let reach = HordeLook.body(id: id) == .tumbler ? 5 : 4
+            let held = (0..<60).filter { HordeLook.climbFrame(id: id, time: Double($0) * 0.05) == reach }.count
+            XCTAssertGreaterThanOrEqual(held, 33, "\(id): the reach most of the time")
+            XCTAssertLessThan(held, 60, "\(id): and it claws")
+        }
     }
 }

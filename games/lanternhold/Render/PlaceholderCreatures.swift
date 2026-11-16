@@ -30,7 +30,8 @@ enum PlaceholderCreatures {
         case .tumblerGlow: return strip(7) { sootling($0 % 6).glow }
         case .sootFall: return strip(9) { sootling($0 % 6).body }
         case .sootFallGlow: return strip(9) { sootling($0 % 6).glow }
-        case .sootThread: return strip(144) { _ in thread() }
+        case .sootThread: return strip(432) { _ in thread() }
+        case .sootFlake: return strip(3) { _ in flake() }
         default: return []
         }
     }
@@ -46,6 +47,14 @@ enum PlaceholderCreatures {
         for y in 2..<size.height {
             image[size.width / 2, y] = RGBA(0x98A1BB)
         }
+        return image
+    }
+
+    /// b3-horde step 3: the fall's flake's stand-in, a grey grain at the bottom of its cell.
+    static func flake() -> PixelImage {
+        let size = SpriteID.sootFlake.size
+        var image = PixelImage(width: size.width, height: size.height)
+        image[size.width / 2, size.height - 1] = RGBA(0x5E6170)
         return image
     }
 

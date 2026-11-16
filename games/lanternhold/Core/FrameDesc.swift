@@ -39,8 +39,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case sootlingGlow, sootlingBGlow, shadehoundGlow, sootCrowGlow, ashBruteGlow, gloomweaverGlow, ashGiantGlow,
          lightlessKingGlow
     // b3-horde (build 3, lane 4 step A, POLISH.md 7): the third small body and its glow, the small ones' fall (three
-    // frames per body) and its glow, the smoke thread over every small one (tools/creatures, `HordeLook`)
-    case tumbler, tumblerGlow, sootFall, sootFallGlow, sootThread
+    // frames per body) and its glow, the smoke thread over every small one (tools/creatures, `HordeLook`); step 3: the
+    // fall's grey flakes
+    case tumbler, tumblerGlow, sootFall, sootFallGlow, sootThread, sootFlake
     // Buildings, overlays and the beacon
     case bastion, rubbleWood, rubbleStone, scaffold, gateWood, gateIron, gateGreat, gateBroken
     case archerTower, watchtower, fireTower, catapult, stakePit
@@ -282,6 +283,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         // b3-horde
         case .tumbler, .tumblerGlow, .sootFall, .sootFallGlow: return PixelSize(width: 14, height: 14)
         case .sootThread: return PixelSize(width: 15, height: 18)
+        case .sootFlake: return PixelSize(width: 3, height: 3)
         case .bastion: return PixelSize(width: 44, height: 64)
         case .rubbleWood: return PixelSize(width: 24, height: 10)
         case .rubbleStone: return PixelSize(width: 40, height: 14)
@@ -532,10 +534,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
         case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
         // b3-horde: the tumbler rolls 0-3 and claws 4-6 (gather, claw, recover); the fall 0-2 crawler, 3-5 loper, 6-8
-        // tumbler; the thread (length index × 9 + lean + 4) × 2 + sway, eight lengths (`HordeLook.threadFrame`)
+        // tumbler; the thread ((curl × 8 + length index) × 9 + lean + 4) × 2 + sway, three curls, eight lengths
+        // (`HordeLook.threadFrame`); the flakes' three shapes
         case .tumbler, .tumblerGlow: return 7
         case .sootFall, .sootFallGlow: return 9
-        case .sootThread: return 144
+        case .sootThread: return 432
+        case .sootFlake: return 3
         case .citizen, .citizenB, .citizenC, .builder: return 6
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
              .nobleLady, .footman:

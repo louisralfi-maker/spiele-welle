@@ -251,3 +251,62 @@ def fall(src, k, seed):
         if 0 <= gy < CELL and not f.has(gx, gy):
             f.put(gx, gy, GRAIN[(i + seed + 1) % 3], None, True)
     return f
+
+
+# --- Step 3 (the director, 16.11.2026 04:10): the body is the shadow, the rag is the accent ---------------------------
+# A body is hand-set pixel by pixel, flat tones and no dither: the navy and soot ramp for head, flank, belly and limbs; a
+# short mantle on the shoulders and two or three strips trailing behind it in the giant's cloak tones as they are in
+# his shadow (moorDark, soilDark), their top pixels catching the moon (moor); a 1 px rim on the body's upper outline
+# (nightHaze, a full value step over the body); one cold point. The outline runs round the sides and the underside but
+# not over the upper contour (`uncap`), so the rag's top pixels and the rim are the edge the moon catches.
+LEGEND = {
+    # outlined body pixels
+    "D": ("night0", None, False), "B": ("nightBlue", None, False), "S": ("nightSlate", None, False),
+    "M": ("nightHaze", None, False), "n": ("nightDeep", None, False),
+    "r": ("moorDark", None, False), "s": ("soilDark", None, False), "m": ("moor", None, False),
+    "P": ("nightSlate", None, False), "p": ("nightHaze", None, False),
+    "Q": ("moorDark", None, False), "q": ("moor", None, False),
+    "E": ("stoneLight", "wraithWhite", False), "e": ("stoneMid", "wraithGlow", False),
+    "g": ("nightSlate", "wraithDim", False),
+    # bare pixels (no outline): thin limbs, claws, the strips' loose ends
+    "l": ("night0", None, True), "L": ("nightBlue", None, True), "k": ("nightDeep", None, True),
+    "a": ("stoneDark", None, True),
+    "1": ("moorDark", None, True), "3": ("soilDark", None, True), "2": ("moor", None, True),
+}
+ROOTS = "PpQq"
+
+
+def root(rows):
+    """The thread's root (column, row) of a hand-set grid: exactly one of P, p, Q, q."""
+    check(rows)
+    found = [(x, y) for y, r in enumerate(rows) for x, ch in enumerate(r) if ch in ROOTS]
+    assert len(found) == 1, found
+    return found[0]
+
+
+def uncap(f):
+    """No outline over the upper contour: where a column's topmost pixel is outline over another pixel, it goes."""
+    for x in range(CELL):
+        for y in range(CELL):
+            c = f.b[y][x]
+            if c is None:
+                continue
+            if c == "nightDeep" and (x, y) not in f.bare and y + 1 < CELL and f.b[y + 1][x] is not None:
+                f.erase(x, y)
+            break
+    return f
+
+
+def draw(rows, seed=0):
+    """A hand-set grid (`LEGEND`) as a finished frame: flat tones, the 1 px outline round the sides and the underside,
+    none over the upper contour, no warm rim."""
+    check(rows)
+    f = Frame(CELL, CELL, seed)
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch == ".":
+                continue
+            name, glow, bare = LEGEND[ch]
+            f.put(x, y, name, glow, bare)
+    f.finish(rim=None)
+    return uncap(f)

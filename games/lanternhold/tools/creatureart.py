@@ -19,7 +19,8 @@ from pixelart import Image, Palette, write_png, DEFAULT_PALETTE  # noqa: E402
 GAME = os.path.dirname(HERE)
 ART = os.path.join(GAME, "Resources", "Art")
 RIGGED = ["sootling", "sootlingB", "shadehound", "sootCrow", "ashBrute", "gloomweaver", "ashGiant", "lightlessKing",
-          "tumbler", "sootFall", "sootThread"]   # b3-horde: the third small body, the fall, the smoke thread
+          "tumbler", "sootFall", "sootThread",   # b3-horde: the third small body, the fall, the smoke thread
+          "sootFlake"]                            # b3-horde step 3: the fall's grey flakes
 
 
 def build(name, out, pal):

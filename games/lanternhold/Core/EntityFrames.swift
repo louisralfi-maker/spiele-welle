@@ -1023,8 +1023,11 @@ enum EntityFrames {
         var kept: [(x: Double, y: Double)] = []
         for c in small {
             if kept.count >= free { break }
-            let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: creatureFrame(c, time: time))
-            let p = (x: c.x + eye.dx, y: c.y + (lifts[c.id] ?? 0) + eye.dy)
+            // step 3: where it is drawn (a pixel of height by id, the climbers' pose)
+            let lift = lifts[c.id]
+            let frame = lift != nil ? HordeLook.climbFrame(id: c.id, time: time) : creatureFrame(c, time: time)
+            let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: frame)
+            let p = (x: c.x + eye.dx, y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + eye.dy)
             if kept.contains(where: {
                 abs($0.x - p.x) < HordeLook.socketApartX && abs($0.y - p.y) <= HordeLook.socketApartY
             }) { continue }
@@ -1225,14 +1228,21 @@ enum EntityFrames {
         for index in order {
             let c = s.creatures[index]
             let sprite = creatureSprite(c)
-            let frame = creatureFrame(c, time: time)
+            var frame = creatureFrame(c, time: time)
             var y = c.y + (lifts[c.id] ?? 0)
+            if c.kind == .sootling {
+                // b3-horde step 3 (the director's call 4): a pixel of height by id, and the climbers' pose on a heap.
+                y += HordeLook.stand(id: c.id)
+                if lifts[c.id] != nil { frame = HordeLook.climbFrame(id: c.id, time: time) }
+            }
             if c.kind == .gloomweaver { y += weaverBob(c, time: time) }
             var flipped = false
             if c.kind == .sootCrow && c.target >= 0 && c.target < Realm.plots.count {
                 flipped = Realm.plots[c.target].x < c.x
             }
-            let shade = c.kind.isBoss ? 1 : creatureShade(c.id, look: look)
+            // b3-horde step 3 (call 4): the small ones take a navy value step by id, so neighbours separate.
+            let shade = c.kind.isBoss ? 1
+                : (c.kind == .sootling ? HordeLook.shade(id: c.id) : creatureShade(c.id, look: look))
             let body = (c.isLit ? 1 : value) * shade
             // The Gloom's fog (look 2): an unlit body forms inside the dark and steps out of the fog whole; its
             // glow is there before it. The picture only: the simulation knows where it is all along.
@@ -1257,9 +1267,10 @@ enum EntityFrames {
                     emissive: true, lit: c.isLit)
                 }
             }
-            if c.kind == .sootling {
+            if c.kind == .sootling && HordeLook.hasThread(id: c.id) {
                 // b3-horde: the smoke thread from the hood's peak, leaning with the wind, back while it runs; it fades
-                // with the glow (none deep in the bank), so the horde reads as threads before its bodies are seen.
+                // with the glow (none deep in the bank). Step 3 (call 7): soot, on about every second one, its curl by
+                // id.
                 let share: Float = look == .two && !c.isLit ? CreatureLook.glowShare(x: c.x, bankEdge: s.bankEdge) : 1
                 if share > 0.02 {
                     let body = HordeLook.body(id: c.id)
@@ -1268,7 +1279,8 @@ enum EntityFrames {
                     let sway = HordeLook.threadSway(id: c.id, time: time, reduceMotion: reduceMotion)
                     let root = HordeLook.threadRoot(body, frame: frame)
                     let length = HordeLook.threadLength(id: c.id)
-                    add(.sootThread, frame: HordeLook.threadFrame(length: length, lean: lean, sway: sway),
+                    add(.sootThread, frame: HordeLook.threadFrame(length: length, lean: lean, sway: sway,
+                                                                   curl: HordeLook.threadCurl(id: c.id)),
                         x: c.x + root.dx,
                         y: y + root.dy, tint: HordeLook.threadTint(night: night, share: share), emissive: true,
                         lit: c.isLit)
@@ -1308,8 +1320,9 @@ enum EntityFrames {
             let wind = reduceMotion ? weather.mean : Weather.wind(at: effect.x, weather, time: animTime)
             let sway = HordeLook.threadSway(id: Int(effect.seed % 997), time: animTime, reduceMotion: reduceMotion)
             let length = effect.id >= 0 ? HordeLook.threadLength(id: effect.id) : HordeLook.height(body)
+            let curl = effect.id >= 0 ? HordeLook.threadCurl(id: effect.id) : Int(effect.seed % 3)
             if let thread = HordeLook.orphanThread(body, length: length, seconds: seconds, wind: wind, sway: sway,
-                                                   reduceMotion: reduceMotion) {
+                                                   reduceMotion: reduceMotion, curl: curl) {
                 var tint = HordeLook.threadTint(night: night, share: 1, bright: thread.bright)
                 tint.w *= thread.alpha
                 add(.sootThread, frame: thread.frame, x: effect.x + thread.dx, y: effect.y + thread.dy, tint: tint,
@@ -1561,18 +1574,21 @@ enum EntityFrames {
                     add(.shard, k % 2, x, y, side < 0, SIMD4<Float>(0.8, 0.76, 0.72, 1), false, true)
                 }
             case .fall:
-                // b3-horde: the fall strip and its orphan thread are drawn with the creatures; here half of build 2's
-                // soot puff (two flakes, soot grey, no ember: the small ones are cold) from the body's middle, from the
-                // second fall frame on.
+                // b3-horde: the fall strip and its orphan thread are drawn with the creatures; here the puff. Step 3
+                // (the director's call 6: a kill never throws up a V): a few grey flakes of soot, one or two pixels,
+                // round or ragged (`SpriteID.sootFlake`), lift off the body's middle from the second fall frame, drift
+                // apart and thin to nothing by 0.8 s after the kill. No ember: the small ones are cold.
                 let puff = (animTime - effect.start - HordeLook.fallFrameSeconds) / HordeLook.puffSeconds
                 guard puff >= 0, puff < 1 else { continue }
                 let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
                 let middle = effect.y + Double(HordeLook.height(body)) * 0.4
+                let thin = Float(1 - puff)
                 for k in 0..<HordeLook.puffFlakes {
                     guard spend() else { return }
-                    let x = effect.x + (unit(k, 2) - 0.5) * 10 + (unit(k, 3) - 0.5) * 8 * puff
-                    let y = middle + puff * (10 + 12 * unit(k, 4))
-                    add(.shard, k % 2, x, y, false, SIMD4<Float>(0.42, 0.42, 0.47, 1), false, effect.lit)
+                    let x = effect.x + (unit(k, 2) - 0.5) * 9 + (unit(k, 3) - 0.5) * 10 * puff
+                    let y = middle + (unit(k, 5) - 0.5) * 4 + puff * (3 + 8 * unit(k, 4))
+                    add(.sootFlake, Int(unit(k, 6) * Double(HordeLook.flakeShapes)) % HordeLook.flakeShapes,
+                        x.rounded(), y.rounded(), false, SIMD4<Float>(1, 1, 1, thin), false, effect.lit)
                 }
             case .beaconFlare:
                 for k in 0..<6 {

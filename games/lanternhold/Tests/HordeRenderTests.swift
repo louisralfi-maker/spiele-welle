@@ -46,7 +46,8 @@ final class HordeRenderTests: XCTestCase {
             let falls = desc.actors.filter { $0.sprite == .sootFall }
             let threads = desc.actors.filter { $0.sprite == .sootThread }
             XCTAssertEqual(falls.count, after < HordeLook.heapGone ? 1 : 0, "the heap at \(after) s")
-            XCTAssertEqual(threads.count, s.creatures.count + 1, "every body's thread and the orphan at \(after) s")
+            XCTAssertEqual(threads.count, s.creatures.filter { HordeLook.hasThread(id: $0.id) }.count + 1,
+                           "the threads of those that carry one and the orphan at \(after) s")
             if cropRect == nil, let fall = falls.first {
                 let w = 240
                 let h = 150
@@ -105,8 +106,9 @@ final class HordeRenderTests: XCTestCase {
             settings.time = time
             let desc = frame(s, focus: 600, time: time, wind: 0.6, effects: effects)
             XCTAssertTrue(desc.actors.allSatisfy { $0.sprite != .sootFall }, "the heaps are gone at \(after) s")
-            XCTAssertEqual(desc.actors.filter { $0.sprite == .sootThread }.count, s.creatures.count + felled.count,
-                           "four orphan threads beside the living ones at \(after) s")
+            XCTAssertEqual(desc.actors.filter { $0.sprite == .sootThread }.count,
+                           s.creatures.filter { HordeLook.hasThread(id: $0.id) }.count + felled.count,
+                           "four orphan threads beside the living ones' at \(after) s")
             if rect == nil, let first = desc.actors.first(where: { EntityFramesTests.smallSprites.contains($0.sprite) }) {
                 let bottom = Int(first.rect.y + first.rect.w)
                 rect = (x: max(0, min(HordeRenderTests.screen.0 - w, Int(first.rect.x) - 30)),
@@ -230,6 +232,15 @@ final class HordeRenderTests: XCTestCase {
                                 paleCount, navyRatio))
             XCTAssertGreaterThanOrEqual(perPixel, 1.6,
                                         "\(actor.sprite) stands \(perPixel) : 1 against the night ground")
+            // Step 3 (the director's call 5): unlit, the rag still reads: its pixels and the rim stand against the
+            // same body's navy at 1.5 : 1 or more (the drawn pixels, the means of each).
+            let paleMean = paleBody / Float(max(1, paleCount))
+            let ragOverNavy = paleMean / max(1e-5, navyBody)
+            notes.append(String(format: "%@ frame %ld: rag and rim over its navy %.2f : 1 (%.4f over %.4f)",
+                                actor.sprite.rawValue, actor.frame, ragOverNavy, paleMean, navyBody))
+            XCTAssertGreaterThan(paleCount, 6, "\(actor.sprite): its rag and rim are found")
+            XCTAssertGreaterThanOrEqual(ragOverNavy, 1.5,
+                                        "\(actor.sprite): rag and rim stand \(ragOverNavy) : 1 over its navy, unlit")
             // the crop: without and with, side by side
             let w = 60
             let h = 50
