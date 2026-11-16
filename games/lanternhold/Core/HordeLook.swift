@@ -218,10 +218,15 @@ enum HordeLook {
     /// Its curls (the wisps' side and where they turn): 0 ... 2.
     static let threadCurls = 3
 
-    /// About every third small one carries a wisp (step 4, the director's call 5; step 3 every second), chosen by id,
-    /// not by body. Every fall still leaves its orphan wisp: a snuffed wick smokes.
+    /// Step 5 (the director's call 1 of 16.11.2026 08:52: the wisps go): on the runner's shots they still read as
+    /// antennae and sticks, so their share is zero: no small one carries a wisp, and no fall leaves an orphan. The
+    /// strips, the frame tables and the draw code stay, as with the tumbler: a wisp comes back by setting this true.
+    static let threadsShown = false
+
+    /// Whether a small one carries a wisp: none since step 5 (`threadsShown`); before it about every third, chosen by
+    /// id, not by body (step 4, the director's call 5; step 3 every second), and every fall left its orphan wisp.
     static func hasThread(id: Int) -> Bool {
-        SeededRandom.hash(0x5448_5244_4F4E, Int64(id)) % 3 == 0
+        threadsShown && SeededRandom.hash(0x5448_5244_4F4E, Int64(id)) % 3 == 0
     }
 
     /// A thread's curl by id, so a file of threads and a volley's orphans never curl alike.

@@ -545,77 +545,27 @@ final class EntityFramesTests: XCTestCase {
                       "the climbers are drawn over the backs in front")
     }
 
-    func testEverySmallOneCarriesAThreadThatLeansWithTheWind() {
-        // step 4 (the director's call 5): about every third one carries a wisp, chosen by id, not by body
-        let carriers = (0..<90).filter { HordeLook.hasThread(id: $0) }
-        XCTAssertTrue((18...42).contains(carriers.count), "about every third one (\(carriers.count) of 90)")
-        for body in HordeLook.crowd {
-            let ids = (0..<90).filter { HordeLook.body(id: $0) == body }
-            XCTAssertTrue((7...23).contains(ids.filter { HordeLook.hasThread(id: $0) }.count),
-                          "\(body)s: about a third")
-        }
-        XCTAssertGreaterThanOrEqual(Set(carriers.prefix(12).map { HordeLook.threadCurl(id: $0) }).count, 2,
-                                    "their curls differ by id")
-        let crawlers = carriers.filter { HordeLook.body(id: $0) == .crawler }
-        let lopers = carriers.filter { HordeLook.body(id: $0) == .loper }
-        let bare = (0..<90).first { !HordeLook.hasThread(id: $0) } ?? 0
-        guard crawlers.count >= 2, let loper = lopers.first else {
-            XCTFail("carriers of both bodies")
-            return
-        }
+    func testNoSmallOneCarriesAWisp() {
+        // Step 5 (the director's call 1 of 16.11.2026 08:52: the wisps go): no id carries one, and no layer draws one,
+        // calm, in a gust, under Reduce Motion, in look 2 or at the wall; the strips and their tables stay
+        // (`testTheThreadsAreSmokeThatNeverStandsRuled`), so a wisp comes back by `HordeLook.threadsShown`.
+        XCTAssertFalse(HordeLook.threadsShown)
+        XCTAssertTrue((0..<400).allSatisfy { !HordeLook.hasThread(id: $0) }, "the wisps' share is zero")
+        let wall = Realm.lines[2].wall
         var s = GameFrameSupport.demoNight()
-        s.creatures = [GameFrameSupport.creature(.sootling, x: 600, id: crawlers[0], lit: true),
-                       GameFrameSupport.creature(.sootling, x: 640, id: loper, lit: true),
-                       GameFrameSupport.creature(.sootling, x: 680, id: crawlers[1], lit: true,
-                                                 action: .attackingWall)]
-        var without = s
-        without.creatures = [GameFrameSupport.creature(.sootling, x: 640, id: bare, lit: true)]
-        XCTAssertTrue(hordeLayer(without, focus: 640).actors
-                        .allSatisfy { !HordeLook.threadSprites.contains($0.sprite) },
-                      "one without a thread draws none")
-        let calm = hordeLayer(s, focus: 640)
-        let threads = calm.actors.filter { HordeLook.threadSprites.contains($0.sprite) }
-        XCTAssertEqual(threads.count, 3, "a thread over each that carries one")
-        XCTAssertTrue(threads.allSatisfy { $0.isEmissive && $0.tint.w > 0.5 }, "a pale wisp that reads at night")
-        let windy = hordeLayer(s, focus: 640, wind: 0.8)
-        let still = hordeLayer(s, focus: 640, wind: 0.8, reduceMotion: true)
-        let drawn = calm.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
-        XCTAssertEqual(drawn.count, 3)
-        for (index, c) in s.creatures.enumerated() {
-            let body = HordeLook.body(id: c.id)
-            let frame = EntityFrames.creatureFrame(c, time: s.simTime)
-            let root = HordeLook.threadRoot(body, frame: frame)
-            // the bodies are drawn left to right, as they stand
-            guard index < drawn.count, drawn[index].sprite == HordeLook.sprite(body) else {
-                XCTFail("the \(body) is drawn")
-                continue
-            }
-            let bodyActor = drawn[index]
-            // its thread: the one nearest over it (the bodies stand 40 px apart)
-            let near = { (layer: EntityLayer) -> ActorInstance? in
-                layer.actors.filter { HordeLook.threadSprites.contains($0.sprite) }.min {
-                    abs($0.rect.x - bodyActor.rect.x) < abs($1.rect.x - bodyActor.rect.x)
-                }
-            }
-            guard let thread = near(calm), let blown = near(windy), let held = near(still) else {
-                XCTFail("the \(body)'s thread is drawn")
-                continue
-            }
-            let scale = bodyActor.rect.z / 14
-            XCTAssertEqual(bodyActor.rect.y + bodyActor.rect.w - (thread.rect.y + thread.rect.w), Float(root.dy) * scale,
-                           "the \(body)'s thread rises from its rag's torn edge")
-            XCTAssertEqual(thread.rect.x + 7 * scale, bodyActor.rect.x + Float(7 + root.dx) * scale, accuracy: 1)
-            XCTAssertGreaterThan(calm.actors.firstIndex(of: thread) ?? -1, calm.actors.firstIndex(of: bodyActor) ?? 0,
-                                 "drawn over the body")
-            XCTAssertEqual((thread.frame / 18) % HordeLook.threadLengths.count + HordeLook.threadLengths.lowerBound,
-                           HordeLook.threadLength(id: c.id), "its own length")
-            XCTAssertEqual(HordeLook.threadSprites.firstIndex(of: thread.sprite), HordeLook.threadCurl(id: c.id),
-                           "its own curl")
-            let running = c.action == .walking
-            XCTAssertEqual((thread.frame / 2) % 9 - 4, running ? -2 : 0, "calm: streamed back while it runs, straight as it waits")
-            XCTAssertEqual((blown.frame / 2) % 9 - 4, running ? 2 : 3, "the wind leans it toward the valley")
-            XCTAssertEqual(held.frame % 2, 0, "Reduce Motion: no sway")
-            XCTAssertEqual((held.frame / 2) % 9, (blown.frame / 2) % 9, "Reduce Motion leans by the steady wind")
+        s.creatures = (0..<12).map { k in
+            var c = GameFrameSupport.creature(.sootling, x: 560 + Double(k) * 6, id: k, lit: true,
+                                              action: k >= 6 ? .attackingWall : .walking)
+            if k >= 6 { c.target = wall }
+            return c
+        }
+        let layers = [hordeLayer(s, focus: 640), hordeLayer(s, focus: 640, wind: 0.8),
+                      hordeLayer(s, focus: 640, wind: 0.8, reduceMotion: true), hordeLayer(s, focus: 640, look: .two)]
+        for (k, layer) in layers.enumerated() {
+            XCTAssertEqual(layer.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }.count, 12,
+                           "layer \(k): the twelve are drawn")
+            XCTAssertTrue(layer.actors.allSatisfy { !HordeLook.threadSprites.contains($0.sprite) },
+                          "layer \(k): no wisp is drawn")
         }
     }
 
@@ -643,24 +593,33 @@ final class EntityFramesTests: XCTestCase {
                        "Reduce Motion: the heap at once")
         let standing = at(1.7)
         XCTAssertTrue(standing.allSatisfy { $0.sprite != .sootFall }, "the heap is gone after 0.6 s")
-        let alone = standing.filter { HordeLook.threadSprites.contains($0.sprite) }
-        XCTAssertEqual(alone.count, 1, "the thread stands alone")
-        guard let stood = alone.first,
-              let calm = at(2.2).first(where: { HordeLook.threadSprites.contains($0.sprite) }),
-              let blown = at(2.2, wind: 0.8).first(where: { HordeLook.threadSprites.contains($0.sprite) }),
-              let held = at(2.2, wind: 0.8, reduceMotion: true)
-                .first(where: { HordeLook.threadSprites.contains($0.sprite) }) else {
-            XCTFail("the orphan thread is drawn until it is gone")
+        // step 5 (the director's call 1): no orphan wisp stands, at any moment, in any wind
+        for time in [1.05, 1.15, 1.25, 1.5, 1.7, 2.2] {
+            XCTAssertTrue(at(time, wind: 0.8).allSatisfy { !HordeLook.threadSprites.contains($0.sprite) },
+                          "no wisp at \(time) s")
+        }
+        // the orphan's motion stays in `HordeLook` for a wisp's return: it rises in a calm, goes with the wind, stands
+        // under Reduce Motion, and is gone after 1.4 s
+        let length = HordeLook.threadLength(id: 7)
+        guard let stood = HordeLook.orphanThread(body, length: length, seconds: 0.7, wind: 0, sway: 0,
+                                                 reduceMotion: false),
+              let calm = HordeLook.orphanThread(body, length: length, seconds: 1.2, wind: 0, sway: 0,
+                                                reduceMotion: false),
+              let blown = HordeLook.orphanThread(body, length: length, seconds: 1.2, wind: 0.8, sway: 0,
+                                                 reduceMotion: false),
+              let held = HordeLook.orphanThread(body, length: length, seconds: 1.2, wind: 0.8, sway: 0,
+                                                reduceMotion: true) else {
+            XCTFail("the orphan's motion is defined until it is gone")
             return
         }
-        let scale = stood.rect.z / Float(SpriteID.sootThread.size.width)
-        XCTAssertEqual(calm.rect.x, stood.rect.x, "in a calm it rises straight")
-        XCTAssertLessThan(calm.rect.y, stood.rect.y, "and rises")
-        XCTAssertGreaterThan(blown.rect.x, stood.rect.x + 4 * scale, "the wind carries it toward the valley")
-        XCTAssertLessThan(blown.tint.w, stood.tint.w, "fading")
-        XCTAssertEqual(held.rect.x, stood.rect.x, "Reduce Motion: it stands")
-        XCTAssertLessThan(held.tint.w, stood.tint.w, "and fades")
-        XCTAssertTrue(at(2.45).allSatisfy { !HordeLook.threadSprites.contains($0.sprite) }, "gone after 1.4 s")
+        XCTAssertEqual(calm.dx, stood.dx, "in a calm it rises straight")
+        XCTAssertGreaterThan(calm.dy, stood.dy, "and rises")
+        XCTAssertGreaterThan(blown.dx, stood.dx + 4, "the wind carries it toward the valley")
+        XCTAssertLessThan(blown.alpha, stood.alpha, "fading")
+        XCTAssertEqual(held.dx, stood.dx, "Reduce Motion: it stands")
+        XCTAssertLessThan(held.alpha, stood.alpha, "and fades")
+        XCTAssertNil(HordeLook.orphanThread(body, length: length, seconds: 1.45, wind: 0, sway: 0, reduceMotion: false),
+                     "gone after 1.4 s")
     }
 
     func testTheSocketsAreColdPointsOfLight() {
@@ -1018,18 +977,14 @@ final class EntityFramesTests: XCTestCase {
         }
         XCTAssertEqual(stillAt(1.3).count, HordeLook.puffFlakes, "under Reduce Motion the flakes are there")
         XCTAssertEqual(stillAt(1.3), stillAt(1.6), "and hang still while they thin")
-        guard let early = hordeLayer(s, focus: 640, time: 1.1, effects: effects).actors
-                .first(where: { HordeLook.threadSprites.contains($0.sprite) }),
-              let later = hordeLayer(s, focus: 640, time: 1.4, effects: effects).actors
-                .first(where: { HordeLook.threadSprites.contains($0.sprite) }) else {
-            XCTFail("the orphan thread stands")
-            return
+        // step 5 (the director's call 1): the kill leaves no orphan wisp; its brightness stays in `HordeLook`
+        for time in [1.1, 1.4] {
+            XCTAssertTrue(hordeLayer(s, focus: 640, time: time, effects: effects).actors
+                            .allSatisfy { !HordeLook.threadSprites.contains($0.sprite) }, "no orphan at \(time) s")
         }
-        XCTAssertGreaterThan(early.tint.x, later.tint.x, "bright for its first 0.2 s")
-        XCTAssertEqual((early.frame / 18) % HordeLook.threadLengths.count + HordeLook.threadLengths.lowerBound,
-                       HordeLook.threadLength(id: 7), "its own thread")
-        XCTAssertEqual(HordeLook.threadSprites.firstIndex(of: early.sprite), HordeLook.threadCurl(id: 7),
-                       "its own curl")
+        let early = HordeLook.orphanThread(.crawler, length: 8, seconds: 0.1, wind: 0, sway: 0, reduceMotion: false)
+        let later = HordeLook.orphanThread(.crawler, length: 8, seconds: 0.4, wind: 0, sway: 0, reduceMotion: false)
+        XCTAssertGreaterThan(early?.bright ?? 0, later?.bright ?? 1, "bright for its first 0.2 s")
     }
 
     func testAnUnlitOneFallsAtTheNightsValue() {
@@ -1303,8 +1258,7 @@ final class EntityFramesTests: XCTestCase {
 
         var s = GameFrameSupport.demoNight(hour: 23)
         for plot in Realm.lines[2].braziers { s.plots[plot].snuffed = true }
-        let carrier = (0..<60).first { HordeLook.hasThread(id: $0) } ?? 0
-        s.creatures = [GameFrameSupport.creature(.sootling, x: s.bankEdge + 40, id: carrier, lit: false),
+        s.creatures = [GameFrameSupport.creature(.sootling, x: s.bankEdge + 40, id: 3, lit: false),
                        GameFrameSupport.creature(.shadehound, x: s.bankEdge + 90, id: 61, lit: false)]
         var options = FrameOptions(flickerTime: 1.5)
         options.look = .two
@@ -1318,18 +1272,16 @@ final class EntityFramesTests: XCTestCase {
                                        effects: BattleEffects())
         guard let body = layer.actors.first(where: { EntityFramesTests.smallSprites.contains($0.sprite) }),
               let eye = layer.actors.first(where: { [SpriteID.sootlingGlow, .sootlingBGlow].contains($0.sprite) }),
-              let thread = layer.actors.first(where: { HordeLook.threadSprites.contains($0.sprite) }),
               let hound = layer.actors.first(where: { $0.sprite == .shadehound }) else {
-            XCTFail("the small one, its cold point, its wisp and the hound are drawn")
+            XCTFail("the small one, its cold point and the hound are drawn")
             return
         }
         XCTAssertGreaterThanOrEqual(body.tint.w, HordeLook.fogFloor, "seen at least the floor in the open")
         XCTAssertEqual(HordeLook.unpack(body.lightCap)?.veil ?? 1, 1 - HordeLook.fogFloor, accuracy: 0.011)
         XCTAssertEqual(HordeLook.unpack(eye.lightCap)?.veil ?? 1, HordeLook.eyeVeil, accuracy: 0.011,
                        "the cold point under no fog")
-        XCTAssertEqual(HordeLook.unpack(thread.lightCap)?.veil ?? 1, 1 - HordeLook.fogFloor, accuracy: 0.011,
-                       "the wisp at its body's veil")
-        XCTAssertLessThanOrEqual(thread.tint.w, body.tint.w, "the wisp takes its body's seen")
+        // step 5 (the director's call 1): no wisp over it
+        XCTAssertTrue(layer.actors.allSatisfy { !HordeLook.threadSprites.contains($0.sprite) }, "no wisp")
         XCTAssertNil(HordeLook.unpack(hound.lightCap), "the other creatures keep their plain cap")
     }
 }

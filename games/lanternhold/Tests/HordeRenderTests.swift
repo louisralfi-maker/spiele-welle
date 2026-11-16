@@ -46,8 +46,8 @@ final class HordeRenderTests: XCTestCase {
             let falls = desc.actors.filter { $0.sprite == .sootFall }
             let threads = desc.actors.filter { HordeLook.threadSprites.contains($0.sprite) }
             XCTAssertEqual(falls.count, after < HordeLook.heapGone ? 1 : 0, "the heap at \(after) s")
-            XCTAssertEqual(threads.count, s.creatures.filter { HordeLook.hasThread(id: $0.id) }.count + 1,
-                           "the threads of those that carry one and the orphan at \(after) s")
+            // step 5 (the director's call 1): no wisp anywhere, the fall strip included
+            XCTAssertTrue(threads.isEmpty, "no wisp and no orphan at \(after) s")
             if cropRect == nil, let fall = falls.first {
                 // step 4 (the critic's M3): each panel cropped to the dying one (about 21 x 18 game px round it),
                 // attached four times enlarged: twice the phone's own size
@@ -108,9 +108,9 @@ final class HordeRenderTests: XCTestCase {
             settings.time = time
             let desc = frame(s, focus: 600, time: time, wind: 0.6, effects: effects)
             XCTAssertTrue(desc.actors.allSatisfy { $0.sprite != .sootFall }, "the heaps are gone at \(after) s")
-            XCTAssertEqual(desc.actors.filter { HordeLook.threadSprites.contains($0.sprite) }.count,
-                           s.creatures.filter { HordeLook.hasThread(id: $0.id) }.count + felled.count,
-                           "four orphan threads beside the living ones' at \(after) s")
+            // step 5 (the director's call 1): a volley leaves soot, no row of orphan sticks
+            XCTAssertTrue(desc.actors.allSatisfy { !HordeLook.threadSprites.contains($0.sprite) },
+                          "no orphan wisp at \(after) s")
             if rect == nil, let first = desc.actors.first(where: { EntityFramesTests.smallSprites.contains($0.sprite) }) {
                 let bottom = Int(first.rect.y + first.rect.w)
                 rect = (x: max(0, min(HordeRenderTests.screen.0 - w, Int(first.rect.x) - 30)),
@@ -280,8 +280,9 @@ final class HordeRenderTests: XCTestCase {
                                 dropSocketLights: true, gloom: fog)
         let shotThreads = try renderer.renderOffscreen(withThreads, settings: settings)
         let threads = withThreads.actors.filter { HordeLook.threadSprites.contains($0.sprite) }
+        // step 5 (the director's call 1): none carries one, so this check holds for a wisp's return only
         XCTAssertEqual(threads.count, s.creatures.filter { HordeLook.hasThread(id: $0.id) }.count,
-                       "the threads of those that carry one")
+                       "the threads of those that carry one (none since step 5)")
         for actor in threads {
             guard let threadURL = AtlasBuilder.artURL(for: actor.sprite, bundle: .main),
                   let threadStrip = PNGDecoder.load(url: threadURL) else {

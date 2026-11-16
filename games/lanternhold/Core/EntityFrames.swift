@@ -1348,6 +1348,8 @@ enum EntityFrames {
                         tint: SIMD4<Float>(flare, flare, flare, 1), emissive: true, lightCap: flareCap)
                 }
             }
+            // step 5 (the director's call 1): the wisps go, and with them the orphans (`HordeLook.hasThread`)
+            guard HordeLook.hasThread(id: effect.id) else { continue }
             let wind = reduceMotion ? weather.mean : Weather.wind(at: effect.x, weather, time: animTime)
             let sway = HordeLook.threadSway(id: Int(effect.seed % 997), time: animTime, reduceMotion: reduceMotion)
             let length = effect.id >= 0 ? HordeLook.threadLength(id: effect.id) : HordeLook.height(body)
