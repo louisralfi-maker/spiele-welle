@@ -20,7 +20,7 @@ final class EntityFramesTests: XCTestCase {
                        GameFrameSupport.creature(.sootling, x: 600, id: 4, lit: true),
                        GameFrameSupport.creature(.shadehound, x: 560, id: 5, lit: false)]
         let (_, layer) = GameFrameSupport.frame(s, focus: 600)
-        // b3-horde: the small ones take three bodies by their ids (2: the tumbler, 4: the loper).
+        // b3-horde: the small ones take their bodies by their ids (2 and 4: the crawler).
         let bodies = layer.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) || $0.sprite == .shadehound }
         XCTAssertEqual(bodies.count, 3)
         let unlit = bodies.filter { !$0.isLit }
@@ -49,13 +49,13 @@ final class EntityFramesTests: XCTestCase {
     }
 
     func testTheSootlingsAlternateAndCreaturesAnimateByAction() {
-        // b3-horde: three bodies by the id (`HordeLook`): the crawler, the loper, the tumbler.
-        let crawler = GameFrameSupport.creature(.sootling, x: 500, id: 9, lit: true)
-        let loper = GameFrameSupport.creature(.sootling, x: 500, id: 10, lit: true)
-        let tumbler = GameFrameSupport.creature(.sootling, x: 500, id: 11, lit: true)
+        // b3-horde: the bodies by the id (`HordeLook.crowd`).
+        // step 3: the crowd takes the crawler and the loper in turn (the tumbler's share is zero)
+        let crawler = GameFrameSupport.creature(.sootling, x: 500, id: 10, lit: true)
+        let loper = GameFrameSupport.creature(.sootling, x: 500, id: 11, lit: true)
         XCTAssertEqual(EntityFrames.creatureSprite(crawler), .sootling)
         XCTAssertEqual(EntityFrames.creatureSprite(loper), .sootlingB)
-        XCTAssertEqual(EntityFrames.creatureSprite(tumbler), .tumbler)
+        XCTAssertTrue((0..<60).allSatisfy { HordeLook.body(id: $0) != .tumbler }, "no tumbler in the crowd")
         var walker = GameFrameSupport.creature(.ashBrute, x: 500, id: 3, lit: true)
         var frames = Set<Int>()
         for step in 0..<12 {
@@ -404,8 +404,11 @@ final class EntityFramesTests: XCTestCase {
             XCTAssertNotNil(EntityFrames.glowStrip(sprite), "\(sprite) has its glow strip")
             seen[sprite, default: 0] += 1
         }
-        XCTAssertEqual(Set(seen.keys), EntityFramesTests.smallSprites, "three bodies")
-        XCTAssertEqual(seen.values.sorted(), [10, 10, 10], "a third each")
+        // step 3 (the director's call 8): the tumbler's share in the crowd is zero; its strip stays
+        XCTAssertEqual(Set(seen.keys), Set(HordeLook.crowd.map { HordeLook.sprite($0) }), "the crowd's bodies")
+        XCTAssertEqual(Set(seen.keys), [.sootling, .sootlingB], "the crawler and the loper")
+        XCTAssertEqual(seen.values.sorted(), [15, 15], "half each")
+        XCTAssertNotNil(EntityFrames.glowStrip(.tumbler), "the tumbler keeps its strips")
         XCTAssertEqual(EntityFrames.creatureSprite(GameFrameSupport.creature(.shadehound, x: 600, id: 2, lit: true)),
                        .shadehound, "the other kinds keep their bodies")
     }
@@ -440,11 +443,11 @@ final class EntityFramesTests: XCTestCase {
     }
 
     func testNoTwoSmallOnesKeepStep() {
-        // Twelve neighbours in a file, 3 px apart: no two of one body start on the same frame of their cycle, each walks
+        // Eight neighbours in a file, 3 px apart: no two of one body start on the same frame of their cycle, each walks
         // at a stride of its own (M6), and walking on together 300 px (the bank to the wall) no two of one body show
         // the same frame at even half of the steps: never in unison.
-        for body in HordeLook.Body.allCases {
-            let ids = (0..<12).filter { HordeLook.body(id: $0) == body }
+        for body in HordeLook.crowd {
+            let ids = (0..<8).filter { HordeLook.body(id: $0) == body }
             XCTAssertEqual(Set(ids.map { HordeLook.startFrame(id: $0) }).count, ids.count, "\(body)s start apart")
             XCTAssertEqual(Set(ids.map { HordeLook.stride(id: $0) }).count, ids.count, "\(body)s stride apart")
         }
@@ -471,21 +474,25 @@ final class EntityFramesTests: XCTestCase {
         }
         XCTAssertEqual(cycle, [0, 1, 2, 3], "the walk cycles as it walks")
         XCTAssertEqual(Set(HordeLook.Body.allCases.map { HordeLook.stride($0) }).count, 3, "a stride of its own each")
-        // Striking: the crawler and the loper on frames 4 and 5, two of one body with opposite starts never on the same
-        // beat; the tumbler gathers, claws and recovers (4, 5, 6) at 3.5 a second (H4: never a 7 Hz flicker).
-        var tumbler = Set<Int>()
-        var changes = 0
-        var last = -1
-        for k in 0..<100 {
-            let frame = HordeLook.attackFrame(id: 11, time: Double(k) * 0.02)
-            tumbler.insert(frame)
-            if last >= 0 && frame != last { changes += 1 }
-            last = frame
+        // Striking: the crawler and the loper on frames 4 and 5, three changes a second (step 3, M2: never the 6 Hz
+        // shimmer), each at its own phase; two of one body with opposite starts never on the same beat.
+        for id in [10, 11] {
+            var seen = Set<Int>()
+            var changes = 0
+            var last = -1
+            for k in 0..<100 {
+                let frame = HordeLook.attackFrame(id: id, time: Double(k) * 0.02)
+                seen.insert(frame)
+                if last >= 0 && frame != last { changes += 1 }
+                last = frame
+            }
+            XCTAssertEqual(seen, [4, 5], "\(HordeLook.body(id: id)) strikes on 4 and 5")
+            XCTAssertTrue((5...7).contains(changes), "\(HordeLook.body(id: id)): about 3 changes a second over 2 s")
         }
-        XCTAssertEqual(tumbler, [4, 5, 6])
-        XCTAssertLessThanOrEqual(changes, 8, "about 3.5 changes a second over 2 s")
-        let first = GameFrameSupport.creature(.sootling, x: 640, id: 3, lit: true, action: .attackingWall)
-        let second = GameFrameSupport.creature(.sootling, x: 640, id: 9, lit: true, action: .attackingWall)
+        XCTAssertNotEqual(HordeLook.attackFrame(id: 2, time: 0.1), HordeLook.attackFrame(id: 4, time: 0.1),
+                          "neighbours of one body strike at their own phase")
+        let first = GameFrameSupport.creature(.sootling, x: 640, id: 2, lit: true, action: .attackingWall)
+        let second = GameFrameSupport.creature(.sootling, x: 640, id: 6, lit: true, action: .attackingWall)
         for k in 0..<12 {
             let time = Double(k) * 0.07
             let frame = EntityFrames.creatureFrame(first, time: time)
@@ -536,20 +543,23 @@ final class EntityFramesTests: XCTestCase {
         // step 3 (the director's call 7): about every second one carries a thread, chosen by id, not by body
         let carriers = (0..<90).filter { HordeLook.hasThread(id: $0) }
         XCTAssertTrue((30...60).contains(carriers.count), "about every second one (\(carriers.count) of 90)")
-        for body in HordeLook.Body.allCases {
+        for body in HordeLook.crowd {
             let ids = (0..<90).filter { HordeLook.body(id: $0) == body }
-            XCTAssertTrue((8...22).contains(ids.filter { HordeLook.hasThread(id: $0) }.count), "\(body)s: about half")
+            XCTAssertTrue((12...33).contains(ids.filter { HordeLook.hasThread(id: $0) }.count), "\(body)s: about half")
         }
         XCTAssertGreaterThanOrEqual(Set(carriers.prefix(12).map { HordeLook.threadCurl(id: $0) }).count, 2,
                                     "their curls differ by id")
-        func carrier(_ body: HordeLook.Body) -> Int {
-            (0..<90).first { HordeLook.body(id: $0) == body && HordeLook.hasThread(id: $0) } ?? 0
-        }
+        let crawlers = carriers.filter { HordeLook.body(id: $0) == .crawler }
+        let lopers = carriers.filter { HordeLook.body(id: $0) == .loper }
         let bare = (0..<90).first { !HordeLook.hasThread(id: $0) } ?? 0
+        guard crawlers.count >= 2, let loper = lopers.first else {
+            XCTFail("carriers of both bodies")
+            return
+        }
         var s = GameFrameSupport.demoNight()
-        s.creatures = [GameFrameSupport.creature(.sootling, x: 600, id: carrier(.crawler), lit: true),
-                       GameFrameSupport.creature(.sootling, x: 640, id: carrier(.loper), lit: true),
-                       GameFrameSupport.creature(.sootling, x: 680, id: carrier(.tumbler), lit: true,
+        s.creatures = [GameFrameSupport.creature(.sootling, x: 600, id: crawlers[0], lit: true),
+                       GameFrameSupport.creature(.sootling, x: 640, id: loper, lit: true),
+                       GameFrameSupport.creature(.sootling, x: 680, id: crawlers[1], lit: true,
                                                  action: .attackingWall)]
         var without = s
         without.creatures = [GameFrameSupport.creature(.sootling, x: 640, id: bare, lit: true)]
@@ -561,14 +571,18 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertTrue(threads.allSatisfy { $0.isEmissive && $0.tint.w > 0.5 }, "a pale wisp that reads at night")
         let windy = hordeLayer(s, focus: 640, wind: 0.8)
         let still = hordeLayer(s, focus: 640, wind: 0.8, reduceMotion: true)
-        for c in s.creatures {
+        let drawn = calm.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+        XCTAssertEqual(drawn.count, 3)
+        for (index, c) in s.creatures.enumerated() {
             let body = HordeLook.body(id: c.id)
             let frame = EntityFrames.creatureFrame(c, time: s.simTime)
             let root = HordeLook.threadRoot(body, frame: frame)
-            guard let bodyActor = calm.actors.first(where: { $0.sprite == HordeLook.sprite(body) }) else {
+            // the bodies are drawn left to right, as they stand
+            guard index < drawn.count, drawn[index].sprite == HordeLook.sprite(body) else {
                 XCTFail("the \(body) is drawn")
                 continue
             }
+            let bodyActor = drawn[index]
             // its thread: the one nearest over it (the bodies stand 40 px apart)
             let near = { (layer: EntityLayer) -> ActorInstance? in
                 layer.actors.filter { $0.sprite == .sootThread }.min {
@@ -667,9 +681,9 @@ final class EntityFramesTests: XCTestCase {
 
     func testAKillFindsItsBodyAfterAQuietStretch() {
         // A note comes only with events: three quiet seconds later the small one has walked 100 px from where it was
-        // last seen, and its fall still takes its body (id 9: the crawler; the counter's fallback would give the loper).
+        // last seen, and its fall still takes its body (id 8: the crawler; the counter's fallback would give the loper).
         var s = GameFrameSupport.demoNight()
-        s.creatures = [GameFrameSupport.creature(.sootling, x: 540, id: 9, lit: true),
+        s.creatures = [GameFrameSupport.creature(.sootling, x: 540, id: 8, lit: true),
                        GameFrameSupport.creature(.sootling, x: 900, id: 11, lit: true)]
         var effects = BattleEffects()
         effects.note([], state: s, balance: balance, time: 0)
@@ -1037,11 +1051,12 @@ final class EntityFramesTests: XCTestCase {
     }
 
     func testNeighboursSeparateByAValueStepAndAPixel() {
-        // Call 4: a navy value step by id (never the same for neighbouring ids, nor for two of one body three ids
-        // apart) and a pixel of height by id (about every second one stands a pixel lower, nearer in the lane).
+        // Call 4: a navy value step by id (never the same for neighbouring ids, nor for the next one of its body)
+        // and a pixel of height by id (about every second one stands a pixel lower, nearer in the lane).
         for id in 0..<60 {
             XCTAssertNotEqual(HordeLook.shade(id: id), HordeLook.shade(id: id + 1), "\(id) and its neighbour")
-            XCTAssertNotEqual(HordeLook.shade(id: id), HordeLook.shade(id: id + 3), "\(id) and the next of its body")
+            XCTAssertNotEqual(HordeLook.shade(id: id), HordeLook.shade(id: id + HordeLook.crowd.count),
+                              "\(id) and the next of its body")
         }
         XCTAssertEqual(Set((0..<60).map { HordeLook.shade(id: $0) }), Set(HordeLook.shades))
         XCTAssertTrue((0..<60).allSatisfy { [0, -1].contains(HordeLook.stand(id: $0)) })

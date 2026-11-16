@@ -132,8 +132,8 @@ final class HordeRenderTests: XCTestCase {
     }
 
     /// Step 2 (the director's art direction, 16.11.2026; the critic's B1): an unlit small one in the open at 23:00
-    /// reads against the ground behind it. The outer line's fires are out, so nothing lights it but the night; each of
-    /// the three bodies is rendered once with and once without it, under the same lights (its thread, its socket's glow
+    /// reads against the ground behind it. The outer line's fires are out, so nothing lights it but the night; three
+    /// small ones (step 3: the crowd's two bodies) are rendered once with and once without them, under the same lights (its thread, its socket's glow
     /// and the sockets' render lights left out, so the body alone is judged). Over the body's own pixels (its strip's
     /// alpha, without the outline and the socket's shell: the rag, the moon rim and the navy) each pixel's relative
     /// luminance stands against the ground right behind it; the geometric mean of those per-pixel ratios (either way)
@@ -174,7 +174,8 @@ final class HordeRenderTests: XCTestCase {
         var notes: [String] = []
         var crops: [[SIMD3<Float>]] = []
         let bodies = withBodies.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
-        XCTAssertEqual(bodies.count, 3, "the three bodies are drawn, unlit")
+        XCTAssertEqual(bodies.count, 3, "three small ones are drawn, unlit (step 3: the crawler and the loper)")
+        XCTAssertEqual(Set(bodies.map(\.sprite)), [.sootling, .sootlingB], "both bodies of the crowd")
         for actor in bodies {
             XCTAssertFalse(actor.isLit)
             guard let url = AtlasBuilder.artURL(for: actor.sprite, bundle: .main),

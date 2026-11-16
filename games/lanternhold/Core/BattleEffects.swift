@@ -131,7 +131,9 @@ struct BattleEffects: Sendable, Equatable {
             gone.remove(at: best)
             return (body: HordeLook.body(id: found.id).rawValue, lift: found.lift, id: found.id, lit: found.lit)
         }
-        return (body: Int((counter &+ 1) % 3), lift: 0, id: -1, lit: true)
+        // step 3: a body of the crowd (`HordeLook.crowd`; the tumbler's share is zero)
+        let crowd = HordeLook.crowd
+        return (body: crowd[Int((counter &+ 1) % UInt64(crowd.count))].rawValue, lift: 0, id: -1, lit: true)
     }
 
     private mutating func remember(_ state: GameState, unclaimed: [SmallSeen], time: Double) {

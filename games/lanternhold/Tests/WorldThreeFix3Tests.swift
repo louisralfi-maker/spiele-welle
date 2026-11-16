@@ -111,7 +111,7 @@ final class WorldThreeFix3Tests: XCTestCase {
         night.creatures = [GameFrameSupport.creature(.sootling, x: edge - 100, id: 2, lit: false),
                            GameFrameSupport.creature(.shadehound, x: edge + 60, id: 5, lit: false)]
         let desc = frame(night, hour: 23.2, focus: edge - 20)
-        // b3-horde: the small ones take three bodies (id 2 is the tumbler) and carry a smoke thread; none of it shows.
+        // b3-horde: the small ones take their bodies by id and may carry a thread of soot; none of it shows.
         let small: Set<SpriteID> = [.sootling, .sootlingB, .tumbler, .sootlingGlow, .sootlingBGlow, .tumblerGlow,
                                     .sootThread]
         XCTAssertTrue(desc.actors.filter { small.contains($0.sprite) }.isEmpty,

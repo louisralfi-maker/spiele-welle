@@ -15,13 +15,19 @@ import Foundation
 /// flakes, never a V.
 /// `Battle` and `Balance` never read any of it: the same creatures, the same numbers, a new picture.
 enum HordeLook {
-    /// The three bodies (`id % 3`).
+    /// The three bodies.
     enum Body: Int, CaseIterable, Sendable {
         case crawler, loper, tumbler
     }
 
+    /// The bodies in the crowd, taken in turn by id. Step 3 (the director's call 8, the tumbler's last try): on the
+    /// builder's silhouette sheet the flat torn wheel still reads as a lump, never as a wheel, so its share in the
+    /// crowd is zero; its strip and its code stay, and it comes back by adding it here. Two good bodies beat three
+    /// with one bad.
+    static let crowd: [Body] = [.crawler, .loper]
+
     static func body(id: Int) -> Body {
-        Body(rawValue: ((id % 3) + 3) % 3) ?? .crawler
+        crowd[((id % crowd.count) + crowd.count) % crowd.count]
     }
 
     static func sprite(_ body: Body) -> SpriteID {
@@ -52,28 +58,30 @@ enum HordeLook {
     }
 
     /// The stride of one small one: its body's, 0.9 ... 1.1 of it by id (M6, picture only: the simulation's pace is
-    /// untouched), each of five neighbours of one body (ids 3 apart) at another, so a file of one body never walks to
-    /// one beat: walking on together, their frames drift apart.
+    /// untouched), each of five neighbours of one body (ids `crowd.count` apart) at another, so a file of one body
+    /// never walks to one beat: walking on together, their frames drift apart.
     static let strideScales = [0.9, 1.0, 1.1, 0.95, 1.05]
 
     static func stride(id: Int) -> Double {
-        stride(body(id: id)) * strideScales[((id / 3) % strideScales.count + strideScales.count) % strideScales.count]
+        let count = strideScales.count
+        return stride(body(id: id)) * strideScales[((id / crowd.count) % count + count) % count]
     }
 
-    /// Its own start frame: neighbours of one body (ids 3 apart) start a quarter cycle apart, so a file of the same
-    /// body never walks in step.
+    /// Its own start frame: neighbours of one body (ids `crowd.count` apart) start a quarter cycle apart, so a file of
+    /// the same body never walks in step.
     static func startFrame(id: Int) -> Int {
-        ((id / 3) % 4 + 4) % 4
+        ((id / crowd.count) % 4 + 4) % 4
     }
 
     // MARK: - Neighbours (step 3, the director's call 4)
 
     /// A navy value step by id (the body's tint): a step down, none, a step up. Two small ones with neighbouring ids
-    /// never share a step, nor two of one body three ids apart, so a crowd separates into bodies.
+    /// never share a step, nor two of one body (`crowd.count` ids apart), so a crowd separates into bodies.
     static let shades: [Float] = [0.84, 1, 1.16]
 
     static func shade(id: Int) -> Float {
-        shades[((id + id / 3) % 3 + 3) % 3]
+        let step = crowd.count == 3 ? id + id / 3 : id
+        return shades[(step % 3 + 3) % 3]
     }
 
     /// A pixel of height by id: about every second one (by a hash, not by body) stands a pixel lower, nearer in the
@@ -89,13 +97,14 @@ enum HordeLook {
     }
 
     /// The tumbler's three attack frames (gather, claw, recover; 4 ... 6) at 3.5 a second; the crawler and the loper
-    /// rear and strike (4, 5) at their own rate. Each one is half a beat off its neighbours by its start frame.
+    /// rear and strike (4, 5) three times a second (step 3, M2: at 6 and 5 a heap of them shimmered). Each one is half a
+    /// beat off its neighbours by its start frame, so its phase is its own.
     static func attackFrame(id: Int, time: Double) -> Int {
         let rate: Double
         let frames: Int
         switch body(id: id) {
-        case .crawler: rate = 6; frames = 2
-        case .loper: rate = 5; frames = 2
+        case .crawler: rate = 3; frames = 2
+        case .loper: rate = 3; frames = 2
         case .tumbler: rate = 3.5; frames = 3
         }
         let beat = Int((max(0, time) * rate + Double(startFrame(id: id)) * 0.5).rounded(.down))
@@ -124,7 +133,7 @@ enum HordeLook {
     static let roots: [[(x: Int, y: Int)]] = [
         [(8, 4), (7, 5), (8, 4), (7, 5), (8, 4), (8, 5)],
         [(5, 4), (6, 4), (7, 3), (6, 4), (5, 5), (5, 5)],
-        [(6, 5), (6, 5), (6, 5), (6, 5), (5, 6), (4, 6), (5, 5)],
+        [(3, 6), (3, 6), (3, 6), (3, 6), (3, 8), (3, 9), (3, 7)],
     ]
 
     /// The thread sprite's anchor from the body's anchor (bottom centre), so that its root (column 7 of its bottom
@@ -224,7 +233,7 @@ enum HordeLook {
     static let sockets: [[(dx: Double, dy: Double)]] = [
         [(5.5, 5.5), (5.5, 5.5), (5.5, 5.5), (5.5, 5.5), (5.5, 6.5), (5.5, 4.5)],
         [(2.5, 5.5), (3.5, 5.5), (4.5, 6.5), (3.5, 5.5), (2.5, 4.5), (2.5, 4.5)],
-        [(2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 5.5)],
+        [(2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 3.5), (2.5, 3.5), (2.5, 4.5)],
     ]
 
     static func socket(_ body: Body, frame: Int = 0) -> (dx: Double, dy: Double) {
@@ -280,7 +289,7 @@ enum HordeLook {
         switch body {
         case .crawler: return (dx: 5.5, dy: 2.5)
         case .loper: return (dx: 2.5, dy: 1.5)
-        case .tumbler: return (dx: 1.5, dy: 3.5)
+        case .tumbler: return (dx: 2.5, dy: 2.5)
         }
     }
 
