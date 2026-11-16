@@ -971,3 +971,10 @@ schneller geht."
   - The director's art direction: the small ones are scraps shed from the Ash Giant's cloak that learned to walk: an ochre and olive rag over the back, navy limbs, one cold point. Kin of the giant, and readable at night as he is.
   - Decision: the horde lane may add one tagged Debug-only block each in App/DebugArgs.swift and App/GameStart.swift for a `-GWHorde` proof key.
   - Step 2 = the fix round with proof shots (ten in the open, a heap at a wall, an upright clip). Quota 65 % of the week.
+
+- **Build 3, the wind lane: step 1 is green, the motion is not there yet; step 2 is briefed (16.11.2026, 02:24).**
+  - `claude/lh-b3-wind` b31cdc74, round `lh-b3w-12` ALL PASSED: the windmill with turning sails, two flags on the keep, the curtain banners at tier 3, the fire lean, the west-wind mirror, the tests.
+  - The critic gave 6/10 (no blocker, 4 highs) and the director confirms: the limp flag is a stiff slat, a breeze and a storm look alike because the flying poses are nearly one pose, the sails tick in 15 degree steps, the calm day is dead still.
+  - Step 2: the fixes (a 4-frame flying and a 4-frame snapping cycle with a travelling fold, 12 sail frames lit from one side, a rare stir on a calm day, flames that bend) and the two rains: water over the realm, ash over the dark side, a soft band at the outermost standing wall.
+  - Step 3 of the lane (new): gust leaves and dust, the sounds, the weather vane.
+  - The horde lane's step 2 runs since 01:56 (workflow run wf_c7cc9280-5f2).
