@@ -1983,8 +1983,8 @@ enum FrameBuilder {
     // MARK: Build 3 step 3, part B: the gust's leaves and dust (docs/POLISH.md 2 item 5; lane 3)
 
     /// Leaves in the air by the steady wind's step (`Weather.sailLevel`: calm, breeze, gusty, storm): none in a calm, a
-    /// few in a breeze (always), more on a gusty day and in a storm (while a gust is up where they fly; a storm keeps
-    /// some aloft between its gusts). Puffs of the lane's dust only in a gusty day's or a storm's gusts.
+    /// few in a breeze (while its small gusts are up), more on a gusty day and in a storm (while a gust is up where
+    /// they fly; a storm keeps some aloft between its gusts). Puffs of the lane's dust only in a gusty day's or a storm's gusts.
     static let gustLeafCounts = [0, 3, 7, 10]
     static let gustDustCounts = [0, 0, 4, 5]
     /// A leaf crosses the screen at this speed plus `gustLeafDrive` × the steady wind (target px/s), sinking
@@ -2050,9 +2050,13 @@ enum FrameBuilder {
             let x = x0 + downwind * speed * along
             let y = min(ground - 4, y0 + gustLeafSink * along + gustLeafBob * sin(along * 3.7 + phase))
             guard x > -Double(size.width), x < width, x + lane > seam else { continue }
-            var alpha = 1.0
-            if level >= 2 {
-                let share = AmbientRamp.smoothstep((gustShare(at: x + lane, weather, time: animTime) - 0.2) / 0.35)
+            // A breeze's leaves ride its small gusts too (a lower threshold), so they are gone when it eases.
+            let gust = gustShare(at: x + lane, weather, time: animTime)
+            var alpha: Double
+            if level == 1 {
+                alpha = AmbientRamp.smoothstep((gust - 0.1) / 0.4)
+            } else {
+                let share = AmbientRamp.smoothstep((gust - 0.2) / 0.35)
                 alpha = max(level == 3 && slot % 2 == 0 ? 0.8 : 0, share)
             }
             // Fade in as it leaves the crown, out at the end of its flight.
