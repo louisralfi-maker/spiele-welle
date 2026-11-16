@@ -187,8 +187,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // unlit, never lit by the world
     case hudFigures, hudArrow, hudCoin, hudFace, hudPeople, hudGear, hudDawn
     // b3-count (build 3, lane 1: the count, PAY.md; tools/hudart.py): the big coin and the two hollows the kit already
-    // drew, the bar and its hollow, the tally board's tiles with its post, the site lantern unlit and lit
-    case hudCoinTen, hudHollow, hudHollowTen, hudCoinBar, hudHollowBar, payBoard, siteLantern
+    // drew, the bar and its hollow, the tally board's tiles with its post, the site lantern unlit and lit; step 2: the
+    // small coin of the count (its faces and its edge in flight) and the lit lantern's halo
+    case hudCoinTen, hudHollow, hudHollowTen, hudCoinBar, hudHollowBar, payBoard, siteLantern, payCoin, siteHalo
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -494,7 +495,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hudCoinBar: return PixelSize(width: 13, height: 8)
         case .hudHollowBar: return PixelSize(width: 13, height: 9)
         case .payBoard: return PixelSize(width: 6, height: 12)
-        case .siteLantern: return PixelSize(width: 7, height: 10)
+        case .siteLantern: return PixelSize(width: 9, height: 13)
+        case .payCoin: return PixelSize(width: 9, height: 9)
+        case .siteHalo: return PixelSize(width: 25, height: 25)
         case .hudDawn: return PixelSize(width: 11, height: 9)
         }
     }
@@ -569,10 +572,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hudFigures: return 12
         case .hudArrow: return 2
         case .hudFace: return 4
-        // b3-count: empty and holding; the board's 14 tiles; unlit and lit.
-        case .hudHollow, .hudHollowTen, .hudHollowBar: return 2
-        case .payBoard: return 14
-        case .siteLantern: return 2
+        // b3-count: empty and holding one of three faces; the board's 23 tiles; unlit, lit and two of bloom; the
+        // count's coins: three faces and the edge.
+        case .hudHollow, .hudHollowTen, .hudHollowBar: return 4
+        case .payBoard: return 23
+        case .siteLantern: return 4
+        case .payCoin, .hudCoinTen, .hudCoinBar: return 4
         default: return 1
         }
     }

@@ -13,10 +13,7 @@ Sprites (each a horizontal strip of equal frames, AtlasBuilder.splitFrames cuts 
                pixels, so the dark edges of neighbours overlap by one pixel and a ticking number never jumps.
   hudArrow     8x9, 2 frames: up, down (the change notes of HUD.md section 3; they stand like a figure)
   hudCoin      9x9: the small coin (one; PAY.md), the row's gold sign
-  hudCoinTen   11x11: the big coin (ten), struck with the Roman X
-  hudHollow    9x9, 2 frames: a hollow of the tally board, empty and holding a small coin (no ink edge: it is cut
-               into the board's wood, which the world lane draws)
-  hudHollowTen 11x11, 2 frames: the same for the big coin
+  hudHollow    a hollow of the tally board (no ink edge: it is cut into the board's wood); see the count below
   hudFace      9x9, 4 frames: glad, even, grim, unrest; a townsman's head in his hood (FACE_STYLE "hood"; the
                rivals "cap", a head in profile, and "disc", the first round face, stay buildable with --face)
   hudDawn      11x9: the dawn sign, a half sun on the horizon; the day line is this sign and the day's number
@@ -26,16 +23,31 @@ Sprites (each a horizontal strip of equal frames, AtlasBuilder.splitFrames cuts 
 The count (PAY.md, build 3 lane 1): the tally board on its post, a thing in the world (HUD.md: drawn lit by the world,
 never on a plate), its bar coin and the site lantern the one who was paid lights.
 
-  hudCoinBar   13x8: the bar (a hundred), a small cast ingot with a struck C, lit from the upper left
-  hudHollowBar 13x9, 2 frames: its hollow in the board, empty and holding the bar (no ink edge, like the others)
-  payBoard     6x12, 14 frames: the board's tiles, so a board fits any price (PayBoardLayout in Core/PayCount.swift):
-               0 plank's left end, 1 and 2 two plank middles (they alternate, so the grain never repeats in a row),
-               3 plank's right end, 4 5 6 the cap over the top plank (left, middle, right; in the cell's last 3 rows),
-               7 8 9 the foot under the last plank (in the cell's first 2 rows), 10 the post (every row alike, so
-               tiles stack and overlap unseen), 11 the post's foot in the ground, 12 the hasp on the shut lid,
-               13 the post's top, the iron plate the lantern stands on (in the cell's last 3 rows)
-  siteLantern  7x10, 2 frames: the site lantern on the post, unlit (dark glass) and lit (the glass in the fire ramp;
-               the stage lane adds its light and the glass's glow)
+  hudCoinBar   13x8, 4 frames: the bar (a hundred), a small cast ingot with a struck C, lit from the upper left;
+               frames 0 to 2 its face (the glint and the stamp a pixel apart, so a board of bars is no row of copies),
+               3 its end, a 3 px sliver, as it turns in the air
+  hudHollowBar 13x9, 4 frames: its hollow in the board, empty and holding the bar's faces 0 to 2 (no ink edge)
+  payBoard     6x12, 23 frames: the board's tiles, so a board fits any price (PayBoardLayout in Core/PayCount.swift):
+               0 plank's left end, 1 2 14 15 four plank middles (the count picks one per tile by a hash and shifts
+               every second row by half a tile, so no streak lines up), 3 plank's right end, 4 5 6 the cap over the
+               top plank (left, middle, right; in the cell's last 3 rows), 16 17 two more cap middles, 7 8 9 the foot
+               under the last plank (in the cell's first 2 rows), 10 the post (every row alike, so tiles stack and
+               overlap unseen), 11 the post's foot in the ground, 12 the hasp on the shut lid, 13 the post's top, the
+               iron plate the lantern stands on (in the cell's last 3 rows); the lid: 18 its left end, 19 20 two
+               middles, 21 its right end (a wider seam than the board's planks), 22 a batten nailed across its planks
+  siteLantern  9x13, 4 frames: the site lantern on the post, unlit (dark glass), lit (a 5x5 flame in the fire ramp,
+               white at its heart), and the two frames of its bloom as it catches (the stage lane adds its light, the
+               glow of its glass and its halo)
+  siteHalo     25x25: the lit lantern's halo, rings of light in whole pixels (white; the stage lane tints it with the
+               fire's gold and adds it as light, half by day, whole by night)
+
+The count's coins in flight (build 3, the count's step 2: each coin flies from the lord's hand to its hollow, turning):
+
+  payCoin      9x9, 4 frames: the small coin of the count: 0 the kit's coin (hudCoin), 1 and 2 the same coin with its
+               glint and its struck I a pixel apart, 3 its edge, a 3 px sliver
+  hudCoinTen   11x11, 4 frames: the big coin struck with the house's lantern (as on the gate's banners; the Roman X
+               could read as "no"), 0 to 2 its faces, 3 its edge
+  hudHollow    9x9, hudHollowTen 11x11: 4 frames each, the hollow empty and holding the coin's faces 0 to 2
 
 The row of the lantern moment is 9 game pixels high (figures, coin, face, people); the big coin and its hollow are
 board and flight pieces only.
@@ -230,15 +242,81 @@ COIN = ["..hhg..",
         ".gggsd.",
         "..sdd.."]
 
+# the count's small coin, two more faces: the glint a step along the lit rim, the struck I a column over or leaning
+COIN_B = ["..hhg..",
+          ".hhwgg.",
+          "hhggsgs",
+          "hgggsgs",
+          "ggggsgd",
+          ".gggsd.",
+          "..sdd.."]
+
+COIN_C = ["..hhg..",
+          ".hgggg.",
+          "hwgsggs",
+          "hgsgggs",
+          "ggsgggd",
+          ".gggsd.",
+          "..sdd.."]
+
+# a coin on edge as it turns in the air: one column, lit at the top (with its ink edge a 3 px sliver)
+COIN_EDGE = ["h", "h", "g", "g", "g", "s", "d"]
+
+# the big coin (ten) is struck with the house's lantern, the mark of the gate's banners: a ring, the cap, the frame
+# round one pane of lit glass, the foot; three faces (the glint along the rim, a glint on the glass)
 COIN_TEN = ["..hhhgg..",
-            ".hwhgggs.",
-            "hhdgggdgs",
-            "hggdgdggs",
-            "hgggdgggd",
-            "gggdgdggd",
-            "ggdgggdgd",
+            ".hwhdggs.",
+            "hhgdddggs",
+            "hgdhhhdgs",
+            "hgdhhhdgd",
+            "ggdddddgd",
+            "gggdddggd",
             ".ggggssd.",
             "..sdddd.."]
+
+COIN_TEN_B = ["..hwhgg..",
+              ".hhhdggs.",
+              "hhgdddggs",
+              "hgdwhhdgs",
+              "hgdhhhdgd",
+              "ggdddddgd",
+              "gggdddggd",
+              ".ggggssd.",
+              "..sdddd.."]
+
+COIN_TEN_C = ["..hhhgg..",
+              ".hhhdggs.",
+              "hwgdddggs",
+              "hgdhhhdgs",
+              "hgdhhwdgd",
+              "ggdddddgd",
+              "gggdddggd",
+              ".ggggssd.",
+              "..sdddd.."]
+
+COIN_TEN_EDGE = ["h", "h", "g", "g", "g", "g", "s", "s", "d"]
+
+# the rivals kept for the director: the kit's Roman X (it can read as "cancel" at phone size, step 1's critic) and a
+# long plus cross, the fallback should the lantern muddy
+COIN_TEN_X = ["..hhhgg..",
+              ".hwhgggs.",
+              "hhdgggdgs",
+              "hggdgdggs",
+              "hgggdgggd",
+              "gggdgdggd",
+              "ggdgggdgd",
+              ".ggggssd.",
+              "..sdddd.."]
+
+COIN_TEN_PLUS = ["..hhhgg..",
+                 ".hwhdggs.",
+                 "hhggdgggs",
+                 "hgggdgggs",
+                 "hgdddddgd",
+                 "ggggdgggd",
+                 "ggggdgggd",
+                 ".ggggssd.",
+                 "..sdddd.."]
 
 FACES = {
     "glad": ["..XXX..",
@@ -432,6 +510,23 @@ COIN_BAR = ["..hwhhhgg..",
             "sgggsssggdd",
             ".ssddddddd."]
 
+# two more faces: the glint further along the top, the C struck a column over; the end as it turns (a 3 px sliver)
+COIN_BAR_B = ["..hhhwhgg..",
+              ".hhgggggggs",
+              "hggggsssggd",
+              "gggggsggggd",
+              "sggggsssgdd",
+              ".ssddddddd."]
+
+COIN_BAR_C = ["..whhhhgg..",
+              ".hhgggggggs",
+              "hggsssggggd",
+              "gggsgggggdd",
+              "sggsssgggdd",
+              ".ssddddddd."]
+
+COIN_BAR_EDGE = ["h", "g", "g", "s", "d", "d"]
+
 HOLLOW_BAR = [".kkkkkkkkkkk.",
               "kKKKKKKKKKKKk",
               "kKKKKKKKKKKKk",
@@ -470,31 +565,56 @@ PLANK_L = ["iLFFFF",
            "iLFFFF",
            "iDFFFF",
            "iDDDDD"]
-# the two middles alternate (M1 M2 M1 ...); a streak that leaves one tile's edge goes on in the next, so the grain
-# runs long across the board and its 12-px repeat hides
+# four middles (the count picks one per tile by a hash of the thing, the row and the tile, never the same twice in a
+# row, and starts every second row half a tile over): each keeps its grain inside the tile, a streak or two on its
+# own rows, so no dash lines up with another and the 6-px tile never shows (step 1's critic, H1)
 PLANK_M1 = ["FFFFFF",
             "FFFFFF",
-            "LFFFFF",
-            "FFFFFF",
-            "FFFFDD",
+            "FLLLFF",
             "FFFFFF",
             "FFFFFF",
             "FFFFFF",
+            "FFFDDF",
             "FFFFFF",
-            "FFLLLL",
+            "FFFFFF",
+            "FFFFFF",
             "FFFFFF",
             "DDDDDD"]
 PLANK_M2 = ["FFFFFF",
             "FFFFFF",
             "FFFFFF",
             "FFFFFF",
-            "DFFFFF",
-            "FFFFFF",
-            "FFFDDD",
+            "FDDDFF",
             "FFFFFF",
             "FFFFFF",
-            "LFFFFF",
             "FFFFFF",
+            "FFFLLF",
+            "FFFFFF",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_M3 = ["FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FLLLLF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFDDFF",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_M4 = ["FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFDDDF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FLLFFF",
             "DDDDDD"]
 PLANK_R = ["FFFFDi",
            "FFFFDi",
@@ -508,14 +628,21 @@ PLANK_R = ["FFFFDi",
            "LFFFDi",
            "FFFFDi",
            "DDDDDi"]
+# the cap's top edge catches the light in short runs at no fixed step (three middles, picked like the planks)
 CAP_L = [".iiiii",
-         "iwLwLw",
+         "iLwwLL",
          "iLLLLL"]
 CAP_M = ["iiiiii",
-         "wLwLLw",
+         "LLwwLL",
          "LLLLLL"]
+CAP_M2 = ["iiiiii",
+          "LLLLLw",
+          "LLLLLL"]
+CAP_M3 = ["iiiiii",
+          "wwLLLL",
+          "LLLLDL"]
 CAP_R = ["iiiii.",
-         "LwLwDi",
+         "LLLwDi",
          "LLLLDi"]
 FOOT_L = ["iDDDDD",
           ".iiiii"]
@@ -541,30 +668,150 @@ POST_TOP = [".iiii.",
             "ibBBbi",
             "ibbbbi"]
 
-# the site lantern (7x10): a ring, a cap, four panes in an iron frame, a foot; unlit its glass is the night's dark glass
-# (as the street lanterns' heads), lit it burns in the fire ramp, white at its heart
+# the lid (the seal): planks of its own with a wider seam, two battens nailed across them and the hasp in the middle,
+# so the shut board reads as a lid and not as the board without its hollows
+LID_L = ["iLFFFF",
+         "iLFFFF",
+         "iLFFFF",
+         "iLnFFF",
+         "iLNFFF",
+         "iLFFFF",
+         "iLFFLF",
+         "iLFFFF",
+         "iLFFFF",
+         "iDFFFF",
+         "iDDDDD",
+         "iiDDDD"]
+LID_M1 = ["FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FLLLFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FFFDDF",
+          "FFFFFF",
+          "FFFFFF",
+          "DDDDDD",
+          "DDDDDD"]
+LID_M2 = ["FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FFDDFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FLLFFF",
+          "FFFFFF",
+          "DDDDDD",
+          "DDDDDD"]
+LID_R = ["FFFFDi",
+         "FFFFDi",
+         "FFFFDi",
+         "FFFnDi",
+         "FFFNDi",
+         "LLFFDi",
+         "FFFFDi",
+         "FFFFDi",
+         "FFFFDi",
+         "FFFFDi",
+         "DDDDDi",
+         "DDDDii"]
+# a batten across the lid's planks (one tile a plank, they stack): lit on its left, its own edge and its shadow on the
+# right, a nail into every plank it crosses; it runs over the seams
+BATTEN = [".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".NnDD.",
+          ".LnDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD."]
+
+# the site lantern (9x13, step 2's critic H2: the 7x10 one was a speck by day): a ring, a cap, a 5x5 glass in an iron
+# frame, a foot; unlit its glass is the night's dark glass (as the street lanterns' heads), lit a flame stands in the
+# fire ramp, white at its heart; as it catches, two frames of bloom: the glass burns white and the light spills
+# through the frame's seams
 LANTERN_LEGEND = {"i": "ink", "b": "stoneDark", "B": "stone", "g": "night2", "G": "night1",
                   "w": "fireWhite", "y": "fireGold", "o": "fireOrange"}
-LANTERN_UNLIT = ["..iii..",
-                 "..i.i..",
-                 ".iBBBi.",
-                 "ibBbbbi",
-                 "ibgGgbi",
-                 "ibGgGbi",
-                 "ibgGgbi",
-                 "ibbbbbi",
-                 ".ibbbi.",
-                 "..iii.."]
-LANTERN_LIT = ["..iii..",
-               "..i.i..",
-               ".iBBBi.",
-               "ibBbbbi",
-               "ibywybi",
-               "ibwwwbi",
-               "ibyoybi",
-               "ibbbbbi",
-               ".ibbbi.",
-               "..iii.."]
+LANTERN_FRAME = ["...iii...",
+                 "...i.i...",
+                 "..iBBBi..",
+                 ".iBBbBBi.",
+                 "ibbbbbbbi",
+                 "ib.....bi",
+                 "ib.....bi",
+                 "ib.....bi",
+                 "ib.....bi",
+                 "ib.....bi",
+                 "ibbbbbbbi",
+                 ".ibbbbbi.",
+                 "..iiiii.."]
+LANTERN_GLASS = {
+    "unlit": ["gGggg",
+              "gGggg",
+              "ggGgg",
+              "gggGg",
+              "ggggG"],
+    "lit": ["ooyoo",
+            "oywyo",
+            "oywyo",
+            "ywwwy",
+            "oyyyo"],
+    "bloom1": ["ywwwy",
+               "wwwww",
+               "wwwww",
+               "wwwww",
+               "ywwwy"],
+    "bloom2": ["oywyo",
+               "ywwwy",
+               "wwwww",
+               "ywwwy",
+               "oyyyo"],
+}
+# the light through the frame's seams while it blooms (row, column, colour) on top of the frame
+LANTERN_SPILL = {
+    "bloom1": [(4, 3, "y"), (4, 4, "w"), (4, 5, "y"), (10, 3, "y"), (10, 4, "y"), (10, 5, "y"),
+               (6, 1, "y"), (7, 1, "y"), (6, 7, "y"), (7, 7, "y"), (1, 4, "y")],
+    "bloom2": [(4, 4, "y"), (10, 4, "o"), (7, 1, "o"), (7, 7, "o")],
+}
+
+
+def lantern_frame(kind, pal):
+    rows = [list(r) for r in LANTERN_FRAME]
+    for y, row in enumerate(LANTERN_GLASS[kind]):
+        for x, c in enumerate(row):
+            rows[5 + y][2 + x] = c
+    for y, x, c in LANTERN_SPILL.get(kind, []):
+        rows[y][x] = c
+    return legend_image(["".join(r) for r in rows], pal, LANTERN_LEGEND)
+
+
+def halo(radius=12):
+    """The lit lantern's halo: white rings of light in whole pixels, stepped from the middle out, each step's edge
+    dithered on a checkerboard so the rings read as pixels and never as a smooth disc."""
+    steps = [(4.5, 0.55), (7.5, 0.36), (10.0, 0.2), (radius + 0.5, 0.09)]
+    size = 2 * radius + 1
+    img = Image(size, size)
+    for y in range(size):
+        for x in range(size):
+            d = ((x - radius) ** 2 + (y - radius) ** 2) ** 0.5
+            alpha = 0.0
+            for index, (edge, a) in enumerate(steps):
+                if d <= edge:
+                    alpha = a
+                    # on the step's outer edge every second pixel takes the next step's light
+                    if d > edge - 0.75 and (x + y) % 2 == 1:
+                        alpha = steps[index + 1][1] if index + 1 < len(steps) else 0.0
+                    break
+            if alpha > 0:
+                img.set(x, y, (255, 255, 255, int(round(alpha * 255))))
+    return img
 
 
 def legend_image(rows, pal, legend, h=None, top=True):
@@ -591,13 +838,24 @@ def board_tiles(pal):
     frames.append(legend_image(POST_FOOT, pal, BOARD_LEGEND))
     frames.append(legend_image(HASP, pal, BOARD_LEGEND))
     frames.append(legend_image(POST_TOP, pal, BOARD_LEGEND, cell, top=False))
+    # step 2: 14 15 two more plank middles, 16 17 two more cap middles, 18 to 21 the lid, 22 its batten
+    frames += [legend_image(t, pal, BOARD_LEGEND) for t in (PLANK_M3, PLANK_M4)]
+    frames += [legend_image(t, pal, BOARD_LEGEND, cell, top=False) for t in (CAP_M2, CAP_M3)]
+    frames += [legend_image(t, pal, BOARD_LEGEND) for t in (LID_L, LID_M1, LID_M2, LID_R, BATTEN)]
     return frames
 
 
-def bar_hollow(with_bar, pal):
+def coin_frames(faces, edge, pal, w, h):
+    """A coin of the count: its faces, each with its ink edge, then its edge as it turns, centred in the same cell."""
+    frames = [edged(grid_image(face, pal), pal) for face in faces]
+    frames.append(edged(grid_image(edge, pal), pal, w, h))
+    return frames
+
+
+def bar_hollow(with_bar, pal, face=None):
     img = grid_image(HOLLOW_BAR, pal)
     if with_bar:
-        bar = grid_image(COIN_BAR, pal)
+        bar = grid_image(face or COIN_BAR, pal)
         ox = (img.w - bar.w) // 2
         oy = (img.h - bar.h) // 2
         for y in range(bar.h):
@@ -702,12 +960,15 @@ def frames_for(sprite, pal, style="hand", face=None):
         return [edged(grid_image(ARROWS[k], pal), pal) for k in ("up", "down")]
     if sprite == "hudCoin":
         return [edged(grid_image(COIN, pal), pal)]
+    if sprite == "payCoin":
+        return coin_frames([COIN, COIN_B, COIN_C], COIN_EDGE, pal, 9, 9)
     if sprite == "hudCoinTen":
-        return [edged(grid_image(COIN_TEN, pal), pal)]
+        return coin_frames([COIN_TEN, COIN_TEN_B, COIN_TEN_C], COIN_TEN_EDGE, pal, 11, 11)
     if sprite == "hudHollow":
-        return [grid_image(HOLLOW, pal), hollow_with_coin(HOLLOW, COIN, pal)]
+        return [grid_image(HOLLOW, pal)] + [hollow_with_coin(HOLLOW, c, pal) for c in (COIN, COIN_B, COIN_C)]
     if sprite == "hudHollowTen":
-        return [grid_image(HOLLOW_TEN, pal), hollow_with_coin(HOLLOW_TEN, COIN_TEN, pal)]
+        return [grid_image(HOLLOW_TEN, pal)] + [hollow_with_coin(HOLLOW_TEN, c, pal)
+                                                for c in (COIN_TEN, COIN_TEN_B, COIN_TEN_C)]
     if sprite == "hudFace":
         faces = FACE_STYLES[face or FACE_STYLE]
         return [edged(grid_image(faces[k], pal), pal) for k in ("glad", "even", "grim", "unrest")]
@@ -718,18 +979,20 @@ def frames_for(sprite, pal, style="hand", face=None):
     if sprite == "hudGear":
         return [edged(grid_image(GEAR, pal), pal)]
     if sprite == "hudCoinBar":
-        return [edged(grid_image(COIN_BAR, pal), pal)]
+        return coin_frames([COIN_BAR, COIN_BAR_B, COIN_BAR_C], COIN_BAR_EDGE, pal, 13, 8)
     if sprite == "hudHollowBar":
-        return [bar_hollow(False, pal), bar_hollow(True, pal)]
+        return [bar_hollow(False, pal)] + [bar_hollow(True, pal, c) for c in (COIN_BAR, COIN_BAR_B, COIN_BAR_C)]
     if sprite == "payBoard":
         return board_tiles(pal)
     if sprite == "siteLantern":
-        return [legend_image(LANTERN_UNLIT, pal, LANTERN_LEGEND), legend_image(LANTERN_LIT, pal, LANTERN_LEGEND)]
+        return [lantern_frame(k, pal) for k in ("unlit", "lit", "bloom1", "bloom2")]
+    if sprite == "siteHalo":
+        return [halo()]
     raise SystemExit("unknown sprite " + sprite)
 
 
 SPRITES = ["hudFigures", "hudArrow", "hudCoin", "hudCoinTen", "hudHollow", "hudHollowTen", "hudFace", "hudPeople",
-           "hudGear", "hudDawn", "hudCoinBar", "hudHollowBar", "payBoard", "siteLantern"]
+           "hudGear", "hudDawn", "hudCoinBar", "hudHollowBar", "payBoard", "siteLantern", "payCoin", "siteHalo"]
 
 
 def palette():
