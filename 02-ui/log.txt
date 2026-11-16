@@ -1,0 +1,9 @@
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (231.457 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (15.803 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (41.747 seconds).
+Test Case '-[LanternholdUITests.WindUITests testFilmstrips]' passed (430.415 seconds).
+Test Case '-[LanternholdUITests.WindUITests testRain]' passed (95.731 seconds).
+Test Case '-[LanternholdUITests.WindUITests testWind]' passed (117.025 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testCastleTiers]' passed (48.110 seconds).
+exit=0
+screenshots: 101
