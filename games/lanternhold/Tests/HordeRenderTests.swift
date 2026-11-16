@@ -154,17 +154,18 @@ final class HordeRenderTests: XCTestCase {
         empty.creatures = []
         var settings = RenderSettings()
         settings.time = 1.5
+        // step 4 (the director's law 6): the night look is proven with the Gloom's fog on, as the live night draws it
+        let fog = GloomFog(night: 12, fogNight: false)
         let dropped = Set<SpriteID>(HordeLook.threadSprites + [.sootlingGlow, .sootlingBGlow, .tumblerGlow])
         let bodyOnly: (ActorInstance) -> Bool = { !dropped.contains($0.sprite) }
         let withBodies = frame(s, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly,
-                               dropSocketLights: true)
+                               dropSocketLights: true, gloom: fog)
         let withoutBodies = frame(empty, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly,
-                                  dropSocketLights: true)
-        // The strip's outline (nightDeep) and socket shell (stoneLight) are left out; the rag (moor, moorDark,
-        // soilDark) and its moon rim (stone, stoneMid, stoneDark, nightHaze) are the part that should carry the read.
+                                  dropSocketLights: true, gloom: fog)
+        // The strip's outline (nightDeep) and socket shell (stoneLight) are left out. Step 4 (the director's call 3):
+        // the strips' moon-catch pixels and the rim are the body's top contour (a pixel with nothing over it and a
+        // body pixel beside it, the shader's `topEdge`), the part that carries the read; the navy is the rest.
         let skipped: Set<RGBA> = [RGBA(0x0A1124), RGBA(0x969AA2)]
-        let pale: Set<RGBA> = [RGBA(0x4A4536), RGBA(0x2A2922), RGBA(0x2B2421), RGBA(0x5E6170), RGBA(0x464957),
-                               RGBA(0x2F303E), RGBA(0x2F3F72)]
         let shotWith = try renderer.renderOffscreen(withBodies, settings: settings)
         let shotWithout = try renderer.renderOffscreen(withoutBodies, settings: settings)
         func luminance(_ c: SIMD3<Float>) -> Float {
@@ -204,13 +205,17 @@ final class HordeRenderTests: XCTestCase {
                     guard tx >= 0, tx < size.width, ty >= 0, ty < size.height else { continue }
                     let texelColour = strip[actor.frame * size.width + tx, ty]
                     guard texelColour.a > 0, !skipped.contains(texelColour) else { continue }
+                    let clearAbove = ty == 0 || strip[actor.frame * size.width + tx, ty - 1].a == 0
+                    let beside = (tx > 0 && strip[actor.frame * size.width + tx - 1, ty].a > 0)
+                        || (tx + 1 < size.width && strip[actor.frame * size.width + tx + 1, ty].a > 0)
+                    let topContour = clearAbove && beside
                     let b = luminance(shotWith.color(x: x, y: y))
                     let g = luminance(shotWithout.color(x: x, y: y))
                     body += b
                     ground += g
                     logRatio += log(max(b, g, 1e-5) / max(1e-5, min(b, g)))
                     count += 1
-                    if pale.contains(texelColour) {
+                    if topContour {
                         paleBody += b
                         paleGround += g
                         paleCount += 1
@@ -229,19 +234,23 @@ final class HordeRenderTests: XCTestCase {
             let paleRatio = (paleBody / Float(max(1, paleCount))) / max(1e-5, paleGround / Float(max(1, paleCount)))
             let navyRatio = navyBody / max(1e-5, navyGround)
             notes.append(String(format: "%@ frame %ld: per pixel %.2f : 1 (%ld px); means body %.4f ground %.4f "
-                                + "%.2f : 1; rag and rim %.2f : 1 (%ld px, body over ground); navy %.2f : 1",
+                                + "%.2f : 1; top contour %.2f : 1 (%ld px, body over ground); navy %.2f : 1",
                                 actor.sprite.rawValue, actor.frame, perPixel, count, body, ground, means, paleRatio,
                                 paleCount, navyRatio))
             XCTAssertGreaterThanOrEqual(perPixel, 1.6,
                                         "\(actor.sprite) stands \(perPixel) : 1 against the night ground")
-            // Step 3 (the director's call 5): unlit, the rag still reads: its pixels and the rim stand against the
-            // same body's navy at 1.5 : 1 or more (the drawn pixels, the means of each).
+            // Step 3 (the director's call 5), step 4 (his call 3): unlit, the rag still reads: the strips' moon-catch
+            // pixels and the rim (the top contour) are at least 0.035 linear at 23:00, and stand against the same
+            // body's navy at 1.5 : 1 or more with the flare term ((L + 0.05) / (L + 0.05): two near-blacks at a raw
+            // 3.6 : 1 were both black on a phone), on the drawn pixels with the Gloom's fog on.
             let paleMean = paleBody / Float(max(1, paleCount))
-            let ragOverNavy = paleMean / max(1e-5, navyBody)
+            let ragOverNavy = (paleMean + 0.05) / (navyBody + 0.05)
             paleMeans.append((x: actor.rect.x + actor.rect.z / 2, mean: paleMean))
-            notes.append(String(format: "%@ frame %ld: rag and rim over its navy %.2f : 1 (%.4f over %.4f)",
-                                actor.sprite.rawValue, actor.frame, ragOverNavy, paleMean, navyBody))
+            notes.append(String(format: "%@ frame %ld: top contour over its navy %.2f : 1 with the flare term "
+                                + "(%.4f over %.4f)", actor.sprite.rawValue, actor.frame, ragOverNavy, paleMean,
+                                navyBody))
             XCTAssertGreaterThan(paleCount, 6, "\(actor.sprite): its rag and rim are found")
+            XCTAssertGreaterThanOrEqual(paleMean, 0.035, "\(actor.sprite): its moon-catch and rim at \(paleMean)")
             XCTAssertGreaterThanOrEqual(ragOverNavy, 1.5,
                                         "\(actor.sprite): rag and rim stand \(ragOverNavy) : 1 over its navy, unlit")
             // the crop: without and with, side by side
@@ -266,7 +275,7 @@ final class HordeRenderTests: XCTestCase {
         // open at 23:00 is 0.10 to 0.19, their rag and rim about 0.02, so the thread reads as a dark wisp of the body).
         let withThreads = frame(s, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(),
                                 keep: { HordeLook.threadSprites.contains($0.sprite) || bodyOnly($0) },
-                                dropSocketLights: true)
+                                dropSocketLights: true, gloom: fog)
         let shotThreads = try renderer.renderOffscreen(withThreads, settings: settings)
         let threads = withThreads.actors.filter { HordeLook.threadSprites.contains($0.sprite) }
         XCTAssertEqual(threads.count, s.creatures.filter { HordeLook.hasThread(id: $0.id) }.count,

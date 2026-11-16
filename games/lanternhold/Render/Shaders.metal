@@ -920,6 +920,12 @@ constant float kLitCap2 = 1.0f;
 constant float kHordeGrey2 = 0.7f;
 constant float kHordeRim2 = 0.75f;
 constant float kHordeContact2 = 0.45f;
+// b3-horde (the director's call 3 of 16.11.2026 06:15): unlit at night a small one's top contour catches the moon
+// harder than the other creatures' (at least 0.035 linear): the rag's pixels in the giant's cloak night tone, the navy's
+// in the cool rim, each at its own share of the night.
+constant float3 kHordeRagNight2 = float3(0.34f, 0.31f, 0.24f);
+constant float kHordeRagMoon2 = 0.75f;
+constant float kHordeRimMoon2 = 0.6f;
 
 // A light pool of look 2: a negative squash (color.w) marks a fire, whose colour falls off to ember toward its rim.
 vertex LightPoolOut lh_pool2_vertex(uint vid [[vertex_id]],
@@ -1455,7 +1461,13 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         // (b3-horde: a small one takes the lift at its veil, so in the open it stays a black shape.)
         float bankA = fogBTex.read(c.fogB).a * lh2_fog_region(c, u) * hordeVeil;
         color = color * (1.0f + kCreatureLift2 * bankA) + kCreatureFill2 * bankA;
-        if (topEdge) {
+        if (topEdge && horde) {
+            // b3-horde: the moon on a small one's top contour, the rag's in the cloak's night tone
+            bool rag = albedo.r > albedo.b;
+            float share = (rag ? kHordeRagMoon2 : kHordeRimMoon2) * saturate(v.cloudC.w * 1.5f)
+                * (1.0f - saturate(peak * 1.5f));
+            color = mix(color, rag ? kHordeRagNight2 : kCreatureRim2, share);
+        } else if (topEdge) {
             color = mix(color, kCreatureRim2, 0.6f * rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
     }
