@@ -149,8 +149,12 @@ enum HordeLook {
     /// Step 7 (the director's call 10 of 16.11.2026 12:02): under Reduce Motion the giant's children hold a still pose
     /// where they would strike or climb, the plant (both hands down ahead, the shroud over them; the tumbler unfolded,
     /// 5): no 3 Hz rearing, no clawing. The walk keeps its frames, as it goes with the ground walked, not with time.
+    /// Step 8 (the director's call G7, the critic's M6): the still pose differs by the id's parity, the upright
+    /// (`plantPose`) or the plant (walk frame 0, the hump low over the leaning arm), so a row under Reduce Motion is
+    /// never a file of identical arches; both are still frames.
     static func stillFrame(id: Int) -> Int {
-        body(id: id) == .tumbler ? 5 : plantPose
+        guard body(id: id) != .tumbler else { return 5 }
+        return max(0, id) % 2 == 0 ? plantPose : 0
     }
 
     /// The frame a small one is drawn in: on a heap its climb, striking its strike, else its walk; under Reduce Motion

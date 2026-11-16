@@ -1687,7 +1687,12 @@ final class EntityFramesTests: XCTestCase {
                 HordeLook.climbFrame(id: id, time: Double($0) * 0.05, reduceMotion: true) == HordeLook.stillFrame(id: id)
             }, "\(id): under Reduce Motion it holds its still pose")
         }
-        XCTAssertEqual(HordeLook.stillFrame(id: ids[0]), HordeLook.plantPose, "the plant, both hands down ahead")
+        // step 8 (G7, M6): the still pose by the id's parity, the upright or the plant, so a row is no file of clones
+        XCTAssertTrue(ids.prefix(20).allSatisfy {
+            HordeLook.body(id: $0) == .tumbler || [HordeLook.plantPose, 0].contains(HordeLook.stillFrame(id: $0))
+        }, "a still walk frame")
+        let poses = ids.prefix(20).filter { HordeLook.body(id: $0) != .tumbler }.map { HordeLook.stillFrame(id: $0) }
+        XCTAssertEqual(Set(poses), [HordeLook.plantPose, 0], "two still poses in a crowd")
     }
 
     func testUnderReduceMotionTheyStrikeAndClimbInAStillPose() {
@@ -1712,8 +1717,10 @@ final class EntityFramesTests: XCTestCase {
             XCTAssertEqual(still.count, 7)
             guard let walking = still.first else { continue }
             XCTAssertEqual(walking.frame, HordeLook.walkFrame(id: ids[6], x: 560), "\(time) s: the walk as walked")
-            XCTAssertEqual(still.dropFirst().map(\.frame), Array(repeating: HordeLook.plantPose, count: 6),
-                           "\(time) s: the strike and the climb hold the plant")
+            // step 8 (G7, M6): each holds its own still pose by the id's parity
+            XCTAssertEqual(still.dropFirst().map(\.frame).sorted(),
+                           ids.prefix(6).map { HordeLook.stillFrame(id: $0) }.sorted(),
+                           "\(time) s: the strike and the climb hold their still poses")
             let moving = hordeLayer(s, focus: 620, time: time).actors
                 .filter { EntityFramesTests.smallSprites.contains($0.sprite) }.sorted { $0.rect.x < $1.rect.x }
             XCTAssertTrue(moving.dropFirst().allSatisfy {
@@ -1726,7 +1733,8 @@ final class EntityFramesTests: XCTestCase {
                     expected.append(HordeLook.climberEye(id: c.id, x: c.x, y: c.y, lift: lift, time: time,
                                                          reduceMotion: true))
                 } else {
-                    let frame = c.action == .walking ? HordeLook.walkFrame(id: c.id, x: c.x) : HordeLook.plantPose
+                    let frame = c.action == .walking ? HordeLook.walkFrame(id: c.id, x: c.x)
+                        : HordeLook.stillFrame(id: c.id)
                     let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: frame)
                     expected.append((x: c.x + eye.dx, y: c.y + HordeLook.stand(id: c.id) + eye.dy))
                 }
