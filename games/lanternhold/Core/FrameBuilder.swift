@@ -2108,6 +2108,15 @@ enum FrameBuilder {
     static let gustBurstLeast = 4
     static let gustBurstMost = 6
     static let gustBurstSpread = 0.3
+    /// b3-wind: build 3 step 5 (the director's call 5 of 11:07, H3 (c): no shot showed a burst): the burst's leaves
+    /// leave their crown together as the gust rises, within its first `gustBurstLead` s (they are off at
+    /// `Weather.sinceGustRose` 0), and show at once (`gustBurstFadeIn`); `gustBurstSpread` is no longer used.
+    static let gustBurstLead = 0.08
+    static let gustBurstFadeIn = 0.05
+    /// b3-wind (step 5, call 5): the leaves leave every crown in view. The town's trees stand on the near plane (the
+    /// lane plane has none there, so step 4's leaves only ever set off from the upwind edge and no burst could start);
+    /// their crowns count too, at their column on the screen.
+    static let gustCrownPlanes: Set<Plane> = [.world, .near]
     /// A puff of dust lives this long (s), drifting `gustDustReach` px downwind.
     static let gustDustLife = 1.2
     static let gustDustReach = 22.0
@@ -2127,7 +2136,8 @@ enum FrameBuilder {
         var leaves: [(mark: UInt64, along: Double, pace: Double, flight: Double)] = []
         for place in 0..<min(gustBurstMost, count) {
             let mark = SeededRandom.hash(key, Int64(16 + place))
-            let along = rose.since - gustBurstSpread * unit(SeededRandom.hash(mark, 11))
+            // b3-wind (step 5): all of them off as the gust rises.
+            let along = rose.since + gustBurstLead * unit(SeededRandom.hash(mark, 11))
             let pace = speed * (gustLeafPace.low + (gustLeafPace.high - gustLeafPace.low)
                                 * unit(SeededRandom.hash(mark, 10)))
             let flight = (width + 40) / pace
@@ -2163,8 +2173,9 @@ enum FrameBuilder {
         let speed = gustLeafSpeed + gustLeafDrive * abs(weather.mean)
         // The crowns of the lane plane's trees on the screen, as screen x and the row of their upper third.
         var crowns: [(x: Double, y: Double)] = []
-        for prop in props where prop.plane == .world && swaying.contains(prop.sprite) {
-            let left = prop.x - lane
+        // b3-wind (step 5): the near plane's trees too, by the plane they move with.
+        for prop in props where gustCrownPlanes.contains(prop.plane) && swaying.contains(prop.sprite) {
+            let left = prop.x - geometry.whole(prop.movesWith ?? prop.plane)
             guard geometry.isVisible(left: left, width: Double(prop.width)) else { continue }
             crowns.append((x: left + Double(prop.width) / 2,
                            y: geometry.top(y: prop.y, height: Double(prop.height)) + Double(prop.height) * 0.3))
@@ -2174,7 +2185,7 @@ enum FrameBuilder {
         // One leaf `along` seconds into a flight that set off at (x0, y0), at its own pace and bob (`own` is its slot's or
         // its burst place's hash), with a share of the gust's alpha; nil when it is off the screen or west of the wall.
         func leaf(x0: Double, y0: Double, pick: UInt64, own: UInt64, along: Double, flight: Double,
-                  pace: Double, alpha base: Double) -> SpriteInstance? {
+                  pace: Double, alpha base: Double, fadeIn: Double = 0.25) -> SpriteInstance? {
             let rise = gustLeafRise.low + (gustLeafRise.high - gustLeafRise.low) * unit(SeededRandom.hash(pick, 7))
             let up = min(1, along / gustLeafRiseTime)
             let lift = rise * (1 - (1 - up) * (1 - up))
@@ -2187,7 +2198,7 @@ enum FrameBuilder {
             let y = min(ground - 4, y0 - lift + sink + bob * sin(along * rate + phase))
             guard x > -Double(size.width), x < width, x + lane > seam else { return nil }
             // Fade in as it leaves the crown, out at the end of its flight.
-            let alpha = base * min(1, along / 0.25) * min(1, (flight - along) / 0.4)
+            let alpha = base * min(1, along / fadeIn) * min(1, (flight - along) / 0.4)
             guard alpha > 0.03 else { return nil }
             let tone = unit(SeededRandom.hash(pick, 5)) < gustLeafAutumn ? 2 : Int(unit(SeededRandom.hash(pick, 6)) * 2)
             let tumble = Int(min(1.0e15, along * (6 + 4 * abs(weather.mean)) + phase).rounded(.down)) % 4
@@ -2241,7 +2252,8 @@ enum FrameBuilder {
                 // Each leaf a few pixels apart where it leaves the crown.
                 let spread = (unit(SeededRandom.hash(item.mark, 12)) - 0.5) * 12
                 if let found = leaf(x0: crown.x + spread, y0: crown.y + spread / 3, pick: item.mark, own: item.mark,
-                                    along: item.along, flight: item.flight, pace: item.pace, alpha: 1) {
+                                    along: item.along, flight: item.flight, pace: item.pace, alpha: 1,
+                                    fadeIn: gustBurstFadeIn) {
                     list.append(found)
                 }
             }

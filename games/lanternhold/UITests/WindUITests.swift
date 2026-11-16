@@ -16,6 +16,9 @@ import XCTest
 /// storm at night (389), tier 3 at dusk with the gold mark and the rim (390), and two strips of the ash at night with
 /// its embers: 1/12 s apart (370) and over an ember's life, 0.4 s apart (380). Part B: a gust's leaves over the town
 /// (391, the strip 400), the weather vane in a wind toward the valley and from it (392, 393).
+/// Step 5 (b3-wind): the strip 400 starts at 35.83 s, as the storm's gust at the screen's middle rises hard (its first
+/// three cells show a crown's burst; `RainLookTests.testTheBurstStripStartsAsTheGustRises` pins the time); the keep's
+/// chimney smoke in a dry storm at dusk (394).
 /// Only keys that exist: `-GWWeather`, `-GWWind`, `-GWRain`, `-GWCameraX`, `-GWCastle`, `-GWReduceMotion`.
 /// Saves `<nnn>-wind-<what>-<lang>` from 300.
 @MainActor
@@ -82,6 +85,8 @@ final class WindUITests: XCTestCase {
             ("391-wind-gust-leaves-town", town + dryStorm + noon(30.4)),
             ("392-wind-vane-east-wind-keep", keep + ["-GWWeather", "clear", "-GWWind", "0.5"] + noon(30.4)),
             ("393-wind-vane-west-wind-keep", keep + ["-GWWeather", "clear", "-GWWind", " -0.5"] + noon(30.4)),
+            // Step 5 (b3-wind, the director's call 1 of 11:07): the keep's smoke lying flat and torn in a dry storm at dusk.
+            ("394-wind-storm-dusk-keep-smoke", keep + dryStorm + noon(30.4, hour: "19.4")),
         ]
         for still in stills {
             shoot(still.name, still.arguments)
@@ -113,21 +118,21 @@ final class WindUITests: XCTestCase {
     func testFilmstrips() {
         XCUIDevice.shared.orientation = .landscapeLeft
         // Eight frames each, `step` seconds of game time apart (1/12 s, the motion; step 3: an ember's life at 0.4 s).
-        let strips: [(first: Int, what: String, arguments: [String], hour: String, step: Double)] = [
-            (310, "flags-breeze-keep", keep + breeze, "12", 1.0 / 12),
-            (330, "sails-storm-mill", mill + dryStorm, "12", 1.0 / 12),
-            (340, "banner-storm-tier3", tierThree + dryStorm, "12", 1.0 / 12),
-            (350, "rain-fall-band", band + rain, "12", 1.0 / 12),
-            (360, "rain-gusty-town", town + gustyRain, "12", 1.0 / 12),
+        let strips: [(first: Int, what: String, arguments: [String], hour: String, step: Double, start: Double)] = [
+            (310, "flags-breeze-keep", keep + breeze, "12", 1.0 / 12, 30.4),
+            (330, "sails-storm-mill", mill + dryStorm, "12", 1.0 / 12, 30.4),
+            (340, "banner-storm-tier3", tierThree + dryStorm, "12", 1.0 / 12, 30.4),
+            (350, "rain-fall-band", band + rain, "12", 1.0 / 12, 30.4),
+            (360, "rain-gusty-town", town + gustyRain, "12", 1.0 / 12, 30.4),
             // Step 3 (part A): the ash's fall in the gorge at night with its embers, at 1/12 s and over an ember's life.
-            (370, "ash-embers-gorge-night", gorge + rain, "22", 1.0 / 12),
-            (380, "ash-ember-life-band-night", band + rain, "22", 0.4),
-            // Step 3 (part B): the gust's leaves crossing the town in a dry storm.
-            (400, "gust-leaves-town", town + dryStorm, "12", 1.0 / 12),
+            (370, "ash-embers-gorge-night", gorge + rain, "22", 1.0 / 12, 30.4),
+            (380, "ash-ember-life-band-night", band + rain, "22", 0.4, 30.4),
+            // Step 3 (part B): the gust's leaves crossing the town in a dry storm; step 5: from the gust's hard rise.
+            (400, "gust-leaves-town", town + dryStorm, "12", 1.0 / 12, 35.83),
         ]
         for strip in strips {
             for index in 0..<8 {
-                let time = 30.4 + Double(index) * strip.step
+                let time = strip.start + Double(index) * strip.step
                 shoot(String(format: "%03d-wind-strip-%@-%d", strip.first + index, strip.what, index),
                       strip.arguments + noon(time, hour: strip.hour))
             }

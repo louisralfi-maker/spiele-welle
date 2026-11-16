@@ -408,6 +408,45 @@ final class RainLookTests: XCTestCase {
         XCTAssertEqual(counts.count, 12)
     }
 
+    /// b3-wind: build 3 step 5 (the director's call 5 of 11:07, H3): the burst strip. `WindUITests`' strip 400 starts at
+    /// 35.83 s in a dry storm over the town (camera 2900, the UI's seed 1): there the gust at the screen's middle rose
+    /// hard 0.03 s before (`Weather.sinceGustRose`), so its first three cells (1/12 s apart) show 4 to 6 leaves leaving
+    /// one crown together. In the game frame at the strip's third cell at least ten leaves fly in the middle two thirds
+    /// of the screen, and over the strip the leaves fly in every third of it (they leave every crown in view).
+    func testTheBurstStripStartsAsTheGustRises() throws {
+        let start = 35.83
+        let s = GameFrameSupport.demoDay(hour: 12, seed: 1)
+        let override = WeatherOverride(mode: .storm, rain: 0)
+        let sample = weather(s, override, time: start)
+        let rose = try XCTUnwrap(Weather.sinceGustRose(at: 2900, sample, time: start), "a hard rise at the strip's start")
+        XCTAssertLessThan(rose.since, 0.1, "the strip starts as the gust rises (\(rose.since) s after)")
+        var bursts: [Int] = []
+        var middles: [Int] = []
+        var thirds = [0, 0, 0]
+        for cell in 0..<8 {
+            let time = start + Double(cell) / 12
+            let at = shot(s, focus: 2900, weather: weather(s, override, time: time), time: time)
+            let width = Float(at.desc.targetWidth)
+            let burst = FrameBuilder.gustBurst(weather(s, override, time: time), at: at.lane + Double(width) / 2,
+                                               time: time, width: Double(width))?.leaves.count ?? 0
+            bursts.append(burst)
+            let leaves = sprites(at, .gustLeaf, .world).filter { $0.frame < 12 && $0.tint.w >= 0.5 }
+            middles.append(leaves.filter { $0.rect.x + 3 >= width / 6 && $0.rect.x + 3 <= width * 5 / 6 }.count)
+            for leaf in leaves {
+                thirds[min(2, max(0, Int((leaf.rect.x + 3) / (width / 3))))] += 1
+            }
+        }
+        print("GUSTBURST strip at \(start) by 1/12 s, seed 1: rose \(rose.since) s before; burst leaves \(bursts); "
+              + "leaves in the middle two thirds \(middles); by thirds over the strip \(thirds)")
+        for cell in 0..<3 {
+            XCTAssertTrue((FrameBuilder.gustBurstLeast...FrameBuilder.gustBurstMost).contains(bursts[cell]),
+                          "cell \(cell): a burst of 4 to 6")
+        }
+        XCTAssertGreaterThanOrEqual(middles[2], 10, "ten leaves or more in the middle two thirds")
+        let all = thirds.reduce(0, +)
+        XCTAssertTrue(thirds.allSatisfy { Double($0) >= Double(all) * 0.1 }, "leaves in every third: \(thirds)")
+    }
+
     /// Step 3 (the director's call 6): a look is tested on the drawn pixel, never on the tint that goes in. Rendered
     /// offscreen like `Look2FrameTests.testLookTwoRenders`: at a flake of the lane's depth in the upper sky its drawn
     /// luma against the pixel three game pixels beside its cell differs by at least 40 (of 255): pale at night, dark at

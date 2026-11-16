@@ -994,7 +994,8 @@ final class WeatherTests: XCTestCase {
     }
 
     /// Step 4 (the critic's H3 (c), (d)): each slot flies at its own pace (no conveyor), and a storm's hard gust lets 4 to
-    /// 6 leaves of one crown go within 0.3 s of its rise; none such on a gusty day.
+    /// 6 leaves of one crown go within 0.3 s of its rise; none such on a gusty day. b3-wind (step 5, the director's call
+    /// 5 of 11:07): they leave together, all of them off as the gust rises (within `gustBurstLead`).
     func testAStormsGustLetsTheLeavesGoInABurst() throws {
         let storm = Weather.sample(seed: 3, day: 12, hour: 12, time: 0, override: WeatherOverride(mode: .storm, rain: 0))
         XCTAssertEqual(Weather.sailLevel(storm.mean), 3)
@@ -1008,13 +1009,12 @@ final class WeatherTests: XCTestCase {
             }
         }
         let rise = try XCTUnwrap(found, "a storm's gust rises hard within 200 s")
-        let early = FrameBuilder.gustBurst(storm, at: 2900, time: rise + 0.02, width: width)?.leaves.count ?? 0
-        let all = try XCTUnwrap(FrameBuilder.gustBurst(storm, at: 2900, time: rise + FrameBuilder.gustBurstSpread + 0.05,
-                                                       width: width))
-        XCTAssertLessThan(early, all.leaves.count, "they go one by one within the spread")
+        let early = FrameBuilder.gustBurst(storm, at: 2900, time: rise + 0.001, width: width)?.leaves.count ?? 0
+        let all = try XCTUnwrap(FrameBuilder.gustBurst(storm, at: 2900, time: rise + 0.15, width: width))
+        XCTAssertEqual(early, all.leaves.count, "they leave together as the gust rises")
         XCTAssertGreaterThanOrEqual(all.leaves.count, FrameBuilder.gustBurstLeast, "four or more at once")
         XCTAssertLessThanOrEqual(all.leaves.count, FrameBuilder.gustBurstMost)
-        XCTAssertTrue(all.leaves.allSatisfy { $0.along <= FrameBuilder.gustBurstSpread + 0.05 }, "within 0.3 s")
+        XCTAssertTrue(all.leaves.allSatisfy { $0.along <= 0.15 + FrameBuilder.gustBurstLead }, "together")
         XCTAssertGreaterThan(Set(all.leaves.map { Int($0.pace) }).count, 1, "each at its own pace")
         let gusty = Weather.sample(seed: 3, day: 12, hour: 12, time: 0, override: WeatherOverride(mode: .gusty, rain: 0))
         for step in 0..<200 {

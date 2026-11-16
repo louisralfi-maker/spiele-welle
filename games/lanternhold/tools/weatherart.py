@@ -163,17 +163,22 @@ def vane_strip():
 # with a leaf vein; meadow over leaf), and an autumn straw lighter than every roof (strawLight, a pale lit edge, straw
 # for the vein), which `FrameBuilder` picks for one leaf in two; then three puffs of the lane's dust (soilLight and
 # rockPale, a few loose pixels low in the cell), thinning out.
+# Step 5 (b3-wind, the director's call 5 of 16.11. 11:07, H3 (a), (b): at phone size the edge-on frames were 1 px dotted
+# diagonals that read as rain, and the straw was cream on the pale snow): no frame is thinner than 2 px, the edge-on
+# frame is a 4 x 2 sliver (its lit top over its body, a dark lower pixel); every leaf has a 1 px darker lower edge (its
+# shadow side, one step under its body) under its pale top edge, so it reads on snow and cloud; the autumn leaf is a
+# darker ochre (woodLight under a straw edge, wood for the vein and the shadow side) that stands on snow and cloud.
 GUST_W, GUST_H = 6, 5
-GUST_TONES = [  # lit edge, body, vein
-    ((178, 196, 120, 255), (120, 144, 78, 255), (53, 78, 48, 255)),      # pale, leafLight, leaf
-    ((120, 144, 78, 255), (79, 106, 60, 255), (34, 52, 40, 255)),        # leafLight, meadow, leafDark
-    ((236, 220, 170, 255), (196, 168, 114, 255), (150, 122, 72, 255)),   # pale straw, strawLight, straw
+GUST_TONES = [  # lit edge, body, vein, shadow side
+    ((178, 196, 120, 255), (120, 144, 78, 255), (53, 78, 48, 255), (79, 106, 60, 255)),   # pale, leafLight, leaf, meadow
+    ((120, 144, 78, 255), (79, 106, 60, 255), (34, 52, 40, 255), (53, 78, 48, 255)),      # leafLight, meadow, leafDark, leaf
+    ((166, 138, 84, 255), (138, 99, 64, 255), (102, 66, 47, 255), (102, 66, 47, 255)),    # straw, woodLight, wood, wood
 ]
-GUST_LEAF = [  # an almond leaf on the diagonal, its vein through it to the stem
-    ["...LL.", "..LBBL", ".LBVB.", ".BVB..", "V....."],
-    ["......", "...LL.", "..LVB.", ".BVB..", "V....."],
-    ["......", ".....L", "...LB.", ".LB...", "V....."],
-    [".LL...", "LBBLL.", ".BVBBV", "..BBB.", "......"],
+GUST_LEAF = [  # an almond leaf on the diagonal, its vein through it to the stem, its lower edge in shadow
+    ["...LL.", "..LBBL", ".LBVBD", ".BVBD.", "VDD..."],
+    ["......", "...LL.", "..LVBD", ".BVDD.", "V....."],
+    ["......", "......", ".LLLL.", ".BBBD.", "......"],
+    [".LL...", "LBBLL.", ".BVBBV", "..DDD.", "......"],
 ]
 GUST_DUST = [
     ["......", "......", "......", ".p.s..", "s.p.s."],
@@ -185,9 +190,9 @@ DUST = {"s": (100, 81, 63, 255), "p": (168, 156, 136, 255)}   # soilLight, rockP
 
 def gust_strip():
     frames = []
-    for lit, body, vein in GUST_TONES:
+    for lit, body, vein, shade in GUST_TONES:
         for rows in GUST_LEAF:
-            frames.append([[{"L": lit, "B": body, "V": vein}.get(ch) for ch in row] for row in rows])
+            frames.append([[{"L": lit, "B": body, "V": vein, "D": shade}.get(ch) for ch in row] for row in rows])
     for rows in GUST_DUST:
         frames.append([[DUST.get(ch) for ch in row] for row in rows])
     out = Image(GUST_W * len(frames), GUST_H)
