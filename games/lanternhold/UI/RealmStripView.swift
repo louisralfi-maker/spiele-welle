@@ -1,5 +1,20 @@
 import SwiftUI
 
+/// Build 3, lane 5: the strip's picture, the last one kept. While the look-around slides the view the lantern moment is
+/// drawn again every frame, and the strip's body with it (its tap is a closure, so SwiftUI cannot skip it); the picture
+/// is made again only when the strip itself changed.
+@MainActor
+enum RealmStripImages {
+    private static var last: (strip: RealmStrip, image: CGImage)?
+
+    static func image(_ strip: RealmStrip) -> CGImage? {
+        if let last, last.strip == strip { return last.image }
+        guard let made = SpriteImages.cgImage(RealmMapPixels.image(strip)) else { return nil }
+        last = (strip, made)
+        return made
+    }
+}
+
 /// The realm strip (DESIGN.md "Controls"; docs/REVIEW-look-2.md H5, docs/HUD.md; rebuilt in stage-3-interface,
 /// 15.11.2026): a map cut in pixels on night glass, 300 x 28 pt (150 x 14 game px at the world's 2 pt), the map's own
 /// glyphs and never a letter (`RealmMapPixels`): the darkness bank, the Great Beacon, the walls by state, the
@@ -26,7 +41,7 @@ struct RealmStripView: View {
 
     var body: some View {
         let snapshot = strip
-        let image = SpriteImages.cgImage(RealmMapPixels.image(snapshot))
+        let image = RealmStripImages.image(snapshot)
         return ZStack {
             if let image {
                 Image(decorative: image, scale: 1 / RealmStripView.unit)
