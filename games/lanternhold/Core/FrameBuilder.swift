@@ -831,10 +831,8 @@ enum FrameBuilder {
             if let emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
                                                animTime: animTime, options: options, geometry: geometry,
                                                fade: options.look == .two ? alpha : 1) {
-                for piece in bentFlame(emissive, part: part, prop: prop, animTime: animTime, options: options,
-                                       geometry: geometry) {
-                    glow.add(piece)
-                }
+                glow.add(bentFlame(emissive, part: part, prop: prop, animTime: animTime, options: options,
+                                   geometry: geometry))
             }
         }
         let torch = ambient.torchStrength
@@ -968,31 +966,41 @@ enum FrameBuilder {
         return []
     }
 
+    /// The frame of `flameBent` / `brazierFlameBent` for a lean as the flame is drawn (its own mirroring undone): 0 and
+    /// 1 bend toward the valley (a third, a whole lean), 2 and 3 toward the west; nil while it stands
+    /// (`PlaceholderWeather.bentFlameLeans` paints them by `flameBend`).
+    static func bentFlameFrame(lean: Double, flipped: Bool) -> Int? {
+        let drawn = flipped ? -lean : lean
+        let force = abs(drawn)
+        guard force >= 0.33 else { return nil }
+        return (force >= 0.75 ? 1 : 0) + (drawn < 0 ? 2 : 0)
+    }
+
+    /// The bent sprite of an open flame, nil for every other emissive.
+    static func bentSprite(of sprite: SpriteID) -> SpriteID? {
+        switch sprite {
+        case .flame: return .flameBent
+        case .brazierFlame: return .brazierFlameBent
+        default: return nil
+        }
+    }
+
     /// Build 3 step 2 (lane 3, the critic's M1: at phone size the lean of the light alone was not seen): a torch's or a
-    /// brazier's flame bends with the wind, its top rows drawn shifted downwind by `flameBend` (the flame as bands of
-    /// its rows, the foot where it burns). The forge's does not (`enclosedFires`).
+    /// brazier's flame bends with the wind, drawn as the bent sprite's frame for its lean (`flameBend`'s top rows
+    /// downwind, the foot where it burns; one quad, two pixels wider on each side). The forge's does not
+    /// (`enclosedFires`).
     private static func bentFlame(_ flame: EmissiveInstance, part: EmissivePart, prop: Prop, animTime: Double,
-                                  options: FrameOptions, geometry: Geometry) -> [EmissiveInstance] {
-        guard options.look == .two, part.sprite == .flame || part.sprite == .brazierFlame, !enclosed(prop),
-              geometry.weather != .clear else { return [flame] }
+                                  options: FrameOptions, geometry: Geometry) -> EmissiveInstance {
+        guard options.look == .two, geometry.weather != .clear, let sprite = bentSprite(of: part.sprite),
+              !enclosed(prop) else { return flame }
         let lean = Weather.fireLean(x: prop.x + part.dx, geometry.weather, time: animTime,
                                     reduceMotion: options.reduceMotion)
-        let rows = part.sprite.size.height
-        let bands = flameBend(lean: lean, rows: rows)
-        guard !bands.isEmpty else { return [flame] }
-        let shifted = bands.reduce(0) { $0 + $1.rows }
-        let all = bands + [(rows: rows - shifted, shift: 0)]
-        var list: [EmissiveInstance] = []
-        var row = 0
-        for band in all where band.rows > 0 {
-            var piece = flame
-            piece.rect = SIMD4<Float>(flame.rect.x + Float(band.shift), flame.rect.y + Float(row), flame.rect.z,
-                                      Float(band.rows))
-            piece.source = SIMD4<Float>(flame.source.x, flame.source.y + Float(row), flame.source.z, Float(band.rows))
-            list.append(piece)
-            row += band.rows
-        }
-        return list
+        guard let frame = bentFlameFrame(lean: lean, flipped: flame.flipped) else { return flame }
+        let grow = Float(sprite.size.width - part.sprite.size.width) / 2
+        return EmissiveInstance(sprite: sprite, plane: flame.plane,
+                                rect: SIMD4<Float>(flame.rect.x - grow, flame.rect.y, flame.rect.z + 2 * grow,
+                                                   flame.rect.w),
+                                color: flame.color, flipped: flame.flipped, frame: frame)
     }
 
     /// World-3 fix round 1 (the critic's high 8): the far shore's lantern (near plane) laid on the water as a broken

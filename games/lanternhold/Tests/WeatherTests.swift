@@ -685,21 +685,48 @@ final class WeatherTests: XCTestCase {
             desc.emissives.filter { $0.sprite == sprite }.map { $0.color.x + $0.color.y + $0.color.z }.max() ?? 0
         }
         XCTAssertGreaterThan(strength(calm, .flame), 0)
-        XCTAssertLessThan(strength(blown, .flame), strength(calm, .flame))
-        // Step 2 (the critic's M1): and bend. In a whole wind toward the valley each flame is drawn as bands of its
-        // rows, the top row two pixels downwind, the rows under it one, the foot where it burns; in still air whole.
-        for sprite in [SpriteID.flame, .brazierFlame] {
+        XCTAssertLessThan(strength(blown, .flameBent), strength(calm, .flame))
+        // Step 2 (the critic's M1): and bend. In a whole wind toward the valley each flame is drawn as one quad of its
+        // bent sprite (the top row two pixels downwind, the rows under it one, the foot where it burns), two pixels
+        // wider on each side; in still air whole. (The gate: bands of cropped glow quads drew whole flames squashed,
+        // since the glow quad shows its whole cell.)
+        for (sprite, bentSprite) in [(SpriteID.flame, SpriteID.flameBent), (.brazierFlame, .brazierFlameBent)] {
             let whole = calm.emissives.filter { $0.sprite == sprite }
-            let bent = blown.emissives.filter { $0.sprite == sprite }
             guard !whole.isEmpty else { continue }
-            XCTAssertTrue(whole.allSatisfy { Int($0.rect.w) == sprite.size.height }, "\(sprite): whole in still air")
-            XCTAssertGreaterThan(bent.count, whole.count, "\(sprite): drawn in bands")
-            XCTAssertTrue(bent.allSatisfy { $0.source.w == $0.rect.w }, "\(sprite): each band its own rows")
-            let tops = bent.filter { $0.source.y == 0 }
-            let feet = bent.filter { $0.source.y + $0.source.w == Float(sprite.size.height) }
-            XCTAssertEqual(tops.count, feet.count)
-            for (top, foot) in zip(tops, feet) {
-                XCTAssertEqual(top.rect.x - foot.rect.x, 2, "\(sprite): its top leans two pixels toward the valley")
+            XCTAssertTrue(calm.emissives.allSatisfy { $0.sprite != bentSprite }, "\(sprite): straight in still air")
+            let bent = blown.emissives.filter { $0.sprite == bentSprite }
+            XCTAssertFalse(bent.isEmpty, "\(sprite): bent in the wind")
+            XCTAssertEqual(bent.count + blown.emissives.filter { $0.sprite == sprite }.count, whole.count,
+                           "\(sprite): one quad a flame")
+            XCTAssertTrue(bent.allSatisfy { Int($0.rect.z) == bentSprite.size.width && Int($0.rect.w) == sprite.size.height },
+                          "\(sprite): the bent cell, at the flame's height")
+            XCTAssertTrue(bent.allSatisfy { $0.frame == ($0.flipped ? 3 : 1) }, "\(sprite): the strong bend toward the valley")
+        }
+    }
+
+    func testTheBentFlamesArePaintedFromTheFlamesOwnRows() {
+        XCTAssertNil(FrameBuilder.bentFlameFrame(lean: 0.2, flipped: false), "a calm: it stands")
+        XCTAssertEqual(FrameBuilder.bentFlameFrame(lean: 0.5, flipped: false), 0)
+        XCTAssertEqual(FrameBuilder.bentFlameFrame(lean: 0.9, flipped: false), 1)
+        XCTAssertEqual(FrameBuilder.bentFlameFrame(lean: -0.5, flipped: false), 2)
+        XCTAssertEqual(FrameBuilder.bentFlameFrame(lean: -0.9, flipped: false), 3)
+        XCTAssertEqual(FrameBuilder.bentFlameFrame(lean: 0.9, flipped: true), 3, "a mirrored flame: the other frame")
+        XCTAssertEqual(FrameBuilder.bentSprite(of: .flame), .flameBent)
+        XCTAssertEqual(FrameBuilder.bentSprite(of: .brazierFlame), .brazierFlameBent)
+        XCTAssertNil(FrameBuilder.bentSprite(of: .hearthFire))
+        for (sprite, bent) in [(SpriteID.flame, SpriteID.flameBent), (.brazierFlame, .brazierFlameBent)] {
+            let straight = PlaceholderArt.frames(for: sprite)[0]
+            let frames = PlaceholderArt.frames(for: bent)
+            XCTAssertEqual(frames.count, 4)
+            XCTAssertEqual(bent.size.width, sprite.size.width + 4)
+            XCTAssertEqual(bent.size.height, sprite.size.height)
+            let foot = sprite.size.height - 1
+            for (index, frame) in frames.enumerated() {
+                XCTAssertNotEqual(frame, straight, "\(bent) frame \(index) is bent")
+                // The foot row burns where the flame stands, two pixels in from the cell's left.
+                XCTAssertEqual(frame.cropped(x: 2, y: foot, width: sprite.size.width, height: 1),
+                               straight.cropped(x: 0, y: foot, width: sprite.size.width, height: 1),
+                               "\(bent) frame \(index): the foot where it burns")
             }
         }
     }

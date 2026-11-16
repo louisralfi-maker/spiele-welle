@@ -11,6 +11,8 @@ enum PlaceholderWeather {
         case .keepFlag: return (0..<Weather.flagFrames).map { flag($0) }
         case .keepFlagRim: return (0..<(2 * Weather.flagFrames)).map { flagRim($0) }
         case .ashFlake: return (0..<12).map { ashFlake($0) }
+        case .flameBent: return (0..<4).map { bentFlame(PlaceholderSprites.flameRows, sprite: .flameBent, frame: $0) }
+        case .brazierFlameBent: return (0..<4).map { bentFlame(PlaceholderSprites.brazierFlameRows, sprite: .brazierFlameBent, frame: $0) }
         default: return []
         }
     }
@@ -77,6 +79,25 @@ enum PlaceholderWeather {
             p.put(1, 1, soft)
             p.put(3, 3, soft)
             if flat { p.put(0, 2, soft); p.put(4, 2, soft) } else { p.put(2, 0, soft); p.put(2, 4, soft) }
+        }
+        return p.image
+    }
+
+    /// The leans of the bent flame's frames: a third of a whole lean and a whole one toward the valley, then the same
+    /// toward the west (`FrameBuilder.bentFlameFrame`).
+    static let bentFlameLeans = [0.5, 0.9, -0.5, -0.9]
+
+    /// A flame bent by the wind: its rows two pixels in from the cell's left, the top rows shifted by
+    /// `FrameBuilder.flameBend` for the frame's lean, the foot where it burns.
+    static func bentFlame(_ rows: [String], sprite: SpriteID, frame: Int) -> PixelImage {
+        var p = Painter(sprite.size, salt: 0)
+        var shifts: [Int] = []
+        for band in FrameBuilder.flameBend(lean: bentFlameLeans[frame], rows: rows.count) {
+            shifts += Array(repeating: band.shift, count: band.rows)
+        }
+        for (index, row) in rows.enumerated() {
+            let shift = index < shifts.count ? shifts[index] : 0
+            p.stamp([row], PlaceholderSprites.firePalette, x: 2 + shift, y: index)
         }
         return p.image
     }
