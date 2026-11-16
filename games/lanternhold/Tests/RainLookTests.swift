@@ -275,7 +275,7 @@ final class RainLookTests: XCTestCase {
         }
         XCTAssertGreaterThan(embers, 0, "embers fall")
         XCTAssertLessThan(Double(embers), Double(flakes) / 6 + 8, "a few")
-        XCTAssertEqual((0..<6000).filter { FrameBuilder.isEmber(key: 77, index: $0) }.count, 1000, accuracy: 90)
+        XCTAssertEqual(Double((0..<6000).filter { FrameBuilder.isEmber(key: 77, index: $0) }.count), 1000, accuracy: 90)
         // At night each flake has its faint pale copy in the emissive pass; by day none.
         let nightGorge = shot(night, focus: 300, weather: storm)
         let copies = nightGorge.desc.emissives.filter { $0.sprite == .ashFlake && $0.frame < 12 }
