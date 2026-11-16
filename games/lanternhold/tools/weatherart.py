@@ -89,56 +89,57 @@ def ash_strip():
 
 
 # ------------------------------------------------------------------------------------------------ the weather vane
-# Step 3 (part B, POLISH.md 2 item 4), redrawn in step 4 (the critic's H2): an iron arrow on a rod that reads at 1x and
-# says which way the wind blows. 13 x 11, the rod at col 6, so the vane mirrors round its rod. Side on: a triangular
-# head on the windward end (3 wide, from a tip two rows tall to barbs six rows tall), a shaft two rows thick (a pale lit
-# top over the iron), a swallowtail fin on the other end (3 x 6, its two tails reaching out past a 2 x 2 notch), so head
-# and fin differ in silhouette everywhere; no crossbar (that made a church cross); a 2 x 2 ball on the rod under the arrow, its collar a
-# row into the roof. Iron in the keep's slate (stoneDark, stoneMid on the collar), the lit top edge in the keep's lit
-# stone (stonePale), the ball stoneLight. Frames: 0 side on (the head west, for a wind toward the valley), 1 and 2
-# turned a third and two thirds away (the head point and the fin's tails kept), 3 end on (the fin edge on, the head's
-# point before it, the ball), 4 side on with the head dipped a pixel and the fin flexed (a storm's shiver). Mirrored for
-# a wind toward the shadow land (`WindLook`).
+# Step 3 (part B, POLISH.md 2 item 4), redrawn in step 4 (the critic's H2) and again in step 5 (b3-wind, the director's
+# call 4 of 16.11. 11:07: in step 4 head and fin were both open 1 px chevrons, a white "bone" at phone size): an iron
+# arrow on a rod that reads at 1x and says which way the wind blows. 13 x 11, the rod at col 6, so the vane mirrors round
+# its rod. Side on: the head a filled wedge on the windward end (columns of 1, 3 and 5 px: 9 px) in the lit tone, a shaft
+# two rows thick (its lit top over the iron), the fin a solid plate 4 wide and 5 tall in the dark iron with a 2 px V
+# notch in its trailing edge (18 px), so the tail is clearly heavier than the head in shape and in value; the lit edge
+# only on the shaft's top and the head, in stoneLight, one step under the battlements' lit top (stonePale), never on
+# the fin; no crossbar; a 2 x 2 ball on the rod under the arrow, its collar a row into the roof. Frames: 0 side on (the
+# head west, for a wind toward the valley), 1 and 2 turned a third and two thirds away (1 is the calm's: the head's
+# wedge seen from the side, two columns, no barbs), 3 end on (the fin edge on, the head's point before it, the ball), 4
+# side on with the head dipped a pixel and the fin flexed (a storm's shiver). Mirrored for a wind toward the shadow land
+# (`WindLook`).
 VANE_W, VANE_H = 13, 11
-VANE_COLOURS = {"I": (47, 48, 62, 255), "i": (70, 73, 87, 255), "l": (187, 188, 190, 255),
-                "k": (150, 154, 162, 255)}
+VANE_COLOURS = {"I": (47, 48, 62, 255), "i": (70, 73, 87, 255), "k": (150, 154, 162, 255)}
 VANE_ROD = ["......I......", "......I......", "......I......", ".....iIi....."]
 VANE_FRAMES = [
-    ["..l........ll",
-     ".lI.......lI.",
-     "lIIlllllllI..",
-     "IIIIIIIIIII..",
-     ".II...I...II.",
-     "..I...lk...II",
-     "......ki....."],
-    ["....l....ll..",
-     "...lI...lI...",
-     "..lIIlllI....",
-     "..IIIIIII....",
-     "...II.I.II...",
-     "....I.lk.II..",
-     "......ki....."],
-    ["........l....",
-     ".....l.lI....",
-     "....lIlI.....",
-     "....IIII.....",
-     ".....IIII....",
-     "......lkI....",
-     "......ki....."],
-    ["......l......",
+    [".............",
+     "..k......IIII",
+     ".kkkkkkkkIIII",
+     "kkkIIIIIIII..",
+     ".kk...I..IIII",
+     "..k...kk.IIII",
+     "......ii....."],
+    [".............",
+     "........III..",
+     "...kkkkkIII..",
+     "..kkIIIIII...",
+     "...k..I.III..",
+     "......kkIII..",
+     "......ii....."],
+    [".............",
+     "........II...",
+     ".....kkkII...",
+     "....kkIII....",
+     ".....kI.II...",
+     "......kkII...",
+     "......ii....."],
+    [".............",
      "......I......",
-     ".....lI......",
-     ".....II......",
      "......I......",
-     "......lk.....",
-     "......ki....."],
-    ["...........ll",
-     "..l.......lI.",
-     ".lIlllllllI..",
-     "lIIIIIIIIII..",
-     "III...I...II.",
-     ".II...lk...II",
-     "..I...ki....."],
+     ".....kk......",
+     "......I......",
+     "......kk.....",
+     "......ii....."],
+    ["...........II",
+     ".........IIII",
+     "..kkkkkkkII..",
+     ".kkIIIIIIIIII",
+     "kkk...I..IIII",
+     ".kk...kk.II..",
+     "..k...ii....."],
 ]
 
 

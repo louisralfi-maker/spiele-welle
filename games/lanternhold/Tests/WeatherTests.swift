@@ -867,10 +867,31 @@ final class WeatherTests: XCTestCase {
         for y in 6..<side.height {
             XCTAssertLessThanOrEqual((0..<side.width).filter { side[$0, y].a > 0 }.count, 3, "no crossbar, row \(y)")
         }
-        for x in 0..<side.width {
+        // b3-wind: build 3 step 5 (the director's call 4 of 11:07, H2): the head a filled wedge of 1, 3 and 5 px in the
+        // lit tone, the fin a solid dark plate of 4 x 5 with a 2 px notch (18 px), at least 8 px heavier than the head;
+        // the lit edge (stoneLight, one step under the battlements' stonePale) only on the shaft's top and the head,
+        // never on the fin.
+        let head = (0..<3).map { x in (0..<7).filter { side[x, $0].a > 0 }.count }
+        XCTAssertEqual(head, [1, 3, 5], "the head a filled wedge")
+        let fin = (9..<13).flatMap { x in (0..<7).filter { side[x, $0].a > 0 } }.count
+        XCTAssertEqual(fin, 18, "a solid plate with a notch")
+        XCTAssertGreaterThanOrEqual(fin - head.reduce(0, +), 8, "the tail clearly heavier than the head")
+        XCTAssertGreaterThanOrEqual(filled(side, columns: 0..<4)
+            .symmetricDifference(filled(side.flippedHorizontally(), columns: 0..<4)).count, 8, "head and fin differ by 8")
+        for x in 0..<9 {
             guard let top = (0..<6).first(where: { side[x, $0].a > 0 }) else { continue }
-            XCTAssertGreaterThan(side[x, top].r, 150, "a pale lit top edge, col \(x)")
+            XCTAssertGreaterThanOrEqual(side[x, top].r, 150, "a lit top edge, col \(x)")
+            XCTAssertLessThan(side[x, top].r, 187, "one step under the battlements' lit top, col \(x)")
         }
+        for x in 9..<13 {
+            for y in 0..<7 where side[x, y].a > 0 {
+                XCTAssertLessThan(side[x, y].r, 100, "the fin is dark iron, (\(x), \(y))")
+            }
+        }
+        // The calm's frame (1): the head's wedge from the side, two columns (1 and 3 px), no barbs.
+        let calm = art.frames[1]
+        let calmHead = (0..<4).map { x in (0..<7).filter { calm[x, $0].a > 0 }.count }
+        XCTAssertEqual(calmHead.filter { $0 > 0 }, [1, 3], "the calm's head: a wedge of two columns")
         let rod = vane.x + SceneLayout.weatherVaneRod
         func frames(_ override: WeatherOverride, reduceMotion: Bool = false) -> [Int] {
             (0..<(12 * 30)).map {
@@ -898,6 +919,31 @@ final class WeatherTests: XCTestCase {
         XCTAssertEqual(pose(0.5)?.flipped, false, "the head west, into a wind toward the valley")
         XCTAssertEqual(pose(-0.5)?.flipped, true, "the head east, into a wind from the valley")
         XCTAssertEqual(pose(-0.5)?.dx, 0, "it turns on its rod")
+        // b3-wind (step 5): the east frame is the west frame mirrored, exactly: the same frame on the same rect, mirrored
+        // round the rod in the sprite's middle column.
+        XCTAssertEqual(SpriteID.weatherVane.size.width - 1 - Int(SceneLayout.weatherVaneRod),
+                       Int(SceneLayout.weatherVaneRod), "the rod is the sprite's middle column")
+        func drawn(_ wind: Double) -> SpriteInstance? {
+            let sample = Weather.sample(seed: 3, day: 12, hour: 12, time: 4,
+                                        override: WeatherOverride(mode: .clear, wind: wind))
+            return windFrame(world, focus: SceneLayout.castleHallDoorX, weather: sample, time: 4)
+                .layer(.near).sprites.first { $0.sprite == .weatherVane }
+        }
+        let east = try XCTUnwrap(drawn(0.5), "the vane in the frame")
+        let west = try XCTUnwrap(drawn(-0.5))
+        XCTAssertEqual(east.rect, west.rect)
+        XCTAssertEqual(east.frame, west.frame)
+        XCTAssertNotEqual(east.flipped, west.flipped)
+        let face = art.frames[east.frame]
+        let mirrored = face.flippedHorizontally()
+        var differ = 0
+        for y in 0..<face.height {
+            for x in 0..<face.width where mirrored[x, y] != face[face.width - 1 - x, y] {
+                differ += 1
+            }
+        }
+        XCTAssertEqual(differ, 0, "the east frame equals the mirrored west frame")
+        print("VANE head \(head) px, fin \(fin) px, the east frame the mirrored west: \(differ) pixels differ")
     }
 
     /// Step 3 (part B, POLISH.md 2 item 5): a gust carries leaves and the lane's dust across the screen: none in a calm, a
