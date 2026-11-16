@@ -41,20 +41,25 @@ extension GameModel {
     }
 
     /// The signposts standing now: each plot with several offers, its post at the plot, its row of shingles on the
-    /// side that covers least of the other things' touch areas (people, who walk, left out so it never jumps). A plot
-    /// whose board stands has none: its chosen shingle hangs on the board's post; nor does one with a board or a site
-    /// lantern standing in its way.
+    /// side that covers least of the other things' touch areas as they stand by day (people, who walk, left out, and
+    /// the same by night, so it never jumps). A plot whose board stands has none: its chosen shingle hangs on the
+    /// board's post; nor does one with a board or a site lantern standing in its way.
     func signposts(_ state: GameState, balance: Balance, framing: TouchFraming) -> [PaySignpost] {
         guard stage == .world else { return [] }
+        let entries = PaySignpost.plots(state, balance: balance)
+        guard !entries.isEmpty else { return [] }
         let minimum = touchMinimum(framing: framing)
         let layouts = KingTargets.layouts(state, balance: balance)
         let blockers = signBlockers()
+        var day = state
+        day.hour = 12
+        let neighbours = TouchThings.world(day, balance: balance, figures: [], talked: []).filter { !$0.isPerson }
         var list: [PaySignpost] = []
-        for entry in PaySignpost.plots(state, balance: balance) {
+        for entry in entries {
             let id = "touch-plot-\(entry.plot)"
             if countBoardStands(for: id) { continue }
             let x = KingTargets.spotX(plot: entry.plot, layouts: layouts)
-            let others = touch.things.filter { $0.id != id && !$0.isPerson }.map { TouchRules.area($0, minimum: minimum) }
+            let others = neighbours.filter { $0.id != id }.map { TouchRules.area($0, minimum: minimum) }
             var best: PaySignpost?
             var bestCover = Double.infinity
             for side in PaySignpost.Side.allCases {

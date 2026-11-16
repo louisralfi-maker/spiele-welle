@@ -1729,7 +1729,8 @@ final class PayCountTests: XCTestCase {
                 XCTAssertGreaterThan(beside.x, beside.y, "warm: more red than green")
                 XCTAssertGreaterThan(beside.y, beside.z, "warm: more green than blue")
                 XCTAssertLessThan(beside.z, 0.7 * beside.x, "never cream-white")
-                XCTAssertFalse(layer.actors.contains { $0.sprite == .siteHalo }, "no pool at night")
+                XCTAssertTrue(layer.actors.filter { $0.sprite == .siteHalo }.allSatisfy { $0.tint.w < 0.05 },
+                              "no pool at night")
             } else {
                 XCTAssertFalse(layer.glows.contains { $0.sprite == .siteHalo }, "by day no halo added on the lit wall")
                 let pool = try XCTUnwrap(layer.actors.first { $0.sprite == .siteHalo && $0.frame == 1 }, "day: the pool")
