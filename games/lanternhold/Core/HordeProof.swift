@@ -63,6 +63,11 @@ enum HordeProof {
     nonisolated(unsafe) static var wallHP = 0.0
     /// The stream's spawns so far (`clump(spawn:)`; reset by `apply`).
     nonisolated(unsafe) static var streamSpawns = 0
+    /// Step 7 (the director's call 7 of 16.11.2026 12:02, H3: the heap moves): the topmost climber is knocked off the
+    /// heap every 1.5 to 2.5 s by a hash (`knockGap`), as the archers will; when the next knock comes and how many came
+    /// (set by `apply`).
+    nonisolated(unsafe) static var nextKnock = 0.0
+    nonisolated(unsafe) static var knocks = 0
 
     static func apply(_ s: inout GameState, balance: Balance, seconds: Double, dark: Bool = false) {
         guard !s.defeated, DayClock.phase(at: s.hour) != .day else { return }
@@ -98,6 +103,8 @@ enum HordeProof {
             s.king.velocity = 0
             wallHP = s.plots[line.wall].hp
             nextStream = s.simTime + first
+            knocks = 0
+            nextKnock = s.simTime + knockGap(0)
             s.glows.removeAll()
             s.plots[line.engine].cooldown = max(s.plots[line.engine].cooldown, 1)
         }
@@ -144,10 +151,34 @@ enum HordeProof {
             let newest = heap.sorted { s.creatures[$0].id > s.creatures[$1].id }
             for index in newest.prefix(heap.count - heapCap) { s.creatures[index].hp = 0 }
         }
+        // step 7 (call 7): the topmost climber knocked off (the battle takes it away in the next step, a live fall
+        // from the top of the heap; the ranks under it stay), so the wall at 1, 4 and 7 s differs
+        if s.simTime >= nextKnock {
+            let lifts = HordeLook.heapLifts(s.creatures)
+            var top: Int?
+            for index in heap where s.creatures[index].hp > 0 {
+                guard let lift = lifts[s.creatures[index].id] else { continue }
+                if let best = top, let bestLift = lifts[s.creatures[best].id],
+                   (bestLift, s.creatures[best].id) >= (lift, s.creatures[index].id) {
+                    continue
+                }
+                top = index
+            }
+            if let top { s.creatures[top].hp = 0 }
+            knocks += 1
+            nextKnock = s.simTime + knockGap(knocks)
+        }
         guard s.simTime >= nextStream else { return }
         let alive = s.creatures.filter { $0.kind == .sootling && $0.hp > 0 }.count
         guard alive + 3 <= streamCap else { return }
         nextStream = s.simTime + spawnStream(&s, balance: balance, x: s.bankEdge + streamFrom)
+    }
+
+    // MARK: - The heap moves (step 7, the director's call 7)
+
+    /// The gap before the knock after the `k`th: 1.5 ... 2.5 s by a hash.
+    static func knockGap(_ k: Int) -> Double {
+        1.5 + Double(SeededRandom.hash(0x4B4E_4F43, Int64(max(0, k))) % 1001) / 1000
     }
 
     // MARK: - The stream (step 5, the director's call 3)

@@ -151,6 +151,44 @@ final class HordeProofTests: XCTestCase {
         XCTAssertTrue(dark.creatures.allSatisfy { $0.x < wallX }, "none past the outer wall")
     }
 
+    /// Step 7 (the director's call 7 of 16.11.2026 12:02, H3: the heap moves): in the clip's live night the topmost
+    /// climber is knocked off every 1.5 to 2.5 s by a hash, a live fall from the top of the heap, so the climbers on the
+    /// wall at 1, 4 and 7 s are three different sets, and the heap still climbs.
+    func testTheHeapMoves() {
+        XCTAssertTrue((0..<200).allSatisfy { (1.5...2.5).contains(HordeProof.knockGap($0)) }, "1.5 to 2.5 s apart")
+        XCTAssertGreaterThanOrEqual(Set((0..<200).map { (HordeProof.knockGap($0) * 10).rounded() }).count, 8,
+                                    "by a hash, never one beat")
+        var s = GameFrameSupport.demoNight(hour: 23.0)
+        HordeProof.apply(&s, balance: .standard, seconds: 0, dark: true)
+        XCTAssertEqual(HordeProof.knocks, 0)
+        let wall = Realm.lines[2].wall
+        var events: [SimEvent] = []
+        var walls: [Set<Int>] = []
+        var falls = 0
+        for second in 1...7 {
+            for _ in 0..<60 {
+                events.removeAll(keepingCapacity: true)
+                Sim.step(&s, dt: Sim.frameStep, balance: .standard, events: &events)
+                HordeProof.drive(&s, balance: .standard)
+                falls += events.filter { if case .creatureKilled = $0 { return true } else { return false } }.count
+            }
+            guard [1, 4, 7].contains(second) else { continue }
+            let lifts = HordeLook.heapLifts(s.creatures)
+            let climbers = Set(s.creatures.filter {
+                $0.hp > 0 && $0.action == .attackingWall && $0.target == wall && lifts[$0.id] != nil
+            }.map(\.id))
+            XCTAssertGreaterThanOrEqual(climbers.count, 3, "\(second) s: the heap still climbs")
+            walls.append(climbers)
+        }
+        XCTAssertTrue((2...5).contains(HordeProof.knocks), "knocked off every 1.5 to 2.5 s (\(HordeProof.knocks) in 7 s)")
+        XCTAssertGreaterThanOrEqual(falls, HordeProof.knocks, "each knock a live fall")
+        XCTAssertEqual(walls.count, 3)
+        guard walls.count == 3 else { return }
+        XCTAssertNotEqual(walls[0], walls[1], "the wall at 1 s and at 4 s differs")
+        XCTAssertNotEqual(walls[1], walls[2], "the wall at 4 s and at 7 s differs")
+        XCTAssertNotEqual(walls[0], walls[2], "the wall at 1 s and at 7 s differs")
+    }
+
     /// Step 7 (the director's call 5 of 16.11.2026 12:02): the crowd opens so the giant's children show the air under
     /// their bellies. Twenty seeded crowds of 24 from the live stream's rules (its spawns, gaps, clumps with followers
     /// 6 and 11 px behind the first, paces and ground lines; `HordeProof`), each small one walked on from its spawn,
