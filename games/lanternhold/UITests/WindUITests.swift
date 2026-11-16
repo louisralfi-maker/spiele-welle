@@ -14,7 +14,8 @@ import XCTest
 ///   storm, the curtain's banner in a dry storm, the rain's and the ash's fall at the band, the rain on a gusty day.
 /// Step 3 (part A, the two rains read): the tier-3 postern's flag (319), the gorge in ash by day (329), the band in a
 /// storm at night (389), tier 3 at dusk with the gold mark and the rim (390), and two strips of the ash at night with
-/// its embers: 1/12 s apart (370) and over an ember's life, 0.4 s apart (380).
+/// its embers: 1/12 s apart (370) and over an ember's life, 0.4 s apart (380). Part B: a gust's leaves over the town
+/// (391, the strip 400), the weather vane in a wind toward the valley and from it (392, 393).
 /// Only keys that exist: `-GWWeather`, `-GWWind`, `-GWRain`, `-GWCameraX`, `-GWCastle`, `-GWReduceMotion`.
 /// Saves `<nnn>-wind-<what>-<lang>` from 300.
 @MainActor
@@ -76,6 +77,11 @@ final class WindUITests: XCTestCase {
             // Step 3 (the critic's M4): the banners and the flag at dusk in a dry wind, the gold mark and the rim.
             ("390-wind-dusk-tier3-gold-rim", tierThree + ["-GWWeather", "clear", "-GWWind", "0.5"]
                 + noon(30.4, hour: "19.2")),
+            // Step 3 (part B): a dry storm's gust carrying leaves and dust over the town; the weather vane on the keep's
+            // east tower in a wind toward the valley (its head west) and from the valley (its head east).
+            ("391-wind-gust-leaves-town", town + dryStorm + noon(30.4)),
+            ("392-wind-vane-east-wind-keep", keep + ["-GWWeather", "clear", "-GWWind", "0.5"] + noon(30.4)),
+            ("393-wind-vane-west-wind-keep", keep + ["-GWWeather", "clear", "-GWWind", " -0.5"] + noon(30.4)),
         ]
         for still in stills {
             shoot(still.name, still.arguments)
@@ -116,6 +122,8 @@ final class WindUITests: XCTestCase {
             // Step 3 (part A): the ash's fall in the gorge at night with its embers, at 1/12 s and over an ember's life.
             (370, "ash-embers-gorge-night", gorge + rain, "22", 1.0 / 12),
             (380, "ash-ember-life-band-night", band + rain, "22", 0.4),
+            // Step 3 (part B): the gust's leaves crossing the town in a dry storm.
+            (400, "gust-leaves-town", town + dryStorm, "12", 1.0 / 12),
         ]
         for strip in strips {
             for index in 0..<8 {
