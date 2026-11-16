@@ -1010,3 +1010,10 @@ schneller geht."
   - The picture fails a third time (critic 5/10, 2 blockers, 5 highs). In a line by the fires they now read as small creatures on legs. In the dark open they are pale ghosts under black sticks, by the fires the heap is a brown mound, and the clip shows no horde.
   - The director's reading: drawn right, lit wrong. Two laws: shadow swallows light (a low light cap, the fire only as a warm rim), and the mist is their backdrop, never their veil (a fog floor, black shapes in front of the pale mist, the eye point never dimmed).
   - Also: the cloth as a fringe, wisps shorter than their body on every third one, a night look is proved with the fog on, the clip's camera stands in the stream. Step 4 is briefed.
+
+- **The wind lane's step 3 judged (16.11.2026, 07:27).**
+  - Green at a826909d (round lh-b3w-34; the pictures from lh-b3w-33). The critic: fail, 6/10, no blocker, three highs.
+  - What passes: the town in rain at dusk, the flags in three winds, the storm banner's swing, the day ash as soot clumps.
+  - What fails: at night the ash is pale flakes on blue, which is snow, and no ember glows (the director's own call for a pale night ash made it); the weather vane does not read as a vane; the gust's leaves are lost in front of the houses.
+  - The director's calls for step 4: ash is never snow (a warm grey with no blue, only a small step over the sky) and the embers carry the night (a glowing 2 x 2 point that dies from gold to red, one flake in three at night, proved on the drawn pixel of the live night picture); the vane as an arrow against the sky; the leaves rise over the roofs in bursts; the band's water at noon; the sounds stay for the join.
+  - Step 4 is briefed and held: the week stands at 77 % with two steps running, and the stop is 80 %. A lane step costs nearer 1.5 % than 1 %.
