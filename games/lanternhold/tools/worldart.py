@@ -33,7 +33,9 @@ position), so a run reproduces its files byte for byte. Called by tools/build-ar
                          two ledges; converted they are pale five-fingered hands on the cliffs (review finding A7)
   mill <out dir>         build 3, POLISH pass 1: look 2's windmill at the valley's end (windmillTower.png, 26x44: a
                          tapered drum of whitewashed rubble under a thatched ogee cap) and its sails (windmillSails.png,
-                         six frames of 47x47: four lattice sails with canvas, a quarter turn at 15 degrees a frame)
+                         twelve frames of 47x47: four lattice sails with canvas, a quarter turn at 7.5 degrees a frame;
+                         step 2: the canvas lit the same in every frame, dark edges on both sides, all of it in the mid
+                         plane's haze)
 """
 import math
 import os
@@ -733,9 +735,20 @@ def cmd_rockover(a):
 # sprite of their own that the engine turns with the wind (`Weather.sailFrame`, `SceneLayout.look2Windmill`).
 MILL_W, MILL_H = 26, 44      # windmillTower: the tower and its cap, the sails' hub at MILL_HUB
 MILL_HUB = (13, 9)           # sprite col, row of the hub's centre pixel (the windshaft's end at the cap's front)
-SAIL_N = 6                   # windmillSails: a quarter turn in six frames (four sails: 15 degrees a frame)
+SAIL_N = 12                  # windmillSails: a quarter turn in twelve frames (four sails: 7.5 degrees a frame; step 2)
 SAIL_S = 47                  # one frame, the hub at (23, 23)
 SAIL_R = 21                  # a stock's reach from the hub's centre
+# Step 2 (the critic's M5): the mill stands behind the valley's grove on the mid plane, so it takes that plane's haze:
+# every colour 30 % of the way to the haze (mistDark), so its darkest and lightest values fall inside the grove's.
+MILL_HAZE = 0.30
+
+
+def hcol(name):
+    """A palette colour in the mid plane's haze (the windmill's colours)."""
+    r, g, b, _ = col(name)
+    hr, hg, hb, _ = col("mistDark")
+    k = MILL_HAZE
+    return (int(round(r + (hr - r) * k)), int(round(g + (hg - g) * k)), int(round(b + (hb - b) * k)), 255)
 
 
 def mill_tower():
@@ -767,24 +780,24 @@ def mill_tower():
             # rubble shows through the wash here and there in the shade
             if name == "plasterDim" and n < 0.07 and y < bot - 3:
                 name = "soilLight"
-            im.set(x, y, col(name))
+            im.set(x, y, hcol(name))
     # the door, the windows
     for y in range(bot - 7, bot - 2):
         for x in (11, 12, 13):
-            im.set(x, y, col("woodDark" if x != 12 or y == bot - 7 else "wood"))
-    im.set(12, bot - 8, col("plasterDim"))
+            im.set(x, y, hcol("woodDark" if x != 12 or y == bot - 7 else "wood"))
+    im.set(12, bot - 8, hcol("plasterDim"))
     for (wx, wy) in ((10, 25), (14, 33)):
-        im.set(wx, wy, col("woodDark"))
-        im.set(wx, wy + 1, col("woodDark"))
-        im.set(wx - 1, wy - 1, col("plasterDim"))
+        im.set(wx, wy, hcol("woodDark"))
+        im.set(wx, wy + 1, hcol("woodDark"))
+        im.set(wx - 1, wy - 1, hcol("plasterDim"))
     # the gallery under the cap: a dark band and a rail of posts
     for x in range(6, 20):
-        im.set(x, top, col("woodDark"))
-        im.set(x, top - 1, col("wood" if x < 15 else "woodDark"))
-    for x in range(6, 20, 2):
-        im.set(x, top - 2, col("woodDark"))
+        im.set(x, top, hcol("woodDark"))
+        im.set(x, top - 1, hcol("wood" if x < 15 else "woodDark"))
+    for x in (6, 7, 9, 12, 13, 15, 18, 19):      # step 2: posts in an uneven rhythm, never a dotted row
+        im.set(x, top - 2, hcol("woodDark"))
     for x in range(6, 20):
-        im.set(x, top - 3, col("woodLight" if x < 13 else "wood"))
+        im.set(x, top - 3, hcol("woodLight" if x < 13 else "wood"))
     # the thatched ogee cap: swelling, then drawn in to a finial
     cap_top, cap_bot = 3, top - 4
     for y in range(cap_top, cap_bot + 1):
@@ -799,27 +812,29 @@ def mill_tower():
                 name = {"strawLight": "straw", "straw": "woodLight", "woodLight": "wood"}[name]
             if n > 0.9 and s < 0.6:
                 name = "strawLight"
-            im.set(x, y, col(name))
-        im.set(b, y, col("wood"))
-    im.set(12, cap_top - 1, col("woodDark"))
-    im.set(13, cap_top - 1, col("woodDark"))
-    im.set(12, cap_top - 2, col("gold"))
+            im.set(x, y, hcol(name))
+        im.set(b, y, hcol("wood"))
+    im.set(12, cap_top - 1, hcol("woodDark"))
+    im.set(13, cap_top - 1, hcol("woodDark"))
+    im.set(12, cap_top - 2, hcol("gold"))
     # the windshaft's boss in the cap's front
     hx, hy = MILL_HUB
     for dx, dy, n in ((-1, -1, "woodDark"), (0, -1, "woodDark"), (1, -1, "woodDark"), (-1, 0, "woodDark"),
                       (0, 0, "woodLight"), (1, 0, "woodDark"), (-1, 1, "woodDark"), (0, 1, "woodDark"),
                       (1, 1, "woodDark")):
-        im.set(hx + dx, hy + dy, col(n))
+        im.set(hx + dx, hy + dy, hcol(n))
     return im
 
 
 def mill_sails(k):
-    """Frame k of the sails: four stocks at -15k degrees (they turn anticlockwise, as the valley's mills do), each
-    carrying a sail on its trailing side: a frame of laths with the canvas spread between them, the canvas lit on
-    its upper half. The hub's boss in front."""
+    """Frame k of the sails: four stocks at -7.5k degrees (they turn anticlockwise, as the valley's mills do), each
+    carrying a sail on its trailing side: a frame of laths with the canvas spread between them. Step 2 (the critic's
+    H3): the canvas takes its light by its place across the sail, never by the arm's direction (the inner half lit,
+    the outer half a step down), so every frame holds the same balance of values and the turning cross never pulses;
+    each sail has a dark edge along both long sides, so the diagonal frames keep their shape. The hub's boss in front."""
     im = PA.Image(SAIL_S, SAIL_S)
     c = SAIL_S // 2
-    base = -math.radians(15 * k) + math.radians(12)
+    base = -math.radians(90.0 / SAIL_N * k) + math.radians(12)
     for y in range(SAIL_S):
         for x in range(SAIL_S):
             px, py = x - c, y - c
@@ -830,7 +845,7 @@ def mill_sails(k):
                 u = px * dx + py * dy
                 v = -px * dy + py * dx          # >0: the trailing side (anticlockwise turn on screen)
                 if 5.5 <= u <= SAIL_R + 0.4 and 0.5 * dom < v <= 4.6:
-                    edge = v > 4.6 - dom
+                    edge = v > 4.6 - dom or v <= 0.5 * dom + dom * (1.0 - dom) * 1.6
                     tip = u > SAIL_R + 0.4 - dom
                     lath = abs(u - 1.5 - 4 * round((u - 1.5) / 4.0)) < 0.5 * dom
                     if edge:
@@ -838,11 +853,8 @@ def mill_sails(k):
                     elif tip or lath:
                         name = "wood"
                     else:
-                        lit = (dy < 0.2) if v < 2.6 else (dy < -0.5)
                         name = "parchment" if v < 2.6 else "plaster"
-                        if not lit:
-                            name = {"parchment": "plaster", "plaster": "plasterDim"}[name]
-                    im.set(x, y, col(name))
+                    im.set(x, y, hcol(name))
             for i in range(4):
                 a = base + i * math.pi / 2
                 dx, dy = math.cos(a), math.sin(a)
@@ -850,10 +862,10 @@ def mill_sails(k):
                 u = px * dx + py * dy
                 v = -px * dy + py * dx
                 if -0.5 <= u <= SAIL_R + 0.4 and abs(v) <= 0.5 * dom:
-                    im.set(x, y, col("woodDark"))
+                    im.set(x, y, hcol("woodDark"))
     for dx, dy, n in ((-1, -1, "woodDark"), (0, -1, "woodLight"), (1, -1, "woodDark"), (-1, 0, "woodLight"),
                       (0, 0, "gold"), (1, 0, "woodDark"), (-1, 1, "woodDark"), (0, 1, "woodDark"), (1, 1, "woodDark")):
-        im.set(c + dx, c + dy, col(n))
+        im.set(c + dx, c + dy, hcol(n))
     return im
 
 

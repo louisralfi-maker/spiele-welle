@@ -475,10 +475,12 @@ enum Weather {
         }
     }
 
-    /// The frames of the windmill's sails (`windmillSails`): a quarter turn of its four sails, 15 degrees a frame.
-    static let sailFrames = 6
-    /// The sails' turns per second by the steady wind's step: they stand on a calm day, turn slowly in a breeze and
-    /// briskly on a gusty day, and a storm turns them no faster than the last (six frames a second: never a blur).
+    /// The frames of the windmill's sails (`windmillSails`): a quarter turn of its four sails, 7.5 degrees a frame
+    /// (step 2, the critic's H3: at 15 degrees they ticked like a clock hand).
+    static let sailFrames = 12
+    /// The sails' turns per second by the steady wind's step: they stand on a calm day, turn slowly in a breeze (about
+    /// five frames a second) and briskly on a gusty day, and a storm turns them no faster than about twelve and a half
+    /// frames a second of 7.5 degree steps: never a blur.
     static let sailTurns: [Double] = [0, 0.1, 0.18, 0.26]
     /// How far a whole gust carries the sails ahead, in turns. A gust's own pace (at most 0.375 of this a second)
     /// stays under the slowest turn, so they never turn back.
