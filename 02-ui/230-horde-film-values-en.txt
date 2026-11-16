@@ -1,0 +1,8 @@
+shot 230: frame:170 ready day:12 hour:23.26 alive:15 seen:12 lit:2 shots:0 aim:0 kx:690 lord:lord stage:world lx:690 errand:none door:1830 gold:93 hud:none cam:411 tap:none hint:off0 lantern:ready
+shot 231: frame:210 ready day:12 hour:23.32 alive:15 seen:12 lit:3 shots:0 aim:0 kx:690 lord:lord stage:world lx:690 errand:none door:1830 gold:93 hud:none cam:411 tap:none hint:off0 lantern:ready
+shot 232: frame:240 ready day:12 hour:23.36 alive:16 seen:12 lit:5 shots:0 aim:0 kx:690 lord:lord stage:world lx:690 errand:none door:1830 gold:93 hud:none cam:411 tap:none hint:off0 lantern:ready
+shot 233: frame:280 ready day:12 hour:23.42 alive:17 seen:12 lit:6 shots:0 aim:0 kx:690 lord:lord stage:world lx:690 errand:none door:1830 gold:93 hud:none cam:411 tap:none hint:off0 lantern:ready
+shot 234: frame:310 ready day:12 hour:23.47 alive:17 seen:12 lit:8 shots:0 aim:0 kx:690 lord:lord stage:world lx:690 errand:none door:1830 gold:93 hud:none cam:411 tap:none hint:off0 lantern:ready
+shot 235: frame:340 ready day:12 hour:23.52 alive:18 seen:12 lit:10 shots:1 aim:0 kx:690 lord:lord stage:world lx:690 errand:none door:1830 gold:93 hud:none cam:411 tap:none hint:off0 lantern:ready
+shot 236: frame:380 ready day:12 hour:23.59 alive:17 seen:10 lit:10 shots:1 aim:0 kx:690 lord:lord stage:world lx:690 errand:none door:1830 gold:93 hud:none cam:411 tap:none hint:off0 lantern:ready
+shot 237: frame:440 ready day:12 hour:23.69 alive:8 seen:0 lit:0 shots:0 aim:0 kx:690 lord:lord stage:world lx:690 errand:none door:1830 gold:93 hud:none cam:469 tap:none hint:off0 lantern:ready
