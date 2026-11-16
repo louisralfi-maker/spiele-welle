@@ -13,9 +13,15 @@ import Foundation
 /// in `tools/creatures`); neighbours separate by a navy value step and a pixel of height by id; the ones that climb a
 /// heap take a climb pose; about every second one carries a thread of soot, its curl by id; a kill throws up a few grey
 /// flakes, never a V.
+/// Step 7 (the director, 16.11.2026 12:02): the small ones stop being small black ponies and become the Ash Giant's
+/// children (`tools/creatures/hordekit.py` `kin`): the walker (the `crawler` case, the sootling strip, 13 px tall) and
+/// the runt (the `loper` case, the sootlingB strip, 10 px), hunched navy shrouds on two stilt arms, no hind legs, open
+/// air under the belly, one cold eye point, the giant's cloth on the hump; eight frames each (walk 0 ... 5: reach,
+/// plant, haul, over, drop, gather; 6 the climb; 7 the strike), the same sprite ids and the 14 x 14 cell.
 /// `Battle` and `Balance` never read any of it: the same creatures, the same numbers, a new picture.
 enum HordeLook {
-    /// The three bodies.
+    /// The three bodies. Step 7: `crawler` is the walker and `loper` the runt (the case names stay, so the fall strip's
+    /// order and every table keep their places).
     enum Body: Int, CaseIterable, Sendable {
         case crawler, loper, tumbler
     }
@@ -38,26 +44,32 @@ enum HordeLook {
         }
     }
 
-    /// Each body's height in game pixels over its walk frames, outline included (the strips are 14 x 14). Step 5 (the
-    /// critic's M2): the loper's arm no longer rises over its head at the top of its stride (it read as a crook), so
-    /// its walk stands 11 high, the top of its vault.
+    /// Each body's height in game pixels at the top of its walk (the hump over the arms in the `over` frame), outline
+    /// included (the strips are 14 x 14). Step 7: the walker 13, the runt 10 (the tumbler, out of the crowd, 12).
     static func height(_ body: Body) -> Int {
         switch body {
-        case .crawler: return 10
-        case .loper: return 11
+        case .crawler: return 13
+        case .loper: return 10
         case .tumbler: return 12
         }
     }
 
-    /// Game pixels walked per frame of its walk: the crawler's claw moves back 3 px a frame, the loper's hook 4, the
-    /// tumbler's wheel turns a fifth of a strip in 2 px.
+    /// Game pixels walked per frame of its walk: the walker hauls itself 4 px a frame, the runt 3, the tumbler's wheel
+    /// turns a fifth of a strip in 2 px.
     static func stride(_ body: Body) -> Double {
         switch body {
-        case .crawler: return 3
-        case .loper: return 4
+        case .crawler: return 4
+        case .loper: return 3
         case .tumbler: return 2
         }
     }
+
+    /// Step 7: the walk's frames (reach, plant, haul, over, drop, gather), the climb's and the strike's frame, and the
+    /// plant (both hands down ahead), which the strike slams down into.
+    static let walkFrames = 6
+    static let plantPose = 1
+    static let climbPose = 6
+    static let strikePose = 7
 
     /// The stride of one small one: its body's, 0.9 ... 1.1 of it by id (M6, picture only: the simulation's pace is
     /// untouched), each of five neighbours of one body (ids `crowd.count` apart) at another, so a file of one body
@@ -69,12 +81,12 @@ enum HordeLook {
         return stride(body(id: id)) * strideScales[((id / crowd.count) % count + count) % count]
     }
 
-    /// Its own start frame: neighbours of one body (ids `crowd.count` apart) start a quarter cycle apart, so a file of
-    /// the same body never walks in step. Every fifth of one body (the same stride again, `strideScales`) moves on a
-    /// further quarter, so two of one stride ten ids apart do not come round into step either.
+    /// Its own start frame: neighbours of one body (ids `crowd.count` apart) start a frame of the walk apart, so a file
+    /// of the same body never walks in step. Every fifth of one body (the same stride again, `strideScales`) moves on
+    /// two frames more, so two of one stride ten ids apart do not come round into step either.
     static func startFrame(id: Int) -> Int {
         let k = max(0, id) / crowd.count
-        return (k + k / strideScales.count) % 4
+        return (k + 2 * (k / strideScales.count)) % walkFrames
     }
 
     // MARK: - Neighbours (step 3, the director's call 4)
@@ -97,41 +109,42 @@ enum HordeLook {
         SeededRandom.hash(0x5354_414E, Int64(id)) % 2 == 0 ? 0 : -1
     }
 
-    /// Walk 0 ... 3 by the distance walked, from its own start frame, at its own stride.
+    /// The walk (0 ... 5; the tumbler's roll 0 ... 3) by the distance walked, from its own start frame, at its own
+    /// stride.
     static func walkFrame(id: Int, x: Double) -> Int {
         let step = Int((max(0, x) / stride(id: id)).rounded(.down))
-        return (step + startFrame(id: id)) % 4
+        let frames = body(id: id) == .tumbler ? 4 : walkFrames
+        return (step + startFrame(id: id)) % frames
     }
 
-    /// The tumbler's three attack frames (gather, claw, recover; 4 ... 6) at 3.5 a second; the crawler and the loper
-    /// rear and strike (4, 5) three times a second (step 3, M2: at 6 and 5 a heap of them shimmered). Each one is half a
-    /// beat off its neighbours by its start frame, so its phase is its own.
+    /// The tumbler's three attack frames (gather, claw, recover; 4 ... 6) at 3.5 a second; the walker and the runt rear
+    /// with both arms overhead (`strikePose`) and slam them down (`plantPose`) three times a second (step 3, M2: at 6
+    /// and 5 a heap of them shimmered). Each one is half a beat off its neighbours by its start frame, so its phase is
+    /// its own.
     static func attackFrame(id: Int, time: Double) -> Int {
-        let rate: Double
-        let frames: Int
-        switch body(id: id) {
-        case .crawler: rate = 3; frames = 2
-        case .loper: rate = 3; frames = 2
-        case .tumbler: rate = 3.5; frames = 3
-        }
+        let rate: Double = body(id: id) == .tumbler ? 3.5 : 3
         let beat = Int((max(0, time) * rate + Double(startFrame(id: id)) * 0.5).rounded(.down))
-        return 4 + beat % frames
+        guard body(id: id) != .tumbler else { return 4 + beat % 3 }
+        return beat % 2 == 0 ? strikePose : plantPose
     }
 
-    /// The climb (call 4): one that climbs the heap holds its reaching frame (the crawler and the loper: 4, a fore limb
-    /// up, the strips hanging; the tumbler: 5, unfolded with its claws out) and claws down for the last third of each
-    /// beat (5; the tumbler 6), a beat and a half a second, each at its own phase. Under Reduce Motion it holds the
-    /// reach, still.
+    /// The climb (call 4): one that climbs the heap holds its reaching frame (the walker and the runt: `climbPose`,
+    /// the arms reaching forward up the wall, the shroud hanging; the tumbler: 5, unfolded with its claws out) and claws
+    /// down for the last third of each beat (`plantPose`, the hands down on the backs below; the tumbler 6), a beat and
+    /// a half a second, each at its own phase. Under Reduce Motion it holds the reach, still.
     static func climbFrame(id: Int, time: Double, reduceMotion: Bool = false) -> Int {
-        guard !reduceMotion else { return body(id: id) == .tumbler ? 5 : 4 }
+        let tumbler = body(id: id) == .tumbler
+        guard !reduceMotion else { return tumbler ? 5 : climbPose }
         let beat = max(0, time) * 1.5 + Double(startFrame(id: id)) * 0.25
         let claws = beat - beat.rounded(.down) > 0.66
-        return (body(id: id) == .tumbler ? 5 : 4) + (claws ? 1 : 0)
+        if tumbler { return claws ? 6 : 5 }
+        return claws ? plantPose : climbPose
     }
 
-    /// Frames in each body's strip (walk 0 ... 3, then its attack).
+    /// Frames in each body's strip (step 7: walk 0 ... 5, the climb, the strike; the tumbler's roll 0 ... 3 and its
+    /// three attack frames).
     static func frameCount(_ body: Body) -> Int {
-        body == .tumbler ? 7 : 6
+        body == .tumbler ? 7 : 8
     }
 
     // MARK: - The fog (step 4, the director's second law of 16.11.2026 06:15)
@@ -197,13 +210,12 @@ enum HordeLook {
 
     // MARK: - The thread
 
-    /// Where the thread rises on each body, frame by frame (walk 0 ... 3, then the attack frames): the rag's torn edge
-    /// at the nape, as column and row of the 14 x 14 cell (`tools/creatures/hordekit.py` `peak`, the tumbler's
-    /// `PEAKS`).
-    /// Step 4: the mantle's peak over the drape the tails hang from.
+    /// Where the thread rises on each body, frame by frame, as column and row of the 14 x 14 cell (the tumbler's
+    /// `PEAKS`). Step 7: the hump's top of the walker and the runt, frame by frame (walk 0 ... 5, the climb, the
+    /// strike); no thread is drawn since step 5 (`threadsShown`), the table stays for a wisp's return.
     static let roots: [[(x: Int, y: Int)]] = [
-        [(6, 4), (6, 5), (6, 4), (6, 5), (6, 4), (6, 5)],
-        [(4, 4), (5, 4), (6, 3), (5, 4), (4, 5), (6, 6)],
+        [(7, 3), (7, 3), (8, 2), (8, 1), (8, 2), (7, 3), (8, 2), (8, 2)],
+        [(7, 5), (7, 5), (7, 4), (7, 4), (7, 4), (7, 5), (7, 4), (7, 4)],
         [(3, 6), (3, 6), (3, 6), (3, 6), (3, 8), (3, 9), (3, 7)],
     ]
 
@@ -339,12 +351,12 @@ enum HordeLook {
     // MARK: - The socket
 
     /// The socket's middle from the anchor, body by body and frame by frame (M3: it follows the walk; the art's
-    /// `wraithWhite` pixel). Its height differs by body and frame (step 3: the crawler's in its jutting head, the
-    /// loper's bobbing with its vault, the tumbler's in the hub) and by id (`stand`), so neighbours never pair up into
-    /// eyes.
+    /// `wraithWhite` pixel). Its height differs by body and frame (step 7: the walker's and the runt's in the head hung
+    /// low in front, bobbing with the haul; the tumbler's in the hub) and by id (`stand`), so neighbours never pair up
+    /// into eyes.
     static let sockets: [[(dx: Double, dy: Double)]] = [
-        [(5.5, 5.5), (5.5, 5.5), (5.5, 5.5), (5.5, 5.5), (5.5, 6.5), (5.5, 4.5)],
-        [(3.5, 5.5), (4.5, 5.5), (5.5, 6.5), (4.5, 5.5), (3.5, 4.5), (5.5, 3.5)],
+        [(2.5, 5.5), (2.5, 5.5), (3.5, 6.5), (3.5, 7.5), (3.5, 6.5), (2.5, 5.5), (3.5, 6.5), (3.5, 6.5)],
+        [(2.5, 5.5), (2.5, 5.5), (2.5, 6.5), (2.5, 6.5), (2.5, 6.5), (2.5, 5.5), (2.5, 6.5), (2.5, 6.5)],
         [(2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 3.5), (2.5, 3.5), (2.5, 4.5)],
     ]
 

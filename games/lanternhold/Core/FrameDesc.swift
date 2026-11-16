@@ -532,7 +532,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .citizenSeated, .citizenBSeated, .citizenCSeated: return 2
         case .guardsman: return 9
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
-        case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
+        case .shadehound, .shadehoundGlow: return 6
+        // b3-horde step 7 (the director, 16.11.2026 12:02): the small ones are the ash giant's children, walk 0 ... 5,
+        // the climb 6, the strike 7 (`HordeLook.frameCount`); before it they shared the line above (6 frames)
+        case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow: return 8
         // b3-horde: the tumbler rolls 0-3 and claws 4-6 (gather, claw, recover); the fall 0-2 crawler, 3-5 loper, 6-8
         // tumbler; the thread (length index × 9 + lean + 4) × 2 + sway, five lengths (step 4), one strip per curl (one
         // strip of 432 frames, 6480 px wide, did not decode on the simulator; `HordeLook.threadFrame`); the flakes'

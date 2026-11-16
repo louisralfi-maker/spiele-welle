@@ -1,93 +1,48 @@
-"""Sootling, the crawler (POLISH.md section 7, build 3; step 4, the director's calls of 16.11.2026 06:15): a small
-hunched thing of soot on four spindly legs, a scrap of the Ash Giant's cloak that learned to walk. The body is the
-shadow and the cloth only the accent: over the shoulders a short mantle of the giant's cloak (as it is in his shadow),
-and from it two tails of it hang down and back past the rump, two pixels wide, five and three long, a pixel apart,
-their ends torn to a single pixel, so the rear at 1x is a fringe like the hem of the giant's cloak. The back rises
-highest over the mantle; the head juts forward below it behind a one-pixel dip at the neck (kept open: the pixels on
-either side of it carry no outline), the one cold point in it, never two, never a face. Between the thin legs the
-ground shows under the belly. The back pumps a pixel in the scuttle (its peak sinks, the belly stays off the ground);
-the near legs and the far legs take turns. It rears with a fore claw
-thrown ahead at the height of its back, its hook pointing down (also its pose when it climbs a heap; step 5:
-never over its back, which held up a stick), and strikes down. 10 px high. (hordekit.py `LEGEND`: the pixels.)"""
-from hordekit import draw
+"""Sootling, the walker (POLISH.md section 7, build 3; step 7, the director's calls of 16.11.2026 11:43 and 12:02): the
+Ash Giant's child, lifted from the design card of step 6B (ci-out/director/b3/horde/s6b/kin2.py `WALKER`): a hunched
+shroud on two stilt arms one pixel wide, no hind legs, the hem dragging behind, open air under the belly, the head hung
+low in front with one cold eye point, a torn patch of ochre cloth on the hump. Walk 0 ... 5 (reach, plant, haul, over,
+drop, gather), 6 the climb, 7 the strike (hordekit.py `kin`, `LEGEND`)."""
+from hordekit import kin
 
-SIZE = (14, 14, 6)
-HEIGHT = 10
-E = ".............."
-F = [
-    # walk 0: the back high, the near hind leg pushing back, the near fore leg reaching ahead
-    [E, E, E, E,
-     ".....mq.......",
-     "...113SMh.....",
-     ".13.13.lBh....",
-     ".13.13.lBL.hM.",
-     "13..k..lDSLLE.",
-     "k......lDD.Le.",
-     ".......l..ll..",
-     "......l...l.l.",
-     ".....l...l...l",
-     "....l....l...l"],
-    # walk 1: the peak sunk a pixel (the pump), the belly as high, the legs passing under it
-    [E, E, E, E, E,
-     "..213mqMh.....",
-     ".13.13.lBh....",
-     ".13.13.lBL.hM.",
-     "13..k..lDSLLE.",
-     "k......lDD.Le.",
-     ".......l.l.l..",
-     "......l..l..l.",
-     "......l..l..l.",
-     ".....l...l...l"],
-    # walk 2: high, the far legs reaching, the near ones drawn under; the long tail swung back a pixel
-    [E, E, E, E,
-     ".....mq.......",
-     "...113SMh.....",
-     ".13.13.lBh....",
-     "13..13.lBL.hM.",
-     "k...k..lDSLLE.",
-     ".......lDD.Le.",
-     "........l.l.l.",
-     "........l.l..l",
-     ".......l..l...",
-     ".......l...l.."],
-    # walk 3: the peak sunk, the legs passing under it the other way
-    [E, E, E, E, E,
-     "..213mqMh.....",
-     ".13.13.lBh....",
-     ".13.13.lBL.hM.",
-     "13..k..lDSLLE.",
-     "k......lDD.Le.",
-     "......l...ll..",
-     ".....l....l.l.",
-     ".....l....l.l.",
-     "....l.....l..l"],
-    # attack 4: it rears, the head up a row, a fore claw thrown ahead at the height of its back, its hook pointing
-    # down in front of the head, the tails hanging (also its climb on a heap; step 5, the gate's review: reaching up
-    # three pixels over its back with a hooked end it held up a stick on every heap, the staff Louis rejected)
-    [E, E, E, E,
-     ".....mq.LLLL..",
-     "...113SMh...Lk",
-     ".13.13.lBh.hM.",
-     ".13.13.lBSLLE.",
-     "13..k..lDB.Le.",
-     "k......lDD....",
-     "......l..l....",
-     "......l..l....",
-     ".....l...l....",
-     "....l....l...."],
-    # attack 5: it strikes down, the head low, the claws hooked on the ground ahead, the tails flung back
-    [E, E, E, E, E,
-     ".....mq.......",
-     "2131313MM.....",
-     "k.k.k.lBBBMh..",
-     "......lDBBSLL.",
-     "......lDDBBLE.",
-     ".......DD..Le.",
-     "......l..l..lk",
-     ".....l...l...k",
-     "....l....l..kk"],
-]
+SIZE = (14, 14, 8)
+HEIGHT = 13
+WALKER = dict(
+    # the hump: the top of the hunched shroud, its front at the right; the ochre cloth a torn patch over the hump's top
+    # and down its back (10 px, mostly soilLight so it reads on the mist), its back a slope down to the left like the giant's cloak. Under it the skirt (`skirt`) slants down and back to the hem on the ground.
+    hump=["...OO",
+          "..OOo",
+          ".OoSS",
+          ".OsBS",
+          "oDBBB"],
+    # the skirt under the hump, row by row from the hump's foot to the ground: (left, right) block columns. Its front
+    # edge steps back as it falls, so the hem trails behind and the underside rises to the shoulder: the inverted V.
+    skirt=[(0, 3), (0, 2), (0, 2), (0, 1)],              # the last pair repeats down to the ground
+    head=["SB",
+          "BE"],
+    head_at=(5, 4),             # in front of the shroud, its top 4 rows under the hump's top
+    shoulder=(5, 3),            # the arms' root: the front of the hump, over the head
+    seed=7,
+    poses=[
+        # 0 reach: low, both arms thrown forward, the near hand still in the air, the far one planted
+        dict(at=(3, 3), near=[(10, 7), (11, 12)], far=[(9, 9), (9, 13)]),
+        # 1 plant: low, both hands down ahead, a slit of air between the arms
+        dict(at=(3, 3), near=[(10, 7), (11, 13)], far=[(9, 9), (9, 13)]),
+        # 2 haul: the body hauled up toward the planted hands, rising; the hem drags a frame behind
+        dict(at=(4, 2), near=[(12, 6), (12, 13)], far=[(10, 8), (10, 13)]),
+        # 3 over: the hump at its highest, the arms upright under the head's front
+        dict(at=(4, 1), near=[(12, 5), (12, 13)], far=[(10, 7), (10, 13)]),
+        # 4 drop: coming down forward, the near arm lifted and swinging forward, the far arm slanting back
+        dict(at=(4, 2), near=[(12, 6), (13, 10)], far=[(10, 9), (9, 13)]),
+        # 5 gather: low, the near arm swung forward in the air, the far arm about to lift
+        dict(at=(3, 3), near=[(10, 7), (12, 12)], far=[(9, 10), (9, 13)]),
+        # 6 climb: the arms up the wall ahead, the hands hooked over its top, the shroud hanging below
+        dict(at=(4, 2), near=[(13, 4), (13, 0)], far=[(11, 6), (11, 1)], hook=True),
+        # 7 strike: reared, both arms flung up overhead to the cell's top row, splayed, the hands open
+        dict(at=(4, 2), near=[(12, 4), (13, 0)], far=[(11, 5), (10, 0)], strike=True),
+    ],
+)
 
 
 def frame(k):
-    return draw(F[k], seed=3)
+    return kin(WALKER, k)

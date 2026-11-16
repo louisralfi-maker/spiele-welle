@@ -8,10 +8,11 @@ import Foundation
 enum PlaceholderCreatures {
     static func frames(for sprite: SpriteID) -> [PixelImage] {
         switch sprite {
-        case .sootling: return strip(6) { sootling($0).body }
-        case .sootlingGlow: return strip(6) { sootling($0).glow }
-        case .sootlingB: return strip(6) { matchstick($0).body }
-        case .sootlingBGlow: return strip(6) { matchstick($0).glow }
+        // b3-horde step 7: eight frames (`HordeLook.frameCount`), the stand-ins' six walked round
+        case .sootling: return strip(8) { sootling($0 % 6).body }
+        case .sootlingGlow: return strip(8) { sootling($0 % 6).glow }
+        case .sootlingB: return strip(8) { matchstick($0 % 6).body }
+        case .sootlingBGlow: return strip(8) { matchstick($0 % 6).glow }
         case .shadehound: return strip(6) { shadehound($0).body }
         case .shadehoundGlow: return strip(6) { shadehound($0).glow }
         case .sootCrow: return strip(4) { crow($0).body }

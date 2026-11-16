@@ -389,3 +389,112 @@ def draw(rows, seed=0):
             f.put(x, y, name, glow, bare)
     f.finish(rim=None)
     return uncap(f)
+
+
+# --- Step 7 (the director, 16.11.2026 12:02): the ash giant's children ------------------------------------------------
+# The small ones stop being small black ponies: they are the Ash Giant shrunk to a hand's height, a hunched navy shroud
+# taller than wide on two stilt arms one pixel wide that run from the shoulder forward and down to the ground, no hind
+# legs (the shroud's frayed hem drags behind), open air under the belly between the hem and the nearest arm (the
+# giant's inverted V), the head hung low in front of the shroud with one cold eye point, and the giant's cloth on the
+# hump in stripes of his two cloth tones (soilDark, moorDark) down its back, its top catching the moon (moor). Two
+# bodies: the walker (sootling.py, 13 px tall) and the runt (sootlingB.py, 10 px). Eight frames each in the 14 x 14
+# cell: walk 0 ... 5 (reach, plant, haul, over, drop, gather: the hump rises and falls, so a crowd's skyline rolls),
+# 6 the climb (the arms up the wall ahead, the shroud hanging), 7 the strike (reared, both arms overhead).
+# A body (`kin`): a shroud block in `LEGEND` (top-left at the pose's `at`), its skirt run down to the ground row by row
+# (`skirt`: block columns, the last pair repeating), the head block hung in front (`head`, `head_at`), the shoulder the
+# arms leave from, and eight poses (`at`; `near` and `far`: the arms' points after the shoulder, cell coordinates).
+KIN_FRAMES = 8
+KIN_WALK = 6
+# the ochre cloth of the design card (step 6B): soilLight where the moon catches it, soil
+LEGEND.update({"O": ("soilLight", None, False), "o": ("soil", None, False)})
+
+
+def polyline(pts):
+    """The pixels `limbs` draws for a polyline (the same rounding)."""
+    out = []
+    for a, b in zip(pts, pts[1:]):
+        n = int(max(abs(b[0] - a[0]), abs(b[1] - a[1])) + 0.5)
+        for i in range(n + 1):
+            t = i / n if n else 0
+            p = (round(a[0] + (b[0] - a[0]) * t), round(a[1] + (b[1] - a[1]) * t))
+            if p not in out:
+                out.append(p)
+    return out
+
+
+def kin_layout(body, k):
+    """Frame k's hand-set grid, the arms' polylines (from the shoulder), the loose soot pixels and the pose."""
+    p = body["poses"][k]
+    ox, oy = p["at"]
+    prev = body["poses"][(k - 1) % KIN_WALK] if k < KIN_WALK else p
+    surge = prev["at"][0] < ox                        # the body surged forward: the hem has not caught up yet
+    g = [["."] * CELL for _ in range(CELL)]
+
+    def put(x, y, ch):
+        if 0 <= x < CELL and 0 <= y < CELL:
+            g[y][x] = ch
+
+    for j, row in enumerate(body["hump"]):
+        for i, ch in enumerate(row):
+            if ch != ".":
+                put(ox + i, oy + j, ch)
+    skirt = body["skirt"]
+    for n, y in enumerate(range(oy + len(body["hump"]), CELL)):
+        a, b, back = (tuple(skirt[min(n, len(skirt) - 1)]) + ("",))[:3]
+        if surge and y >= CELL - 3:
+            b = max(a, b - 1)                         # the hem dragged thin behind the surge (it lags a frame)
+        for x in range(a, b + 1):
+            # the cloth runs on down the back (`back`: its pixels from the back edge), then the navy
+            put(ox + x, y, back[x - a] if x - a < len(back) else ("D" if x == a else "B"))
+    # the frayed hem: it drags a pixel behind along the ground (bare, no outline: soot, not a foot), its foot bitten,
+    # the bitten pixel alternating by frame
+    a0 = ox + skirt[-1][0]
+    put(a0 - 1, CELL - 1, "l")
+    if k % 2 == 0:
+        put(a0, CELL - 1, ".")
+    else:
+        put(a0 + (skirt[-1][1] > skirt[-1][0]), CELL - 1, ".")
+        put(a0 - 1, CELL - 2, "l")
+    hx0, hy0 = body["head_at"]
+    for j, row in enumerate(body["head"]):
+        for i, ch in enumerate(row):
+            if ch != ".":
+                put(ox + hx0 + i, oy + hy0 + j, ch)
+    sx, sy = body["shoulder"]
+    shoulder = (ox + sx, oy + sy)
+    near = [shoulder] + p["near"]
+    far = [shoulder] + p.get("far_from", []) + p["far"]
+    # one or two loose soot pixels behind the hem, drifting back and up by frame
+    d = k % 3
+    loose = [(a0 - 2 - (d > 1), CELL - 2 - d)]
+    if k % 2 == 0:
+        loose.append((a0 - 1, CELL - 4 - (d == 1)))
+    return ["".join(r) for r in g], near, far, loose, p
+
+
+def kin_head(body, p):
+    """The head's cells in frame coordinates."""
+    ox, oy = p["at"]
+    hx0, hy0 = body["head_at"]
+    return {(ox + hx0 + i, oy + hy0 + j) for j, row in enumerate(body["head"]) for i, ch in enumerate(row) if ch != "."}
+
+
+def kin(body, k):
+    """Frame k of a body, painted: the shroud and the head (`draw`: flat tones, the outline round the sides and the
+    underside), the far arm behind the body, the near arm in front of it but behind the head, the hands hooked over
+    the wall's top in the climb, the loose soot. The glow holds the cold eye point only."""
+    rows, near, far, loose, p = kin_layout(body, k)
+    f = draw(rows, seed=body["seed"])
+    limbs(f, [(far, "l")])
+    keep = {(x, y): (f.b[y][x], f.g[y][x]) for (x, y) in kin_head(body, p) if 0 <= x < CELL and 0 <= y < CELL}
+    limbs(f, [(near, "L")], over=True)
+    for (x, y), (bb, gg) in keep.items():            # the head stays in front of the near arm
+        if bb is not None:
+            f.b[y][x], f.g[y][x] = bb, gg
+            f.bare.discard((x, y))
+    if p.get("hook"):                                 # the hands hooked over the wall's top
+        limbs(f, [([near[-1], (near[-1][0] - 1, near[-1][1])], "k"), ([far[-1], (far[-1][0] - 1, far[-1][1])], "k")],
+              over=True)
+    loose = [q for q in loose if 0 <= q[0] < CELL and 0 <= q[1] < CELL and f.b[q[1]][q[0]] is None]
+    limbs(f, [([q, q], "k") for q in loose])
+    return f

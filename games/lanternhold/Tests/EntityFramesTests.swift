@@ -419,8 +419,13 @@ final class EntityFramesTests: XCTestCase {
     }
 
     func testTheThreeBodiesStandAtThreeHeights() {
-        // step 5 (M2): the loper's walk stands 11 high, its arm thrown forward at shoulder height, never over its head
-        XCTAssertEqual(Set(HordeLook.Body.allCases.map { HordeLook.height($0) }), [10, 11, 12])
+        // step 7 (the director, 16.11.2026 12:02): the ash giant's children, the walker 13 high at the top of its walk,
+        // the runt 10 (the tumbler, out of the crowd, 12); eight frames each, 14 x 14
+        XCTAssertEqual(HordeLook.height(.crawler), 13, "the walker")
+        XCTAssertEqual(HordeLook.height(.loper), 10, "the runt")
+        XCTAssertEqual(Set(HordeLook.Body.allCases.map { HordeLook.height($0) }), [10, 12, 13])
+        XCTAssertEqual(HordeLook.frameCount(.crawler), 8)
+        XCTAssertEqual(HordeLook.frameCount(.loper), 8)
         for id in 0..<60 {
             let length = HordeLook.threadLength(id: id)
             let high = HordeLook.height(HordeLook.body(id: id))
@@ -436,9 +441,10 @@ final class EntityFramesTests: XCTestCase {
                 continue
             }
             let size = sprite.size
+            XCTAssertEqual(size, PixelSize(width: 14, height: 14), "\(sprite): the 14 x 14 cell")
             XCTAssertEqual(image.width, size.width * sprite.frameCount)
             var top = size.height
-            for frame in 0..<4 {
+            for frame in 0..<(body == .tumbler ? 4 : HordeLook.walkFrames) {
                 for y in 0..<size.height {
                     for x in 0..<size.width where image[frame * size.width + x, y].a > 0 {
                         top = min(top, y)
@@ -460,7 +466,8 @@ final class EntityFramesTests: XCTestCase {
         }
         for id in 0..<12 {
             let c = GameFrameSupport.creature(.sootling, x: 600 + Double(id) * 3, id: id, lit: true)
-            XCTAssertTrue((0...3).contains(EntityFrames.creatureFrame(c, time: 0.5)), "walk frames 0 to 3")
+            XCTAssertTrue((0..<HordeLook.walkFrames).contains(EntityFrames.creatureFrame(c, time: 0.5)),
+                          "walk frames 0 to 5")
         }
         for a in 0..<12 {
             for b in (a + 1)..<12 where HordeLook.body(id: a) == HordeLook.body(id: b) {
@@ -476,13 +483,14 @@ final class EntityFramesTests: XCTestCase {
             return own >= 0.9 - 1e-9 && own <= 1.1 + 1e-9
         }, "0.9 to 1.1 of its body's stride")
         var cycle = Set<Int>()
-        for step in 0..<16 {
+        for step in 0..<40 {
             cycle.insert(HordeLook.walkFrame(id: 4, x: 600 + Double(step)))
         }
-        XCTAssertEqual(cycle, [0, 1, 2, 3], "the walk cycles as it walks")
+        XCTAssertEqual(cycle, Set(0..<HordeLook.walkFrames), "the walk cycles over its six frames as it walks")
         XCTAssertEqual(Set(HordeLook.Body.allCases.map { HordeLook.stride($0) }).count, 3, "a stride of its own each")
-        // Striking: the crawler and the loper on frames 4 and 5, three changes a second (step 3, M2: never the 6 Hz
-        // shimmer), each at its own phase; two of one body with opposite starts never on the same beat.
+        // Striking (step 7): the walker and the runt rear with both arms overhead (frame 7) and slam them down (the
+        // plant, frame 1), three changes a second (step 3, M2: never the 6 Hz shimmer), each at its own phase; two of
+        // one body with opposite starts never on the same beat.
         for id in [10, 11] {
             var seen = Set<Int>()
             var changes = 0
@@ -493,7 +501,8 @@ final class EntityFramesTests: XCTestCase {
                 if last >= 0 && frame != last { changes += 1 }
                 last = frame
             }
-            XCTAssertEqual(seen, [4, 5], "\(HordeLook.body(id: id)) strikes on 4 and 5")
+            XCTAssertEqual(seen, [HordeLook.strikePose, HordeLook.plantPose],
+                           "\(HordeLook.body(id: id)) strikes on 7 and slams down on 1")
             XCTAssertTrue((5...7).contains(changes), "\(HordeLook.body(id: id)): about 3 changes a second over 2 s")
         }
         XCTAssertNotEqual(HordeLook.attackFrame(id: 2, time: 0.1), HordeLook.attackFrame(id: 4, time: 0.1),
@@ -503,7 +512,7 @@ final class EntityFramesTests: XCTestCase {
         for k in 0..<12 {
             let time = Double(k) * 0.07
             let frame = EntityFrames.creatureFrame(first, time: time)
-            XCTAssertTrue((4...5).contains(frame))
+            XCTAssertTrue([HordeLook.strikePose, HordeLook.plantPose].contains(frame))
             XCTAssertNotEqual(frame, EntityFrames.creatureFrame(second, time: time), "never on the same beat")
         }
     }
@@ -1097,8 +1106,11 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(HordeLook.litSockets([(x: 600, y: 3.5), (x: 591, y: 3.5)]), [true, true], "9 px apart: both")
         let heights = HordeLook.Body.allCases.map { HordeLook.socket($0, frame: 0).dy }
         XCTAssertEqual(Set(heights).count, 2, "the tumbler's in its hub, lower than the other two on walk frame 0")
-        XCTAssertGreaterThan(Set(HordeLook.sockets[HordeLook.Body.loper.rawValue].map { $0.dy }).count, 2,
-                             "the loper's socket bobs with its vault")
+        // step 7: the runt's socket bobs with its haul (a pixel, as its hump does), the walker's two
+        XCTAssertGreaterThanOrEqual(Set(HordeLook.sockets[HordeLook.Body.loper.rawValue].map { $0.dy }).count, 2,
+                                    "the runt's socket bobs with its haul")
+        XCTAssertGreaterThan(Set(HordeLook.sockets[HordeLook.Body.crawler.rawValue].prefix(HordeLook.walkFrames)
+                                    .map { $0.dy }).count, 2, "the walker's socket bobs with its haul")
         var s = GameFrameSupport.demoNight(hour: 23.2)
         let edge = s.bankEdge
         s.creatures = (0..<6).map {
@@ -1348,8 +1360,9 @@ final class EntityFramesTests: XCTestCase {
     }
 
     func testTheClimbersTakeAClimbPose() {
-        // Call 4: in a heap the ones above hold a climb pose (the crawler and the loper reach up, frame 4, and claw
-        // down, 5; the tumbler unfolds, 5, and claws, 6), the reach most of the time; the ones below keep striking.
+        // Call 4: in a heap the ones above hold a climb pose (step 7: the walker and the runt reach forward up the
+        // wall, frame 6, and claw down onto the backs below, the plant, 1; the tumbler unfolds, 5, and claws, 6), the
+        // reach most of the time; the ones below keep striking.
         let wall = Realm.lines[2].wall
         let ids = (10..<400).filter { HordeLook.stand(id: $0) == 0 }
         var s = GameFrameSupport.demoNight()
@@ -1368,12 +1381,12 @@ final class EntityFramesTests: XCTestCase {
             let raised = bodies.filter { $0.rect.y + $0.rect.w < ground }
             XCTAssertEqual(raised.count, 5, "five climb at \(time) s")
             for climber in raised {
-                let pose = climber.sprite == .tumbler ? [5, 6] : [4, 5]
+                let pose = climber.sprite == .tumbler ? [5, 6] : [HordeLook.climbPose, HordeLook.plantPose]
                 XCTAssertTrue(pose.contains(climber.frame), "\(climber.sprite) climbs on \(climber.frame)")
             }
         }
         for id in ids.prefix(6) {
-            let reach = HordeLook.body(id: id) == .tumbler ? 5 : 4
+            let reach = HordeLook.body(id: id) == .tumbler ? 5 : HordeLook.climbPose
             let held = (0..<60).filter { HordeLook.climbFrame(id: id, time: Double($0) * 0.05) == reach }.count
             XCTAssertGreaterThanOrEqual(held, 33, "\(id): the reach most of the time")
             XCTAssertLessThan(held, 60, "\(id): and it claws")
