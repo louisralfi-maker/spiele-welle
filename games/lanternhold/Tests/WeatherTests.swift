@@ -753,8 +753,8 @@ final class WeatherTests: XCTestCase {
                                "\(bent) frame \(index): the foot where it burns")
                 // Step 4 (the critic's M3): no loose pixel: each one stands on a lit pixel within a column below it.
                 for y in 0..<foot {
-                    for x in 0..<frame.width where frame[x: x, y: y].a > 0 {
-                        XCTAssertTrue((x - 1...x + 1).contains { frame[x: $0, y: y + 1].a > 0 },
+                    for x in 0..<frame.width where frame[x, y].a > 0 {
+                        XCTAssertTrue((x - 1...x + 1).contains { frame[$0, y + 1].a > 0 },
                                       "\(bent) frame \(index): the pixel at \(x), \(y) floats free")
                     }
                 }
@@ -854,7 +854,7 @@ final class WeatherTests: XCTestCase {
         func filled(_ image: PixelImage, columns: Range<Int>) -> Set<Int> {
             var set = Set<Int>()
             for y in 0..<image.height {
-                for x in columns where image[x: x, y: y].a > 0 {
+                for x in columns where image[x, y].a > 0 {
                     set.insert(y * image.width + x)
                 }
             }
@@ -863,13 +863,13 @@ final class WeatherTests: XCTestCase {
         let ends = 0..<3
         XCTAssertGreaterThanOrEqual(filled(side, columns: ends)
             .symmetricDifference(filled(side.flippedHorizontally(), columns: ends)).count, 6, "head and fin differ")
-        XCTAssertGreaterThanOrEqual((0..<side.width).filter { side[x: $0, y: 3].a > 0 }.count, 11, "a long arrow")
+        XCTAssertGreaterThanOrEqual((0..<side.width).filter { side[$0, 3].a > 0 }.count, 11, "a long arrow")
         for y in 6..<side.height {
-            XCTAssertLessThanOrEqual((0..<side.width).filter { side[x: $0, y: y].a > 0 }.count, 3, "no crossbar, row \(y)")
+            XCTAssertLessThanOrEqual((0..<side.width).filter { side[$0, y].a > 0 }.count, 3, "no crossbar, row \(y)")
         }
         for x in 0..<side.width {
-            guard let top = (0..<6).first(where: { side[x: x, y: $0].a > 0 }) else { continue }
-            XCTAssertGreaterThan(side[x: x, y: top].r, 150, "a pale lit top edge, col \(x)")
+            guard let top = (0..<6).first(where: { side[x, $0].a > 0 }) else { continue }
+            XCTAssertGreaterThan(side[x, top].r, 150, "a pale lit top edge, col \(x)")
         }
         let rod = vane.x + SceneLayout.weatherVaneRod
         func frames(_ override: WeatherOverride, reduceMotion: Bool = false) -> [Int] {
@@ -987,7 +987,7 @@ final class WeatherTests: XCTestCase {
         for (index, frame) in art.frames.enumerated() {
             for y in 3..<frame.height {
                 let rim = (0..<frame.width).filter {
-                    let p = frame[x: $0, y: y]
+                    let p = frame[$0, y]
                     return p.a > 0 && p.r > 235 && p.g > 115 && p.g < 160 && p.b < 80
                 }
                 XCTAssertLessThanOrEqual(rim.count, 1, "pose \(index), row \(y): one rim pixel, on the cloth")

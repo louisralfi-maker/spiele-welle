@@ -130,10 +130,10 @@ enum PlaceholderWeather {
         let size = sprite.size
         if size.height > 1 {
             for y in stride(from: size.height - 2, through: 0, by: -1) {
-                for x in 0..<size.width where p.image[x: x, y: y].a > 0 {
-                    let held = (x - 1...x + 1).contains { p.image[x: $0, y: y + 1].a > 0 }
+                for x in 0..<size.width where p.image[x, y].a > 0 {
+                    let held = (x - 1...x + 1).contains { p.image[$0, y + 1].a > 0 }
                     if !held {
-                        p.image[x: x, y: y] = .clear
+                        p.image[x, y] = .clear
                     }
                 }
             }
