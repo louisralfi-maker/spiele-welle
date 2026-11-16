@@ -720,7 +720,8 @@ final class EntityFramesTests: XCTestCase {
                     }
                 }
                 XCTAssertLessThan(mantle, size.height, "\(sprite) frame \(frame): the mantle is found")
-                XCTAssertGreaterThanOrEqual(top, mantle,
+                // step 8 (G3): one cold pixel of the top contour sits over the cloth, nothing more
+                XCTAssertGreaterThanOrEqual(top, mantle - 1,
                                             "\(sprite) frame \(frame): nothing of the arm stands over the mantle's peak")
             }
         }
@@ -864,17 +865,21 @@ final class EntityFramesTests: XCTestCase {
                 // step 7 (the director's call 4): the fall is drawn from the ash giant's children, the shroud folding
                 // down over the arms with the giant's cloth on top: in two or more columns the first pixel under the
                 // outline (and under the pale edge) is the cloth (warmer than blue); (his call 8, H4) on the first two
-                // frames the slump's upper edge is pale, the moon's grey (stone), in three columns or more
+                // frames the slump's upper edge is pale, in three columns or more; step 8 (the director's call G5): the
+                // pale edge in the moon's tone (nightHaze), two value steps over the navy, never the grey stone that read
+                // as a hard white line; the cloth lies under the cold top (G3)
                 var clothTop = 0
                 var paleTop = 0
+                var stone = 0
                 for x in 0..<cell.width {
                     if let y = (0..<cell.height).first(where: { fall[frame * cell.width + x, $0].a > 0 }),
-                       fall[frame * cell.width + x, y] == RGBA(0x5E6170) {
+                       fall[frame * cell.width + x, y] == RGBA(0x2F3F72) {
                         paleTop += 1
                     }
+                    stone += (0..<cell.height).filter { fall[frame * cell.width + x, $0] == RGBA(0x5E6170) }.count
                     let first = (0..<cell.height).first { y in
                         let c = fall[frame * cell.width + x, y]
-                        return c.a > 0 && c != RGBA(0x0A1124) && c != RGBA(0x5E6170)
+                        return c.a > 0 && c != RGBA(0x0A1124) && c != RGBA(0x2F3F72)
                     }
                     if let y = first, Int(fall[frame * cell.width + x, y].r) > Int(fall[frame * cell.width + x, y].b) {
                         clothTop += 1
@@ -884,6 +889,7 @@ final class EntityFramesTests: XCTestCase {
                 if k < 2 {
                     XCTAssertGreaterThanOrEqual(paleTop, 3, "\(body) fall frame \(k): the slump's edge is pale")
                 }
+                XCTAssertEqual(stone, 0, "\(body) fall frame \(k): no hard grey edge")
                 if k < 2 {
                     XCTAssertGreaterThanOrEqual(cell.height - top, half,
                                                 "\(body) fall frame \(k): a slump of at least half its height")
@@ -1097,9 +1103,10 @@ final class EntityFramesTests: XCTestCase {
                     guard let y = (0..<14).first(where: { image[px, $0].a > 0 && image[px, $0] != outline }) else {
                         continue
                     }
-                    if rag.contains(image[px, y]) { ragged += 1 }
+                    // step 8 (G3): the top is cold, the cloth hangs right under it
+                    if y + 1 < 14, rag.contains(image[px, y + 1]) { ragged += 1 }
                 }
-                XCTAssertGreaterThanOrEqual(ragged, 2, "\(sprite) frame \(frame): a mantle on the shoulders")
+                XCTAssertGreaterThanOrEqual(ragged, 2, "\(sprite) frame \(frame): a mantle under the cold top")
                 var filled = 0
                 var cloth = 0
                 var checkers = 0
@@ -1119,7 +1126,7 @@ final class EntityFramesTests: XCTestCase {
                         }
                     }
                 }
-                let wanted = body == .crawler ? 14...18 : 5...8
+                let wanted = body == .crawler ? 16...24 : 9...14     // step 8 (G3): the stripes down the back
                 XCTAssertTrue(wanted.contains(cloth), "\(sprite) frame \(frame): the giant's cloth, \(cloth) px")
                 XCTAssertLessThan(cloth * 2, filled, "\(sprite) frame \(frame): the body is the shadow, the cloth less")
                 XCTAssertEqual(checkers, 0, "\(sprite) frame \(frame): flat tones, no checker dither")
@@ -1362,10 +1369,14 @@ final class EntityFramesTests: XCTestCase {
         // pixel wide from the ground up under the head (4 and 3 rows or more) and reach on up to the shoulder (8 and 6
         // rows or more); the giant's cloth, 14 to 18 pixels on the walker and 5 to 8 on the runt; one cold eye point;
         // over the walker's six walk frames its hump's top rises and falls two pixels (the runt's one).
+        // Step 8 (the director's calls G1 and G3 of 16.11.2026 13:38): the arms reach two strides between the plant and
+        // the end of the haul, so the walker stands 12 wide and the runt 10, arms and all; the cloth hangs in stripes
+        // down the back, 16 to 24 pixels on the walker and 9 to 14 on the runt; the planted arm leans with the haul,
+        // so it is followed up from its tip: 5 rows or more on the walker, 4 on the runt, before it meets the body.
         let cloth = Set(([0x4A4536, 0x2A2922, 0x2B2421] as [UInt32]).map { EntityFramesTests.rgb($0) })
         let white = EntityFramesTests.rgb(0xE4F2FF)
         let laws: [(body: HordeLook.Body, width: Int, height: Int, cloth: ClosedRange<Int>, thin: Int, reach: Int,
-                    bob: Int)] = [(.crawler, 11, 13, 14...18, 4, 8, 2), (.loper, 8, 10, 5...8, 3, 6, 1)]
+                    bob: Int)] = [(.crawler, 12, 13, 16...24, 4, 5, 2), (.loper, 10, 10, 9...14, 3, 4, 1)]
         for law in laws {
             let sprite = HordeLook.sprite(law.body)
             guard let glowSprite = EntityFrames.glowStrip(sprite),
@@ -1456,18 +1467,109 @@ final class EntityFramesTests: XCTestCase {
                     thin += 1
                     row -= 1
                 }
-                var reach = 0
-                row = 13
-                while row >= 0 && ((openRight + 1)..<14).contains(where: { on($0, row) }) {
-                    reach += 1
-                    row -= 1
-                }
                 XCTAssertGreaterThanOrEqual(thin, law.thin, "\(sprite) frame \(frame): stilt arms one pixel wide")
-                XCTAssertGreaterThanOrEqual(reach, law.reach, "\(sprite) frame \(frame): the arms reach the shoulder")
+                for tip in ahead.map(\.lowerBound) {
+                    var x = tip
+                    var y = 13
+                    var reach = 0
+                    while true {
+                        reach += 1
+                        if on(x - 1, y) || on(x + 1, y) || y == 0 { break }
+                        guard let next = [x, x - 1, x + 1].first(where: { on($0, y - 1) }) else { break }
+                        x = next
+                        y -= 1
+                    }
+                    XCTAssertGreaterThanOrEqual(reach, law.reach,
+                                                "\(sprite) frame \(frame): the arm from \(tip) reaches up to the body")
+                }
             }
             XCTAssertEqual(tops.count, HordeLook.walkFrames)
             XCTAssertGreaterThanOrEqual((tops.max() ?? 0) - (tops.min() ?? 0), law.bob,
                                         "\(sprite): the hump rises and falls over the walk")
+        }
+    }
+
+    func testTheArmsPlantAndTheClothHangsUnderAColdTop() {
+        // Step 8 (the director's calls G1 to G3 and G9 of 16.11.2026 13:38), on the strips' drawn pixels, every walk
+        // frame of the walker and the runt. The gait (G1): one arm tip, and only one, stands on the ground line apart
+        // from the hem (the swinging one is lifted); while an arm stays planted (frames 0 to 2, and 3 to 5) its tip
+        // moves back in the cell by the body's stride, within a pixel, so it stands still on the ground while the body
+        // travels past it. The back (G2): a ramp, never a level lid: no four columns side by side share their top. The
+        // cloth (G3): under the top contour at least 10 moor pixels on the walker and 6 on the runt; the top contour
+        // itself cold (nightHaze), never the cloth's tan.
+        let moor = EntityFramesTests.rgb(0x4A4536)
+        let haze = EntityFramesTests.rgb(0x2F3F72)
+        let outline = EntityFramesTests.rgb(0x0A1124)
+        let tan = Set(([0x4A4536, 0x2A2922, 0x2B2421, 0x5E6170] as [UInt32]).map { EntityFramesTests.rgb($0) })
+        for (body, moorBelow) in [(HordeLook.Body.crawler, 10), (HordeLook.Body.loper, 6)] {
+            let sprite = HordeLook.sprite(body)
+            guard let url = AtlasBuilder.artURL(for: sprite, bundle: .main), let image = PNGDecoder.load(url: url) else {
+                XCTFail("\(sprite).png is in the bundle")
+                continue
+            }
+            let stride = Int(HordeLook.stride(body))
+            var tips: [Int?] = []
+            for frame in 0..<HordeLook.walkFrames {
+                func on(_ x: Int, _ y: Int) -> Bool {
+                    x >= 0 && y >= 0 && x < 14 && y < 14 && image[frame * 14 + x, y].a > 0
+                }
+                // the ground runs, back to front: the hem's first, then the planted tip alone
+                var runs: [ClosedRange<Int>] = []
+                var runStart: Int?
+                for x in 0...14 {
+                    if x < 14 && on(x, 13) {
+                        if runStart == nil { runStart = x }
+                    } else if let first = runStart {
+                        runs.append(first...(x - 1))
+                        runStart = nil
+                    }
+                }
+                let planted = runs.dropFirst()
+                XCTAssertEqual(planted.count, 1, "\(sprite) frame \(frame): one tip on the ground, the other lifted")
+                XCTAssertTrue(planted.allSatisfy { $0.count == 1 }, "\(sprite) frame \(frame): a tip one pixel wide")
+                tips.append(planted.first?.lowerBound)
+                // the back: no level lid
+                var tops: [Int] = []
+                for x in 0..<14 {
+                    if let y = (0..<14).first(where: { on(x, $0) }) { tops.append(y) } else { tops.append(-1) }
+                }
+                var longest = 1
+                var length = 1
+                for x in 1..<14 {
+                    length = tops[x] >= 0 && tops[x] == tops[x - 1] ? length + 1 : 1
+                    longest = max(longest, length)
+                }
+                XCTAssertLessThan(longest, 4, "\(sprite) frame \(frame): no level lid (\(tops))")
+                // the cloth under a cold top
+                var contour: [Int: Int] = [:]
+                for x in 0..<14 {
+                    if let y = (0..<14).first(where: { on(x, $0) && image[frame * 14 + x, $0] != outline }) {
+                        contour[x] = y
+                    }
+                }
+                var below = 0
+                for y in 0..<14 {
+                    for x in 0..<14 where on(x, y) && image[frame * 14 + x, y] == moor && contour[x] != y {
+                        below += 1
+                    }
+                }
+                let tanTop = contour.filter { tan.contains(image[frame * 14 + $0.key, $0.value]) }.count
+                let coldTop = contour.filter { image[frame * 14 + $0.key, $0.value] == haze }.count
+                XCTAssertGreaterThanOrEqual(below, moorBelow,
+                                            "\(sprite) frame \(frame): the cloth hangs under the top, \(below) px of moor")
+                XCTAssertEqual(tanTop, 0, "\(sprite) frame \(frame): the top contour is never the cloth's tan")
+                XCTAssertGreaterThanOrEqual(coldTop, 4, "\(sprite) frame \(frame): the top contour is cold")
+            }
+            XCTAssertEqual(tips.count, HordeLook.walkFrames)
+            for frame in 0..<HordeLook.walkFrames where frame % 3 != 2 {
+                guard let tip = tips[frame], let next = tips[(frame + 1) % HordeLook.walkFrames] else {
+                    XCTFail("\(sprite) frames \(frame) and \(frame + 1): a planted tip")
+                    continue
+                }
+                XCTAssertLessThanOrEqual(abs(tip - stride - next), 1,
+                                         "\(sprite) frames \(frame) to \(frame + 1): the planted tip stands still "
+                                         + "(column \(tip), then \(next), the stride \(stride))")
+            }
         }
     }
 
