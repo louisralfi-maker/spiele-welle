@@ -1444,7 +1444,9 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         int2 side = int2(t) + int2(toward, 0);
         bool clear = atlas.read(uint2(max(side, int2(0)))).a < 0.5f;
         bool upper = t.y < 2u || atlas.read(uint2(t.x, t.y - 2u)).a < 0.5f;
-        if (above || (clear && upper)) {
+        // (gate review: a top-contour pixel under a rise toward the fire stands in its own shadow and stays dark)
+        bool facing = t.y == 0u || atlas.read(uint2(max(int2(t) + int2(toward, -1), int2(0)))).a < 0.5f;
+        if ((above && facing) || (clear && upper)) {
             lit = mix(lit, lh2_capped(info.light) * kHordeRim2, saturate(peak * 1.5f) * 0.85f);
         }
     }
