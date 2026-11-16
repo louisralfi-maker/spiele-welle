@@ -923,8 +923,11 @@ constant float kLitCap2 = 1.0f;
 // measured the navy at r 0.156 over b 0.157 and more rim pixels than navy): the fire's hue leaves the body fully (1.0),
 // the fires' bloom leaves it outside the bank (0: only the fog's share of it is left), and the warm rim lies at 0.6 of
 // step 4's strength (`kHordeRimShare2`, was 0.85) on the fire-facing upper corner of each column only.
+// (The gate's review: the cold point and the fall's glow, the emissive strips, keep step 4's share of the bloom,
+// `kHordeEyeBloom2`, so the undimmed cold point keeps its brightness; only the body loses it.)
 constant float kHordeGrey2 = 1.0f;
 constant float kHordeBloom2 = 0.0f;
+constant float kHordeEyeBloom2 = 0.4f;
 constant float kHordeRim2 = 0.75f;
 constant float kHordeRimShare2 = 0.51f;
 constant float kHordeContact2 = 0.45f;
@@ -1228,7 +1231,8 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
 // Fog B, the foreground, bloom and the grade of look 2.
 static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant CompositeUniforms &u,
                       constant Look2Uniforms &v, texture2d<float> fogBTex, texture2d<float> fgTex,
-                      texture2d<float> bloomTex, float midVisible, float fogCover, float fogShare = 1.0f) {
+                      texture2d<float> bloomTex, float midVisible, float fogCover, float fogShare = 1.0f,
+                      float bloomFloor = 0.0f) {
     // World-3 fix round 1: an unlit creature takes fog B at half (`fogShare`), so it reads as a dark mass with its
     // cool rim in the bank, never as its red glow strip alone.
     float4 fb = fogBTex.read(c.fogB) * (lh2_fog_region(c, u) * fogShare);
@@ -1292,8 +1296,9 @@ static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant Com
     if (u.bloom.y > 0.5f) {
         constexpr sampler linear_clamp(coord::normalized, filter::linear, address::clamp_to_edge);
         // b3-horde (shadow swallows light): only a small one passes a fog share under 1; outside the bank it takes the
-        // fires' bloom at `kHordeBloom2`, so their glow does not wash its navy brown
-        float bloomShare = fogShare < 1.0f ? mix(kHordeBloom2, 1.0f, fogShare) : 1.0f;
+        // fires' bloom at `bloomFloor` (its body `kHordeBloom2`, its cold point `kHordeEyeBloom2`), so their glow does
+        // not wash its navy brown
+        float bloomShare = fogShare < 1.0f ? mix(bloomFloor, 1.0f, fogShare) : 1.0f;
         color += bloomTex.sample(linear_clamp, c.bloomUV).rgb * (u.bloom.x * bloomShare);
     }
     // Warm light keeps its saturation (not in dense fog: it turned the glow pink), the cold grade pushes blue, the
@@ -1469,7 +1474,8 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     }
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
-    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover, hordeVeil);
+    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover, hordeVeil,
+                    in.flags.x > 0.5f ? kHordeEyeBloom2 : kHordeBloom2);
     if (unlit && in.flags.x < 0.5f) {
         // Inside the bank the body takes the bank's whole fog and stands one value step lighter than it, a dark mass
         // the eye can read; its top edge catches the moon in a cool blue-grey line (none where firelight outshines).
