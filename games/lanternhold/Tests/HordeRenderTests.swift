@@ -491,11 +491,12 @@ final class HordeRenderTests: XCTestCase {
 
     /// Step 4 (the director's first law, shadow swallows light; the critic's H1): a heap at the outer wall by its
     /// burning braziers at 23:00. On the drawn pixels, the navy of the lit bodies (their strips' navy texels inside the
-    /// outline) keeps more blue than red: a dark creature, never a brown mound; the fire shows on their top contour
-    /// (warmer there than blue); and a climber's lower edge is drawn darker than the same pixels without its climb mark
-    /// (at most 0.6 of them), so the rows part. The heap, twice enlarged, as `horde-heap-fires`, the numbers as
+    /// outline) keeps more blue than red: a dark creature, never a brown mound; step 7 (the director's call 6 of
+    /// 16.11.2026 12:02, the warm rim goes): no warm edge on their top contour (a navy texel the fire turned warmer than
+    /// blue), a stray pixel at most; and a climber's lower edge is drawn darker than the same pixels without its climb
+    /// mark (at most 0.6 of them), so the rows part. The heap, twice enlarged, as `horde-heap-fires`, the numbers as
     /// `horde-heap-fires-values`.
-    func testByTheFiresTheHeapStaysDarkCreaturesWithAWarmRim() throws {
+    func testByTheFiresTheHeapStaysDarkWithNoWarmRim() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)
         var s = GameFrameSupport.demoNight(hour: 23.2)
@@ -568,7 +569,6 @@ final class HordeRenderTests: XCTestCase {
         }
         XCTAssertGreaterThan(navyCount, 60, "the navy is found")
         XCTAssertGreaterThan(topCount, 20, "the top contour is found")
-        XCTAssertGreaterThanOrEqual(rimCount, 18, "the fire shows as a warm edge (two game pixels' worth or more)")
         XCTAssertGreaterThan(edgeCount, 10, "the climbers' lower edges are found")
         navy /= Float(max(1, navyCount))
         rim /= Float(max(1, rimCount))
@@ -579,10 +579,10 @@ final class HordeRenderTests: XCTestCase {
             String(format: "climbers' lower edge: %.4f, without the mark %.4f (%ld px)", edge / Float(max(1, edgeCount)),
                    edgePlain / Float(max(1, edgeCount)), edgeCount),
         ]
-        // step 5 (the director's call 2): the navy keeps a margin of blue, and the rim is an edge, not an outline
+        // step 5 (the director's call 2): the navy keeps a margin of blue; step 7 (his call 6): no warm edge on a body
         XCTAssertGreaterThanOrEqual(navy.z, navy.x + 0.01, "by the fires the navy stays navy (\(navy)), never brown")
-        XCTAssertLessThanOrEqual(Float(rimCount), 0.35 * Float(navyCount),
-                                 "the warm edge (\(rimCount) px) is at most 0.35 of the navy (\(navyCount) px)")
+        XCTAssertLessThanOrEqual(rimCount, max(2, topCount / 100),
+                                 "no warm edge on a body (\(rimCount) of \(topCount) top-contour px)")
         XCTAssertLessThanOrEqual(edge, edgePlain * 0.6, "a climber's lower edge is drawn darker, the rows part")
         // the heap, twice enlarged
         let left = Int(bodies.map(\.rect.x).min() ?? 0) - 40

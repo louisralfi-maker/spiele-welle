@@ -928,8 +928,10 @@ constant float kLitCap2 = 1.0f;
 constant float kHordeGrey2 = 1.0f;
 constant float kHordeBloom2 = 0.0f;
 constant float kHordeEyeBloom2 = 0.4f;
+// b3-horde step 7 (the director's call 6 of 16.11.2026 12:02: the warm rim goes; 84 single tan pixels were noise on
+// the giant's children): its share is 0 and its block in lh_actor2_fragment is out; the constants stay for the join.
 constant float kHordeRim2 = 0.75f;
-constant float kHordeRimShare2 = 0.51f;
+constant float kHordeRimShare2 = 0.0f;
 // (Round lh-b3h-53: laid on after the fog, the edge measured 0.62 of the unmarked one at 0.45, about a third of the
 // climbers' lower-edge pixels being covered by the bodies in front of them: 0.3, so the rows part as step 4 asked.)
 constant float kHordeContact2 = 0.3f;
@@ -1449,27 +1451,9 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
             lit = mix(lit, v.rim.rgb, rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
     }
-    if (horde && in.flags.x < 0.5f && !unlit && peak > 0.01f) {
-        // b3-horde: the fire shows on a small one only as a 1 px warm edge, never an outline (step 5, the director's
-        // call 2): on the topmost body pixel of a column (nothing over it) whose neighbour toward the brighter light
-        // (`lightTex` 3 px either way) is empty, so only the fire-facing upper corner of each step of the contour;
-        // never on the cloth (the drape and its tails are warmer than blue in the strip), never on a thin limb, a claw,
-        // a tail's end or a flake (two body pixels under it).
-        uint wx = c.world.x;
-        uint lastX = lightTex.get_width() - 1u;
-        float3 west = lightTex.read(uint2(wx > 3u ? wx - 3u : 0u, c.world.y)).rgb;
-        float3 eastward = lightTex.read(uint2(min(wx + 3u, lastX), c.world.y)).rgb;
-        int east = max(eastward.r, max(eastward.g, eastward.b)) >= max(west.r, max(west.g, west.b)) ? 1 : -1;
-        int toward = east * (across < 0.0f ? -1 : 1);
-        bool above = t.y == 0u || atlas.read(uint2(t.x, t.y - 1u)).a < 0.5f;
-        int2 side = int2(t) + int2(toward, 0);
-        bool facing = atlas.read(uint2(max(side, int2(0)))).a < 0.5f;
-        bool navy = texel.b > texel.r;
-        bool thick = atlas.read(uint2(t.x, t.y + 1u)).a >= 0.5f && atlas.read(uint2(t.x, t.y + 2u)).a >= 0.5f;
-        if (above && facing && navy && thick) {
-            lit = mix(lit, lh2_capped(info.light) * kHordeRim2, saturate(peak * 1.5f) * kHordeRimShare2);
-        }
-    }
+    // b3-horde step 7 (the director's call 6 of 16.11.2026 12:02): the warm rim's block is out. Step 5 laid a 1 px warm
+    // edge on the fire-facing upper corner of each column (`kHordeRimShare2`, now 0); the fire shows on a small one
+    // no more: shadow swallows light.
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
     color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover, hordeVeil,
