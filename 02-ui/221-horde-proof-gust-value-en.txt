@@ -1,0 +1,1 @@
+shot 221-horde-proof-gust: frame:230 ready day:12 hour:23.08 alive:26 seen:26 lit:26 shots:1 aim:0 kx:660 lord:lord stage:world lx:660 errand:none door:1830 gold:93 hud:none cam:439 tap:none hint:off0 lantern:ready
