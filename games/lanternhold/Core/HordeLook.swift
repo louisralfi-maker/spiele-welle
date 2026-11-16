@@ -115,8 +115,10 @@ enum HordeLook {
 
     /// The climb (call 4): one that climbs the heap holds its reaching frame (the crawler and the loper: 4, a fore limb
     /// up, the strips hanging; the tumbler: 5, unfolded with its claws out) and claws down for the last third of each
-    /// beat (5; the tumbler 6), a beat and a half a second, each at its own phase.
-    static func climbFrame(id: Int, time: Double) -> Int {
+    /// beat (5; the tumbler 6), a beat and a half a second, each at its own phase. Under Reduce Motion it holds the
+    /// reach, still.
+    static func climbFrame(id: Int, time: Double, reduceMotion: Bool = false) -> Int {
+        guard !reduceMotion else { return body(id: id) == .tumbler ? 5 : 4 }
         let beat = max(0, time) * 1.5 + Double(startFrame(id: id)) * 0.25
         let claws = beat - beat.rounded(.down) > 0.66
         return (body(id: id) == .tumbler ? 5 : 4) + (claws ? 1 : 0)

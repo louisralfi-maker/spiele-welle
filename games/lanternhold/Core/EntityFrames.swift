@@ -1025,7 +1025,8 @@ enum EntityFrames {
             if kept.count >= free { break }
             // step 3: where it is drawn (a pixel of height by id, the climbers' pose)
             let lift = lifts[c.id]
-            let frame = lift != nil ? HordeLook.climbFrame(id: c.id, time: time) : creatureFrame(c, time: time)
+            let frame = lift != nil ? HordeLook.climbFrame(id: c.id, time: time, reduceMotion: reduceMotion)
+                : creatureFrame(c, time: time)
             let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: frame)
             let p = (x: c.x + eye.dx, y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + eye.dy)
             if kept.contains(where: {
@@ -1233,7 +1234,7 @@ enum EntityFrames {
             if c.kind == .sootling {
                 // b3-horde step 3 (the director's call 4): a pixel of height by id, and the climbers' pose on a heap.
                 y += HordeLook.stand(id: c.id)
-                if lifts[c.id] != nil { frame = HordeLook.climbFrame(id: c.id, time: time) }
+                if lifts[c.id] != nil { frame = HordeLook.climbFrame(id: c.id, time: time, reduceMotion: reduceMotion) }
             }
             if c.kind == .gloomweaver { y += weaverBob(c, time: time) }
             var flipped = false
@@ -1430,8 +1431,8 @@ enum EntityFrames {
         }
 
         // Effect particles: sparks and shards.
-        effectParticles(effects, animTime: animTime, budget: maxEffectParticles - shed) { sprite, frame, x, y, flipped,
-                                                                                           tint, emissive, lit in
+        effectParticles(effects, animTime: animTime, budget: maxEffectParticles - shed,
+                        reduceMotion: reduceMotion) { sprite, frame, x, y, flipped, tint, emissive, lit in
             add(sprite, frame: frame, x: x, y: y, flipped: flipped, tint: tint, emissive: emissive, lit: lit)
         }
 
@@ -1516,6 +1517,7 @@ enum EntityFrames {
 
     /// The particles of the running effects, at most `maxEffectParticles`.
     private static func effectParticles(_ effects: BattleEffects, animTime: Double, budget: Int = maxEffectParticles,
+                                        reduceMotion: Bool = false,
                                         add: (SpriteID, Int, Double, Double, Bool, SIMD4<Float>, Bool, Bool) -> Void) {
         var budget = budget
         let teal = SIMD4<Float>(0.75, 1.0, 1.0, 1)
@@ -1577,16 +1579,18 @@ enum EntityFrames {
                 // b3-horde: the fall strip and its orphan thread are drawn with the creatures; here the puff. Step 3
                 // (the director's call 6: a kill never throws up a V): a few grey flakes of soot, one or two pixels,
                 // round or ragged (`SpriteID.sootFlake`), lift off the body's middle from the second fall frame, drift
-                // apart and thin to nothing by 0.8 s after the kill. No ember: the small ones are cold.
+                // apart and thin to nothing by 0.8 s after the kill. No ember: the small ones are cold. Under Reduce
+                // Motion they hang where they lift off and only thin.
                 let puff = (animTime - effect.start - HordeLook.fallFrameSeconds) / HordeLook.puffSeconds
                 guard puff >= 0, puff < 1 else { continue }
                 let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
                 let middle = effect.y + Double(HordeLook.height(body)) * 0.4
                 let thin = Float(1 - puff)
+                let drift = reduceMotion ? 0 : puff
                 for k in 0..<HordeLook.puffFlakes {
                     guard spend() else { return }
-                    let x = effect.x + (unit(k, 2) - 0.5) * 9 + (unit(k, 3) - 0.5) * 10 * puff
-                    let y = middle + (unit(k, 5) - 0.5) * 4 + puff * (3 + 8 * unit(k, 4))
+                    let x = effect.x + (unit(k, 2) - 0.5) * 9 + (unit(k, 3) - 0.5) * 10 * drift
+                    let y = middle + (unit(k, 5) - 0.5) * 4 + drift * (3 + 8 * unit(k, 4))
                     add(.sootFlake, Int(unit(k, 6) * Double(HordeLook.flakeShapes)) % HordeLook.flakeShapes,
                         x.rounded(), y.rounded(), false, SIMD4<Float>(1, 1, 1, thin), false, effect.lit)
                 }

@@ -971,6 +971,12 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertLessThan(thinner.map(\.tint.w).max() ?? 1, puffed.map(\.tint.w).min() ?? 0, "they thin")
         XCTAssertTrue(hordeLayer(s, focus: 640, time: 1.81, effects: effects).actors.allSatisfy { $0.sprite != .sootFlake },
                       "gone by 0.8 s")
+        let stillAt = { (time: Double) -> [SIMD4<Float>] in
+            hordeLayer(s, focus: 640, time: time, reduceMotion: true, effects: effects).actors
+                .filter { $0.sprite == .sootFlake }.map(\.rect)
+        }
+        XCTAssertEqual(stillAt(1.3).count, HordeLook.puffFlakes, "under Reduce Motion the flakes are there")
+        XCTAssertEqual(stillAt(1.3), stillAt(1.6), "and hang still while they thin")
         guard let early = hordeLayer(s, focus: 640, time: 1.1, effects: effects).actors
                 .first(where: { $0.sprite == .sootThread }),
               let later = hordeLayer(s, focus: 640, time: 1.4, effects: effects).actors
@@ -1108,6 +1114,9 @@ final class EntityFramesTests: XCTestCase {
             let held = (0..<60).filter { HordeLook.climbFrame(id: id, time: Double($0) * 0.05) == reach }.count
             XCTAssertGreaterThanOrEqual(held, 33, "\(id): the reach most of the time")
             XCTAssertLessThan(held, 60, "\(id): and it claws")
+            XCTAssertTrue((0..<60).allSatisfy {
+                HordeLook.climbFrame(id: id, time: Double($0) * 0.05, reduceMotion: true) == reach
+            }, "\(id): under Reduce Motion it holds the reach, still")
         }
     }
 }
