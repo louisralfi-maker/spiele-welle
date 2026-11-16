@@ -40,11 +40,14 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
                fifth plank middle with a knot (the grain as streaks of 3 to 6 px: one tile in five shows a knot);
                step 4: the signpost's iron bar, 28 its left end, 29 a middle, 30 its right end (in the cell's last 4
                rows, as the cap)
-  paySign      29x26, 3 frames (step 4, the signpost over a plot with several offers): a small wooden shingle hung on
-               two links (the top 3 rows), the building's silhouette burnt into it in rows 5 to 13 (0 the ballista, a
-               long bolt on its stock over an A-frame; 1 the catapult, its arm and cup over a wheeled base; 2 any other
-               building, a gabled house); rows 15 to 23 stay plain wood for the coin and the price the stage lane lays
-               on in the purse's figures
+  paySign      24x13, 19 frames (step 5, the builder's models at a plot with several offers: the models are the
+               offer, the pay board's hollows are the price): 0 the sawhorse trestle (24 x 10 in the cell's bottom
+               rows), 1 the ballista (22 x 13: a great crossbow on a post with splayed feet, its bolt's iron point out
+               in front), 2 the catapult (20 x 13: the arm raised at 45 degrees, its iron cup, a 4 x 4 counterweight
+               box, the frame on two wheels), 3 any other building (a gabled house, 16 x 13); fresh pale timber in
+               three tones with an ink edge all round, standing on the trestle's beam; 4 5 6 the chosen model's warm
+               rim (its ink edge fire gold along the top, gold down the right), laid over it; 7-10, 11-14, 15-18 the
+               glint passing over the ballista, the catapult and the house in four steps
   siteLantern  9x13, 4 frames: the site lantern on the post, unlit (dark glass), lit (a 5x5 flame in the fire ramp,
                white at its heart), and the two frames of its bloom as it catches (the stage lane adds its light, the
                glow of its glass and its halo)
@@ -861,72 +864,155 @@ SIGN_BAR_R = ["iiiii.",
               "bbbbbi",
               "iiiii."]
 
-# the signpost's shingle (step 4): 29 wide; two iron links (columns 6 and 22, rows 0 to 2) to nail heads on its top
-# bevel; the board lit along its top and left, shaded along its right and foot, a little grain at its edges (the
-# middle stays clear for the silhouette and the price); the silhouette is burnt in, in ink
-SHINGLE = ["......i...............i......",
-           "......b...............b......",
-           "......i...............i......",
-           ".iiiiiiiiiiiiiiiiiiiiiiiiiii.",
-           "iLLLLLnLLLLLLLLLLLLLLLnLLLLDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFLLFFFFFFFFFFFFFFFFFFFDDFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFDDFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFLLFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFLLLFFFFFFFFFFFDDDFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
-           "iDDDDDDDDDDDDDDDDDDDDDDDDDDDi",
-           ".iiiiiiiiiiiiiiiiiiiiiiiiiii."]
-# the silhouettes (13 x 9, burnt in at column 8, row 5): each its own outline at phone size
-SIL_BALLISTA = ["........i....",
-                ".........i...",
-                "iiiiiiiiiiiii",
-                "..iiiiiiiii..",
-                "....i....i...",
-                "...i.i..i....",
-                "..i...i......",
-                ".i.....i.....",
-                "i.......i...."]
-SIL_CATAPULT = ["ii...........",
-                "iii..........",
-                ".iii.........",
-                "...ii...i....",
-                ".....ii.i....",
-                ".......iii...",
-                ".iiiiiiiiiii.",
-                ".ii.......ii.",
-                ".ii.......ii."]
-SIL_HOUSE = ["......i......",
-             ".....iii.....",
-             "....iiiii....",
-             "...iiiiiii...",
-             "..iiiiiiiii..",
-             "...iiiiiii...",
-             "...iiiiiii...",
-             "...iii.iii...",
-             "...iii.iii..."]
+# the builder's models on their trestles (step 5, the director's notes of 16.11., 12:44, P1 to P4: the models are the
+# offer, the board's hollows are the price; nothing but the things themselves stands at a plot with several offers).
+# One 24 x 13 cell per frame: 0 the sawhorse trestle (24 x 10, in the cell's bottom 10 rows: a beam on two splayed
+# legs, weathered wood); 1 2 3 the models standing on it (bottom-aligned, centred): the ballista 22 x 13, the catapult
+# 20 x 13 and any other building, a gabled house 16 x 13; fresh pale timber in three tones lit from the upper left,
+# dark timber for the frames and legs, a dark ink edge all round (4 neighbours, so a diagonal stays thin) so they
+# read on grey stone, on the blue banner and at night, one iron accent each (the bolt's point, the cup, the door's
+# hinge); the string is parchment with no edge; 4 5 6 the chosen model's warm rim (its ink edge fire gold along the top,
+# gold down the right), laid over the model; 7 to 18 the glint passing over each model in four steps (a short streak of fire white on its lit edge),
+# ballista 7-10, catapult 11-14, house 15-18. Drawn by hand, never reduced from the engines' sprites.
+MODEL_CELL = (24, 13)
+MODEL_TONES = {"T": ("strawLight", "straw", "woodLight"),   # fresh timber: lit, face, shade
+               "D": ("straw", "woodLight", "wood"),         # the dark timber of frames, bolts and legs
+               "W": ("woodLight", "wood", "woodDark"),      # wheels and the winch's drum
+               "I": ("stonePale", "stoneLight", "stone")}   # iron
+# T timber, D dark timber, W wheel, I iron, s string (parchment, no ink edge), . empty; each 11 rows, at most 22 wide
+MODEL_BALLISTA = [".......DDD..........",   # facing left, as its sprite: a great crossbow on a post with
+                  "......DD..s.........",   # splayed feet; the bow in dark timber, 2 px thick, its string drawn
+                  ".I...DD....ss.......",   # back to the nut; the bolt in the stock's groove with its iron point
+                  "IIIDDDDDDDDDDsDTTTTW",   # well out in front; the stock's butt and the winch's stub behind
+                  ".I..TDDTTTTTTsTTTTTW",
+                  ".....DD....DD..TTTT.",
+                  "......DD..sDD.......",
+                  ".......DDD.DD.......",
+                  "...........DD.......",
+                  "..........DDDD......",
+                  "........DD.DD.DD...."]
+MODEL_CATAPULT = ["............TI.I..",     # facing right: the long arm raised at 45 degrees, its iron cup at the
+                  "..........TTTIII..",     # top, the counterweight box (4 x 4) at its short end, an A-frame for
+                  ".DDDD....TT.......",     # its pivot, the frame's beam on two wheels
+                  ".DDDD...TT........",
+                  ".DDDD.TTTT........",
+                  ".DDDDTTT..T.......",
+                  ".......T..T.......",
+                  "DDDDDDDDDDDDDDDDDD",
+                  "..WW.........WW...",
+                  ".WWWW.......WWWW..",
+                  "..WW.........WW..."]
+MODEL_HOUSE = ["......TT......",
+               ".....TTTT.....",
+               "....TTTTTT....",
+               "...TTTTTTTT...",
+               "..TTTTTTTTTT..",
+               ".DDDDDDDDDDDD.",
+               "..TTTTTTTTTT..",
+               "..TTTDDTTTTT..",
+               "..TTTDDTTTTT..",
+               "..TTTDITTTTT..",
+               "..TTTDDTTTTT.."]
+# the sawhorse (24 x 10): a beam lit on its top, nailed, on two pairs of legs splayed out past its ends
+TRESTLE_LEGEND = {"i": "ink", "L": "woodLight", "F": "wood", "D": "woodDark", "n": "stoneMid"}
+TRESTLE = ["..iiiiiiiiiiiiiiiiiiii..",
+           ".iLLLLLLLLLLLLLLLLLLLLi.",
+           ".iFFFnFFFFFFFFFFFFnFFFi.",
+           "..iiiiiiiiiiiiiiiiiiii..",
+           "..iLFi............iLFi..",
+           "..iLFi............iLFi..",
+           ".iLFi..............iLFi.",
+           ".iLFi..............iLFi.",
+           "iLFi................iLFi",
+           "iLFi................iLFi"]
 
 
-def shingle(silhouette, pal):
-    rows = [list(r) for r in SHINGLE]
-    for y, row in enumerate(silhouette):
+def model_grid(rows):
+    """The body `rows` in the cell, centred and standing on its bottom row with a pixel for the ink edge all round."""
+    cw, ch = MODEL_CELL
+    w, h = len(rows[0]), len(rows)
+    assert all(len(r) == w for r in rows) and w + 2 <= cw and h + 2 <= ch, rows
+    ox, oy = (cw - w) // 2, ch - 1 - h
+    grid = [["." for _ in range(cw)] for _ in range(ch)]
+    for y, row in enumerate(rows):
         for x, c in enumerate(row):
-            if c != ".":
-                rows[5 + y][8 + x] = c
-    return legend_image(["".join(r) for r in rows], pal, BOARD_LEGEND)
+            grid[oy + y][ox + x] = c
+    return grid
+
+
+def model_solid(grid, x, y):
+    return 0 <= y < len(grid) and 0 <= x < len(grid[0]) and grid[y][x] not in (".", "s")
+
+
+def model_image(rows, pal):
+    """A model: each material in three tones (lit where its top or left is open, shaded where its foot or right is
+    open), the string in parchment, an ink edge on every empty pixel beside the body (4 neighbours)."""
+    grid = model_grid(rows)
+    cw, ch = MODEL_CELL
+    img = Image(cw, ch)
+    for y in range(ch):
+        for x in range(cw):
+            c = grid[y][x]
+            if c in MODEL_TONES:
+                lit = not model_solid(grid, x, y - 1) or not model_solid(grid, x - 1, y)
+                dark = not model_solid(grid, x, y + 1) or not model_solid(grid, x + 1, y)
+                tone = MODEL_TONES[c][0] if lit else MODEL_TONES[c][2] if dark else MODEL_TONES[c][1]
+                img.set(x, y, pal.color(tone) + (255,))
+            elif c == "s":
+                img.set(x, y, pal.color("parchment") + (255,))
+            elif any(model_solid(grid, x + i, y + j) for i, j in ((-1, 0), (1, 0), (0, -1), (0, 1))):
+                img.set(x, y, pal.color("ink") + (255,))
+    return img
+
+
+def model_rim(rows, pal):
+    """The chosen model's warm rim, laid over it: its ink edge turns fire gold along its top and gold down its right
+    side, as if the lantern's light caught it; the timber keeps its tones."""
+    grid = model_grid(rows)
+    cw, ch = MODEL_CELL
+    img = Image(cw, ch)
+    for y in range(ch):
+        for x in range(cw):
+            if grid[y][x] not in (".", "s"):
+                continue
+            if model_solid(grid, x, y - 1):
+                continue
+            if model_solid(grid, x, y + 1):
+                img.set(x, y, pal.color("fireGold") + (255,))
+            elif model_solid(grid, x - 1, y) and not model_solid(grid, x + 1, y):
+                img.set(x, y, pal.color("gold") + (255,))
+    return img
+
+
+def model_glints(rows, pal, steps=4):
+    """The glint passing over a model left to right in `steps` frames: on each, the lit timber pixels on one short
+    diagonal (top-left to bottom-right) burn fire white."""
+    grid = model_grid(rows)
+    cw, ch = MODEL_CELL
+    lit = [(x, y) for y in range(ch) for x in range(cw)
+           if grid[y][x] in ("T", "D") and (not model_solid(grid, x, y - 1) or not model_solid(grid, x - 1, y))]
+    lo = min(x - y for x, y in lit)
+    hi = max(x - y for x, y in lit)
+    frames = []
+    for k in range(steps):
+        band = lo + (hi - lo) * (k + 0.5) / steps
+        img = Image(cw, ch)
+        for x, y in lit:
+            if abs((x - y) - band) <= 1.0:
+                img.set(x, y, pal.color("fireWhite") + (255,))
+        frames.append(img)
+    return frames
+
+
+def model_frames(pal):
+    cw, ch = MODEL_CELL
+    models = (MODEL_BALLISTA, MODEL_CATAPULT, MODEL_HOUSE)
+    frames = [legend_image(TRESTLE, pal, TRESTLE_LEGEND, ch, top=False)]
+    frames += [model_image(m, pal) for m in models]
+    frames += [model_rim(m, pal) for m in models]
+    for m in models:
+        frames += model_glints(m, pal)
+    return frames
 
 # the site lantern (9x13, step 2's critic H2: the 7x10 one was a speck by day): a ring, a cap, a 5x5 glass in an iron
 # frame, a foot; unlit its glass is the night's dark glass (as the street lanterns' heads), lit a flame stands in the
@@ -1220,7 +1306,7 @@ def frames_for(sprite, pal, style="hand", face=None):
     if sprite == "siteHalo":
         return [halo(), pool()]
     if sprite == "paySign":
-        return [shingle(s, pal) for s in (SIL_BALLISTA, SIL_CATAPULT, SIL_HOUSE)]
+        return model_frames(pal)
     raise SystemExit("unknown sprite " + sprite)
 
 
