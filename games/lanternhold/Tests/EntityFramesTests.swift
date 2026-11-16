@@ -434,6 +434,15 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(Set(HordeLook.Body.allCases.map { HordeLook.height($0) }), [10, 12, 13])
         XCTAssertEqual(HordeLook.frameCount(.crawler), 8)
         XCTAssertEqual(HordeLook.frameCount(.loper), 8)
+        // the strips grew from 6 to 8 frames: the atlas still fits its pages (its size noted for the join)
+        let atlas = AtlasLayout.shared
+        XCTAssertLessThanOrEqual(atlas.height, AtlasLayout.maxHeight, "the atlas fits its pages")
+        XCTAssertEqual(atlas.cells[.sootling]?.count, 8)
+        XCTAssertEqual(atlas.cells[.sootlingBGlow]?.count, 8)
+        let note = XCTAttachment(string: "b3-horde step 7 atlas: \(atlas.width) x \(atlas.height) of \(AtlasLayout.maxHeight)")
+        note.name = "horde-atlas-size"
+        note.lifetime = .keepAlways
+        add(note)
         for id in 0..<60 {
             let length = HordeLook.threadLength(id: id)
             let high = HordeLook.height(HordeLook.body(id: id))

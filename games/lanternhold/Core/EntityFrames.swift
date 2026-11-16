@@ -1038,7 +1038,7 @@ enum EntityFrames {
             // step 5 (M3): a climber's point where its body is drawn (aside by id; mirrored when it faces away)
             let aside = lift != nil ? HordeLook.heapJitter(id: c.id) : 0
             let eyeDX = lift != nil && HordeLook.facesAway(id: c.id) ? -eye.dx : eye.dx
-            // step 7 (the director's call 9, no ladder): a climber 0 ... 3 px higher on its level by id
+            // step 7 (the director's call 9, no ladder): a climber 0 ... 5 px higher on its level by id
             let rise = lift != nil ? HordeLook.heapRise(id: c.id) : 0
             let p = (x: c.x + aside + eyeDX, y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + rise + eye.dy)
             if kept.contains(where: {
