@@ -1,0 +1,4 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/EntityFramesTests.swift:1119:52: error: value of optional type 'Range<Int>.Element??' (aka 'Optional<Optional<Int>>') must be unwrapped to a value of type 'Range<Int>.Element?' (aka 'Optional<Int>')
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/EntityFramesTests.swift:1119:63: error: value of optional type 'Range<Int>.Element??' (aka 'Optional<Optional<Int>>') must be unwrapped to a value of type 'Range<Int>.Element?' (aka 'Optional<Int>')
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/EntityFramesTests.swift:1122:27: error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
