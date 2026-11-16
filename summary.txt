@@ -1,0 +1,14 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: b713cfb9
+source: claude/lh-b3-horde
+02:32:41 build starts (Lanternhold)
+simulator: 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF (iPhone 17 Pro, iOS 26.5)
+02:35:35 simulator up
+02:36:13 project generated
+02:39:22 PASS build
+02:41:30 PASS unit LanternholdTests/EntityFramesTests LanternholdTests/HordeRenderTests LanternholdTests/HordeProofTests LanternholdTests/AtlasTests LanternholdTests/FrameBudgetTests LanternholdTests/Look2FrameTests LanternholdTests/GloomFogTests LanternholdTests/WorldThreeFix3Tests
+02:51:17 PASS ui LanternholdUITests/HordeUITests LanternholdUITests/PolishUITests
+02:53:38 PASS sh
+ALL PASSED

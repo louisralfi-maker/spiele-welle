@@ -1,0 +1,3 @@
+sootling frame 0: per pixel 16.05 : 1 (612 px); means body 0.0045 ground 0.1244 27.49 : 1; rag and rim 0.03 : 1 (450 px, body over ground); navy 0.13 : 1
+sootlingB frame 1: per pixel 35.50 : 1 (567 px); means body 0.0055 ground 0.1736 31.75 : 1; rag and rim 0.04 : 1 (351 px, body over ground); navy 0.02 : 1
+tumbler frame 2: per pixel 13.98 : 1 (720 px); means body 0.0058 ground 0.1278 21.99 : 1; rag and rim 0.05 : 1 (666 px, body over ground); navy 0.02 : 1
