@@ -1096,3 +1096,8 @@ schneller geht."
   - Step 6 is green at d4e0dccb (round lh-b3w-62). Kept: the keep's chimney smoke as round puffs that stand in calm, lean in a breeze and tear in a storm, with the banners and the vane agreeing.
   - The town's smoke does not show by day (pale puffs on pale mountains; the big middle house never smokes). Step 7, one agent: three of four chimneys by day, every one from 17 h to 21 h, a wood-smoke grey that differs from its backdrop by 40 in luma, a column of at least 12 px.
   - The leaf ribbon is cut from wave 1. A 2 x 2 px leaf is a dot, and a row of bright dots reads as fairy lights. Leaves get their own design later. Rule: a detail that reads wrong is worse than none.
+
+- **The horde's gait judged; the walk gets drawn step-locked (16.11.2026, 15:19).**
+  - Step 8 is green at b8ccc0fe (round lh-b3h-83). Kept and closed as art: a planted tip in the strips, the runt's ramped back, the cloth under a cold top, the V strike. In the dark open the bodies are black shapes with a cold rim and one eye; the cloth shows by the fires and by day. That is the design.
+  - Still wrong live: the body is drawn at a continuous x, so a planted hand drifts a stride and steps back. Step 9, one agent, code only: the step that picks the walk frame also places the body, every stride is the strip's whole stride, neighbours differ by a phase.
+  - Rule: a planted foot needs step-locked drawing; a strip alone cannot plant it.
