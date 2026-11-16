@@ -127,6 +127,12 @@ extension GameModel {
         // by coin), though nothing leaves the treasury before the seal.
         purse.update(gold: max(0, townShownGold(state, balance: game.balance) - countHeld), now: clock.elapsed,
                      visible: visible)
+        // The count's figure drops with each clink, never trailing the board (PAY.md 1.2; round lh-b3c-13: the full
+        // board of 90 showed 132 of 110, the ticker's stride falls behind coins 0.05 s apart).
+        if visible, touch.count?.isOpen == true, let shown = purse.shown, shown != purse.target {
+            purse.shown = purse.target
+            purse.lastTick = clock.elapsed
+        }
         notes.update(happiness: state.happiness, people: state.citizens, clock: clock.elapsed, visible: visible)
         // Fix round 2 (the critic's high 5): the call's strip waits while the first minute's hint slip stands.
         let calling = stripCall.update(strip, hour: state.hour, clock: clock.elapsed, allowed: visible,

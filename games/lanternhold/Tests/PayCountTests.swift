@@ -543,6 +543,7 @@ final class PayCountTests: XCTestCase {
         let held = game.countHeld
         XCTAssertGreaterThan(held, 0)
         XCTAssertEqual(game.purse.target, 200 - held, "the purse shows the coins on the board as gone")
+        XCTAssertEqual(game.purse.shown, 200 - held, "the figure in step with the board, never trailing it")
         var lifted = try XCTUnwrap(game.touch.count)
         lifted.lift(tap: false)
         game.touch.count = lifted
