@@ -1,0 +1,5 @@
+Note: No display specified. Defaulting to display: B3C1B422-C4C0-4007-AEA4-8A1F2ED506A5 (screenID: 1, name: LCD)
+Recording started
+Recording completed. Writing to disk.
+
+Wrote video to: /Users/runner/work/spiele-welle/spiele-welle/ci-out/clip/raw.mp4
