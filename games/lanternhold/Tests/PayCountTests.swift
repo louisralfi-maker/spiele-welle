@@ -1345,13 +1345,24 @@ final class PayCountTests: XCTestCase {
 
     /// Step 3 (the director's call 6), on the drawn pixels: the same scene rendered with the site lantern burning and
     /// gone out. At night the light round it is warm (the halo and its light add far more red than blue: never
-    /// cream-white); by day the lighting is still seen: the warm rim on the post's lit side and the halo beside it.
+    /// cream-white); by day the halo is still seen beside the lantern. The halo's own tint is warm at any hour, and
+    /// while the work runs the post's lit side and the crook carry the warm rim (on the drawn glows: a rendered pixel
+    /// there also takes the halo and the wall's light, so it cannot tell the rim apart).
     func testTheLanternsLightIsWarmByNightAndSeenByDay() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)
         var settings = RenderSettings()
         settings.time = 2
+        // The board's place (so the lantern's post) is worked out once, by day: the plots are things to touch by day
+        // only (TouchThings.world), and the gate stands where it stands at any hour.
+        let dayGame = model(["GWStage": "world", "GWSeed": "2", "GWCameraX": "1240", "GWDay": "3", "GWClock": "10"])
+        _ = dayGame.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let gate = try XCTUnwrap(dayGame.touch.things.first { $0.id == "touch-plot-0" })
+        let layout = PayBoardLayout.make(PayCount.hollows(price: 90))
+        let place = dayGame.countBoardPlace(gate, layout: layout)
+        let board = CountBoard(x: place.x, stand: place.x, act: gate.act, layout: layout, side: place.side)
         for night in [true, false] {
+            let when = night ? "night" : "day"
             var values = ["GWStage": "world", "GWSeed": "2", "GWCameraX": "1240", "GWWeather": "clear",
                           "GWFlickerTime": "2"]
             if night {
@@ -1363,10 +1374,6 @@ final class PayCountTests: XCTestCase {
             }
             let game = model(values)
             _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
-            let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
-            let layout = PayBoardLayout.make(PayCount.hollows(price: 90))
-            let place = game.countBoardPlace(gate, layout: layout)
-            let board = CountBoard(x: place.x, stand: place.x, act: gate.act, layout: layout, side: place.side)
             let now = game.clock.elapsed
             let burning = CountLantern(offer: .recruit(.archer), postLeft: board.lanternPostLeft, toward: board.toward,
                                        litAt: now - 2)
@@ -1375,10 +1382,13 @@ final class PayCountTests: XCTestCase {
             game.touch.countLanterns = [burning]
             let lit = try renderer.renderOffscreen(game.frame(physicalWidth: pro.physicalWidth,
                                                               physicalHeight: pro.physicalHeight), settings: settings)
+            let framing = try XCTUnwrap(game.touch.framing)
+            let state = try XCTUnwrap(game.driver?.state)
+            var layer = EntityLayer()
+            game.countWorld(&layer, state: state, framing: framing)
             game.touch.countLanterns = [out]
             let dark = try renderer.renderOffscreen(game.frame(physicalWidth: pro.physicalWidth,
                                                                physicalHeight: pro.physicalHeight), settings: settings)
-            let framing = try XCTUnwrap(game.touch.framing)
             let half = Double(framing.scale) / 2
             /// The mean added light over a 3 x 3 block of game pixels round (`x`, `lift`).
             func added(_ x: Double, _ lift: Double) -> SIMD3<Float> {
@@ -1397,6 +1407,10 @@ final class PayCountTests: XCTestCase {
             let middleX = lanternLeft + 4.5
             let middleLift = lanternTop - 7
             let beside = added(middleX + 8 * board.toward, middleLift)
+            print("count light \(when): beside \(beside)")
+            // The halo's tint (fireWhite, cream, has blue at three quarters of its red; fireGold far less).
+            let halo = try XCTUnwrap(layer.glows.first { $0.sprite == .siteHalo }, "\(when): the halo")
+            XCTAssertLessThan(halo.color.z, 0.45 * halo.color.x, "\(when): the halo is warm, never cream-white")
             if night {
                 XCTAssertGreaterThan(beside.x, 0.04, "the halo is seen at night")
                 XCTAssertGreaterThan(beside.x, beside.y, "warm: more red than green")
@@ -1404,12 +1418,14 @@ final class PayCountTests: XCTestCase {
                 XCTAssertLessThan(beside.z, 0.7 * beside.x, "never cream-white")
             } else {
                 XCTAssertGreaterThan(beside.x, 0.02, "by day the halo is still seen beside the lantern")
+                // The rim: a warm glow on each pixel of the post's lit column from the crook's band down past the
+                // lantern's foot, and on the crook's arm.
                 let rimX = Double(board.lanternPostLeft + (board.toward > 0 ? 3 : 2))
-                let px = Int(framing.deviceX(stageX: rimX) + half)
-                let py = Int(framing.deviceY(lift: middleLift) - half)
-                let rim = lit.color(x: px, y: py) - dark.color(x: px, y: py)
-                XCTAssertGreaterThan(rim.x, 0.05, "by day the post's lit side takes a warm rim")
-                XCTAssertGreaterThanOrEqual(rim.x, rim.z, "a warm one")
+                let rim = layer.glows.filter { $0.sprite == .hallMote && $0.x == rimX }
+                XCTAssertGreaterThanOrEqual(rim.count, 10, "by day the post's lit side takes a warm rim (\(rim.count))")
+                XCTAssertTrue(rim.allSatisfy { $0.color.x > $0.color.z }, "a warm one")
+                let crookRow = layer.glows.filter { $0.sprite == .hallMote && $0.y == CountLantern.crookTop - 2 }
+                XCTAssertGreaterThanOrEqual(crookRow.count, 4, "and the crook's arm over the lantern")
             }
         }
     }
