@@ -1123,3 +1123,9 @@ schneller geht."
   - Round lh-b3w-73 passed on 14523711 (build, the whole unit suite, the wind's UI tests). The first check round had failed one test of the drawn pixel: at noon the town's puffs were cream-white over brown, not grey.
   - The fix is a cool day tint for the town's puffs and a darker body in the art. On the live frame five thin grey columns with pale caps stand over the roofs at noon.
   - Wave 1 of the wind lane holds: the wind engine on trees, banners and shutters, rain on the town side and ash on the shadow side, the keep's smoke, the town's smoke. The gust's leaf ribbon is off and moves to wave 2 with its own design.
+
+- **The join of wave 1, stage A: the wind and the horde are one branch (16.11.2026, 17:22).**
+  - The director merged the frozen-save tests (keep b37405dc), the wind (14523711) and the horde (3b932dc6) into `claude/lh-b3join`, head 80eebd2c, cut from 309ebb46. All three merges were clean; only `Core/FrameBuilder.swift` and `Core/FrameDesc.swift` were changed by both lanes, and git joined them itself. No agent was needed.
+  - Two rounds check the join side by side, sent by the director at 17:19: lh-b3j-1 (build, the whole unit suite, the build 2 save among it) and lh-b3j-2 (build, ui Wind, Horde, FirstDay). The branch is pushed only when both are ALL PASSED.
+  - Stage B joins the count last, once its step 6 is judged. Rehearse it with `git merge-tree` first.
+  - The disk is down to 11 GB free: the tidy-up of merged, clean worktrees is due right after the join.
