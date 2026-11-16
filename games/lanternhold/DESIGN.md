@@ -4624,11 +4624,15 @@ lines above.
   sky. The foreground's flakes fade out with the day (it is drawn over the emissive pass) and have no copy.
 - **The embers carry the night**: one flake in four by day, one in three at night (`emberShare`, by its index); a life
   of a third of the fall by day and 0.45 at night; a 2 x 2 point for its first 15 % by day and 30 % at night, then one
-  pixel; fire gold (a deep one), the torch's orange, a deep red, then nothing, its strength 1 − life² (`emberHeat`).
+  pixel; fire gold, the torch's orange, a deep red, then nothing, its strength 1 − life² (`emberHeat`). The gold and
+  the orange are low in green with almost no blue and burn at 1.3 (`emberGlow`), because the night's grade in rain
+  keeps only about 0.57 of a colour's saturation and tints it cold (gate rounds lh-b3w-41 and -42).
   The point is a glass quad (`ashFlake` frames 15 and 14 in the glass ink; source the whole 5 x 5 cell), so its colour
-  arrives as it is. Its body (frames 13 and 12) lies under the point on the near and the lane's planes (it hides the
-  blue sky behind those pixels and fades faster than the light) and takes the day's share on the foreground. None
-  under Reduce Motion. Proof on the drawn pixel at 23:00 with the Gloom's fog on (`RainLookTests`).
+  arrives as it is. Its body (frames 13 and 12) lies under the point on the near and the lane's planes: it hides the
+  blue sky behind those pixels and fades as the light does (1 − life², `emberBodyAlpha`), so the pixel is never darker
+  than the sky; on the foreground it takes the day's share, and a foreground flake that rests at night is left out.
+  None under Reduce Motion. Proof on the drawn pixel at 23:00 with the Gloom's fog on, the outer wall fallen so the
+  open ash between the bank and the band is in view (`RainLookTests`).
 - **The vane** (H2): a 13 x 11 arrow (a triangular head, a notched swallowtail fin, no crossbar, a ball on the rod, a
   pale lit top edge) on the great roof's west slope (col 136 of the keep's sprite), where the sky stands behind it from
   the keep's set piece camera, clear of the great flag flying west.
