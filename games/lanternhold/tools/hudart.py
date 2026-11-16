@@ -41,8 +41,10 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
   siteLantern  9x13, 4 frames: the site lantern on the post, unlit (dark glass), lit (a 5x5 flame in the fire ramp,
                white at its heart), and the two frames of its bloom as it catches (the stage lane adds its light, the
                glow of its glass and its halo)
-  siteHalo     25x25: the lit lantern's halo, rings of light in whole pixels (white; the stage lane tints it with the
-               fire's gold and adds it as light, half by day, whole by night)
+  siteHalo     25x25, 2 frames: 0 the lit lantern's halo by night, light falling off in whole pixels, ordered-dithered
+               (white; the stage lane tints it with the fire's gold and adds it as light); 1 (step 4) the warm pool by
+               day, an opaque disc 8 px round with a dithered edge to 10 px (white; the stage lane draws it blended
+               over the wall toward fire gold at about 0.4, never added as light on a lit wall)
 
 The count's coins in flight (build 3, the count's step 2: each coin flies from the lord's hand to its hollow, turning):
 
@@ -917,6 +919,28 @@ def halo(radius=12):
     return img
 
 
+def pool(radius=12, inner=8.0, edge=10.5):
+    """The warm pool by day (step 4, the director's call 3): an opaque disc `inner` px round about the cell's middle,
+    then a ring thinned on a checkerboard out to `edge`, and its last pixels on every second checker cell, so the
+    pool's rim melts into the wall and never shows as a circle. White: the stage lane blends it toward fire gold."""
+    size = 2 * radius + 1
+    img = Image(size, size)
+    for y in range(size):
+        for x in range(size):
+            d = ((x - radius) ** 2 + (y - radius) ** 2) ** 0.5
+            if d <= inner:
+                on = True
+            elif d <= edge - 1.0:
+                on = (x + y) % 2 == 0
+            elif d <= edge:
+                on = x % 2 == 0 and y % 2 == 0
+            else:
+                on = False
+            if on:
+                img.set(x, y, (255, 255, 255, 255))
+    return img
+
+
 def legend_image(rows, pal, legend, h=None, top=True):
     """The rows in `legend`'s colours, in a cell `h` rows high (the rows at its top, or at its bottom)."""
     w = len(rows[0])
@@ -1100,7 +1124,7 @@ def frames_for(sprite, pal, style="hand", face=None):
     if sprite == "siteLantern":
         return [lantern_frame(k, pal) for k in ("unlit", "lit", "bloom1", "bloom2")]
     if sprite == "siteHalo":
-        return [halo()]
+        return [halo(), pool()]
     raise SystemExit("unknown sprite " + sprite)
 
 

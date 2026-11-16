@@ -758,7 +758,8 @@ enum PayFreeze: Sendable, Equatable {
     /// past 1, that many flights after it left, so 1.95 is a little after it landed and settled).
     case flight(coin: Int, share: Double)
     /// Step 3's light by day: the count held as its board has just gone (`litMoment` after the seal), and the site
-    /// lantern, which catches then, held at this age (its bloom, its embers).
+    /// lantern, which caught under the board's last fade (step 4: 0.8 s after the seal), held at this age (its bloom,
+    /// its embers).
     case lit(Double)
 
     /// The count's moment `lit` holds it at: the board faded all but out (never drawn), the count not yet gone.

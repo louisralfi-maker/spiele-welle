@@ -78,7 +78,8 @@ final class CountUITests: XCTestCase {
                 gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 2.6)
                 XCTAssertTrue(waitForField(app, "count:touch-plot-0", timeout: 3), "\(name): the board stands")
                 if freeze.hasPrefix("lit:") {
-                    // The lantern catches as the shut board has gone, 1.1 s after the seal; the freeze holds there.
+                    // The lantern catches under the shut board's last fade, 0.8 s after the seal; the freeze holds as
+                    // the board has gone, the lantern at the age asked for.
                     XCTAssertTrue(waitForField(app, "last:paid:touch-plot-0", timeout: 3), "\(name): sealed")
                     pause(1.5)
                 }

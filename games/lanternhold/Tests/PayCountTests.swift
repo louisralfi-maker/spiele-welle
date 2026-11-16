@@ -726,7 +726,7 @@ final class PayCountTests: XCTestCase {
         let rates = hub.coins.map { $0.rate }
         XCTAssertEqual(rates, rates.sorted(), "each a little higher")
         XCTAssertTrue(hub.played.contains(.countSeal), "the seal")
-        XCTAssertFalse(hub.played.contains(.countLantern), "the lantern waits for the board to go")
+        XCTAssertFalse(hub.played.contains(.countLantern), "the lantern waits for the board's last fade")
         run(game, seconds: CountLantern.catchAfterSeal + 0.1)
         XCTAssertTrue(hub.played.contains(.countLantern), "then the lantern")
         XCTAssertTrue(hub.played.contains(.buildOrdered), "then the work's own sound")
@@ -1384,7 +1384,8 @@ final class PayCountTests: XCTestCase {
         XCTAssertTrue(frame.actors.contains { $0.sprite == .siteLantern && $0.frame == 1 }, "lit on its post")
         XCTAssertTrue(frame.actors.contains { $0.sprite == .payBoard }, "its post stands")
         XCTAssertFalse(frame.actors.contains { $0.sprite == .hudHollowTen }, "without the board")
-        XCTAssertTrue(frame.emissives.contains { $0.sprite == .siteHalo }, "with its halo")
+        XCTAssertTrue(frame.actors.contains { $0.sprite == .siteHalo && $0.frame == 1 },
+                      "with its warm pool by day (step 4: the halo is a night thing)")
         XCTAssertTrue(game.countWord.contains("lanterns:1"))
         game.withDriver { driver in driver.state.plots[0].job = nil }
         run(game, seconds: 1.5)
@@ -1451,12 +1452,13 @@ final class PayCountTests: XCTestCase {
                       "the post stands cut to the crook, no higher")
     }
 
-    /// Step 3 (the director's call 6), on the drawn pixels: the same scene rendered with the site lantern burning and
-    /// gone out. At night the light round it is warm (the halo and its light add far more red than blue: never
-    /// cream-white); by day the halo is still seen beside the lantern. The halo's own tint is warm at any hour, and
-    /// while the work runs the post's lit side and the crook carry the warm rim (on the drawn glows: a rendered pixel
-    /// there also takes the halo and the wall's light, so it cannot tell the rim apart).
-    func testTheLanternsLightIsWarmByNightAndSeenByDay() throws {
+    /// Step 3 (the director's call 6), step 4 (call 3), on the drawn pixels: the same scene rendered with the site lantern
+    /// burning and gone out. At night the light round it is warm (the halo and its light add far more red than blue:
+    /// never cream-white). By day no light is added on the lit wall: the wall in the pool's inner 8 px is blended toward
+    /// fire gold, its mean hue between 30 and 50 degrees and its saturation at least 0.25; the halo is a night thing.
+    /// While the work runs the post's lantern-facing edge and the crook's top row are solid fire-gold pixels, by day and
+    /// by night on the same edge.
+    func testTheLanternsLightIsWarmByNightAndAPoolByDay() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)
         var settings = RenderSettings()
@@ -1472,7 +1474,7 @@ final class PayCountTests: XCTestCase {
         for night in [true, false] {
             let when = night ? "night" : "day"
             var values = ["GWStage": "world", "GWSeed": "2", "GWCameraX": "1240", "GWWeather": "clear",
-                          "GWFlickerTime": "2"]
+                          "GWFlickerTime": "2", "GWReduceMotion": "YES"]
             if night {
                 values["GWNight"] = "3"
                 values["GWHour"] = "21.5"
@@ -1498,14 +1500,16 @@ final class PayCountTests: XCTestCase {
             let dark = try renderer.renderOffscreen(game.frame(physicalWidth: pro.physicalWidth,
                                                                physicalHeight: pro.physicalHeight), settings: settings)
             let half = Double(framing.scale) / 2
+            func pixel(_ x: Double, _ lift: Double) -> (x: Int, y: Int) {
+                (Int(framing.deviceX(stageX: x) + half), Int(framing.deviceY(lift: lift) - half))
+            }
             /// The mean added light over a 3 x 3 block of game pixels round (`x`, `lift`).
             func added(_ x: Double, _ lift: Double) -> SIMD3<Float> {
                 var sum = SIMD3<Float>(0, 0, 0)
                 for dx in -1...1 {
                     for dy in -1...1 {
-                        let px = Int(framing.deviceX(stageX: x + Double(dx)) + half)
-                        let py = Int(framing.deviceY(lift: lift + Double(dy)) - half)
-                        sum += lit.color(x: px, y: py) - dark.color(x: px, y: py)
+                        let p = pixel(x + Double(dx), lift + Double(dy))
+                        sum += lit.color(x: p.x, y: p.y) - dark.color(x: p.x, y: p.y)
                     }
                 }
                 return sum / 9
@@ -1514,32 +1518,67 @@ final class PayCountTests: XCTestCase {
             let lanternTop = CountLantern.crookTop - CountLantern.hang
             let middleX = lanternLeft + 4.5
             let middleLift = lanternTop - 7
-            let beside = added(middleX + 8 * board.toward, middleLift)
-            print("count light \(when): beside \(beside)")
-            // The halo's tint (fireWhite, cream, has blue at three quarters of its red; fireGold far less).
-            let halo = try XCTUnwrap(layer.glows.first { $0.sprite == .siteHalo }, "\(when): the halo")
-            XCTAssertLessThan(halo.color.z, 0.45 * halo.color.x, "\(when): the halo is warm, never cream-white")
+            // The rim: solid fire-gold pixels on the post's lantern-facing edge and the crook's top row.
+            let gold = GamePalette.fireGold
+            let edgeX = framing.deviceX(stageX: Double(CountLantern.rimColumn(postLeft: board.lanternPostLeft,
+                                                                              toward: board.toward)))
+            let rim = layer.actors.filter { $0.sprite == .hallMote && $0.isEmissive && $0.tint.x == gold.x
+                && $0.tint.y == gold.y && abs(Double($0.rect.x) - edgeX) < 0.5 }
+            XCTAssertGreaterThanOrEqual(rim.count, 10, "\(when): the post's lantern-facing edge is solid fire gold")
+            let crookRow = framing.deviceY(lift: CountLantern.crookTop - 1)
+            let crook = layer.actors.filter { $0.sprite == .hallMote && $0.tint.x == gold.x
+                && abs(Double($0.rect.y) - crookRow) < 0.5 }
+            XCTAssertGreaterThanOrEqual(crook.count, 7, "\(when): and the crook's top row")
             if night {
+                let beside = added(middleX + 8 * board.toward, middleLift)
+                print("count light night: beside \(beside)")
+                let halo = try XCTUnwrap(layer.glows.first { $0.sprite == .siteHalo }, "night: the halo")
+                XCTAssertLessThan(halo.color.z, 0.45 * halo.color.x, "night: the halo is warm, never cream-white")
                 XCTAssertGreaterThan(beside.x, 0.04, "the halo is seen at night")
                 XCTAssertGreaterThan(beside.x, beside.y, "warm: more red than green")
                 XCTAssertGreaterThan(beside.y, beside.z, "warm: more green than blue")
                 XCTAssertLessThan(beside.z, 0.7 * beside.x, "never cream-white")
+                XCTAssertFalse(layer.actors.contains { $0.sprite == .siteHalo }, "no pool at night")
             } else {
-                XCTAssertGreaterThan(beside.x, 0.02, "by day the halo is still seen beside the lantern")
-                // The rim: a warm glow on each pixel of the post's lit column from the crook's band down past the
-                // lantern's foot, and on the crook's arm.
-                let rimX = Double(board.lanternPostLeft + (board.toward > 0 ? 3 : 2))
-                let rim = layer.glows.filter { $0.sprite == .hallMote && $0.x == rimX }
-                XCTAssertGreaterThanOrEqual(rim.count, 10, "by day the post's lit side takes a warm rim (\(rim.count))")
-                XCTAssertTrue(rim.allSatisfy { $0.color.x > $0.color.z }, "a warm one")
-                let crookRow = layer.glows.filter { $0.sprite == .hallMote && $0.y == CountLantern.crookTop - 2 }
-                XCTAssertGreaterThanOrEqual(crookRow.count, 4, "and the crook's arm over the lantern")
+                XCTAssertFalse(layer.glows.contains { $0.sprite == .siteHalo }, "by day no halo added on the lit wall")
+                let pool = try XCTUnwrap(layer.actors.first { $0.sprite == .siteHalo && $0.frame == 1 }, "day: the pool")
+                XCTAssertEqual(pool.tint.w, GameModel.countPoolAlpha, accuracy: 0.01, "blended about 0.4 over the wall")
+                XCTAssertFalse(pool.isLit && !pool.isEmissive, "its colour is the fire's, not the light's")
+                // The inner ring on the side away from the post, beside the lantern's body: 5 to 7 px from its middle.
+                var sum = SIMD3<Float>(0, 0, 0)
+                var n: Float = 0
+                for dx in 5...7 {
+                    for dy in -3...3 {
+                        let p = pixel(middleX + Double(dx) * board.toward, middleLift + Double(dy))
+                        sum += lit.color(x: p.x, y: p.y)
+                        n += 1
+                    }
+                }
+                let mean = sum / n
+                let high = max(mean.x, max(mean.y, mean.z))
+                let low = min(mean.x, min(mean.y, mean.z))
+                let saturation = high > 0 ? (high - low) / high : 0
+                var hue: Float = 0
+                if high > low {
+                    if high == mean.x {
+                        hue = 60 * (mean.y - mean.z) / (high - low)
+                    } else if high == mean.y {
+                        hue = 60 * (2 + (mean.z - mean.x) / (high - low))
+                    } else {
+                        hue = 60 * (4 + (mean.x - mean.y) / (high - low))
+                    }
+                    if hue < 0 { hue += 360 }
+                }
+                print("count light day: pool mean \(mean) hue \(hue) saturation \(saturation)")
+                XCTAssertTrue((30...50).contains(hue), "day: the pool's hue \(hue) between 30 and 50 degrees")
+                XCTAssertGreaterThanOrEqual(saturation, 0.25, "day: the pool's saturation \(saturation)")
             }
         }
     }
 
-    /// Step 3 (the director's call 6): as the lantern catches, three or four embers rise from its cap once, about
-    /// 6 px, and are gone; never under Reduce Motion.
+    /// Step 3 (the director's call 6), step 4 (call 3): as the lantern catches, three or four embers rise once as solid
+    /// pixels (never light added), fire orange dying to ember red, starting beside the chain 2 px clear of it on the
+    /// side away from the post and rising about 6 px, then gone; never under Reduce Motion.
     func testEmbersRiseOnceAsTheLanternCatches() throws {
         for still in [false, true] {
             var values = ["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240"]
@@ -1549,25 +1588,33 @@ final class PayCountTests: XCTestCase {
             let framing = try XCTUnwrap(game.touch.framing)
             let state = try XCTUnwrap(game.driver?.state)
             let lanternTop = CountLantern.crookTop - CountLantern.hang
-            func embers(age: Double) -> [EntityGlow] {
+            let chainX = Double(CountLantern.chainX(postLeft: 1200, toward: 1))
+            func embers(age: Double) -> (pixels: [ActorInstance], glows: [EntityGlow]) {
                 game.touch.countLanterns = [CountLantern(offer: .recruit(.archer), postLeft: 1200, toward: 1,
                                                          litAt: game.clock.elapsed - age)]
                 var layer = EntityLayer()
                 game.countWorld(&layer, state: state, framing: framing)
                 // The embers are the orange points (the flame's heart is white, the rim gold).
-                return layer.glows.filter { $0.sprite == .hallMote && $0.color.y < 0.65 * $0.color.x }
+                return (layer.actors.filter { $0.sprite == .hallMote && $0.tint.y < 0.65 * $0.tint.x },
+                        layer.glows.filter { $0.sprite == .hallMote && $0.color.y < 0.65 * $0.color.x })
             }
             let rising = embers(age: 0.3)
             let gone = embers(age: 1.2)
+            XCTAssertTrue(rising.glows.isEmpty, "never an ember added as light")
             if still {
-                XCTAssertTrue(rising.isEmpty, "Reduce Motion: no embers")
+                XCTAssertTrue(rising.pixels.isEmpty, "Reduce Motion: no embers")
             } else {
-                XCTAssertTrue((2...4).contains(rising.count), "embers rise (\(rising.count))")
-                XCTAssertTrue(rising.contains { $0.y >= lanternTop + 1 }, "over the lantern's top")
-                XCTAssertTrue(rising.allSatisfy { $0.y <= lanternTop - 2 + GameModel.countEmberRise + 0.5 },
-                              "about 6 px, no higher")
+                XCTAssertTrue((2...4).contains(rising.pixels.count), "embers rise (\(rising.pixels.count))")
+                for ember in rising.pixels {
+                    XCTAssertTrue(ember.isEmissive && ember.tint.w == 1, "a solid pixel")
+                    let x = framing.stageX(deviceX: Double(ember.rect.x) + 0.5)
+                    XCTAssertGreaterThanOrEqual(x, chainX + 3 - 0.5, "2 px clear of the chain, away from the post")
+                    let lift = framing.lift(deviceY: Double(ember.rect.y) + 0.5)
+                    XCTAssertGreaterThanOrEqual(lift, lanternTop, "beside the chain, over the lantern")
+                    XCTAssertLessThanOrEqual(lift, lanternTop + 1 + GameModel.countEmberRise + 0.6, "about 6 px")
+                }
             }
-            XCTAssertTrue(gone.isEmpty, "and gone")
+            XCTAssertTrue(gone.pixels.isEmpty, "and gone")
         }
     }
 

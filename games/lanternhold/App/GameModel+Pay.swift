@@ -57,14 +57,26 @@ struct CountLantern: Sendable, Equatable {
     /// at the lord's shoulder, the iron bends over above it); the lantern's top hangs `hang` under it, from the chain.
     static let crookTop = 30.0
     static let hang = 7.0
-    /// The lantern catches as its board has gone (the lid's receipt held, then its fade): the seal lights it this long
-    /// after the lid shuts. Until then it hangs unlit behind the shut board.
-    static let catchAfterSeal = PayCount.sealSeconds + PayCount.fadeSeconds
+    /// The lantern catches under the board's last fade (step 4, the director's call 3, M-e: 0.8 s after the lid shuts,
+    /// so the seal and the light share a moment); its bloom shows through as light while the board goes. Until then it
+    /// hangs unlit behind the shut board.
+    static let catchAfterSeal = 0.8
 
     /// The hanging lantern's left edge for a post at `postLeft` whose crook points `toward` (its ring under the chain's
     /// last link: tools/hudart.py CROOK_CHAIN), before its sway.
     static func lanternLeft(postLeft: Int, toward: Double) -> Int {
         toward > 0 ? postLeft + 6 : postLeft - 9
+    }
+
+    /// The chain's column (its ring hangs under it: the lantern's column 4), before the lantern's sway.
+    static func chainX(postLeft: Int, toward: Double) -> Int {
+        lanternLeft(postLeft: postLeft, toward: toward) + 4
+    }
+
+    /// Step 4 (the director's call 3, M-b): the post's wood column on the lantern's side, where the rim stands (the
+    /// post tile is `.iLDi.`: its light column 2 on the left, its dark column 3 on the right).
+    static func rimColumn(postLeft: Int, toward: Double) -> Int {
+        postLeft + (toward > 0 ? 3 : 2)
     }
 
     /// A recruit is taken on at once: his lantern burns this long while he steps up.
@@ -134,19 +146,21 @@ extension GameModel {
 
     /// Step 2 (H5): a coin home in the purse ticks this softly.
     static let countHomeTick = 0.3
-    /// Step 2 (H2), step 3 (the director's call 6): the halo's light, by night; by day it is `countHaloDay` of it (the
-    /// sun outshines a halo, so by day the proof is the event: the bloom, the embers, the warm rim).
+    /// Step 2 (H2), step 3 (the director's call 6): the halo's light, by night. Step 4 (call 3): by day no light is added
+    /// on the lit wall; the halo goes as the night does and a warm pool takes its place (`countPoolAlpha`).
     static let countHaloStrength: Float = 1.0
-    static let countHaloDay = 0.9
-    /// Step 3 (call 6): while the job runs, a warm rim on the lit side of the lantern's post and crook (a glow this
-    /// strong) and on the wall behind it (a small strong light).
-    static let countRimGlow: Float = 0.45
+    /// Step 4 (call 3): by day the wall under the lantern is blended toward fire gold, this much in the inner 8 px
+    /// (`siteHalo` frame 1, plain alpha blend, never additive), less as the night comes.
+    static let countPoolAlpha: Float = 0.4
+    /// Step 3 (call 6): while the job runs, a small strong light on the wall behind it. Step 4 (call 3): the rim on the
+    /// post's lantern-facing edge and the crook's top row is solid fire gold pixels, by day and by night.
     static let countRimRadius = 20.0
     static let countRimIntensity = 1.3
-    /// Step 3 (call 6): as the lantern catches, these embers rise from its cap once, about 6 px each (column from the
-    /// lantern's left, delay and life in seconds); none under Reduce Motion.
-    static let countEmbers: [(column: Double, delay: Double, life: Double)] = [(3, 0.04, 0.55), (5, 0.1, 0.6),
-                                                                                (4, 0.17, 0.5), (6, 0.24, 0.45)]
+    /// Step 4 (call 3): as the lantern catches, these embers rise once as solid pixels, fire orange dying to ember red,
+    /// beside the chain on the side away from the post (2 px clear of it: `column` 3 is the first free column past the
+    /// chain's), each from the lantern's top about 6 px (delay and life in seconds); none under Reduce Motion.
+    static let countEmbers: [(column: Double, delay: Double, life: Double)] = [(3, 0.04, 0.55), (4, 0.1, 0.6),
+                                                                                (3, 0.17, 0.5), (5, 0.24, 0.45)]
     static let countEmberRise = 6.0
 
     /// The halo's warm tint (step 3, call 6: fireGold leaning to the flame, never cream-white).
@@ -1052,16 +1066,18 @@ extension GameModel {
     }
 
     /// The site lanterns the seals lit (H2), each hanging from the crook of its board's post: unlit behind the shut
-    /// board until the board has gone (step 3, the review), then the 9 x 13 lantern blooming for two frames as it
-    /// catches, embers rising from its cap once, then burning while its job runs, with its light,
-    /// the glow of its flame's heart, a warm rim on its post and crook and a small strong light on the wall behind
-    /// (step 3, the director's call 6: by day the lighting is an event), and its warm halo (0.9 of it by day, whole by
-    /// night); gone out, it stands dark a moment and fades.
+    /// board until 0.8 s after the seal (step 4, the director's call 3: under the board's last fade), then the 9 x 13
+    /// lantern blooming for two frames as it catches, embers rising beside its chain once as solid pixels, then
+    /// burning while its job runs, with its light, the glow of its flame's heart, a solid fire-gold rim on its post's
+    /// lantern-facing edge and its crook's top row, a small strong light on the wall behind; by day a warm pool blended
+    /// over the wall (never light added on a lit wall), by night its warm dithered halo; gone out, it stands dark a
+    /// moment and fades.
     private func countLanternsWorld(_ layer: inout EntityLayer, framing: TouchFraming, night: Double) {
         guard !touch.countLanterns.isEmpty else { return }
         let now = clock.elapsed
         let gold = GamePalette.fireGold
         let warm = GamePalette.fireWhite
+        let dark = min(1, max(0, night))
         for lantern in touch.countLanterns {
             var age = max(0, now - lantern.litAt)
             // `-GWCountFreeze lit:<s>` (Debug, the pictures): the lantern held at that age.
@@ -1072,7 +1088,7 @@ extension GameModel {
                 lit = false
                 alpha = Float(min(1, max(0, (CountLantern.outSeconds - (now - out)) / CountLantern.fadeSeconds)))
             } else if now < lantern.litAt {
-                // Behind the shut board, unlit, until the board has gone.
+                // Behind the shut board, unlit, until it catches.
                 lit = false
             }
             guard alpha > 0.01 else { continue }
@@ -1084,13 +1100,24 @@ extension GameModel {
                     frame = 3
                 }
             }
+            let flare = reduceMotion || !lit ? 0 : max(0, 1 - age / 0.45)
+            // Step 4 (call 3): by day the warm pool, behind the post, the crook and the lantern.
+            let poolLeft = Double(CountLantern.lanternLeft(postLeft: lantern.postLeft, toward: lantern.toward)) + 4 - 12
+            let poolTop = CountLantern.crookTop - CountLantern.hang + 5
+            if lit, dark < 0.99,
+               let pool = countActor(.siteHalo, 1, x: poolLeft, lift: poolTop,
+                                     alpha: GameModel.countPoolAlpha * Float(1 - dark) * alpha, framing: framing) {
+                var warmPool = pool
+                warmPool.tint = SIMD4<Float>(gold.x, gold.y, gold.z, warmPool.tint.w)
+                warmPool.isEmissive = true
+                layer.actors.append(warmPool)
+            }
             let crook = countCrookActors(postLeft: lantern.postLeft, toward: lantern.toward, shift: 0,
                                          lanternFrame: frame, alpha: alpha, framing: framing)
             layer.actors += crook.actors
             let lanternLeft = crook.lanternLeft
             let lanternTop = crook.lanternTop
             guard lit else { continue }
-            let flare = reduceMotion ? 0 : max(0, 1 - age / 0.45)
             // The flame's middle: column 4, row 7 of the lantern (its 5 x 5 glass is columns 2 to 6, rows 5 to 9).
             layer.lights.append((source: LightSource(kind: .lantern, x: lanternLeft + 4.5, y: lanternTop - 7.5,
                                                      radius: 36, color: gold, intensity: 0.9 + 1.4 * flare),
@@ -1104,54 +1131,66 @@ extension GameModel {
                                                                       1)))
                 }
             }
-            // The wall behind takes a warm light, the post and the crook a warm rim on their lit side (call 6).
+            // The wall behind takes a small strong warm light while the job runs (call 6).
             layer.lights.append((source: LightSource(kind: .lantern, x: lanternLeft + 4.5, y: lanternTop - 6.5,
                                                      radius: GameModel.countRimRadius, color: gold,
                                                      intensity: GameModel.countRimIntensity), plane: .world))
-            countRim(&layer, lantern: lantern, lanternTop: lanternTop)
-            // The embers rise once as it catches (call 6).
+            layer.actors += countRimPixels(lantern, lanternTop: lanternTop, framing: framing)
+            // The embers rise once as it catches, solid pixels (step 4, call 3).
             if !reduceMotion {
                 let ember = GamePalette.ember
                 let orange = GamePalette.fireOrange
+                let chainX = Double(CountLantern.chainX(postLeft: lantern.postLeft, toward: lantern.toward))
                 for spark in GameModel.countEmbers {
                     let t = (age - spark.delay) / spark.life
                     guard t >= 0, t < 1 else { continue }
                     let rise = (GameModel.countEmberRise * (1 - (1 - t) * (1 - t))).rounded()
-                    let fade = Float(1 - t) * 1.4
                     let tint = orange + (ember - orange) * Float(t)
-                    layer.glows.append(EntityGlow(.hallMote, x: lanternLeft + spark.column, y: lanternTop - 2 + rise,
-                                                  color: SIMD4<Float>(tint.x * fade, tint.y * fade, tint.z * fade, 1)))
+                    if let pixel = countPixel(x: chainX + lantern.toward * spark.column, lift: lanternTop + 1 + rise,
+                                              color: tint, framing: framing) {
+                        layer.actors.append(pixel)
+                    }
                 }
             }
-            let halo = GameModel.countHaloTint
-            let share = GameModel.countHaloDay + (1 - GameModel.countHaloDay) * min(1, max(0, night))
-            let k = Float(share * (1 + 0.5 * flare)) * GameModel.countHaloStrength
-            layer.glows.append(EntityGlow(.siteHalo, x: lanternLeft + 4 - 12, y: lanternTop - 20,
-                                          color: SIMD4<Float>(halo.x * k, halo.y * k, halo.z * k, 1)))
+            // By night the warm halo (the sun outshines it by day, where the pool stands instead).
+            let k = Float(dark * (1 + 0.5 * flare)) * GameModel.countHaloStrength
+            if k > 0.01 {
+                let halo = GameModel.countHaloTint
+                layer.glows.append(EntityGlow(.siteHalo, x: lanternLeft + 4 - 12, y: lanternTop - 20,
+                                              color: SIMD4<Float>(halo.x * k, halo.y * k, halo.z * k, 1)))
+            }
         }
     }
 
-    /// The warm rim of a burning site lantern (step 3, the director's call 6): one pixel on the lit side of its post's
-    /// wood near the lantern, and on the crook's arm and hook over it (tools/hudart.py CROOK_RIGHT, CROOK_LEFT).
-    private func countRim(_ layer: inout EntityLayer, lantern: CountLantern, lanternTop: Double) {
+    /// One solid pixel of the count (an ember, a pixel of the rim) at `x`, `lift` (its top-left, game px), drawn at
+    /// full strength in `color` after the light (never added to it); nil off the screen.
+    private func countPixel(x: Double, lift: Double, color: SIMD3<Float>, framing: TouchFraming) -> ActorInstance? {
+        guard var pixel = countActor(.hallMote, 0, x: x, lift: lift, alpha: 1, framing: framing) else { return nil }
+        pixel.tint = SIMD4<Float>(color.x, color.y, color.z, 1)
+        pixel.isEmissive = true
+        return pixel
+    }
+
+    /// Step 4 (the director's call 3, M-b): the rim of a burning site lantern, solid fire-gold pixels on its post's
+    /// edge that faces the lantern (from the crook's band down past the lantern's foot) and along the crook's top row
+    /// (tools/hudart.py CROOK_RIGHT, CROOK_LEFT: the iron's lit row), the same edge by day and by night.
+    func countRimPixels(_ lantern: CountLantern, lanternTop: Double, framing: TouchFraming) -> [ActorInstance] {
+        var pixels: [ActorInstance] = []
         let gold = GamePalette.fireGold
-        let k = GameModel.countRimGlow
-        let colour = SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)
         let crookTop = CountLantern.crookTop
         let right = lantern.toward > 0
-        // The post's wood on the lantern's side, from the crook's band down past the lantern's foot.
-        let woodX = Double(lantern.postLeft + (right ? 3 : 2))
+        let edgeX = Double(CountLantern.rimColumn(postLeft: lantern.postLeft, toward: lantern.toward))
         var lift = crookTop - 5
         while lift > lanternTop - Double(SpriteID.siteLantern.size.height) - 2 {
-            layer.glows.append(EntityGlow(.hallMote, x: woodX, y: lift - 1, color: colour))
+            if let pixel = countPixel(x: edgeX, lift: lift, color: gold, framing: framing) { pixels.append(pixel) }
             lift -= 1
         }
-        // The crook's arm over the lantern and its hook (columns of the 12-wide crook, row from its top).
         let origin = right ? lantern.postLeft : lantern.postLeft - PayBoardLayout.tile
-        for (column, row) in [(6, 1), (7, 1), (8, 1), (9, 1), (10, 2), (10, 3)] {
-            let x = right ? column : 11 - column
-            layer.glows.append(EntityGlow(.hallMote, x: Double(origin + x), y: crookTop - Double(row) - 1,
-                                          color: colour))
+        for column in (right ? 3...9 : 2...8) {
+            if let pixel = countPixel(x: Double(origin + column), lift: crookTop - 1, color: gold, framing: framing) {
+                pixels.append(pixel)
+            }
         }
+        return pixels
     }
 }
