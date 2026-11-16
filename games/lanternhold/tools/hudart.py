@@ -40,14 +40,16 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
                fifth plank middle with a knot (the grain as streaks of 3 to 6 px: one tile in five shows a knot);
                step 4: the signpost's iron bar, 28 its left end, 29 a middle, 30 its right end (in the cell's last 4
                rows, as the cap)
-  paySign      24x13, 19 frames (step 5, the builder's models at a plot with several offers: the models are the
+  paySign      24x17, 20 frames (step 5, the builder's models at a plot with several offers: the models are the
                offer, the pay board's hollows are the price): 0 the sawhorse trestle (24 x 10 in the cell's bottom
                rows), 1 the ballista (22 x 13: a great crossbow on a post with splayed feet, its bolt's iron point out
-               in front), 2 the catapult (20 x 13: the arm raised at 45 degrees, its iron cup, a 4 x 4 counterweight
-               box, the frame on two wheels), 3 any other building (a gabled house, 16 x 13); fresh pale timber in
+               in front), 2 the catapult (22 x 15, step 6: an A-frame, the arm 2 px thick at 45 degrees rising
+               over it to a dark iron cup, a 4 x 4 weight box hanging with air under it, two wheels with dark
+               hubs), 3 any other building (a gabled house, 16 x 13); fresh pale timber in
                three tones with an ink edge all round, standing on the trestle's beam; 4 5 6 the chosen model's warm
                rim (its ink edge fire gold along the top, gold down the right), laid over it; 7-10, 11-14, 15-18 the
-               glint passing over the ballista, the catapult and the house in four steps
+               glint passing over the ballista, the catapult and the house in four steps; 19 the second trestle
+               of a row (a darker plank and a knot in its beam)
   siteLantern  9x13, 4 frames: the site lantern on the post, unlit (dark glass), lit (a 5x5 flame in the fire ramp,
                white at its heart), and the two frames of its bloom as it catches (the stage lane adds its light, the
                glow of its glass and its halo)
@@ -868,20 +870,25 @@ SIGN_BAR_R = ["iiiii.",
 
 # the builder's models on their trestles (step 5, the director's notes of 16.11., 12:44, P1 to P4: the models are the
 # offer, the board's hollows are the price; nothing but the things themselves stands at a plot with several offers).
-# One 24 x 13 cell per frame: 0 the sawhorse trestle (24 x 10, in the cell's bottom 10 rows: a beam on two splayed
-# legs, weathered wood); 1 2 3 the models standing on it (bottom-aligned, centred): the ballista 22 x 13, the catapult
-# 20 x 13 and any other building, a gabled house 16 x 13; fresh pale timber in three tones lit from the upper left,
+# One 24 x 17 cell per frame (step 6: 13 before; the catapult's arm needs the height): 0 the sawhorse trestle (24 x 10,
+# in the cell's bottom 10 rows: a beam on two splayed legs, weathered wood); 1 2 3 the models standing on it
+# (bottom-aligned, centred): the ballista 22 x 13, the catapult 24 x 17 with its edge (step 6, R3) and any other
+# building, a gabled house 16 x 13; fresh pale timber in three tones lit from the upper left,
 # dark timber for the frames and legs, a dark ink edge all round (4 neighbours, so a diagonal stays thin) so they
 # read on grey stone, on the blue banner and at night, one iron accent each (the bolt's point, the cup, the door's
 # hinge); the string is parchment with no edge; 4 5 6 the chosen model's warm rim (its ink edge fire gold along the top,
 # gold down the right), laid over the model; 7 to 18 the glint passing over each model in four steps (a short streak of fire white on its lit edge),
-# ballista 7-10, catapult 11-14, house 15-18. Drawn by hand, never reduced from the engines' sprites.
-MODEL_CELL = (24, 13)
+# ballista 7-10, catapult 11-14, house 15-18; 19 the row's second trestle (step 6). Drawn by hand, never reduced from the engines' sprites.
+MODEL_CELL = (24, 17)
 MODEL_TONES = {"T": ("strawLight", "straw", "woodLight"),   # fresh timber: lit, face, shade
                "D": ("straw", "woodLight", "wood"),         # the dark timber of frames, bolts and legs
                "W": ("woodLight", "wood", "woodDark"),      # wheels and the winch's drum
-               "I": ("stonePale", "stoneLight", "stone")}   # iron
-# T timber, D dark timber, W wheel, I iron, s string (parchment, no ink edge), . empty; each 11 rows, at most 22 wide
+               "I": ("stonePale", "stoneLight", "stone"),   # iron
+               "C": ("stoneDark", "stoneDark", "stoneDark"),  # step 6: the catapult's dark iron cup
+               "L": ("stonePale", "stonePale", "stonePale"),  # its one light pixel
+               "H": ("woodDark", "woodDark", "woodDark")}     # the wheels' dark hubs
+# T timber, D dark timber, W wheel (the catapult's weight box since step 6), I iron, C the cup's dark iron, L its light
+# pixel, H a hub, s string (parchment, no ink edge), . empty; at most 22 wide and 15 rows (the ballista 11, the house 11)
 MODEL_BALLISTA = [".......DDD..........",   # facing left, as its sprite: a great crossbow on a post with
                   "......DD..s.........",   # splayed feet; the bow in dark timber, 2 px thick, its string drawn
                   ".I...DD....ss.......",   # back to the nut; the bolt in the stock's groove with its iron point
@@ -893,17 +900,21 @@ MODEL_BALLISTA = [".......DDD..........",   # facing left, as its sprite: a grea
                   "...........DD.......",
                   "..........DDDD......",
                   "........DD.DD.DD...."]
-MODEL_CATAPULT = ["............TI.I..",     # facing right: the long arm raised at 45 degrees, its iron cup at the
-                  "..........TTTIII..",     # top, the counterweight box (4 x 4) at its short end, an A-frame for
-                  ".DDDD....TT.......",     # its pivot, the frame's beam on two wheels
-                  ".DDDD...TT........",
-                  ".DDDD.TTTT........",
-                  ".DDDDTTT..T.......",
-                  ".......T..T.......",
-                  "DDDDDDDDDDDDDDDDDD",
-                  "..WW.........WW...",
-                  ".WWWW.......WWWW..",
-                  "..WW.........WW..."]
+MODEL_CATAPULT = ["...............CCC....",   # step 6 (R3), facing right: an A-frame whose pivot stands 7 px over
+                  ".............TTCLC....",   # the base, the arm 2 px thick at 45 degrees rising 4 px over it to a
+                  "............TT........",   # dark iron cup (3 x 2, inked, one light pixel); the 4 x 4 weight box
+                  "...........TT.........",   # hangs at the arm's short end with 1 px of air over the base; the
+                  "..........TT..........",   # pivot's iron pin; the base beam on two 4 x 4 wheels with dark hubs;
+                  ".........TTID.........",   # its cup stands 4 px over the ballista's top (the cell is 17 high)
+                  ".....WWWWT.D.D........",
+                  ".....WWWW..D..D.......",
+                  ".....WWWW.D...D.......",
+                  ".....WWWW.D....D......",
+                  "..........D....D......",
+                  ".DTTDDDDDDDDDDDDDTTDD.",
+                  ".THHT...........THHT..",
+                  ".THHT...........THHT..",
+                  "..TT.............TT..."]
 MODEL_HOUSE = ["......TT......",
                ".....TTTT.....",
                "....TTTTTT....",
@@ -927,6 +938,17 @@ TRESTLE = ["..iiiiiiiiiiiiiiiiiiii..",
            ".iLFi..............iLFi.",
            "iLFi................iLFi",
            "iLFi................iLFi"]
+# step 6 (R3): the second trestle of a row, not a copy: one darker plank let into its beam and a knot
+TRESTLE_B = ["..iiiiiiiiiiiiiiiiiiii..",
+             ".iLLLLLLLLLLFFFFFLLLLLi.",
+             ".iFFFnFFFDFFDDDDDFnFFFi.",
+             "..iiiiiiiiiiiiiiiiiiii..",
+             "..iLFi............iLFi..",
+             "..iLFi............iLFi..",
+             ".iLFi..............iLFi.",
+             ".iLFi..............iLFi.",
+             "iLFi................iLFi",
+             "iLFi................iLFi"]
 
 
 def model_grid(rows):
@@ -1014,6 +1036,8 @@ def model_frames(pal):
     frames += [model_rim(m, pal) for m in models]
     for m in models:
         frames += model_glints(m, pal)
+    # step 6 (R3): 19 the second trestle (appended, so every other frame keeps its number)
+    frames.append(legend_image(TRESTLE_B, pal, TRESTLE_LEGEND, ch, top=False))
     return frames
 
 # the site lantern (9x13, step 2's critic H2: the 7x10 one was a speck by day): a ring, a cap, a 5x5 glass in an iron
