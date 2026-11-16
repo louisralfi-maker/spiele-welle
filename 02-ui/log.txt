@@ -1,0 +1,15 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (36.733 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (77.437 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (75.689 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (20.764 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (21.487 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (76.924 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (19.123 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:223: error: -[LanternholdUITests.CountUITests testTheLanternAtNight] : XCTAssertTrue failed - the coin paid the repair
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:225: error: -[LanternholdUITests.CountUITests testTheLanternAtNight] : XCTAssertEqual failed: ("Optional("0")") is not equal to ("Optional("1")") - the lantern burns while the repair runs
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' failed (19.223 seconds).
+Test Suite 'CountUITests' failed at 2026-11-16 03:59:51.766.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-16 03:59:51.768.
+Test Suite 'Selected tests' failed at 2026-11-16 03:59:51.769.
+exit=65
+screenshots: 20
