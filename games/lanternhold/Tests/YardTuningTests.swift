@@ -53,9 +53,11 @@ final class YardTuningTests: XCTestCase {
         let m = YardTuningTests.metrics
         let yard = m.runs.filter { $0.bot == "yard" }
         XCTAssertFalse(yard.isEmpty)
-        for run in yard {
-            XCTAssertGreaterThanOrEqual(run.tally.stageDay, 4, "seed \(run.seed): the yard from day 4")
-            XCTAssertGreaterThan(run.tally.kettleDay, run.tally.stageDay, "seed \(run.seed): the kettle after it")
+        // A realm that fell (the falls' budget) may have fallen before it bought (round lh-b3y-11).
+        for run in yard where run.fellOn == nil {
+            XCTAssertGreaterThanOrEqual(run.tally.stageDay, 4, "seed \(run.seed) x\(run.stress): the yard from day 4")
+            XCTAssertGreaterThan(run.tally.kettleDay, run.tally.stageDay,
+                                 "seed \(run.seed) x\(run.stress): the kettle after it")
         }
         XCTAssertTrue(yard.contains { $0.trained > 0 }, "the yard bot's soldiers are trained")
         XCTAssertTrue(m.runs.filter { $0.bot == "reference" }.allSatisfy { $0.trained == 0 && $0.tally == YardBotTally() })

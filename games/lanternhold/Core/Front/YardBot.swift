@@ -8,8 +8,10 @@ struct YardBotTally: Sendable, Equatable {
 
 /// The T16 bot (docs/YARD.md section 8): the reference bot by day and by night (`Autoplay`), plus the yard as gold
 /// allows: the drill yard, then the pitch kettle (the pavises and the armoury come with their step). "As gold allows":
-/// it buys at the yard only while the purse keeps what the reference's next step needs (a wall in rubble first, else
-/// its next build or recruit), so the reference's order is never starved. The lord stays where the reference keeps
+/// the drill yard at the first chance (from day 4, when the purse holds its price), the kettle only while the purse
+/// keeps what the reference's next step needs (a wall in rubble first, else its next build or recruit). Round lh-b3y-11:
+/// with the drill yard saved for too, it was ordered on day 8 to 11, nobody was trained before night 12, and T16 over
+/// nights 8 to 14 measured almost nothing of the yard. The lord stays where the reference keeps
 /// him: never at the yard's fence, so no day of its drill counts double. With `day.skipsWalls` it is the bot that buys
 /// the yard in place of walls (T16: it must do worse than the reference). The reference bots never build the yard.
 struct YardBot: Sendable {
@@ -34,7 +36,8 @@ struct YardBot: Sendable {
         day.morning(&s, balance: balance)
         if DayClock.phase(at: s.hour) == .day, let offer = Yard.offer(s, balance: balance) {
             let price = Yard.price(offer, balance: balance)
-            if s.gold - price >= reserve(s, balance: balance), Yard.order(&s, offer, balance: balance) {
+            let keep = offer == .kettle ? reserve(s, balance: balance) : 0
+            if s.gold - price >= keep, Yard.order(&s, offer, balance: balance) {
                 switch offer {
                 case .stage:
                     tally.stageDay = s.day

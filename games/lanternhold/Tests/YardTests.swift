@@ -28,9 +28,14 @@ final class YardTests: XCTestCase {
         return s
     }
 
-    /// Plays on (the lord standing where he is) until the clock next shows `hour`.
+    /// Plays on (the lord standing where he is) until the clock next shows `hour`: a whole day when it shows it now
+    /// (round lh-b3y-11: `Sim.run` stopped a hair after its hour, and asked for the same hour again it ran only that
+    /// hair, so a second "until 16:05" was no day at all).
     private func run(_ s: inout GameState, until hour: Double, balance b: Balance? = nil) {
         var bot = Autoplay.buildsNothing
+        if abs(DayClock.wrap(hour) - s.hour) < 0.01 {
+            Sim.run(&s, untilHour: DayClock.wrap(hour + 1), balance: b ?? quiet, bot: &bot)
+        }
         Sim.run(&s, untilHour: hour, balance: b ?? quiet, bot: &bot)
     }
 
@@ -332,17 +337,30 @@ final class YardTests: XCTestCase {
         XCTAssertEqual(s.yard?.kettle, .inUse, "Bram brought it at dawn")
         XCTAssertEqual(s.lastReport?.yard?.kettle, true)
         XCTAssertEqual(Yard.balance(balance, for: s).fireArrowEvery, 3, "every third arrow")
-        // In the battle: per archer every third shot burns. Harmless creatures, so the wall holds and every archer
-        // shoots from his post all night.
+        // In the battle (through `Sim.step`, where the kettle's balance is applied): per archer every third shot burns.
+        // Harmless brutes lit by the lord's lantern at the gate's foot, so the wall holds and every archer shoots from
+        // his post (round lh-b3y-11: a night played on its own lit nobody, as no brazier burned, and nobody shot).
         var harmless = balance
         harmless.creatureHarmScale = 0
         func night(kettle: Bool) -> (fire: Int, expected: Int) {
             var n = GameState.newRealm(seed: 4, balance: balance)
             n.day = 2
+            n.hour = 19.5
             Yard.proof(&n, stage: 2, kettle: kettle, trained: false, balance: balance)
-            n.hour = 18.9
-            var bot = Autoplay.buildsNothing
-            Sim.run(&n, untilHour: 2, balance: harmless, bot: &bot)
+            n.hour = 21
+            Battle.prepareDusk(&n, balance: balance)
+            n.bankEdge = Battle.bankEdge(n, balance: balance)
+            n.king.x = Realm.wallX[0] - 22
+            for k in 0..<30 {
+                Battle.spawn(&n, kind: .ashBrute, x: Realm.wallX[0] - 30 + Double(k % 10), wave: 0, balance: balance,
+                             fromWave: false)
+            }
+            var events: [SimEvent] = []
+            for _ in 0..<200 {
+                events.removeAll(keepingCapacity: true)
+                n.king.velocity = 0
+                Sim.step(&n, dt: 0.1, balance: harmless, events: &events)
+            }
             let every = kettle ? 3 : 4
             var expected = 0
             for soldier in n.soldiers where soldier.kind == .archer { expected += soldier.shots / every }
