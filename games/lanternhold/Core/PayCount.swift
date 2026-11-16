@@ -772,6 +772,39 @@ enum PayFreeze: Sendable, Equatable {
     /// lantern, which caught under the board's last fade (step 4: 0.8 s after the seal), held at this age (its bloom,
     /// its embers).
     case lit(Double)
+    /// Step 4 (M-a): one coin's filmstrip from one hold: coin `coin` held at each share in turn (`flight` at
+    /// `shares[step]`), the model moving on to the next after `dwell` seconds, so every panel is the same throw.
+    case flights(coin: Int, shares: [Double])
+    /// Step 4 (M-d): coin `coin` just as it has sat down, on the frame of its glint.
+    case glint(coin: Int)
+
+    /// How long a `flights` freeze holds each share before it moves on (long enough for a slow runner's screenshot).
+    static let dwell = 3.0
+    /// The moment after its landing a `glint` freeze holds a coin: its settle and squash done, inside the glint's frame.
+    static let glintAt = PayCount.settleSeconds + PayCount.squashSeconds + 0.004
+
+    /// The freeze in force at `step` of a `flights` freeze (that share's `flight`); any other freeze as it is.
+    func at(step: Int) -> PayFreeze {
+        if case .flights(let coin, let shares) = self, !shares.isEmpty {
+            return .flight(coin: coin, share: shares[min(max(0, step), shares.count - 1)])
+        }
+        return self
+    }
+
+    /// The number of shares of a `flights` freeze (1 for any other).
+    var steps: Int {
+        if case .flights(_, let shares) = self { return max(1, shares.count) }
+        return 1
+    }
+
+    /// True for a freeze that holds a moment of motion (a coin in the air, its glint): the board keeps its dip and the
+    /// landed coin its settle; the others show the board at rest.
+    var keepsMotion: Bool {
+        switch self {
+        case .flight, .flights, .glint: return true
+        default: return false
+        }
+    }
 
     /// The count's moment `lit` holds it at: the board faded all but out (never drawn), the count not yet gone.
     static let litMoment = PayCount.sealSeconds + PayCount.fadeSeconds - 0.001
@@ -782,18 +815,25 @@ enum PayFreeze: Sendable, Equatable {
         return nil
     }
 
-    /// `0.5`, `full`, `sealed`, `back`, `fly:<coin>:<share>`, `lit:<seconds>`; nil for anything else.
+    /// `0.5`, `full`, `sealed`, `back`, `fly:<coin>:<share>`, `fly:<coin>:<share>,<share>,...` (one hold's strip),
+    /// `glint:<coin>`, `lit:<seconds>`; nil for anything else.
     static func parse(_ text: String?) -> PayFreeze? {
         guard let word = text?.trimmingCharacters(in: .whitespaces).lowercased(), !word.isEmpty else { return nil }
         if word.hasPrefix("lit:") {
             guard let seconds = Double(word.dropFirst(4)), seconds.isFinite, seconds >= 0 else { return nil }
             return .lit(seconds)
         }
+        if word.hasPrefix("glint:") {
+            guard let coin = Int(word.dropFirst(6)), coin >= 0 else { return nil }
+            return .glint(coin: coin)
+        }
         if word.hasPrefix("fly:") {
             let parts = word.split(separator: ":")
-            guard parts.count == 3, let coin = Int(parts[1]), coin >= 0, let share = Double(parts[2]),
-                  share.isFinite, share >= 0 else { return nil }
-            return .flight(coin: coin, share: share)
+            guard parts.count == 3, let coin = Int(parts[1]), coin >= 0 else { return nil }
+            let shares = parts[2].split(separator: ",").compactMap { Double($0) }
+            guard !shares.isEmpty, shares.count == parts[2].split(separator: ",").count,
+                  shares.allSatisfy({ $0.isFinite && $0 >= 0 }) else { return nil }
+            return shares.count == 1 ? .flight(coin: coin, share: shares[0]) : .flights(coin: coin, shares: shares)
         }
         switch word {
         case "full": return .full
@@ -824,6 +864,11 @@ enum PayFreeze: Sendable, Equatable {
         case .flight(let coin, let share):
             guard coin < count.launched.count, let span = count.flightSeconds(coin) else { return false }
             return count.time >= count.launched[coin] + share * span - 1e-9
+        case .flights:
+            return at(step: 0).holds(count)
+        case .glint(let coin):
+            guard let since = count.sinceLanding(coin) else { return false }
+            return since >= PayFreeze.glintAt - 1e-9
         }
     }
 
@@ -847,6 +892,12 @@ enum PayFreeze: Sendable, Equatable {
         case .lit:
             if let since = count.sinceSeal { return max(0, PayFreeze.litMoment - since) }
             if let seal = count.sealAt { return max(0, seal - count.time) + PayFreeze.litMoment }
+            return nil
+        case .flights:
+            return at(step: 0).room(count)
+        case .glint(let coin):
+            if let since = count.sinceLanding(coin) { return max(0, PayFreeze.glintAt - since) }
+            if coin < count.arrivals.count { return max(0, count.arrivals[coin] - count.time) + PayFreeze.glintAt }
             return nil
         default:
             return nil

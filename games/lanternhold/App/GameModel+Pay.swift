@@ -560,10 +560,35 @@ extension GameModel {
         touch.countSent = false
     }
 
+    /// The `-GWCountFreeze` moment in force now (Debug, the pictures): a one-hold strip's current share (step 4, M-a),
+    /// any other freeze as it was given.
+    var countFreezeNow: PayFreeze? {
+        args.countFreeze?.at(step: touch.countFreezeStep)
+    }
+
     /// True while `-GWCountFreeze` (Debug, the pictures) holds the open count still.
     var countFrozen: Bool {
-        guard let freeze = args.countFreeze, let count = touch.count, !count.isGone else { return false }
+        guard let freeze = countFreezeNow, let count = touch.count, !count.isGone else { return false }
         return freeze.holds(count)
+    }
+
+    /// Step 4 (M-a): a one-hold strip holds each share `PayFreeze.dwell` seconds, then lets the same hold run on to
+    /// the next.
+    private func stepCountFreeze() {
+        guard let freeze = args.countFreeze, freeze.steps > 1 else { return }
+        guard countFrozen else {
+            touch.countFreezeSince = nil
+            return
+        }
+        let now = clock.elapsed
+        guard let since = touch.countFreezeSince else {
+            touch.countFreezeSince = now
+            return
+        }
+        if now - since >= PayFreeze.dwell && touch.countFreezeStep < freeze.steps - 1 {
+            touch.countFreezeStep += 1
+            touch.countFreezeSince = nil
+        }
     }
 
     /// A card, the horn, the background, the lantern moment, a change of stage: the count ends and pays nothing.
@@ -616,7 +641,8 @@ extension GameModel {
             count.letGo()
             if count.placed > 0 { feedback.play(.coinsBack) }
         }
-        if let freeze = args.countFreeze, freeze.holds(count) {
+        stepCountFreeze()
+        if let freeze = countFreezeNow, freeze.holds(count) {
             touch.count = count
             return
         }
@@ -631,7 +657,7 @@ extension GameModel {
         if let game = driver { gold = townShownGold(game.state, balance: game.balance) }
         // A freeze for the pictures stops on its exact moment (a coin at a share of its flight), not the frame after.
         var seconds = seconds
-        if let freeze = args.countFreeze, let room = freeze.room(count) { seconds = min(seconds, room) }
+        if let freeze = countFreezeNow, let room = freeze.room(count) { seconds = min(seconds, room) }
         let beats = count.step(seconds, gold: gold)
         for beat in beats {
             switch beat {
@@ -735,7 +761,10 @@ extension GameModel {
             word = "\(count.thing):\(count.placed)/\(count.coins.count):\(state)"
         }
         let lit = touch.countLanterns.filter { $0.outAt == nil }.count
-        return "\(word) last:\(touch.countLast) lanterns:\(lit)"
+        var text = "\(word) last:\(touch.countLast) lanterns:\(lit)"
+        // Step 4 (M-a, Debug pictures): which share of a one-hold strip stands now.
+        if args.countFreeze != nil, countFrozen { text += " frozen:\(touch.countFreezeStep)" }
+        return text
     }
 
     // MARK: - The picture
@@ -859,9 +888,7 @@ extension GameModel {
         // A picture's freeze (Debug) that holds a share or the full board shows it at rest, the last coin settled and
         // no dip; a flight's freeze keeps both (the bar's dip and the landed coin are pictured so).
         var atRest = false
-        if let freeze = args.countFreeze, countFrozen {
-            if case .flight = freeze {} else { atRest = true }
-        }
+        if let freeze = countFreezeNow, countFrozen, !freeze.keepsMotion { atRest = true }
         if !atRest, count.isOpen, count.placed > 0, count.placed <= layout.hollows.count,
            let since = count.sinceLanding(count.placed - 1) {
             dip = GameModel.countDip(layout.hollows[count.placed - 1].coin, since: since, reduceMotion: reduceMotion)
@@ -1103,10 +1130,13 @@ extension GameModel {
                 }
             }
             let flare = reduceMotion || !lit ? 0 : max(0, 1 - age / 0.45)
+            // Step 4 (the small ones): while a board of one plank stands at full strength on this post, nothing of the
+            // crook shows (its arm would stand over the board's top); its light still comes.
+            let hidden = countLanternHidden(lantern)
             // Step 4 (call 3): by day the warm pool, behind the post, the crook and the lantern.
             let poolLeft = Double(CountLantern.lanternLeft(postLeft: lantern.postLeft, toward: lantern.toward)) + 4 - 12
             let poolTop = CountLantern.crookTop - CountLantern.hang + 5
-            if lit, dark < 0.99,
+            if lit, dark < 0.99, !hidden,
                let pool = countActor(.siteHalo, 1, x: poolLeft, lift: poolTop,
                                      alpha: GameModel.countPoolAlpha * Float(1 - dark) * alpha, framing: framing) {
                 var warmPool = pool
@@ -1116,7 +1146,7 @@ extension GameModel {
             }
             let crook = countCrookActors(postLeft: lantern.postLeft, toward: lantern.toward, shift: 0,
                                          lanternFrame: frame, alpha: alpha, framing: framing)
-            layer.actors += crook.actors
+            if !hidden { layer.actors += crook.actors }
             let lanternLeft = crook.lanternLeft
             let lanternTop = crook.lanternTop
             guard lit else { continue }
@@ -1137,9 +1167,9 @@ extension GameModel {
             layer.lights.append((source: LightSource(kind: .lantern, x: lanternLeft + 4.5, y: lanternTop - 6.5,
                                                      radius: GameModel.countRimRadius, color: gold,
                                                      intensity: GameModel.countRimIntensity), plane: .world))
-            layer.actors += countRimPixels(lantern, lanternTop: lanternTop, framing: framing)
+            if !hidden { layer.actors += countRimPixels(lantern, lanternTop: lanternTop, framing: framing) }
             // The embers rise once as it catches, solid pixels (step 4, call 3).
-            if !reduceMotion {
+            if !reduceMotion, !hidden {
                 let ember = GamePalette.ember
                 let orange = GamePalette.fireOrange
                 let chainX = Double(CountLantern.chainX(postLeft: lantern.postLeft, toward: lantern.toward))
@@ -1162,6 +1192,16 @@ extension GameModel {
                                               color: SIMD4<Float>(halo.x * k, halo.y * k, halo.z * k, 1)))
             }
         }
+    }
+
+    /// True while a board still standing at full strength on `lantern`'s post is lower than the crook's top (a board of
+    /// one plank): the crook, the lantern and their pixels are not drawn until the board fades.
+    func countLanternHidden(_ lantern: CountLantern) -> Bool {
+        for (count, board) in [(touch.count, touch.countBoard), (touch.countOld, touch.countOldBoard)] {
+            guard let count, let board, !count.isGone, board.lanternPostLeft == lantern.postLeft else { continue }
+            if count.fadeShare >= 1 && board.top < CountLantern.crookTop + 1 { return true }
+        }
+        return false
     }
 
     /// One solid pixel of the count (an ember, a pixel of the rim) at `x`, `lift` (its top-left, game px), drawn at

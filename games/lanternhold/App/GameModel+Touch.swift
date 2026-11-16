@@ -89,6 +89,10 @@ struct TouchState: Sendable {
     var countOld: PayCount?
     var countOldBoard: CountBoard?
     var countLanterns: [CountLantern] = []
+    /// Step 4 (M-a, Debug pictures): the share a `-GWCountFreeze fly:<coin>:<a>,<b>,...` strip holds now, and the
+    /// clock's second it began to hold there.
+    var countFreezeStep = 0
+    var countFreezeSince: Double?
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger

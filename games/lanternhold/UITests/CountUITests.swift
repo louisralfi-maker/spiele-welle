@@ -98,27 +98,33 @@ final class CountUITests: XCTestCase {
         }
     }
 
-    /// Step 2 (the critic's blocker), step 3 (the director's call 1): one coin of a hold (the third, so coins 1 and 2 lie
-    /// in their hollows and it is seen passing over them) frozen at three points of its throw from the lord's hand and
-    /// just after it landed and settled.
+    /// Step 2 (the critic's blocker), step 3 (the director's call 1), step 4 (M-a: one hold, only the share frozen): one
+    /// coin of a hold (the third, so coins 1 and 2 lie in their hollows and it is seen passing over them) held at three
+    /// points of its throw from the lord's hand (at 45 % its face at the peak, its whole rect over the board's top) and
+    /// just after it landed and settled, all from the same hold (`fly:2:a,b,c,d`, the model holding each a while).
     func testAHeldCoinFlies() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        for (name, share) in [("176a-count-hold-coin3-fly-20", "0.2"), ("176b-count-hold-coin3-fly-50", "0.5"),
-                              ("176c-count-hold-coin3-fly-80", "0.8"), ("176d-count-hold-coin3-landed", "1.95")] {
-            let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", "fly:2:\(share)"], name: name)
-            guard let app else { continue }
-            if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
-                gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 1.2)
-                XCTAssertTrue(waitForField(app, "count:touch-plot-0:", timeout: 3), "\(name): the board stands")
-                pause(0.3)
-                attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
-                note("\(name)-state", sceneField(app, "count:") ?? "?")
-                XCTAssertEqual(sceneGold(app), 200, "\(name): nothing paid in the air")
-            } else {
-                XCTFail("\(name): the gate offers nothing")
-            }
-            app.terminate()
+        let panels = ["176a-count-hold-coin3-fly-20", "176b-count-hold-coin3-peak-45", "176c-count-hold-coin3-fly-80",
+                      "176d-count-hold-coin3-landed"]
+        stripFromOneHold(CountUITests.gate + ["-GWCountFreeze", "fly:2:0.2,0.45,0.8,1.95"], panels: panels,
+                         press: 1.2, gold: 200)
+    }
+
+    /// Step 4 (M-d): the first coin of a tap held on the frame of its glint as it has sat down.
+    func testTheGlint() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let name = "188-count-glint"
+        guard let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", "glint:0"], name: name) else { return }
+        if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
+            touchThing(gate)
+            XCTAssertTrue(waitForField(app, "count:touch-plot-0:1/9", timeout: 3), "\(name): the coin lies")
+            pause(0.3)
+            attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+            note("\(name)-state", sceneField(app, "count:") ?? "?")
+        } else {
+            XCTFail("\(name): the gate offers nothing")
         }
+        app.terminate()
     }
 
     /// Step 2: one tapped coin (it leaves his hand at once and lands a flight later), frozen at three points of its
@@ -219,9 +225,11 @@ final class CountUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         var base = CountUITests.gate
         if let at = base.firstIndex(of: "-GWGold") { base.removeSubrange(at...at + 1) }
-        for (name, freeze) in [("180a-count-bar-before-dip", "fly:0:0.85"), ("180b-count-bar-dip", "fly:0:1.0"),
-                               ("181a-count-far-fly-25", "fly:5:0.25"), ("181b-count-far-fly-55", "fly:5:0.55"),
-                               ("181c-count-far-fly-85", "fly:5:0.85")] {
+        // Step 4 (M-a): the far throw is one hold's strip (`fly:5:a,b,c`).
+        stripFromOneHold(base + ["-GWCastle", "2", "-GWGold", "500", "-GWCountFreeze", "fly:5:0.25,0.45,0.85"],
+                         panels: ["181a-count-far-fly-25", "181b-count-far-peak-45", "181c-count-far-fly-85"],
+                         press: 1.6, gold: 500)
+        for (name, freeze) in [("180a-count-bar-before-dip", "fly:0:0.85"), ("180b-count-bar-dip", "fly:0:1.0")] {
             let args = base + ["-GWCastle", "2", "-GWGold", "500", "-GWCountFreeze", freeze]
             guard let app = launchAtTheBoard(args, name: name, hollows: "/9") else { continue }
             if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
@@ -266,6 +274,28 @@ final class CountUITests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    /// Step 4 (M-a): one launch, one hold on the gate's board, and a screenshot of each panel as the model holds the
+    /// strip's shares in turn (the scene's `frozen:<n>`).
+    private func stripFromOneHold(_ args: [String], panels: [String], press: TimeInterval, gold: Int) {
+        guard let first = panels.first, let app = launchAtTheBoard(args, name: first) else { return }
+        guard let gate = waitForThing(app, "touch-plot-0", timeout: 3) else {
+            XCTFail("\(first): the gate offers nothing")
+            app.terminate()
+            return
+        }
+        gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: press)
+        for (index, name) in panels.enumerated() {
+            guard waitForField(app, "frozen:\(index)", timeout: 8) else {
+                XCTFail("\(name): the strip never held its panel \(index) (\(sceneField(app, "count:") ?? "?"))")
+                break
+            }
+            attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+            note("\(name)-state", sceneField(app, "count:") ?? "?")
+        }
+        XCTAssertEqual(sceneGold(app), gold, "nothing paid in the air")
+        app.terminate()
+    }
 
     /// Launches with `args`, touches the gate (its board comes up with `hollows` hollows) and waits until the lord
     /// stands beside the board; nil when any of it fails.

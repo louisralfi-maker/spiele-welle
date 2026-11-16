@@ -255,13 +255,11 @@ final class TouchUITests: XCTestCase {
             XCTAssertFalse(element(app, "touch-slip").exists, "no slip: the board is the price")
             // Step 2 (H5): an empty board waits 5 s for the finger once the lord stands beside it, so the second
             // touch sets the coin on the board the first one brought; it flies from his hand and the seal falls.
-            XCTAssertTrue(waitForField(app, "count:touch-wall-0:0/1:there", timeout: 2), "the board still waits")
-            if let again = waitForThing(app, "touch-wall-0", timeout: 2) {
-                touchThing(again)
-                XCTAssertTrue(waitForField(app, "last:paid:touch-wall-0", timeout: 3), "the coin paid the repair")
-                pause(0.15)
-                attach(XCUIScreen.main.screenshot(), "153b-touch-wall-paid-\(language)")
-            }
+            // Step 4 (round lh-b3c-32: a slow runner took 4 s to find the wall again and the wait ran out): the
+            // wall's point is read once he stands still and tapped straight on the screen, again if the board went.
+            XCTAssertTrue(tapUntil(app, wall, "last:paid:touch-wall-0"), "the coin paid the repair")
+            pause(0.15)
+            attach(XCUIScreen.main.screenshot(), "153b-touch-wall-paid-\(language)")
         } else {
             XCTFail("the damaged gate offers nothing")
         }
@@ -293,11 +291,7 @@ final class TouchUITests: XCTestCase {
             waitForStill(poor)
             pause(0.4)
             attach(XCUIScreen.main.screenshot(), "153a-touch-wall-short-\(language)")
-            XCTAssertTrue(waitForField(poor, "count:touch-wall-0:0/1:there", timeout: 2), "the board still waits")
-            if let again = waitForThing(poor, "touch-wall-0", timeout: 2) {
-                touchThing(again)
-                XCTAssertTrue(waitForField(poor, "last:short:touch-wall-0", timeout: 3), "short of gold: nothing paid")
-            }
+            XCTAssertTrue(tapUntil(poor, wall, "last:short:touch-wall-0"), "short of gold: nothing paid")
         }
         poor.terminate()
 
@@ -424,6 +418,20 @@ final class TouchUITests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    /// Step 4 (round lh-b3c-32): `thing`'s middle read once (the lord stands still, so it stays put), then tapped
+    /// through the app's own coordinate, with no element query between the taps, until the scene says `until`; a tap
+    /// that comes after an empty board's wait ran out brings the board again, and the next one sets its coin.
+    private func tapUntil(_ app: XCUIApplication, _ thing: XCUIElement, _ until: String, tries: Int = 3) -> Bool {
+        let frame = thing.frame
+        guard frame.width > 0, frame.height > 0 else { return false }
+        let point = app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: frame.midX, dy: frame.midY))
+        for _ in 0..<tries {
+            point.tap()
+            if waitForField(app, until, timeout: 2.5) { return true }
+        }
+        return false
+    }
 
     private func waitUntilReady(_ app: XCUIApplication, name: String) -> Bool {
         let scene = element(app, "world-scene")

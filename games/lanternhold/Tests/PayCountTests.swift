@@ -661,6 +661,17 @@ final class PayCountTests: XCTestCase {
         XCTAssertNil(PayFreeze.sealed.litHold)
         XCTAssertNil(PayFreeze.parse("soon"))
         XCTAssertNil(PayFreeze.parse(nil))
+        // Step 4 (M-a, M-d): one hold's strip, and a coin's glint.
+        let strip = PayFreeze.parse("fly:5:0.25,0.55,0.85")
+        XCTAssertEqual(strip, .flights(coin: 5, shares: [0.25, 0.55, 0.85]))
+        XCTAssertEqual(strip?.steps, 3)
+        XCTAssertEqual(strip?.at(step: 1), .flight(coin: 5, share: 0.55))
+        XCTAssertEqual(strip?.at(step: 7), .flight(coin: 5, share: 0.85), "the last share holds")
+        XCTAssertEqual(PayFreeze.parse("fly:2:0.4"), .flight(coin: 2, share: 0.4), "one share is a plain flight")
+        XCTAssertNil(PayFreeze.parse("fly:2:0.4,x"))
+        XCTAssertEqual(PayFreeze.parse("glint:2"), .glint(coin: 2))
+        XCTAssertTrue(PayFreeze.glint(coin: 0).keepsMotion && strip?.keepsMotion == true)
+        XCTAssertFalse(PayFreeze.share(0.5).keepsMotion)
         #if DEBUG
         XCTAssertEqual(DebugArgs(values: ["GWCountFreeze": "0.25"]).countFreeze, .share(0.25))
         #endif
@@ -1135,6 +1146,95 @@ final class PayCountTests: XCTestCase {
         }
     }
     #endif
+
+    #if DEBUG
+    /// Step 4 (M-d): `-GWCountFreeze glint:0` holds the first coin on the frame of its glint, so a picture shows it.
+    func testTheGlintCanBeHeldForItsPicture() throws {
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+                          "GWGold": "200", "GWCountFreeze": "glint:0"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.tap()
+        game.touch.count = count
+        run(game, seconds: 2) { game.countFrozen }
+        XCTAssertTrue(game.countFrozen, "held on the glint")
+        run(game, seconds: 0.5)
+        let state = try XCTUnwrap(game.driver?.state)
+        let framing = try XCTUnwrap(game.touch.framing)
+        var layer = EntityLayer()
+        game.countWorld(&layer, state: state, framing: framing)
+        let white = GamePalette.fireWhite
+        XCTAssertTrue(layer.glows.contains { $0.sprite == .hallMote && $0.color.x == white.x && $0.color.z == white.z },
+                      "the glint's white pixel on the coin")
+    }
+
+    /// Step 4 (M-a): `-GWCountFreeze fly:2:0.2,0.5,0.8` holds coin 3 of one hold at each share in turn, a dwell at
+    /// each, so every panel of the strip is the same throw.
+    func testAStripIsShotFromOneHold() throws {
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+                          "GWGold": "200", "GWCountFreeze": "fly:2:0.2,0.5,0.8"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        var launched: [Double] = []
+        var shares: [Double] = []
+        for step in 0..<3 {
+            run(game, seconds: PayFreeze.dwell + 2) { game.touch.countFreezeStep == step && game.countFrozen }
+            XCTAssertEqual(game.touch.countFreezeStep, step)
+            XCTAssertTrue(game.countFrozen, "held at share \(step)")
+            XCTAssertTrue(game.countWord.contains("frozen:\(step)"), "the scene says which panel stands")
+            let live = try XCTUnwrap(game.touch.count)
+            launched.append(live.launched.count > 2 ? live.launched[2] : -1)
+            shares.append(live.flightShare(2) ?? -1)
+            run(game, seconds: 0.2)
+        }
+        XCTAssertEqual(Set(launched).count, 1, "one throw: coin 3 left the hand once")
+        XCTAssertEqual(shares[0], 0.2, accuracy: 0.01)
+        XCTAssertEqual(shares[1], 0.5, accuracy: 0.01)
+        XCTAssertEqual(shares[2], 0.8, accuracy: 0.01)
+    }
+    #endif
+
+    /// Step 4 (the small ones): on a board of one plank (the archer's) the crook's arm never stands over the board's
+    /// top while the board stands; once it has gone the crook and the lit lantern are there.
+    func testNoCrookOverAOnePlankBoard() throws {
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1580",
+                          "GWGold": "60"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let archer = try XCTUnwrap(game.touch.things.first { $0.id == "touch-recruit-archer" })
+        game.touchThing(archer)
+        run(game, seconds: 12) { game.touch.count?.ready == true }
+        let board = try XCTUnwrap(game.touch.countBoard)
+        XCTAssertEqual(board.layout.rows, 1, "the archer's board has one plank")
+        XCTAssertLessThan(board.top, CountLantern.crookTop + 1, "lower than the crook's top")
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        run(game, seconds: 3) { game.touch.countLast.hasPrefix("paid") }
+        let crookTiles = [PayBoardLayout.crookRightPost, PayBoardLayout.crookRightArm, PayBoardLayout.crookLeftPost,
+                          PayBoardLayout.crookLeftArm]
+        // Before the lantern catches (0.3, 0.55 s) and once it burns behind the board still standing whole (0.85 s).
+        for (wait, step) in [(0.3, 0.3), (0.55, 0.25), (0.85, 0.3)] {
+            run(game, seconds: step)
+            XCTAssertNotNil(game.touch.count, "the board stands")
+            let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            XCTAssertFalse(frame.actors.contains { $0.sprite == .payBoard && crookTiles.contains($0.frame) },
+                           "\(wait) s after the seal: no crook over the board")
+            XCTAssertFalse(frame.actors.contains { $0.sprite == .siteLantern }, "\(wait) s: no lantern over it")
+        }
+        run(game, seconds: 1.2)
+        XCTAssertNil(game.touch.count, "the board has gone")
+        let after = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertTrue(after.actors.contains { $0.sprite == .payBoard && crookTiles.contains($0.frame) }, "the crook")
+        XCTAssertTrue(after.actors.contains { $0.sprite == .siteLantern && $0.frame > 0 }, "and the lit lantern")
+    }
 
     /// Step 3 (the director's call 2): a coin that has sat down glints once, one white pixel for one frame; never
     /// under Reduce Motion.
