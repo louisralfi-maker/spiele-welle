@@ -1129,3 +1129,8 @@ schneller geht."
   - Two rounds check the join side by side, sent by the director at 17:19: lh-b3j-1 (build, the whole unit suite, the build 2 save among it) and lh-b3j-2 (build, ui Wind, Horde, FirstDay). The branch is pushed only when both are ALL PASSED.
   - Stage B joins the count last, once its step 6 is judged. Rehearse it with `git merge-tree` first.
   - The disk is down to 11 GB free: the tidy-up of merged, clean worktrees is due right after the join.
+
+- **The count's counter is built; its round is not green yet (16.11.2026, 17:42).**
+  - Step 6 built form A: at a plot with models the board rises in the trestles' slot and both models ride up on its cap. Coins only: 7 hollows for the ballista, 11 for the catapult. The model not chosen is dimmed to 75 % and keeps its ink edge.
+  - Round lh-b3c-62 failed on two tests: a unit test whose street was not empty (fixed in the test, a737493d) and the UI test of the night repair, whose second touch did not pay. The director sent lh-b3c-63 himself. A second failure of the night repair would be a real fault of step 6, not a flake.
+  - GitHub cancelled two rounds in its queue today after 15 minutes without a Mac (lh-b3c-61, lh-b3j-1). Lesson: watch a round's state for the first minutes and resend at once; the director's sender script does that now.
