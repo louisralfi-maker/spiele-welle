@@ -40,15 +40,20 @@ enum CastleSmoke {
     static let count = 7
     /// More puffs while the plume is torn (the storm's streamer is longer; the groups need puffs to show).
     static let tornExtra = 5
-    static let townCount = 4
+    // b3-wind: build 3 step 7 (the director's call T4 of 16.11. 14:41): a town column of six puffs over 13 to 18 rows
+    // in a calm (its path 20; proven in ci-out/director/b3/wind/s7/00-town-smoke-python.png), torn like the keep's in a storm.
+    static let townCount = 6
     static let townExtra = 2
-    /// `smokePuff`'s frames: the four sizes (2, 3, 4, 5 px) and the mouth's single pixel.
-    static let frames = 5
+    /// `smokePuff`'s frames: the four sizes (2, 3, 4, 5 px), the mouth's single pixel, and (b3-wind step 7) the
+    /// town's three sizes (2, 3, 4 px) from `townFrame`: a wood-smoke grey body under a lit cap.
+    static let frames = 8
     static let sizes = 4
     static let mouthFrame = 4
+    static let townFrame = 5
+    static let townSizes = 3
     /// The column's height in still air (rows over the mouth) and its time to rise, the keep's and the town's.
     static let rise = 34.0
-    static let townRise = 17.0
+    static let townRise = 20.0
     static let period = 6.0
     static let townPeriod = 4.0
     /// At the storm's angle the path grows by `stormStretch` (the town's by `townStretch`) and the puffs rise
@@ -105,9 +110,14 @@ enum CastleSmoke {
     static let tornShow = 0.4
     /// b3-wind (step 6, call S2): the share of the town's chimneys that smoke (by a hash of the chimney's place), and
     /// from `eveningHours` the evening's share (the fires are lit for supper).
-    static let townShare = 0.5
-    static let eveningShare = 0.75
+    /// b3-wind: build 3 step 7 (the director's call T2 of 16.11. 14:41): by day (from `dayFrom`) three of four smoke,
+    /// from 17 h to 21 h every one (the fires are lit for supper), at night half; each chimney by its slot (0 ..< 4).
     static let eveningHours = 17.0...21.0
+    static let dayFrom = 6.0
+    /// b3-wind (step 7, call T3): the town's puffs take no pale day light of their own (`glow(day:)`): their grey art
+    /// holds under the pale backdrop. From the dusk their tint rises by up to `townNightLift` with the night, so their
+    /// darker body keeps the blue-grey of the night's puffs.
+    static let townNightLift: Float = 1.6
 
     /// How far the wind has leaned the plume, 0 (a calm and below) ... 1 (the storm's angle).
     static func share(wind: Double) -> Double {
@@ -124,19 +134,47 @@ enum CastleSmoke {
         min(1, max(0, (abs(wind) - tornFrom) / (leanTo - tornFrom)))
     }
 
-    /// Whether the town's chimney at world x smokes at this hour (about half of them, three of four in the evening).
+    /// b3-wind (step 7, call T2): whether a town chimney in `slot` smokes at this hour: by day all but every fourth
+    /// slot, from 17 h to 21 h every one, at night every second slot. The town's houses pass their chimney's index in
+    /// the town (`FrameBuilder.townSmokers`), so the share is exact and stable; the back row passes `slot(x:)`.
+    static func smokes(slot: Int, hour: Double) -> Bool {
+        if eveningHours.contains(hour) { return true }
+        if hour >= dayFrom && hour < eveningHours.lowerBound { return slot % 4 != 3 }
+        return slot % 2 == 0
+    }
+
+    /// A stable slot (0 ..< 4) for a chimney at world x (a hash of its place).
+    static func slot(x: Double) -> Int {
+        Int(SeededRandom.hash(0x534D_4F4B_4521, Int64(x.rounded())) % 4)
+    }
+
+    /// Whether the back row's chimney at world x smokes at this hour (`smokes(slot:hour:)` by a hash of its place).
     static func smokes(x: Double, hour: Double) -> Bool {
-        let draw = Double(SeededRandom.hash(0x534D_4F4B_4521, Int64(x.rounded())) >> 11) * 0x1.0p-53
-        return draw < (eveningHours.contains(hour) ? eveningShare : townShare)
+        smokes(slot: slot(x: x), hour: hour)
+    }
+
+    /// b3-wind (step 7): the side in pixels of a puff of frame `frame` (the mouth's pixel: 1).
+    static func side(frame: Int) -> Int {
+        if frame >= townFrame { return frame - townFrame + 2 }
+        return frame < sizes ? frame + 2 : 1
+    }
+
+    /// b3-wind (step 7, call T3): the town's puffs' albedo tint at this hour: the keep's by day (their art is grey),
+    /// lifted with the night by up to `townNightLift`.
+    static func townTint(_ ambient: AmbientSample) -> SIMD3<Float> {
+        let night = min(1, max(0, ambient.torchStrength))
+        return tint * (1 + (townNightLift - 1) * night)
     }
 
     /// The emissive colour of a puff `rise` rows over its chimney's mouth (`fire`: the bakehouse's oven under it) at
     /// this hour: day light, dusk sky, moonlight, and the chimney's fire under the lowest puffs.
     /// b3-wind (step 5): `hearth` false for the back row's chimneys, which have no fire lit under their smoke.
-    static func glow(_ ambient: AmbientSample, rise: Double, fire: Bool, hearth: Bool = true) -> SIMD3<Float> {
+    /// b3-wind (step 7, call T3): `day` 0 for the town's puffs, which take no pale day light (their grey holds).
+    static func glow(_ ambient: AmbientSample, rise: Double, fire: Bool, hearth: Bool = true,
+                     day: Float = 1) -> SIMD3<Float> {
         let night = min(1, max(0, ambient.torchStrength))
         let warm = min(1, max(0, ambient.warmth / 0.25))
-        var rgb = dayColor * (dayGlow * (1 - night))
+        var rgb = dayColor * (dayGlow * (1 - night) * day)
         rgb += (ambient.skyBottom * (duskGlow * warm) + GamePalette.moon * (moonGlow * (1 - warm))) * night
         let low = Float(max(0, 1 - rise / warmRise))
         if hearth || fire {
@@ -155,7 +193,7 @@ enum CastleSmoke {
 
     /// The puff that stands at the chimney's mouth all the time (the keep's 3 px, the town's 2 px).
     static func mouth(town: Bool = false) -> Puff {
-        Puff(dx: 0, rise: 0, frame: town ? 0 : 1, alpha: 1)
+        Puff(dx: 0, rise: 0, frame: town ? townFrame : 1, alpha: 1)   // b3-wind step 7: the town's own 2 px puff
     }
 
     /// The puffs of one chimney at `time` in a wind of `wind`; `seed` staggers chimneys against each other; `town` for
@@ -165,7 +203,7 @@ enum CastleSmoke {
         let lean = share(wind: wind)
         let theta = angle(wind: wind) * Double.pi / 180
         let side: Double = wind < 0 ? -1 : 1
-        let tear = town ? 0 : torn(wind: wind)
+        let tear = torn(wind: wind)   // b3-wind (step 7, call T4): the town's columns tear like the keep's
         let total = town ? townCount + Int((Double(townExtra) * lean).rounded())
                          : count + Int((Double(tornExtra) * tear).rounded())
         let path = town ? townRise * (1 + townStretch * lean) : rise * (1 + stormStretch * lean)
@@ -183,7 +221,8 @@ enum CastleSmoke {
             dx += (sin(phase * 9 + Double(index) * 1.7)).rounded() * sway
             let frame: Int
             if town {
-                frame = phase < 0.2 ? 0 : 1
+                // b3-wind (step 7, call T4): 2, 3 and 4 px, growing with height (the proof's 0.15 and 0.45).
+                frame = townFrame + (phase < 0.15 ? 0 : phase < 0.45 ? 1 : 2)
             } else if lean > 0.8 {
                 frame = phase < 0.25 ? 1 : 2
             } else {

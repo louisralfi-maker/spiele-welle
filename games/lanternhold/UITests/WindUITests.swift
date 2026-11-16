@@ -20,8 +20,8 @@ import XCTest
 /// three cells show a crown's burst; `RainLookTests.testTheBurstStripStartsAsTheGustRises` pins the time); the keep's
 /// chimney smoke in a dry storm at dusk (394).
 /// Step 6 (b3-wind, the director's calls S1 to S6 of 16.11. 12:25): the strip 400 starts at 34.07 s, 0.08 s after a
-/// ribbon of leaves set off (`FrameBuilder.ribbonStart(cell: 4)`, 33.99 s; `RainLookTests.testTheRibbonLeavesTheLeeOfOneCrown`
-/// pins it); the town in a dry storm 0.45 s into a ribbon (395, 26.40 s) and the town at 21 h in a breeze, its chimneys
+/// ribbon of leaves set off (`FrameBuilder.ribbonStart(cell: 4)`, 33.99 s; `RainLookTests.testNoLeafIsBornInWaveOne`
+/// pins it; b3-wind step 7: no ribbon is born in wave 1, so 395 and the strip show none); the town in a dry storm 0.45 s into a ribbon (395, 26.40 s) and the town at 21 h in a breeze, its chimneys
 /// smoking (396).
 /// Only keys that exist: `-GWWeather`, `-GWWind`, `-GWRain`, `-GWCameraX`, `-GWCastle`, `-GWReduceMotion`.
 /// Saves `<nnn>-wind-<what>-<lang>` from 300.
@@ -95,6 +95,10 @@ final class WindUITests: XCTestCase {
             // smoke in a dry storm; the town at night in a breeze (three of four chimneys smoke until 21 h).
             ("395-wind-gust-ribbon-town", town + dryStorm + noon(26.40)),
             ("396-wind-town-night-smoke", town + breeze + noon(26.55, hour: "21")),
+            // b3-wind (step 7, calls T2 to T4 and T7): the town's grey columns on a calm noon (three of four chimneys)
+            // and at 19 h (every one); 395 shows them torn in a dry storm, with no leaf (call T1).
+            ("397-wind-town-calm-noon-smoke", town + calm + noon(30.4)),
+            ("398-wind-town-calm-19h-smoke", town + calm + noon(30.4, hour: "19")),
         ]
         for still in stills {
             shoot(still.name, still.arguments)

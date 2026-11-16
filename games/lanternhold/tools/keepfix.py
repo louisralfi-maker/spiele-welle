@@ -24,7 +24,8 @@ reproduces its files byte for byte):
         flagstones receding to a lit far wall, a pillar, the hearth's glow the brightest point high in the middle
   hallDoorWedge     60x19    emissive: the door's wedge of light over the steps and the cobbles, the door's width at
         the threshold to 2.5 times it 12 rows out, smooth alpha so the stones show through
-  smokePuff         8x8 (5 frames)  a puff of chimney smoke at four sizes, 2 to 5 px, and the mouth's pixel (b3-wind)
+  smokePuff         8x8 (8 frames)  a puff of chimney smoke at four sizes, 2 to 5 px, and the mouth's pixel (b3-wind);
+        frames 5 to 7 the town's puffs, 2 to 4 px, in wood-smoke grey under a lit cap (b3-wind step 7)
   curtainB          64x74    the curtain's blocked arch as a recess in shadow (high 6)
   posternT1..T3     176x112 (T3 176x124 since build 3: its flag's pole)  the postern's passage with depth (high 4): jamb shadow, the vault, a lit far end and
         cobbles that recede
@@ -972,9 +973,17 @@ PUFF_SHAPES = [
     [".LL.", "LLLL", "DLLL", ".DD."],
     [".LLL.", "LLLLL", "LLLLL", "DLLLD", ".DDD."],
     ["L"],
+    # b3-wind: build 3 step 7 (the director's call T3 of 16.11. 14:41: "a town puff must hold against pale mountains,
+    # clouds and sky"; proven over the live town frame in ci-out/director/b3/wind/s7/00-town-smoke-python.png): the
+    # town's puffs (frames 5 to 7: 2, 3 and 4 px) in a cool wood-smoke grey body (b) under a lit cap (c) and over a
+    # darker underside (d), so the body holds under the pale backdrop and the cap over the dark roofs and trees.
+    ["cc", "bb"],
+    [".cc", "cbb", ".bd"],
+    [".cc.", "cbbb", "bbbd", ".dd."],
 ]
 PUFF_BODY = (255, 255, 255, 255)
 PUFF_UNDER = (182, 186, 205, 255)
+PUFF_TOWN = {"c": (255, 255, 255, 255), "b": (118, 122, 134, 255), "d": (90, 95, 111, 255)}
 
 
 def smoke_puff():
@@ -987,7 +996,9 @@ def smoke_puff():
         y0 = PUFF - len(rows)
         for y, row in enumerate(rows):
             for x, ch in enumerate(row):
-                if ch != ".":
+                if ch in PUFF_TOWN:
+                    out.set(f * PUFF + x0 + x, y0 + y, PUFF_TOWN[ch])   # b3-wind step 7: the town's puffs
+                elif ch != ".":
                     out.set(f * PUFF + x0 + x, y0 + y, PUFF_BODY if ch == "L" else PUFF_UNDER)
     return out
 

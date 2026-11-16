@@ -356,73 +356,25 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThan(wet.desc.emissives.filter { $0.sprite == .rainStreak }.count, 0, "the rain is seen at night")
     }
 
-    /// b3-wind: build 3 step 6 (the director's calls S3 and S5 of 16.11. 12:25): in the game frame over the town (camera
-    /// 2900, the UI's seed 1) at 0.5 s of a ribbon, in a dry storm and in a breeze, every leaf lies lee of the edge of
-    /// the crown it left (the crown whose lee edge is the nearest upwind of the ribbon), none inside that crown's rect
-    /// (its upper `ribbonCrownShare`, grown by four columns for the sway), and all of them in a band 24 px tall; 7 to 9
-    /// leaves. `WindUITests`' strip 400 starts 0.08 s after a ribbon set off and its still 395 shows one at 0.45 s.
-    func testTheRibbonLeavesTheLeeOfOneCrown() throws {
+    /// b3-wind: build 3 step 7 (the director's call T1 of 16.11. 14:41, turned round from step 6's ribbon test): no leaf
+    /// is born in wave 1. The ribbon's clock still runs (`FrameBuilder.ribbon`: one at 0.5 s of the strip 400's cell),
+    /// but in the game frame over the town (camera 2900, the UI's seed 1), in a dry storm and in a breeze, no leaf quad
+    /// is drawn (`gustLeaf`'s leaf frames, under 12; the lane's dust, frames 12 and over, stays).
+    func testNoLeafIsBornInWaveOne() {
         let s = GameFrameSupport.demoDay(hour: 12, seed: 1)
-        let trees: Set<SpriteID> = [.linden, .lindenB, .lindenC, .poplar, .poplarB, .poplarC, .appleTree, .appleTreeB,
-                                    .appleTreeC, .willow, .willowB, .willowC, .firA, .firB, .firC, .firD, .deadTreeA,
-                                    .deadTreeB]
-        XCTAssertEqual(FrameBuilder.ribbonStart(cell: 4), 33.99, accuracy: 0.01, "the strip 400's ribbon (34.07 s on)")
-        XCTAssertEqual(FrameBuilder.ribbonStart(cell: 3), 25.95, accuracy: 0.01, "the still 395's ribbon (26.40 s)")
+        XCTAssertFalse(FrameBuilder.ribbonsBorn, "wave 1: no ribbon")
+        XCTAssertEqual(FrameBuilder.ribbonStart(cell: 4), 33.99, accuracy: 0.01, "the strip 400's cell (34.07 s on)")
+        XCTAssertEqual(FrameBuilder.ribbonStart(cell: 3), 25.95, accuracy: 0.01, "the still 395's cell (26.40 s)")
         for (name, override) in [("storm", WeatherOverride(mode: .storm, rain: 0)), ("breeze", WeatherOverride(mode: .breeze))] {
-            let time = FrameBuilder.ribbonStart(cell: 4) + 0.5
-            let sample = weather(s, override, time: time)
-            let found = try XCTUnwrap(FrameBuilder.ribbon(sample, time: time), "\(name): a ribbon at \(time)")
-            XCTAssertEqual(found.since, 0.5, accuracy: 1e-6)
-            var options = FrameOptions(flickerTime: time)
-            options.look = .two
-            options.weather = sample
-            let screen = RainLookTests.screen
-            let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
-            let camera = Camera(focusX: 2900, pixelScale: pixelScale)
-            let scene = SceneFilter.gameScene(RainLookTests.world, state: s)
-            let layer = EntityFrames.layer(state: s, balance: .standard, scene: scene, camera: camera,
-                                           pixelScale: pixelScale, options: options, animTime: time,
-                                           effects: BattleEffects())
-            var clock = DayClock(hour: s.hour, day: s.day)
-            clock.isFrozen = true
-            clock.advance(by: time)
-            let desc = FrameBuilder.build(scene: scene, clock: clock, camera: camera, pixelScale: pixelScale,
-                                          options: options, entities: layer)
-            let offsets = camera.offsets(scale: pixelScale.scale)
-            let ground = Double(desc.groundRow)
-            let crowns = (scene.props + layer.props).filter {
-                ($0.plane == .world || $0.plane == .near) && trees.contains($0.sprite)
-            }.map { prop -> (left: Double, right: Double, top: Double, bottom: Double) in
-                let left = prop.x - Double(offsets[(prop.movesWith ?? prop.plane).rawValue].whole)
-                let top = ground - prop.y - Double(prop.height)
-                return (left, left + Double(prop.width), top, top + Double(prop.height) * FrameBuilder.ribbonCrownShare)
-            }
-            let leaves = desc.layer(.world).sprites.filter { $0.sprite == .gustLeaf && $0.frame < 12 }
-            XCTAssertTrue((FrameBuilder.ribbonLeast...FrameBuilder.ribbonMost).contains(leaves.count),
-                          "\(name): 7 to 9 leaves in the ribbon (\(leaves.count))")
-            guard !leaves.isEmpty else { continue }
-            // A leaf's pixels: the cell's columns 1 to 3 (a 2 x 2 leaf: 1 and 2) and rows 2 and 3; a storm toward the
-            // valley carries them east (not mirrored).
-            let boxes = leaves.map { leaf -> (left: Double, right: Double, top: Double, bottom: Double) in
-                let wide = leaf.frame % 4 < 2
-                return (Double(leaf.rect.x) + 1, Double(leaf.rect.x) + (wide ? 4 : 3), Double(leaf.rect.y) + 2,
-                        Double(leaf.rect.y) + 4)
-            }
-            XCTAssertTrue(leaves.allSatisfy { !$0.flipped }, "\(name): east, toward the valley")
-            let first = boxes.map(\.left).min() ?? 0
-            let crown = try XCTUnwrap(crowns.filter { $0.right <= first + 1 }.max { $0.right < $1.right },
-                                      "\(name): the crown upwind of the ribbon")
-            let top = boxes.map(\.top).min() ?? 0
-            let bottom = boxes.map(\.bottom).max() ?? 0
-            print("RIBBON \(name) at \(time) s: \(leaves.count) leaves, crown's lee edge \(Int(crown.right)), leaves "
-                  + "from \(Int(first)) to \(Int(boxes.map(\.right).max() ?? 0)), rows \(Int(top)) to \(Int(bottom)) "
-                  + "(\(Int(bottom - top)) tall), crown rows \(Int(crown.top)) to \(Int(crown.bottom))")
-            XCTAssertLessThanOrEqual(bottom - top, 24, "\(name): the ribbon in a band 24 px tall")
-            for box in boxes {
-                XCTAssertGreaterThanOrEqual(box.left, crown.right - 1, "\(name): lee of the crown's edge")
-                let inside = box.right > crown.left && box.left < crown.right + 4 && box.bottom > crown.top
-                    && box.top < crown.bottom
-                XCTAssertFalse(inside, "\(name): no leaf inside the crown's rect")
+            for offset in [0.2, 0.5, 1.0, 2.0] {
+                let time = FrameBuilder.ribbonStart(cell: 4) + offset
+                let sample = weather(s, override, time: time)
+                if offset == 0.5 {
+                    XCTAssertNotNil(FrameBuilder.ribbon(sample, time: time), "\(name): the ribbon's clock runs")
+                }
+                let frame = shot(s, focus: 2900, weather: sample, time: time)
+                let leaves = sprites(frame, .gustLeaf).filter { $0.frame < 12 }
+                XCTAssertTrue(leaves.isEmpty, "\(name) at \(time) s: no leaf quad in the town (\(leaves.count))")
             }
         }
     }
@@ -432,6 +384,10 @@ final class RainLookTests: XCTestCase {
     /// life (whole alpha) the drawn luma differs from the backdrop behind it by 18 of 255 or more: the keep's against the
     /// rock (calm and storm at noon, a breeze at 23 h) and the town's against the sky and the roofs (noon and 22 h). A
     /// puff hidden behind a nearer plane (no pixel of it differs) is left out.
+    /// b3-wind: build 3 step 7 (the director's calls T3 and T6 of 16.11. 14:41): the town's puffs are grey bodies under
+    /// a lit cap (`smokePuff`'s frames 5 to 7). A town puff reads where its body or its cap differs by 18 or more; and on
+    /// a calm noon over the town (camera 2900, as the UI's still) at three chimneys or more the bodies of the column
+    /// differ from the backdrop behind them by 40 or more (the median of the column's whole puffs).
     func testThePuffsHaveBodyOnTheDrawnPixel() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)
@@ -441,16 +397,21 @@ final class RainLookTests: XCTestCase {
         let night = GameFrameSupport.demoNight(hour: 23, seed: 1)
         let townNight = GameFrameSupport.demoNight(hour: 22, seed: 1)
         let calm = WeatherOverride(mode: .clear, wind: 0.08)
-        let cases: [(name: String, state: GameState, focus: Double, override: WeatherOverride)] = [
-            ("keep, calm noon", day, 1830, calm),
-            ("keep, dry storm noon", day, 1830, WeatherOverride(mode: .storm, rain: 0)),
-            ("keep, breeze 23 h", night, 1830, WeatherOverride(mode: .breeze)),
-            ("town, breeze noon", day, 2900, WeatherOverride(mode: .breeze)),
-            ("town, calm 22 h", townNight, 2900, calm),
+        let cases: [(name: String, state: GameState, focus: Double, override: WeatherOverride, columns: Int)] = [
+            ("keep, calm noon", day, 1830, calm, 0),
+            ("keep, dry storm noon", day, 1830, WeatherOverride(mode: .storm, rain: 0), 0),
+            ("keep, breeze 23 h", night, 1830, WeatherOverride(mode: .breeze), 0),
+            ("town, breeze noon", day, 2900, WeatherOverride(mode: .breeze), 0),
+            ("town, calm noon", day, 2900, calm, 3),
+            ("town, calm 22 h", townNight, 2900, calm, 0),
         ]
-        // One body pixel of each size (`smokePuff`'s frames 0 to 3) and its opaque box (columns, rows) in the cell.
-        let body = [(3, 6), (3, 6), (3, 5), (3, 5)]
-        let boxes = [(3...4, 6...7), (2...4, 5...7), (2...5, 4...7), (1...5, 3...7)]
+        // One body pixel of each frame and its opaque box (columns, rows) in the cell; the town's frames (5 to 7) also
+        // their cap's pixel. Frame 4 (the mouth's warm pixel) is a glow quad only.
+        let body = [(3, 6), (3, 6), (3, 5), (3, 5), (3, 7), (3, 7), (3, 6), (3, 6)]
+        let cap = [(3, 6), (3, 6), (3, 5), (3, 5), (3, 7), (3, 6), (3, 5), (3, 4)]
+        let boxes = [(3...4, 6...7), (2...4, 5...7), (2...5, 4...7), (1...5, 3...7), (3...3, 7...7),
+                     (3...4, 6...7), (2...4, 5...7), (2...5, 4...7)]
+        XCTAssertEqual(body.count, CastleSmoke.frames)
         for item in cases {
             let time = 3.0
             let sample = weather(item.state, item.override, time: time)
@@ -460,6 +421,7 @@ final class RainLookTests: XCTestCase {
             let b = try renderer.renderOffscreen(without, settings: settings)
             let scale = with.scale
             var found: [Int] = []
+            var townBodies: [(x: Float, step: Int)] = []
             for plane in [Plane.near, .world] {
                 let shift = with.layer(plane).offset.deviceShift
                 func luma(_ picture: Renderer.Snapshot, _ column: Int, _ row: Int) -> Float {
@@ -468,26 +430,101 @@ final class RainLookTests: XCTestCase {
                     return (0.2126 * c.x + 0.7152 * c.y + 0.0722 * c.z) * 255
                 }
                 let puffs = with.layer(plane).sprites.filter { $0.sprite == .smokePuff }
-                for (index, puff) in puffs.enumerated() where puff.tint.w >= 0.999 && puff.frame < 4 {
+                for (index, puff) in puffs.enumerated()
+                    where puff.tint.w >= 0.999 && puff.frame < CastleSmoke.frames && puff.frame != CastleSmoke.mouthFrame {
                     let column = Int(puff.rect.x) + body[puff.frame].0
                     let row = Int(puff.rect.y) + body[puff.frame].1
-                    guard column >= 2, column < with.targetWidth - 2, row >= 2, row < with.targetHeight - 2 else { continue }
+                    guard column >= 2, column < with.targetWidth - 2, row >= 5, row < with.targetHeight - 2 else { continue }
                     // Left out where a puff drawn later covers this pixel.
                     let covered = puffs[(index + 1)...].contains { later in
-                        guard later.frame < 4 else { return false }
+                        guard later.frame < CastleSmoke.frames, later.frame != CastleSmoke.mouthFrame else { return false }
                         let box = boxes[later.frame]
                         return box.0.contains(column - Int(later.rect.x)) && box.1.contains(row - Int(later.rect.y))
                     }
                     guard !covered else { continue }
                     let step = abs(luma(a, column, row) - luma(b, column, row))
                     let under = abs(luma(a, column, row + 1) - luma(b, column, row + 1))
-                    guard step >= 1 || under >= 1 else { continue }
-                    found.append(Int(step.rounded()))
+                    let top = (Int(puff.rect.x) + cap[puff.frame].0, Int(puff.rect.y) + cap[puff.frame].1)
+                    let lit = abs(luma(a, top.0, top.1) - luma(b, top.0, top.1))
+                    guard step >= 1 || under >= 1 || lit >= 1 else { continue }
+                    let town = puff.frame >= CastleSmoke.townFrame
+                    found.append(Int((town ? max(step, lit) : step).rounded()))
+                    if town && plane == .world {
+                        townBodies.append((x: puff.rect.x, step: Int(step.rounded())))
+                    }
                 }
             }
-            print("PUFFBODY \(item.name): \(found.count) puffs, luma steps over the backdrop \(found.sorted())")
+            // The town's columns: puffs within four columns of each other (a calm stands straight up).
+            var columns: [[Int]] = []
+            var last: Float = -100
+            for puff in townBodies.sorted(by: { $0.x < $1.x }) {
+                if puff.x - last > 4 || columns.isEmpty { columns.append([]) }
+                columns[columns.count - 1].append(puff.step)
+                last = puff.x
+            }
+            let medians = columns.map { $0.sorted()[$0.count / 2] }
+            print("PUFFBODY \(item.name): \(found.count) puffs, luma steps over the backdrop \(found.sorted()); the town's "
+                  + "columns' median body steps \(medians)")
             XCTAssertGreaterThanOrEqual(found.count, 3, "\(item.name): puffs in view")
-            XCTAssertGreaterThanOrEqual(found.min() ?? 0, 18, "\(item.name): every puff's body 18 over its backdrop")
+            XCTAssertGreaterThanOrEqual(found.min() ?? 0, 18, "\(item.name): every puff 18 over its backdrop")
+            if item.columns > 0 {
+                XCTAssertGreaterThanOrEqual(medians.filter { $0 >= 40 }.count, item.columns,
+                                            "\(item.name): at \(item.columns) chimneys the body 40 off its backdrop")
+            }
+        }
+    }
+
+    /// b3-wind: build 3 step 7 (the director's calls T2 and T6 of 16.11. 14:41): the town's chimneys smoke by the hour,
+    /// in the frame: by day three of four (`FrameBuilder.townSmokers`, by the chimney's index from west to east), from
+    /// 17 h to 21 h every one, at night half; the big house from at least one of its chimneys at every hour. In the
+    /// game frame over the town in a calm a smoking chimney in view has its mouth's puff (the town's 2 px frame at the
+    /// mouth) and one that does not smoke has none.
+    func testTheTownsChimneysSmokeByTheHour() {
+        let calm = WeatherOverride(mode: .clear, wind: 0.08)
+        for hour in [0.5, 3.0, 6.0, 9.0, 12.0, 16.5, 17.0, 19.0, 21.0, 22.0] {
+            let s = GameFrameSupport.demoDay(hour: hour, seed: 1)
+            var options = FrameOptions(flickerTime: 3)
+            options.look = .two
+            let screen = RainLookTests.screen
+            let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
+            let camera = Camera(focusX: 2900, pixelScale: pixelScale)
+            let scene = SceneFilter.gameScene(RainLookTests.world, state: s)
+            let layer = EntityFrames.layer(state: s, balance: .standard, scene: scene, camera: camera,
+                                           pixelScale: pixelScale, options: options, animTime: 3,
+                                           effects: BattleEffects())
+            let props = scene.props + layer.props
+            let all = props.filter { $0.plane == .world }.flatMap { SceneLayout.townChimneys($0) }
+            let smoking = FrameBuilder.townSmokers(props: props, hour: hour)
+            let n = all.count
+            let expected = CastleSmoke.eveningHours.contains(hour) ? n : (hour >= 6 && hour < 17) ? n - n / 4 : (n + 1) / 2
+            print("TOWNSHARE \(hour) h: \(smoking.count) of \(n) chimneys smoke")
+            XCTAssertGreaterThanOrEqual(n, 6, "the demo town's chimneys")
+            XCTAssertEqual(smoking.count, expected, "the share at \(hour) h")
+            let big = props.filter { $0.plane == .world && $0.sprite == .bigHouse }
+            XCTAssertFalse(big.isEmpty, "the demo town has its big house")
+            for house in big {
+                let own = SceneLayout.townChimneys(house).map(\.x)
+                XCTAssertTrue(smoking.contains { own.contains($0.x) }, "the big house smokes at \(hour) h")
+            }
+            // In the frame: the mouths' puffs where they smoke, none where they do not.
+            for focus in [2700.0, 2900, 3100, 3300] {
+                let at = shot(s, focus: focus, weather: weather(s, calm, time: 3), time: 3)
+                let mouths = at.desc.layer(.world).sprites.filter {
+                    $0.sprite == .smokePuff && $0.frame == CastleSmoke.townFrame && $0.tint.w >= 0.999
+                }
+                let width = Double(SpriteID.smokePuff.size.width)
+                for chimney in all {
+                    let left = (chimney.x - width / 2 - at.lane).rounded()
+                    guard left >= 0, left + width <= Double(at.desc.targetWidth) else { continue }
+                    let drawn = mouths.contains { abs(Double($0.rect.x) - left) < 0.5 }
+                    let smokes = smoking.contains { $0.x == chimney.x }
+                    if smokes {
+                        XCTAssertTrue(drawn, "\(hour) h at \(Int(focus)): the chimney at \(Int(chimney.x)) smokes")
+                    } else {
+                        XCTAssertFalse(drawn, "\(hour) h at \(Int(focus)): the chimney at \(Int(chimney.x)) does not")
+                    }
+                }
+            }
         }
     }
 
@@ -502,7 +539,8 @@ final class RainLookTests: XCTestCase {
                 let at = shot(s, focus: focus, weather: weather(s, override, time: 3), time: 3).desc
                 let puffs = Plane.allCases.flatMap { at.layer($0).sprites.filter { $0.sprite == .smokePuff } }
                 let lights = at.emissives.filter { $0.sprite == .smokePuff }
-                let mouths = puffs.filter { $0.tint.w >= 0.999 && ($0.frame == 0 || $0.frame == 1) }.count
+                // b3-wind (step 7): the town's whole puffs (its frames 5 to 7, the back row's too).
+                let mouths = puffs.filter { $0.tint.w >= 0.999 && $0.frame >= CastleSmoke.townFrame }.count
                 print("TOWNSMOKE \(hour) h at \(Int(focus)): \(puffs.count) puffs + \(lights.count) lights = "
                       + "\(puffs.count + lights.count) quads")
                 XCTAssertLessThanOrEqual(puffs.count + lights.count, 120, "the town's smoke at \(hour) h, \(focus)")

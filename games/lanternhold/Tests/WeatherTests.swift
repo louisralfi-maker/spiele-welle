@@ -972,13 +972,13 @@ final class WeatherTests: XCTestCase {
             return (most, total, dust)
         }
         XCTAssertEqual(most(WeatherOverride(mode: .clear, wind: 0.08)).total, 0, "a calm: none")
+        // b3-wind: build 3 step 7 (the director's call T1 of 16.11. 14:41): no ribbon is born in wave 1; only the
+        // lane's dust is carried.
         let breeze = most(WeatherOverride(mode: .breeze))
-        XCTAssertGreaterThan(breeze.total, 0, "a breeze: a few")
-        XCTAssertLessThanOrEqual(breeze.most, FrameBuilder.ribbonMost)
-        XCTAssertEqual(breeze.dust, 0, "no dust in a breeze")
+        XCTAssertEqual(breeze.total, 0, "a breeze: no leaf in wave 1 and no dust")
         let storm = most(WeatherOverride(mode: .storm, rain: 0))
-        XCTAssertGreaterThan(storm.total, 0, "a storm's ribbons")
-        XCTAssertLessThanOrEqual(storm.most, FrameBuilder.ribbonMost + FrameBuilder.gustDustCounts[3])
+        XCTAssertEqual(storm.total, storm.dust, "a storm: the lane's dust only, no leaf in wave 1")
+        XCTAssertLessThanOrEqual(storm.most, FrameBuilder.gustDustCounts[3])
         XCTAssertGreaterThan(most(WeatherOverride(mode: .gusty)).dust + storm.dust, 0, "the lane's dust in the gusts")
         XCTAssertEqual(most(WeatherOverride(mode: .storm, rain: 0), focus: 300).total, 0,
                        "never on the shadow side of the outermost wall")
@@ -1089,22 +1089,39 @@ final class WeatherTests: XCTestCase {
         XCTAssertTrue(groups.allSatisfy { (2...3).contains($0) }, "a storm tears it into two or three puffs: \(groups)")
         XCTAssertGreaterThan(CastleSmoke.puffs(time: 3, wind: 0.9, seed: 1245).filter { $0.alpha < 0.02 }.count, 3,
                              "torn: the puffs between the groups are gone")
-        // b3-wind (step 6, call S2): the town's chimneys (the back row and the houses): smaller puffs (2 and 3 px), a
-        // column of 14 to 20 rows, 3 or 4 puffs, the keep's lean rule; about half of them smoke, three of four in the
-        // evening. The back row has no fire under its smoke at night.
+        // b3-wind (step 6, call S2): the town's chimneys (the back row and the houses), the keep's lean rule. The back
+        // row has no fire under its smoke at night.
+        // b3-wind: build 3 step 7 (the director's calls T2 and T4 of 16.11. 14:41): in a calm a town column stands 12 to
+        // 20 rows over the mouth with 4 to 6 puffs of 2 to 4 px (`smokePuff`'s frames 5 to 7) that grow with height
+        // and a puff at the mouth; it tears in a storm like the keep's. By day three of four slots smoke, from 17 h to
+        // 21 h every one, at night half.
         let townTops = [0.5, 1.5, 2.5, 3.5].map { CastleSmoke.puffs(time: $0, wind: 0.08, seed: 77, town: true) }
-        XCTAssertTrue(townTops.joined().allSatisfy { $0.frame <= 1 && $0.rise <= CastleSmoke.townRise }, "small puffs")
-        let townTall = townTops.map { $0.map(\.rise).max() ?? 0 }.max() ?? 0
-        XCTAssertTrue((14.0...20.0).contains(townTall), "a town column of 14 to 20 rows: \(townTall)")
-        XCTAssertTrue(townTops.allSatisfy { (3...4).contains($0.filter { $0.alpha > 0 }.count) }, "3 or 4 puffs")
+        let townFrames = CastleSmoke.townFrame..<(CastleSmoke.townFrame + CastleSmoke.townSizes)
+        XCTAssertTrue(townTops.joined().allSatisfy { townFrames.contains($0.frame) && $0.rise <= CastleSmoke.townRise },
+                      "the town's puffs, 2 to 4 px")
+        XCTAssertTrue(townFrames.contains(CastleSmoke.mouth(town: true).frame), "the town's mouth puff")
+        let townTall = townTops.map { $0.filter { $0.alpha > 0.02 }.map(\.rise).max() ?? 0 }.min() ?? 0
+        XCTAssertTrue((12.0...20.0).contains(townTall), "a town column of 12 to 20 rows: \(townTall)")
+        XCTAssertTrue(townTops.allSatisfy { (4...6).contains($0.filter { $0.alpha > 0.02 }.count) }, "4 to 6 puffs")
+        for top in townTops {
+            let rising = top.sorted { $0.rise < $1.rise }.map(\.frame)
+            XCTAssertEqual(rising, rising.sorted(), "the town's puffs grow with height")
+            XCTAssertEqual(rising.last, CastleSmoke.townFrame + CastleSmoke.townSizes - 1, "up to 4 px")
+        }
         for puff in CastleSmoke.puffs(time: 3, wind: 0.35, seed: 77, town: true) where puff.rise > 3 {
             XCTAssertGreaterThan(puff.dx, 0, "the town's smoke leans with the keep's")
         }
-        let noon = (0..<400).filter { CastleSmoke.smokes(x: 2000 + Double($0) * 7, hour: 12) }.count
-        let evening = (0..<400).filter { CastleSmoke.smokes(x: 2000 + Double($0) * 7, hour: 19) }.count
-        print("TOWNSMOKE \(noon) of 400 chimneys smoke at noon, \(evening) at 19 h")
-        XCTAssertEqual(Double(noon) / 400, 0.5, accuracy: 0.08, "about half")
-        XCTAssertEqual(Double(evening) / 400, 0.75, accuracy: 0.08, "three of four from 17 h to 21 h")
+        XCTAssertGreaterThan(CastleSmoke.puffs(time: 3, wind: 0.9, seed: 77, town: true).filter { $0.alpha < 0.02 }.count,
+                             0, "a storm tears the town's column too")
+        let share = { (hour: Double) in
+            Double((0..<400).filter { CastleSmoke.smokes(x: 2000 + Double($0) * 7, hour: hour) }.count) / 400
+        }
+        print("TOWNSMOKE shares of 400 back-row places: noon \(share(12)), 19 h \(share(19)), 23 h \(share(23))")
+        XCTAssertEqual(share(12), 0.75, accuracy: 0.08, "three of four by day")
+        XCTAssertEqual(share(19), 1, "every one from 17 h to 21 h")
+        XCTAssertEqual(share(23), 0.5, accuracy: 0.08, "half at night")
+        XCTAssertEqual((0..<8).filter { CastleSmoke.smokes(slot: $0, hour: 12) }.count, 6)
+        XCTAssertEqual((0..<8).filter { CastleSmoke.smokes(slot: $0, hour: 3) }.count, 4)
         let night = AmbientRamp.sample(at: 23, look: .two)
         XCTAssertGreaterThan(night.torchStrength, 0.5)
         XCTAssertEqual(CastleSmoke.glow(night, rise: 1, fire: false, hearth: false),

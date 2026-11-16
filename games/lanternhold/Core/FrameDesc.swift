@@ -573,7 +573,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .cleftWater: return 12   // fix round 2: six frames per thread, the second thread's from frame 6
         case .forebuilding, .chapelTower: return 2   // world-2: the hall door closed and open; the bell, gone
         case .gateArchFg: return 2                   // world-2: unplaced since fix round 2 (build 3 may bring it back)
-        case .smokePuff: return 5                    // world-2 fix round 2: five sizes, 3 to 7 px
+        case .smokePuff: return 8                    // b3-wind (step 7): the keep's five, the town's three (2 to 4 px)
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9

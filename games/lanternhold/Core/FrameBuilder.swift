@@ -573,14 +573,32 @@ enum FrameBuilder {
         let whole = geometry.whole(.world)
         let time = reduceMotion ? 0 : animTime
         var list: [SpriteInstance] = []
-        for prop in props where prop.plane == .world {
-            for chimney in SceneLayout.townChimneys(prop) where CastleSmoke.smokes(x: chimney.x, hour: hour) {
-                let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
-                chimneyPuffs(at: chimney, whole: whole, plane: .world, town: true, fire: false, hearth: true,
-                             wind: wind, time: time, ambient: ambient, geometry: geometry, list: &list, glow: &glow)
-            }
+        // b3-wind (step 7, call T2): the chimneys that smoke at this hour, by their index in the town.
+        for chimney in townSmokers(props: props, hour: hour) {
+            let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
+            chimneyPuffs(at: chimney, whole: whole, plane: .world, town: true, fire: false, hearth: true,
+                         wind: wind, time: time, ambient: ambient, geometry: geometry, list: &list, glow: &glow)
         }
         return list
+    }
+
+    /// b3-wind: build 3 step 7 (the director's call T2 of 16.11. 14:41): the town's chimneys that smoke at `hour`: every
+    /// chimney of the houses on the world plane, numbered from west to east (so the choice is stable from frame to
+    /// frame and day to day), smokes by `CastleSmoke.smokes(slot:hour:)`: three of four by day, every one from 17 h to
+    /// 21 h, half at night; the big house always from at least one of its two chimneys.
+    static func townSmokers(props: [Prop], hour: Double) -> [(x: Double, y: Double)] {
+        let houses = props.filter { $0.plane == .world }
+        let order = houses.flatMap { SceneLayout.townChimneys($0) }.map(\.x).sorted()
+        var found: [(x: Double, y: Double)] = []
+        for prop in houses {
+            let own = SceneLayout.townChimneys(prop)
+            let lit = own.map { CastleSmoke.smokes(slot: order.firstIndex(of: $0.x) ?? 0, hour: hour) }
+            for (index, chimney) in own.enumerated()
+                where lit[index] || (prop.sprite == .bigHouse && index == 0 && !lit.contains(true)) {
+                found.append(chimney)
+            }
+        }
+        return found
     }
 
     // b3-wind: build 3 step 6 (the director's calls S1 and S2 of 16.11. 12:25): one chimney's puffs, the oldest first
@@ -595,7 +613,8 @@ enum FrameBuilder {
                                      geometry: Geometry, hiddenBy: [SIMD4<Float>] = [],
                                      list: inout [SpriteInstance], glow: inout EmissiveList) {
         let size = SpriteID.smokePuff.size
-        let tint = CastleSmoke.tint
+        // b3-wind (step 7, call T3): the town's grey puffs take their own tint and no pale day light.
+        let tint = town ? CastleSmoke.townTint(ambient) : CastleSmoke.tint
         let puffs = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
             .filter { $0.alpha > 0.02 }
             .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
@@ -605,14 +624,16 @@ enum FrameBuilder {
             let top = geometry.top(y: (chimney.y + puff.rise).rounded(), height: Double(size.height))
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             // The puff's own pixels: `puff.frame + 2` columns (the mouth's pixel: 1) on the cell's bottom rows.
-            let side = Float(puff.frame < CastleSmoke.sizes ? puff.frame + 2 : 1)
+            let side = Float(CastleSmoke.side(frame: puff.frame))   // b3-wind step 7: the town's frames too
             let x0 = rect.x + ((rect.z - side) / 2).rounded(.down)
             let y0 = rect.y + rect.w - side
             let hidden = hiddenBy.contains { $0.x < x0 + side && x0 < $0.x + $0.z && $0.y < y0 + side && y0 < $0.y + $0.w }
             guard !hidden else { continue }
             list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
                                        tint: SIMD4<Float>(tint.x, tint.y, tint.z, puff.alpha), flipped: false))
-            let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire, hearth: hearth)
+            let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire, hearth: hearth, day: town ? 0 : 1)
+            // b3-wind (step 7): no glow quad where there is no light (the town's puffs by day).
+            guard max(rgb.x, max(rgb.y, rgb.z)) > 0.002 else { continue }
             glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane, rect: rect,
                                       color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, puff.alpha), frame: puff.frame))
         }
@@ -2146,6 +2167,10 @@ enum FrameBuilder {
     // leaf is 3 x 2 or 2 x 2 in the two lightest tones of its crown over a darker underside (`gustLeaf`'s frames), and
     // flips between two frames; the autumn tone only from the fruit trees. No leaf is born inside a crown and none is
     // drawn at rest; the scattered single leaves of steps 3 to 5 are gone. None in a calm, none with Reduce Motion.
+    /// b3-wind: build 3 step 7 (the director's call T1 of 16.11. 14:41: "a row of small lime dots reads as a string of
+    /// fairy lights"): no ribbon is born in wave 1. The ribbon's code, its art and its function's tests stay; leaves get
+    /// their own design after wave 1.
+    static let ribbonsBorn = false
     static let ribbonLeast = 7
     static let ribbonMost = 9
     static let ribbonLeave = 0.4
@@ -2265,7 +2290,7 @@ enum FrameBuilder {
             crowns.append((lee: downwind > 0 ? left + Double(prop.width) : left,
                            row: top + Double(prop.height) * ribbonCrownRow, tone: ribbonTone(prop.sprite)))
         }
-        if !crowns.isEmpty, let ribbon = ribbon(weather, time: animTime) {
+        if ribbonsBorn, !crowns.isEmpty, let ribbon = ribbon(weather, time: animTime) {   // b3-wind step 7, call T1
             let room = crowns.filter {
                 downwind > 0 ? $0.lee >= 0 && $0.lee <= width * ribbonRoom
                              : $0.lee <= width && $0.lee >= width * (1 - ribbonRoom)
