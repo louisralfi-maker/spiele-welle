@@ -42,7 +42,9 @@ final class HordeRenderTests: XCTestCase {
             let time = 1.0 + after
             s.simTime = time
             settings.time = time
-            let desc = frame(s, focus: 600, time: time, wind: 0.6, effects: effects)
+            // the gate's review: proved with the Gloom's fog on, as the live night draws it (the step's rule)
+            let desc = frame(s, focus: 600, time: time, wind: 0.6, effects: effects,
+                             gloom: GloomFog(night: 12, fogNight: false))
             let falls = desc.actors.filter { $0.sprite == .sootFall }
             let threads = desc.actors.filter { HordeLook.threadSprites.contains($0.sprite) }
             XCTAssertEqual(falls.count, after < HordeLook.heapGone ? 1 : 0, "the heap at \(after) s")
@@ -509,8 +511,11 @@ final class HordeRenderTests: XCTestCase {
         settings.time = 1.5
         let dropped = Set<SpriteID>(HordeLook.threadSprites)
         let keep: (ActorInstance) -> Bool = { !dropped.contains($0.sprite) }
-        let desc = frame(s, focus: 640, time: 1.5, wind: 0, effects: BattleEffects(), keep: keep)
-        let plain = frame(s, focus: 640, time: 1.5, wind: 0, effects: BattleEffects(), keep: keep, adjust: { actor in
+        // the gate's review: proved with the Gloom's fog on, as the live night draws it (the step's rule)
+        let fog = GloomFog(night: 12, fogNight: false)
+        let desc = frame(s, focus: 640, time: 1.5, wind: 0, effects: BattleEffects(), keep: keep, gloom: fog)
+        let plain = frame(s, focus: 640, time: 1.5, wind: 0, effects: BattleEffects(), keep: keep, gloom: fog,
+                          adjust: { actor in
             guard let packed = HordeLook.unpack(actor.lightCap), packed.lifted else { return actor }
             var flat = actor
             flat.lightCap = HordeLook.pack(cap: packed.cap, veil: packed.veil)
