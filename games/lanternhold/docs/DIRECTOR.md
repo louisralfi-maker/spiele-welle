@@ -1076,3 +1076,8 @@ schneller geht."
   - Kept and closed: the banners, the vane (head 9 px, fin 18 px), the night ash, the embers at 13 fire pixels, the rain's budget.
   - Fails at phone size: the keep's smoke is a pale line 1 to 2 px wide and vanishes in a storm; the town's chimneys show no smoke; the leaves are scattered specks that read as confetti.
   - Step 6 (one agent): smoke as round puffs in two values with a column of five to seven; the town's chimneys smoke, three of four at the evening meal; the leaves leave one crown's lee edge as a ribbon of 7 to 9 along one arc. A python proof over the live frames comes before any Swift.
+
+- **The count's offers card judged: no price stands in the street (16.11.2026, 12:33).**
+  - The card (hung signs; a bench with models and figures; a bench with coin pips) has no winner: every number at idle reads as a price list, the 14 x 9 px models are crumbs, the pips read as gold for sale.
+  - The decision: at a plot with more than one offer only the things themselves stand: one wooden model per offer, about 22 px wide. A touch on a model raises the pay board; the board's hollows are the price, as at every other site.
+  - Step 5B is a second card: the models on trestles on the lord's near side (plain, and with a coin stack as a test), and chalk drawings on the wall.
