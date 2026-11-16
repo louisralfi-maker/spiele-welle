@@ -415,7 +415,14 @@ final class GloomFogTests: XCTestCase {
         let later = frame(night, focus: 620, gloom: hard, time: 9, reduceMotion: true)
         XCTAssertEqual(all(still).map(\.rect), all(later).map(\.rect), "it stands")
         XCTAssertEqual(eyes(still).map(\.rect), eyes(later).map(\.rect))
-        XCTAssertEqual(eyes(still).count, 7)
+        // b3-horde step 4 (the director's call 8): single points, none within 9 px of another, so a close pair of
+        // slots shows one
+        XCTAssertTrue((4...7).contains(eyes(still).count), "\(eyes(still).count) points")
+        let points = eyes(still).map(\.rect).sorted { $0.x < $1.x }
+        XCTAssertTrue(points.allSatisfy { $0.z == 1 && $0.w == 1 }, "single points, never pairs")
+        for (a, b) in zip(points, points.dropFirst()) {
+            XCTAssertGreaterThanOrEqual(b.x - a.x, HordeLook.eyeApart, "never two points within 9 px")
+        }
         XCTAssertTrue(eyes(still).allSatisfy { $0.plane == .world && $0.kind == .glow && $0.color.z > $0.color.x })
         XCTAssertEqual(eyeTiles(still), eyeTiles(later), "the painted eyes stand too")
         XCTAssertTrue(wisps(still).isEmpty && wisps(later).isEmpty)

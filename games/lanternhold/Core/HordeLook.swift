@@ -353,6 +353,49 @@ enum HordeLook {
         }
     }
 
+    // MARK: - The bank's eyes (step 4, the director's call 8; the critic's H5)
+
+    /// The bank's eyes (`darknessBankGlow`, a pair in every frame) and the fog's (`eyeGlints`, a pair 5 px wide) are
+    /// drawn as single cold points: of each pair its left eye only (`eyeSource`), each 0 ... `eyeDrop` rows lower than
+    /// its slot by a hash of its place in the world (lower only, so none rises over `EyeRules.ceiling`, a creature's
+    /// head height), and none within `eyeApart` px of a point already kept, so they never stand as pairs, rows or a
+    /// grid (a ruled grid of points is a machine's tell, and a pair is a face). The picture only.
+    static let eyeApart: Float = 9
+    static let eyeDrop = 5
+
+    /// The part of an eye sprite that holds one eye (its left one), in sprite pixels; nil for any other sprite.
+    static func eyeSource(_ sprite: SpriteID) -> SIMD4<Float>? {
+        switch sprite {
+        case .darknessBankGlow: return SIMD4<Float>(0, 0, 4, 3)
+        case .eyeGlints: return SIMD4<Float>(0, 0, 1, 1)
+        default: return nil
+        }
+    }
+
+    /// `list` with every eye pair on the world plane drawn as one point (`worldLeft`: the world x of the plane's left
+    /// edge, so a point's height is its own wherever the camera stands).
+    static func singleEyes(_ list: [EmissiveInstance], worldLeft: Double) -> [EmissiveInstance] {
+        var kept: [Float] = []
+        var out: [EmissiveInstance] = []
+        out.reserveCapacity(list.count)
+        for item in list {
+            guard item.plane == .world, item.kind == .glow, let source = eyeSource(item.sprite) else {
+                out.append(item)
+                continue
+            }
+            let scale = item.rect.z / Float(max(1, item.sprite.size.width))
+            let at = (Double(item.rect.x) + worldLeft).rounded()
+            let drop = Float(SeededRandom.hash(0x4559_4553, Int64(at)) % UInt64(eyeDrop + 1))
+            var single = item
+            single.source = source
+            single.rect = SIMD4<Float>(item.rect.x, item.rect.y + drop * scale, source.z * scale, source.w * scale)
+            guard !kept.contains(where: { abs($0 - single.rect.x) < eyeApart * scale }) else { continue }
+            kept.append(single.rect.x)
+            out.append(single)
+        }
+        return out
+    }
+
     // MARK: - The fall
 
     /// Three fall frames of 0.1 s; the heap of soot holds and fades until 0.6 s; the thread stands alone until 0.8 s

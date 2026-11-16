@@ -291,9 +291,15 @@ enum FrameBuilder {
         let cleftDusk = options.look == .two ? cleftDuskShare(focus: geometry.focusX, ambient: ambient) : 0
         var skyAmbient = ambient
         skyAmbient.starAlpha *= Float(1 - cleftDusk)
-        let emissives = skyEmissives(ambient: skyAmbient, hour: hour, geometry: geometry,
+        var emissives = skyEmissives(ambient: skyAmbient, hour: hour, geometry: geometry,
                                      cleft: options.look == .two ? cleftShare(focus: geometry.focusX) : 0)
             + glow.items
+        // b3-horde (build 3, lane 4 step A, step 4; the director's call 8; one block for the join): the bank's and the
+        // fog's eyes as single cold points at heights and spacing of their own, never pairs, rows or a grid
+        // (`HordeLook.singleEyes`).
+        if options.look == .two {
+            emissives = HordeLook.singleEyes(emissives, worldLeft: geometry.whole(.world))
+        }
 
         var fog: [FogLayer] = []
         if options.effects.fog {

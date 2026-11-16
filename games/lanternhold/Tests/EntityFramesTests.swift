@@ -1239,6 +1239,32 @@ final class EntityFramesTests: XCTestCase {
         }
     }
 
+    func testTheBanksEyesAreSinglePoints() {
+        // Step 4 (the director's call 8): every eye pair on the world plane becomes its left eye alone, a few rows
+        // lower by its place in the world (never higher), none within 9 px of another; everything else stays.
+        let pair = { (x: Float, y: Float) in
+            EmissiveInstance(sprite: .darknessBankGlow, plane: .world, rect: SIMD4<Float>(x, y, 9, 3),
+                             color: SIMD4<Float>(1, 1, 1, 1))
+        }
+        let glint = EmissiveInstance(sprite: .eyeGlints, plane: .world, rect: SIMD4<Float>(200, 40, 5, 1),
+                                     color: SIMD4<Float>(1, 1, 1, 1))
+        let moon = EmissiveInstance(sprite: .darknessBankGlow, plane: .mid, rect: SIMD4<Float>(10, 10, 9, 3),
+                                    color: SIMD4<Float>(1, 1, 1, 1))
+        let list = [pair(100, 50), pair(104, 50), pair(130, 52), glint, moon]
+        let single = HordeLook.singleEyes(list, worldLeft: 300)
+        XCTAssertEqual(single.count, 4, "the pair 4 px from another is dropped")
+        XCTAssertEqual(single.last, moon, "nothing else changes")
+        for (eye, was) in zip(single.prefix(3), [list[0], list[2], list[3]]) {
+            XCTAssertEqual(eye.rect.x, was.rect.x)
+            XCTAssertGreaterThanOrEqual(eye.rect.y, was.rect.y, "never higher than its slot")
+            XCTAssertLessThanOrEqual(eye.rect.y, was.rect.y + Float(HordeLook.eyeDrop))
+            XCTAssertEqual(eye.rect.z, eye.source.z, "one eye wide")
+            XCTAssertLessThan(eye.source.z, Float(eye.sprite.size.width))
+        }
+        XCTAssertEqual(single[2].source, SIMD4<Float>(0, 0, 1, 1), "a glint's one point")
+        XCTAssertEqual(HordeLook.singleEyes(list, worldLeft: 300), single, "the same every frame")
+    }
+
     func testTheMistIsTheirBackdropNeverTheirVeil() {
         // Step 4 (the director's second law): outside the bank a small one is seen at least `fogFloor` and fog B lies
         // over it at its veil only; deeper in the bank than a body is drawn nothing changes; its cold point takes no
