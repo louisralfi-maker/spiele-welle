@@ -1188,3 +1188,10 @@ schneller geht."
     - in build 396 only, the rain's lean in a gust.
   - Step 2a (one Opus agent, running): the row, the flame and the slips, with unit tests; round lh-b3l-21.
   - Step 2b (after the quota reset, a workflow with frames and a critic): the glows, the moon, the keep's plane, the rain.
+
+- **The drill yard's step 1 is built; the director set T16 (16.11.2026, 23:01).**
+  - The workflow ended not green at `claude/lh-b3-yard` b3f964e4 with only T16b and T16d red (rounds lh-b3y-11, -12; report on the desk: b3-yard-s1.md). Built: the rules (stage 2 for 70 from day 4, the drill 09 to 16, the lord at the fence, trained after 3 days, the kettle for 40), all saved fields Optional, bought through the count, placeholder props, Debug keys, YardUITests.
+  - The decision (YARD.md section 8 carries it): the yard's numbers stay; 16b's band is 15 to 45 %; new 16e (at the hardest budget the yard bot loses at least 75 % of the reference's soldiers); 16d reads the band's first four nights (without walls the gatehouse is reached by at least 20 more creatures).
+  - Open, the walls' own question for wave 3: without walls no soldier dies at the budgets 1 to 2. Outer walls may cost their soldiers for too little.
+  - The director's patch is 3d134b6c (the tuning run and its tests); round lh-b3y-13 (build, the whole unit suite) runs; the branch is pushed on ALL PASSED.
+  - Next for the yard: the layout and look step (the count board covers the barracks), the dawn card's lines, T6 and the nights from 15 on.

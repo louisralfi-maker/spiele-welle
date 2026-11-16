@@ -133,10 +133,25 @@ is in use. Both works count for every soldier, recruit or trained.
   hold line for line.
 - A new "yard" bot gives the reference's orders and, as gold allows, the drill yard, the kettle, the pavises and the
   armoury, in that order.
-- **T16:** over nights 8 to 14 the yard bot loses 20 to 35 % fewer soldiers than the reference, and 15 to 25 % fewer
-  creatures reach the gatehouse. It never wins a night the reference loses clearly. A bot that buys the yard in place
-  of walls does worse than the reference. Night 20 is still decided by the beacon: T6 stays in its band, or the lane
-  reports before and after.
+- **T16**, as the director read it on 16.11.2026 from the first measured runs (4 seeds, whole runs from day 1,
+  nights 8 to 14, the budgets 1, 1.5 and 2 summed, budget 6 for the falls). The yard's own numbers stay as they are
+  (a trained archer 1.25 s, a trained guard 36 HP, the kettle every third arrow).
+  - **16a:** the yard bot loses 20 to 35 % fewer soldiers than the reference (measured 28 %: 58 against 81).
+  - **16b:** 15 to 45 % fewer creatures reach the gatehouse (measured 37 %: 301 against 477). The band was 15 to
+    25 %. The middle budget carries the sum: there the yard keeps the wall line from breaking on nights 12 to 14.
+  - **16c:** it never wins a night the reference loses clearly.
+  - **16d:** a bot that buys the yard in place of walls has its gatehouse reached on the band's first four nights by
+    at least 20 more creatures than the reference's (measured 54 against 0). The first wording, "does worse than the
+    reference" over all seven nights, cannot hold in this sim (see the open finding).
+  - **16e (new):** at the hardest budget the yard bot still loses at least 75 % of the soldiers the reference loses
+    (measured 47 of 49). The yard smooths a middling night and carries no realm caught short. At budget 6 it even
+    falls a night earlier than the reference, because it costs coin. Its trained men die first, so its effect
+    limits itself.
+  - **Open, the walls' own question** (wave 3, with the horde rules step B): without walls no soldier dies at the
+    budgets 1 to 2, and on nights 12 to 14 at the budgets 1.5 and 2 fewer creatures reach the gatehouse than with
+    them. Outer walls may get their soldiers killed for too little.
+  - **Open:** night 20 is still decided by the beacon: T6 stays in its band, or the lane reports before and after.
+    Not measured yet.
 - With presence (REALM.md section 3) and the smithy on top, no night from 15 on may become a walk: the lane checks the
   three together.
 - State: the yard's stage, two flags for the works, the days drilled per soldier. The save format takes them with a
