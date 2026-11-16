@@ -14,7 +14,7 @@ import XCTest
 @MainActor
 final class Build2SaveMakerTests: XCTestCase {
     /// Off: the fixture is frozen (`Build2Save`). It was on only for the round that wrote it.
-    static let writes = true
+    static let writes = false
 
     private var directory: URL!
 
