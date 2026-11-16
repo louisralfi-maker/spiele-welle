@@ -4578,7 +4578,42 @@ docs/POLISH.md section 2. Everything here is look 2's picture: no rule, no saved
   view. The sky's grey, the wet sheen and the fires' warmth are as before: the rain is a plane sprite and never
   greys a window, a torch or the lantern (emissives are drawn after it).
 - **Reduce Motion** (replaces the port's "no streaks, no splashes"): the rain's and the ash's forms stay, held still
-  at one moment, so the one still reads as rain and the other as ash; nothing sways.
+  at one moment, so the one still reads as rain and the other as ash; nothing sways. Step 3 replaces it: neither rain
+  hangs frozen; a third of the streaks, flakes and splashes stand where they are and each fades in and out in place
+  over 2 s (`rainPulseAlpha`).
+
+#### Step 3 (16.11.2026): the two rains read, the gust, the sounds, the vane
+
+- **Water light, ash dark** (the director's call 1): by day the water's streaks are a cool pale grey lighter than the
+  sky (`rainDayShade` 1.30, 1.36, 1.50 over the painted drop, the foreground's × `rainForegroundLift`, the far layer
+  at 0.7 alpha); the ash is warm soot (0.30, 0.27, 0.26) at 0.7 to 0.85 alpha, its own cap (`ashAlphaCap`).
+- **The flake** (`ashFlake`, 14 frames): hard pixel clumps, two tones, the tumble turning the clump; frames 12 and 13
+  the ember's point.
+- **At night** (call 2): each flake has a faint emissive copy (`ashNightShade × 0.35 × (1 − rainShade)`); the lane
+  depth's copies go after the bank's lane sheet, the near depth stays 24 px east of the bank (`ashBankFace`), the
+  foreground's sprite keeps 0.35 of itself at night so its copy shows. The lane's and the foreground's water streaks
+  near a light get a cool copy (`rainNightLift`, within 1.6 of the light's radius, from a torch strength of 0.5, at
+  most 40 a depth).
+- **Embers** (call 3): one flake in six (`isEmber`, by its index) starts as an orange point in the emissive pass and
+  dies to grey in the first third of its fall.
+- **Counts** (call 4): 60, 40 and 20 flakes at full rain (FrameBudgetTests run dry weather and stay as they were).
+- **Splash** (the critic's M5): in a heavy rain its two pale pixels fly up and out at 0.7 alpha, on the lane and the
+  ridges of the cottages, the big house and the tavern.
+- **Flags and banners** (M1, M2, M4, the lows): the breeze's flying cycle sags 2 to 3 px with a belly; the stirring
+  frame is whole cloth; banners have 15 poses (out 1 to 4, back 3 to 1, both ways) and a storm swings them out 1, 3,
+  4, back 3, 1 at 6 steps/s (`bannerSways`, `bannerFrame`); the dusk rim runs along the hem and hoist and the
+  house's lantern stays gold (`keepFlagRim`, `castleBannerRim`); each flag runs at 0.92 to 1.08 of the rate by its x
+  (`flagRate`), so two flags never march in step.
+- **Flames** (M3): every row sheared by its height (3, 2, 1 for a torch, 3, 2, 2, 1, 1 for a brazier at a whole
+  lean), the windward side tapered, the leeward tip stretched, from a lean of 0.25 (`flameBendFrom`).
+- **The gust** (`FrameBuilder.gustLeaves`, `gustLeaf`): leaves from the crowns of the trees on screen (3 in a breeze,
+  7 on a gusty day, 10 in a storm) and the lane's dust in the gusts, east of the outermost standing wall, none with
+  Reduce Motion.
+- **The vane** (`weatherVane`, `Weather.vaneFrame`): on the keep's east tower, its head into the wind, a swing in a
+  breeze, a shiver in a storm, standing in a calm.
+- **The sounds** (`WindSound`, tools/windsound.py): `banner_snap` at a gust's rise with a flag in view (gusty, storm;
+  every 7 s at most), `shutter_rattle` at a gust's rise in the town (every 11 s), the day's bed × 0.75 to 1.3 by the
+  wind. Their hookup into `SoundID`, MANIFEST and `GameModel` is the join's (wave 1: the count lane's files).
 
 ## Risks
 
