@@ -1,0 +1,23 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (50.138 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (31.736 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (82.619 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (23.785 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (73.527 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (25.510 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (153.073 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (21.670 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (23.144 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:274: error: -[LanternholdUITests.CountUITests testTheLanternAtNight] : XCTAssertTrue failed - the coin paid the repair
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:276: error: -[LanternholdUITests.CountUITests testTheLanternAtNight] : XCTAssertEqual failed: ("Optional("0")") is not equal to ("Optional("1")") - the lantern burns while the repair runs
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' failed (30.525 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (66.734 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (109.616 seconds).
+Test Suite 'CountUITests' failed at 2026-11-16 16:14:25.647.
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (214.448 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (66.662 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (117.153 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (208.992 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-16 16:24:32.921.
+Test Suite 'Selected tests' failed at 2026-11-16 16:24:32.922.
+exit=65
+screenshots: 77
