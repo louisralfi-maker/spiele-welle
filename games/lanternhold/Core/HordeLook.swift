@@ -476,11 +476,12 @@ enum HordeLook {
     /// the newest first.
     static let maxFallsDrawn = 12
 
-    /// The socket on fall frame 0 (the flare), from the anchor: `tools/creatures/hordekit.py` `slump` (step 5).
+    /// The socket on fall frame 0 (the flare), from the anchor: `tools/creatures/hordekit.py` `slump` (step 5; step 7:
+    /// the walker's and the runt's shroud folding down over their arms, the head hung low in front near the ground).
     static func fallSocket(_ body: Body) -> (dx: Double, dy: Double) {
         switch body {
-        case .crawler: return (dx: 5.5, dy: 3.5)
-        case .loper: return (dx: 3.5, dy: 2.5)
+        case .crawler: return (dx: 2.5, dy: 1.5)
+        case .loper: return (dx: 1.5, dy: 1.5)
         case .tumbler: return (dx: 2.5, dy: 4.5)
         }
     }

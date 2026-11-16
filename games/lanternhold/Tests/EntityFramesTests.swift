@@ -771,6 +771,20 @@ final class EntityFramesTests: XCTestCase {
                     XCTFail("\(body) fall frame \(k): the cold point is there")
                     continue
                 }
+                // step 7 (the director's call 4): the fall is drawn from the ash giant's children, the shroud folding
+                // down over the arms with the giant's cloth on top: in two or more columns the first pixel under the
+                // outline is the cloth (warmer than blue)
+                var clothTop = 0
+                for x in 0..<cell.width {
+                    let first = (0..<cell.height).first { y in
+                        let c = fall[frame * cell.width + x, y]
+                        return c.a > 0 && c != RGBA(0x0A1124)
+                    }
+                    if let y = first, Int(fall[frame * cell.width + x, y].r) > Int(fall[frame * cell.width + x, y].b) {
+                        clothTop += 1
+                    }
+                }
+                XCTAssertGreaterThanOrEqual(clothTop, 2, "\(body) fall frame \(k): the cloth folds down on top")
                 if k < 2 {
                     XCTAssertGreaterThanOrEqual(cell.height - top, half,
                                                 "\(body) fall frame \(k): a slump of at least half its height")
