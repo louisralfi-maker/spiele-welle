@@ -1,0 +1,184 @@
+2026-11-16 06:42:25.400668+0000 Lanternhold[12947:51733] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-16 06:42:26.518743+0000 Lanternhold[12947:52064] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 06:42:26.519081+0000 Lanternhold[12947:52070] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 06:42:26.711669+0000 Lanternhold[12947:52063] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 06:42:26.711784+0000 Lanternhold[12947:52070] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 06:42:26.721859+0000 Lanternhold[12947:52070] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 06:42:26.724108+0000 Lanternhold[12947:52070] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: 2026-11-16 06:42:26.741017+0000 Lanternhold[12947:52063] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.AtlasTests testBundledArtReplacesThePlaceholder]' passed (3.201 seconds).
+Test Case '-[LanternholdTests.AtlasTests testCellsKeepTheirPaddingClear]' passed (0.558 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlacedSpriteIsPainted]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlaceholderDrawsSomethingAtItsSize]' passed (10.317 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEverySpriteGetsCellsOfItsSize]' passed (0.039 seconds).
+Test Case '-[LanternholdTests.AtlasTests testLook2ArtIsBundled]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPackerKeepsInsideTheWidth]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPlaceholdersAreDeterministic]' passed (0.391 seconds).
+Test Case '-[LanternholdTests.AtlasTests testStripsSplitIntoFrames]' passed (0.006 seconds).
+2026-11-16 06:42:41.646904+0000 Lanternhold[12947:51733] [Lanternhold] createImageAtIndex:2185: *** ERROR: createImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+2026-11-16 06:42:41.647017+0000 Lanternhold[12947:51733] [Lanternhold] CGImageSourceCreateImageAtIndex:5179: *** ERROR: CGImageSourceCreateImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+Test Case '-[LanternholdTests.AtlasTests testTinyPNGDecodesExactly]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CameraFramingTests testReduceMotionMakesTheLeadAndTheSetPiecesInstant]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CameraFramingTests testTheCameraLeadsTowardTheDangerAtNightWhileCreaturesAreOnScreen]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CameraFramingTests testTheGoalNeverJumps]' passed (0.083 seconds).
+Test Case '-[LanternholdTests.CameraFramingTests testTheLeadEasesInOverHalfASecondInTheWalkingDirection]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CameraFramingTests testTheLeadStaysWhenHeStopsAndIsClearedByAJump]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.CameraFramingTests testTheSetPiecesComposeTheirBuilding]' passed (0.026 seconds).
+Test Case '-[LanternholdTests.CameraFramingTests testTheWorldEndsStillClampTheFraming]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.CameraFramingTests testWalkingThroughTheFrontGateKeepsTheLordOnScreenAndTheCameraSmooth]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testAGiantInFrontOfAHeapStaysInFront]' passed (0.088 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testAKillFindsItsBodyAfterAQuietStretch]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testAMassKillDrawsOnlyTheNewestFalls]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testAnUnlitOneFallsAtTheNightsValue]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testArrowsInFlightAreDrawnWithTrailsAndFireArrowsGlow]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testASmallOneFallsToSootAndItsThreadGoesWithTheWind]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testBuildersHammerAtTheirWorkByDay]' passed (0.616 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testEnginesAndTrapsShowWhatTheyDid]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testEverySmallOneCarriesAThreadThatLeansWithTheWind]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testEverySmallOneWearsTheGiantsRagAndOneColdPoint]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testLineOnesArchersNeverStandInTheWallWalksFires]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testNeighbourSocketsNeverLightAsAPair]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testNeighboursSeparateByAValueStepAndAPixel]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testNoPlotMarkersStand]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testNoTwoSmallOnesKeepStep]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testProjectilesFlyOnTheirArcsWithFramesByVerticalSpeed]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testShadowSwallowsLight]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheBanksEyesAreSinglePoints]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheBattleLightsComeFromTheSimulation]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheBeaconsStagesAndItsFire]' passed (0.038 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheBodyIsTheShadowWithTornClothBehind]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheClimbersTakeAClimbPose]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheGateOpensByDayAndClosesAtNight]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheHeapRisesOnlyPastFourAtOneWall]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheHeapRisesWithThePressureOnTheWall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheKingWalksIdlesAndCommands]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheLightlessKingsAuraHoldsOutsideTheLightAndShatters]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheMistIsTheirBackdropNeverTheirVeil]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheSmallOnesTakeThreeBodiesByTheirID]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheSocketFlaresAndSnuffsAndHalfThePuffComesBack]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheSocketsAreColdPointsOfLight]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheSootlingsAlternateAndCreaturesAnimateByAction]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheThreadsAreSmokeThatNeverStandsRuled]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheThreeBodiesStandAtThreeHeights]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheTownByPlotState]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTowersStandBehindTheirWallsAndArchersOnTheirPosts]' passed (0.471 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testUnlitCreaturesShowTheirGlowOverADarkBody]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testWallsShowDamageRubbleAndScaffolding]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.FrameBudgetTests testFortyCreaturesKeepTheFrameInsideTheBudget]' passed (0.144 seconds).
+Test Case '-[LanternholdTests.FrameBudgetTests testTheBudgetHoldsAcrossAWholeLiveNight]' passed (1.591 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCastleHallAndTownAtNight]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCastleShadowFollowsTheSun]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCountsMatchTheLists]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCreaturesShowTheirBodiesByDay]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testDarknessBankEdgeFollowsTheClock]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testEffectLevels]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testFrameGeometry]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testFrontAtNightHasFireCreaturesEyesAndArchers]' passed (0.305 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testGlassMasksSitInsideTheirSprite]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testGroundTilesJoinAndVary]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testKingWalkCycleRunsForwardInBothDirections]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testMidPlaneLightsMoveWithTheirPlane]' passed (0.025 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testMistAtTheCastleFootComesWithTheDusk]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testNightStaysInsideTheBudgetEverywhere]' passed (0.264 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley]' passed (0.308 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testNoFogEdgeEndsInTheViewWithoutAFeatherOrANeighbour]' passed (0.545 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testNoonHasNoTorchlightWindowsOrStars]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testOccludersHideGlowBehindLaterSprites]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testPlaneOffsetsMatchTheCamera]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testRegionsSwitchAtTheBorders]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSameInputsGiveEqualFrames]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSceneMatchesTheLayout]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testShadowAndMistStrengthsByTheHour]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSnappedActorsLandOnWholeGamePixels]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSnuffingABrazierTakesItsLightAway]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSpriteRectsSitOnWholeTargetPixels]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testTheKeepShowsFromTheGorge]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testTheKeepsValleyViewFadesInAtTheBackGate]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testTopAnchorHoldsOn154And181Rows]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testWorldIsAsWideAsTheLayout]' passed (0.003 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GloomFogTests.swift:423: error: -[LanternholdTests.GloomFogTests testFramesWithTheFog] : XCTAssertTrue failed - 2 points at screen x [380, 142]
+Test Case '-[LanternholdTests.GloomFogTests testFramesWithTheFog]' failed (0.450 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testHarderNightsBringItEarlierFurtherAndThicker]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testItComesAtDuskAndPullsBackAtDawn]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheArgument]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheCreaturesStepOutOfIt]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheEyesInIt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheFiresCutHoles]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheFogThinsTowardAFireInSmallSteps]' passed (0.034 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testThePaintedFog]' passed (0.043 seconds).
+Test Suite 'GloomFogTests' failed at 2026-11-16 06:42:47.878.
+Test Case '-[LanternholdTests.HordeProofTests testTheClipHoldsTheHordeInView]' passed (0.674 seconds).
+Test Case '-[LanternholdTests.HordeProofTests testTheProofSendsOneWaveWithoutArchers]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.HordeRenderTests testAnUnlitSmallOneReadsAgainstTheNightInTheOpen]' passed (2.814 seconds).
+Test Case '-[LanternholdTests.HordeRenderTests testAVolleyLeavesOrphanThreads]' passed (1.968 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HordeRenderTests.swift:535: error: -[LanternholdTests.HordeRenderTests testByTheFiresTheHeapStaysDarkCreaturesWithAWarmRim] : XCTAssertGreaterThanOrEqual failed: ("0.14689542") is less than ("0.17601964") - by the fires the navy stays navy (SIMD3<Float>(0.17601964, 0.14624606, 0.14689542)), never brown
+Test Case '-[LanternholdTests.HordeRenderTests testByTheFiresTheHeapStaysDarkCreaturesWithAWarmRim]' failed (1.657 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HordeRenderTests.swift:417: error: -[LanternholdTests.HordeRenderTests testInTheDarkOpenTheyStandBlackInFrontOfTheMist] : XCTAssertGreaterThan failed: ("28.051939") is not greater than ("87.34424") - the Gloom's fog is on behind sootlingB
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HordeRenderTests.swift:417: error: -[LanternholdTests.HordeRenderTests testInTheDarkOpenTheyStandBlackInFrontOfTheMist] : XCTAssertGreaterThan failed: ("41.774147") is not greater than ("79.22855") - the Gloom's fog is on behind sootling
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HordeRenderTests.swift:417: error: -[LanternholdTests.HordeRenderTests testInTheDarkOpenTheyStandBlackInFrontOfTheMist] : XCTAssertGreaterThan failed: ("37.974068") is not greater than ("48.183918") - the Gloom's fog is on behind sootlingB
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HordeRenderTests.swift:417: error: -[LanternholdTests.HordeRenderTests testInTheDarkOpenTheyStandBlackInFrontOfTheMist] : XCTAssertGreaterThan failed: ("53.80601") is not greater than ("99.66897") - the Gloom's fog is on behind sootling
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HordeRenderTests.swift:417: error: -[LanternholdTests.HordeRenderTests testInTheDarkOpenTheyStandBlackInFrontOfTheMist] : XCTAssertGreaterThan failed: ("38.38219") is not greater than ("43.822796") - the Gloom's fog is on behind sootling
+Test Case '-[LanternholdTests.HordeRenderTests testInTheDarkOpenTheyStandBlackInFrontOfTheMist]' failed (5.031 seconds).
+Test Case '-[LanternholdTests.HordeRenderTests testTheCrowdByDayByTheFiresAndUnlitAtNight]' passed (2.541 seconds).
+Test Case '-[LanternholdTests.HordeRenderTests testTheFallFilmstrip]' passed (5.228 seconds).
+Test Suite 'HordeRenderTests' failed at 2026-11-16 06:43:07.810.
+Test Case '-[LanternholdTests.Look2FrameTests testCreaturesOfLookTwo]' passed (0.041 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testFirefliesOfLookTwo]' passed (0.036 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testFramesOfLookTwo]' passed (0.209 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testLookTwoRenders]' passed (27.774 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testTheCastleTiers]' passed (0.094 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testTheLaneByRegion]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testTheSceneOfLookTwo]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testTheTownAtNightOfLookTwo]' passed (0.028 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testWeatherOfLookTwo]' passed (0.074 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheCastleGrowsWithItsGatehouse]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheCircletIconsAreInTheAtlas]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheFirefliesAreDotsWithAHalo]' passed (0.028 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheHousesArgumentHangsTheirBanners]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheHousesFacesAreGuestsWithABodyAndAPortraitOfTheirOwn]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheHousesSpritesHaveTheirPlaceholders]' passed (0.037 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheOldWallsStandInTheThroatAndATierInItsAnchor]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.PolishTests testThePolishSpritesHaveTheirPlaceholders]' passed (0.214 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheRainFallsDarkByDay]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheRaisePresetAndTheFixedStage]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheRoomsFlickerSoftly]' passed (0.071 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheSquaresPropsAndTheYoungWillow]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheValleysDistanceClosesTheNotchAtTheWallsEnd]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SceneFilterTests testAGameFrameDrawsWhatTheRealmHas]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.SceneFilterTests testGameModeHidesTheSimOwnedPlaceholders]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SceneFilterTests testTheProbeKeepsTheFullScene]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.WorldRebuild2FixTests testTheCastleArgumentSetsTheGate]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.WorldRebuild2FixTests testTheCastleFiresAreShapedPools]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.WorldRebuild2FixTests testTheDoorsWedgeWidens]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.WorldRebuild2FixTests testTheKeepHasLightOfItsOwn]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.WorldRebuild2FixTests testTheMistStandsAtTheKeepsFootOverTheCurtain]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.WorldRebuild2FixTests testTheMoonStandsStillOnTheSky]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.WorldRebuild2FixTests testTheSmokeRisesInPuffsAndStandsStillWithReduceMotion]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix2Tests testAHardNightHasAGroundFog]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix2Tests testTheCreaturesRedLineFadesInTheBank]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix2Tests testTheEyesStayLowAndNeverBeforeABuilding]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix2Tests testTheLineFiresFallOffRadially]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix2Tests testThePosternsViewAtNightIsNoPanel]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix2Tests testTheRiverEndReads]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix2Tests testTheSlitsAreDimCores]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix3Tests testDeepInTheBankOnlyTheEyesShow]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix3Tests testTheBeaconTakesTheNightsColdStep]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix3Tests testTheEyesOpenOnlyAtHeadHeightAndClearOfBuildings]' passed (0.097 seconds).
+Test Case '-[LanternholdTests.WorldThreeFix3Tests testThePosternsViewTakesTheDusk]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testAtMostThreeArchersPerDefensiveLine]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testCreaturesReadAsBodiesAtDistance]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testFirePoolsFallToAQuarterByDay]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testSmokeYouCanSeeAtEveryHour]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testTheBakehouseOvenThrowsAWedgeNotAnOval]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testTheBeaconCatchesTheMoon]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testTheCliffBehindTheCastleIsHazierByDay]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testTheGateSlitsGlowAStepLower]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testTheGatewayTorchesAreWarmAndFlat]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testTheHallDoorsWashIsCutUnderTheEave]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testTheTownHasABackRowOfRoofs]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testTheValleyVergeAndTheRiverEnd]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.WorldThreeTests testTheWardenStatuesFireSitsInItsBowl]' passed (0.001 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-16 06:43:36.825.
+Test Suite 'Selected tests' failed at 2026-11-16 06:43:36.827.
+exit=65
+screenshots: 25

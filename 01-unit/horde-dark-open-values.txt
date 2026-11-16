@@ -1,0 +1,8 @@
+sootlingB frame 1 at x 499: body 0.0208, the mist behind 0.0588 (0.35 of it), the ground without the fog 0.1665 (477 px)
+sootling frame 3 at x 550: body 0.0207, the mist behind 0.0814 (0.25 of it), the ground without the fog 0.1404 (513 px)
+sootlingB frame 2 at x 601: body 0.0222, the mist behind 0.0767 (0.29 of it), the ground without the fog 0.0885 (495 px)
+sootling frame 2 at x 652: body 0.0219, the mist behind 0.1150 (0.19 of it), the ground without the fog 0.1936 (468 px)
+sootlingB frame 0 at x 703: body 0.0219, the mist behind 0.0659 (0.33 of it), the ground without the fog 0.0571 (477 px)
+sootling frame 3 at x 754: body 0.0186, the mist behind 0.0748 (0.25 of it), the ground without the fog 0.0777 (513 px)
+all bodies: 0.27 of the mist behind them
+the cold points: 51.0664 with the fog, 51.0664 without it
