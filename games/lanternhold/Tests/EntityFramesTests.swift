@@ -1117,9 +1117,9 @@ final class EntityFramesTests: XCTestCase {
                 let tops = (0..<14).map { x in (0..<14).first(where: { at(x, $0).a > 0 }) ?? 14 }
                 let eyeX = (0..<14).first(where: { x in (0..<14).contains { glow[frame * 14 + x, $0] == white } }) ?? 0
                 let peakX = tops.indices.min { tops[$0] < tops[$1] || (tops[$0] == tops[$1] && $0 > $1) } ?? 0
-                let dip = (max(1, peakX + 1)..<max(1, min(13, eyeX))).contains { x in
-                    tops[x] > tops[x - 1] && tops[x] > tops[x + 1]
-                }
+                let from = max(1, peakX + 1)
+                let to = min(13, eyeX)
+                let dip = from < to && (from..<to).contains { x in tops[x] > tops[x - 1] && tops[x] > tops[x + 1] }
                 if body == .crawler {
                     XCTAssertTrue(dip, "\(sprite) frame \(frame): a dip at the neck, the head jutting low")
                 }

@@ -1442,9 +1442,9 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         int toward = east * (across < 0.0f ? -1 : 1);
         bool above = t.y == 0u || atlas.read(uint2(t.x, t.y - 1u)).a < 0.5f;
         int2 side = int2(t) + int2(toward, 0);
-        bool open = atlas.read(uint2(max(side, int2(0)))).a < 0.5f;
+        bool clear = atlas.read(uint2(max(side, int2(0)))).a < 0.5f;
         bool upper = t.y < 2u || atlas.read(uint2(t.x, t.y - 2u)).a < 0.5f;
-        if (above || (open && upper)) {
+        if (above || (clear && upper)) {
             lit = mix(lit, lh2_capped(info.light) * kHordeRim2, saturate(peak * 1.5f) * 0.85f);
         }
     }
@@ -1464,9 +1464,10 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         if (topEdge && horde) {
             // b3-horde: the moon on a small one's top contour, the rag's in the cloak's night tone
             bool rag = albedo.r > albedo.b;
+            float3 tone = rag ? float3(kHordeRagNight2) : float3(kCreatureRim2);
             float share = (rag ? kHordeRagMoon2 : kHordeRimMoon2) * saturate(v.cloudC.w * 1.5f)
                 * (1.0f - saturate(peak * 1.5f));
-            color = mix(color, rag ? kHordeRagNight2 : kCreatureRim2, share);
+            color = mix(color, tone, share);
         } else if (topEdge) {
             color = mix(color, kCreatureRim2, 0.6f * rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
