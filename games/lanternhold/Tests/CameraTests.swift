@@ -134,6 +134,104 @@ final class CameraTests: XCTestCase {
         var largestOffCentre: Double
     }
 
+    // MARK: - Build 3, lane 5: the look-around
+
+    /// The look-around's pan slides the view from where the follow holds it, kept inside the world; the planes draw
+    /// the slid view; the frame's shake moves the slid view without counting the pan twice.
+    func testThePanSlidesTheViewInsideTheWorld() {
+        var camera = Camera(focusX: 1830, viewWidth: 437)
+        let base = camera.x
+        XCTAssertEqual(camera.baseX, base)
+        XCTAssertEqual(camera.pan, 0)
+        camera.setPan(120)
+        XCTAssertEqual(camera.x, base + 120, accuracy: 1e-9)
+        XCTAssertEqual(camera.baseX, base, "the follow's edge stays")
+        XCTAssertEqual(camera.focusX, 1830 + 120, accuracy: 1e-9)
+        XCTAssertEqual(camera.offset(for: .world, scale: 6).offset, base + 120, accuracy: 1e-9, "the planes slide")
+        XCTAssertEqual(camera.panRange.lowerBound, -base, accuracy: 1e-9)
+        XCTAssertEqual(camera.panRange.upperBound, camera.maxLeft - base, accuracy: 1e-9)
+        var shaken = camera
+        shaken.jump(toFocus: shaken.focusX + 3)
+        XCTAssertEqual(shaken.x, camera.x + 3, accuracy: 1e-9, "the shake moves the slid view by its sway only")
+        camera.setPan(1_000_000)
+        XCTAssertEqual(camera.x, camera.maxLeft, accuracy: 1e-9, "the east end")
+        camera.setPan(-1_000_000)
+        XCTAssertEqual(camera.x, 0, accuracy: 1e-9, "the west end")
+        camera.setPan(0)
+        XCTAssertEqual(camera.x, base, "home")
+    }
+
+    /// While the view is slid and the lord stands, the framing holds the follow still (the realm stays under the
+    /// finger); a walking lord is followed.
+    func testTheFollowHoldsWhileTheViewIsSlidAndTheLordStands() {
+        var camera = Camera(focusX: 1000, viewWidth: 437)
+        camera.setPan(80)
+        let base = camera.baseX
+        let standing = CameraFraming.Input(lordX: 1300, velocity: 0, facing: 1, danger: 1)
+        for _ in 0..<120 { camera.frame(standing, dt: dt) }
+        XCTAssertEqual(camera.baseX, base, "held while slid")
+        XCTAssertEqual(camera.x, base + 80, accuracy: 1e-9)
+        let walking = CameraFraming.Input(lordX: 1300, velocity: 60, facing: 1, danger: 0)
+        camera.frame(walking, dt: dt)
+        XCTAssertNotEqual(camera.baseX, base, "a walking lord is followed")
+        var home = Camera(focusX: 1000, viewWidth: 437)
+        for _ in 0..<120 { home.frame(standing, dt: dt) }
+        XCTAssertNotEqual(home.baseX, base, "without a pan the follow settles as before")
+    }
+
+    /// The look-around moves with the finger one to one, waits at the ends and turns back at once, glides home with an
+    /// ease-out when let go (home at once under Reduce Motion), and a finger catches a glide where it is.
+    func testTheLookAroundMovesWithTheFingerAndGlidesHome() {
+        var look = LookAround()
+        let range = -500.0...800.0
+        look.grab(travel: 5)
+        XCTAssertTrue(look.isHeld)
+        look.drag(travel: -45, range: range)
+        XCTAssertEqual(look.pan, 50, "the finger 50 px left: the view 50 px east")
+        look.drag(travel: -2000, range: range)
+        XCTAssertEqual(look.pan, 800, "the east end")
+        look.drag(travel: -1990, range: range)
+        XCTAssertEqual(look.pan, 790, "back with the finger at once")
+        look.release(reduceMotion: false)
+        XCTAssertTrue(look.isGliding)
+        XCTAssertFalse(look.isHeld)
+        look.step(LookAround.glideSeconds / 2)
+        XCTAssertGreaterThan(look.pan, 0)
+        XCTAssertLessThan(look.pan, 790 * 0.5, "an ease-out: more than half way home at half time")
+        look.step(LookAround.glideSeconds / 2 + 0.001)
+        XCTAssertEqual(look.pan, 0, "home")
+        XCTAssertFalse(look.isGliding)
+        // Reduce Motion: home at once.
+        look.grab(travel: 0)
+        look.drag(travel: 100, range: range)
+        XCTAssertEqual(look.pan, -100, "the finger right: the view west")
+        look.release(reduceMotion: true)
+        XCTAssertEqual(look.pan, 0)
+        XCTAssertFalse(look.isGliding)
+        // A finger catches a glide where it is.
+        look.grab(travel: 0)
+        look.drag(travel: -300, range: range)
+        look.release(reduceMotion: false)
+        look.step(0.1)
+        let caught = look.pan
+        look.grab(travel: 0)
+        look.step(0.5)
+        XCTAssertEqual(look.pan, caught, "held, it glides no further")
+        // The Debug pictures: a slow glide, and the key's forms.
+        var slow = LookAround()
+        slow.glideScale = 20
+        slow.place(100, range: range)
+        slow.release(reduceMotion: false)
+        slow.step(LookAround.glideSeconds)
+        XCTAssertGreaterThan(slow.pan, 50, "twenty times as long")
+        XCTAssertEqual(LookAroundDebug.parse("400"), LookAroundDebug(pan: 400, slow: 1))
+        XCTAssertEqual(LookAroundDebug.parse("0:20"), LookAroundDebug(pan: 0, slow: 20))
+        XCTAssertEqual(LookAroundDebug.parse("150:99")?.slow, 40)
+        XCTAssertNil(LookAroundDebug.parse("east"))
+        XCTAssertNil(LookAroundDebug.parse(""))
+        XCTAssertNil(LookAroundDebug.parse(nil))
+    }
+
     /// The king walks from rest at `velocity` while the camera follows: 2 s to get going (the start lag), then 10 s
     /// measured at 60 fps.
     private func walk(pixelScale: PixelScale, start: Double, velocity: Double, mode: ActorMode) -> WalkResult {
