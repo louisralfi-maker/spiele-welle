@@ -135,14 +135,29 @@ enum HordeLook {
     /// The climb (call 4): one that climbs the heap holds its reaching frame (the walker and the runt: `climbPose`,
     /// the arms reaching forward up the wall, the shroud hanging; the tumbler: 5, unfolded with its claws out) and claws
     /// down for the last third of each beat (`plantPose`, the hands down on the backs below; the tumbler 6), a beat and
-    /// a half a second, each at its own phase. Under Reduce Motion it holds the reach, still.
+    /// a half a second, each at its own phase. Under Reduce Motion it holds its still pose (`stillFrame`).
     static func climbFrame(id: Int, time: Double, reduceMotion: Bool = false) -> Int {
         let tumbler = body(id: id) == .tumbler
-        guard !reduceMotion else { return tumbler ? 5 : climbPose }
+        guard !reduceMotion else { return stillFrame(id: id) }
         let beat = max(0, time) * 1.5 + Double(startFrame(id: id)) * 0.25
         let claws = beat - beat.rounded(.down) > 0.66
         if tumbler { return claws ? 6 : 5 }
         return claws ? plantPose : climbPose
+    }
+
+    /// Step 7 (the director's call 10 of 16.11.2026 12:02): under Reduce Motion the giant's children hold a still pose
+    /// where they would strike or climb, the plant (both hands down ahead, the shroud over them; the tumbler unfolded,
+    /// 5): no 3 Hz rearing, no clawing. The walk keeps its frames, as it goes with the ground walked, not with time.
+    static func stillFrame(id: Int) -> Int {
+        body(id: id) == .tumbler ? 5 : plantPose
+    }
+
+    /// The frame a small one is drawn in: on a heap its climb, striking its strike, else its walk; under Reduce Motion
+    /// the still pose for the climb and the strike (`stillFrame`).
+    static func drawnFrame(id: Int, x: Double, striking: Bool, lifted: Bool, time: Double, reduceMotion: Bool) -> Int {
+        if lifted { return climbFrame(id: id, time: time, reduceMotion: reduceMotion) }
+        guard striking else { return walkFrame(id: id, x: x) }
+        return reduceMotion ? stillFrame(id: id) : attackFrame(id: id, time: time)
     }
 
     /// Frames in each body's strip (step 7: walk 0 ... 5, the climb, the strike; the tumbler's roll 0 ... 3 and its

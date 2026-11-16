@@ -1031,8 +1031,9 @@ enum EntityFrames {
             if kept.count >= free { break }
             // step 3: where it is drawn (a pixel of height by id, the climbers' pose)
             let lift = lifts[c.id]
-            let frame = lift != nil ? HordeLook.climbFrame(id: c.id, time: time, reduceMotion: reduceMotion)
-                : creatureFrame(c, time: time)
+            // (step 7, the director's call 10: under Reduce Motion the strike and the climb hold the still pose)
+            let frame = HordeLook.drawnFrame(id: c.id, x: c.x, striking: isStriking(c), lifted: lift != nil, time: time,
+                                             reduceMotion: reduceMotion)
             let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: frame)
             // step 5 (M3): a climber's point where its body is drawn (aside by id; mirrored when it faces away)
             let aside = lift != nil ? HordeLook.heapJitter(id: c.id) : 0
@@ -1253,13 +1254,15 @@ enum EntityFrames {
             if c.kind == .sootling {
                 // b3-horde step 3 (the director's call 4): a pixel of height by id, and the climbers' pose on a heap.
                 y += HordeLook.stand(id: c.id)
+                // step 7 (the director's call 10): under Reduce Motion the strike and the climb hold the still pose
+                frame = HordeLook.drawnFrame(id: c.id, x: c.x, striking: isStriking(c), lifted: lifts[c.id] != nil,
+                                             time: time, reduceMotion: reduceMotion)
                 if lifts[c.id] != nil {
-                    frame = HordeLook.climbFrame(id: c.id, time: time, reduceMotion: reduceMotion)
                     // step 5 (M3): a climber up to 2 px aside by id, about every fifth facing away, so the cold points
                     // never stand on the wall's face as a ladder
                     drawX += HordeLook.heapJitter(id: c.id)
                     flipped = HordeLook.facesAway(id: c.id)
-                    // step 7 (the director's call 9, M-c): 0 ... 3 px higher on its level by id, so the cold points
+                    // step 7 (the director's call 9, M-c): 0 ... 5 px higher on its level by id, so the cold points
                     // on the wall's face never stand evenly spaced in a column
                     y += HordeLook.heapRise(id: c.id)
                 }

@@ -1567,9 +1567,62 @@ final class EntityFramesTests: XCTestCase {
             let held = (0..<60).filter { HordeLook.climbFrame(id: id, time: Double($0) * 0.05) == reach }.count
             XCTAssertGreaterThanOrEqual(held, 33, "\(id): the reach most of the time")
             XCTAssertLessThan(held, 60, "\(id): and it claws")
+            // step 7 (the director's call 10): under Reduce Motion it holds the still pose, the plant
             XCTAssertTrue((0..<60).allSatisfy {
-                HordeLook.climbFrame(id: id, time: Double($0) * 0.05, reduceMotion: true) == reach
-            }, "\(id): under Reduce Motion it holds the reach, still")
+                HordeLook.climbFrame(id: id, time: Double($0) * 0.05, reduceMotion: true) == HordeLook.stillFrame(id: id)
+            }, "\(id): under Reduce Motion it holds its still pose")
+        }
+        XCTAssertEqual(HordeLook.stillFrame(id: ids[0]), HordeLook.plantPose, "the plant, both hands down ahead")
+    }
+
+    func testUnderReduceMotionTheyStrikeAndClimbInAStillPose() {
+        // Step 7 (the director's call 10 of 16.11.2026 12:02): under Reduce Motion a small one striking at the wall and
+        // one climbing the heap hold the plant (frame 1: the hands down ahead, the shroud over them) at every moment, and
+        // their cold lights stand at that frame's socket; walking, the frame still goes with the ground walked.
+        let wall = Realm.lines[2].wall
+        let ids = (10..<400).filter { HordeLook.stand(id: $0) == 0 }
+        var s = GameFrameSupport.demoNight()
+        s.creatures = (0..<6).map {
+            var c = GameFrameSupport.creature(.sootling, x: 630 - Double($0) * 2, id: ids[$0], lit: true,
+                                              action: .attackingWall)
+            c.target = wall
+            return c
+        }
+        s.creatures.append(GameFrameSupport.creature(.sootling, x: 560, id: ids[6], lit: true))
+        XCTAssertEqual(HordeLook.heapLifts(s.creatures).count, 2, "two climb")
+        let lifts = HordeLook.heapLifts(s.creatures)
+        for time in [0.1, 0.25, 0.4, 0.55, 0.7] {
+            let still = hordeLayer(s, focus: 620, time: time, reduceMotion: true).actors
+                .filter { EntityFramesTests.smallSprites.contains($0.sprite) }.sorted { $0.rect.x < $1.rect.x }
+            XCTAssertEqual(still.count, 7)
+            guard let walking = still.first else { continue }
+            XCTAssertEqual(walking.frame, HordeLook.walkFrame(id: ids[6], x: 560), "\(time) s: the walk as walked")
+            XCTAssertEqual(still.dropFirst().map(\.frame), Array(repeating: HordeLook.plantPose, count: 6),
+                           "\(time) s: the strike and the climb hold the plant")
+            let moving = hordeLayer(s, focus: 620, time: time).actors
+                .filter { EntityFramesTests.smallSprites.contains($0.sprite) }.sorted { $0.rect.x < $1.rect.x }
+            XCTAssertTrue(moving.dropFirst().allSatisfy {
+                [HordeLook.strikePose, HordeLook.plantPose, HordeLook.climbPose].contains($0.frame)
+            }, "\(time) s: without it they rear, slam and climb")
+            // the cold lights where the still frames put the sockets
+            var expected: [(x: Double, y: Double)] = []
+            for c in s.creatures {
+                if let lift = lifts[c.id] {
+                    expected.append(HordeLook.climberEye(id: c.id, x: c.x, y: c.y, lift: lift, time: time,
+                                                         reduceMotion: true))
+                } else {
+                    let frame = c.action == .walking ? HordeLook.walkFrame(id: c.id, x: c.x) : HordeLook.plantPose
+                    let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: frame)
+                    expected.append((x: c.x + eye.dx, y: c.y + HordeLook.stand(id: c.id) + eye.dy))
+                }
+            }
+            let cold = EntityFrames.creatureLights(s, time: time, reduceMotion: true)
+                .filter { $0.radius == HordeLook.socketRadius }
+            XCTAssertFalse(cold.isEmpty)
+            for light in cold {
+                XCTAssertTrue(expected.contains { $0.x == light.x && $0.y == light.y },
+                              "\(time) s: a cold light at its still pose's socket")
+            }
         }
     }
 
