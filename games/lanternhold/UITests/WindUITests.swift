@@ -19,6 +19,10 @@ import XCTest
 /// Step 5 (b3-wind): the strip 400 starts at 35.83 s, as the storm's gust at the screen's middle rises hard (its first
 /// three cells show a crown's burst; `RainLookTests.testTheBurstStripStartsAsTheGustRises` pins the time); the keep's
 /// chimney smoke in a dry storm at dusk (394).
+/// Step 6 (b3-wind, the director's calls S1 to S6 of 16.11. 12:25): the strip 400 starts at 34.07 s, 0.08 s after a
+/// ribbon of leaves set off (`FrameBuilder.ribbonStart(cell: 4)`, 33.99 s; `RainLookTests.testTheRibbonLeavesTheLeeOfOneCrown`
+/// pins it); the town in a dry storm 0.6 s into a ribbon (395, 26.55 s) and the town at 21 h in a breeze, its chimneys
+/// smoking (396).
 /// Only keys that exist: `-GWWeather`, `-GWWind`, `-GWRain`, `-GWCameraX`, `-GWCastle`, `-GWReduceMotion`.
 /// Saves `<nnn>-wind-<what>-<lang>` from 300.
 @MainActor
@@ -87,6 +91,10 @@ final class WindUITests: XCTestCase {
             ("393-wind-vane-west-wind-keep", keep + ["-GWWeather", "clear", "-GWWind", " -0.5"] + noon(30.4)),
             // Step 5 (b3-wind, the director's call 1 of 11:07): the keep's smoke lying flat and torn in a dry storm at dusk.
             ("394-wind-storm-dusk-keep-smoke", keep + dryStorm + noon(30.4, hour: "19.4")),
+            // Step 6 (b3-wind, calls S2, S3, S6): a ribbon of leaves 0.6 s after it left its crown, the town's chimney
+            // smoke in a dry storm; the town at night in a breeze (three of four chimneys smoke until 21 h).
+            ("395-wind-gust-ribbon-town", town + dryStorm + noon(26.55)),
+            ("396-wind-town-night-smoke", town + breeze + noon(26.55, hour: "21")),
         ]
         for still in stills {
             shoot(still.name, still.arguments)
@@ -128,7 +136,7 @@ final class WindUITests: XCTestCase {
             (370, "ash-embers-gorge-night", gorge + rain, "22", 1.0 / 12, 30.4),
             (380, "ash-ember-life-band-night", band + rain, "22", 0.4, 30.4),
             // Step 3 (part B): the gust's leaves crossing the town in a dry storm; step 5: from the gust's hard rise.
-            (400, "gust-leaves-town", town + dryStorm, "12", 1.0 / 12, 35.83),
+            (400, "gust-leaves-town", town + dryStorm, "12", 1.0 / 12, 34.07),
         ]
         for strip in strips {
             for index in 0..<8 {

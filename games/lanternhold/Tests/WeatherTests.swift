@@ -948,7 +948,8 @@ final class WeatherTests: XCTestCase {
 
     /// Step 3 (part B, POLISH.md 2 item 5): a gust carries leaves and the lane's dust across the screen: none in a calm, a
     /// few in a breeze, more in a gusty day's gusts and a storm; never west of the outermost standing wall, never with
-    /// Reduce Motion; the same moment gives the same leaves.
+    /// Reduce Motion; the same moment gives the same leaves. b3-wind (step 6, call S3): the leaves are a ribbon of 7 to
+    /// 9 (`FrameBuilder.ribbon`), in a breeze and in a storm alike; the dust is a gusty day's and a storm's.
     func testTheGustCarriesLeavesAndDust() {
         let world = PlaceholderScene.world(look: .two)
         func leaves(_ override: WeatherOverride, focus: Double, time: Double, reduceMotion: Bool = false)
@@ -973,12 +974,11 @@ final class WeatherTests: XCTestCase {
         XCTAssertEqual(most(WeatherOverride(mode: .clear, wind: 0.08)).total, 0, "a calm: none")
         let breeze = most(WeatherOverride(mode: .breeze))
         XCTAssertGreaterThan(breeze.total, 0, "a breeze: a few")
-        XCTAssertLessThanOrEqual(breeze.most, FrameBuilder.gustLeafCounts[1])
+        XCTAssertLessThanOrEqual(breeze.most, FrameBuilder.ribbonMost)
         XCTAssertEqual(breeze.dust, 0, "no dust in a breeze")
         let storm = most(WeatherOverride(mode: .storm, rain: 0))
-        XCTAssertGreaterThan(storm.total, breeze.total, "more in a storm")
-        XCTAssertLessThanOrEqual(storm.most, FrameBuilder.gustLeafCounts[3] + FrameBuilder.gustDustCounts[3]
-                                 + FrameBuilder.gustBurstMost)
+        XCTAssertGreaterThan(storm.total, 0, "a storm's ribbons")
+        XCTAssertLessThanOrEqual(storm.most, FrameBuilder.ribbonMost + FrameBuilder.gustDustCounts[3])
         XCTAssertGreaterThan(most(WeatherOverride(mode: .gusty)).dust + storm.dust, 0, "the lane's dust in the gusts")
         XCTAssertEqual(most(WeatherOverride(mode: .storm, rain: 0), focus: 300).total, 0,
                        "never on the shadow side of the outermost wall")
@@ -993,34 +993,48 @@ final class WeatherTests: XCTestCase {
         }
     }
 
-    /// Step 4 (the critic's H3 (c), (d)): each slot flies at its own pace (no conveyor), and a storm's hard gust lets 4 to
-    /// 6 leaves of one crown go within 0.3 s of its rise; none such on a gusty day. b3-wind (step 5, the director's call
-    /// 5 of 11:07): they leave together, all of them off as the gust rises (within `gustBurstLead`).
-    func testAStormsGustLetsTheLeavesGoInABurst() throws {
+    /// b3-wind: build 3 step 6 (the director's call S3 of 16.11. 12:25): the leaves fly as a ribbon. Two ribbons set off
+    /// 6 to 10 s apart; one is 7 to 9 leaves, none drawn before it is off (none at rest in the crown), all off within
+    /// 0.4 s; they spread along one arc that rises 6 to 10 px and then sinks, dense near the tree and sparse far from it,
+    /// 60 to 90 px long 0.6 s after the set-off in a storm; each leaf flips between two frames. None in a calm.
+    func testTheLeavesFlyAsARibbon() {
+        var gaps: [Double] = []
+        for cell in Int64(0)..<200 {
+            gaps.append(FrameBuilder.ribbonStart(cell: cell + 1) - FrameBuilder.ribbonStart(cell: cell))
+        }
+        XCTAssertGreaterThanOrEqual(gaps.min() ?? 0, 6, "at most one ribbon every 6 s")
+        XCTAssertLessThanOrEqual(gaps.max() ?? 99, 10, "one at least every 10 s")
         let storm = Weather.sample(seed: 3, day: 12, hour: 12, time: 0, override: WeatherOverride(mode: .storm, rain: 0))
-        XCTAssertEqual(Weather.sailLevel(storm.mean), 3)
-        let width = 437.0
-        var found: Double?
-        for step in 0..<800 {
-            let time = 5 + Double(step) * 0.25
-            if let rose = Weather.sinceGustRose(at: 2900, storm, time: time), rose.since < 0.25 {
-                found = time - rose.since
-                break
-            }
+        let calm = Weather.sample(seed: 3, day: 12, hour: 12, time: 0, override: WeatherOverride(mode: .clear, wind: 0.08))
+        let speed = FrameBuilder.gustLeafSpeed + FrameBuilder.gustLeafDrive * abs(storm.mean)
+        var lengths: [Int] = []
+        for cell in Int64(1)..<41 {
+            let start = FrameBuilder.ribbonStart(cell: cell)
+            XCTAssertNil(FrameBuilder.ribbon(calm, time: start + 0.5), "none in a calm")
+            let found = FrameBuilder.ribbon(storm, time: start + 0.5)
+            XCTAssertEqual(found?.cell, cell)
+            XCTAssertEqual(found?.since ?? 0, 0.5, accuracy: 1e-6)
+            XCTAssertTrue(FrameBuilder.ribbonLeaves(cell: cell, since: 0, speed: speed).isEmpty, "none at rest")
+            let off = FrameBuilder.ribbonLeaves(cell: cell, since: FrameBuilder.ribbonLeave + 0.01, speed: speed)
+            XCTAssertTrue((FrameBuilder.ribbonLeast...FrameBuilder.ribbonMost).contains(off.count),
+                          "7 to 9 leaves, all off within 0.4 s (\(off.count))")
+            let late = FrameBuilder.ribbonLeaves(cell: cell, since: 0.6, speed: speed)
+            let far = late.map(\.along).max() ?? 0
+            let near = late.map(\.along).min() ?? 0
+            lengths.append(Int(far - near))
+            XCTAssertTrue((60.0...90.0).contains(far - near), "60 to 90 px along the arc at 0.6 s: \(Int(far - near))")
+            XCTAssertGreaterThan(late.filter { $0.along < (near + far) / 2 }.count, late.count / 2,
+                                 "dense near the tree, sparse far from it")
+            let ups = late.map(\.up)
+            XCTAssertLessThanOrEqual((ups.max() ?? 0) - (ups.min() ?? 0), 12, "one shared arc")
+            XCTAssertNotEqual(FrameBuilder.ribbonLeaves(cell: cell, since: 0.6, speed: speed).map(\.flip),
+                              FrameBuilder.ribbonLeaves(cell: cell, since: 0.6 + 1 / FrameBuilder.ribbonFlip,
+                                                        speed: speed).map(\.flip), "they flip")
         }
-        let rise = try XCTUnwrap(found, "a storm's gust rises hard within 200 s")
-        let early = FrameBuilder.gustBurst(storm, at: 2900, time: rise + 0.001, width: width)?.leaves.count ?? 0
-        let all = try XCTUnwrap(FrameBuilder.gustBurst(storm, at: 2900, time: rise + 0.15, width: width))
-        XCTAssertEqual(early, all.leaves.count, "they leave together as the gust rises")
-        XCTAssertGreaterThanOrEqual(all.leaves.count, FrameBuilder.gustBurstLeast, "four or more at once")
-        XCTAssertLessThanOrEqual(all.leaves.count, FrameBuilder.gustBurstMost)
-        XCTAssertTrue(all.leaves.allSatisfy { $0.along <= 0.15 + FrameBuilder.gustBurstLead }, "together")
-        XCTAssertGreaterThan(Set(all.leaves.map { Int($0.pace) }).count, 1, "each at its own pace")
-        let gusty = Weather.sample(seed: 3, day: 12, hour: 12, time: 0, override: WeatherOverride(mode: .gusty, rain: 0))
-        for step in 0..<200 {
-            XCTAssertNil(FrameBuilder.gustBurst(gusty, at: 2900, time: 5 + Double(step) * 0.5, width: width),
-                         "a burst is a storm's")
-        }
+        print("RIBBON gaps \(Int((gaps.min() ?? 0) * 10)) to \(Int((gaps.max() ?? 0) * 10)) tenths of a s; "
+              + "lengths at 0.6 s in a storm \(lengths)")
+        XCTAssertEqual(FrameBuilder.ribbonTone(.appleTree), 2, "the autumn tone from the fruit tree")
+        XCTAssertNotEqual(FrameBuilder.ribbonTone(.linden), 2, "and only from it")
     }
 
     /// b3-wind: build 3 step 5 (lane 3, the director's call 1 of 16.11. 11:07, "the smoke shows the wind"): the chimney
@@ -1032,10 +1046,16 @@ final class WeatherTests: XCTestCase {
         func top(_ wind: Double, time: Double = 3) -> CastleSmoke.Puff {
             CastleSmoke.puffs(time: time, wind: wind, seed: 1245).max { $0.rise < $1.rise }!
         }
-        // Still air: upright (the sway only); a calm day: build 2's lean (13 degrees).
-        XCTAssertTrue(CastleSmoke.puffs(time: 3, wind: 0, seed: 1245).allSatisfy { abs($0.dx) < 1 }, "still air: upright")
+        // Still air: upright (the wobble only); b3-wind (step 6, call S1): a calm stands straight up with a wobble of one
+        // pixel, a column 28 to 40 rows tall.
+        XCTAssertTrue(CastleSmoke.puffs(time: 3, wind: 0, seed: 1245).allSatisfy { abs($0.dx) <= CastleSmoke.wobble },
+                      "still air: upright")
         let calm = top(0.08)
-        XCTAssertEqual(calm.dx / calm.rise, tan(13 * Double.pi / 180), accuracy: 0.08, "a calm: build 2's lean")
+        XCTAssertLessThanOrEqual(abs(calm.dx), 3, "a calm: straight up")
+        let tall = [0.5, 2.0, 3.0, 4.5].map { top(0.08, time: $0).rise }.max() ?? 0
+        XCTAssertTrue((28.0...40.0).contains(tall), "a calm's column 28 to 40 rows: \(tall)")
+        let standing = CastleSmoke.puffs(time: 3, wind: 0.08, seed: 1245).filter { $0.alpha > 0 }.count + 1
+        XCTAssertTrue((5...8).contains(standing), "five to seven puffs and the mouth's: \(standing)")
         // The puff's x offset has the wind's sign.
         for wind in [0.2, 0.35, 0.6, 0.9] {
             for time in [1.0, 4.5, 7.7] {
@@ -1047,10 +1067,10 @@ final class WeatherTests: XCTestCase {
                 }
             }
         }
-        // A breeze leans it about 30 degrees.
+        // A breeze leans it 25 to 30 degrees (b3-wind step 6, call S1).
         let breeze = top(WindClass.breeze.base)
         let degrees = atan(breeze.dx / breeze.rise) * 180 / Double.pi
-        XCTAssertEqual(degrees, 30, accuracy: 6, "a breeze: about 30 degrees")
+        XCTAssertEqual(degrees, 27.5, accuracy: 3.5, "a breeze: 25 to 30 degrees")
         // A storm lays it nearly flat: the downwind run three times the rise or more, and tears it into groups.
         var groups: [Int] = []
         for time in [0.0, 1, 2, 3, 4.5, 6, 7.7, 9.1, 13] {
@@ -1069,14 +1089,22 @@ final class WeatherTests: XCTestCase {
         XCTAssertTrue(groups.allSatisfy { (2...3).contains($0) }, "a storm tears it into two or three puffs: \(groups)")
         XCTAssertGreaterThan(CastleSmoke.puffs(time: 3, wind: 0.9, seed: 1245).filter { $0.alpha < 0.02 }.count, 3,
                              "torn: the puffs between the groups are gone")
-        // The back row: dimmer, slow to show (no bright head), no fire under it at night.
-        let front = CastleSmoke.puffs(time: 3, wind: 0.35, seed: 1245)
-        let back = CastleSmoke.puffs(time: 3, wind: 0.35, seed: 1245, back: true)
-        for (f, b) in zip(front, back) {
-            XCTAssertLessThanOrEqual(b.alpha, f.alpha * Float(CastleSmoke.backAlpha) + 1e-4, "dimmer")
-            XCTAssertEqual(b.dx, f.dx, "the same lean")
+        // b3-wind (step 6, call S2): the town's chimneys (the back row and the houses): smaller puffs (2 and 3 px), a
+        // column of 14 to 20 rows, 3 or 4 puffs, the keep's lean rule; about half of them smoke, three of four in the
+        // evening. The back row has no fire under its smoke at night.
+        let townTops = [0.5, 1.5, 2.5, 3.5].map { CastleSmoke.puffs(time: $0, wind: 0.08, seed: 77, town: true) }
+        XCTAssertTrue(townTops.joined().allSatisfy { $0.frame <= 1 && $0.rise <= CastleSmoke.townRise }, "small puffs")
+        let townTall = townTops.map { $0.map(\.rise).max() ?? 0 }.max() ?? 0
+        XCTAssertTrue((14.0...20.0).contains(townTall), "a town column of 14 to 20 rows: \(townTall)")
+        XCTAssertTrue(townTops.allSatisfy { (3...4).contains($0.filter { $0.alpha > 0 }.count) }, "3 or 4 puffs")
+        for puff in CastleSmoke.puffs(time: 3, wind: 0.35, seed: 77, town: true) where puff.rise > 3 {
+            XCTAssertGreaterThan(puff.dx, 0, "the town's smoke leans with the keep's")
         }
-        XCTAssertTrue(back.filter { $0.rise < 3 }.allSatisfy { $0.alpha < 0.13 }, "no bright head at the chimney")
+        let noon = (0..<400).filter { CastleSmoke.smokes(x: 2000 + Double($0) * 7, hour: 12) }.count
+        let evening = (0..<400).filter { CastleSmoke.smokes(x: 2000 + Double($0) * 7, hour: 19) }.count
+        print("TOWNSMOKE \(noon) of 400 chimneys smoke at noon, \(evening) at 19 h")
+        XCTAssertEqual(Double(noon) / 400, 0.5, accuracy: 0.08, "about half")
+        XCTAssertEqual(Double(evening) / 400, 0.75, accuracy: 0.08, "three of four from 17 h to 21 h")
         let night = AmbientRamp.sample(at: 23, look: .two)
         XCTAssertGreaterThan(night.torchStrength, 0.5)
         XCTAssertEqual(CastleSmoke.glow(night, rise: 1, fire: false, hearth: false),
