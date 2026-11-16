@@ -972,7 +972,7 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertTrue(hordeLayer(s, focus: 640, time: 1.81, effects: effects).actors.allSatisfy { $0.sprite != .sootFlake },
                       "gone by 0.8 s")
         let stillAt = { (time: Double) -> [SIMD4<Float>] in
-            hordeLayer(s, focus: 640, time: time, reduceMotion: true, effects: effects).actors
+            self.hordeLayer(s, focus: 640, time: time, reduceMotion: true, effects: effects).actors
                 .filter { $0.sprite == .sootFlake }.map(\.rect)
         }
         XCTAssertEqual(stillAt(1.3).count, HordeLook.puffFlakes, "under Reduce Motion the flakes are there")
