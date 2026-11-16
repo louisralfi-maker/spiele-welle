@@ -217,7 +217,7 @@ enum EntityFrames {
                               reduceMotion: options.reduceMotion, gloom: gloom, weather: options.weather, lifts: lifts)
         #if DEBUG
         // b3-horde: the runner's clip waits until the horde is on screen (`HordeProof.probe`, a `dark` proof only).
-        if HordeProof.probing { HordeProof.probe(layer.actors, hour: s.hour) }
+        if HordeProof.probing { HordeProof.probe(layer.actors, state: s) }
         #endif
         return layer
     }
@@ -1221,10 +1221,13 @@ enum EntityFrames {
                 heapFront[c.target] = max(heapFront[c.target] ?? c.x, c.x)
             }
         }
-        func drawKey(_ index: Int) -> (Double, Int, Double, Int) {
+        // b3-horde step 5 (the director's call 3): a small one walking on a lower ground line (the `-GWHorde` stream's,
+        // 1 or 2 px nearer in the lane by id) is drawn in front of the ones on the line above it.
+        func drawKey(_ index: Int) -> (Int, Double, Int, Double, Int) {
             let c = s.creatures[index]
-            guard lifts[c.id] != nil else { return (c.x, 0, c.x, c.id) }
-            return (max(c.x, heapFront[c.target] ?? c.x), 1, c.x, c.id)
+            let near = c.kind == .sootling && c.action == .walking && c.y < 0 ? Int((-c.y).rounded()) : 0
+            guard lifts[c.id] != nil else { return (near, c.x, 0, c.x, c.id) }
+            return (0, max(c.x, heapFront[c.target] ?? c.x), 1, c.x, c.id)
         }
         order.sort { drawKey($0) < drawKey($1) }
         for index in order {

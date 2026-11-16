@@ -69,6 +69,7 @@ final class HordeProofTests: XCTestCase {
         let wall = Realm.lines[2].wall
         var events: [SimEvent] = []
         var fewest = Int.max
+        var fewestOpen = Int.max
         for second in 1...40 {
             for _ in 0..<60 {
                 events.removeAll(keepingCapacity: true)
@@ -83,7 +84,15 @@ final class HordeProofTests: XCTestCase {
             XCTAssertEqual(s.hour, HordeProof.heldHour, accuracy: 1e-9, "\(second) s: the clock held")
             XCTAssertTrue(s.plots[wall].stands, "\(second) s: the outer wall stands")
             XCTAssertLessThanOrEqual(alive.count, HordeProof.streamCap, "\(second) s: the stream stops at its cap")
+            // step 5 (the director's call 3): the heap holds 14 at most and still climbs, the open holds a crowd
+            let heap = alive.filter { $0.action == .attackingWall && $0.target == wall }
+            XCTAssertLessThanOrEqual(heap.count, HordeProof.heapCap, "\(second) s: the heap holds 14 at most")
             guard second >= 5 else { continue }
+            let open = HordeProof.inTheOpen(s)
+            fewestOpen = min(fewestOpen, open)
+            XCTAssertGreaterThanOrEqual(open, 8, "\(second) s: eight or more cross the open (\(open))")
+            XCTAssertGreaterThanOrEqual(HordeLook.heapLifts(s.creatures).count, 3,
+                                        "\(second) s: the heap still climbs, three or more above the ground row")
             fewest = min(fewest, inView.count)
             XCTAssertGreaterThanOrEqual(inView.count, 8, "\(second) s: eight or more in view")
             XCTAssertGreaterThanOrEqual(crossing.count, 2, "\(second) s: the stream crosses the open")
@@ -91,6 +100,36 @@ final class HordeProofTests: XCTestCase {
                           "\(second) s: the lord's lantern reaches none of them")
         }
         XCTAssertGreaterThanOrEqual(fewest, 8)
+        XCTAssertGreaterThanOrEqual(fewestOpen, 8)
+    }
+
+    /// Step 5 (the director's call 3 of 16.11.2026 08:52: a horde, not a file; step 4's clip held three or four in the
+    /// open exactly 100 px apart): the stream's spawns come at gaps of 0.3 to 1.4 s by id, about every third one a clump
+    /// of two or three within 12 px, each small one at a pace of 0.85 to 1.2 by id and on a ground line 0, 1 or 2 px
+    /// lower by id; as the world appears the small ones in the open stand at spacings of their own, never one ruled.
+    func testTheStreamIsAHordeNotAFile() {
+        XCTAssertTrue(HordeProof.streamGaps.allSatisfy { (0.3...1.4).contains($0) }, "gaps of 0.3 to 1.4 s")
+        XCTAssertGreaterThanOrEqual(Set(HordeProof.streamGaps).count, 4, "gaps of their own")
+        let spawns = (0..<300).map { HordeProof.clump(id: $0) }
+        XCTAssertTrue(spawns.allSatisfy { (1...3).contains($0) })
+        XCTAssertEqual(Double(spawns.filter { $0 > 1 }.count) / 300, 1.0 / 3, accuracy: 0.05, "about every third a clump")
+        XCTAssertEqual(Set(spawns.filter { $0 > 1 }), [2, 3], "of two or three")
+        for id in 0..<30 {
+            XCTAssertEqual(HordeProof.clumpOffset(0, id: id), 0)
+            XCTAssertLessThan(HordeProof.clumpOffset(1, id: id), HordeProof.clumpOffset(2, id: id))
+            XCTAssertLessThan(HordeProof.clumpOffset(2, id: id), HordeProof.clumpSpread, "within 12 px")
+        }
+        XCTAssertTrue((0..<70).allSatisfy { (0.85...1.2).contains(HordeProof.pace(id: $0)) }, "paces of 0.85 to 1.2")
+        XCTAssertGreaterThanOrEqual(Set((0..<70).map { HordeProof.pace(id: $0) }).count, 5, "by id")
+        XCTAssertEqual(Set((0..<60).map { HordeProof.ground(id: $0) }), [0, -1, -2], "ground lines 0, 1 or 2 px lower")
+        var dark = GameFrameSupport.demoNight(hour: 23.0)
+        HordeProof.apply(&dark, balance: .standard, seconds: 0, dark: true)
+        let wallX = Realm.wallX[2]
+        let walking = dark.creatures.filter { $0.action == .walking && $0.x < wallX }.map(\.x).sorted()
+        let spacings = Set(zip(walking, walking.dropFirst()).map { ($1 - $0).rounded() })
+        XCTAssertGreaterThanOrEqual(spacings.count, 5, "the open's spacings are their own (\(spacings.sorted()))")
+        XCTAssertGreaterThanOrEqual(HordeProof.inTheOpen(dark), 8, "a crowd in the open as the world appears")
+        XCTAssertTrue(dark.creatures.allSatisfy { $0.x < wallX }, "none past the outer wall")
     }
 }
 #endif

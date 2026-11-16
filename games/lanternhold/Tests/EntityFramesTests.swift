@@ -545,6 +545,21 @@ final class EntityFramesTests: XCTestCase {
                       "the climbers are drawn over the backs in front")
     }
 
+    func testALowerGroundLineIsDrawnInFront() {
+        // Step 5 (the director's call 3): a small one walking on a lower ground line (the `-GWHorde` stream's) is
+        // drawn in front of one on the line above it, though it stands further left.
+        var s = GameFrameSupport.demoNight()
+        var near = GameFrameSupport.creature(.sootling, x: 600, id: 4, lit: true)
+        near.y = -2
+        s.creatures = [near, GameFrameSupport.creature(.sootling, x: 606, id: 5, lit: true)]
+        let bodies = hordeLayer(s, focus: 640).actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+        XCTAssertEqual(bodies.count, 2)
+        guard bodies.count == 2 else { return }
+        XCTAssertLessThan(bodies[1].rect.x, bodies[0].rect.x, "the lower one, further left, is drawn last")
+        XCTAssertGreaterThan(bodies[1].rect.y + bodies[1].rect.w, bodies[0].rect.y + bodies[0].rect.w,
+                             "on its lower line")
+    }
+
     func testNoSmallOneCarriesAWisp() {
         // Step 5 (the director's call 1 of 16.11.2026 08:52: the wisps go): no id carries one, and no layer draws one,
         // calm, in a gust, under Reduce Motion, in look 2 or at the wall; the strips and their tables stay

@@ -146,14 +146,16 @@ RECORDER=$!
 for _ in $(seq 40); do grep -q "Recording started" "$OUT/record.txt" 2>/dev/null && break; sleep 0.5; done
 grep -q "Recording started" "$OUT/record.txt" 2>/dev/null || note "NOTE: the recorder never said it started"
 REC0=$(date +%s)
-# Step 4: the value probe at 1, 4 and 7 s of the recording, beside the stills; each must say seen >= 8.
+# Step 4: the value probe at 1, 4 and 7 s of the recording, beside the stills; each must say seen >= 8. Step 5 (the
+# director's call 3): and open >= 8, the small ones crossing the open (`HordeProof.inTheOpen`), not the heap.
 LOW=""
 probe_at() {
-    local line n
+    local line n o
     line=$(head -1 "$PROBE" 2>/dev/null)
     n=$(echo "$line" | sed -nE 's/.*seen:([0-9]+).*/\1/p')
+    o=$(echo "$line" | sed -nE 's/.*open:([0-9]+).*/\1/p')
     note "clip probe $1 s: ${line:-none}"
-    if [ -z "$n" ] || [ "$n" -lt 8 ]; then LOW="$LOW $1"; fi
+    if [ -z "$n" ] || [ "$n" -lt 8 ] || [ -z "$o" ] || [ "$o" -lt 8 ]; then LOW="$LOW $1"; fi
 }
 sleep 1; probe_at 1
 sleep 3; probe_at 4
@@ -213,7 +215,11 @@ if command -v ffmpeg >/dev/null 2>&1; then
     ROT=$(ffprobe -v error -select_streams v:0 -show_entries stream_side_data=rotation -of csv=p=0 "$RAW" 2>/dev/null \
         | tr -d '\n')
     note "recorded frame ${DIMS:-?}, rotation tag: ${ROT:-none}"
-    if capped 180 ffmpeg -y -v error -noautorotate -i "$RAW" -vf "${TURN}scale=$CLIP_W:$CLIP_H" -c:v libx264 -crf 24 \
+    # Step 5 (M5): the simulator's sensor pill stands in the left 80 px of the upright clip: cut off with as much of
+    # the top and the bottom as keeps the shape, then scaled back (a 6.5 % zoom).
+    if capped 180 ffmpeg -y -v error -noautorotate -i "$RAW" \
+        -vf "${TURN}scale=$CLIP_W:$CLIP_H,crop=$((CLIP_W - 80)):$((CLIP_H * (CLIP_W - 80) / CLIP_W / 2 * 2)):80:$((CLIP_H * 40 / CLIP_W)),scale=$CLIP_W:$CLIP_H" \
+        -c:v libx264 -crf 24 \
         -preset veryfast -pix_fmt yuv420p -an -movflags +faststart "$CLIP"; then
         note "upright with ffmpeg: ${DIMS:-?} -> ${CLIP_W}x${CLIP_H}${TURN:+, turned}: $(size "$CLIP") bytes"
     else
@@ -285,8 +291,8 @@ else
     note "NOTE: no stills (no clip or no ffmpeg)"
 fi
 if [ -z "$LOW" ]; then
-    note "clip probes: seen >= 8 at 1, 4 and 7 s"
+    note "clip probes: seen >= 8 and open >= 8 at 1, 4 and 7 s"
 else
-    note "NO HORDE: the value probe said seen < 8 (or nothing) at the clip's${LOW} s"
+    note "NO HORDE: the value probe said seen < 8 or open < 8 (or nothing) at the clip's${LOW} s"
 fi
 done_

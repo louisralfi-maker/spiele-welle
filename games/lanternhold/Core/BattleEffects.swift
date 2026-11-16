@@ -140,7 +140,9 @@ struct BattleEffects: Sendable, Equatable {
         let lifts = HordeLook.heapLifts(state.creatures)
         seenSmall.removeAll(keepingCapacity: true)
         for c in state.creatures where c.kind == .sootling && c.hp > 0 {
-            seenSmall.append(SmallSeen(id: c.id, x: c.x, lift: lifts[c.id] ?? 0, lit: c.isLit, at: time, stale: false))
+            // step 5: on a lower ground line (the `-GWHorde` stream's) it falls where it stood
+            seenSmall.append(SmallSeen(id: c.id, x: c.x, lift: (lifts[c.id] ?? 0) + min(0, c.y), lit: c.isLit, at: time,
+                                       stale: false))
         }
         for old in unclaimed where !old.stale {
             var kept = old
