@@ -71,8 +71,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // their own the wind turns (step 2: twelve frames, a quarter turn); the keep's flag (step 2: ten frames, limp,
     // stirring, a flying and a snapping cycle; tools/bannerart.py)
     case windmillTower, windmillSails, keepFlag
-    // build 3 step 2 (lane 3): the keep's dusk rim on the flag's cloth (20 frames: streaming east, then west)
-    case keepFlagRim
+    // build 3 step 2 (lane 3): the keep's dusk rim on the flag's cloth (20 frames: streaming east, then west); the ash
+    // that falls west of the outermost wall on a rain day (12 frames: three sizes by four steps of a tumble;
+    // tools/weatherart.py)
+    case keepFlagRim, ashFlake
     // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer (world-2: one castle, the
     // far castle in its slots, the patch and the slots' lights are gone)
     case weltmauer
@@ -337,6 +339,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bellGone: return PixelSize(width: 7, height: 8)
         case .rainStreak: return PixelSize(width: 7, height: 11)
         case .rainSplash: return PixelSize(width: 5, height: 3)
+        case .ashFlake: return PixelSize(width: 5, height: 5)
         case .windmillTower: return PixelSize(width: 26, height: 44)
         case .windmillSails: return PixelSize(width: 47, height: 47)
         case .keepFlag, .keepFlagRim: return PixelSize(width: 16, height: 21)
@@ -561,6 +564,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .windmillSails: return Weather.sailFrames
         case .keepFlag: return Weather.flagFrames
         case .keepFlagRim: return 2 * Weather.flagFrames
+        case .ashFlake: return 12
         case .castleBanner: return 7   // build 3: hanging, swung 1 to 3 toward the valley, 1 to 3 toward the west
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
         // The hall stage (stage lane): the great fire's six frames, idle and pressed marks, eight plaster patches.

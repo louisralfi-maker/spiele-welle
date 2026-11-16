@@ -147,7 +147,10 @@ enum FrameBuilder {
         }
         let animTime = options.flickerTime ?? clock.elapsed
         let sources = entities?.lights ?? scene.sceneLights()
-        let rains = options.look == .two && weather.rain > 0 && !options.reduceMotion
+        // Build 3 step 2 (the two rains, lane 3): with Reduce Motion the rain's and the ash's forms stay, held still at
+        // one moment (`fallTime`), so the one still reads as rain and the other as ash; the trees stand as before.
+        let rains = options.look == .two && weather.rain > 0
+        let fallTime = options.reduceMotion ? 0 : animTime
         let bankEdgeX = scene.bankEdge(hour: hour)
         // The Gloom's fog belongs to look 2 and to the picture alone, like the weather.
         let gloom = options.look == .two && options.effects.fog ? options.gloom : nil
@@ -172,6 +175,8 @@ enum FrameBuilder {
         // then as listed), on the world plane the ground before them and the darkness bank after them.
         let props = scene.props + (entities?.props ?? [])
         let ordered = props.sorted { ($0.plane, $0.z, $0.id) < ($1.plane, $1.z, $1.id) }
+        // Build 3 step 2: water east of the outermost standing wall, ash west of it (`RainLook`).
+        let rainSeam = rains ? RainLook.seam(ordered) : Realm.wallX[0]
         // World-3 fix round 2 (the critic's high 1): no eyes before a building, none over 60 rows (`EyeRules`).
         let eyeScreens = options.look == .two ? EyeRules.screens(ordered) : []
         var next = 0
@@ -224,12 +229,16 @@ enum FrameBuilder {
                 // cleft wall's backdrop lights, pools where light really burns.
             }
             if rains && plane == .near {
-                planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: animTime, ambient: ambient,
-                                                            geometry: geometry)
+                planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: fallTime, ambient: ambient,
+                                                            seam: rainSeam, geometry: geometry)
+                planeSprites[plane.rawValue] += ashFlakes(depth: 0, animTime: fallTime, ambient: ambient,
+                                                          seam: rainSeam, geometry: geometry)
             }
             if rains && plane == .foreground {
-                planeSprites[plane.rawValue] += rainStreaks(depth: 2, animTime: animTime, ambient: ambient,
-                                                            geometry: geometry)
+                planeSprites[plane.rawValue] += rainStreaks(depth: 2, animTime: fallTime, ambient: ambient,
+                                                            seam: rainSeam, geometry: geometry)
+                planeSprites[plane.rawValue] += ashFlakes(depth: 2, animTime: fallTime, ambient: ambient,
+                                                          seam: rainSeam, geometry: geometry)
             }
             if plane == .world {
                 if options.look == .two {
@@ -239,10 +248,12 @@ enum FrameBuilder {
                 }
                 if rains {
                     // Under the bank's tiles: the dark hides the rain that falls into it.
-                    planeSprites[plane.rawValue] += rainSplashes(animTime: animTime, ambient: ambient,
-                                                                 geometry: geometry)
-                    planeSprites[plane.rawValue] += rainStreaks(depth: 1, animTime: animTime, ambient: ambient,
-                                                                geometry: geometry)
+                    planeSprites[plane.rawValue] += rainSplashes(animTime: fallTime, ambient: ambient,
+                                                                 seam: rainSeam, props: ordered, geometry: geometry)
+                    planeSprites[plane.rawValue] += rainStreaks(depth: 1, animTime: fallTime, ambient: ambient,
+                                                                seam: rainSeam, geometry: geometry)
+                    planeSprites[plane.rawValue] += ashFlakes(depth: 1, animTime: fallTime, ambient: ambient,
+                                                              seam: rainSeam, geometry: geometry)
                 }
                 for item in entities?.emissives(worldWhole: geometry.whole(.world), groundRow: geometry.groundRow,
                                                 targetWidth: geometry.targetWidth) ?? [] {
@@ -1403,8 +1414,12 @@ enum FrameBuilder {
     static let rainSlopes = [0.0, 0.27, 0.47]
     /// The slant of the rain: still air, wind, strong wind (by the steady wind, so gusts do not make it jump).
     static func rainSlant(_ weather: WeatherSample) -> Int {
-        let force = abs(weather.mean)
-        return force < 0.2 ? 0 : (force < 0.6 ? 1 : 2)
+        rainSlant(force: abs(weather.mean))
+    }
+    /// The slant for a wind's force (build 3 step 2: each streak reads the wind where it falls, so a gust leans it
+    /// further as the gust passes; in a calm it falls straight).
+    static func rainSlant(force: Double) -> Int {
+        force < 0.2 ? 0 : (force < 0.6 ? 1 : 2)
     }
     /// How many of `full` fall in a rain of this strength: by its root, so a light rain (0.4) is still rain on a
     /// phone (round lh-l2-3a: at 0.6 a count in proportion read as a few stray streaks).
@@ -1481,8 +1496,10 @@ enum FrameBuilder {
     /// The rain's streaks on one depth's plane: each a pure function of its index and the time. It falls from above
     /// the screen to the plane's floor (the ground behind the near trees, the lane, the screen's bottom edge), then
     /// starts again in another column; the columns belong to the plane's picture, so the rain stays in the world
-    /// when the camera moves.
-    private static func rainStreaks(depth: Int, animTime: Double, ambient: AmbientSample,
+    /// when the camera moves. Build 3 step 2 (the two rains): a streak falls only where the rain is water at the lane's
+    /// x under it (`RainLook`: east of the outermost standing wall, thinning out over the band west of it), and it
+    /// leans by the wind where it falls, so a gust leans it further.
+    private static func rainStreaks(depth: Int, animTime: Double, ambient: AmbientSample, seam: Double,
                                     geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
         let entry = rainDepths[depth]
@@ -1501,6 +1518,7 @@ enum FrameBuilder {
         let reach = abs(slope) * fall
         let span = Double(geometry.targetWidth) + reach
         let whole = geometry.whole(entry.plane)
+        let lane = geometry.whole(.world)
         let tint = rainTint(alpha: entry.alpha, ambient: ambient)
         let key = SeededRandom.hash(weather.gustSeed, Int64(depth + 1))
         var list: [SpriteInstance] = []
@@ -1509,20 +1527,29 @@ enum FrameBuilder {
             let cycle = progress.rounded(.down)
             let y = (progress - cycle) * fall - Double(size.height)
             let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
-            let column = unit(SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))) * span
+            let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
+            let column = unit(pick) * span
             var x = (column - whole).truncatingRemainder(dividingBy: span)
             if x < 0 { x += span }
-            x += slope * y - (slope > 0 ? reach : 0)
+            x -= slope > 0 ? reach : 0
+            let below = x + slope * y + lane
+            guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: below, seam: seam) else { continue }
+            let wind = Weather.wind(at: below, weather, time: animTime)
+            let leaning = rainSlant(force: abs(wind))
+            let lean = rainSlopes[leaning] * (wind < 0 ? -1 : 1)
+            x += lean * y
             let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
                                     Float(size.height))
-            list.append(SpriteInstance(sprite: .rainStreak, frame: depth * 3 + slant, rect: rect, tint: tint,
-                                       flipped: slope < 0))
+            list.append(SpriteInstance(sprite: .rainStreak, frame: depth * 3 + leaning, rect: rect, tint: tint,
+                                       flipped: lean < 0))
         }
         return list
     }
 
-    /// The splashes where the rain meets the lane: three frames each, then the next one somewhere else.
-    private static func rainSplashes(animTime: Double, ambient: AmbientSample,
+    /// The splashes where the rain meets the lane: three frames each, then the next one somewhere else. Build 3 step 2:
+    /// only where the rain is water (ash never splashes), and on the cottages' ridges too (`rainRidges`): a splash or
+    /// two on each roof in view, at places of their own along its ridge.
+    private static func rainSplashes(animTime: Double, ambient: AmbientSample, seam: Double, props: [Prop],
                                      geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
         let count = rainCount(rainSplashCount, rain: weather.rain)
@@ -1538,12 +1565,121 @@ enum FrameBuilder {
             let cycle = progress.rounded(.down)
             let frame = min(2, Int((progress - cycle) * 3))
             let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
-            let column = unit(SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))) * width
+            let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
+            let column = unit(pick) * width
             var x = (column - whole).truncatingRemainder(dividingBy: width)
             if x < 0 { x += width }
+            guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: x + whole, seam: seam) else { continue }
             let top = geometry.top(y: -Double(1 + index % 4), height: Double(size.height))
             let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(top), Float(size.width), Float(size.height))
             list.append(SpriteInstance(sprite: .rainSplash, frame: frame, rect: rect, tint: tint, flipped: false))
+        }
+        // The ridges: one splash per roof in a light rain, two in a heavy one.
+        let perRoof = weather.rain >= 0.5 ? 2 : 1
+        for prop in props where prop.plane == .world {
+            guard let ridge = rainRidges[prop.sprite] else { continue }
+            let left = prop.x - whole
+            guard geometry.isVisible(left: left, width: Double(prop.width)) else { continue }
+            let roofTop = geometry.top(y: prop.y, height: Double(prop.height))
+            let roofKey = SeededRandom.hash(key, Int64(prop.id) &+ 1000)
+            for index in 0..<perRoof {
+                let progress = animTime / rainSplashTime + unit(SeededRandom.hash(roofKey, Int64(index)))
+                let cycle = progress.rounded(.down)
+                let frame = min(2, Int((progress - cycle) * 3))
+                let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
+                let pick = SeededRandom.hash(SeededRandom.hash(roofKey, turn), Int64(index))
+                var dx = ridge.x0 + (unit(pick) * Double(ridge.x1 - ridge.x0 + 1)).rounded(.down)
+                if prop.flipped { dx = Double(prop.width - 1) - dx }
+                guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: prop.x + dx, seam: seam) else {
+                    continue
+                }
+                let rect = SIMD4<Float>(Float((left + dx).rounded(.down)) - 2, Float(roofTop) + Float(ridge.row) - 2,
+                                        Float(size.width), Float(size.height))
+                list.append(SpriteInstance(sprite: .rainSplash, frame: frame, rect: rect, tint: tint, flipped: false))
+            }
+        }
+        return list
+    }
+
+    /// The cottages' ridges (tools: the house sprites' top rows): its first and last column and its row from the
+    /// sprite's top, unflipped.
+    static let rainRidges: [SpriteID: (x0: Double, x1: Double, row: Int)] = [
+        .house: (14, 43, 4), .houseB: (14, 43, 4), .houseC: (14, 43, 4),
+    ]
+
+    /// Build 3 step 2 (the two rains): the ash's three depths west of the outermost standing wall: the plane, how fast
+    /// it falls (game px/s; the rain falls ten times as fast), how many at full rain (fewer than the rain's streaks),
+    /// its size (`ashFlake` frames 0-3 small, 4-7 middling, 8-11 big) and its alpha (under 0.5, like the rain's).
+    static let ashDepths: [(plane: Plane, speed: Double, count: Int, size: Int, alpha: Float)] = [
+        (.near, 13, 34, 0, 0.42), (.world, 19, 24, 1, 0.47), (.foreground, 28, 9, 2, 0.49),
+    ]
+    /// How far a flake drifts sideways per second in a wind of 1 beyond a calm's (game px/s), how far it sways as it
+    /// tumbles in a whole wind, and how many tumble steps it turns a second in still air and in a wind of 1 more.
+    static let ashDrift = 30.0
+    static let ashSway = 2.0
+    static let ashTumble = (still: 2.0, wind: 5.0)
+    /// The wind under which ash falls straight (a calm day's).
+    static let ashCalm = 0.12
+    /// Ash by day (dark against a pale sky) and by night (pale against the dark), mixed by `rainShade` like the rain.
+    static let ashDayShade = SIMD3<Float>(0.22, 0.20, 0.21)
+    static let ashNightShade = SIMD3<Float>(0.88, 0.86, 0.84)
+
+    /// A flake's tint in this air.
+    static func ashTint(alpha: Float, ambient: AmbientSample) -> SIMD4<Float> {
+        let shade = rainShade(ambient)
+        let rgb = ashNightShade + (ashDayShade - ashNightShade) * shade
+        return SIMD4<Float>(rgb.x, rgb.y, rgb.z, min(0.49, alpha))
+    }
+
+    /// The ash's flakes on one depth's plane, each a pure function of its index and the time: slow and soft, drifting
+    /// sideways with the wind where it falls (none in a calm: it falls straight) and tumbling through its four frames,
+    /// faster in a wind. A flake falls only where the rain is not water (`RainLook`), so the ash thins in over the band
+    /// west of the outermost standing wall. No streak and no splash.
+    private static func ashFlakes(depth: Int, animTime: Double, ambient: AmbientSample, seam: Double,
+                                  geometry: Geometry) -> [SpriteInstance] {
+        let weather = geometry.weather
+        let entry = ashDepths[depth]
+        let count = rainCount(entry.count, rain: weather.rain)
+        guard count > 0 else { return [] }
+        let size = SpriteID.ashFlake.size
+        let lowest: Double
+        switch entry.plane {
+        case .foreground: lowest = Double(geometry.targetHeight)
+        case .world: lowest = Double(geometry.groundRow + 2)
+        default: lowest = Double(geometry.groundRow - 8)
+        }
+        let fall = lowest + Double(size.height)
+        let margin = 24.0
+        let span = Double(geometry.targetWidth) + 2 * margin
+        let whole = geometry.whole(entry.plane)
+        let lane = geometry.whole(.world)
+        let tint = ashTint(alpha: entry.alpha, ambient: ambient)
+        let key = SeededRandom.hash(weather.gustSeed ^ 0x41_5348, Int64(depth + 1))
+        var list: [SpriteInstance] = []
+        for index in 0..<count {
+            let own = unit(SeededRandom.hash(key, Int64(index)))
+            let speed = entry.speed * (0.8 + 0.4 * own)
+            let progress = animTime * speed / fall + own
+            let cycle = progress.rounded(.down)
+            let share = progress - cycle
+            let falling = share * fall / speed
+            let y = share * fall - Double(size.height)
+            let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
+            let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
+            var x = (unit(pick) * span - whole).truncatingRemainder(dividingBy: span)
+            if x < 0 { x += span }
+            let wind = Weather.wind(at: x - margin + lane, weather, time: animTime)
+            let push = max(0, abs(wind) - ashCalm) * (wind < 0 ? -1 : 1)
+            let sway = ashSway * min(1, max(0, abs(wind) - ashCalm) / 0.3)
+            x += push * ashDrift * falling + sway * sin(falling * 2.3 + own * 2 * Double.pi)
+            x = (x.truncatingRemainder(dividingBy: span) + span).truncatingRemainder(dividingBy: span) - margin
+            guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: x + lane, seam: seam) else { continue }
+            let tumble = Int(min(1.0e15, falling * (ashTumble.still + ashTumble.wind * abs(wind)) + own * 4)
+                .rounded(.down)) % 4
+            let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
+                                    Float(size.height))
+            list.append(SpriteInstance(sprite: .ashFlake, frame: entry.size * 4 + tumble, rect: rect, tint: tint,
+                                       flipped: own > 0.5))
         }
         return list
     }

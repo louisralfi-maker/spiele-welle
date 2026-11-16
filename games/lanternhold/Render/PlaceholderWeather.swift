@@ -10,6 +10,7 @@ enum PlaceholderWeather {
         case .windmillSails: return (0..<Weather.sailFrames).map { millSails($0) }
         case .keepFlag: return (0..<Weather.flagFrames).map { flag($0) }
         case .keepFlagRim: return (0..<(2 * Weather.flagFrames)).map { flagRim($0) }
+        case .ashFlake: return (0..<12).map { ashFlake($0) }
         default: return []
         }
     }
@@ -56,6 +57,26 @@ enum PlaceholderWeather {
         case 0: p.rect(0, 2, 6, 13, teal)
         case 1: p.rect(0, 2, 10, 9, teal)
         default: p.rect(0, 2 + frame % 2, 13 + frame % 2, 7, teal)
+        }
+        return p.image
+    }
+
+    /// An ash flake (frames 0-3 small, 4-7 middling, 8-11 big; tools/weatherart.py's strip replaces it): a soft
+    /// grey dot that turns from flat to edge on.
+    static func ashFlake(_ frame: Int) -> PixelImage {
+        var p = Painter(SpriteID.ashFlake.size, salt: 0)
+        let size = frame / 4
+        let flat = frame % 2 == 0
+        let core = RGBA(0xF0F0EC)
+        let soft = RGBA(0xF0F0EC, alpha: 110)
+        p.put(2, 2, core)
+        if size >= 1 {
+            if flat { p.put(1, 2, core); p.put(3, 2, soft) } else { p.put(2, 1, soft); p.put(2, 3, core) }
+        }
+        if size >= 2 {
+            p.put(1, 1, soft)
+            p.put(3, 3, soft)
+            if flat { p.put(0, 2, soft); p.put(4, 2, soft) } else { p.put(2, 0, soft); p.put(2, 4, soft) }
         }
         return p.image
     }

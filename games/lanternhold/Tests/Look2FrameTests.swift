@@ -443,11 +443,17 @@ final class Look2FrameTests: XCTestCase {
             .allSatisfy { $0.frame == 4 && $0.flipped })
         XCTAssertEqual(FrameBuilder.rainSlant(.clear), 0)
 
-        // Reduce Motion: no streaks, no splashes, nothing sways; the wet sheen and the darker air stay.
+        // Reduce Motion: nothing sways; the wet sheen and the darker air stay. Build 3 step 2 (the two rains, lane 3):
+        // the rain's and the ash's forms stay, held still at one moment (RainLookTests).
         let still = frame(night, focus: 300, weather: storm(reduceMotion: true), reduceMotion: true)
+        let later = frame(night, focus: 300, time: 3.5, weather: storm(3.5, reduceMotion: true), reduceMotion: true)
         for plane in Plane.allCases {
-            XCTAssertEqual(count(still, .rainStreak, plane) + count(still, .rainSplash, plane), 0)
+            let held: Set<SpriteID> = [.rainStreak, .rainSplash, .ashFlake]
+            XCTAssertEqual(still.layer(plane).sprites.filter { held.contains($0.sprite) },
+                           later.layer(plane).sprites.filter { held.contains($0.sprite) }, "\(plane): it stands")
         }
+        XCTAssertGreaterThan(Plane.allCases.map { count(still, .ashFlake, $0) }.reduce(0, +), 0,
+                             "beyond the outer wall it is ash")
         XCTAssertTrue(still.layer(.near).sprites.allSatisfy { $0.source == nil })
         XCTAssertEqual(still.wetness, 1)
         XCTAssertEqual(still.rain, 1)
