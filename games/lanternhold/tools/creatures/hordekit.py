@@ -405,8 +405,6 @@ def draw(rows, seed=0):
 # arms leave from, and eight poses (`at`; `near` and `far`: the arms' points after the shoulder, cell coordinates).
 KIN_FRAMES = 8
 KIN_WALK = 6
-# the ochre cloth of the design card (step 6B): soilLight where the moon catches it, soil
-LEGEND.update({"O": ("soilLight", None, False), "o": ("soil", None, False)})
 
 
 def polyline(pts):
