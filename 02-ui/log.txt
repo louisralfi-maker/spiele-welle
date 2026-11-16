@@ -1,0 +1,32 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (35.303 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (27.192 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (79.396 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (23.141 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (71.240 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (27.176 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (151.475 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (17.353 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (21.533 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (23.653 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (58.621 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (79.384 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:129: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:50: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - he did not meet the chandler's household on his way out (day:1 owing:21 paid: knocked: shut: hand: collector:no held:0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:52: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the first 16 coins
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:53: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the king ran to the braziers
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:63: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertGreaterThan failed: ("1830.0") is not greater than ("1840.0") - the drag walked the king right (1830.0 to 1830.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:89: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - the brazier site offers nothing
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:95: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the order cost 12 gold
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:116: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the archer cost 10 gold
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:153: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no mark at the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:129: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:172: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the first dawn's taxes: the chandler's 16 coins
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (332.738 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (93.016 seconds).
+Test Suite 'FirstDayUITests' failed at 2026-11-16 13:23:04.167.
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (125.862 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (220.923 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-16 13:28:50.963.
+Test Suite 'Selected tests' failed at 2026-11-16 13:28:50.963.
+exit=65
+screenshots: 73

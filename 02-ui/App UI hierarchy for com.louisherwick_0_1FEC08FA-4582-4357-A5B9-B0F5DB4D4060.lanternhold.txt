@@ -1,0 +1,78 @@
+Application, 0x101ac8b70, pid: 40238, label: 'Lanternhold' <App element pid: 40238>
+  Window (Main), 0x101ad61f0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40238, elementOrHash.elementID: 4389460128.3>
+    Other, 0x101af7e00, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40238, elementOrHash.elementID: 4389484432.4>
+      Other, 0x101a66400, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40238, elementOrHash.elementID: 4389486064.5>
+        Other, 0x101a39ba0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40238, elementOrHash.elementID: 4389463648.6>
+          Other, 0x101a6a130, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40238, elementOrHash.elementID: 4388614128.7>
+            Other, 0x101a6abb0, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 40238, elementOrHash.elementID: 4388612672.8>
+              Other, 0x101a67170, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:7230 ready d... <AX element pid: 40238, elementOrHash.elementID: 4389555456.9>
+              Other, 0x101a69a70, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40238, elementOrHash.elementID: 4388576512.10>
+              Other, 0x101a6a4d0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40238, elementOrHash.elementID: 4388576944.11>
+              Other, 0x101a66ab0, {{0.0, 0.0}, {1.0, 1.0}}, identifier: 'town-status', value: day:2 owing:21,23,... <AX element pid: 40238, elementOrHash.elementID: 4388593328.12>
+              Other, 0x101a3bb30, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40238, elementOrHash.elementID: 4388594432.13>
+              Other, 0x101a68920, {{437.0, 2.0}, {0.0, 4.0}} <AX element pid: 40238, elementOrHash.elementID: 4389614576.25>
+              Other, 0x101a6b950, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 40238, elementOrHash.elementID: 4388611136.15>
+              Other, 0x101a68c80, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 40238, elementOrHash.elementID: 4389684752.71>
+              Other, 0x101a3a5f0, {{107.0, 16.0}, {660.0, 350.0}}, identifier: 'report-root' <AX element pid: 40238, elementOrHash.elementID: 4386865120.72>
+                Image, 0x101a65680, {{107.0, 16.0}, {660.0, 350.0}} <AX element pid: 40238, elementOrHash.elementID: 4389770832.73>
+                Image, 0x101a6b600, {{127.0, 36.7}, {57.0, 27.0}} <AX element pid: 40238, elementOrHash.elementID: 4389771936.74>
+                StaticText, 0x101a685b0, {{196.0, 25.0}, {116.0, 29.3}}, label: 'Day 2 dawns' <AX element pid: 40238, elementOrHash.elementID: 4389772368.75>
+                StaticText, 0x101a696e0, {{196.0, 55.3}, {86.7, 20.3}}, label: 'Night 1 is over' <AX element pid: 40238, elementOrHash.elementID: 4389769168.76>
+                Other, 0x101a660b0, {{127.0, 78.7}, {620.0, 2.0}} <AX element pid: 40238, elementOrHash.elementID: 4389769952.77>
+                ScrollView, 0x101a333a0, {{107.0, 80.7}, {660.0, 217.3}} <AX element pid: 40238, elementOrHash.elementID: 4404418048.78>
+                  Other, 0x101a67820, {{107.0, 80.7}, {660.0, 249.3}} <AX element pid: 40238, elementOrHash.elementID: 4389778624.84>
+                    StaticText, 0x101a69de0, {{127.0, 86.7}, {70.3, 18.0}}, label: 'The night' <AX element pid: 40238, elementOrHash.elementID: 4389773488.94>
+                    StaticText, 0x101a69350, {{444.0, 86.7}, {74.0, 18.0}}, label: 'The valley' <AX element pid: 40238, elementOrHash.elementID: 4389836176.95>
+                    StaticText, 0x101a68ff0, {{127.0, 113.7}, {303.0, 20.3}}, label: 'Creatures stopped, 6' <AX element pid: 40238, elementOrHash.elementID: 4389829408.96>
+                      StaticText, 0x101a3c880, {{127.0, 113.7}, {120.7, 20.3}}, label: 'Creatures stopped' <AX element pid: 40238, elementOrHash.elementID: 4389783392.104>
+                      Other, 0x101a32cb0, {{256.0, 125.9}, {156.5, 1.3}} <AX element pid: 40238, elementOrHash.elementID: 4389783824.105>
+                      StaticText, 0x101a34f70, {{422.0, 113.7}, {8.0, 18.3}}, label: '6' <AX element pid: 40238, elementOrHash.elementID: 4389828624.106>
+                    StaticText, 0x101a67b80, {{127.0, 139.0}, {303.0, 20.3}}, label: 'Walls lost, None' <AX element pid: 40238, elementOrHash.elementID: 4389832848.97>
+                      StaticText, 0x1018ff750, {{127.0, 139.0}, {63.3, 20.3}}, label: 'Walls lost' <AX element pid: 40238, elementOrHash.elementID: 4389830192.107>
+                      Other, 0x101a66740, {{198.7, 151.2}, {184.7, 1.3}} <AX element pid: 40238, elementOrHash.elementID: 4389831280.108>
+                      StaticText, 0x1018db360, {{392.0, 139.0}, {38.0, 20.3}}, label: 'None' <AX element pid: 40238, elementOrHash.elementID: 4389832064.109>
+                    StaticText, 0x1018fe890, {{444.0, 113.7}, {303.0, 38.3}}, label: 'Taxes, 0, Left to the people: 16' <AX element pid: 40238, elementOrHash.elementID: 4389842848.98>
+                      StaticText, 0x1018f60f0, {{444.0, 113.7}, {38.0, 20.3}}, label: 'Taxes' <AX element pid: 40238, elementOrHash.elementID: 4389838608.110>
+                      Other, 0x1018f6510, {{490.4, 125.9}, {217.6, 1.3}} <AX element pid: 40238, elementOrHash.elementID: 4389839392.111>
+                      Image, 0x1018db780, {{720.0, 115.3}, {15.0, 15.0}} <AX element pid: 40238, elementOrHash.elementID: 4389840176.112>
+                      StaticText, 0x1018e3f60, {{739.0, 113.7}, {8.0, 18.3}}, label: '0' <AX element pid: 40238, elementOrHash.elementID: 4389841632.113>
+                      StaticText, 0x1018d6c60, {{444.0, 134.0}, {104.7, 18.0}}, label: 'Left to the people: 16' <AX element pid: 40238, elementOrHash.elementID: 4389842064.114>
+                    StaticText, 0x106a101c0, {{127.0, 166.7}, {303.0, 30.0}}, identifier: 'report-banner', label: 'No one fell tonight' <AX element pid: 40238, elementOrHash.elementID: 4389835744.99>
+                      Image, 0x106a102e0, {{127.0, 166.7}, {303.0, 30.0}} <AX element pid: 40238, elementOrHash.elementID: 4389833632.115>
+                      StaticText, 0x106a10400, {{207.8, 171.3}, {141.3, 20.3}}, label: 'No one fell tonight' <AX element pid: 40238, elementOrHash.elementID: 4389834064.116>
+                    StaticText, 0x106a10520, {{444.0, 157.0}, {303.0, 74.3}}, label: 'Happiness, 60 → 62, Houses left alone +1, No one fell +2, Petitioners unheard −1' <AX element pid: 40238, elementOrHash.elementID: 4389849616.100>
+                      StaticText, 0x106a10640, {{444.0, 157.0}, {69.7, 20.3}}, label: 'Happiness' <AX element pid: 40238, elementOrHash.elementID: 4389843632.117>
+                      Other, 0x106a10760, {{522.0, 169.2}, {137.7, 1.3}} <AX element pid: 40238, elementOrHash.elementID: 4389844592.118>
+                      StaticText, 0x106a10880, {{671.0, 157.0}, {56.0, 18.3}}, label: '60 → 62' <AX element pid: 40238, elementOrHash.elementID: 4389845376.119>
+                      Image, 0x106a109a0, {{732.0, 158.7}, {15.0, 15.0}} <AX element pid: 40238, elementOrHash.elementID: 4389846160.120>
+                      StaticText, 0x106a10ac0, {{444.0, 177.3}, {101.3, 18.0}}, label: 'Houses left alone +1' <AX element pid: 40238, elementOrHash.elementID: 4389847616.121>
+                      StaticText, 0x106a10be0, {{444.0, 195.3}, {71.0, 18.0}}, label: 'No one fell +2' <AX element pid: 40238, elementOrHash.elementID: 4389848048.122>
+                      StaticText, 0x106a10d00, {{444.0, 213.3}, {117.7, 18.0}}, label: 'Petitioners unheard −1' <AX element pid: 40238, elementOrHash.elementID: 4389848832.123>
+                    StaticText, 0x106a10e20, {{444.0, 236.3}, {303.0, 38.3}}, label: 'People, 14 → 15, 1 born' <AX element pid: 40238, elementOrHash.elementID: 4389853712.101>
+                      StaticText, 0x106a10f40, {{444.0, 236.3}, {45.3, 20.3}}, label: 'People' <AX element pid: 40238, elementOrHash.elementID: 4389850400.124>
+                      Other, 0x106a11060, {{497.7, 248.5}, {184.7, 1.3}} <AX element pid: 40238, elementOrHash.elementID: 4389851360.125>
+                      StaticText, 0x106a11180, {{691.0, 236.3}, {56.0, 18.3}}, label: '14 → 15' <AX element pid: 40238, elementOrHash.elementID: 4389852144.126>
+                      StaticText, 0x106a112a0, {{444.0, 256.7}, {31.3, 18.0}}, label: '1 born' <AX element pid: 40238, elementOrHash.elementID: 4389852928.127>
+                    StaticText, 0x106a113c0, {{444.0, 279.7}, {303.0, 38.3}}, identifier: 'report-unheard', label: 'Sent home unheard, 1, Rasmus (Farmer)' <AX element pid: 40238, elementOrHash.elementID: 4389857936.102>
+                      StaticText, 0x106a114e0, {{444.0, 279.7}, {127.3, 20.3}}, label: 'Sent home unheard' <AX element pid: 40238, elementOrHash.elementID: 4389854496.128>
+                      Other, 0x106a11600, {{579.7, 291.9}, {147.1, 1.3}} <AX element pid: 40238, elementOrHash.elementID: 4389855584.129>
+                      StaticText, 0x106a11720, {{739.0, 279.7}, {8.0, 18.3}}, label: '1' <AX element pid: 40238, elementOrHash.elementID: 4389856368.130>
+                      StaticText, 0x106a11840, {{444.0, 300.0}, {88.7, 18.0}}, label: 'Rasmus (Farmer)' <AX element pid: 40238, elementOrHash.elementID: 4389857152.131>
+                  Other, 0x106a11960, {{734.0, 80.7}, {30.0, 217.3}}, label: 'Vertical scroll bar, 2 pages', value: 0% <AX element pid: 40238, elementOrHash.elementID: 4388740960.85>
+                    Other, 0x106a11a80, {{761.0, 288.0}, {3.0, 7.0}} <AX element pid: 40238, elementOrHash.elementID: 4389859392.103>
+                  Other, 0x106a11ba0, {{734.0, 80.7}, {30.0, 217.3}}, label: 'Vertical scroll bar, 2 pages', value: 0% <AX element pid: 40238, elementOrHash.elementID: 4388740960.85>
+                    Other, 0x106a11cc0, {{761.0, 288.0}, {3.0, 7.0}} <AX element pid: 40238, elementOrHash.elementID: 4389859392.103>
+                StaticText, 0x106a11de0, {{127.0, 319.8}, {67.0, 20.3}}, label: 'Treasury' <AX element pid: 40238, elementOrHash.elementID: 4386782768.79>
+                StaticText, 0x106a07160, {{206.0, 319.0}, {41.0, 22.0}}, identifier: 'report-treasury', label: '34', value: 34 <AX element pid: 40238, elementOrHash.elementID: 4386804080.80>
+                  Image, 0x106a07280, {{206.0, 321.0}, {18.0, 18.0}} <AX element pid: 40238, elementOrHash.elementID: 4386802544.86>
+                  StaticText, 0x106a073a0, {{228.0, 319.0}, {19.0, 22.0}}, label: '34' <AX element pid: 40238, elementOrHash.elementID: 4386803648.87>
+                Other, 0x106a074c0, {{583.0, 330.0}, {0.0, 0.0}} <AX element pid: 40238, elementOrHash.elementID: 4386808160.81>
+                Button, 0x106a075e0, {{595.0, 304.0}, {152.0, 52.0}}, identifier: 'report-continue', label: 'Continue' <AX element pid: 40238, elementOrHash.elementID: 4386862896.82>
+                  Image, 0x106a07700, {{595.0, 304.0}, {152.0, 52.0}} <AX element pid: 40238, elementOrHash.elementID: 4386809264.88>
+                  Image, 0x106a07820, {{595.0, 304.0}, {152.0, 52.0}} <AX element pid: 40238, elementOrHash.elementID: 4386858672.89>
+                  Image, 0x106a07940, {{617.0, 321.0}, {22.0, 18.0}} <AX element pid: 40238, elementOrHash.elementID: 4386859776.90>
+                  StaticText, 0x106a07a60, {{595.0, 304.0}, {152.0, 52.0}}, label: 'Continue' <AX element pid: 40238, elementOrHash.elementID: 4386860880.91>
+                  Image, 0x106a07b80, {{617.0, 321.0}, {22.0, 18.0}} <AX element pid: 40238, elementOrHash.elementID: 4386861312.92>
+                  StaticText, 0x106a07ca0, {{649.0, 318.5}, {76.0, 23.0}}, label: 'Continue' <AX element pid: 40238, elementOrHash.elementID: 4386862464.93>
+                Other, 0x106a07dc0, {{127.0, 298.0}, {620.0, 2.0}} <AX element pid: 40238, elementOrHash.elementID: 4386864464.83>
+              Other, 0x106a07ee0, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 40238, elementOrHash.elementID: 4388612240.16>

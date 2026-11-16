@@ -1,0 +1,1 @@
+scene after the report: frame:8400 ready day:2 hour:6.18 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:68 lx:68 errand:none gold:34 hud:strip cam:0 tap:touch-door-hall hint:off0 count:none last:paid:touch-recruit-archer lanterns:0 models:4:ballista,catapult
