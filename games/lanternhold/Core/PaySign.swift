@@ -71,7 +71,7 @@ struct PaySignpost: Sendable, Equatable {
         for plot in Realm.plots.indices where plot < s.plots.count {
             guard s.isUnlocked(plot: plot), s.plots[plot].item == nil, s.plots[plot].job == nil else { continue }
             let offers = Build.options(s, plot: plot, balance: balance)
-            if offers.count > 1 { list.append((plot, offers)) }
+            if offers.count > 1 { list.append((plot: plot, offers: offers)) }
         }
         return list
     }
