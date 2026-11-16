@@ -336,6 +336,24 @@ enum HordeLook {
         SeededRandom.hash(0x4157_4159, Int64(id)) % 5 == 0
     }
 
+    /// Step 7 (the director's call 9 of 16.11.2026 12:02, M-c: no ladder): a climber stands 0 ... 5 px higher on its
+    /// level by id, so the cold points on the wall's face do not stand in a column at the levels' rhythm (`heapLift`, 9
+    /// px apart; with its pixel of height by id and its ±2 px aside, three points of one column 9 px apart each stood in
+    /// three heaps of five, with the rise in one of four). The picture only: the heap's ranks and lifts stay
+    /// `heapLifts`'.
+    static func heapRise(id: Int) -> Double {
+        Double(SeededRandom.hash(0x5249_5345, Int64(id)) % 6)
+    }
+
+    /// A climber's cold point where it is drawn (from its anchor at `x`, `y` on the ground line): aside by id, mirrored
+    /// when it faces away, on its level (`lift`), its pixel of height and its rise by id, in its climb frame.
+    static func climberEye(id: Int, x: Double, y: Double, lift: Double, time: Double, reduceMotion: Bool)
+        -> (x: Double, y: Double) {
+        let eye = socket(body(id: id), frame: climbFrame(id: id, time: time, reduceMotion: reduceMotion))
+        let dx = facesAway(id: id) ? -eye.dx : eye.dx
+        return (x: x + heapJitter(id: id) + dx, y: y + lift + stand(id: id) + heapRise(id: id) + eye.dy)
+    }
+
     /// The lift of each small one that climbs the heap, by id (none for the first four at a wall): the fifth to the
     /// eighth one body up, the ninth to the twelfth two, from the thirteenth three.
     static func heapLifts(_ creatures: [Creature]) -> [Int: Double] {

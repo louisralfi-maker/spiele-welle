@@ -1002,7 +1002,12 @@ enum EntityFrames {
                 guard seconds >= 0, seconds < HordeLook.flareSeconds else { continue }
                 let eye = HordeLook.fallSocket(HordeLook.Body(rawValue: effect.body) ?? .crawler)
                 let stand = effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0
-                list.append(LightSource(kind: .moon, x: effect.x + eye.dx, y: effect.y + stand + eye.dy,
+                // step 7 (call 9): a climber's flare where its fall is drawn, aside, mirrored and risen by its id
+                let climbed = effect.id >= 0 && effect.y > 0
+                let eyeX = effect.x + (climbed ? HordeLook.heapJitter(id: effect.id) : 0)
+                    + (climbed && HordeLook.facesAway(id: effect.id) ? -eye.dx : eye.dx)
+                let rise = climbed ? HordeLook.heapRise(id: effect.id) : 0
+                list.append(LightSource(kind: .moon, x: eyeX, y: effect.y + stand + rise + eye.dy,
                                         radius: HordeLook.socketRadius * 2, color: HordeLook.socketCold,
                                         intensity: HordeLook.socketIntensity * Double(HordeLook.flareGlow),
                                         flickerSeed: effect.seed))
@@ -1032,7 +1037,9 @@ enum EntityFrames {
             // step 5 (M3): a climber's point where its body is drawn (aside by id; mirrored when it faces away)
             let aside = lift != nil ? HordeLook.heapJitter(id: c.id) : 0
             let eyeDX = lift != nil && HordeLook.facesAway(id: c.id) ? -eye.dx : eye.dx
-            let p = (x: c.x + aside + eyeDX, y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + eye.dy)
+            // step 7 (the director's call 9, no ladder): a climber 0 ... 3 px higher on its level by id
+            let rise = lift != nil ? HordeLook.heapRise(id: c.id) : 0
+            let p = (x: c.x + aside + eyeDX, y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + rise + eye.dy)
             if kept.contains(where: {
                 abs($0.x - p.x) < HordeLook.socketApartX && abs($0.y - p.y) <= HordeLook.socketApartY
             }) { continue }
@@ -1252,6 +1259,9 @@ enum EntityFrames {
                     // never stand on the wall's face as a ladder
                     drawX += HordeLook.heapJitter(id: c.id)
                     flipped = HordeLook.facesAway(id: c.id)
+                    // step 7 (the director's call 9, M-c): 0 ... 3 px higher on its level by id, so the cold points
+                    // on the wall's face never stand evenly spaced in a column
+                    y += HordeLook.heapRise(id: c.id)
                 }
             }
             if c.kind == .gloomweaver { y += weaverBob(c, time: time) }
@@ -1339,9 +1349,11 @@ enum EntityFrames {
             fallsDrawn += 1
             let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
             // step 3: it falls where it stood (its pixel of height by id), so it never jumps as it dies
-            let fallY = effect.y + (effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0)
             // step 5 (the gate's review): a climber falls where it was drawn, aside by its id and facing as it faced
+            // (step 7: and risen by its id, `HordeLook.heapRise`)
             let climbed = effect.id >= 0 && effect.y > 0
+            let fallY = effect.y + (effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0)
+                + (climbed ? HordeLook.heapRise(id: effect.id) : 0)
             let fallX = effect.x + (climbed ? HordeLook.heapJitter(id: effect.id) : 0)
             let fallFlipped = climbed && HordeLook.facesAway(id: effect.id)
             // step 4 (the director's second law): the fall, its flare and its orphan under fog B at its veil, as it

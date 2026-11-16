@@ -558,7 +558,11 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertTrue(lifts.values.allSatisfy { $0 == HordeLook.heapLift })
         let actors = GameFrameSupport.frame(s, focus: 640).layer.actors
         bodies = actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
-        let raised = bodies.filter { $0.rect.y + $0.rect.w == ground - Float(HordeLook.heapLift) * scale }
+        // (step 7, the director's call 9: a climber 0 ... 5 px higher on its level by id, `HordeLook.heapRise`)
+        let raised = bodies.filter {
+            let up = (ground - ($0.rect.y + $0.rect.w)) / scale
+            return up >= Float(HordeLook.heapLift) - 0.01 && up <= Float(HordeLook.heapLift) + 5.01
+        }
         let low = bodies.filter { $0.rect.y + $0.rect.w == ground }
         XCTAssertEqual(raised.count, 3, "one body higher")
         XCTAssertEqual(low.count, 5, "the four in front and the one walking up")
@@ -614,6 +618,67 @@ final class EntityFramesTests: XCTestCase {
         let cold = EntityFrames.creatureLights(one, time: 0.2).filter { $0.radius == HordeLook.socketRadius }
         XCTAssertTrue(cold.contains { $0.x == 630 + HordeLook.heapJitter(id: turned) - eye.dx },
                       "its cold point where it is drawn, mirrored")
+    }
+
+    func testTheHeapsColdPointsAreNoLadder() {
+        // Step 7 (the director's call 9 of 16.11.2026 12:02, the critic's M-c): the climbers' cold points on the wall's
+        // face do not stand in a column at the levels' rhythm: each climber stands 0 ... 5 px higher on its level by id
+        // (`HordeLook.heapRise`; the levels 9 px apart), so over a heap of fourteen the gaps between the points, top to
+        // bottom, take three or more sizes and no three points within 2 px of one column stand 9 px apart each (a
+        // ladder); over forty heaps of fourteen at most a third show such a ladder anywhere (without the rise about two
+        // in three did); the render light of a climber stands where its point is drawn.
+        XCTAssertTrue((0..<200).allSatisfy { (0...5).contains(HordeLook.heapRise(id: $0)) })
+        XCTAssertEqual(Set((0..<200).map { HordeLook.heapRise(id: $0) }).count, 6, "risen by id")
+        func ladders(_ points: [(x: Double, y: Double)]) -> Int {
+            var found = 0
+            for a in points {
+                for b in points where abs(b.x - a.x) <= 2 && (8.5...9.5).contains(b.y - a.y) {
+                    for c in points where abs(c.x - a.x) <= 2 && abs(c.x - b.x) <= 2 && (8.5...9.5).contains(c.y - b.y) {
+                        found += 1
+                    }
+                }
+            }
+            return found
+        }
+        func heap(_ first: Int) -> [Int: Double] {
+            HordeLook.heapLifts((0..<14).map {
+                var c = GameFrameSupport.creature(.sootling, x: 630, id: first + $0, lit: true, action: .attackingWall)
+                c.target = Realm.lines[2].wall
+                return c
+            })
+        }
+        let laddered = stride(from: 0, to: 560, by: 14).filter { (first: Int) -> Bool in
+            let lifted = heap(first)
+            let points = lifted.keys.sorted().map {
+                HordeLook.climberEye(id: $0, x: 630, y: 0, lift: lifted[$0] ?? 0, time: 0.2, reduceMotion: false)
+            }
+            return ladders(points) > 0
+        }.count
+        XCTAssertLessThanOrEqual(laddered, 13, "a ladder of cold points in at most a third of forty heaps (\(laddered))")
+        let wall = Realm.lines[2].wall
+        var s = GameFrameSupport.demoNight()
+        s.creatures = (0..<14).map {
+            var c = GameFrameSupport.creature(.sootling, x: 630, id: 100 + $0, lit: true, action: .attackingWall)
+            c.target = wall
+            return c
+        }
+        let lifts = HordeLook.heapLifts(s.creatures)
+        XCTAssertEqual(lifts.count, 10)
+        for time in [0.2, 0.7, 1.3] {
+            let points = lifts.keys.sorted().map { id in
+                HordeLook.climberEye(id: id, x: 630, y: 0, lift: lifts[id] ?? 0, time: time, reduceMotion: false)
+            }
+            let ys = points.map(\.y).sorted()
+            let gaps = Set(zip(ys, ys.dropFirst()).map { ($1 - $0).rounded() })
+            XCTAssertGreaterThanOrEqual(gaps.count, 3, "\(time) s: the points' gaps take sizes of their own (\(gaps))")
+            XCTAssertEqual(ladders(points), 0, "\(time) s: no ladder of cold points on the wall's face")
+            let cold = EntityFrames.creatureLights(s, time: time).filter { $0.radius == HordeLook.socketRadius }
+            XCTAssertFalse(cold.isEmpty)
+            for light in cold where light.y > HordeLook.heapLift {
+                XCTAssertTrue(points.contains { $0.x == light.x && $0.y == light.y },
+                              "\(time) s: a climber's light where its point is drawn")
+            }
+        }
     }
 
     func testTheLopersThrowIsNoCrook() {
