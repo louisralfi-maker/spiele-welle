@@ -1,0 +1,14 @@
+Test Case '-[LanternholdUITests.HordeUITests testHorde]' passed (88.771 seconds).
+Test Case '-[LanternholdUITests.HordeUITests testHordeFilmstrip]' passed (18.961 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (63.620 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (14.971 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (35.569 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (96.158 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (38.478 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (161.053 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (39.698 seconds).
+Test Case '-[LanternholdUITests.WindUITests testFilmstrips]' passed (819.170 seconds).
+Test Case '-[LanternholdUITests.WindUITests testRain]' passed (128.527 seconds).
+Test Case '-[LanternholdUITests.WindUITests testWind]' passed (243.110 seconds).
+exit=0
+screenshots: 134
