@@ -223,7 +223,8 @@ enum HordeLook {
 
     /// Step 5 (the director's call 1 of 16.11.2026 08:52: the wisps go): on the runner's shots they still read as
     /// antennae and sticks, so their share is zero: no small one carries a wisp, and no fall leaves an orphan. The
-    /// strips, the frame tables and the draw code stay, as with the tumbler: a wisp comes back by setting this true.
+    /// strips, the frame tables and the draw code stay, as with the tumbler: the wisps on about every third and every
+    /// fall's orphan come back by setting this true.
     static let threadsShown = false
 
     /// Whether a small one carries a wisp: none since step 5 (`threadsShown`); before it about every third, chosen by

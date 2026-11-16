@@ -1225,7 +1225,10 @@ enum EntityFrames {
             }
         }
         // b3-horde step 5 (the director's call 3): a small one walking on a lower ground line (the `-GWHorde` stream's,
-        // 1 or 2 px nearer in the lane by id) is drawn in front of the ones on the line above it.
+        // 1 or 2 px nearer in the lane by id) is drawn in front of the ones on the line above it. (The gate's review:
+        // the band comes first, so it would draw a small one over the giant and the king too; only the stream sets a
+        // lower line today. Step B, if ground lines reach the real waves, orders by an x band first or keys the small
+        // ones only.)
         func drawKey(_ index: Int) -> (Int, Double, Int, Double, Int) {
             let c = s.creatures[index]
             let near = c.kind == .sootling && c.action == .walking && c.y < 0 ? Int((-c.y).rounded()) : 0
@@ -1365,8 +1368,9 @@ enum EntityFrames {
                         tint: SIMD4<Float>(flare, flare, flare, 1), emissive: true, lightCap: flareCap)
                 }
             }
-            // step 5 (the director's call 1): the wisps go, and with them the orphans (`HordeLook.hasThread`)
-            guard HordeLook.hasThread(id: effect.id) else { continue }
+            // step 5 (the director's call 1): the wisps go, and with them the orphans (`HordeLook.threadsShown`; before
+            // step 5 every fall left one, carrier or not)
+            guard HordeLook.threadsShown else { continue }
             let wind = reduceMotion ? weather.mean : Weather.wind(at: effect.x, weather, time: animTime)
             let sway = HordeLook.threadSway(id: Int(effect.seed % 997), time: animTime, reduceMotion: reduceMotion)
             let length = effect.id >= 0 ? HordeLook.threadLength(id: effect.id) : HordeLook.height(body)
