@@ -1158,3 +1158,9 @@ schneller geht."
   - Before the drop, six parallel rounds proved the joined commit (lh-b3j-4 to -9: the whole unit suite, every UI class the game owns except the picture suites, and the unsigned Release build for a device). The tf round then needed only `build testflight`.
   - After the drop, 38 merged build 2 worktrees were removed (branches stay); the disk went from 12 to 23 GB free. `lh-i18n` stays for its translation sources.
   - Wave 2's lanes are cut from ab29d2d4.
+
+- **Wave 2 of build 3 has started (16.11.2026, 20:17).**
+  - Two lanes are cut from the wave 1 head `claude/lh-b3join` ab29d2d4 (TestFlight build 396) and each runs its first step as an Opus workflow (build, an independent diff review, the gate round, the push).
+  - Lane 2, the drill yard, step 1 (`claude/lh-b3-yard`, rounds `lh-b3y-11` onward): the rules only (the yard bought at its counter, training, the kettle, the yard bot, T16), placeholder props, the recruit card kept. In wave 2 this lane owns `Core/Battle.swift`, `Balance.swift`, `GameState.swift` and `Sim.swift`; a new saved field is an Optional whose nil means the old realm, so the saves of build 2 and of build 396 load.
+  - Lane 5, the lantern moment, step 1 (`claude/lh-b3-lantern`, rounds `lh-b3l-11` onward): no dead tap (with the lantern up, a tap on a person or a thing lowers it and does the deed in the same touch) and the look-around (a sideways drag pans the camera over the still realm, the strip's bracket moves along, letting go glides home). The vignette in the renderer and the figures' fade are step 2.
+  - Lane 6 (housekeeping items 2 to 4) follows after these two steps. The week's quota stood at 94 % at the start; the stop is 99 %.
