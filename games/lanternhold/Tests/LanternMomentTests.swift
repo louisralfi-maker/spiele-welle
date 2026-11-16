@@ -587,4 +587,23 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertNil(game.lanternMoment)
         XCTAssertEqual(game.touch.errand?.id, door.id, "a fresh touch counts")
     }
+
+    // MARK: - Lane 5 step 2a: the smooth walk
+
+    /// Suspect 1: the coin and notes row above the walking lord keeps one distance in device px to him (a smooth
+    /// actor, `Camera.deviceX`) in every frame of a walk; floored to whole game px it buzzed 3 to 5 device px.
+    func testTheRowAboveTheWalkingLordKeepsItsDistanceToHim() throws {
+        let block = HUDKit.moment(gold: 93, happiness: 70, people: 28, day: 12)
+        var gaps: Set<Double> = []
+        for step in 0..<120 {
+            let lordX = 1000.3 + 0.6 * Double(step)
+            let camera = Camera(focusX: lordX, pixelScale: pro)
+            let framing = TouchFraming.world(camera: camera, pixelScale: pro)
+            let actors = HUDKitActors.actors(block, lordX: lordX, groundLift: 0, framing: framing)
+            let first = try XCTUnwrap(actors.first)
+            let anchor = camera.deviceX(worldX: lordX, scale: pro.scale, mode: .smooth)
+            gaps.insert(Double(first.rect.x) - Double(anchor))
+        }
+        XCTAssertEqual(gaps.count, 1, "one distance to the lord in every frame: \(gaps.sorted())")
+    }
 }

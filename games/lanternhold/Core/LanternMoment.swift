@@ -344,18 +344,22 @@ struct StripCall: Sendable, Equatable {
 
 /// The kit's pieces as unlit actors on a stage's pixel grid: a block centred over the lord, its bottom
 /// `HUDKit.purseAbove` px above his head.
+///
+/// Lane 5 step 2a (the smooth walk, suspect 1): the left edge is not floored to a whole game px. The lord is a smooth
+/// actor (`Camera.deviceX`, device px), so a floored row buzzed 3 to 5 device px against him on every frame of a walk;
+/// unfloored, `framing.deviceX` puts the row on the lord's own grid and it keeps a fixed device distance to him. The
+/// still lantern moment keeps `HUDKit.centredLeft`.
 enum HUDKitActors {
     static func actors(_ block: HUDKit.Block, lordX: Double, groundLift: Double, framing: TouchFraming)
         -> [ActorInstance] {
         let viewLeft = framing.viewLeft.rounded(.up) + 2
         let viewRight = framing.viewRight.rounded(.down) - 2
-        var left = HUDKit.centredLeft(lordX: lordX, width: block.width)
-        left = Int(min(max(Double(left), viewLeft), viewRight - Double(block.width)))
+        let left = min(max(lordX - Double(block.width) / 2, viewLeft), viewRight - Double(block.width))
         let top = groundLift + Double(HUDKit.lordHead + HUDKit.purseAbove + block.height)
         let scale = Float(framing.scale)
         return block.pieces.map { piece in
             let size = piece.sprite.size
-            let x = framing.deviceX(stageX: Double(left + piece.x))
+            let x = framing.deviceX(stageX: left + Double(piece.x))
             let y = framing.deviceY(lift: top - Double(piece.y))
             return ActorInstance(sprite: piece.sprite, frame: piece.frame,
                                  rect: SIMD4<Float>(Float(x), Float(y), Float(size.width) * scale,
