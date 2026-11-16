@@ -1001,7 +1001,8 @@ enum EntityFrames {
                 let seconds = animTime - effect.start
                 guard seconds >= 0, seconds < HordeLook.flareSeconds else { continue }
                 let eye = HordeLook.fallSocket(HordeLook.Body(rawValue: effect.body) ?? .crawler)
-                list.append(LightSource(kind: .moon, x: effect.x + eye.dx, y: effect.y + eye.dy,
+                let stand = effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0
+                list.append(LightSource(kind: .moon, x: effect.x + eye.dx, y: effect.y + stand + eye.dy,
                                         radius: HordeLook.socketRadius * 2, color: HordeLook.socketCold,
                                         intensity: HordeLook.socketIntensity * Double(HordeLook.flareGlow),
                                         flickerSeed: effect.seed))
@@ -1299,6 +1300,8 @@ enum EntityFrames {
             guard seconds >= 0, seconds < HordeLook.fallLifetime else { continue }
             fallsDrawn += 1
             let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
+            // step 3: it falls where it stood (its pixel of height by id), so it never jumps as it dies
+            let fallY = effect.y + (effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0)
             if let fall = HordeLook.fallFrame(body, seconds: seconds, reduceMotion: reduceMotion) {
                 // An unlit one falls at the night's value with its moon rim, as it walked (a sweep never flashes),
                 // and deep in the bank, where no body was drawn, no heap either (`CreatureLook.bodyShare`).
@@ -1306,7 +1309,7 @@ enum EntityFrames {
                 let seen: Float = look == .two && !effect.lit
                     ? CreatureLook.bodyShare(x: effect.x, bankEdge: s.bankEdge) : 1
                 if seen > 0.02 {
-                    add(.sootFall, frame: fall.frame, x: effect.x, y: effect.y,
+                    add(.sootFall, frame: fall.frame, x: effect.x, y: fallY,
                         tint: SIMD4<Float>(shade, shade, shade, fall.alpha * seen), lit: effect.lit,
                         lightCap: creatureLightCap, moonRim: effect.lit ? 0 : unlitRim * night * seen)
                 }
@@ -1314,7 +1317,7 @@ enum EntityFrames {
                     // the socket's last flare (frame 0), then it is out; the last spark falling (frame 2)
                     let flaring = fall.frame % 3 == 0 && seconds < HordeLook.flareSeconds
                     let flare = (flaring ? HordeLook.flareGlow : 1) * fall.alpha
-                    add(.sootFallGlow, frame: fall.frame, x: effect.x, y: effect.y,
+                    add(.sootFallGlow, frame: fall.frame, x: effect.x, y: fallY,
                         tint: SIMD4<Float>(flare, flare, flare, 1), emissive: true)
                 }
             }
@@ -1326,7 +1329,7 @@ enum EntityFrames {
                                                    reduceMotion: reduceMotion, curl: curl) {
                 var tint = HordeLook.threadTint(night: night, share: 1, bright: thread.bright)
                 tint.w *= thread.alpha
-                add(.sootThread, frame: thread.frame, x: effect.x + thread.dx, y: effect.y + thread.dy, tint: tint,
+                add(.sootThread, frame: thread.frame, x: effect.x + thread.dx, y: fallY + thread.dy, tint: tint,
                     emissive: true)
             }
         }
@@ -1584,7 +1587,8 @@ enum EntityFrames {
                 let puff = (animTime - effect.start - HordeLook.fallFrameSeconds) / HordeLook.puffSeconds
                 guard puff >= 0, puff < 1 else { continue }
                 let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
-                let middle = effect.y + Double(HordeLook.height(body)) * 0.4
+                let stand = effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0
+                let middle = effect.y + stand + Double(HordeLook.height(body)) * 0.4
                 let thin = Float(1 - puff)
                 let drift = reduceMotion ? 0 : puff
                 for k in 0..<HordeLook.puffFlakes {
