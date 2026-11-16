@@ -998,3 +998,9 @@ schneller geht."
   - The picture fails again (critic 6/10, 1 blocker, 5 highs): lit, the small ones are brown mounds; unlit, black lumps; a kill throws up a V; the tumbler is a ball with a fuse; the clip showed no horde.
   - The director's calls: the body is the shadow and the rag only the accent (a shoulder mantle and trailing strips, at most a third of the sprite, no dither); the silhouette decides and is judged first; neighbours separate by value and height; the rag reads unlit, tested on the drawn pixel; the puff is grey flakes; threads are soot on every second one; the tumbler gets one last try or its share goes to zero; the clip is watched through three stills.
   - Step 3 is the fix round. Wave 3 idea: a tall thin fourth body for a varied skyline.
+
+- **The count lane's step 2 judged (16.11.2026, 05:58).**
+  - Green: `claude/lh-b3-count` bf3fa5f3, round `lh-b3c-22` ALL PASSED (the lane's full gate); the rule files are untouched.
+  - The picture is close (critic 7/10, no blocker, 3 highs): the coins leave the lord's hand but hop along the board's face; by day the light at the end is not seen; the lantern on its lone post reads as a street lamp.
+  - The director's calls: the throw goes up and falls in, the far coin flies longer; the board dips under a ten and a bar and the coin glints; the last coin gets a beat before the lid; the board hangs lower, at the lord's reach; the light is a builder's lantern hung from a crook; by day the lighting is an event (bloom, embers, a warm rim); the small coin is 7 px, pale and plain, the big one embossed.
+  - Step 3 is the fix round; the pictograms over a plot move to step 4 (wooden shingles on an iron bar). The join raises the sound cap to 5 MB.
