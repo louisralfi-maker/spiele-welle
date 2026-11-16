@@ -3,18 +3,22 @@ import XCTest
 
 /// The small ones as a horde (build 3, lane 4 step A, POLISH.md section 7): the picture of night 12 in the demo realm,
 /// look 2, every shot held still (`-GWFreezeTime YES`). The headless bot plays each launch to its hour, so a shot is
-/// the same state every time. Night 12 sends four waves from x 40 (21:15, 22:47, 00:18, 01:50); unlit they walk 34 px
-/// a second, so a wave steps out of the bank's edge (x 500) about 67 game minutes after it leaves, and the demo realm's
-/// archers thin it at once (round lh-b3h-11: no small one on screen at 22:30 to 23:24). So the shots search: each
-/// candidate hour is a launch, the scene's value counts the creature bodies drawn (`seen:`), and the first hour with
-/// enough of them (else the one with the most) is the shot. Every search's tries are noted (`2nn-...-search`).
-/// - at the bank's edge as the second wave steps out, calm and in a gust;
-/// - at the outer wall (x 640), and the same hour with Reduce Motion (the threads stand, no sway);
-/// - a filmstrip: eight shots at the wall's hour, 0.1 s of game time apart (1/120 of a game hour), so the walk and
-///   the threads' sway can be judged without a video. Every shot is a still headless state, and the falls live only in
-///   the live loop's `BattleEffects`, so no shot here holds a fall: their still proof is the unit test
-///   `HordeRenderTests` (`horde-fall-filmstrip`, `horde-volley-orphans`), and scripts/ci/sim-clip.sh records the live
-///   clip, starting from the wall's hour found here (`209-horde-hours`).
+/// the same state every time.
+/// - At the bank's edge as a wave steps out, calm and in a gust, in the night as it is played: night 12 sends four waves
+///   from x 40 (21:15, 22:47, 00:18, 01:50), a wave steps out of the bank's edge (x 500) about 67 game minutes after it
+///   leaves and the demo realm's archers thin it at once, so the shot searches: each candidate hour is a launch, the
+///   scene's value counts the bodies drawn (`seen:`), the first hour with enough of them is the shot (`2nn-...-search`).
+/// - The proof (step 2, the director's seam of 16.11.2026; Debug only): `-GWHorde <seconds>` takes the archers off the
+///   walls and sends one wave at the wall's hour (`HordeProof`: sixteen in the open between the bank and the outer
+///   wall, twelve at the wall, a heap of two levels), then the battle runs that many seconds. The lord stands behind
+///   the outer wall (x 660), so the camera holds the open and the wall and no small one hides behind the Dynamic
+///   Island (the island covers about the first 25 game px on the left; the open starts 16 px out of the bank, about
+///   45 px into the frame). Shots: calm and in a gust (the threads' lean at a glance), Reduce Motion, and a filmstrip of
+///   eight frames 0.1 s of battle apart (`-GWHorde 1.0` ... `1.7`), so the walk, the climb and the threads' sway can
+///   be judged without a video.
+/// The falls live only in the live loop's `BattleEffects`, so no still shot holds one: their proof is the unit test
+/// `HordeRenderTests` (`horde-fall-filmstrip`, rendered through the game's renderer) and scripts/ci/sim-clip.sh's live
+/// clip of the same proof (`-GWHorde dark`), where the catapult's firepots fall on the heap.
 /// Saves `2nn-horde-<what>-<lang>`.
 @MainActor
 final class HordeUITests: XCTestCase {
@@ -26,9 +30,11 @@ final class HordeUITests: XCTestCase {
         ProcessInfo.processInfo.environment["GW_LANG"] ?? "en"
     }
 
-    /// The hours the second wave steps out of the bank (from 23:51) and the waves reach the outer wall.
+    /// The hours the second wave steps out of the bank (from 23:51).
     private static let bankHours = [23.85, 23.92, 24.0, 0.08, 0.16, 0.24]
-    private static let wallHours = [0.1, 0.22, 0.34, 0.46, 1.6, 1.75, 1.9, 3.1, 3.25, 3.4]
+    /// The proof's hour (any hour of the night: the proof sends its own wave) and the lord's place behind the wall.
+    private static let proofHour = 23.0
+    private static let proofX = 660
 
     /// Night 12 of the demo realm at `hour`, the lord at `x`, held still.
     private func night(_ hour: Double, x: Int) -> [String] {
@@ -36,33 +42,35 @@ final class HordeUITests: XCTestCase {
          "-GWCameraX", "\(x)", "-GWFreezeTime", "YES", "-GWFlickerTime", "2.5", "-GWLook", "2"]
     }
 
+    /// The proof after `seconds` of battle.
+    private func proof(_ seconds: Double) -> [String] {
+        night(HordeUITests.proofHour, x: HordeUITests.proofX) + ["-GWHorde", String(format: "%.2f", seconds)]
+    }
+
     func testHorde() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let clear = ["-GWWeather", "clear"]
         let bank = search("200-horde-bank", hours: HordeUITests.bankHours, x: 520, enough: 6, extra: clear)
-        let wall = search("202-horde-wall", hours: HordeUITests.wallHours, x: 640, enough: 9, extra: clear)
-        note("209-horde-hours", String(format: "bank=%.3f wall=%.3f", bank ?? -1, wall ?? -1))
+        note("209-horde-hours", String(format: "bank=%.3f", bank ?? -1))
         if let bank {
             shoot("201-horde-bank-gust", night(bank, x: 520) + ["-GWWeather", "gusty", "-GWWind", "0.8"])
         }
-        if let wall {
-            shoot("205-horde-wall-reduce-motion", night(wall, x: 640) + clear + ["-GWReduceMotion", "YES"])
+        // the proof: the horde in the open and at the wall, calm and in a gust, and under Reduce Motion
+        let calm = shoot("220-horde-proof-calm", proof(1) + clear)
+        let gust = shoot("221-horde-proof-gust", proof(1) + ["-GWWeather", "gusty", "-GWWind", "0.8"])
+        shoot("222-horde-proof-reduce-motion", proof(1) + clear + ["-GWReduceMotion", "YES"])
+        for (name, value) in [("calm", calm), ("gust", gust)] {
+            XCTAssertGreaterThanOrEqual(HordeUITests.count("seen", in: value), 15,
+                                        "the \(name) proof draws the horde on screen (\(value))")
         }
     }
 
-    /// Eight shots 0.1 s of game time apart at the outer wall (DayClock: 12 s a game hour), at the hour the search
-    /// finds.
+    /// Eight shots of the proof 0.1 s of battle apart.
     func testHordeFilmstrip() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let breeze = ["-GWWeather", "breeze"]
-        guard let wall = search("210-horde-film-0", hours: HordeUITests.wallHours, x: 640, enough: 9,
-                                extra: breeze) else {
-            XCTFail("no hour for the filmstrip")
-            return
-        }
-        let step = 0.1 / 12
-        for k in 1..<8 {
-            shoot("21\(k)-horde-film-\(k)", night(wall + Double(k) * step, x: 640) + breeze)
+        for k in 0..<8 {
+            shoot("23\(k)-horde-film-\(k)", proof(1 + Double(k) * 0.1) + breeze)
         }
     }
 
@@ -108,16 +116,22 @@ final class HordeUITests: XCTestCase {
         return found.hour
     }
 
-    private func shoot(_ name: String, _ arguments: [String]) {
+    /// Launches `arguments`, saves the shot and the scene's value as `name`, and returns the value ("" when it never
+    /// came).
+    @discardableResult
+    private func shoot(_ name: String, _ arguments: [String]) -> String {
         let app = XCUIApplication()
         app.launchArguments = arguments
         app.launch()
+        var value = ""
         if waitUntilReady(app, name: name) {
             pause(0.8)
             attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
-            note("\(name)-value", (element(app, "world-scene").value as? String) ?? "")
+            value = (element(app, "world-scene").value as? String) ?? ""
+            note("\(name)-value", value)
         }
         app.terminate()
+        return value
     }
 
     private func waitUntilReady(_ app: XCUIApplication, name: String) -> Bool {
