@@ -442,6 +442,109 @@ final class HordeRenderTests: XCTestCase {
         add(attachment)
     }
 
+    /// Step 4 (the director's first law, shadow swallows light; the critic's H1): a heap at the outer wall by its
+    /// burning braziers at 23:00. On the drawn pixels, the navy of the lit bodies (their strips' navy texels inside the
+    /// outline) keeps more blue than red: a dark creature, never a brown mound; the fire shows on their top contour
+    /// (warmer there than blue); and a climber's lower edge is drawn darker than the same pixels without its climb mark
+    /// (at most 0.6 of them), so the rows part. The heap, twice enlarged, as `horde-heap-fires`, the numbers as
+    /// `horde-heap-fires-values`.
+    func testByTheFiresTheHeapStaysDarkCreaturesWithAWarmRim() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var s = GameFrameSupport.demoNight(hour: 23.2)
+        let wall = Realm.lines[2].wall
+        s.creatures = (0..<9).map { k in
+            var c = GameFrameSupport.creature(.sootling, x: 630 - Double(k) * 2.5, id: 10 + k, lit: true,
+                                              action: .attackingWall)
+            c.target = wall
+            return c
+        }
+        XCTAssertEqual(HordeLook.heapLifts(s.creatures).count, 5, "five climb the four at the wall")
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let dropped = Set<SpriteID>(HordeLook.threadSprites)
+        let keep: (ActorInstance) -> Bool = { !dropped.contains($0.sprite) }
+        let desc = frame(s, focus: 640, time: 1.5, wind: 0, effects: BattleEffects(), keep: keep)
+        let plain = frame(s, focus: 640, time: 1.5, wind: 0, effects: BattleEffects(), keep: keep, adjust: { actor in
+            guard let packed = HordeLook.unpack(actor.lightCap), packed.lifted else { return actor }
+            var flat = actor
+            flat.lightCap = HordeLook.pack(cap: packed.cap, veil: packed.veil)
+            return flat
+        })
+        let shot = try renderer.renderOffscreen(desc, settings: settings)
+        let shotPlain = try renderer.renderOffscreen(plain, settings: settings)
+        let bodies = desc.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+        XCTAssertEqual(bodies.count, 9)
+        XCTAssertTrue(bodies.allSatisfy(\.isLit))
+        var navy = SIMD3<Float>(0, 0, 0)
+        var navyCount = 0
+        var rim = SIMD3<Float>(0, 0, 0)
+        var rimCount = 0
+        var edge: Float = 0
+        var edgePlain: Float = 0
+        var edgeCount = 0
+        for actor in bodies {
+            guard let url = AtlasBuilder.artURL(for: actor.sprite, bundle: .main),
+                  let strip = PNGDecoder.load(url: url) else {
+                XCTFail("\(actor.sprite).png is in the bundle")
+                continue
+            }
+            let size = actor.sprite.size
+            func opaque(_ x: Int, _ y: Int) -> Bool {
+                x >= 0 && y >= 0 && x < size.width && y < size.height && strip[actor.frame * size.width + x, y].a > 0
+            }
+            let lifted = HordeLook.unpack(actor.lightCap)?.lifted ?? false
+            for p in HordeRenderTests.drawnPixels(actor, of: shot) {
+                let texel = strip[actor.frame * size.width + p.tx, p.ty]
+                let drawn = shot.color(x: p.x, y: p.y)
+                if !opaque(p.tx, p.ty - 1) {
+                    rim += drawn
+                    rimCount += 1
+                } else if lifted && !opaque(p.tx, p.ty + 1) {
+                    edge += HordeRenderTests.luminance(drawn)
+                    edgePlain += HordeRenderTests.luminance(shotPlain.color(x: p.x, y: p.y))
+                    edgeCount += 1
+                } else if Int(texel.b) > Int(texel.r) + 8 && texel != RGBA(0x0A1124) && opaque(p.tx, p.ty + 1) {
+                    navy += drawn
+                    navyCount += 1
+                }
+            }
+        }
+        XCTAssertGreaterThan(navyCount, 60, "the navy is found")
+        XCTAssertGreaterThan(rimCount, 20, "the top contour is found")
+        XCTAssertGreaterThan(edgeCount, 10, "the climbers' lower edges are found")
+        navy /= Float(max(1, navyCount))
+        rim /= Float(max(1, rimCount))
+        let notes = [
+            String(format: "navy by the fires: r %.3f g %.3f b %.3f (%ld px)", navy.x, navy.y, navy.z, navyCount),
+            String(format: "top contour: r %.3f g %.3f b %.3f (%ld px)", rim.x, rim.y, rim.z, rimCount),
+            String(format: "climbers' lower edge: %.4f, without the mark %.4f (%ld px)", edge / Float(max(1, edgeCount)),
+                   edgePlain / Float(max(1, edgeCount)), edgeCount),
+        ]
+        XCTAssertGreaterThanOrEqual(navy.z, navy.x, "by the fires the navy stays navy (\(navy)), never brown")
+        XCTAssertGreaterThan(rim.x, rim.z * 1.15, "the fire shows as a warm rim on the top contour (\(rim))")
+        XCTAssertLessThanOrEqual(edge, edgePlain * 0.6, "a climber's lower edge is drawn darker, the rows part")
+        // the heap, twice enlarged
+        let left = Int(bodies.map(\.rect.x).min() ?? 0) - 40
+        let right = Int(bodies.map { $0.rect.x + $0.rect.z }.max() ?? 0) + 40
+        let bottom = Int(bodies.map { $0.rect.y + $0.rect.w }.max() ?? 0) + 10
+        let top = Int(bodies.map(\.rect.y).min() ?? 0) - 30
+        let w = max(1, right - left)
+        let h = max(1, bottom - top)
+        var crop: [SIMD3<Float>] = []
+        for y in top..<(top + h) {
+            for x in left..<(left + w) {
+                let inside = x >= 0 && y >= 0 && x < shot.width && y < shot.height
+                crop.append(inside ? shot.color(x: x, y: y) : SIMD3<Float>(0, 0, 0))
+            }
+        }
+        attachStrip([crop], width: w, height: h, name: "horde-heap-fires", zoom: 2)
+        let attachment = XCTAttachment(string: notes.joined(separator: "\n"))
+        attachment.name = "horde-heap-fires-values"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     // MARK: - Helpers
 
     /// Relative luminance of an sRGB colour.
@@ -479,7 +582,7 @@ final class HordeRenderTests: XCTestCase {
     /// out; `gloom` draws the Gloom's fog as the live night does (step 4, the director's law 6).
     private func frame(_ s: GameState, focus: Double, time: Double, wind: Double, effects: BattleEffects,
                        keep: ((ActorInstance) -> Bool)? = nil, dropSocketLights: Bool = false,
-                       gloom: GloomFog? = nil) -> FrameDesc {
+                       gloom: GloomFog? = nil, adjust: ((ActorInstance) -> ActorInstance)? = nil) -> FrameDesc {
         var options = FrameOptions(flickerTime: time)
         options.look = .two
         options.weather.mean = wind
@@ -492,6 +595,7 @@ final class HordeRenderTests: XCTestCase {
         var layer = EntityFrames.layer(state: s, balance: .standard, scene: scene, camera: camera,
                                        pixelScale: pixelScale, options: options, animTime: time, effects: effects)
         if let keep { layer.actors = layer.actors.filter(keep) }
+        if let adjust { layer.actors = layer.actors.map(adjust) }
         if dropSocketLights {
             // the small ones' socket and flare render lights (`EntityFrames.creatureLights`)
             layer.lights.removeAll {

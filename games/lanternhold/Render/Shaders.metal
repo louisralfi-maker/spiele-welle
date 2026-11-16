@@ -914,6 +914,12 @@ constant float3 kMoonLight2 = float3(0.55f, 0.60f, 0.92f);
 constant float kFogGlow2 = 0.35f;
 constant float kFireCold2 = 0.7f;
 constant float kLitCap2 = 1.0f;
+// b3-horde (build 3, lane 4 step A; the director's first law of 16.11.2026 06:15, shadow swallows light; one block for
+// the join): how much of a fire's hue a lit small one loses (its own cap comes with it, `HordeLook.litCap`), its warm
+// rim's share of the fire's light, and how dark a climber's lower edge is drawn.
+constant float kHordeGrey2 = 0.7f;
+constant float kHordeRim2 = 0.75f;
+constant float kHordeContact2 = 0.45f;
 
 // A light pool of look 2: a negative squash (color.w) marks a fire, whose colour falls off to ember toward its rim.
 vertex LightPoolOut lh_pool2_vertex(uint vid [[vertex_id]],
@@ -1375,11 +1381,15 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     }
     float3 albedo = texel.rgb * in.tint.rgb;
     // b3-horde (build 3, lane 4 step A; the director's laws of 16.11.2026 06:15; one block for the join): a small one
-    // hands its veil and its own light cap through flags.w (`HordeLook.pack`: 1000, the veil in hundredths, the cap as
-    // the fraction; under 1000 it is no small one). The mist is its backdrop, never its veil: fog B lies over its
-    // body, its wisp and its rim at the veil only (its cold point at none), and the bank's lift with it.
+    // hands its veil, its own light cap and its climb through flags.w (`HordeLook.pack`: 1000, 200 more for a climber,
+    // the veil in hundredths, the cap as the fraction; under 1000 it is no small one). The mist is its backdrop, never
+    // its veil: fog B lies over its body, its wisp and its rim at the veil only (its cold point at none), and the
+    // bank's lift with it.
     bool horde = in.flags.w >= 1000.0f;
-    float hordeVeil = horde ? (floor(in.flags.w) - 1000.0f) * 0.01f : 1.0f;
+    float hordeWhole = floor(in.flags.w);
+    bool hordeLifted = hordeWhole >= 1200.0f;
+    float hordeVeil = horde ? (hordeWhole - (hordeLifted ? 1200.0f : 1000.0f)) * 0.01f : 1.0f;
+    float hordeCap = horde ? in.flags.w - hordeWhole : 0.0f;
     // Lit as the world: firelight displaces the cold, inside a cut-away room the figure takes its warm fill.
     float shade = lh_shade(albedo);
     float peak = max(info.light.r, max(info.light.g, info.light.b));
@@ -1388,6 +1398,14 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         * lh2_interior_ramp(c.row, v);
     float3 cold = lh2_cold(albedo, ambient, 1.0f - shade, 1.0f - room * v.inter.w, v);
     float3 light = lh2_capped(info.light);
+    if (horde) {
+        // b3-horde, shadow swallows light: most of a fire's hue goes, and what is left is capped low (`hordeCap`), so
+        // by the fires a small one stays a navy creature, never a brown mound.
+        float3 grey = float3(dot(info.light, float3(0.299f, 0.587f, 0.114f)));
+        float3 swallowed = mix(info.light, grey, kHordeGrey2);
+        float top = max(swallowed.r, max(swallowed.g, swallowed.b));
+        light = swallowed * (min(top, hordeCap) / max(top, 0.0001f));
+    }
     float3 lit = in.flags.x > 0.5f ? albedo : cold + lh_reflectance(albedo) * light + light * 0.06f;
     // Every figure keeps a rim on its screen-right edge pixels: the sky's for the king, the creatures in light and
     // the people, the moon's for an unlit creature. Firelight outshines it.
@@ -1406,6 +1424,27 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         if (edge) {
             lit = mix(lit, v.rim.rgb, rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
+    }
+    if (horde && in.flags.x < 0.5f && !unlit && peak > 0.01f) {
+        // b3-horde: the fire shows on a small one only as a 1 px warm rim on its fire-facing upper outline: its top
+        // contour, and the side toward the brighter light (`lightTex` 3 px either way) within two rows of the top.
+        uint wx = c.world.x;
+        uint lastX = lightTex.get_width() - 1u;
+        float3 west = lightTex.read(uint2(wx > 3u ? wx - 3u : 0u, c.world.y)).rgb;
+        float3 eastward = lightTex.read(uint2(min(wx + 3u, lastX), c.world.y)).rgb;
+        int east = max(eastward.r, max(eastward.g, eastward.b)) >= max(west.r, max(west.g, west.b)) ? 1 : -1;
+        int toward = east * (across < 0.0f ? -1 : 1);
+        bool above = t.y == 0u || atlas.read(uint2(t.x, t.y - 1u)).a < 0.5f;
+        int2 side = int2(t) + int2(toward, 0);
+        bool open = atlas.read(uint2(max(side, int2(0)))).a < 0.5f;
+        bool upper = t.y < 2u || atlas.read(uint2(t.x, t.y - 2u)).a < 0.5f;
+        if (above || (open && upper)) {
+            lit = mix(lit, lh2_capped(info.light) * kHordeRim2, saturate(peak * 1.5f) * 0.85f);
+        }
+    }
+    if (hordeLifted && in.flags.x < 0.5f && atlas.read(uint2(t.x, t.y + 1u)).a < 0.5f) {
+        // b3-horde: a climber's lower edge a step darker, so the rows of a heap part
+        lit *= kHordeContact2;
     }
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);

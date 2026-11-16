@@ -80,10 +80,13 @@ enum HordeLook {
     /// A navy value step by id (the body's tint): a step down, none, a step up. Two small ones with neighbouring ids
     /// never share a step, nor two of one body (`crowd.count` ids apart), so a crowd separates into bodies.
     static let shades: [Float] = [0.84, 1, 1.16]
+    /// Lit, the steps are wider (step 4, the director's first law: by the fires 0.84 / 1 / 1.16 were lost under the
+    /// light, and the heap was one mound).
+    static let litShades: [Float] = [0.75, 1, 1.25]
 
-    static func shade(id: Int) -> Float {
+    static func shade(id: Int, lit: Bool = false) -> Float {
         let step = crowd.count == 3 ? id + id / 3 : id
-        return shades[(step % 3 + 3) % 3]
+        return (lit ? litShades : shades)[(step % 3 + 3) % 3]
     }
 
     /// A pixel of height by id: about every second one (by a hash, not by body) stands a pixel lower, nearer in the
@@ -159,25 +162,35 @@ enum HordeLook {
 
     static let eyeVeil: Float = 0
 
-    /// A small one hands the renderer its veil and its light cap in one value (`ActorInstance.lightCap`, the quad's
-    /// flags.w in look 2): `packBase` + the veil in hundredths + the cap (0.01 ... 0.99) as the fraction. Any
-    /// value under `packBase` is the plain cap of every other figure.
+    /// A small one hands the renderer its veil, its light cap and whether it climbs a heap in one value
+    /// (`ActorInstance.lightCap`, the quad's flags.w in look 2): `packBase` + `liftedMark` for a climber + the veil in
+    /// hundredths + the cap (0.01 ... 0.99) as the fraction. Any value under `packBase` is the plain cap of every
+    /// other figure. The look-2 actor shader reads it in its b3-horde block.
     static let packBase: Float = 1000
+    static let liftedMark: Float = 200
 
-    static func pack(cap: Float, veil: Float) -> Float {
-        packBase + (max(0, min(1, veil)) * 100).rounded() + max(0.01, min(0.99, cap))
+    static func pack(cap: Float, veil: Float, lifted: Bool = false) -> Float {
+        packBase + (lifted ? liftedMark : 0) + (max(0, min(1, veil)) * 100).rounded() + max(0.01, min(0.99, cap))
     }
 
-    /// The cap and the veil of a packed value, nil for a plain cap.
-    static func unpack(_ value: Float) -> (cap: Float, veil: Float)? {
+    /// The cap, the veil and the climb of a packed value, nil for a plain cap.
+    static func unpack(_ value: Float) -> (cap: Float, veil: Float, lifted: Bool)? {
         guard value >= packBase else { return nil }
-        let whole = value.rounded(.down)
-        return (cap: value - whole, veil: (whole - packBase) / 100)
+        var whole = value.rounded(.down)
+        let cap = value - whole
+        let lifted = whole >= packBase + liftedMark
+        if lifted { whole -= liftedMark }
+        return (cap: cap, veil: (whole - packBase) / 100, lifted: lifted)
     }
 
-    /// Step 4's first commit keeps look 2's light on them as it was (the world's cap, `kLitCap2` 1.0); the second
-    /// gives them their own (`litCap`).
-    static let worldCap: Float = 0.99
+    // MARK: - The light (step 4, the director's first law of 16.11.2026 06:15)
+
+    /// Shadow swallows light: a lit small one reflects at most this much of a fire (every other figure 1.0 in look
+    /// 2), and the shader takes most of the fire's hue out of it, so the navy stays navy by the fires and never turns
+    /// a brown mound; the fire shows only as a 1 px warm rim on its fire-facing upper outline. A climber's lower edge
+    /// is drawn a step darker, so the rows of a heap part. The fall and its flakes take the same cap: grey soot,
+    /// never cream sparks.
+    static let litCap: Float = 0.5
 
     // MARK: - The thread
 

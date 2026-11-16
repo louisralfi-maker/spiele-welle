@@ -28,10 +28,15 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(unlit.count, 2)
         XCTAssertTrue(unlit.allSatisfy { $0.tint.x < 0.4 && $0.tint.w == 1 && !$0.isEmissive },
                       "an unlit body at a very low value")
-        // b3-horde step 3: the small ones take a navy value step by id (0.84, 1 or 1.16), the others a shade by id
-        XCTAssertTrue(lit.allSatisfy { $0.tint.x >= 0.84 - 1e-6 && $0.tint.x <= 1.16 + 1e-6 },
+        // b3-horde step 3: the small ones take a navy value step by id (step 4, lit: 0.75, 1 or 1.25), the others a
+        // shade by id
+        XCTAssertTrue(lit.allSatisfy { $0.tint.x >= 0.75 - 1e-6 && $0.tint.x <= 1.25 + 1e-6 },
                       "a lit body as painted, a shade by its id")
-        XCTAssertTrue(bodies.allSatisfy { $0.lightCap == EntityFrames.creatureLightCap }, "creatures reflect less light")
+        // b3-horde step 4 (the director's first law): the small ones reflect less still (`HordeLook.litCap`)
+        XCTAssertTrue(bodies.allSatisfy {
+            $0.lightCap == (EntityFramesTests.smallSprites.contains($0.sprite) ? HordeLook.litCap
+                                                                              : EntityFrames.creatureLightCap)
+        }, "creatures reflect less light")
         XCTAssertTrue(unlit.allSatisfy { $0.moonRim > 0.5 }, "an unlit body keeps a strong moonlight rim")
         XCTAssertTrue(lit.allSatisfy { $0.moonRim == 0 })
         let xs = bodies.map(\.rect.x)
@@ -1102,8 +1107,56 @@ final class EntityFramesTests: XCTestCase {
         let scale = bodies[0].rect.z / 14
         XCTAssertEqual(bodies[1].rect.y + bodies[1].rect.w - (bodies[0].rect.y + bodies[0].rect.w), scale,
                        "a pixel lower")
-        XCTAssertEqual(bodies[0].tint.x, HordeLook.shade(id: high), "lit, at its value step")
-        XCTAssertEqual(bodies[1].tint.x, HordeLook.shade(id: low))
+        XCTAssertEqual(bodies[0].tint.x, HordeLook.shade(id: high, lit: true), "lit, at its value step")
+        XCTAssertEqual(bodies[1].tint.x, HordeLook.shade(id: low, lit: true))
+        // step 4 (the director's first law): lit, the steps are wider, still never the same for neighbours
+        XCTAssertEqual(Set((0..<60).map { HordeLook.shade(id: $0, lit: true) }), Set(HordeLook.litShades))
+        XCTAssertEqual(HordeLook.litShades, [0.75, 1, 1.25])
+        for id in 0..<60 {
+            XCTAssertNotEqual(HordeLook.shade(id: id, lit: true), HordeLook.shade(id: id + 1, lit: true))
+        }
+    }
+
+    func testShadowSwallowsLight() {
+        // Step 4 (the director's first law): a lit small one reflects at most `litCap` (in look 2 packed with its veil,
+        // `HordeLook.pack`), a climber is marked so the shader darkens its lower edge, and the fall's flakes take the
+        // same cap.
+        XCTAssertEqual(HordeLook.litCap, 0.5, accuracy: 1e-6)
+        let back = HordeLook.unpack(HordeLook.pack(cap: HordeLook.litCap, veil: 0.15, lifted: true))
+        XCTAssertEqual(back?.cap ?? 0, HordeLook.litCap, accuracy: 0.001)
+        XCTAssertEqual(back?.veil ?? 0, 0.15, accuracy: 0.001)
+        XCTAssertEqual(back?.lifted, true)
+        XCTAssertEqual(HordeLook.unpack(HordeLook.pack(cap: 0.5, veil: 1))?.lifted, false)
+        let wall = Realm.lines[2].wall
+        var s = GameFrameSupport.demoNight()
+        s.creatures = (0..<9).map {
+            var c = GameFrameSupport.creature(.sootling, x: 630 - Double($0) * 2, id: 20 + $0, lit: true,
+                                              action: .attackingWall)
+            c.target = wall
+            return c
+        }
+        let lifts = HordeLook.heapLifts(s.creatures)
+        XCTAssertEqual(lifts.count, 5)
+        let layer = hordeLayer(s, focus: 640, look: .two)
+        let bodies = layer.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+        XCTAssertEqual(bodies.count, 9)
+        let packed = bodies.compactMap { HordeLook.unpack($0.lightCap) }
+        XCTAssertEqual(packed.count, 9, "every small one hands its cap and veil")
+        XCTAssertTrue(packed.allSatisfy { abs($0.cap - HordeLook.litCap) < 0.001 }, "its own cap")
+        XCTAssertEqual(packed.filter { $0.lifted }.count, lifts.count, "the climbers are marked")
+        // the fall's flakes
+        var effects = BattleEffects()
+        effects.note([], state: s, balance: balance, time: 0.9)
+        let felled = s.creatures[0]
+        s.creatures.removeFirst()
+        effects.note([.creatureKilled(kind: .sootling, x: felled.x)], state: s, balance: balance, time: 1.0)
+        let later = hordeLayer(s, focus: 640, time: 1.3, look: .two, effects: effects)
+        let flakes = later.actors.filter { $0.sprite == .sootFlake }
+        XCTAssertFalse(flakes.isEmpty, "the puff's flakes are drawn")
+        XCTAssertTrue(flakes.allSatisfy { abs((HordeLook.unpack($0.lightCap)?.cap ?? 0) - HordeLook.litCap) < 0.001 },
+                      "the flakes take the small ones' cap: grey soot by the fires")
+        let falls = later.actors.filter { $0.sprite == .sootFall }
+        XCTAssertTrue(falls.allSatisfy { abs((HordeLook.unpack($0.lightCap)?.cap ?? 0) - HordeLook.litCap) < 0.001 })
     }
 
     func testTheClimbersTakeAClimbPose() {
