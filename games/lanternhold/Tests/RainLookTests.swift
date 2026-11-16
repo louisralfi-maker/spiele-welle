@@ -267,8 +267,12 @@ final class RainLookTests: XCTestCase {
             let gorge = shot(night, focus: 300, weather: weather(night, WeatherOverride(mode: .storm), time: time),
                              time: time)
             let points = gorge.desc.emissives.filter { $0.sprite == .ashFlake && $0.frame >= 12 }
-            embers += points.count
-            large += points.filter { $0.frame == FrameBuilder.emberFrames.bigPoint }.count
+            // b3-wind (step 5): a 2 x 2 point carries its hot core as a second glass quad on its rect.
+            let bigRects = points.filter { $0.frame == FrameBuilder.emberFrames.bigPoint }.map(\.rect)
+            let cores = points.filter { $0.frame == FrameBuilder.emberFrames.point && bigRects.contains($0.rect) }
+            XCTAssertEqual(cores.count, bigRects.count, "every 2 x 2 point has its core")
+            embers += points.count - cores.count
+            large += bigRects.count
             flakes += sprites(gorge, .ashFlake).filter { $0.frame < 12 }.count
             for point in points {
                 XCTAssertEqual(point.kind, .glass, "the ember's light arrives as it is")
@@ -279,7 +283,7 @@ final class RainLookTests: XCTestCase {
                 XCTAssertGreaterThan(point.color.x, point.color.y, "never yellow-white")
                 let floor = point.plane == .foreground ? Float(gorge.desc.targetHeight)
                                                        : Float(gorge.desc.groundRow)
-                XCTAssertLessThan(point.rect.y, floor * 0.5, "an ember dies in the first 0.45 of its fall")
+                XCTAssertLessThan(point.rect.y, floor * 0.62, "an ember dies in the first 0.6 of its fall")
             }
             // At night no ember has a body on the foreground, which is drawn over the emissive pass.
             XCTAssertTrue(sprites(gorge, .ashFlake, .foreground).allSatisfy { $0.frame < 12 }, "no dark body over it")
@@ -287,9 +291,15 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThan(embers, 0, "embers fall")
         XCTAssertGreaterThan(large, 0, "the young ones are two by two")
         XCTAssertLessThan(large, embers, "then one pixel")
-        XCTAssertLessThan(Double(embers), Double(flakes) / 3 + 8, "one in three at most")
-        XCTAssertEqual(Double((0..<6000).filter { FrameBuilder.isEmber(key: 77, index: $0, night: 1) }.count), 2000,
-                       accuracy: 140, "one in three at night")
+        XCTAssertLessThan(Double(embers), Double(flakes) * 0.4 + 8, "two in five at most")
+        XCTAssertEqual(Double((0..<6000).filter { FrameBuilder.isEmber(key: 77, index: $0, night: 1) }.count), 2400,
+                       accuracy: 150, "two in five at night (b3-wind step 5)")
+        // b3-wind (step 5): the core is the gold × 1.6 when it lies over the orange point.
+        let core = FrameBuilder.emberColor + FrameBuilder.emberCoreAdd
+        XCTAssertEqual(core.x, FrameBuilder.emberGold.x * 1.6, accuracy: 1e-4)
+        XCTAssertEqual(core.y, FrameBuilder.emberGold.y * 1.6, accuracy: 1e-4)
+        XCTAssertTrue(FrameBuilder.emberCoreAdd.x > 0 && FrameBuilder.emberCoreAdd.y > 0
+                      && FrameBuilder.emberCoreAdd.z >= 0, "the core adds light")
         XCTAssertEqual(Double((0..<6000).filter { FrameBuilder.isEmber(key: 77, index: $0, night: 0) }.count), 1500,
                        accuracy: 120, "one in four by day")
         // It dies in colour: fire gold, the torch's orange, a deep red, then nothing.
@@ -457,10 +467,14 @@ final class RainLookTests: XCTestCase {
         }
         func luma(_ c: SIMD3<Float>) -> Float { 0.2126 * c.x + 0.7152 * c.y + 0.0722 * c.z }
         let sky = frame.groundRow - 70
-        // The embers: the pixels of each glass point.
+        // The embers: the pixels of each glass point (b3-wind step 5: a 2 x 2 point's core quad is not a point of its
+        // own; its pixel is the point's top right, measured with the point).
         var fire = 0
         var points = 0
-        for point in frame.emissives where point.sprite == .ashFlake && point.kind == .glass {
+        var cores: [SIMD3<Float>] = []
+        let glass = frame.emissives.filter { $0.sprite == .ashFlake && $0.kind == .glass }
+        let bigRects = glass.filter { $0.frame == FrameBuilder.emberFrames.bigPoint }.map(\.rect)
+        for point in glass where !(point.frame == FrameBuilder.emberFrames.point && bigRects.contains(point.rect)) {
             let left = Int(point.rect.x)
             let top = Int(point.rect.y)
             guard left >= 4, left + 9 < frame.targetWidth, top >= 0, top + 4 < sky else { continue }
@@ -471,6 +485,11 @@ final class RainLookTests: XCTestCase {
                 let c = color(point.plane, left + dx, top + dy)
                 if c.x >= 2 * c.z && luma(c) > beside + 0.02 {
                     fire += 1
+                }
+                if point.frame == FrameBuilder.emberFrames.bigPoint && dx == 2 && dy == 2 {
+                    cores.append(c)
+                    print("NIGHTCORE \(point.plane) at \(left + 2),\(top + 2) drawn rgb "
+                          + "\([c.x, c.y, c.z].map { Int($0 * 255) }), g/r \(c.x > 0 ? c.y / c.x : 0)")
                 }
                 // In thousandths: the point's colour, the drawn pixel, its luma and the sky's beside it.
                 let heat = [point.color.x, point.color.y, point.color.z].map { Int($0 * 1000) }
@@ -512,7 +531,12 @@ final class RainLookTests: XCTestCase {
         let median = steps.isEmpty ? 0 : steps.sorted()[steps.count / 2]
         print("NIGHTASH band 23:00, fog on: \(points) embers in the sky, \(fire) fire pixels; \(pixels) flake pixels, "
               + "\(blue) with b >= r, \(white) white, median step \(median)")
-        XCTAssertGreaterThanOrEqual(fire, 6, "the embers carry the night: fire in the band's sky")
+        // b3-wind (step 5, the director's call 2 of 11:07): the bar at 15 fire pixels, and one 2 x 2 ember whose hot core
+        // is gold on the drawn pixel (r >= 2 b, g/r >= 0.4).
+        let gold = cores.filter { $0.x >= 2 * $0.z && $0.x > 0 && $0.y / $0.x >= 0.4 }
+        print("NIGHTCORE \(cores.count) cores in the sky, \(gold.count) gold")
+        XCTAssertGreaterThanOrEqual(fire, 15, "the embers carry the night: fire in the band's sky")
+        XCTAssertGreaterThan(gold.count, 0, "a 2 x 2 ember with a gold core on the drawn pixel")
         XCTAssertGreaterThanOrEqual(pixels, 12, "enough whole flakes in the upper sky")
         XCTAssertEqual(blue, 0, "ash is never snow: no flake pixel with b >= r")
         XCTAssertEqual(white, 0, "only a small step over the sky")

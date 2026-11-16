@@ -1886,9 +1886,21 @@ enum FrameBuilder {
     /// faster than the light does (1 - life against 1 - life²), so the point is never darker than the sky around it. A
     /// glass point added over the open blue sky could not stay fire coloured after the grade. No ember under Reduce
     /// Motion (it would pulse in place).
-    static let emberShare = (day: 0.25, night: 1.0 / 3)
-    static let emberLife = (day: 1.0 / 3, night: 0.45)
-    static let emberBig = (day: 0.15, night: 0.30)
+    /// b3-wind: build 3 step 5 (the director's call 2 of 11:07, the critic's H1 (a)): at night two flakes in five are
+    /// born embers, they burn for 0.6 of the fall and stay two by two for their first 45 % (3 or 4 sparks burn in any
+    /// third of the screen); by day the 2 x 2 phase is a quarter of the life (M-b: at 15 % no day frame showed one).
+    static let emberShare = (day: 0.25, night: 0.4)
+    static let emberLife = (day: 1.0 / 3, night: 0.6)
+    static let emberBig = (day: 0.25, night: 0.45)
+    /// b3-wind (step 5, H1 (b)): the 2 x 2 point is one hot core pixel (its top right, `emberFrames.point`'s pixel) in
+    /// the gold × `emberCore` over three pixels of the torch's orange, so a value step stays inside the point after
+    /// the night's grade. The core goes out as a second glass quad over the point (the emissive pass adds), coloured
+    /// the difference (`emberCoreAdd`), so the core pixel arrives as the gold × 1.6.
+    static let emberCore: Float = 1.6
+    static var emberCoreAdd: SIMD3<Float> { emberGold * emberCore - emberColor }
+    /// b3-wind (step 5, H1 (c)): a burning ember's grey flake does not grow in before this share of its life, so it
+    /// burns in no dark clump; then it grows to the whole grey flake as the ember dies.
+    static let emberGreyFrom: Float = 0.5
     /// Gate fix (round lh-b3w-42: ten embers in the night sky, three fire pixels): the night's grade in rain keeps
     /// about 0.57 of a colour's saturation (pulling blue up toward the luma, which green rules) and tints it cold, so the
     /// fire is low in green and has almost no blue, a little stronger, and its body (under the point, on the near and
@@ -2023,7 +2035,9 @@ enum FrameBuilder {
             if !reduceMotion && isEmber(key: key, index: index, night: night) && share < life {
                 let age = Float(share / life)
                 let large = Double(age) < big
-                let heat = emberHeat(life: age) * (emberGlow * fade)
+                // b3-wind (step 5): the 2 x 2 point in the torch's orange round its hot gold core.
+                let strength = (1 - age * age) * emberGlow * fade
+                let heat = large ? emberColor * strength : emberHeat(life: age) * (emberGlow * fade)
                 let shown = emberBodyAlpha(life: age) * fade * (entry.plane == .foreground ? day : 1)
                 if shown > 0.01 {
                     list.append(SpriteInstance(sprite: .ashFlake,
@@ -2035,7 +2049,14 @@ enum FrameBuilder {
                                              color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), kind: .glass,
                                              source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
                                              frame: large ? emberFrames.bigPoint : emberFrames.point))
-                grey = age
+                if large {
+                    let core = emberCoreAdd * strength
+                    glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                                 color: SIMD4<Float>(core.x, core.y, core.z, 1), kind: .glass,
+                                                 source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
+                                                 frame: emberFrames.point))
+                }
+                grey = max(0, (age - emberGreyFrom) / (1 - emberGreyFrom))
             }
             // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks into
             // the list: the same flakes stand in the list from one moment to the next. A foreground flake that rests at
