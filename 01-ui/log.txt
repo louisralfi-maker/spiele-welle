@@ -1,0 +1,9 @@
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (209.226 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (66.665 seconds).
+Test Case '-[LanternholdUITests.HordeUITests testHorde]' passed (90.923 seconds).
+Test Case '-[LanternholdUITests.HordeUITests testHordeFilmstrip]' passed (40.117 seconds).
+Test Case '-[LanternholdUITests.WindUITests testFilmstrips]' passed (913.437 seconds).
+Test Case '-[LanternholdUITests.WindUITests testRain]' passed (180.897 seconds).
+Test Case '-[LanternholdUITests.WindUITests testWind]' passed (340.383 seconds).
+exit=0
+screenshots: 122
