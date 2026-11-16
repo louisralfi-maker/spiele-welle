@@ -77,20 +77,21 @@ enum HordeLook {
 
     /// The stride of one small one: its body's, 0.9 ... 1.1 of it by id (M6, picture only: the simulation's pace is
     /// untouched), each of five neighbouring ids at another, so a file never walks to one beat: walking on together,
-    /// their frames drift apart. (Step 7: by the id itself; the bodies are mixed by a hash now, not in turns.)
+    /// their frames drift apart. (Step 7: by the id itself; the bodies are mixed by a hash now, not in turns. Each
+    /// next five ids take the scales shifted by one, so two of one body five ids apart, whose start frames may stand
+    /// as far apart as their places in a file, never share a stride and come round into step.)
     static let strideScales = [0.9, 1.0, 1.1, 0.95, 1.05]
 
     static func stride(id: Int) -> Double {
         let count = strideScales.count
-        return stride(body(id: id)) * strideScales[(id % count + count) % count]
+        let k = max(0, id)
+        return stride(body(id: id)) * strideScales[(k + k / count) % count]
     }
 
-    /// Its own start frame: neighbouring ids start a frame of the walk apart, so a file never walks in step. Every
-    /// fifth id (the same stride again, `strideScales`) moves on two frames more, so two of one stride five or ten ids
-    /// apart do not come round into step either.
+    /// Its own start frame: neighbouring ids start a frame of the walk apart, so a file never walks in step (six
+    /// neighbours on six frames); two six ids apart share a start but not a stride (`stride(id:)`).
     static func startFrame(id: Int) -> Int {
-        let k = max(0, id)
-        return (k + 2 * (k / strideScales.count)) % walkFrames
+        max(0, id) % walkFrames
     }
 
     // MARK: - Neighbours (step 3, the director's call 4)
