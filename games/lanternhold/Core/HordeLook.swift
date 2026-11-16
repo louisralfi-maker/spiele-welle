@@ -3,10 +3,10 @@ import Foundation
 /// The small ones as a horde (POLISH.md section 7; build 3, lane 4 step A): the sootling's picture, never a rule.
 /// They are scraps shed from the Ash Giant's cloak that learned to walk (the director, 16.11.2026): three bodies chosen
 /// by the creature's id (the crawler, the loper, the tumbler; `tools/creatures`), each in a rag of the giant's cloak
-/// tones with a moon rim on its upper outline, at its own height, starting its walk at its own frame and with a stride
-/// of its own, so no two keep step; a thread of smoke over every body, a length of its own by id, that leans with the
-/// wind (`Weather.wind`) and streams back against it while it runs; past four at one wall the later ones climb the
-/// backs in front, up to three bodies high by the pressure on that wall (the heap); one cold point of light in the
+/// tones with a moon rim on its upper outline, at its own height, starting its walk at its own frame and stepping at a
+/// phase of its own (step 9; a stride of its own until then), so no two keep step; a thread of smoke over every body,
+/// a length of its own by id, that leans with the wind (`Weather.wind`) and streams back against it while it runs;
+/// past four at one wall the later ones climb the backs in front, up to three bodies high by the pressure on that wall (the heap); one cold point of light in the
 /// socket, which follows the walk frame; a fall to soot in three frames (the socket flares and snuffs, a puff of soot,
 /// the specks scatter), after which the thread stands alone, bright at first, and goes with the wind.
 /// Step 3 (the director's calls of 16.11.2026 04:10): the body is the shadow and the rag only the accent (the strips
@@ -75,23 +75,81 @@ enum HordeLook {
     static let climbPose = 6
     static let strikePose = 7
 
-    /// The stride of one small one: its body's, 0.9 ... 1.1 of it by id (M6, picture only: the simulation's pace is
-    /// untouched), each of five neighbouring ids at another, so a file never walks to one beat: walking on together,
-    /// their frames drift apart. (Step 7: by the id itself; the bodies are mixed by a hash now, not in turns. Each
-    /// next five ids take the scales shifted by one, so two of one body five ids apart, whose start frames may stand
-    /// as far apart as their places in a file, never share a stride and come round into step.)
-    static let strideScales = [0.9, 1.0, 1.1, 0.95, 1.05]
-
+    /// The stride of one small one: its body's whole stride, the one its strip is drawn to (b3-horde step 9, the
+    /// director's call Q2 of 16.11.2026 15:19: the stride scales of M6, 0.9 ... 1.1 by id, made a planted hand skate
+    /// by up to a tenth of a stride, so they go). Neighbours fall out of step by their phase (`phase(id:)`) and their
+    /// start frame instead, and in the battle by their own pace (`Creature.speedScale`).
     static func stride(id: Int) -> Double {
-        let count = strideScales.count
-        let k = max(0, id)
-        return stride(body(id: id)) * strideScales[(k + k / count) % count]
+        stride(body(id: id))
     }
 
     /// Its own start frame: neighbouring ids start a frame of the walk apart, so a file never walks in step (six
-    /// neighbours on six frames); two six ids apart share a start but not a stride (`stride(id:)`).
+    /// neighbours on six frames).
     static func startFrame(id: Int) -> Int {
         max(0, id) % walkFrames
+    }
+
+    // MARK: - The step-locked walk (b3-horde step 9, the director's calls Q1 to Q3 of 16.11.2026 15:19)
+
+    /// b3-horde step 9 (Q2): where in its stride a small one steps, in whole game pixels (0 ..< its stride, by a hash
+    /// of the id), so two side by side step at different x unless their phases meet.
+    static func phase(id: Int) -> Int {
+        Int(SeededRandom.hash(0x5048_4153, Int64(id)) % UInt64(stride(id: id)))
+    }
+
+    /// b3-horde step 9 (Q1): the steps a small one has taken at `x`, `floor((x + phase) / stride)`. The same count
+    /// picks its walk frame (`walkFrame`) and places its body (`steppedX`).
+    static func step(id: Int, x: Double) -> Int {
+        Int(((x + Double(phase(id: id))) / stride(id: id)).rounded(.down))
+    }
+
+    /// b3-horde step 9 (Q1): where a walking small one is drawn, `step * stride - phase`: at `x` or behind it by less
+    /// than a stride, in whole game pixels. Within one walk frame it stands still; at the next frame it moves on by
+    /// its whole stride, and the tip planted in the strip (which goes back in the cell by the stride each frame) stays
+    /// on its ground pixel. The picture only: the simulation's x is untouched. The tumbler keeps its continuous roll.
+    static func steppedX(id: Int, x: Double) -> Double {
+        guard body(id: id) != .tumbler else { return x }
+        return Double(step(id: id, x: x)) * stride(id: id) - Double(phase(id: id))
+    }
+
+    /// b3-horde step 9 (Q3, no jump where it stops): over the last stride before its stop (`ahead`, game px), and over
+    /// the first after a stop it walks on from (`behind`), a walking small one eases from its stepped place to its own
+    /// x, so where it stops to strike or climb it stands where it is drawn then, and no step shows as a jump.
+    static func walkX(id: Int, x: Double, ahead: Double = .infinity, behind: Double = .infinity) -> Double {
+        let stepped = steppedX(id: id, x: x)
+        let ease = max(0, min(1, min(ahead, behind) / stride(id: id)))
+        return x - (x - stepped) * ease
+    }
+
+    /// b3-horde step 9 (Q3): how far a small one at `x` still walks to its stop as the battle reckons it (the first
+    /// standing wall ahead, the guards while they hold, else the hearth; each less its own `gap`), and how far it has
+    /// come from the stop at a wall behind it that fell to rubble (where it stood striking). It only reads the state.
+    static func room(x: Double, gap: Double, state s: GameState) -> (ahead: Double, behind: Double) {
+        var stop = Realm.hearthX - gap
+        for plot in Realm.wallsOuterFirst {
+            guard s.plots[plot].item != nil, !s.plots[plot].isRubble else { continue }
+            let wallX = Realm.plots[plot].x
+            if wallX + 0.5 < x { continue }
+            stop = wallX - gap
+            break
+        }
+        if s.guardsHolding && s.guardPostX + 0.5 >= x && s.guardPostX - gap < stop {
+            stop = s.guardPostX - gap
+        }
+        var behind = Double.infinity
+        for plot in Realm.wallsOuterFirst where s.plots[plot].isRubble {
+            let from = Realm.plots[plot].x - gap
+            if from <= x { behind = min(behind, x - from) }
+        }
+        return (ahead: max(0, stop - x), behind: behind)
+    }
+
+    /// b3-horde step 9: where a small one's body is drawn along the ground. Walking, step-locked (`walkX`, eased at its
+    /// stops); striking, climbing or anything else, at its own x as before.
+    static func drawnX(_ c: Creature, in s: GameState) -> Double {
+        guard c.kind == .sootling, c.action == .walking else { return c.x }
+        let space = room(x: c.x, gap: c.gap, state: s)
+        return walkX(id: c.id, x: c.x, ahead: space.ahead, behind: space.behind)
     }
 
     // MARK: - Neighbours (step 3, the director's call 4)
@@ -114,12 +172,11 @@ enum HordeLook {
         SeededRandom.hash(0x5354_414E, Int64(id)) % 2 == 0 ? 0 : -1
     }
 
-    /// The walk (0 ... 5; the tumbler's roll 0 ... 3) by the distance walked, from its own start frame, at its own
-    /// stride.
+    /// The walk (0 ... 5; the tumbler's roll 0 ... 3) by the distance walked, from its own start frame. b3-horde step
+    /// 9 (Q1): by the steps it has taken (`step`), the count that also places its body (`steppedX`).
     static func walkFrame(id: Int, x: Double) -> Int {
-        let step = Int((max(0, x) / stride(id: id)).rounded(.down))
         let frames = body(id: id) == .tumbler ? 4 : walkFrames
-        return (step + startFrame(id: id)) % frames
+        return ((step(id: id, x: x) + startFrame(id: id)) % frames + frames) % frames
     }
 
     /// The tumbler's three attack frames (gather, claw, recover; 4 ... 6) at 3.5 a second; the walker and the runt rear

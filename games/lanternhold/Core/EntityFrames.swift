@@ -1040,7 +1040,9 @@ enum EntityFrames {
             let eyeDX = lift != nil && HordeLook.facesAway(id: c.id) ? -eye.dx : eye.dx
             // step 7 (the director's call 9, no ladder): a climber 0 ... 5 px higher on its level by id
             let rise = lift != nil ? HordeLook.heapRise(id: c.id) : 0
-            let p = (x: c.x + aside + eyeDX, y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + rise + eye.dy)
+            // b3-horde step 9 (Q1): a walking one's point where its step-locked body is drawn (`HordeLook.drawnX`)
+            let p = (x: HordeLook.drawnX(c, in: s) + aside + eyeDX,
+                     y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + rise + eye.dy)
             if kept.contains(where: {
                 abs($0.x - p.x) < HordeLook.socketApartX && abs($0.y - p.y) <= HordeLook.socketApartY
             }) { continue }
@@ -1254,6 +1256,9 @@ enum EntityFrames {
             if c.kind == .sootling {
                 // b3-horde step 3 (the director's call 4): a pixel of height by id, and the climbers' pose on a heap.
                 y += HordeLook.stand(id: c.id)
+                // b3-horde step 9 (the director's calls Q1 to Q3): walking, it is drawn step-locked, so a planted hand
+                // stands on its ground pixel through its plant (eased into its stop); striking or climbing, at its x.
+                drawX = HordeLook.drawnX(c, in: s)
                 // step 7 (the director's call 10): under Reduce Motion the strike and the climb hold the still pose
                 frame = HordeLook.drawnFrame(id: c.id, x: c.x, striking: isStriking(c), lifted: lifts[c.id] != nil,
                                              time: time, reduceMotion: reduceMotion)

@@ -477,14 +477,19 @@ final class EntityFramesTests: XCTestCase {
     }
 
     func testNoTwoSmallOnesKeepStep() {
-        // Eight neighbours in a file, 3 px apart: no two of one body start on the same frame of their cycle, each walks
-        // at a stride of its own (M6), and walking on together 300 px (the bank to the wall) no two of one body show
-        // the same frame at even half of the steps: never in unison.
-        // (step 7: the bodies mixed by a hash, so start and stride go by the id: no two of one body in a file share both)
+        // Eight neighbours in a file, 3 px apart: neighbours start on different frames of their cycle, and walking on
+        // 300 px (the bank to the wall) at paces of their own no two of one body show the same frame at even half of
+        // the steps: never in unison.
+        // b3-horde step 9 (the director's call Q2 of 16.11.2026 15:19; this test changes with the law): every id walks
+        // at its strip's whole stride, the stride scales are gone; neighbours fall out of step by a phase by id (every
+        // phase of the stride is taken in a crowd) and, in the battle, by their own pace (`Creature.speedScale`, 0.92
+        // ... 1.08; here the stream's seven paces by id). Two of one pace and one stride keep a fixed relation, so the
+        // file's unison is asked of pairs at different paces.
         for body in HordeLook.crowd {
-            let ids = (0..<12).filter { HordeLook.body(id: $0) == body }
-            let pairs = Set(ids.map { "\(HordeLook.startFrame(id: $0)) \(HordeLook.stride(id: $0))" })
-            XCTAssertEqual(pairs.count, ids.count, "\(body)s start or stride apart")
+            let ids = (10..<70).filter { HordeLook.body(id: $0) == body }
+            XCTAssertTrue(ids.allSatisfy { HordeLook.stride(id: $0) == HordeLook.stride(body) }, "\(body): a whole stride")
+            XCTAssertEqual(Set(ids.map { HordeLook.phase(id: $0) }), Set(0..<Int(HordeLook.stride(body))),
+                           "\(body)s step at every phase of their stride")
         }
         XCTAssertEqual(Set((0..<6).map { HordeLook.startFrame(id: $0) }).count, 6, "neighbours start apart")
         for id in 0..<12 {
@@ -492,19 +497,16 @@ final class EntityFramesTests: XCTestCase {
             XCTAssertTrue((0..<HordeLook.walkFrames).contains(EntityFrames.creatureFrame(c, time: 0.5)),
                           "walk frames 0 to 5")
         }
+        let paces = [0.85, 1.2, 0.95, 1.1, 1.0, 0.9, 1.15]
         for a in 0..<12 {
-            for b in (a + 1)..<12 where HordeLook.body(id: a) == HordeLook.body(id: b) {
+            for b in (a + 1)..<12 where HordeLook.body(id: a) == HordeLook.body(id: b) && paces[a % 7] != paces[b % 7] {
                 let same = (0..<300).filter { d in
-                    HordeLook.walkFrame(id: a, x: 600 + Double(a * 3 + d))
-                        == HordeLook.walkFrame(id: b, x: 600 + Double(b * 3 + d))
+                    HordeLook.walkFrame(id: a, x: 600 + Double(a * 3) + Double(d) * paces[a % 7])
+                        == HordeLook.walkFrame(id: b, x: 600 + Double(b * 3) + Double(d) * paces[b % 7])
                 }.count
                 XCTAssertLessThan(same, 150, "\(a) and \(b) walk in unison")
             }
         }
-        XCTAssertTrue((0..<60).allSatisfy {
-            let own = HordeLook.stride(id: $0) / HordeLook.stride(HordeLook.body(id: $0))
-            return own >= 0.9 - 1e-9 && own <= 1.1 + 1e-9
-        }, "0.9 to 1.1 of its body's stride")
         var cycle = Set<Int>()
         for step in 0..<40 {
             cycle.insert(HordeLook.walkFrame(id: 4, x: 600 + Double(step)))
@@ -725,6 +727,122 @@ final class EntityFramesTests: XCTestCase {
                                             "\(sprite) frame \(frame): nothing of the arm stands over the mantle's peak")
             }
         }
+    }
+
+    func testTheWalkIsDrawnStepLocked() {
+        // b3-horde step 9 (the director's calls Q1, Q2, Q3 and Q5 of 16.11.2026 15:19), on the quad the game draws and
+        // the strips' drawn pixels. A walker and a runt swept over three strides in quarter pixels: the quad holds still
+        // within a walk frame and moves on by exactly the strip's stride at a frame change; the tip planted in the strip
+        // keeps its screen column through its plant; the drawn x stays at or behind x by less than a stride. Two
+        // neighbouring ids of one body step at different x. At the wall the walk eases into the strike (and walks on
+        // from a fallen wall) with no jump over a pixel.
+        var s = GameFrameSupport.demoNight()
+        let wall = Realm.wallsOuterFirst[0]
+        s.plots[wall].item = .palisade
+        s.plots[wall].isRubble = false
+        let walker = (10..<400).first { HordeLook.body(id: $0) == .crawler } ?? 10
+        let runt = (10..<400).first { HordeLook.body(id: $0) == .loper } ?? 11
+        var notes: [String] = []
+        for id in [walker, runt] {
+            let body = HordeLook.body(id: id)
+            let sprite = HordeLook.sprite(body)
+            guard let url = AtlasBuilder.artURL(for: sprite, bundle: .main), let image = PNGDecoder.load(url: url) else {
+                XCTFail("\(sprite).png is in the bundle")
+                continue
+            }
+            // the planted tip of each walk frame: its foremost ground pixel (step 8: one tip down, apart from the hem)
+            let tips: [Int?] = (0..<HordeLook.walkFrames).map { frame in
+                (0..<14).last { image[frame * 14 + $0, 13].a > 0 }
+            }
+            let stride = HordeLook.stride(body)
+            XCTAssertEqual(stride, body == .crawler ? 4 : 3, "\(sprite): the strip's whole stride")
+            XCTAssertEqual(HordeLook.stride(id: id), stride, "\(sprite): no stride scale by id")
+            var previous: (x: Float, frame: Int)?
+            var holds = 0
+            var moves = 0
+            var planted = 0
+            var widest = 0.0
+            var tipDrift: Float = 0
+            for k in 0...Int(stride * 3 * 4) {
+                let x = 560 + Double(k) * 0.25
+                s.creatures = [GameFrameSupport.creature(.sootling, x: x, id: id, lit: true)]
+                guard let quad = hordeLayer(s, focus: 600).actors.first(where: { $0.sprite == sprite }) else {
+                    XCTFail("\(sprite) at \(x) is drawn")
+                    break
+                }
+                let scale = quad.rect.z / 14
+                let drawn = HordeLook.drawnX(s.creatures[0], in: s)
+                XCTAssertTrue(drawn <= x && x - drawn < stride, "\(sprite) at \(x): drawn at \(drawn), within a stride")
+                widest = max(widest, x - drawn)
+                if let previous {
+                    if quad.frame == previous.frame {
+                        XCTAssertEqual(quad.rect.x, previous.x, "\(sprite) at \(x): still within its walk frame")
+                        holds += 1
+                    } else {
+                        XCTAssertEqual(quad.frame, (previous.frame + 1) % HordeLook.walkFrames, "\(sprite): the next frame")
+                        XCTAssertEqual(quad.rect.x - previous.x, Float(stride) * scale, accuracy: 0.01,
+                                       "\(sprite) at \(x): on by its whole stride at the frame change")
+                        moves += 1
+                        // within a plant (frames 0 ... 2 and 3 ... 5) the planted tip keeps its screen column
+                        if previous.frame % 3 != 2, let was = tips[previous.frame], let now = tips[quad.frame] {
+                            let drift = (quad.rect.x + Float(now) * scale) - (previous.x + Float(was) * scale)
+                            tipDrift = max(tipDrift, abs(drift) / scale)
+                            XCTAssertEqual(drift, 0, accuracy: 0.01, "\(sprite) at \(x): the planted tip stands")
+                            planted += 1
+                        }
+                    }
+                }
+                previous = (x: quad.rect.x, frame: quad.frame)
+            }
+            XCTAssertEqual(moves, 3, "\(sprite): three steps over three strides")
+            XCTAssertGreaterThanOrEqual(planted, 1, "\(sprite): a plant was followed")
+            // Q3: into the strike at the wall, eased over the last stride, and on from a fallen wall
+            var c = GameFrameSupport.creature(.sootling, x: 0, id: id, lit: true)
+            let stop = Realm.plots[wall].x - c.gap
+            var last: Double?
+            var biggest = 0.0
+            for k in 0...Int(stride * 2 * 4) {
+                c.x = stop - stride * 2 + Double(k) * 0.25
+                let drawn = HordeLook.drawnX(c, in: s)
+                if let last { biggest = max(biggest, abs(drawn - last)) }
+                last = drawn
+            }
+            XCTAssertLessThanOrEqual(biggest, stride + 1e-9, "\(sprite): no more than a stride on the way in")
+            c.x = stop - 0.25
+            let walking = HordeLook.drawnX(c, in: s)
+            c.x = stop
+            c.action = .attackingWall
+            c.target = wall
+            let striking = HordeLook.drawnX(c, in: s)
+            XCTAssertEqual(striking, stop, "\(sprite): striking at its own x")
+            XCTAssertLessThanOrEqual(abs(striking - walking), 1, "\(sprite): no jump into the strike (or the climb)")
+            var fallen = s
+            fallen.plots[wall].isRubble = true
+            c.action = .walking
+            c.target = -1
+            let onward = HordeLook.drawnX(c, in: fallen)
+            XCTAssertLessThanOrEqual(abs(onward - stop), 1e-9, "\(sprite): walking on from a fallen wall, no jump")
+            let gapIn = String(format: "%.2f", abs(striking - walking))
+            notes.append("\(sprite): holds \(holds), steps \(moves) of \(Int(stride)) px, plants followed \(planted), "
+                         + "tip drift \(String(format: "%.2f", Double(tipDrift))) px, drawn x behind x at most "
+                         + "\(String(format: "%.2f", widest)) px, way in at most \(String(format: "%.2f", biggest)) px, "
+                         + "last walk to strike \(gapIn) px")
+        }
+        // two neighbouring ids of one body step at different x (their phases differ)
+        let pair = (10..<400).first {
+            HordeLook.body(id: $0) == .crawler && HordeLook.body(id: $0 + 1) == .crawler
+        } ?? 10
+        let stepsAt = { (id: Int) in
+            Set((0..<48).filter {
+                HordeLook.step(id: id, x: 560 + Double($0) * 0.25) != HordeLook.step(id: id, x: 560 + Double($0 - 1) * 0.25)
+            })
+        }
+        XCTAssertNotEqual(HordeLook.phase(id: pair), HordeLook.phase(id: pair + 1), "neighbours \(pair) and \(pair + 1)")
+        XCTAssertTrue(stepsAt(pair).isDisjoint(with: stepsAt(pair + 1)), "neighbours step at different x")
+        let attachment = XCTAttachment(string: notes.joined(separator: "\n"))
+        attachment.name = "horde-step-locked-walk"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     func testALowerGroundLineIsDrawnInFront() {
@@ -980,8 +1098,10 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(lights.first?.kind, .torch, "the giant's heart keeps its place")
         for c in s.creatures.prefix(2) {
             let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: EntityFrames.creatureFrame(c, time: 0.2))
-            XCTAssertTrue(cold.contains { $0.x == c.x + eye.dx && $0.y == eye.dy + HordeLook.stand(id: c.id) },
-                          "at the socket of \(c.id), where it is drawn")
+            // (b3-horde step 9: where its step-locked body is drawn)
+            XCTAssertTrue(cold.contains {
+                $0.x == HordeLook.drawnX(c, in: s) + eye.dx && $0.y == eye.dy + HordeLook.stand(id: c.id)
+            }, "at the socket of \(c.id), where it is drawn")
         }
         XCTAssertTrue(cold.allSatisfy { !$0.kind.affectsBattle && $0.color.x < $0.color.z }, "render only, and cold")
         var crowd = s
@@ -1736,7 +1856,8 @@ final class EntityFramesTests: XCTestCase {
                     let frame = c.action == .walking ? HordeLook.walkFrame(id: c.id, x: c.x)
                         : HordeLook.stillFrame(id: c.id)
                     let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: frame)
-                    expected.append((x: c.x + eye.dx, y: c.y + HordeLook.stand(id: c.id) + eye.dy))
+                    // (b3-horde step 9: a walking one's where its step-locked body is drawn)
+                    expected.append((x: HordeLook.drawnX(c, in: s) + eye.dx, y: c.y + HordeLook.stand(id: c.id) + eye.dy))
                 }
             }
             let cold = EntityFrames.creatureLights(s, time: time, reduceMotion: true)

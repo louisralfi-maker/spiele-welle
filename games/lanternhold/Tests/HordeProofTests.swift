@@ -242,7 +242,9 @@ final class HordeProofTests: XCTestCase {
                 let x = 400 + walk * HordeProof.pace(id: c.id) * (time - c.born) - c.behind
                 let line = Int(-HordeProof.ground(id: c.id))
                 return Drawn(id: c.id, sprite: HordeLook.sprite(HordeLook.body(id: c.id)),
-                             frame: HordeLook.walkFrame(id: c.id, x: x), column: Int(x.rounded()) - 7,
+                             frame: HordeLook.walkFrame(id: c.id, x: x),
+                             // (b3-horde step 9: where the step-locked body is drawn)
+                             column: Int(HordeLook.steppedX(id: c.id, x: x)) - 7,
                              row: line + (HordeLook.stand(id: c.id) < 0 ? 1 : 0), line: line, x: x)
             }
             drawn.sort { ($0.line, $0.x, $0.id) < ($1.line, $1.x, $1.id) }
