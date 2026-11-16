@@ -747,8 +747,11 @@ extension GameModel {
         guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase, lanternMoment == nil else {
             return []
         }
-        var marked = TouchRules.marked(touch.things, lordX: lordX, viewLeft: framing.viewLeft,
-                                       viewRight: framing.viewRight)
+        // Step 5 (P4): at a plot with several offers the builder's models replace the site's mark, its pool, its rim and
+        // its footing; the plot takes no mark slot either (the review: it could push a neighbour's mark out).
+        let modelled = Set(touch.models.map { "touch-plot-\($0.plot)" })
+        var marked = TouchRules.marked(touch.things.filter { !modelled.contains($0.id) }, lordX: lordX,
+                                       viewLeft: framing.viewLeft, viewRight: framing.viewRight)
         // Stage-3-interface (stage-2 critic look 2, high 5): by day three at most, buildings' marks 120 px apart.
         let night = Double(AmbientRamp.sample(at: driver?.state.hour ?? 12, look: args.look).torchStrength)
         marked = TouchRules.thinned(marked, night: night)
@@ -757,9 +760,7 @@ extension GameModel {
            TouchRules.clearOfEdges(thing.markX, viewLeft: framing.viewLeft, viewRight: framing.viewRight) {
             marked = TouchRules.withErrand(marked, thing)
         }
-        // Step 5 (P4): at a plot with several offers the builder's models replace the site's mark, its pool, its rim and
-        // its footing.
-        let modelled = Set(touch.models.map { "touch-plot-\($0.plot)" })
+        // The errand's thing may be a modelled plot: still no mark there.
         marked.removeAll { modelled.contains($0.id) }
         var marks = TouchMarks.marks(marked, pressed: touch.pressed ?? heldMark(marked))
         // High 2: a slip that names a thing takes its mark's place (the errand's slip; inside, the horn's at the

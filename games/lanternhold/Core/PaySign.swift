@@ -111,16 +111,16 @@ struct PayModelRow: Sendable, Equatable {
     }
 
     /// The glint's step on model `index` of `plot`'s row at the clock's second `time` (nil: no glint now): it passes
-    /// in `glintSteps` steps once every `glintEvery` seconds, each model in its own phase; under Reduce Motion it does
-    /// not travel (one still step for the same moment).
+    /// in `glintSteps` steps once every `glintEvery` seconds, each model in its own phase; none under Reduce Motion (a
+    /// still step every 4 s would still blink: the review of step 5).
     static func glint(time: Double, plot: Int, index: Int, reduceMotion: Bool) -> Int? {
-        guard time.isFinite else { return nil }
+        guard time.isFinite, !reduceMotion else { return nil }
         let phase = Double(plot) * 0.7 + Double(index) * glintEvery / 2
         var cycle = (time + phase).truncatingRemainder(dividingBy: glintEvery)
         if cycle < 0 { cycle += glintEvery }
         let span = glintStepSeconds * Double(glintSteps)
         guard cycle < span else { return nil }
-        return reduceMotion ? glintSteps / 2 : min(glintSteps - 1, Int(cycle / glintStepSeconds))
+        return min(glintSteps - 1, Int(cycle / glintStepSeconds))
     }
 
     /// The frames of `paySign`: the trestle, each model, its warm rim, and its glint's steps.

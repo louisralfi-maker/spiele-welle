@@ -260,7 +260,7 @@ final class PaySignTests: XCTestCase {
     }
 
     /// P4: the arrival hop (each model 2 px for 0.15 s, 0.12 s after the one before; none under Reduce Motion) and the
-    /// glint (about every 4 s, each model in its own phase; it does not travel under Reduce Motion).
+    /// glint (about every 4 s, each model in its own phase; none under Reduce Motion).
     func testTheHopAndTheGlint() {
         XCTAssertEqual(PayModelRow.hop(age: 0, index: 0, reduceMotion: false), 0)
         XCTAssertEqual(PayModelRow.hop(age: 0.075, index: 0, reduceMotion: false), 2, "the first at its top")
@@ -286,8 +286,7 @@ final class PaySignTests: XCTestCase {
         let second = (0..<400).first { PayModelRow.glint(time: Double($0) / 100, plot: 4, index: 1, reduceMotion: false) != nil }
         XCTAssertNotEqual(first, second, "out of phase")
         let still = (0..<800).compactMap { PayModelRow.glint(time: Double($0) / 100, plot: 4, index: 0, reduceMotion: true) }
-        XCTAssertFalse(still.isEmpty)
-        XCTAssertEqual(Set(still).count, 1, "Reduce Motion: a still glint, no travel")
+        XCTAssertTrue(still.isEmpty, "Reduce Motion: no glint (a still one would blink)")
     }
 
     // MARK: - Through the game
