@@ -195,6 +195,14 @@ extension SceneLayout {
         let keep = castleKeepSprite(stage)
         list.append((.near, Entry(sprite: keep, x: castleKeepX, y: 0, z: 5, region: .castle,
                                   emitters: castleKeepEmitters(stage), movesWith: .mistBand)))
+        // Build 3, POLISH pass 1 (lane 3): its flags fly from its poles in the wind (`castleKeepFlags`, `WindLook`).
+        for flag in castleKeepFlags(stage, keepX: castleKeepX) {
+            list.append((.near, flag))
+        }
+        // Step 3 (lane 3, part B): the weather vane on its east tower (`castleKeepVaneEntry`, `WindLook`).
+        if let vane = castleKeepVaneEntry(stage, keepX: castleKeepX) {
+            list.append((.near, vane))
+        }
         // Fix round 1 (blocker 1: "no mist at its foot"): a feathered bank of mist on the mistBand plane, its billows
         // standing over the curtain's crenels at dawn, dusk and night.
         // On fog A (in front of the near plane's picture, behind the world's), so it takes the hour's fog colour and
@@ -220,7 +228,10 @@ extension SceneLayout {
         }
         if built >= 3 {
             for x in [1500.0, 1906, 2084] {
-                list.append((.world, Entry(sprite: .castleBanner, x: x, y: 28, z: -4)))
+                // build 3 (lane 3): the sprite has 4 px of room either side for its foot to swing in the wind; step 3:
+                // its dusk rim and gold mark (`castleBannerRimEmitter`)
+                list.append((.world, Entry(sprite: .castleBanner, x: x - castleBannerSwing, y: 28, z: -4,
+                                           emitters: [castleBannerRimEmitter])))
             }
         }
 
@@ -296,6 +307,10 @@ extension SceneLayout {
         }
         list.append((.world, Entry(sprite: castlePosternSprite(stage), x: post, y: 0, z: 0,
                                    emitters: posternEmitters, lights: posternLights)))
+        // Build 3 step 2 (lane 3, the critic's M6): the tier-3 postern's flag flies in the wind from its painted pole.
+        if castlePosternSprite(stage) == .posternT3 {
+            list.append((.world, castlePosternFlag))
+        }
         // World-3 fix round 2 (the critic's high 4): the far view at night over the painted day's view.
         list.append((.world, Entry(sprite: .posternNightView, x: post + posternNightViewAt.dx,
                                    y: posternNightViewAt.dy, z: 1)))

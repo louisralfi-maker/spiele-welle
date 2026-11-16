@@ -438,7 +438,7 @@ final class PolishTests: XCTestCase {
         XCTAssertEqual(flame.flickerPace, 1)
     }
 
-    func testTheRainFallsDarkByDay() {
+    func testTheRainFallsPaleByDay() {
         func air(_ intensity: Float) -> AmbientSample {
             var sample = AmbientRamp.sample(at: 12, look: .two)
             sample.ambientIntensity = intensity
@@ -449,7 +449,7 @@ final class PolishTests: XCTestCase {
             XCTAssertEqual(FrameBuilder.rainShade(air(intensity)), 0)
             XCTAssertEqual(FrameBuilder.rainTint(alpha: 0.3, ambient: air(intensity)), SIMD4<Float>(1, 1, 1, 0.3))
         }
-        // By day it is slate, a little denser, and never a ledge.
+        // Build 3 step 3 (the director's call 1): by day it is a cool pale grey, a little denser, and never a ledge.
         for intensity: Float in [0.6, 0.72, 0.92] {
             XCTAssertEqual(FrameBuilder.rainShade(air(intensity)), 1)
             let tint = FrameBuilder.rainTint(alpha: 0.3, ambient: air(intensity))
@@ -476,7 +476,18 @@ final class PolishTests: XCTestCase {
         let night = streaks(GameFrameSupport.demoNight(hour: 23.2))
         XCTAssertFalse(noon.isEmpty)
         XCTAssertEqual(noon.count, night.count, "as much rain")
-        XCTAssertTrue(noon.allSatisfy { $0.tint.x < 0.5 && $0.tint.z > $0.tint.x && $0.tint.w < 0.5 }, "slate by day")
+        XCTAssertTrue(noon.allSatisfy { $0.tint.x > 1 && $0.tint.z > $0.tint.x }, "pale and cool by day")
+        // Build 3 step 4 (the wind critic's M1): no streak on the ground is a ledge; in the sky band, above the treeline,
+        // the lane's streaks fall at `rainSkyDayAlpha` by day.
+        let treeline = Float(frame(GameFrameSupport.demoDay(hour: 12), focus: 2900).groundRow)
+            - Float(FrameBuilder.rainSkyRows)
+        XCTAssertTrue(noon.filter { $0.sprite == .rainStreak }.allSatisfy {
+            $0.tint.w < 0.5 || ($0.rect.y + $0.rect.w < treeline && $0.tint.w <= FrameBuilder.rainSkyDayAlpha + 1e-5)
+        }, "no streak is a ledge")
+        XCTAssertTrue(noon.contains { $0.sprite == .rainStreak && $0.tint.w > 0.5 }, "the sky band's water reads")
+        XCTAssertTrue(noon.filter { $0.sprite == .rainSplash }.allSatisfy {
+            $0.tint.w <= FrameBuilder.rainHeavySplashAlpha
+        }, "a heavy rain's splash shows")
         XCTAssertTrue(night.allSatisfy { $0.tint.x == 1 && $0.tint.y == 1 && $0.tint.z == 1 }, "pale by night")
     }
 

@@ -38,7 +38,7 @@ PLANTS="d2FgFerns d2FgMeadow d2FgReeds d2BushA d2BushB d2TreeBelt d2FirBeltFar l
 FOG="d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC bankEnd darknessBankGlow cloudDeck"
 ROCK="throatStepA throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftShaft gateRockL gateRockR cleftWater laneCobbleEnd"
 # World-2 (14.11.2026): one castle, exteriors only (tools/keepart.py); the gatehouse's lane join (tools/lanejoin.py)
-CASTLE="keepT1 keepT2 keepT3 keepT2Build keepT3Build curtainA curtainB curtainC curtainStair curtainTower curtainHoard castleBanner forebuilding hallDoorGlow hallDoorWedge chapelTower bakehouse bakeHatchGlow posternT1 posternT2 posternT3 gateArchFg laneScreeCobble keepMist keepPaneHalo keepFireGlow smokePuff posternFarGlow keepRimT1 keepRimT2 keepRimT3 keepRimT2Build keepRimT3Build"
+CASTLE="keepT1 keepT2 keepT3 keepT2Build keepT3Build curtainA curtainB curtainC curtainStair curtainTower curtainHoard forebuilding hallDoorGlow hallDoorWedge chapelTower bakehouse bakeHatchGlow posternT1 posternT2 posternT3 gateArchFg laneScreeCobble keepMist keepPaneHalo keepFireGlow smokePuff posternFarGlow keepRimT1 keepRimT2 keepRimT3 keepRimT2Build keepRimT3Build"
 # World-3 (15.11.2026): the whole-world pass (tools/w3art.py, ART-look2.md section 26). Its passes over existing sprites
 # (the beacon ruin's crown, the warden statue's bowl, the gatehouse's crenels) read their untouched sources from
 # tools/w3src, so they run again without stacking; the chapel's bell and the tier-3 postern are keepart's (castle list).
@@ -53,6 +53,14 @@ W3F2="throatButtress beaconTower beaconRuinRim beaconBaseRim beaconTowerRim grea
 # World-3, fix round 3 (15.11.2026): the critic's look 3 (tools/w3f3art.py). Its passes start from fix round 2's
 # painting (tools/w3f2art.py and its sources), so this case comes first.
 W3F3="beaconTower beaconTowerRim beaconRuinRim beaconBaseRim greatBeaconRim gateRockL gateRockR oldWall1 castleFront3 castleFront3Build bakehouse"
+# Build 3, POLISH pass 1 (docs/POLISH.md 2; lane 3): what the wind moves. The windmill at the valley's end and its
+# sails (tools/worldart.py mill: windmillTower writes both); the keep's flag (tools/bannerart.py wind). The keep's
+# sprites and rims (keepfix.py, CASTLE above) hold only the flags' poles since. The curtain's banner (tier 3) in seven
+# frames of its foot swinging (bannerart.py from keepart.py's painting; it left CASTLE). Step 2: the flag's dusk rim,
+# the ash flake of the two rains (tools/weatherart.py).
+# Step 3: the banner's dusk rim and gold mark (castleBannerRim).
+# Step 3, part B: the weather vane on the keep's east tower and the gust's leaves and dust (tools/weatherart.py).
+WIND="windmillTower keepFlag keepFlagRim castleBanner castleBannerRim ashFlake weatherVane gustLeaf"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -80,6 +88,18 @@ cliff() { # name old-sprite box [tuft boxes]: the painting's granite in an old c
 
 build() { # name: one sprite (or one group of small ones)
     case $1 in
+    windmillTower|windmillSails)   # build 3, POLISH pass 1: the windmill and its sails' strip
+        wa mill $A ;;
+    ashFlake)   # build 3, POLISH pass 1 step 2: the ash west of the outermost wall (three sizes, a tumble)
+        python3 -I -B games/lanternhold/tools/weatherart.py ash --out $A ;;
+    weatherVane)   # step 3, part B: the vane (five frames)
+        python3 -I -B games/lanternhold/tools/weatherart.py vane --out $A ;;
+    gustLeaf)   # step 3, part B: three leaves by four tumbles, three puffs of dust
+        python3 -I -B games/lanternhold/tools/weatherart.py gust --out $A ;;
+    keepFlag|keepFlagRim|castleBanner|castleBannerRim)   # build 3, POLISH pass 1: the keep's flag (step 2: ten
+                                         # frames) and its dusk rim (twenty), the curtain's banner and its rim (step 3:
+                                         # fifteen poses each)
+        python3 -I -B games/lanternhold/tools/bannerart.py wind $1 --out $A ;;
     beaconTower|beaconTowerRim|beaconRuinRim|beaconBaseRim|greatBeaconRim|gateRockL|gateRockR|oldWall1|castleFront3|castleFront3Build|bakehouse)
         # world-3 fix round 3 (15.11.2026): the critic's look 3 (tools/w3f3art.py)
         python3 -I -B games/lanternhold/tools/w3f3art.py build $1 --out $A ;;
@@ -103,7 +123,7 @@ build() { # name: one sprite (or one group of small ones)
     castleTiers) # the gatehouse's tier 3 and its scaffold (the art pass; castleart.py also wrote the keep's copies and
                  # the far castles, retired by world-2 into tools/retired-art)
         python3 -I -B $CA tiers $A ;;
-    curtainA|curtainC|curtainStair|curtainTower|curtainHoard|castleBanner|chapelTower|bakeHatchGlow)
+    curtainA|curtainC|curtainStair|curtainTower|curtainHoard|chapelTower|bakeHatchGlow)
         # world-2 (14.11.2026): one castle, exteriors only (tools/keepart.py, ART-look2.md section 23)
         python3 -I -B games/lanternhold/tools/keepart.py build $1 --out $A ;;
     keepT1|keepT2|keepT3|keepT2Build|keepT3Build|keepRimT1|keepRimT2|keepRimT3|keepRimT2Build|keepRimT3Build|keepMist|keepPaneHalo|keepFireGlow|forebuilding|hallDoorGlow|hallDoorWedge|smokePuff|curtainB|posternT1|posternT2|posternT3|posternFarGlow|gateArchFg)
@@ -162,6 +182,6 @@ build() { # name: one sprite (or one group of small ones)
     esac
 }
 
-ALL="weltmauer castleTiers gorgeRock oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor bastionAnchor moorRuin gloomFogBack gloomFogMid gloomFogFront gloomWisp gloomFogEyes $ROCK shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants $FOG $CASTLE $W3 $W3F1 $W3F2"
+ALL="weltmauer castleTiers gorgeRock oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor bastionAnchor moorRuin gloomFogBack gloomFogMid gloomFogFront gloomWisp gloomFogEyes $ROCK shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants $FOG $CASTLE $W3 $W3F1 $W3F2 $WIND"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do cool; build "$name"; done

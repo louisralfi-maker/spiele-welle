@@ -53,6 +53,7 @@ extension SceneLayout {
     /// (`look2CastleExteriors`).
     static let look2: [(plane: Plane, entry: Entry)] = look2World + look2Depth
         + look2WorldThree   // world-3: the town's back row, the river end's skiff and lantern, the valley's verge
+        + look2Wind         // build 3, POLISH pass 1 (lane 3): the windmill at the valley's end and its sails
 
     private static let look2World: [(plane: Plane, entry: Entry)] = [
         // The far plane: the wall (888 x 190, its ridge 135 to 173 px above its foot). World rebuild (step world-1,

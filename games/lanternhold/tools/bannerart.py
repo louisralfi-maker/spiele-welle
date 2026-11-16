@@ -13,10 +13,28 @@ do not have.
   bannerart.py build <id> [--out DIR]     writes DIR/<id>.png (default games/lanternhold/Resources/Art)
   bannerart.py list                       the ids, for build-art-court.sh
   bannerart.py place                      the five places in hallInterior (sprite left, top), for SPRITES.md
+  bannerart.py wind <id> [--out DIR]      build 3, POLISH pass 1 (docs/POLISH.md 2; lane 3): what flies in the wind,
+                                          as frames side by side (build-art-world.sh):
+      keepFlag      16x21, 10 frames: the realm's flag on the keep's poles (teal, the guardian house's gold lantern
+                    near the hoist, a swallowtail): limp (0), stirring (1), a flying cycle (2-5) and a snapping cycle
+                    (6-9) in which a fold runs from the hoist to the fly (`Weather.flagFrame`; step 2, the critic's
+                    H1 and H2). Column 0 is the cloth's hoist, one pixel right of the pole; row 0 one row under the
+                    pole's top, the cloth from row 2.
+      keepFlagRim   16x21, 20 frames, emissive: the keep's dusk rim on the flag (0-9 streaming east, 10-19 for the
+                    mirrored flag streaming west; step 2, the critic's M7).
+      castleBanner  20x30, 15 frames: the realm's banner hung from the curtain's parapet at tier 3 (keepart.py's
+                    painting, 12 px, at cols 4 to 15): hanging still (0); toward the valley its foot swung out 1 to 4
+                    px (1-4, the foot leading) and swinging back 3, 2, 1 (5-7, the middle leading: the belly moves up
+                    the cloth); the same toward the shadow land (8-14). The bar stays, the swing grows down the cloth
+                    as a curve with in-between pixels, a lit edge down its left (step 2, the critic's M4; step 3, M2).
+                    Drawn both ways, so its light stays on its left (`WindLook`).
+      castleBannerRim 20x30, 15 frames, emissive: the banner's dusk rim down its lit edge and along the hem, the
+                    house's lantern in gold (step 3, the critic's M4).
 
 Pure python 3 (pixelart.py's PNG and palette code), deterministic, well under a second per banner.
 """
 import argparse
+import math
 import os
 import sys
 
@@ -149,6 +167,273 @@ def build(bid, pal):
     return img
 
 
+# ------------------------------------------------------------------------------------------------ in the wind
+# Build 3, POLISH pass 1: the keep's flag. Step 2 (the critic's H1 and H2): limp hangs straight down by the pole in
+# folds, stirring lifts it to about 30 degrees with a belly, and flying and snapping are cycles of four frames in which a
+# fold and its lit ridge run from the hoist to the fly. A flag seen side on is drawn as columns: each column of cloth
+# from its top row down the hoist's height, its folds vertical bands lit by the wave's slope.
+FLAG_W, FLAG_H = 16, 21
+FLAG_TOP = 2          # the hoist's top row: the pole's tip and its gold point stand above the cloth
+FLAG_HOIST = 7
+FLAG_FRAMES = 10      # 0 limp, 1 stirring, 2-5 flying, 6-9 snapping (`Weather.flagFrame`)
+FLAG_RAMP = ["roofDeep", "banner", "roofLight"]
+FLAG_LEGEND = {"L": "roofLight", "B": "banner", "D": "roofDeep", "G": "gold", "g": "straw"}
+# limp: the cloth hangs down beside the pole, folded to six columns and 13 rows (shorter than the fly: it is folded),
+# a lit ridge and a dark crease running down it, the swallowtail's two points at its foot, the lantern a gold glint
+# half in the ridge's fold, the hoist's corner tight to the pole
+FLAG_LIMP = [
+    "LLLBB.",
+    "BLBBD.",
+    "BLBDBD",
+    "BLBDBD",
+    "GgBDBD",
+    "ggBDBD",
+    "BLBDBD",
+    "BLBDBD",
+    "BLBDDD",
+    "BLBDBD",
+    "BLD.BD",
+    "BL...D",
+    "B.....",
+]
+FLAG_LANTERN = [".g.", "ggg", "gfg", "ggg"]  # the guardian house's lantern: its ring, its hood, the flame, its foot
+
+
+def _flag_columns(pal, length, top, height, slope, notch):
+    """A flag as columns: column x from row top(x), height(x) rows, no column a step of more than a pixel from its
+    neighbour; lit by slope(x) (< 0: the cloth turns up toward the light, > 0: it turns away), the hem along the top
+    lit and the lower edge in shade; notch(x) rows cut out of the middle of the fly (the swallowtail); the lantern
+    near the hoist rides on the cloth as one."""
+    c = lambda nm: pal.rgb[pal.index(nm)] + (255,)
+    img = Image(FLAG_W, FLAG_H)
+    last = None
+    for x in range(length):
+        t, h = top(x), height(x)
+        if last is not None:
+            t = max(last[0] - 1, min(last[0] + 1, t))
+            b = max(last[1] - 1, min(last[1] + 1, t + h - 1))
+            h = b - t + 1
+        last = (t, t + h - 1)
+        s = slope(x)
+        val = 2 if s < -0.3 else 0 if s > 0.3 else 1
+        n = notch(x)
+        mid = t + (h - 1) / 2.0
+        for r in range(h):
+            y = t + r
+            if n > 0 and abs(y - mid) < n / 2.0:
+                continue
+            v = min(2, val + 1) if r == 0 else max(0, val - 1) if r == h - 1 else val
+            if 0 <= y < FLAG_H:
+                img.set(x, y, c(FLAG_RAMP[v]))
+    ly = top(4) + 1
+    for j, row in enumerate(FLAG_LANTERN):
+        for i, ch in enumerate(row):
+            if ch != ".":
+                img.set(3 + i, ly + j, c("gold" if ch == "g" else "fireGold"))
+    return img
+
+
+def _flag_limp(pal):
+    c = lambda nm: pal.rgb[pal.index(nm)] + (255,)
+    img = Image(FLAG_W, FLAG_H)
+    for y, row in enumerate(FLAG_LIMP):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                img.set(x, FLAG_TOP + y, c(FLAG_LEGEND[ch]))
+    return img
+
+
+def _flag_stirring(pal):
+    """Lifted to about 30 degrees below level, 11 columns long. Step 3 (the critic's low): a body of whole cloth (never
+    thinner than five rows, so it reads as cloth and not as a diagonal stick), its lower edge sagging a pixel under
+    the middle (a belly of air) and a small swallowtail."""
+    length = 11
+    th = math.tan(math.radians(30))
+    dy = lambda x: th * x - 0.8 * math.sin(math.pi * x / (length - 1))
+    belly = lambda x: 1 if 3 <= x <= 7 else 0
+    return _flag_columns(pal, length, lambda x: FLAG_TOP + int(round(dy(x))),
+                         lambda x: FLAG_HOIST - 1 - (1 if x > 8 else 0) + belly(x),
+                         lambda x: -0.5 if x in (2, 3, 4) else 0.5 if x in (8, 9) else 0.0,
+                         lambda x: {10: 1}.get(x, 0))
+
+
+def _flag_wave(pal, phase, k, a0, a1, sag, notch0, notch_swing, taper, folds_thin, belly=0):
+    """One frame of a travelling wave (phase steps a quarter wave a frame, so the fold runs from hoist to fly): its
+    amplitude grows from a0 at the hoist to a1 at the fly, the fly sags by `sag`, the swallowtail's points open and
+    close with the phase; `belly` rows more cloth hang under the middle third (step 3, the critic's M1: a breeze's flag
+    lifts and sags, a storm's stands straight out)."""
+    length = 14
+    amp = lambda x: a0 + (a1 - a0) * x / (length - 1)
+    dy = lambda x: amp(x) * math.sin(k * x - phase) + sag * (x / (length - 1)) ** 2
+    turn = lambda x: amp(x) * k * math.cos(k * x - phase)
+
+    def height(x):
+        thin = 1 if folds_thin and abs(turn(x)) > 0.55 else 0     # a soft fold turns edge on and looks narrower
+        bulge = belly if length // 3 <= x < 2 * length // 3 + 1 else 0
+        return FLAG_HOIST - (1 if x >= length - taper else 0) - thin + bulge
+
+    def notch(x):
+        depth = notch0 + notch_swing * math.sin(phase)
+        return max(0, int(round(2 * (x - (length - 1 - depth)) + 1))) if x > length - 1 - depth else 0
+    return _flag_columns(pal, length, lambda x: FLAG_TOP + int(round(dy(x))), height,
+                         lambda x: turn(x) + 2 * sag * x / (length - 1) ** 2, notch)
+
+
+def flag_frame(pal, k):
+    if k == 0:
+        return _flag_limp(pal)
+    if k == 1:
+        return _flag_stirring(pal)
+    if k < 6:   # flying: a long soft wave, the fly sagging two to three pixels under the hoist, a belly under its middle
+        return _flag_wave(pal, (k - 2) * math.pi / 2, 2 * math.pi / 10, 0.15, 0.8, 2.6, 1.6, 0.6, 3, True, belly=1)
+    # snapping: taut and level, a short wave whipping the fly up to two pixels, the points crossing
+    return _flag_wave(pal, (k - 6) * math.pi / 2 + 0.4, 2 * math.pi / 8, 0.1, 1.5, 0.0, 1.4, 0.8, 2, False)
+
+
+def flag_rim(frames, west, pal=None):
+    """keepFlagRim: the keep's dusk rim on the flag's cloth (`SceneLayout.castleKeepRims`' rule, keepfix.py
+    `keep_rim`). Step 3 (the critic's M4): the rim runs along the cloth's lit edge, its whole top hem and its hoist
+    column (a px inside the hem at half), and the side that faces the low sun in the west faintly; the house's lantern
+    keeps its gold (its pixels lit in gold, one step over the cloth, warm). Frames 0-9 for a flag streaming east, 10-19
+    for one mirrored to stream west (its far side faces the sun; the hem, the hoist and the lantern stay)."""
+    pal = pal or Palette(DEFAULT_PALETTE, True)
+    marks = {pal.rgb[pal.index(nm)] + (255,) for nm in ("gold", "fireGold")}
+    out = []
+    for f in frames:
+        im = Image(FLAG_W, FLAG_H)
+        solid = lambda x, y: 0 <= x < FLAG_W and 0 <= y < FLAG_H and f.get(x, y)[3] > 0
+        hoist = min((x for x in range(FLAG_W) for y in range(FLAG_H) if solid(x, y)), default=0)
+        side = 1 if west else -1
+        for y in range(FLAG_H):
+            for x in range(FLAG_W):
+                if not solid(x, y):
+                    continue
+                if f.get(x, y) in marks:
+                    im.set(x, y, FLAG_GOLD + (230,))
+                    continue
+                a = 0.0
+                if not solid(x, y - 1):
+                    a = 0.66                       # the top hem
+                elif not solid(x, y - 2):
+                    a = 0.3
+                if x == hoist:
+                    a = max(a, 0.55)               # the hoist column
+                if not solid(x + side, y):
+                    a = max(a, 0.28)               # the side toward the sun
+                if a > 0:
+                    im.set(x, y, FLAG_RIM + (int(a * 255),))
+        out.append(im)
+    return out
+
+
+FLAG_GOLD = (224, 174, 72)  # gold
+FLAG_RIM = (255, 138, 42)   # fireOrange
+
+BANNER_SWING = 4
+BANNER_W = 12 + 2 * BANNER_SWING
+# Step 3 (the critic's M2): the banner's poses, as (foot's swing in px, the curve's exponent): hanging, swung out 1 to 4
+# (the foot leads, the belly low: exponent 1.6), swinging back 3, 2, 1 (the middle leads, the belly moves up the cloth:
+# exponent 0.8); toward the valley, then the same toward the shadow land (`Weather.bannerSwing`, `WindLook`).
+BANNER_POSES = [(0, 1.6)] + [(s, 1.6) for s in (1, 2, 3, 4)] + [(s, 0.8) for s in (3, 2, 1)]
+BANNER_POSES = BANNER_POSES + [(-s, e) for s, e in BANNER_POSES[1:]]
+BANNER_CHARGE = (12, 15)   # the rows of keepart's lantern on the banner: they move as one, so it never breaks
+
+
+def banner_frame(base, swing, pal, exponent=1.6):
+    """keepart's hanging banner with its foot swung `swing` px (negative: to the left) along a curve: row r moves by
+    swing x (r / last row) ^ 1.6; where the curve is between two whole pixels the row is drawn at the nearer one and
+    the step gets an in-between pixel (the leading edge stretched a pixel before the step, the trailing edge held a
+    pixel after it), so the outline bends instead of stepping in blocks. The lantern's rows move as one. Step 2 (the
+    critic's M4): a 1 px lit edge (roofLight) down the cloth's light side, so it reads against the curtain at dusk."""
+    lit = pal.rgb[pal.index("roofLight")] + (255,)
+    img = Image(BANNER_W, base.h)
+    last = float(base.h - 1)
+    sign = 1 if swing > 0 else -1
+    def curve(r):
+        f = abs(swing) * (r / last) ** exponent
+        whole = int(math.floor(f))
+        return sign * (whole + (1 if f - whole >= 0.5 else 0)), f - whole
+    charge = curve((BANNER_CHARGE[0] + BANNER_CHARGE[1]) / 2.0)[0]
+    lantern = {pal.rgb[pal.index(nm)] + (255,) for nm in ("gold", "fireGold", "cloth2")}
+    for yy in range(base.h):
+        shift, frac = curve(yy)
+        xs = [xx for xx in range(base.w) if base.get(xx, yy)[3]]
+        if not xs:
+            continue
+        marks = []
+        for xx in xs:
+            p = base.get(xx, yy)
+            if BANNER_CHARGE[0] <= yy <= BANNER_CHARGE[1] and p in lantern:
+                marks.append((xx, p))
+                p = base.get(xs[-4], yy)                      # the field under the lantern (right of it)
+            if yy >= 2 and xx == xs[0] and p != base.get(xx, 0):
+                p = lit                                   # the lit edge (never on the bar)
+            img.set(BANNER_SWING + xx + shift, yy, p)
+        for xx, p in marks:                               # the lantern's rows move as one, over the curved cloth
+            img.set(BANNER_SWING + xx + charge, yy, p)
+        if yy >= 2 and swing != 0 and 0.25 <= frac < 0.75:
+            lead, trail = (xs[-1], xs[0]) if sign > 0 else (xs[0], xs[-1])
+            if frac < 0.5:      # before the step: the leading edge reaches a pixel on
+                img.set(BANNER_SWING + lead + shift + sign, yy, base.get(lead, yy))
+            else:               # after it: the trailing edge stays a pixel behind
+                p = base.get(trail, yy)
+                img.set(BANNER_SWING + trail + shift - sign, yy, lit if sign > 0 else p)
+    return img
+
+
+def banner_rim(frames, pal):
+    """castleBannerRim (step 3, the critic's M4): the dusk rim on the curtain's banner, an emissive overlay of each
+    frame: fire orange down the cloth's lit edge (its roofLight column) and faintly along the hem under the bar; the
+    house's lantern in gold, so the mark stays gold at dusk instead of going flat grey. Step 4 (the wind critic's low:
+    "the rim stands 1 px proud of the cloth" below the mark): where a swing holds the trailing edge a pixel behind, the
+    lit edge is two pixels wide; the rim takes only the inner one, on the cloth, never the one outside it."""
+    lit = pal.rgb[pal.index("roofLight")] + (255,)
+    marks = {pal.rgb[pal.index(nm)] + (255,) for nm in ("gold", "fireGold")}
+    out = []
+    for f in frames:
+        im = Image(f.w, f.h)
+        for y in range(f.h):
+            for x in range(f.w):
+                p = f.get(x, y)
+                if not p[3]:
+                    continue
+                if p in marks:
+                    im.set(x, y, FLAG_GOLD + (230,))
+                elif p == lit and (x + 1 >= f.w or f.get(x + 1, y) != lit):
+                    im.set(x, y, FLAG_RIM + (int(0.62 * 255),))
+                elif y == 2:                           # the hem under the bar
+                    im.set(x, y, FLAG_RIM + (int(0.3 * 255),))
+        out.append(im)
+    return out
+
+
+def wind_frames(wid, pal):
+    if wid == "keepFlag":
+        return [flag_frame(pal, k) for k in range(FLAG_FRAMES)]
+    if wid == "keepFlagRim":
+        frames = [flag_frame(pal, k) for k in range(FLAG_FRAMES)]
+        return flag_rim(frames, False, pal) + flag_rim(frames, True, pal)
+    if wid in ("castleBanner", "castleBannerRim"):
+        import keepart  # the realm's banner as the castle paints it (keepart.py, world-2)
+        base = keepart.castle_banner()
+        frames = [banner_frame(base, s, pal, e) for s, e in BANNER_POSES]
+        return frames if wid == "castleBanner" else banner_rim(frames, pal)
+    raise SystemExit(f"unknown wind sprite {wid}")
+
+
+def wind_strip(wid, pal):
+    frames = wind_frames(wid, pal)
+    w, h = frames[0].w, frames[0].h
+    out = Image(w * len(frames), h)
+    for k, f in enumerate(frames):
+        for yy in range(h):
+            for xx in range(w):
+                p = f.get(xx, yy)
+                if p[3]:
+                    out.set(k * w + xx, yy, p)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -157,7 +442,17 @@ def main():
     b.add_argument("--out", default=os.path.join(HERE, "..", "Resources", "Art"))
     sub.add_parser("list")
     sub.add_parser("place")
+    w = sub.add_parser("wind")
+    w.add_argument("id")
+    w.add_argument("--out", default=os.path.join(HERE, "..", "Resources", "Art"))
     a = ap.parse_args()
+    if a.cmd == "wind":
+        pal = Palette(DEFAULT_PALETTE, True)
+        os.makedirs(a.out, exist_ok=True)
+        img = wind_strip(a.id, pal)
+        write_png(os.path.join(a.out, a.id + ".png"), img)
+        print(f"wrote {a.id}.png {img.w}x{img.h}")
+        return
     if a.cmd == "list":
         print(" ".join(BANNERS))
         return

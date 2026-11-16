@@ -413,8 +413,11 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(wet, frame(night, focus: 900, weather: storm()), "the same moment gives the same rain")
         XCTAssertEqual(wet.rain, 1)
         XCTAssertEqual(wet.wetness, 1)
+        // Build 3 step 2: the streaks are counted well east of the band at the outer wall (Realm.wallX[2] 640 and the
+        // 160 px west of it), where every one is water (RainLookTests has the band).
+        let east = frame(night, focus: 1000, weather: storm())
         for (depth, entry) in FrameBuilder.rainDepths.enumerated() {
-            let streaks = wet.layer(entry.plane).sprites.filter { $0.sprite == .rainStreak }
+            let streaks = east.layer(entry.plane).sprites.filter { $0.sprite == .rainStreak }
             XCTAssertEqual(streaks.count, entry.count, "depth \(depth)")
             XCTAssertTrue(streaks.allSatisfy { $0.frame == depth * 3 + 2 && !$0.flipped },
                           "a storm toward the valley slants the rain")
@@ -433,7 +436,7 @@ final class Look2FrameTests: XCTestCase {
         // Drizzle from the west: fewer streaks, mirrored.
         let west = Weather.sample(seed: night.seed, day: night.day, hour: night.hour, time: 1.5,
                                   override: WeatherOverride(mode: .clear, wind: -0.4, rain: 0.5))
-        let drizzle = frame(night, focus: 900, weather: west)
+        let drizzle = frame(night, focus: 1000, weather: west)
         XCTAssertEqual(count(drizzle, .rainStreak, .world),
                        FrameBuilder.rainCount(FrameBuilder.rainDepths[1].count, rain: 0.5))
         XCTAssertEqual(FrameBuilder.rainCount(70, rain: 0.5), 49, "by the root: half the rain is 0.7 of the streaks")
@@ -443,11 +446,19 @@ final class Look2FrameTests: XCTestCase {
             .allSatisfy { $0.frame == 4 && $0.flipped })
         XCTAssertEqual(FrameBuilder.rainSlant(.clear), 0)
 
-        // Reduce Motion: no streaks, no splashes, nothing sways; the wet sheen and the darker air stay.
+        // Reduce Motion: nothing sways; the wet sheen and the darker air stay. Build 3 step 2 (the two rains, lane 3):
+        // the rain's and the ash's forms stay where they stood; step 3: a third of them, fading in and out in place
+        // (RainLookTests).
         let still = frame(night, focus: 300, weather: storm(reduceMotion: true), reduceMotion: true)
+        let later = frame(night, focus: 300, time: 3.5, weather: storm(3.5, reduceMotion: true), reduceMotion: true)
         for plane in Plane.allCases {
-            XCTAssertEqual(count(still, .rainStreak, plane) + count(still, .rainSplash, plane), 0)
+            let held: Set<SpriteID> = [.rainStreak, .rainSplash, .ashFlake]
+            XCTAssertEqual(still.layer(plane).sprites.filter { held.contains($0.sprite) }.map(\.rect),
+                           later.layer(plane).sprites.filter { held.contains($0.sprite) }.map(\.rect),
+                           "\(plane): it stays in place")
         }
+        XCTAssertGreaterThan(Plane.allCases.map { count(still, .ashFlake, $0) }.reduce(0, +), 0,
+                             "beyond the outer wall it is ash")
         XCTAssertTrue(still.layer(.near).sprites.allSatisfy { $0.source == nil })
         XCTAssertEqual(still.wetness, 1)
         XCTAssertEqual(still.rain, 1)

@@ -67,6 +67,24 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Look 2's weather (docs/PORT-look2.md 3): the rain's streaks (nine frames: three depths by three slants) and
     // the splash on the lane (three frames), painted in code until the art lane brings them
     case rainStreak, rainSplash
+    // Build 3, POLISH pass 1 (docs/POLISH.md 2; lane 3): look 2's windmill at the valley's end and its sails, a prop of
+    // their own the wind turns (step 2: twelve frames, a quarter turn); the keep's flag (step 2: ten frames, limp,
+    // stirring, a flying and a snapping cycle; tools/bannerart.py)
+    case windmillTower, windmillSails, keepFlag
+    // build 3 step 2 (lane 3): the keep's dusk rim on the flag's cloth (20 frames: streaming east, then west); the ash
+    // that falls west of the outermost wall on a rain day (12 frames: three sizes by four steps of a tumble;
+    // tools/weatherart.py)
+    case keepFlagRim, ashFlake
+    // build 3 step 2 gate (lane 3, the critic's M1): a torch's and a brazier's flame bent by the wind, four frames each
+    // (top rows one pixel downwind, the strong bend, then the same toward the west), two pixels wider on each side
+    // than the flame; painted from the flame's own rows (`PlaceholderWeather`)
+    case flameBent, brazierFlameBent
+    // build 3 step 3 (lane 3, the critic's M4): the curtain banner's dusk rim and gold lantern, one frame per pose
+    case castleBannerRim
+    // build 3 step 3 (lane 3, part B): the weather vane on the keep's east tower (5 frames: side on, turned a third and
+    // two thirds, end on, a storm's shiver), the gust's leaves and dust (15 frames: three leaves by four tumbles, three
+    // puffs of dust; tools/weatherart.py)
+    case weatherVane, gustLeaf
     // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer (world-2: one castle, the
     // far castle in its slots, the patch and the slots' lights are gone)
     case weltmauer
@@ -331,6 +349,14 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bellGone: return PixelSize(width: 7, height: 8)
         case .rainStreak: return PixelSize(width: 7, height: 11)
         case .rainSplash: return PixelSize(width: 5, height: 3)
+        case .ashFlake: return PixelSize(width: 5, height: 5)
+        case .weatherVane: return PixelSize(width: 13, height: 11)
+        case .gustLeaf: return PixelSize(width: 6, height: 5)
+        case .flameBent: return PixelSize(width: 8, height: 5)
+        case .brazierFlameBent: return PixelSize(width: 12, height: 7)
+        case .windmillTower: return PixelSize(width: 26, height: 44)
+        case .windmillSails: return PixelSize(width: 47, height: 47)
+        case .keepFlag, .keepFlagRim: return PixelSize(width: 16, height: 21)
         case .weltmauer: return PixelSize(width: 888, height: 190)
         case .d2FirBeltFar: return PixelSize(width: 520, height: 40)
         case .shadowForest: return PixelSize(width: 224, height: 104)
@@ -409,14 +435,17 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .curtainStair: return PixelSize(width: 52, height: 66)
         case .curtainTower: return PixelSize(width: 44, height: 104)
         case .curtainHoard: return PixelSize(width: 64, height: 22)
-        case .castleBanner: return PixelSize(width: 12, height: 30)
+        // Build 3, POLISH pass 1 (lane 3): 18 wide (the painting's 12 and room for its foot to swing 3 either way).
+        case .castleBanner, .castleBannerRim: return PixelSize(width: 20, height: 30)
         case .forebuilding: return PixelSize(width: 120, height: 96)
         case .hallDoorGlow: return PixelSize(width: 20, height: 32)
         case .hallDoorWedge: return PixelSize(width: 60, height: 19)
         case .chapelTower: return PixelSize(width: 110, height: 132)
         case .bakehouse: return PixelSize(width: 100, height: 62)
         case .bakeHatchGlow: return PixelSize(width: 6, height: 6)
-        case .posternT1, .posternT2, .posternT3: return PixelSize(width: 176, height: 112)
+        case .posternT1, .posternT2: return PixelSize(width: 176, height: 112)
+        // Build 3 step 2 (lane 3): twelve rows taller for the pole its flag (`keepFlag`) flies from.
+        case .posternT3: return PixelSize(width: 176, height: 124)
         case .gateArchFg: return PixelSize(width: 16, height: 116)
         // World-2 fix round 1 (tools/keepfix.py).
         case .keepMist: return PixelSize(width: 320, height: 32)      // fix round 2: rises over the merlons
@@ -544,10 +573,19 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .cleftWater: return 12   // fix round 2: six frames per thread, the second thread's from frame 6
         case .forebuilding, .chapelTower: return 2   // world-2: the hall door closed and open; the bell, gone
         case .gateArchFg: return 2                   // world-2: unplaced since fix round 2 (build 3 may bring it back)
-        case .smokePuff: return 5                    // world-2 fix round 2: five sizes, 3 to 7 px
+        case .smokePuff: return 8                    // b3-wind (step 7): the keep's five, the town's three (2 to 4 px)
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9
+        case .windmillSails: return Weather.sailFrames
+        case .keepFlag: return Weather.flagFrames
+        case .keepFlagRim: return 2 * Weather.flagFrames
+        case .ashFlake: return 16   // build 3 step 3: three sizes by four tumbles, the ember's body (step 4: and its glass)
+        case .weatherVane: return Weather.vaneFrames
+        case .gustLeaf: return 15
+        case .flameBent, .brazierFlameBent: return 4
+        // build 3 step 3: hanging, out 1 to 4 and back 3 to 1 toward the valley, the same toward the west
+        case .castleBanner, .castleBannerRim: return Weather.bannerFrames
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
         // The hall stage (stage lane): the great fire's six frames, idle and pressed marks, eight plaster patches.
         case .hallFire: return 6
@@ -599,6 +637,9 @@ struct FrameOptions: Sendable, Equatable {
     /// Look 2: tonight's fog out of the Gloom (`GloomFog`, "Polish after round 2"); look 1 never reads it. None by
     /// default, so a frame built without the game's night is the frame it was.
     var gloom: GloomFog? = nil
+    /// b3-wind: build 3 step 6 (the director's call S5): false leaves the chimney smoke out of the frame, so a test can
+    /// render the backdrop behind each puff. The game never sets it.
+    var drawsSmoke = true
 
     /// The pixel scale these options give on a screen.
     func pixelScale(physicalWidth: Int, physicalHeight: Int) -> PixelScale {

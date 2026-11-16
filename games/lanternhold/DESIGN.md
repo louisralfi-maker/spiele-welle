@@ -4543,6 +4543,132 @@ The critic's look 2 (7.5/10, no blocker, five highs a player meets in the first 
   as a boy, but he is still younger than the lady and softer; portrait finesse for both goes to pass 4. The new
   barracks keys have English and German only.
 
+### Build 3, POLISH pass 1: the wind seen and the two rains (lane 3, 15. and 16.11.2026)
+
+docs/POLISH.md section 2. Everything here is look 2's picture: no rule, no saved field, no light added or taken.
+
+- **One value per prop, from the wind where it stands** (`Weather.force(at:)`, `blowsWest`; `WindLook.pose`): the
+  windmill's sails, the keep's and the postern's flags, the curtain's banners. Deterministic by x and time; Reduce
+  Motion reads the steady wind (`sample.mean`) and holds one frame.
+- **Flags** (`Weather.flagFrame`): limp under a force of 0.15, stirring to 0.3, flying to 0.7, snapping above.
+  Flying runs a cycle of four frames at 6 frames/s, snapping one at 12; each flag starts from its own phase
+  (`flagPhase`, salted so the keep's two poles are always a frame and a bit apart: never one pose, never changing
+  together), and a gust's arrival changes the cycle, not the phase. A calm flag stirs for half a second at its own
+  moment every 6 to 10 s while any air moves (`calmStir`); still air leaves it as drawn. Reduce Motion: limp,
+  stirring, the first flying or the first snapping frame. A west wind mirrors it to the pole's other side. At dusk
+  the keep's rim lights the cloth (`keepFlagRim`).
+- **Banners** (`Weather.bannerSwing`): hanging, a pixel at the calm's stir, a sway between 1 and 2 px in a breeze
+  (4 steps/s) and between 2 and 3 in a storm (8 steps/s), from their own phase.
+- **Sails** (`Weather.sailFrame`): twelve frames a quarter turn; 0.1, 0.18, 0.26 turns/s by the steady wind's step
+  (about 5 to 12.5 frames/s), a gust carries them ahead; still on a calm day and with Reduce Motion.
+- **Fires**: open fires lean and gutter as one value (`Weather.fireLean`: the pool moves 2 px downwind and 1 down and
+  dims 14 %), and the flame bends: its top rows drawn a px downwind from a lean of a third, the top row two from three
+  quarters (`FrameBuilder.flameBend`, `bentFlame`). Out of the wind: lanterns, hearths, windows, candles, the oven
+  behind the bakehouse's hatch and the forge (`FrameBuilder.windproof`, `enclosedFires`).
+- **The two rains** (`RainLook`, `FrameBuilder.rainStreaks`, `ashFlakes`, `rainSplashes`): east of the outermost
+  standing wall (the least x of a standing palisade, stone wall or bastion; the castle front's when none stands) the
+  rain is water, as before, now leaning by the wind where each streak falls (straight in a calm, the strong slant
+  where a gust has reached), with splashes on the lane and on the cottages' ridges (`rainRidges`). West of it ash
+  falls: `ashFlake` on the near plane (34 at full rain, 13 px/s, small), the lane's (24, 19 px/s, middling) and the
+  foreground (9, 28 px/s, big), drifting downwind by 30 px/s per unit of wind over a calm's 0.12 and swaying as it
+  tumbles; tinted dark by day and pale by night (`ashTint`, by `rainShade` like the rain), alpha under 0.5. Over
+  160 px west of the wall the water thins out and the ash thins in (`waterShare`, a smoothstep); a fallen or rebuilt
+  wall moves the band. The counts: water where it falls is the old rain's, ash replaces it on the shadow's side, so a
+  rain frame holds at most the old rain (208 streaks, 24 splashes, the steam) plus a splash or two on each roof in
+  view. The sky's grey, the wet sheen and the fires' warmth are as before: the rain is a plane sprite and never
+  greys a window, a torch or the lantern (emissives are drawn after it).
+- **Reduce Motion** (replaces the port's "no streaks, no splashes"): the rain's and the ash's forms stay, held still
+  at one moment, so the one still reads as rain and the other as ash; nothing sways. Step 3 replaces it: neither rain
+  hangs frozen; a third of the streaks, flakes and splashes stand where they are and each fades in and out in place
+  over 2 s (`rainPulseAlpha`).
+
+#### Step 3 (16.11.2026): the two rains read, the gust, the sounds, the vane
+
+- **Water light, ash dark** (the director's call 1): by day the water's streaks are a cool pale grey lighter than the
+  sky (`rainDayShade` 1.30, 1.36, 1.50 over the painted drop, the foreground's × `rainForegroundLift`, the far layer
+  at 0.7 alpha); the ash is warm soot (0.30, 0.27, 0.26) at 0.7 to 0.85 alpha, its own cap (`ashAlphaCap`).
+- **The flake** (`ashFlake`, 14 frames): hard pixel clumps, two tones, the tumble turning the clump; frames 12 and 13
+  the ember's point.
+- **At night** (call 2): each flake has a faint emissive copy (`ashNightShade × 0.35 × (1 − rainShade)`); the lane
+  depth's copies go after the bank's lane sheet, the near depth stays 24 px east of the bank (`ashBankFace`), the
+  foreground's sprite keeps 0.35 of itself at night so its copy shows. The lane's and the foreground's water streaks
+  near a light get a cool copy (`rainNightLift`, within 1.6 of the light's radius, from a torch strength of 0.5, at
+  most 40 a depth).
+- **Embers** (call 3): one flake in six (`isEmber`, by its index) starts as an orange point in the emissive pass and
+  dies to grey in the first third of its fall.
+- **Counts** (call 4): 60, 40 and 20 flakes at full rain (FrameBudgetTests run dry weather and stay as they were).
+- **Splash** (the critic's M5): in a heavy rain its two pale pixels fly up and out at 0.7 alpha, on the lane and the
+  ridges of the cottages, the big house and the tavern.
+- **Flags and banners** (M1, M2, M4, the lows): the breeze's flying cycle sags 2 to 3 px with a belly; the stirring
+  frame is whole cloth; banners have 15 poses (out 1 to 4, back 3 to 1, both ways) and a storm swings them out 1, 3,
+  4, back 3, 1 at 6 steps/s (`bannerSways`, `bannerFrame`); the dusk rim runs along the hem and hoist and the
+  house's lantern stays gold (`keepFlagRim`, `castleBannerRim`); each flag runs at 0.92 to 1.08 of the rate by its x
+  (`flagRate`), so two flags never march in step.
+- **Flames** (M3): every row sheared by its height (3, 2, 1 for a torch, 3, 2, 2, 1, 1 for a brazier at a whole
+  lean), the windward side tapered, the leeward tip stretched, from a lean of 0.25 (`flameBendFrom`).
+- **The gust** (`FrameBuilder.gustLeaves`, `gustLeaf`): leaves from the crowns of the trees on screen (3 in a breeze,
+  8 on a gusty day, 14 in a storm, each aloft while a gust is up where it flies; one in three an autumn straw) and the
+  lane's dust in the gusts, east of the outermost standing wall, none with Reduce Motion.
+- **The vane** (`weatherVane`, `Weather.vaneFrame`): on the keep's east tower, its head into the wind, a swing in a
+  breeze, a shiver in a storm, standing in a calm.
+- **The sounds** (`WindSound`, tools/windsound.py): `banner_snap` at a storm's gust's rise with a flag in view
+  (every 7 s at most), `shutter_rattle` at a gust's rise in the town (every 11 s), the day's bed × 0.75 to 1.3 by the
+  wind. Their hookup into `SoundID`, MANIFEST and `GameModel` is the join's (wave 1: the count lane's files).
+
+Step 4 (16.11.2026, the director's calls of 07:27, a fix round on the step 3 critic): where it differs, it replaces the
+lines above.
+
+- **Ash is never snow** (call 1): at night the flake's sprite is near black (`ashNightShade` 0.04, 0.035, 0.03) and
+  hides the blue sky behind it; its emissive copy, `ashNightWarm` (1, 0.5, 0) × 0.28 × the night's share (1.2 on the
+  near depth, under the haze), comes out of the glow quad about 1 : 0.8 : 0.6, a warm ash grey a small step over the
+  sky. The foreground's flakes fade out with the day (it is drawn over the emissive pass) and have no copy.
+- **The embers carry the night**: one flake in four by day, one in three at night (`emberShare`, by its index); a life
+  of a third of the fall by day and 0.45 at night; a 2 x 2 point for its first 15 % by day and 30 % at night, then one
+  pixel; fire gold, the torch's orange, a deep red, then nothing, its strength 1 − life² (`emberHeat`). The gold and
+  the orange are low in green with almost no blue and burn at 1.3 (`emberGlow`), because the night's grade in rain
+  keeps only about 0.57 of a colour's saturation and tints it cold (gate rounds lh-b3w-41 and -42).
+  The point is a glass quad (`ashFlake` frames 15 and 14 in the glass ink; source the whole 5 x 5 cell), so its colour
+  arrives as it is. Its body (frames 13 and 12) lies under the point on the near and the lane's planes: it hides the
+  blue sky behind those pixels and fades as the light does (1 − life², `emberBodyAlpha`), so the pixel is never darker
+  than the sky; on the foreground it takes the day's share, and a foreground flake that rests at night is left out.
+  None under Reduce Motion. Proof on the drawn pixel at 23:00 with the Gloom's fog on, the outer wall fallen so the
+  open ash between the bank and the band is in view (`RainLookTests`).
+- **The vane** (H2): a 13 x 11 arrow (a triangular head, a notched swallowtail fin, no crossbar, a ball on the rod, a
+  pale lit top edge) on the great roof's west slope (col 136 of the keep's sprite), where the sky stands behind it from
+  the keep's set piece camera, clear of the great flag flying west.
+- **The gust** (H3): a lift of 20 to 40 px over the first 0.6 s, then a sink of 3 px/s; each slot its own pace (0.7 to
+  1.3) and bob (3 to 6 px at its own rate); half straw; a 6 x 5 almond leaf with a pale lit edge; 10 on a gusty day, 18
+  in a storm (two in three aloft between its gusts); a storm's hard rise of the gust (`Weather.sinceGustRose`) lets 4
+  to 6 leaves of one crown go within 0.3 s (`FrameBuilder.gustBurst`).
+- **Small ones**: by day the lane's streaks wholly above the treeline fall at 0.65 (`rainSkyDayAlpha`; the 0.49 cap
+  stays on the ground); a bent flame's pixels each stand on one below them; the banner's dusk rim takes only the
+  inner of a two-pixel lit edge; `FrameBudgetTests` has a storm's rain at 22:00 with the band in view, in look 2,
+  against the hard budget (1,500 instances, 64 lights).
+- **For the join**: the pale wisps with a bright foot over the town are build 2's back-row chimney smoke (world-3 M4:
+  `CastleSmoke.puffs` and `glow`, `FrameBuilder.castleSmoke`, `SceneLayout.castleChimney` with `townRowChimney`).
+
+Step 5 (16.11.2026, the director's calls of 11:07, one agent; blocks tagged `b3-wind`): where it differs, it replaces the
+lines above.
+
+- **The smoke shows the wind** (call 1; the lane takes `CastleSmoke` and `FrameBuilder.castleSmoke`): the plume leans
+  by `CastleSmoke.angle` with the wind at the chimney, its sign and its strength: upright in still air, 13 degrees on a
+  calm day (build 2's), about 28 in a breeze, 74 in a storm, where its path grows by half and it is torn into three
+  groups along it (each puff keeps the moment it left the chimney, so the groups travel). Under Reduce Motion it
+  stands leaned by the steady wind. The back row's chimneys smoke at 0.55 of the alpha, fade in over a quarter of the
+  rise and have no fire under them: no bright head, no comet tail.
+- **The embers glow** (call 2): two in five at night, a life of 0.6 of the fall, 2 x 2 for its first 45 % (by day a
+  quarter); the 2 x 2 point is three orange pixels round a core of the gold × 1.6 (a second glass quad on its rect,
+  coloured the difference); the grey flake grows in only after half the ember's life. The near plane's embers stay
+  on their plane: the emissive pass is one target read at the world's coordinates (`Renderer` 689-696, `lh2_base`), so
+  a plane of the instance moves nothing; that, and the `.glass` chroma under the night's grade, are the join's.
+- **The night ash** (call 3): `ashNightGlow` 0.36, a small step over the sky (+2 to +12 of 255 on the drawn pixel).
+- **The vane** (call 4): the head a filled wedge of 1, 3 and 5 px in stoneLight; the fin a solid dark plate 4 x 5 with
+  a 2 px notch (18 px); the lit edge on the shaft and the head only; the calm's frame a wedge of two columns.
+- **The gust** (call 5): no leaf frame under 2 px thick (the edge-on frame a 4 x 2 sliver), a darker lower edge on
+  every leaf, the autumn leaf a darker ochre; the near plane's trees are crowns too (the town's trees stand there), so
+  leaves leave every crown in view; a burst's 4 to 6 leaves leave one crown together as the gust rises
+  (`gustBurstLead` 0.08 s, shown at once).
+
 ## Risks
 
 | Risk | What we do |

@@ -10,6 +10,10 @@ reproduces its files byte for byte):
         round stair turret and its stair hall on the west (the corner the front gate sees: crenels, then a flag, then a
         cone), deep window reveals, shadows under every string course and corbel table, a brazier on the wall walk;
         the building states with heavy timber and a crane whose jib stands over the roof (high 8)
+        Build 3, POLISH pass 1 (lane 3): the flags fly in the wind as a prop of their own (`keepFlag`,
+        tools/bannerart.py wind; `SceneLayout.castleKeepFlags`), so the keep keeps only their poles: the great pole on
+        the ridge at every tier but tier 2 under way (its roof is off; tier 1 has one now too, `MAIN_POLE`), the stair
+        turret's pole at tier 2
   keepRimT1 .. keepRimT3Build  260x175  emissive: the keep's warm rim on its west edges at dusk (blocker 1)
   keepMist          320x32   the feathered mist bank on the mistBand plane at the keep's foot (dawn, dusk, night)
   keepPaneHalo      11x14    emissive: the soft warm bloom around a lit twin window of the keep
@@ -20,9 +24,10 @@ reproduces its files byte for byte):
         flagstones receding to a lit far wall, a pillar, the hearth's glow the brightest point high in the middle
   hallDoorWedge     60x19    emissive: the door's wedge of light over the steps and the cobbles, the door's width at
         the threshold to 2.5 times it 12 rows out, smooth alpha so the stones show through
-  smokePuff         8x8 (5 frames)  a puff of chimney smoke at five sizes, 3 to 7 px (high 3; fix round 2)
+  smokePuff         8x8 (8 frames)  a puff of chimney smoke at four sizes, 2 to 5 px, and the mouth's pixel (b3-wind);
+        frames 5 to 7 the town's puffs, 2 to 4 px, in wood-smoke grey under a lit cap (b3-wind step 7)
   curtainB          64x74    the curtain's blocked arch as a recess in shadow (high 6)
-  posternT1..T3     176x112  the postern's passage with depth (high 4): jamb shadow, the vault, a lit far end and
+  posternT1..T3     176x112 (T3 176x124 since build 3: its flag's pole)  the postern's passage with depth (high 4): jamb shadow, the vault, a lit far end and
         cobbles that recede
   posternFarGlow    10x16    emissive: the lantern-warm far end of the postern's passage at night
   gateArchFg        16x116 (2 frames)  foreground: the near jamb of either gate (high 7), dark stone, a warm lit edge
@@ -324,6 +329,11 @@ TIERS = {
     2: dict(tower=126, wall=118, ridge=140, chimney=136, turret=136, hall=108),
     3: dict(tower=126, wall=118, ridge=140, chimney=136, turret=126, hall=108),
 }
+# Build 3, POLISH pass 1: the top of the great pole on the ridge (height above the ground line) by the tier drawn; the
+# flag hangs from the row under it. The stair turret's pole at tier 2 stands at TURRET's middle, its top at TURRET_POLE.
+MAIN_POLE = {1: 140, 2: 156, 3: 170}
+MAIN_POLE_X = OX + 100
+TURRET_POLE = 162
 KTOWERS = ((64, 97), (222, 255))     # the round corner towers
 KBODY = (98, 221)                    # the main block between them
 TURRET = (15, 45)                    # the stair turret on the west (centre col 30)
@@ -406,8 +416,7 @@ def keep_turret(c, t, tier, seed, building):
     kparapet(c, x0 - ext, x1 + ext, top + 4, rows=3, drum_x=(x0 - ext, x1 + ext))
     kmerlons(c, x0 - ext, x1 + ext, top + 7, mh=5, mw=5, gap=3, phase=1, drum_x=(x0 - ext, x1 + ext))
     if tier >= 2 and not building:
-        K.pole(c, cx, c.r(162), c.r(top + 7))
-        K.flag(c, cx, c.r(161), 13, h=6)
+        K.pole(c, cx, c.r(TURRET_POLE), c.r(top + 7))   # its flag flies as a prop of its own (build 3)
 
 
 def keep_hall(c, t, seed):
@@ -604,11 +613,10 @@ def keep(tier, building=False):
         # the realm's banners hung in the outer bays: the house shows its colours once it can afford the cloth
         K.banner(c, OX + 47, c.r(90), 7, 15)
         K.banner(c, OX + 146, c.r(90), 7, 15)
-    if tier >= 2 and not building:
-        tall = tier == 3
-        ptop = c.r(170 if tall else 156)
-        K.pole(c, OX + 100, ptop, c.r(t["ridge"] - 1))
-        K.banner(c, OX + 101, ptop + 1, 9 if tall else 7, 22 if tall else 15)
+    if not (building and tier == 2):
+        # build 3: the great pole at every tier with a roof (tier 3 under way stands on tier 2's); its flag flies as a
+        # prop of its own
+        K.pole(c, MAIN_POLE_X, c.r(MAIN_POLE[3 if tier == 3 and not building else shown]), c.r(t["ridge"] - 1))
     if building:
         nt = TIERS[tier]
         if tier == 2:
@@ -628,8 +636,6 @@ def keep(tier, building=False):
                 cx = (x0 + x1) // 2
                 timber_cone(c, cx, c.r(t["tower"] + 4), 20, 18)
                 heavy_scaffold(c, x0 - 4, x1 + 4, t["tower"] - 8, t["tower"] + 4, seed + x0)
-            K.pole(c, OX + 100, c.r(156), c.r(t["ridge"] - 1))
-            K.banner(c, OX + 101, c.r(156) + 1, 7, 15)
     K.outline(c, sides=("right",), name="stoneDark")
     return c.im
 
@@ -955,33 +961,47 @@ def hall_door_wedge():
 
 
 PUFF = 8                                             # a puff frame's side
-PUFF_SIZES = (3, 4, 5, 6, 7)                         # fix round 2 (high 4): puffs grow from 3 to 7 px as they rise
+# b3-wind: build 3 step 6 (the director's call S1 of 16.11. 12:25: "round puffs, not a line"; proven over the live
+# frames in ci-out/director/b3/wind/s6/00-smoke-leaves-python.png): four opaque puffs of 2, 3, 4 and 5 px, each in two
+# values (a white body and a one-pixel darker, cooler underside), so a puff reads on the rock and on the sky; the
+# engine's tint gives the hour's colour and the alpha fades it in steps. Frame 4 is one white pixel: the chimney mouth's
+# warm pixel at night (a glow quad, column 3). Every puff stands on the cell's bottom row, centred in it (an odd size
+# half a pixel left).
+PUFF_SHAPES = [
+    ["LL", "DD"],
+    [".LL", "LLL", ".DD"],
+    [".LL.", "LLLL", "DLLL", ".DD."],
+    [".LLL.", "LLLLL", "LLLLL", "DLLLD", ".DDD."],
+    ["L"],
+    # b3-wind: build 3 step 7 (the director's call T3 of 16.11. 14:41: "a town puff must hold against pale mountains,
+    # clouds and sky"; proven over the live town frame in ci-out/director/b3/wind/s7/00-town-smoke-python.png): the
+    # town's puffs (frames 5 to 7: 2, 3 and 4 px) in a cool wood-smoke grey body (b) under a lit cap (c) and over a
+    # darker underside (d), so the body holds under the pale backdrop and the cap over the dark roofs and trees.
+    ["cc", "bb"],
+    [".cc", "cbb", ".bd"],
+    [".cc.", "cbbb", "bbbd", ".dd."],
+]
+PUFF_BODY = (255, 255, 255, 255)
+PUFF_UNDER = (182, 186, 205, 255)
+# Round lh-b3w-72: the noon light is warm and lifts the darker values toward brown, so the body is cooler in the art
+# and the day tint (CastleSmoke.townDayTint) cool: the live body about (80, 86, 100), the cap about (176, 182, 194).
+PUFF_TOWN = {"c": (255, 255, 255, 255), "b": (109, 130, 152, 255), "d": (78, 104, 132, 255)}
 
 
 def smoke_puff():
-    """A puff of chimney smoke at five sizes (frames 8 px square, 3 to 7 px across): a soft lumpy blob, denser in its
-    heart and toward its upper left, its rim broken in half alpha; white, so the engine's tint gives it the hour's
-    value. Overlapping as they rise, the growing puffs merge into one plume."""
-    out = PA.Image(PUFF * len(PUFF_SIZES), PUFF)
-    for f, size in enumerate(PUFF_SIZES):
-        rad = size / 2.0
-        cx = (PUFF - 1) / 2.0
-        cy = (PUFF - 1) / 2.0 + 0.3
-        for y in range(PUFF):
-            for x in range(PUFF):
-                ang = math.atan2(y - cy, x - cx)
-                lump = 0.35 * math.sin(3 * ang + f * 1.3) + 0.2 * math.sin(5 * ang + 0.7 * f)
-                d = math.hypot(x - cx, y - cy) - lump * min(1.0, rad / 2.5)
-                if d <= rad - 1.0:
-                    heart = 1.0 - 0.18 * max(0.0, (x - cx) + (y - cy)) / max(1.0, rad)
-                    a = int(255 * max(0.7, heart))
-                elif d <= rad - 0.2:
-                    a = 150
-                elif d <= rad + 0.4 and (x + y + f) % 2 == 0:
-                    a = 80
-                else:
-                    continue
-                out.set(f * PUFF + x, y, (255, 255, 255, a))
+    """A puff of chimney smoke at four sizes (frames 8 px square, 2 to 5 px across) and the mouth's pixel (b3-wind,
+    step 6): hard pixel puffs with a light body and a darker underside, no soft alpha rim."""
+    out = PA.Image(PUFF * len(PUFF_SHAPES), PUFF)
+    for f, rows in enumerate(PUFF_SHAPES):
+        n = len(rows[0])
+        x0 = (PUFF - n) // 2
+        y0 = PUFF - len(rows)
+        for y, row in enumerate(rows):
+            for x, ch in enumerate(row):
+                if ch in PUFF_TOWN:
+                    out.set(f * PUFF + x0 + x, y0 + y, PUFF_TOWN[ch])   # b3-wind step 7: the town's puffs
+                elif ch != ".":
+                    out.set(f * PUFF + x0 + x, y0 + y, PUFF_BODY if ch == "L" else PUFF_UNDER)
     return out
 
 
@@ -1066,7 +1086,30 @@ def postern(tier):
                 c.set(x, c.r(hh), "stoneMid" if side < 2.2 and hh < far_top else "stoneDark")
             else:
                 c.set(x, c.r(hh), "stoneDark" if side < 2.2 and hh < far_top else "night1")
+    if tier == 3:
+        return postern_pole(c.im)
     return c.im
+
+
+# Build 3, POLISH pass 1 step 2 (lane 3, the critic's M6): the tier-3 postern's flag flies as a prop of its own
+# (`keepFlag`, `SceneLayout.castlePosternFlag`) from a pole raised to POSTERN_POLE, so the cloth clears the roof's point
+# when it hangs limp. The painting stays as it was (its rows keep their noise): the canvas grows POSTERN_RISE rows on
+# top, the pole runs up through them, its gold point over it.
+POSTERN_RISE = 12
+POSTERN_POLE = 122
+POSTERN_POLE_X = 142     # keepart.py: the squat tower's middle, (114 + 170) / 2
+
+
+def postern_pole(im):
+    out = PA.Image(im.w, im.h + POSTERN_RISE)
+    for y in range(im.h):
+        for x in range(im.w):
+            out.set(x, y + POSTERN_RISE, im.get(x, y))
+    top = out.h - 1 - POSTERN_POLE
+    for y in range(top, POSTERN_RISE + 1):
+        out.set(POSTERN_POLE_X, y, col("woodDark"))
+    out.set(POSTERN_POLE_X, top - 1, col("gold"))
+    return out
 
 
 def postern_far_glow():

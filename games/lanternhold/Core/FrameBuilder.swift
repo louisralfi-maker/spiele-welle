@@ -147,8 +147,13 @@ enum FrameBuilder {
         }
         let animTime = options.flickerTime ?? clock.elapsed
         let sources = entities?.lights ?? scene.sceneLights()
-        let rains = options.look == .two && weather.rain > 0 && !options.reduceMotion
+        // Build 3 step 2 (the two rains, lane 3): with Reduce Motion the rain's and the ash's forms stay where they
+        // stood at one moment; step 3 (the director's call 5): neither hangs frozen, a third of them fade in and out in
+        // place (`rainPulseAlpha`). The trees stand as before.
+        let rains = options.look == .two && weather.rain > 0
         let bankEdgeX = scene.bankEdge(hour: hour)
+        // Step 3 (the director's call 2): where the rain catches a light at night (`rainLightSpots`).
+        let rainLights = rains ? rainLightSpots(sources: sources, ambient: ambient, geometry: geometry) : []
         // The Gloom's fog belongs to look 2 and to the picture alone, like the weather.
         let gloom = options.look == .two && options.effects.fog ? options.gloom : nil
         // While the fog is up, the bank's old wall of night is not drawn: the fog bank stands in its place.
@@ -172,6 +177,8 @@ enum FrameBuilder {
         // then as listed), on the world plane the ground before them and the darkness bank after them.
         let props = scene.props + (entities?.props ?? [])
         let ordered = props.sorted { ($0.plane, $0.z, $0.id) < ($1.plane, $1.z, $1.id) }
+        // Build 3 step 2: water east of the outermost standing wall, ash west of it (`RainLook`).
+        let rainSeam = rains ? RainLook.seam(ordered) : Realm.wallX[0]
         // World-3 fix round 2 (the critic's high 1): no eyes before a building, none over 60 rows (`EyeRules`).
         let eyeScreens = options.look == .two ? EyeRules.screens(ordered) : []
         var next = 0
@@ -208,12 +215,12 @@ enum FrameBuilder {
                 // plane's water so it lies on it.
                 glow.add(streak)
             }
-            if (plane == .near || plane == .world) && options.look == .two {
+            if (plane == .near || plane == .world) && options.look == .two && options.drawsSmoke {
                 // World rebuild, step world-2: the castle's chimneys smoke, the keep's in the near plane's picture
                 // (moving with the mist band), the bakehouse's on the world plane.
                 planeSprites[plane.rawValue] += castleSmoke(props: ordered, plane: plane, animTime: animTime,
                                                             reduceMotion: options.reduceMotion, geometry: geometry,
-                                                            ambient: ambient, glow: &glow)
+                                                            ambient: ambient, hour: hour, glow: &glow)
             }
             if plane == .mid && options.look == .two {
                 // Fix round 1: the threads of water falling down the cleft wall, in front of it.
@@ -223,26 +230,53 @@ enum FrameBuilder {
                 // no band of glow along the wall's foot any more; the castle's fires warm the wall over the roofs as the
                 // cleft wall's backdrop lights, pools where light really burns.
             }
-            if rains && plane == .near {
-                planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: animTime, ambient: ambient,
-                                                            geometry: geometry)
-            }
-            if rains && plane == .foreground {
-                planeSprites[plane.rawValue] += rainStreaks(depth: 2, animTime: animTime, ambient: ambient,
-                                                            geometry: geometry)
+            if rains && (plane == .near || plane == .foreground) {
+                // Step 3: the near plane's depth and the foreground's; each flake's faint night copy and an ember's
+                // point go into the emissive pass at once (the lane's props hide the near depth's, as they hide it).
+                let depth = plane == .near ? 0 : 2
+                planeSprites[plane.rawValue] += rainStreaks(depth: depth, animTime: animTime,
+                                                            reduceMotion: options.reduceMotion, ambient: ambient,
+                                                            seam: rainSeam, lights: rainLights, geometry: geometry,
+                                                            glow: &glow)
+                let ash = ashFlakes(depth: depth, animTime: animTime, reduceMotion: options.reduceMotion,
+                                    ambient: ambient, seam: rainSeam, bankEdge: bankEdgeX, geometry: geometry)
+                planeSprites[plane.rawValue] += ash.sprites
+                for item in ash.glow {
+                    glow.add(item)
+                }
             }
             if plane == .world {
+                // Step 3 (the critic's H1 (c)): the lane depth's flakes go under the bank's sheet, their night copies
+                // and embers after it, so the ash is pale against the bank and never drawn dark into it.
+                var ashGlow: [EmissiveInstance] = []
                 if options.look == .two {
-                    planeSprites[plane.rawValue] += smoke(props: ordered, animTime: animTime,
-                                                          reduceMotion: options.reduceMotion, geometry: geometry)
+                    if options.drawsSmoke {
+                        // b3-wind (step 6, call S2): the town's houses smoke in puffs, about half of them.
+                        planeSprites[plane.rawValue] += smoke(props: ordered, animTime: animTime,
+                                                              reduceMotion: options.reduceMotion, geometry: geometry,
+                                                              ambient: ambient, hour: hour, glow: &glow)
+                    }
                     planeSprites[plane.rawValue] += steam(sources: sources, geometry: geometry)
                 }
                 if rains {
                     // Under the bank's tiles: the dark hides the rain that falls into it.
-                    planeSprites[plane.rawValue] += rainSplashes(animTime: animTime, ambient: ambient,
-                                                                 geometry: geometry)
-                    planeSprites[plane.rawValue] += rainStreaks(depth: 1, animTime: animTime, ambient: ambient,
-                                                                geometry: geometry)
+                    planeSprites[plane.rawValue] += rainSplashes(animTime: animTime,
+                                                                 reduceMotion: options.reduceMotion, ambient: ambient,
+                                                                 seam: rainSeam, props: ordered, geometry: geometry)
+                    planeSprites[plane.rawValue] += rainStreaks(depth: 1, animTime: animTime,
+                                                                reduceMotion: options.reduceMotion, ambient: ambient,
+                                                                seam: rainSeam, lights: rainLights,
+                                                                geometry: geometry, glow: &glow)
+                    let ash = ashFlakes(depth: 1, animTime: animTime, reduceMotion: options.reduceMotion,
+                                        ambient: ambient, seam: rainSeam, bankEdge: bankEdgeX, geometry: geometry)
+                    planeSprites[plane.rawValue] += ash.sprites
+                    ashGlow = ash.glow
+                }
+                if options.look == .two && geometry.weather != .clear && !options.reduceMotion {
+                    // Step 3 (part B): what a gust carries across the lane, east of the outermost standing wall.
+                    planeSprites[plane.rawValue] += gustLeaves(props: ordered, animTime: animTime,
+                                                               seam: rains ? rainSeam : RainLook.seam(ordered),
+                                                               geometry: geometry)
                 }
                 for item in entities?.emissives(worldWhole: geometry.whole(.world), groundRow: geometry.groundRow,
                                                 targetWidth: geometry.targetWidth) ?? [] {
@@ -266,6 +300,9 @@ enum FrameBuilder {
                         }
                         planeSprites[plane.rawValue].append(tile)
                     }
+                }
+                for item in ashGlow {
+                    glow.add(item)
                 }
                 if options.look == .two {
                     // Fix round 1: the bank's eyes come in pairs, a few at a time, at depths of their own, with or
@@ -525,28 +562,90 @@ enum FrameBuilder {
     /// Look 2: chimney smoke over the town's cottages that stand (`SceneLayout.look2Smoke`), a translucent veil on
     /// the world plane that hides no glow.
     /// The wind leans it (`smokeLean`; with Reduce Motion by the steady wind, without the gusts).
-    private static func smoke(props: [Prop], animTime: Double, reduceMotion: Bool,
-                              geometry: Geometry) -> [SpriteInstance] {
+    /// b3-wind: build 3 step 6 (the director's call S2 of 16.11. 12:25: "the town's chimneys show no smoke at phone
+    /// size"): every chimney of the town's houses that stand (`SceneLayout.townChimneys`: the cottages, the big house's
+    /// two, the tavern's) smokes in the town's puffs (`CastleSmoke.puffs(town:)`) with the keep's lean rule, about half
+    /// of them by a hash of the chimney's place and three of four from 17 h to 21 h (`CastleSmoke.smokes`); the d2Smoke
+    /// veil is no longer drawn. Reduce Motion: the puffs stand, leaned by the steady wind.
+    private static func smoke(props: [Prop], animTime: Double, reduceMotion: Bool, geometry: Geometry,
+                              ambient: AmbientSample, hour: Double, glow: inout EmissiveList) -> [SpriteInstance] {
         let weather = geometry.weather
-        let cottages: Set<SpriteID> = [.house, .houseB, .houseC]
-        let size = SpriteID.d2Smoke.size
+        let whole = geometry.whole(.world)
+        let time = reduceMotion ? 0 : animTime
         var list: [SpriteInstance] = []
-        for chimney in SceneLayout.look2Smoke {
-            let stands = props.contains {
-                $0.plane == .world && cottages.contains($0.sprite) && abs($0.x - chimney.x) < 0.5
-            }
-            guard stands else { continue }
-            let centre = chimney.x + (chimney.flipped ? look2ChimneyX.flipped : look2ChimneyX.plain)
-            let left = centre - Double(size.width / 2) - geometry.whole(.world)
-            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
-            let top = geometry.top(y: look2SmokeY, height: Double(size.height))
-            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-            let column = SpriteInstance(sprite: .d2Smoke, frame: 0, rect: rect, tint: look2SmokeTint,
-                                        flipped: false)
+        // b3-wind (step 7, call T2): the chimneys that smoke at this hour, by their index in the town.
+        for chimney in townSmokers(props: props, hour: hour) {
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
-            list += sheared(column, offset: Int((wind * smokeLean).rounded()), bands: 10, bend: false)
+            chimneyPuffs(at: chimney, whole: whole, plane: .world, town: true, fire: false, hearth: true,
+                         wind: wind, time: time, ambient: ambient, geometry: geometry, list: &list, glow: &glow)
         }
         return list
+    }
+
+    /// b3-wind: build 3 step 7 (the director's call T2 of 16.11. 14:41): the town's chimneys that smoke at `hour`: every
+    /// chimney of the houses on the world plane, numbered from west to east (so the choice is stable from frame to
+    /// frame and day to day), smokes by `CastleSmoke.smokes(slot:hour:)`: three of four by day, every one from 17 h to
+    /// 21 h, half at night; the big house always from at least one of its two chimneys.
+    static func townSmokers(props: [Prop], hour: Double) -> [(x: Double, y: Double)] {
+        let houses = props.filter { $0.plane == .world }
+        let order = houses.flatMap { SceneLayout.townChimneys($0) }.map(\.x).sorted()
+        var found: [(x: Double, y: Double)] = []
+        for prop in houses {
+            let own = SceneLayout.townChimneys(prop)
+            let lit = own.map { CastleSmoke.smokes(slot: order.firstIndex(of: $0.x) ?? 0, hour: hour) }
+            for (index, chimney) in own.enumerated()
+                where lit[index] || (prop.sprite == .bigHouse && index == 0 && !lit.contains(true)) {
+                found.append(chimney)
+            }
+        }
+        return found
+    }
+
+    // b3-wind: build 3 step 6 (the director's calls S1 and S2 of 16.11. 12:25): one chimney's puffs, the oldest first
+    // and the mouth's puff last (so the newer stand in front), each white × `CastleSmoke.tint` with its light of the
+    // hour (`CastleSmoke.glow`: day, dusk sky, moon, the fire under the lowest); at night one warm pixel at the mouth
+    // (`CastleSmoke.mouthFrame` as a glow quad), not over the back row, which has no fire under its smoke.
+    /// `hiddenBy`: the rects (the plane's target pixels) of what stands in front of the chimney on its own plane; a puff
+    /// that would overlap one is not drawn (round lh-b3w-61: the back row's smoke stood over the lindens before it,
+    /// and its light shone through them).
+    private static func chimneyPuffs(at chimney: (x: Double, y: Double), whole: Double, plane: Plane, town: Bool,
+                                     fire: Bool, hearth: Bool, wind: Double, time: Double, ambient: AmbientSample,
+                                     geometry: Geometry, hiddenBy: [SIMD4<Float>] = [],
+                                     list: inout [SpriteInstance], glow: inout EmissiveList) {
+        let size = SpriteID.smokePuff.size
+        // b3-wind (step 7, call T3): the town's grey puffs take their own tint and no pale day light.
+        let tint = town ? CastleSmoke.townTint(ambient) : CastleSmoke.tint
+        let puffs = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
+            .filter { $0.alpha > 0.02 }
+            .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
+        for puff in puffs + [CastleSmoke.mouth(town: town)] {
+            let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let top = geometry.top(y: (chimney.y + puff.rise).rounded(), height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            // The puff's own pixels: `puff.frame + 2` columns (the mouth's pixel: 1) on the cell's bottom rows.
+            let side = Float(CastleSmoke.side(frame: puff.frame))   // b3-wind step 7: the town's frames too
+            let x0 = rect.x + ((rect.z - side) / 2).rounded(.down)
+            let y0 = rect.y + rect.w - side
+            let hidden = hiddenBy.contains { $0.x < x0 + side && x0 < $0.x + $0.z && $0.y < y0 + side && y0 < $0.y + $0.w }
+            guard !hidden else { continue }
+            list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
+                                       tint: SIMD4<Float>(tint.x, tint.y, tint.z, puff.alpha), flipped: false))
+            let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire, hearth: hearth, day: town ? 0 : 1)
+            // b3-wind (step 7): no glow quad where there is no light (the town's puffs by day).
+            guard max(rgb.x, max(rgb.y, rgb.z)) > 0.002 else { continue }
+            glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane, rect: rect,
+                                      color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, puff.alpha), frame: puff.frame))
+        }
+        let night = min(1, max(0, ambient.torchStrength))
+        guard hearth || fire, night > 0.05 else { return }
+        let left = (chimney.x - Double(size.width) / 2 - whole).rounded()
+        guard geometry.isVisible(left: left, width: Double(size.width)) else { return }
+        let top = geometry.top(y: chimney.y.rounded(), height: Double(size.height))
+        let warm = GamePalette.fireOrange * (CastleSmoke.mouthGlow * night)
+        glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane,
+                                  rect: SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height)),
+                                  color: SIMD4<Float>(warm.x, warm.y, warm.z, 1), frame: CastleSmoke.mouthFrame))
     }
 
     // MARK: World rebuild, step world-2 (SceneLayoutCastle.swift)
@@ -555,32 +654,35 @@ enum FrameBuilder {
     /// moves with (the keep's moves with the mist band). Fix round 1 (the critic's high 3): puffs that rise and drift
     /// (`CastleSmoke`), white × a pale value, so the hour's light gives them a value over the rock behind; the
     /// bakehouse's take the warm glow of its chimney's mouth from below. Reduce Motion: they stand still.
+    /// b3-wind: build 3 step 5 (lane 3, the director's call 1 of 11:07): the plume leans with the wind at the chimney
+    /// (`CastleSmoke.angle`), torn in a storm; under Reduce Motion it stands leaned by the steady wind; the back row's
+    /// chimneys smoke dimmer, slow to show and with no fire under them (`CastleSmoke.puffs(back:)`).
+    /// b3-wind (step 6, calls S1 and S2): the puffs with body (`chimneyPuffs`); the back row smokes as the town's
+    /// chimneys do, about half of them (`CastleSmoke.smokes`).
     private static func castleSmoke(props: [Prop], plane: Plane, animTime: Double, reduceMotion: Bool,
-                                    geometry: Geometry, ambient: AmbientSample,
+                                    geometry: Geometry, ambient: AmbientSample, hour: Double,
                                     glow: inout EmissiveList) -> [SpriteInstance] {
         let weather = geometry.weather
-        let size = SpriteID.smokePuff.size
-        let value = CastleSmoke.value
         var list: [SpriteInstance] = []
         for prop in props where prop.plane == plane {
             guard let chimney = SceneLayout.castleChimney(prop) else { continue }
+            // b3-wind (step 5): the back row's smoke has no fire under it; step 6: it is the town's.
+            let back = SceneLayout.townRowSprites.contains(prop.sprite)
+            if back && !CastleSmoke.smokes(x: chimney.x, hour: hour) { continue }
             let whole = geometry.whole(prop.movesWith ?? prop.plane)
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
-            let time = reduceMotion ? 0 : animTime
-            let fire = prop.sprite == .bakehouse
-            for puff in CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x)) where puff.alpha > 0.02 {
-                let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
-                guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
-                let top = geometry.top(y: (chimney.y + puff.rise).rounded(), height: Double(size.height))
-                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-                list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
-                                           tint: SIMD4<Float>(value, value, value * 1.02, puff.alpha), flipped: false))
-                // Round lh-w2f1-2: lit only as albedo, the puffs sank into the night's rock. World-3: a light of
-                // their own at every hour (`CastleSmoke.glow`: day, dusk sky, moon, the chimney's fire from below).
-                let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire)
-                glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane, rect: rect,
-                                          color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, puff.alpha), frame: puff.frame))
+            // b3-wind (step 6, round lh-b3w-61): the trees that stand before the back row hide its smoke.
+            let before: [SIMD4<Float>] = !back ? [] : props.filter {
+                $0.plane == plane && swaying.contains($0.sprite) && $0.anchor == .ground
+                    && ($0.z, $0.id) > (prop.z, prop.id)
+            }.map { tree in
+                let left = tree.x - geometry.whole(tree.movesWith ?? tree.plane)
+                return SIMD4<Float>(Float(left), Float(geometry.top(y: tree.y, height: Double(tree.height))),
+                                    Float(tree.width), Float(tree.height))
             }
+            chimneyPuffs(at: chimney, whole: whole, plane: plane, town: back, fire: prop.sprite == .bakehouse,
+                         hearth: !back, wind: wind, time: reduceMotion ? 0 : animTime, ambient: ambient,
+                         geometry: geometry, hiddenBy: before, list: &list, glow: &glow)
         }
         return list
     }
@@ -711,6 +813,15 @@ enum FrameBuilder {
     private static func addProp(_ prop: Prop, ambient: AmbientSample, hour: Double, animTime: Double,
                                 options: FrameOptions, geometry: Geometry, sprites: inout [[SpriteInstance]],
                                 glow: inout EmissiveList) {
+        var prop = prop
+        if options.look == .two,
+           let pose = WindLook.pose(of: prop, weather: geometry.weather, time: animTime,
+                                    reduceMotion: options.reduceMotion) {
+            // Build 3, POLISH pass 1 (lane 3): the windmill's sails and the flags take their frame from the wind.
+            prop.frame = pose.frame
+            prop.flipped = pose.flipped
+            prop.x += pose.dx
+        }
         // A prop that moves with another plane is placed by that plane's whole offset (within a game pixel of its
         // own sub-pixel shift) but drawn into its own plane's picture.
         let left = prop.x - geometry.whole(prop.movesWith ?? prop.plane)
@@ -811,7 +922,8 @@ enum FrameBuilder {
             if let emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
                                                animTime: animTime, options: options, geometry: geometry,
                                                fade: options.look == .two ? alpha : 1) {
-                glow.add(emissive)
+                glow.add(bentFlame(emissive, part: part, prop: prop, animTime: animTime, options: options,
+                                   geometry: geometry))
             }
         }
         let torch = ambient.torchStrength
@@ -849,8 +961,10 @@ enum FrameBuilder {
         if part.fadesByDay {
             strength *= ambient.torchStrength
         }
-        if SceneLayout.castleKeepRims.contains(part.sprite) {
-            // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm.
+        if SceneLayout.castleKeepRims.contains(part.sprite) || part.sprite == .keepFlagRim
+            || part.sprite == .castleBannerRim {
+            // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm (build 3
+            // step 2, lane 3: on the flags' cloth too).
             strength *= keepRimShare(ambient)
         }
         if SceneLayout.beaconRims.contains(part.sprite) || SceneLayout.look2MoonRims.contains(part.sprite) {
@@ -861,6 +975,12 @@ enum FrameBuilder {
             // World rebuild, fix round 2: the moon in the cleft's wedge rises with the night's moon, not with the
             // torches (the critic: "dusk looks the same as night: the same full moon in the same place").
             strength *= wedgeMoonShare(ambient)
+        }
+        if options.look == .two && (part.sprite == .flame || part.sprite == .brazierFlame) && !enclosed(prop) {
+            // Build 3, POLISH pass 1 (lane 3): a torch's or a brazier's flame gutters with its light in the wind.
+            let lean = Weather.fireLean(x: prop.x + part.dx, geometry.weather, time: animTime,
+                                        reduceMotion: options.reduceMotion)
+            strength *= Float(1 - Weather.fireGutter * abs(lean))
         }
         if let seed = part.flickerSeed {
             let flicker = Flicker.sample(seed: seed, time: animTime * part.flickerPace,
@@ -891,8 +1011,103 @@ enum FrameBuilder {
             rgb = SceneLayout.posternFarColor(ambient) * strength
         }
         let color = SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)
+        if part.sprite == .castleBannerRim {
+            // Build 3 step 3 (lane 3, the critic's M4): the banner's rim follows its pose (it is never mirrored).
+            return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color, frame: prop.frame)
+        }
+        if part.sprite == .keepFlagRim {
+            // Build 3 step 2 (lane 3): the flag's rim follows its frame; a flag mirrored to stream west takes the rim
+            // drawn on its other edges (frames from `Weather.flagFrames`), so mirrored it still faces the low sun.
+            return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color,
+                                    flipped: prop.flipped,
+                                    frame: prop.frame + (prop.flipped ? Weather.flagFrames : 0))
+        }
         return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color,
                                 flipped: part.mirrors && prop.flipped)
+    }
+
+    /// Build 3 step 2 (lane 3, the critic's M1): the props whose fire burns behind a wall, out of the wind: the forge
+    /// in the smithy (its flame neither gutters nor bends; `EntityFrames.smithyLeft`).
+    static let enclosedFires: Set<SpriteID> = [.smithy, .masterSmithy]
+
+    private static func enclosed(_ prop: Prop) -> Bool {
+        enclosedFires.contains(prop.sprite)
+    }
+
+    /// A light that burns out of the wind: the bakehouse's oven through its hatch (`SceneLayout.castleBakeHatchLight`)
+    /// and the forge (`EntityFrames` lights it at the smithy's hearth); their pools neither lean nor gutter.
+    static func windproof(_ source: LightSource) -> Bool {
+        let hatch = SceneLayout.castleBakeHatchLight
+        if source.kind == .torch && source.x == SceneLayout.castleBakehouseX + hatch.dx && source.y == hatch.y {
+            return true
+        }
+        let forge = [EntityFrames.smithyLeft + 19, EntityFrames.smithyLeft + 21]
+        return source.kind == .brazier && source.y == 16 && source.radius == 26 && forge.contains(source.x)
+    }
+
+    /// The rows of an open flame that lean with the wind, from its top down, by how far. Step 3 (the critic's M3, the
+    /// director: "the bent flame bends whole"): every row is sheared by its height over the foot, so the outline stays
+    /// joined and no tip ever stands loose above the body: the top row `reach` pixels downwind (3 at a whole lean, 2 or
+    /// 1.5 at a lean from `flameBendFrom`), the rows under it less (by the height to the 1.3), the foot where it burns.
+    /// A torch's flame of 5 rows at a whole lean: 3, 2, 1; a brazier's of 7: 3, 2, 2, 1, 1. None in a calm, none with
+    /// Reduce Motion beyond the steady wind's.
+    static func flameBend(lean: Double, rows: Int) -> [(rows: Int, shift: Int)] {
+        let force = abs(lean)
+        guard force >= flameBendFrom, rows > 1 else { return [] }
+        let sign = lean < 0 ? -1 : 1
+        let reach = force >= 0.75 ? 3.0 : (rows >= 7 ? 2.0 : 1.5)
+        var bands: [(rows: Int, shift: Int)] = []
+        for row in 0..<rows {
+            let height = Double(rows - 1 - row) / Double(rows - 1)
+            let shift = Int((reach * pow(height, 1.3)).rounded()) * sign
+            if shift == 0 { break }
+            if let last = bands.last, last.shift == shift {
+                bands[bands.count - 1].rows += 1
+            } else {
+                bands.append((rows: 1, shift: shift))
+            }
+        }
+        return bands
+    }
+
+    /// The lean from which an open flame bends (step 3, the critic's M3: from a quarter, so a gusty day shows it).
+    static let flameBendFrom = 0.25
+
+    /// The frame of `flameBent` / `brazierFlameBent` for a lean as the flame is drawn (its own mirroring undone): 0 and
+    /// 1 bend toward the valley (a third, a whole lean), 2 and 3 toward the west; nil while it stands
+    /// (`PlaceholderWeather.bentFlameLeans` paints them by `flameBend`).
+    static func bentFlameFrame(lean: Double, flipped: Bool) -> Int? {
+        let drawn = flipped ? -lean : lean
+        let force = abs(drawn)
+        guard force >= flameBendFrom else { return nil }
+        return (force >= 0.75 ? 1 : 0) + (drawn < 0 ? 2 : 0)
+    }
+
+    /// The bent sprite of an open flame, nil for every other emissive.
+    static func bentSprite(of sprite: SpriteID) -> SpriteID? {
+        switch sprite {
+        case .flame: return .flameBent
+        case .brazierFlame: return .brazierFlameBent
+        default: return nil
+        }
+    }
+
+    /// Build 3 step 2 (lane 3, the critic's M1: at phone size the lean of the light alone was not seen): a torch's or a
+    /// brazier's flame bends with the wind, drawn as the bent sprite's frame for its lean (`flameBend`'s top rows
+    /// downwind, the foot where it burns; one quad, two pixels wider on each side). The forge's does not
+    /// (`enclosedFires`).
+    private static func bentFlame(_ flame: EmissiveInstance, part: EmissivePart, prop: Prop, animTime: Double,
+                                  options: FrameOptions, geometry: Geometry) -> EmissiveInstance {
+        guard options.look == .two, geometry.weather != .clear, let sprite = bentSprite(of: part.sprite),
+              !enclosed(prop) else { return flame }
+        let lean = Weather.fireLean(x: prop.x + part.dx, geometry.weather, time: animTime,
+                                    reduceMotion: options.reduceMotion)
+        guard let frame = bentFlameFrame(lean: lean, flipped: flame.flipped) else { return flame }
+        let grow = Float(sprite.size.width - part.sprite.size.width) / 2
+        return EmissiveInstance(sprite: sprite, plane: flame.plane,
+                                rect: SIMD4<Float>(flame.rect.x - grow, flame.rect.y, flame.rect.z + 2 * grow,
+                                                   flame.rect.w),
+                                color: flame.color, flipped: flame.flipped, frame: frame)
     }
 
     /// World-3 fix round 1 (the critic's high 8): the far shore's lantern (near plane) laid on the water as a broken
@@ -1380,19 +1595,35 @@ enum FrameBuilder {
     static let rainSlopes = [0.0, 0.27, 0.47]
     /// The slant of the rain: still air, wind, strong wind (by the steady wind, so gusts do not make it jump).
     static func rainSlant(_ weather: WeatherSample) -> Int {
-        let force = abs(weather.mean)
-        return force < 0.2 ? 0 : (force < 0.6 ? 1 : 2)
+        rainSlant(force: abs(weather.mean))
+    }
+    /// The slant for a wind's force (build 3 step 2: each streak reads the wind where it falls, so a gust leans it
+    /// further as the gust passes; in a calm it falls straight).
+    static func rainSlant(force: Double) -> Int {
+        force < 0.2 ? 0 : (force < 0.6 ? 1 : 2)
     }
     /// How many of `full` fall in a rain of this strength: by its root, so a light rain (0.4) is still rain on a
     /// phone (round lh-l2-3a: at 0.6 a count in proportion read as a few stray streaks).
     static func rainCount(_ full: Int, rain: Double) -> Int {
         Int((Double(full) * max(0, min(1, rain)).squareRoot()).rounded())
     }
-    /// Polish after round 2, the rain over a bright scene: a pale streak before an overcast day sky or a sunlit
-    /// wall is the scene's own tone and is lost. So the brighter the air, the darker the rain falls: slate by day
-    /// (`rainDayShade`, a little denser), pale as painted from dusk on, where the fires light it.
-    static let rainDayShade = SIMD3<Float>(0.34, 0.40, 0.54)
+    /// Polish after round 2, the rain over a bright scene: a streak in the scene's own tone is lost. Build 3 step 3 (the
+    /// critic's H2 (d), the director's call 1): by day the water is the light thing that falls, a cool pale grey lighter
+    /// than the sky behind it (the way rain reads in pixel art; the ash is the one dark thing that falls), a little
+    /// denser; pale as painted from dusk on, where the fires light it. The tint goes over 1 so the drawn streak comes
+    /// out about 0.8 under a rainy noon's light, over the sky's 0.5 (the plane's texel times the tint times the alpha
+    /// stays under 1, the plane's store).
+    static let rainDayShade = SIMD3<Float>(1.30, 1.36, 1.50)
     static let rainDayAlpha: Float = 1.08
+    /// By day the foreground's plane takes a little over half the lane's ambient (`Look2.fgAmbient`): its streaks are
+    /// tinted up by this to read as pale as the lane's. The far layer (the near plane's) falls fainter by day.
+    static let rainForegroundLift: Float = 1.5
+    static let rainFarDayAlpha: Float = 0.7
+    /// Step 4 (the wind critic's M1): by day the lane's streaks wholly in the sky band, above the treeline (more than
+    /// `rainSkyRows` over the ground line), fall at `rainSkyDayAlpha`: the 0.49 cap keeps a streak from being a ledge on
+    /// the ground, and the sky needs none (at 0.43 the water over the band's sky drew 29 of 255 over it, a faint line).
+    static let rainSkyDayAlpha: Float = 0.65
+    static let rainSkyRows = 50.0
     /// How much of the day's shade the rain takes in this air (0 from dusk through the night ... 1 by day).
     static func rainShade(_ ambient: AmbientSample) -> Float {
         Float(AmbientRamp.smoothstep(Double((ambient.ambientIntensity - 0.26) / 0.34)))
@@ -1402,6 +1633,34 @@ enum FrameBuilder {
         let shade = rainShade(ambient)
         let rgb = SIMD3<Float>(1, 1, 1) + (rainDayShade - SIMD3<Float>(1, 1, 1)) * shade
         return SIMD4<Float>(rgb.x, rgb.y, rgb.z, min(0.49, alpha * (1 + (rainDayAlpha - 1) * shade)))
+    }
+    /// A depth's streak tint (step 3): `rainTint`, by day the foreground's lifted and the far layer's fainter.
+    static func rainStreakTint(depth: Int, ambient: AmbientSample) -> SIMD4<Float> {
+        let shade = rainShade(ambient)
+        var tint = rainTint(alpha: rainDepths[depth].alpha, ambient: ambient)
+        if depth == 2 {
+            let lift = 1 + (rainForegroundLift - 1) * shade
+            tint.x *= lift
+            tint.y *= lift
+            tint.z *= lift
+        } else if depth == 0 {
+            tint.w *= 1 + (rainFarDayAlpha - 1) * shade
+        }
+        return tint
+    }
+    /// Step 3 (the critic's H1, the director's call 2): at night a streak of the lane's or the foreground's depth near a
+    /// light gets a faint cool emissive copy, so the rain is seen at night where light falls on it: this grey at the
+    /// light's foot, fading to nothing at `rainLiftReach` of its radius, from a torch strength of 0.5 to full at 0.8;
+    /// at most `rainLiftCap` copies a depth.
+    static let rainNightLift = SIMD3<Float>(0.22, 0.24, 0.28)
+    static let rainLiftReach = 1.6
+    static let rainLiftCap = 40
+    /// Step 3 (the director's call 5): with Reduce Motion neither rain hangs frozen in the air. A third of the streaks,
+    /// flakes and splashes stand where they are and each fades in and out in place over `rainPulse` seconds, at a moment
+    /// of its own; nothing travels.
+    static let rainPulse = 2.0
+    static func rainPulseAlpha(time: Double, own: Double) -> Float {
+        Float(0.5 - 0.5 * cos(2 * Double.pi * (time / rainPulse + own)))
     }
     /// Splashes on the lane at full rain, and a splash's seconds.
     static let rainSplashCount = 24
@@ -1458,16 +1717,23 @@ enum FrameBuilder {
     /// The rain's streaks on one depth's plane: each a pure function of its index and the time. It falls from above
     /// the screen to the plane's floor (the ground behind the near trees, the lane, the screen's bottom edge), then
     /// starts again in another column; the columns belong to the plane's picture, so the rain stays in the world
-    /// when the camera moves.
-    private static func rainStreaks(depth: Int, animTime: Double, ambient: AmbientSample,
-                                    geometry: Geometry) -> [SpriteInstance] {
+    /// when the camera moves. Build 3 step 2 (the two rains): a streak falls only where the rain is water at the lane's
+    /// x it starts over (`RainLook`: east of the outermost standing wall, thinning out over the band west of it), and
+    /// it leans by the wind there at the moment it set off, so a gust leans the streaks it meets further. Step 3: pale
+    /// by day (`rainStreakTint`); at night the lane's and the foreground's streaks near a light get a faint cool copy in
+    /// the emissive pass (`rainLightSpots`); with Reduce Motion a third of them stand and fade in place.
+    private static func rainStreaks(depth: Int, animTime: Double, reduceMotion: Bool, ambient: AmbientSample,
+                                    seam: Double, lights: [(x: Double, reach: Double, share: Float)],
+                                    geometry: Geometry, glow: inout EmissiveList) -> [SpriteInstance] {
         let weather = geometry.weather
         let entry = rainDepths[depth]
         let count = rainCount(entry.count, rain: weather.rain)
         guard count > 0 else { return [] }
+        let fallTime = reduceMotion ? 0 : animTime
         let size = SpriteID.rainStreak.size
-        let slant = rainSlant(weather)
-        let slope = rainSlopes[slant] * (weather.mean < 0 ? -1 : 1)
+        // The furthest any streak leans today (the steady wind and its whole gust), so a streak that leans in a gust
+        // still covers the screen's leeward edge.
+        let widest = rainSlopes[rainSlant(force: abs(weather.mean) + abs(weather.gust))] * (weather.mean < 0 ? -1 : 1)
         let lowest: Double
         switch entry.plane {
         case .foreground: lowest = Double(geometry.targetHeight)
@@ -1475,52 +1741,596 @@ enum FrameBuilder {
         default: lowest = Double(geometry.groundRow - 8)
         }
         let fall = lowest + Double(size.height)
-        let reach = abs(slope) * fall
+        let reach = abs(widest) * fall
         let span = Double(geometry.targetWidth) + reach
         let whole = geometry.whole(entry.plane)
-        let tint = rainTint(alpha: entry.alpha, ambient: ambient)
+        let lane = geometry.whole(.world)
+        let tint = rainStreakTint(depth: depth, ambient: ambient)
+        // Step 4 (M1): the lane's streaks in the sky band a step denser by day.
+        let skyAlpha = depth == 1 ? tint.w + (max(tint.w, rainSkyDayAlpha) - tint.w) * rainShade(ambient) : tint.w
+        let treeline = Double(geometry.groundRow) - rainSkyRows
         let key = SeededRandom.hash(weather.gustSeed, Int64(depth + 1))
+        var lifted = 0
         var list: [SpriteInstance] = []
         for index in 0..<count {
-            let progress = animTime * entry.speed / fall + unit(SeededRandom.hash(key, Int64(index)))
+            if reduceMotion && index % 3 != 0 { continue }
+            let own = unit(SeededRandom.hash(key, Int64(index)))
+            let progress = fallTime * entry.speed / fall + own
             let cycle = progress.rounded(.down)
             let y = (progress - cycle) * fall - Double(size.height)
             let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
-            let column = unit(SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))) * span
+            let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
+            let column = unit(pick) * span
             var x = (column - whole).truncatingRemainder(dividingBy: span)
             if x < 0 { x += span }
-            x += slope * y - (slope > 0 ? reach : 0)
+            x -= widest > 0 ? reach : 0
+            // Decided once for the whole fall, at the column it starts from: water or ash (so no streak blinks out in
+            // the band), and its lean by the wind of the moment it set off (a gust leans the streaks that start in it,
+            // never one in mid-fall).
+            let start = x + lane
+            guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: start, seam: seam) else { continue }
+            let born = (cycle - own) * fall / entry.speed
+            let wind = Weather.wind(at: start, weather, time: born)
+            let leaning = rainSlant(force: abs(wind))
+            let lean = rainSlopes[leaning] * (wind < 0 ? -1 : 1)
+            x += lean * y
             let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
                                     Float(size.height))
-            list.append(SpriteInstance(sprite: .rainStreak, frame: depth * 3 + slant, rect: rect, tint: tint,
-                                       flipped: slope < 0))
+            var alpha = y + Double(size.height) < treeline ? skyAlpha : tint.w
+            if reduceMotion {
+                alpha *= rainPulseAlpha(time: animTime, own: own)
+            }
+            list.append(SpriteInstance(sprite: .rainStreak, frame: depth * 3 + leaning, rect: rect,
+                                       tint: SIMD4<Float>(tint.x, tint.y, tint.z, alpha), flipped: lean < 0))
+            guard depth > 0, !lights.isEmpty, lifted < rainLiftCap else { continue }
+            let middle = Double(rect.x) + Double(size.width) / 2
+            var near: Float = 0
+            for light in lights {
+                let closeness = 1 - abs(middle - light.x) / light.reach
+                if closeness > 0 {
+                    near = max(near, Float(closeness) * light.share)
+                }
+            }
+            guard near > 0.05 else { continue }
+            let pulse: Float = reduceMotion ? rainPulseAlpha(time: animTime, own: own) : 1
+            let cool = rainNightLift * (near * pulse)
+            glow.add(EmissiveInstance(sprite: .rainStreak, plane: entry.plane, rect: rect,
+                                      color: SIMD4<Float>(cool.x, cool.y, cool.z, 1), flipped: lean < 0,
+                                      frame: depth * 3 + leaning))
+            lifted += 1
         }
         return list
     }
 
-    /// The splashes where the rain meets the lane: three frames each, then the next one somewhere else.
-    private static func rainSplashes(animTime: Double, ambient: AmbientSample,
-                                     geometry: Geometry) -> [SpriteInstance] {
+    /// Step 3: where the rain catches a light at night: each burning light of the lane's plane (not the moon), as its
+    /// screen column, how far its lift reaches (`rainLiftReach` of its radius) and how strong it is at the hour (none
+    /// under a torch strength of 0.5, all from 0.8). Empty by day.
+    private static func rainLightSpots(sources: [(source: LightSource, plane: Plane)], ambient: AmbientSample,
+                                       geometry: Geometry) -> [(x: Double, reach: Double, share: Float)] {
+        let share = Float(AmbientRamp.smoothstep(Double((ambient.torchStrength - 0.5) / 0.3)))
+        guard share > 0.01 else { return [] }
+        let lane = geometry.whole(.world)
+        var spots: [(x: Double, reach: Double, share: Float)] = []
+        for item in sources where item.plane == .world && item.source.kind != .moon && item.source.radius > 0 {
+            let x = item.source.x - lane
+            let reach = item.source.radius * rainLiftReach
+            guard x + reach >= 0, x - reach <= Double(geometry.targetWidth) else { continue }
+            spots.append((x: x, reach: reach, share: share))
+        }
+        return spots
+    }
+
+    /// The splashes where the rain meets the lane: three frames each, then the next one somewhere else. Build 3 step 2:
+    /// only where the rain is water (ash never splashes), and on the roofs' ridges too (`rainRidges`): a splash or
+    /// two on each roof in view, at places of their own along its ridge. Step 3 (the critic's M5): in a heavy rain the
+    /// crown's two pale pixels fly up and out at `rainHeavySplashAlpha`, so the splash shows at phone size; with Reduce
+    /// Motion a third of them stand and fade in place.
+    private static func rainSplashes(animTime: Double, reduceMotion: Bool, ambient: AmbientSample, seam: Double,
+                                     props: [Prop], geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
         let count = rainCount(rainSplashCount, rain: weather.rain)
         guard count > 0 else { return [] }
+        let fallTime = reduceMotion ? 0 : animTime
         let size = SpriteID.rainSplash.size
         let width = Double(geometry.targetWidth)
         let whole = geometry.whole(.world)
         let key = SeededRandom.hash(weather.gustSeed, 7)
-        let tint = rainTint(alpha: 0.45, ambient: ambient)
+        var tint = rainTint(alpha: 0.45, ambient: ambient)
+        if weather.rain >= 0.5 {
+            tint.w = rainHeavySplashAlpha
+        }
+        func shown(_ own: Double) -> SIMD4<Float> {
+            guard reduceMotion else { return tint }
+            return SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * rainPulseAlpha(time: animTime, own: own))
+        }
         var list: [SpriteInstance] = []
         for index in 0..<count {
-            let progress = animTime / rainSplashTime + unit(SeededRandom.hash(key, Int64(index)))
+            if reduceMotion && index % 3 != 0 { continue }
+            let own = unit(SeededRandom.hash(key, Int64(index)))
+            let progress = fallTime / rainSplashTime + own
             let cycle = progress.rounded(.down)
             let frame = min(2, Int((progress - cycle) * 3))
             let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
-            let column = unit(SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))) * width
+            let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
+            let column = unit(pick) * width
             var x = (column - whole).truncatingRemainder(dividingBy: width)
             if x < 0 { x += width }
+            guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: x + whole, seam: seam) else { continue }
             let top = geometry.top(y: -Double(1 + index % 4), height: Double(size.height))
             let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(top), Float(size.width), Float(size.height))
-            list.append(SpriteInstance(sprite: .rainSplash, frame: frame, rect: rect, tint: tint, flipped: false))
+            list.append(SpriteInstance(sprite: .rainSplash, frame: frame, rect: rect, tint: shown(own), flipped: false))
+        }
+        // The ridges: one splash per roof in a light rain, two in a heavy one.
+        let perRoof = weather.rain >= 0.5 ? 2 : 1
+        for prop in props where prop.plane == .world {
+            guard let ridge = rainRidges[prop.sprite] else { continue }
+            let left = prop.x - whole
+            guard geometry.isVisible(left: left, width: Double(prop.width)) else { continue }
+            let roofTop = geometry.top(y: prop.y, height: Double(prop.height))
+            let roofKey = SeededRandom.hash(key, Int64(prop.id) &+ 1000)
+            for index in 0..<perRoof {
+                let own = unit(SeededRandom.hash(roofKey, Int64(index)))
+                if reduceMotion && (index + prop.id) % 3 != 0 { continue }
+                let progress = fallTime / rainSplashTime + own
+                let cycle = progress.rounded(.down)
+                let frame = min(2, Int((progress - cycle) * 3))
+                let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
+                let pick = SeededRandom.hash(SeededRandom.hash(roofKey, turn), Int64(index))
+                var dx = ridge.x0 + (unit(pick) * Double(ridge.x1 - ridge.x0 + 1)).rounded(.down)
+                if prop.flipped { dx = Double(prop.width - 1) - dx }
+                guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: prop.x + dx, seam: seam) else {
+                    continue
+                }
+                let rect = SIMD4<Float>(Float((left + dx).rounded(.down)) - 2, Float(roofTop) + Float(ridge.row) - 2,
+                                        Float(size.width), Float(size.height))
+                list.append(SpriteInstance(sprite: .rainSplash, frame: frame, rect: rect, tint: shown(own),
+                                           flipped: false))
+            }
+        }
+        return list
+    }
+
+    /// Step 3 (the critic's M5): a splash's alpha in a heavy rain (0.5 and more).
+    static let rainHeavySplashAlpha: Float = 0.7
+
+    /// The roofs' ridges (the sprites' top rows, chimneys left out): its first and last column and its row from the
+    /// sprite's top, unflipped. Step 3 (the critic's M5): the big house and the tavern as well as the cottages.
+    static let rainRidges: [SpriteID: (x0: Double, x1: Double, row: Int)] = [
+        .house: (14, 43, 4), .houseB: (14, 43, 4), .houseC: (14, 43, 4),
+        .bigHouse: (22, 47, 5), .tavern: (37, 64, 6),
+    ]
+
+    /// Build 3 step 2 (the two rains): the ash's three depths west of the outermost standing wall: the plane, how fast
+    /// it falls (game px/s; the rain falls ten times as fast), how many at full rain, its size (`ashFlake` frames 0-3
+    /// small, 4-7 middling, 8-11 big) and its alpha. Step 3 (the critic's H2, the director's call 4): twice as many
+    /// (the eye needs thirty or more on screen to read "falling"), hard clumps at about 0.8 alpha (`ashAlphaCap`: the
+    /// ash is not rain, and its cap is not the rain's).
+    static let ashDepths: [(plane: Plane, speed: Double, count: Int, size: Int, alpha: Float)] = [
+        (.near, 13, 60, 0, 0.7), (.world, 19, 40, 1, 0.8), (.foreground, 28, 20, 2, 0.85),
+    ]
+    static let ashAlphaCap: Float = 0.85
+    /// How far a flake drifts sideways per second in a wind of 1 beyond a calm's (game px/s), how far it sways as it
+    /// tumbles in a whole wind, and how many tumble steps it turns a second in still air and in a wind of 1 more.
+    static let ashDrift = 30.0
+    /// How far a flake leans further downwind in a gust of 1 above the steady wind (game px): a gust leans the ash a
+    /// few pixels, never so fast that a flake runs against the wind as it eases.
+    static let ashGustReach = 6.0
+    static let ashSway = 2.0
+    static let ashTumble = (still: 2.0, wind: 5.0)
+    /// The wind under which ash falls straight (a calm day's).
+    static let ashCalm = 0.12
+    /// Ash by day and by night, mixed by `rainShade` like the rain. Step 3 (the director's call 1): by day a warm soot,
+    /// the one dark thing that falls. Step 4 (the director's call 1 of 07:27, "ash is never snow"): at night the flake's
+    /// sprite is near black (`ashNightShade`), so it hides the blue sky behind it, and its emissive copy of
+    /// `ashNightWarm × ashNightGlow` (× the night's share) gives it a warm ash grey with no blue in it, only a small step
+    /// over the sky (the glow quad keeps 40 % of the hue, so the warm input comes out about 1 : 0.8 : 0.6). The pale
+    /// copy of step 3 made snow.
+    static let ashDayShade = SIMD3<Float>(0.30, 0.27, 0.26)
+    static let ashNightShade = SIMD3<Float>(0.04, 0.035, 0.03)
+    static let ashNightWarm = SIMD3<Float>(1.0, 0.5, 0.0)
+    /// b3-wind: build 3 step 5 (the director's call 3 of 11:07, M-a: at 0.28 the night flake sat 3/255 under the sky):
+    /// a small step over the sky, felt in motion, never white.
+    static let ashNightGlow: Float = 0.36
+    /// The far depth's copy a little stronger: the near plane's haze lays the night's blue air over its body.
+    static let ashNearNightLift: Float = 1.2
+    /// The near depth's flakes stay this far east of the bank's edge (the face of its sheet on fog A): never drawn dark
+    /// into the bank. The lane's depth falls under the bank's lane sheet, its night copy over it.
+    static let ashBankFace = 24.0
+    /// Step 3 (the director's idea, call 3): some flakes are born embers, decided by their index once: for the first
+    /// `emberLife` of the fall a point of fire that dies to the grey flake, which grows in as the ember dies; it never
+    /// reaches the ground glowing. Step 4 (the director's call 1 of 07:27, the critic's H1, "the embers carry the
+    /// night"): one flake in four by day and one in three at night (`emberShare`); its life a third of the fall by day
+    /// and 0.45 at night; a 2 x 2 point for its first 15 % by day and 30 % at night (`emberBig`), then one pixel. The
+    /// point goes out as window glass (`ashFlake` frames 15 and 14, painted in the glass ink, the whole 5 x 5 cell as
+    /// its source), so its colour arrives as it is: fire gold, the torch's orange, a deep red, then nothing
+    /// (`emberHeat`; the gold is a deep one, low in blue, because the night's grade takes a fifth of every colour's
+    /// saturation). Its body (frames 13 and 12, the day's orange, the same pixels as the point): on the foreground,
+    /// which is drawn over the emissive pass, it takes the day's share only (`rainShade`), so at night no dark body lies
+    /// over its light (the critic's H1 (a)); on the near and the lane's planes the body is drawn before the emissive
+    /// pass and lies under the point: it hides the blue night sky behind those very pixels, never the light, and fades
+    /// faster than the light does (1 - life against 1 - life²), so the point is never darker than the sky around it. A
+    /// glass point added over the open blue sky could not stay fire coloured after the grade. No ember under Reduce
+    /// Motion (it would pulse in place).
+    /// b3-wind: build 3 step 5 (the director's call 2 of 11:07, the critic's H1 (a)): at night two flakes in five are
+    /// born embers, they burn for 0.6 of the fall and stay two by two for their first 45 % (3 or 4 sparks burn in any
+    /// third of the screen); by day the 2 x 2 phase is a quarter of the life (M-b: at 15 % no day frame showed one).
+    static let emberShare = (day: 0.25, night: 0.4)
+    static let emberLife = (day: 1.0 / 3, night: 0.6)
+    static let emberBig = (day: 0.25, night: 0.45)
+    /// b3-wind (step 5, H1 (b)): the 2 x 2 point is one hot core pixel (its top right, `emberFrames.point`'s pixel) in
+    /// the gold × `emberCore` over three pixels of the torch's orange, so a value step stays inside the point after
+    /// the night's grade. The core goes out as a second glass quad over the point (the emissive pass adds), coloured
+    /// the difference (`emberCoreAdd`), so the core pixel arrives as the gold × 1.6.
+    static let emberCore: Float = 1.6
+    static var emberCoreAdd: SIMD3<Float> { emberGold * emberCore - emberColor }
+    /// b3-wind (step 5, H1 (c)): a burning ember's grey flake does not grow in before this share of its life, so it
+    /// burns in no dark clump; then it grows to the whole grey flake as the ember dies.
+    static let emberGreyFrom: Float = 0.5
+    /// Gate fix (round lh-b3w-42: ten embers in the night sky, three fire pixels): the night's grade in rain keeps
+    /// about 0.57 of a colour's saturation (pulling blue up toward the luma, which green rules) and tints it cold, so the
+    /// fire is low in green and has almost no blue, a little stronger, and its body (under the point, on the near and
+    /// the lane's planes) fades as the light does (1 - life², `emberBodyAlpha`): it hides the blue sky behind the
+    /// point while the point burns, and the light always outweighs what the body takes from the sky, so the pixel is
+    /// never darker than the sky around it.
+    static let emberGold = SIMD3<Float>(1.0, 0.48, 0.02)
+    static let emberColor = SIMD3<Float>(1.0, 0.34, 0.02)
+    static let emberRed = SIMD3<Float>(0.62, 0.09, 0.03)
+    static let emberGlow: Float = 1.3
+    /// The ember body's alpha at `life` (0 born ... 1 out), under the ash's cap: it fades as the light does.
+    static func emberBodyAlpha(life: Float) -> Float {
+        let t = max(0, min(1, life))
+        return min(ashAlphaCap, 1 - t * t)
+    }
+    static let emberBody = SIMD3<Float>(0.85, 0.28, 0.12)
+    /// The ember's frames: its body by day (one pixel, two by two), its glass point (one pixel, two by two).
+    static let emberFrames = (body: 12, bigBody: 13, point: 14, bigPoint: 15)
+
+    /// A day value and a night value mixed by the night's share (0 by day ... 1 at night).
+    static func byNight(_ pair: (day: Double, night: Double), _ night: Float) -> Double {
+        pair.day + (pair.night - pair.day) * Double(max(0, min(1, night)))
+    }
+
+    /// The ember's colour at `life` (0 born ... 1 out): fire gold, the torch's orange at half its life, a deep red at
+    /// the end, its strength falling as 1 - life², so the red still shows before it is gone.
+    static func emberHeat(life: Float) -> SIMD3<Float> {
+        let t = max(0, min(1, life))
+        var hue = emberColor + (emberRed - emberColor) * ((t - 0.5) / 0.5)
+        if t < 0.5 {
+            hue = emberGold + (emberColor - emberGold) * (t / 0.5)
+        }
+        return hue * (1 - t * t)
+    }
+
+    /// A flake's tint in this air.
+    static func ashTint(alpha: Float, ambient: AmbientSample) -> SIMD4<Float> {
+        let shade = rainShade(ambient)
+        let rgb = ashNightShade + (ashDayShade - ashNightShade) * shade
+        return SIMD4<Float>(rgb.x, rgb.y, rgb.z, min(ashAlphaCap, alpha))
+    }
+
+    /// Whether the flake of this index on this depth's key is born an ember, in an air of this night's share.
+    static func isEmber(key: UInt64, index: Int, night: Float) -> Bool {
+        unit(SeededRandom.hash(key ^ 0x454D_4252, Int64(index))) < byNight(emberShare, night)
+    }
+
+    /// How far a flake has moved sideways after `falling` seconds (game px): the steady wind carries it at `ashDrift`
+    /// beyond a calm's, the wind of the moment above the steady one leans it by at most `ashGustReach`, and it sways as
+    /// it tumbles (by the steady wind). So it always goes the steady wind's way, faster in a gust, and falls straight
+    /// in a calm.
+    static func ashSideways(falling: Double, own: Double, wind: Double, mean: Double) -> Double {
+        let beyond = max(0, abs(mean) - ashCalm)
+        let steady = beyond * (mean < 0 ? -1 : 1) * ashDrift * falling
+        let gust = (wind - mean) * ashGustReach * min(1, max(0, abs(wind) - ashCalm) / 0.1)
+        let sway = ashSway * min(1, beyond / 0.3) * sin(falling * 2.3 + own * 2 * Double.pi)
+        return steady + gust + sway
+    }
+
+    /// The ash's flakes on one depth's plane, each a pure function of its index and the time: slow, drifting sideways
+    /// with the wind where it falls (none in a calm: it falls straight) and tumbling through its four frames, faster in
+    /// a wind. A flake falls only where the rain is not water (`RainLook`), so the ash thins in over the band west of
+    /// the outermost standing wall. No streak and no splash. Step 3: warm soot by day, pale at night with a faint copy
+    /// in the emissive pass, one in six born an ember, the near depth kept out of the bank; with Reduce Motion a third
+    /// of them stand and fade in place. Returns the sprites and the emissive copies (the caller adds them where they
+    /// belong in the draw order).
+    private static func ashFlakes(depth: Int, animTime: Double, reduceMotion: Bool, ambient: AmbientSample,
+                                  seam: Double, bankEdge: Double,
+                                  geometry: Geometry) -> (sprites: [SpriteInstance], glow: [EmissiveInstance]) {
+        let weather = geometry.weather
+        let entry = ashDepths[depth]
+        let count = rainCount(entry.count, rain: weather.rain)
+        guard count > 0 else { return ([], []) }
+        let fallTime = reduceMotion ? 0 : animTime
+        let size = SpriteID.ashFlake.size
+        let lowest: Double
+        switch entry.plane {
+        case .foreground: lowest = Double(geometry.targetHeight)
+        case .world: lowest = Double(geometry.groundRow + 2)
+        default: lowest = Double(geometry.groundRow - 8)
+        }
+        let fall = lowest + Double(size.height)
+        let margin = 24.0
+        let span = Double(geometry.targetWidth) + 2 * margin
+        let whole = geometry.whole(entry.plane)
+        let lane = geometry.whole(.world)
+        let tint = ashTint(alpha: entry.alpha, ambient: ambient)
+        let day = rainShade(ambient)
+        let night = 1 - day
+        // Step 4: the foreground is drawn over the emissive pass, so at night its flake could only be a dark speck over
+        // its own warm copy: it fades out with the day, and the near and the lane's depths carry the night's ash.
+        let body: Float = entry.plane == .foreground ? day : 1
+        let warm = ashNightWarm * (ashNightGlow * (depth == 0 ? ashNearNightLift : 1))
+        let life = byNight(emberLife, night)
+        let big = byNight(emberBig, night)
+        let key = SeededRandom.hash(weather.gustSeed ^ 0x41_5348, Int64(depth + 1))
+        var list: [SpriteInstance] = []
+        var glow: [EmissiveInstance] = []
+        for index in 0..<count {
+            if reduceMotion && index % 3 != 0 { continue }
+            let own = unit(SeededRandom.hash(key, Int64(index)))
+            let speed = entry.speed * (0.8 + 0.4 * own)
+            let progress = fallTime * speed / fall + own
+            let cycle = progress.rounded(.down)
+            let share = progress - cycle
+            let falling = share * fall / speed
+            let y = share * fall - Double(size.height)
+            let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
+            let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
+            var x = (unit(pick) * span - whole).truncatingRemainder(dividingBy: span)
+            if x < 0 { x += span }
+            // Ash or water, decided once at the column it starts from (no flake blinks out in mid-air); a flake that
+            // drifts toward the wall fades as the water's share grows, and is gone at the wall.
+            let start = x - margin + lane
+            guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: start, seam: seam) else { continue }
+            let wind = Weather.wind(at: start, weather, time: fallTime)
+            x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
+            x = (x.truncatingRemainder(dividingBy: span) + span).truncatingRemainder(dividingBy: span) - margin
+            if depth == 0 && x + lane < bankEdge + ashBankFace { continue }
+            var fade = Float(1 - RainLook.waterShare(x: x + lane, seam: seam))
+            guard fade > 0.02 else { continue }
+            if reduceMotion {
+                fade *= rainPulseAlpha(time: animTime, own: own)
+            }
+            let tumble = Int(min(1.0e15, falling * (ashTumble.still + ashTumble.wind * abs(wind)) + own * 4)
+                .rounded(.down)) % 4
+            let frame = entry.size * 4 + tumble
+            let flipped = own > 0.5
+            let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
+                                    Float(size.height))
+            var grey: Float = 1
+            if !reduceMotion && isEmber(key: key, index: index, night: night) && share < life {
+                let age = Float(share / life)
+                let large = Double(age) < big
+                // b3-wind (step 5): the 2 x 2 point in the torch's orange round its hot gold core.
+                let strength = (1 - age * age) * emberGlow * fade
+                let heat = large ? emberColor * strength : emberHeat(life: age) * (emberGlow * fade)
+                let shown = emberBodyAlpha(life: age) * fade * (entry.plane == .foreground ? day : 1)
+                if shown > 0.01 {
+                    list.append(SpriteInstance(sprite: .ashFlake,
+                                               frame: large ? emberFrames.bigBody : emberFrames.body, rect: rect,
+                                               tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z, shown),
+                                               flipped: false))
+                }
+                glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                             color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), kind: .glass,
+                                             source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
+                                             frame: large ? emberFrames.bigPoint : emberFrames.point))
+                if large {
+                    let core = emberCoreAdd * strength
+                    glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                                 color: SIMD4<Float>(core.x, core.y, core.z, 1), kind: .glass,
+                                                 source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
+                                                 frame: emberFrames.point))
+                }
+                grey = max(0, (age - emberGreyFrom) / (1 - emberGreyFrom))
+            }
+            // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks into
+            // the list: the same flakes stand in the list from one moment to the next. A foreground flake that rests at
+            // night (`body` 0) is left out, so it costs no instance; `body` depends on the air alone, never on the
+            // time, so the list still holds from one moment to the next.
+            if body > 0.004 {
+                list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
+                                           tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
+                                           flipped: flipped))
+            }
+            if night * fade * grey > 0.01 && entry.plane != .foreground {
+                let ash = warm * (night * fade * grey)
+                glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                             color: SIMD4<Float>(ash.x, ash.y, ash.z, 1), flipped: flipped,
+                                             frame: frame))
+            }
+        }
+        return (list, glow)
+    }
+
+    // MARK: Build 3 step 3, part B: the gust's leaves and dust (docs/POLISH.md 2 item 5; lane 3)
+
+    /// Puffs of the lane's dust by the steady wind's step (`Weather.sailLevel`: calm, breeze, gusty, storm): only in a
+    /// gusty day's or a storm's gusts.
+    static let gustDustCounts = [0, 0, 4, 5]
+    /// A leaf flies at this speed plus `gustLeafDrive` × the steady wind (target px/s).
+    static let gustLeafSpeed = 50.0
+    static let gustLeafDrive = 90.0
+    /// b3-wind (step 5, call 5): the leaves leave every crown in view. The town's trees stand on the near plane (the
+    /// lane plane has none there); their crowns count too, at their column on the screen.
+    static let gustCrownPlanes: Set<Plane> = [.world, .near]
+    /// A puff of dust lives this long (s), drifting `gustDustReach` px downwind.
+    static let gustDustLife = 1.2
+    static let gustDustReach = 22.0
+
+    // b3-wind: build 3 step 6 (the director's call S3 of 16.11. 12:25: "the leaves read as confetti or small birds; a
+    // still frame shows neither where they come from nor where they go"; proven over the live town frame in
+    // ci-out/director/b3/wind/s6/00-smoke-leaves-python.png): the leaves fly as a ribbon. Every `ribbonEvery` s (a burst
+    // starts up to `ribbonJitter` s into its cell, so two are 6 to 10 s apart) 7 to 9 leaves leave the lee edge of one
+    // crown in view within `ribbonLeave` s, the late ones the most (so the ribbon is dense near the tree and sparse far
+    // from it) and the first the fastest, and travel along one shared arc: rising `ribbonRise` px by `ribbonPeak` px
+    // downwind, then sinking `ribbonSink` px a pixel, fading over their last `ribbonFade` px of `ribbonReach`. Each
+    // leaf is 3 x 2 or 2 x 2 in the two lightest tones of its crown over a darker underside (`gustLeaf`'s frames), and
+    // flips between two frames; the autumn tone only from the fruit trees. No leaf is born inside a crown and none is
+    // drawn at rest; the scattered single leaves of steps 3 to 5 are gone. None in a calm, none with Reduce Motion.
+    /// b3-wind: build 3 step 7 (the director's call T1 of 16.11. 14:41: "a row of small lime dots reads as a string of
+    /// fairy lights"): no ribbon is born in wave 1. The ribbon's code, its art and its function's tests stay; leaves get
+    /// their own design after wave 1.
+    static let ribbonsBorn = false
+    static let ribbonLeast = 7
+    static let ribbonMost = 9
+    static let ribbonLeave = 0.4
+    static let ribbonEvery = 8.0
+    static let ribbonJitter = 2.0
+    static let ribbonRise = (low: 6.0, high: 10.0)
+    static let ribbonPeak = 36.0
+    static let ribbonSink = 0.12
+    static let ribbonReach = 150.0
+    static let ribbonFade = 30.0
+    /// The first leaf's pace and the last's (× the leaf speed), so the ribbon stretches as it goes.
+    static let ribbonPace = (first: 1.25, last: 0.8)
+    /// Each leaf's own pace within ± `ribbonPaceJitter`, and its scatter off the arc, ± (1 + along / `ribbonFan`) px
+    /// (round lh-b3w-61: a ribbon of even dots on one line read as a dotted line).
+    static let ribbonPaceJitter = 0.08
+    static let ribbonFan = 35.0
+    /// How often a leaf flips between its two frames (per second).
+    static let ribbonFlip = 7.0
+    /// The crown a ribbon leaves: the upper `ribbonCrownShare` of its tree's rect; the leaves set off at the row
+    /// `ribbonCrownRow` of the tree's height under its top, and only from a crown whose lee edge lies in the upwind
+    /// `ribbonRoom` of the screen (else from any crown in view), so the ribbon has room to fly.
+    static let ribbonCrownShare = 0.65
+    static let ribbonCrownRow = 0.3
+    static let ribbonRoom = 0.6
+    private static let ribbonSalt: UInt64 = 0x5249_4242_4F4E
+
+    /// When the ribbon of cell `cell` sets off (s of the frame's clock).
+    static func ribbonStart(cell: Int64) -> Double {
+        Double(cell) * ribbonEvery + ribbonJitter * unit(SeededRandom.hash(ribbonSalt, cell))
+    }
+
+    /// The ribbon in the air at `time` (its cell and the seconds since it set off), nil in a calm and between two.
+    static func ribbon(_ weather: WeatherSample, time: Double) -> (cell: Int64, since: Double)? {
+        guard Weather.sailLevel(weather.mean) > 0 else { return nil }
+        let speed = gustLeafSpeed + gustLeafDrive * abs(weather.mean)
+        let life = ribbonLeave + ribbonReach / (ribbonPace.last * (1 - ribbonPaceJitter) * speed)
+        let now = min(1.0e12, max(0, time))
+        let cell = Int64((now / ribbonEvery).rounded(.down))
+        for index in [cell, cell - 1] {
+            let since = now - ribbonStart(cell: index)
+            if since >= 0 && since < life {
+                return (index, since)
+            }
+        }
+        return nil
+    }
+
+    /// The leaves of the ribbon of cell `cell`, `since` s after it set off, at the leaf speed `speed`: each one's way
+    /// along the arc (px downwind of the crown's lee edge, never 0 or less: a leaf not yet off is not drawn), its height
+    /// over the arc's foot (px up), its shape (0: 3 x 2, 1: 2 x 2), its flip (0, 1) and its alpha.
+    static func ribbonLeaves(cell: Int64, since: Double, speed: Double)
+        -> [(along: Double, up: Double, shape: Int, flip: Int, alpha: Double)] {
+        let key = SeededRandom.hash(ribbonSalt ^ 0x4C45_4146, cell)
+        let count = min(ribbonMost, ribbonLeast + Int(unit(SeededRandom.hash(key, 1))
+                                                      * Double(ribbonMost - ribbonLeast + 1)))
+        let rise = ribbonRise.low + (ribbonRise.high - ribbonRise.low) * unit(SeededRandom.hash(key, 2))
+        var leaves: [(along: Double, up: Double, shape: Int, flip: Int, alpha: Double)] = []
+        for place in 0..<count {
+            let share = Double(place) / Double(count - 1)
+            let mark = SeededRandom.hash(key, Int64(16 + place))
+            let off = ribbonLeave * share.squareRoot()
+            let pace = speed * (ribbonPace.first + (ribbonPace.last - ribbonPace.first) * share)
+                * (1 - ribbonPaceJitter + 2 * ribbonPaceJitter * unit(SeededRandom.hash(mark, 3)))
+            let along = pace * (since - off)
+            guard along > 0, along < ribbonReach else { continue }
+            let arc = along < ribbonPeak ? rise * sin(along / ribbonPeak * Double.pi / 2)
+                                         : rise - (along - ribbonPeak) * ribbonSink
+            // Round lh-b3w-61: with a pixel of scatter the ribbon read as a dotted line; it fans out as it goes.
+            let up = arc + (unit(SeededRandom.hash(mark, 4)) - 0.5) * 2 * (1 + along / ribbonFan)
+            let shape = unit(SeededRandom.hash(mark, 5)) < 0.4 ? 0 : 1
+            let flip = Int((since * ribbonFlip + 2 * unit(SeededRandom.hash(mark, 6))).rounded(.down)) % 2
+            leaves.append((along: along, up: up, shape: shape, flip: flip,
+                           alpha: min(1, (ribbonReach - along) / ribbonFade)))
+        }
+        return leaves
+    }
+
+    /// The leaf tone of a crown (`gustLeaf`'s rows of four frames): the pale greens of the lindens, willows and firs,
+    /// the poplars' darker greens, the autumn tone only from the fruit trees.
+    static func ribbonTone(_ sprite: SpriteID) -> Int {
+        switch sprite {
+        case .appleTree, .appleTreeB, .appleTreeC: return 2
+        case .poplar, .poplarB, .poplarC: return 1
+        default: return 0
+        }
+    }
+
+    /// How far the gust is up at world x, 0 ... 1: the wind there over the steady wind, against the day's whole gust.
+    static func gustShare(at x: Double, _ weather: WeatherSample, time: Double) -> Double {
+        guard weather.gust != 0 else { return 0 }
+        let over = abs(Weather.wind(at: x, weather, time: time)) - abs(weather.mean)
+        return min(1, max(0, over / max(0.05, abs(weather.gust))))
+    }
+
+    /// The leaves and dust a gust carries across the lane's plane, each a pure function of the time: a ribbon of leaves
+    /// from one crown on the screen (b3-wind step 6), and the lane's dust in the gusts. Never west of the outermost
+    /// standing wall (the ash is the weather there), never with Reduce Motion, none in a calm.
+    private static func gustLeaves(props: [Prop], animTime: Double, seam: Double,
+                                   geometry: Geometry) -> [SpriteInstance] {
+        let weather = geometry.weather
+        let level = Weather.sailLevel(weather.mean)
+        guard level > 0 else { return [] }
+        let size = SpriteID.gustLeaf.size
+        let width = Double(geometry.targetWidth)
+        let lane = geometry.whole(.world)
+        let ground = Double(geometry.groundRow)
+        let downwind: Double = weather.mean < 0 ? -1 : 1
+        let speed = gustLeafSpeed + gustLeafDrive * abs(weather.mean)
+        var list: [SpriteInstance] = []
+        // b3-wind (step 6, call S3): the crowns in view (world and near planes, by the plane they move with): their lee
+        // edge on the screen, the row the leaves set off from, their tone.
+        var crowns: [(lee: Double, row: Double, tone: Int)] = []
+        for prop in props where gustCrownPlanes.contains(prop.plane) && swaying.contains(prop.sprite) {
+            let left = prop.x - geometry.whole(prop.movesWith ?? prop.plane)
+            guard geometry.isVisible(left: left, width: Double(prop.width)) else { continue }
+            let top = geometry.top(y: prop.y, height: Double(prop.height))
+            crowns.append((lee: downwind > 0 ? left + Double(prop.width) : left,
+                           row: top + Double(prop.height) * ribbonCrownRow, tone: ribbonTone(prop.sprite)))
+        }
+        if ribbonsBorn, !crowns.isEmpty, let ribbon = ribbon(weather, time: animTime) {   // b3-wind step 7, call T1
+            let room = crowns.filter {
+                downwind > 0 ? $0.lee >= 0 && $0.lee <= width * ribbonRoom
+                             : $0.lee <= width && $0.lee >= width * (1 - ribbonRoom)
+            }
+            let pool = room.isEmpty ? crowns : room
+            let crown = pool[Int(unit(SeededRandom.hash(ribbonSalt, ribbon.cell &+ 7)) * Double(pool.count)) % pool.count]
+            for leaf in ribbonLeaves(cell: ribbon.cell, since: ribbon.since, speed: speed) {
+                // The leaf's pixels are the cell's columns 1 to 3 (mirrored: 2 to 4) and rows 2 and 3.
+                let edge = (crown.lee + downwind * leaf.along).rounded(.down)
+                let x = downwind > 0 ? edge - 1 : edge - Double(size.width) + 1
+                let y = min(ground - 4, (crown.row - leaf.up).rounded(.down) - 2)
+                guard x > -Double(size.width), x < width, x + lane > seam, leaf.alpha > 0.03 else { continue }
+                list.append(SpriteInstance(sprite: .gustLeaf, frame: crown.tone * 4 + leaf.shape * 2 + leaf.flip,
+                                           rect: SIMD4<Float>(Float(x), Float(y), Float(size.width),
+                                                              Float(size.height)),
+                                           tint: SIMD4<Float>(1, 1, 1, Float(leaf.alpha)), flipped: downwind < 0))
+            }
+        }
+        // The lane's dust: puffs low over the cobbles, only while a gust is up there.
+        let key = SeededRandom.hash(weather.gustSeed ^ 0x4C45_4146, 11)
+        let dustKey = SeededRandom.hash(key, 0x4455)
+        for slot in 0..<gustDustCounts[level] {
+            let own = unit(SeededRandom.hash(dustKey, Int64(slot)))
+            let cycle = gustDustLife * (1.6 + own)
+            let clock = max(0, animTime) + own * cycle
+            let turn = (clock / cycle).rounded(.down)
+            let along = clock - turn * cycle
+            guard along < gustDustLife else { continue }
+            let pick = SeededRandom.hash(SeededRandom.hash(dustKey, Int64(max(-1.0e15, min(1.0e15, turn)))),
+                                         Int64(slot))
+            let x = unit(pick) * width + downwind * gustDustReach * along / gustDustLife
+            guard x + lane > seam else { continue }
+            let share = AmbientRamp.smoothstep((gustShare(at: x + lane, weather, time: animTime) - 0.35) / 0.3)
+            guard share > 0.03 else { continue }
+            let frame = 12 + min(2, Int(along / gustDustLife * 3))
+            let top = ground - Double(size.height) + 1 + Double(slot % 2)
+            list.append(SpriteInstance(sprite: .gustLeaf, frame: frame,
+                                       rect: SIMD4<Float>(Float(x.rounded(.down)), Float(top), Float(size.width),
+                                                          Float(size.height)),
+                                       tint: SIMD4<Float>(1, 1, 1, Float(0.85 * share)), flipped: downwind < 0))
         }
         return list
     }
@@ -1596,8 +2406,18 @@ enum FrameBuilder {
             guard intensity > 0.01, radius > 0 else { continue }
             let centreX = source.x - geometry.whole(plane)
             guard geometry.isVisible(left: centreX - radius, width: 2 * radius) else { continue }
-            let centreY = Double(geometry.groundRow) - source.y
-            let circle = SIMD4<Float>(Float(centreX), Float(centreY), Float(radius), Float(intensity))
+            // Build 3, POLISH pass 1 (lane 3): an open fire leans and gutters with the wind, one value
+            // (`Weather.fireLean`): its pool moves downwind and down and dims; none in still air. After the culling,
+            // so the wind never adds or takes a light.
+            var lean = 0.0
+            if options.look == .two && Weather.leans(source.kind) && !windproof(source) {
+                lean = Weather.fireLean(x: source.x, geometry.weather, time: animTime,
+                                        reduceMotion: options.reduceMotion)
+                intensity *= 1 - Weather.fireGutter * abs(lean)
+            }
+            let centreY = Double(geometry.groundRow) - source.y + abs(lean) * Weather.fireLeanSink
+            let circle = SIMD4<Float>(Float(centreX + lean * Weather.fireLeanReach), Float(centreY), Float(radius),
+                                      Float(intensity))
             let rgba = SIMD4<Float>(color.x, color.y, color.z, 0)
             // World-2 fix round 1: a scene light may shape its pool (flat on the cobbles, a cone up a wall).
             var light = FrameLight(circle: circle, color: rgba, ellipseY: Float(source.squash ?? LightField.ellipseY),
