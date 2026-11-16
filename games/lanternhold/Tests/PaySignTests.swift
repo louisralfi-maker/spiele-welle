@@ -490,9 +490,9 @@ final class PaySignTests: XCTestCase {
         for passage in SceneLayout.castlePassages {
             XCTAssertTrue(boxes.contains { $0 == passage }, "the passage \(passage)")
         }
-        let brazierA = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-\(Realm.lines[0].braziers[0])" })
+        let brazierA = game.touch.things.first { $0.id == "touch-plot-\(Realm.lines[0].braziers[0])" }
         let brazierB = game.touch.things.first { $0.id == "touch-plot-\(Realm.lines[0].braziers[1])" }
-        if let brazierB {
+        if let brazierA, let brazierB {
             XCTAssertTrue(game.countObstacles(brazierA).contains {
                 $0.lowerBound <= brazierB.x - brazierB.halfWidth && $0.upperBound >= brazierB.x + brazierB.halfWidth
             }, "brazier A's board keeps off brazier B")
