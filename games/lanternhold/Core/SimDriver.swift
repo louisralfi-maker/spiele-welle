@@ -138,6 +138,11 @@ struct SimDriver: Sendable {
             bot = player
         }
         Sim.step(&state, dt: dt, balance: balance, events: &events)
+        // b3-horde (build 3, lane 4 step A, step 4; one block for the join): the runner's clip of the horde holds the
+        // night's clock and keeps its stream coming (`HordeProof.drive`, a `-GWHorde dark` launch of a Debug build only).
+        #if DEBUG
+        if HordeProof.probing { HordeProof.drive(&state, balance: balance) }
+        #endif
         PetitionEngine.prepare(&state, catalog: petitions)
         steps += 1
         for event in events[first...] {

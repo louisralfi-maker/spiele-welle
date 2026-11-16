@@ -36,7 +36,8 @@ final class HordeUITests: XCTestCase {
     private static let proofHour = 23.0
     private static let proofX = 660
     /// Step 3: the dark proof's place for the lord, his lantern (40 px) short of the heap at the wall (x 640), the
-    /// bank's edge (x 500) still clear of the Dynamic Island.
+    /// bank's edge (x 500) still clear of the Dynamic Island. (Step 4: a `dark` proof places him itself, at x 680,
+    /// `HordeProof.lordX`.)
     private static let darkX = 690
 
     /// Night 12 of the demo realm at `hour`, the lord at `x`, held still.

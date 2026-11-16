@@ -25,6 +25,13 @@
 #      avconvert as it stands; clip-note.txt says which worked; plus a still at its end;
 #   4. pulls three stills from the upright clip at 1, 4 and 7 s (horde-clip-1s.png ...) and sets them side by side
 #      (horde-clip-stills.png), so the gate sees what the clip holds before it reports.
+# Step 4 (the director's call 7, the clip shows the horde): the proof places the lord itself, a lantern's reach behind
+# the outer wall (x 680, `HordeProof.lordX`: the camera's danger lead then holds the open and the heap, and his light
+# burns none of them), holds the night's clock at 23:00, keeps the stream coming out of the bank's edge at one a
+# second and the outer line's catapult silent (`HordeProof.drive`). Recording waits 5 s more after the probe's ten, so
+# the stream has run before the clip starts; the app's value probe is read again at 1, 4 and 7 s of the recording and
+# noted beside the stills ("clip probe <t> s: ..."), and the note says "NO HORDE" in its last line unless each of the
+# three says seen >= 8.
 # Everything lands in $CI_OUT/clip/ (published with the round's results by publish-results.sh). It never fails a round:
 # whatever goes wrong, it says so in clip-note.txt and exits 0.
 set -u
@@ -69,10 +76,10 @@ world_probe() {
 }
 
 CLIP_HOUR=23.0
-note "start hour: $CLIP_HOUR, the horde's proof (dark), the lord at 660"
+note "start hour: $CLIP_HOUR, held; the horde's proof (dark), the lord a lantern's reach behind the outer wall"
 
 # 1. The live night. The launch call can take 15 s on the runner; it returns once the process runs (at most 90 s here).
-xcrun simctl launch "$SIM" "$BUNDLE" -GWNight 12 -GWHour "$CLIP_HOUR" -GWBuild demo -GWHorde dark:0 -GWCameraX 660 \
+xcrun simctl launch "$SIM" "$BUNDLE" -GWNight 12 -GWHour "$CLIP_HOUR" -GWBuild demo -GWHorde dark:0 \
     -GWLook 2 -GWWeather breeze >"$OUT/launch.txt" 2>&1 &
 LAUNCHER=$!
 START=$(date +%s)
@@ -126,7 +133,8 @@ while [ $(( $(date +%s) - WAITED )) -lt 90 ]; do
     sleep 0.5
 done
 if [ -n "$SEEN" ] && [ "$SEEN" -ge 10 ]; then
-    note "== $(date +%H:%M:%S) value probe: $(head -1 "$PROBE"); recording 10 s"
+    note "== $(date +%H:%M:%S) value probe: $(head -1 "$PROBE"); the stream runs 5 s more, then recording 10 s"
+    sleep 5
 else
     note "NOTE: HORDE NOT SEEN: the value probe never said seen >= 10 in 90 s (best ${BEST}, file ${PROBE:-none}:" \
         "$(head -1 "$PROBE" 2>/dev/null)); recording anyway"
@@ -138,7 +146,19 @@ RECORDER=$!
 for _ in $(seq 40); do grep -q "Recording started" "$OUT/record.txt" 2>/dev/null && break; sleep 0.5; done
 grep -q "Recording started" "$OUT/record.txt" 2>/dev/null || note "NOTE: the recorder never said it started"
 REC0=$(date +%s)
-sleep 10.5
+# Step 4: the value probe at 1, 4 and 7 s of the recording, beside the stills; each must say seen >= 8.
+LOW=""
+probe_at() {
+    local line n
+    line=$(head -1 "$PROBE" 2>/dev/null)
+    n=$(echo "$line" | sed -nE 's/.*seen:([0-9]+).*/\1/p')
+    note "clip probe $1 s: ${line:-none}"
+    if [ -z "$n" ] || [ "$n" -lt 8 ]; then LOW="$LOW $1"; fi
+}
+sleep 1; probe_at 1
+sleep 3; probe_at 4
+sleep 3; probe_at 7
+sleep 3.5
 note "recorded from $(date -r "$REC0" +%H:%M:%S) for $(( $(date +%s) - REC0 )) s by the clock; probe at the end:" \
     "$(head -1 "$PROBE" 2>/dev/null)"
 # Stop it with a time limit: SIGINT lets it finish the file; a recorder still running after 15 s is killed.
@@ -263,5 +283,10 @@ if [ -s "$CLIP" ] && command -v ffmpeg >/dev/null 2>&1; then
     fi
 else
     note "NOTE: no stills (no clip or no ffmpeg)"
+fi
+if [ -z "$LOW" ]; then
+    note "clip probes: seen >= 8 at 1, 4 and 7 s"
+else
+    note "NO HORDE: the value probe said seen < 8 (or nothing) at the clip's${LOW} s"
 fi
 done_
