@@ -190,8 +190,8 @@ enum HordeLook {
     /// Shadow swallows light: a lit small one reflects at most this much of a fire (every other figure 1.0 in look
     /// 2), and the shader takes the fire's hue out of it (step 5: all of it, and the fires' bloom outside the bank), so
     /// the navy stays navy by the fires and never turns a brown mound; the fire shows only as a 1 px warm edge on the
-    /// fire-facing upper corner of each column (step 5, the director's call 2: an edge, never an outline). A climber's lower edge
-    /// is drawn a step darker, so the rows of a heap part. The fall and its flakes take the same cap: grey soot,
+    /// fire-facing upper corner of each column (step 5, the director's call 2: an edge, never an outline). A climber's
+    /// lower edge is drawn a step darker, so the rows of a heap part. The fall and its flakes take the same cap: grey soot,
     /// never cream sparks.
     static let litCap: Float = 0.5
 
@@ -309,8 +309,6 @@ enum HordeLook {
     static let heapStep = 4
     static let heapLevels = 3
 
-    /// The lift of each small one that climbs the heap, by id (none for the first four at a wall): the fifth to the
-    /// eighth one body up, the ninth to the twelfth two, from the thirteenth three.
     /// Step 5 (the critic's M3: in the heap every body faced the wall, so their cold points stood on its face as a
     /// ladder of dashes): a climber stands up to 2 px aside by id (-2 ... +2), and about every fifth faces away.
     static func heapJitter(id: Int) -> Double {
@@ -321,6 +319,8 @@ enum HordeLook {
         SeededRandom.hash(0x4157_4159, Int64(id)) % 5 == 0
     }
 
+    /// The lift of each small one that climbs the heap, by id (none for the first four at a wall): the fifth to the
+    /// eighth one body up, the ninth to the twelfth two, from the thirteenth three.
     static func heapLifts(_ creatures: [Creature]) -> [Int: Double] {
         var byWall: [Int: [Int]] = [:]
         for c in creatures where c.kind == .sootling && c.hp > 0 && c.action == .attackingWall && c.target >= 0 {
