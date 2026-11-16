@@ -313,6 +313,43 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThan(wet.desc.emissives.filter { $0.sprite == .rainStreak }.count, 0, "the rain is seen at night")
     }
 
+    /// Step 3 gate (round lh-b3w-33): the shots 391 and 400-407 (a dry storm over the town at 2900, demo realm) show
+    /// no leaf, though `testTheGustCarriesLeavesAndDust` finds them in the scene's frame. A measurement, not a verdict:
+    /// it prints what the game-mode frame (scene, entities, as `GameModel` builds it) holds and what the renderer draws
+    /// at each leaf, so the next step knows on which side of the frame the leaves are lost.
+    func testTheGustsLeavesInTheGameFrameMeasured() throws {
+        let s = GameFrameSupport.demoDay(hour: 12)
+        let override = WeatherOverride(mode: .storm, rain: 0)
+        var counts: [Int] = []
+        for index in 0..<12 {
+            let time = 30.4 + Double(index) * 0.9
+            counts.append(sprites(shot(s, focus: 2900, weather: weather(s, override, time: time), time: time),
+                                  .gustLeaf, .world).count)
+        }
+        let at = shot(s, focus: 2900, weather: weather(s, override, time: 30.4), time: 30.4)
+        let leaves = sprites(at, .gustLeaf, .world)
+        print("GUSTLEAVES game frame at 2900, 12 moments: \(counts); at 30.4: \(leaves.count), seam \(Int(at.seam)), "
+              + "lane \(Int(at.lane)), \(at.desc.targetWidth) x \(at.desc.targetHeight), ground \(at.desc.groundRow)")
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var settings = RenderSettings()
+        settings.time = 30.4
+        let picture = try renderer.renderOffscreen(at.desc, settings: settings)
+        let scale = at.desc.scale
+        let shift = at.desc.layer(.world).offset.deviceShift
+        for leaf in leaves {
+            let column = Int(leaf.rect.x) + 2
+            let row = Int(leaf.rect.y) + 1
+            let x = column * scale - shift + scale / 2
+            let y = picture.height - (at.desc.targetHeight - row) * scale + scale / 2
+            let drawn = picture.color(x: x, y: y)
+            let beside = picture.color(x: x + 4 * scale, y: y)
+            print("GUSTLEAF frame \(leaf.frame) at \(Int(leaf.rect.x)),\(Int(leaf.rect.y)) alpha \(leaf.tint.w): drawn "
+                  + "\(drawn.x), \(drawn.y), \(drawn.z); 4 px beside \(beside.x), \(beside.y), \(beside.z)")
+        }
+        XCTAssertEqual(counts.count, 12)
+    }
+
     /// Step 3 (the director's call 6): a look is tested on the drawn pixel, never on the tint that goes in. Rendered
     /// offscreen like `Look2FrameTests.testLookTwoRenders`: at a flake of the lane's depth in the upper sky its drawn
     /// luma against the pixel three game pixels beside its cell differs by at least 40 (of 255): pale at night, dark at
