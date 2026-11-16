@@ -1843,27 +1843,61 @@ enum FrameBuilder {
     /// The wind under which ash falls straight (a calm day's).
     static let ashCalm = 0.12
     /// Ash by day and by night, mixed by `rainShade` like the rain. Step 3 (the director's call 1): by day a warm soot,
-    /// the one dark thing that falls; at night pale, and each flake gets a faint emissive copy of
-    /// `ashNightShade × ashNightGlow` (× the night's share), so the pale value survives the plane's night light without
-    /// glowing (the critic's H1: tinted pale, the plane's light drew it navy).
+    /// the one dark thing that falls. Step 4 (the director's call 1 of 07:27, "ash is never snow"): at night the flake's
+    /// sprite is near black (`ashNightShade`), so it hides the blue sky behind it, and its emissive copy of
+    /// `ashNightWarm × ashNightGlow` (× the night's share) gives it a warm ash grey with no blue in it, only a small step
+    /// over the sky (the glow quad keeps 40 % of the hue, so the warm input comes out about 1 : 0.8 : 0.6). The pale
+    /// copy of step 3 made snow.
     static let ashDayShade = SIMD3<Float>(0.30, 0.27, 0.26)
-    static let ashNightShade = SIMD3<Float>(0.88, 0.86, 0.84)
-    static let ashNightGlow: Float = 0.35
-    /// At night the foreground's flake keeps this share of its sprite: the foreground is drawn over the emissive pass,
-    /// so its own dark-lit body would hide its pale copy.
-    static let ashForegroundNight: Float = 0.35
+    static let ashNightShade = SIMD3<Float>(0.04, 0.035, 0.03)
+    static let ashNightWarm = SIMD3<Float>(1.0, 0.5, 0.0)
+    static let ashNightGlow: Float = 0.28
+    /// The far depth's copy a little stronger: the near plane's haze lays the night's blue air over its body.
+    static let ashNearNightLift: Float = 1.2
     /// The near depth's flakes stay this far east of the bank's edge (the face of its sheet on fog A): never drawn dark
     /// into the bank. The lane's depth falls under the bank's lane sheet, its night copy over it.
     static let ashBankFace = 24.0
-    /// Step 3 (the director's idea, call 3): about one flake in `emberShare` is born an ember, decided by its index
-    /// once: for the first `emberLife` of its fall it is a point of the torch's orange (`ashFlake` frames 13 and 12,
-    /// two pixels then one) that glows in the emissive pass and dies to the grey flake, which grows in as the ember
-    /// dies; it never reaches the ground glowing.
-    static let emberShare: UInt64 = 6
-    static let emberLife = 1.0 / 3
+    /// Step 3 (the director's idea, call 3): some flakes are born embers, decided by their index once: for the first
+    /// `emberLife` of the fall a point of fire that dies to the grey flake, which grows in as the ember dies; it never
+    /// reaches the ground glowing. Step 4 (the director's call 1 of 07:27, the critic's H1, "the embers carry the
+    /// night"): one flake in four by day and one in three at night (`emberShare`); its life a third of the fall by day
+    /// and 0.45 at night; a 2 x 2 point for its first 15 % by day and 30 % at night (`emberBig`), then one pixel. The
+    /// point goes out as window glass (`ashFlake` frames 15 and 14, painted in the glass ink, the whole 5 x 5 cell as
+    /// its source), so its colour arrives as it is: fire gold, the torch's orange, a deep red, then nothing
+    /// (`emberHeat`; the gold is a deep one, low in blue, because the night's grade takes a fifth of every colour's
+    /// saturation). Its body (frames 13 and 12, the day's orange, the same pixels as the point): on the foreground,
+    /// which is drawn over the emissive pass, it takes the day's share only (`rainShade`), so at night no dark body lies
+    /// over its light (the critic's H1 (a)); on the near and the lane's planes the body is drawn before the emissive
+    /// pass and lies under the point: it hides the blue night sky behind those very pixels, never the light, and fades
+    /// faster than the light does (1 - life against 1 - life²), so the point is never darker than the sky around it. A
+    /// glass point added over the open blue sky could not stay fire coloured after the grade. No ember under Reduce
+    /// Motion (it would pulse in place).
+    static let emberShare = (day: 0.25, night: 1.0 / 3)
+    static let emberLife = (day: 1.0 / 3, night: 0.45)
+    static let emberBig = (day: 0.15, night: 0.30)
+    static let emberGold = SIMD3<Float>(1.0, 0.70, 0.22)
     static let emberColor = SIMD3<Float>(1.0, 0.54, 0.165)
+    static let emberRed = SIMD3<Float>(0.62, 0.09, 0.03)
     static let emberGlow: Float = 0.9
     static let emberBody = SIMD3<Float>(0.85, 0.28, 0.12)
+    /// The ember's frames: its body by day (one pixel, two by two), its glass point (one pixel, two by two).
+    static let emberFrames = (body: 12, bigBody: 13, point: 14, bigPoint: 15)
+
+    /// A day value and a night value mixed by the night's share (0 by day ... 1 at night).
+    static func byNight(_ pair: (day: Double, night: Double), _ night: Float) -> Double {
+        pair.day + (pair.night - pair.day) * Double(max(0, min(1, night)))
+    }
+
+    /// The ember's colour at `life` (0 born ... 1 out): fire gold, the torch's orange at half its life, a deep red at
+    /// the end, its strength falling as 1 - life², so the red still shows before it is gone.
+    static func emberHeat(life: Float) -> SIMD3<Float> {
+        let t = max(0, min(1, life))
+        var hue = emberColor + (emberRed - emberColor) * ((t - 0.5) / 0.5)
+        if t < 0.5 {
+            hue = emberGold + (emberColor - emberGold) * (t / 0.5)
+        }
+        return hue * (1 - t * t)
+    }
 
     /// A flake's tint in this air.
     static func ashTint(alpha: Float, ambient: AmbientSample) -> SIMD4<Float> {
@@ -1872,9 +1906,9 @@ enum FrameBuilder {
         return SIMD4<Float>(rgb.x, rgb.y, rgb.z, min(ashAlphaCap, alpha))
     }
 
-    /// Whether the flake of this index on this depth's key is born an ember.
-    static func isEmber(key: UInt64, index: Int) -> Bool {
-        SeededRandom.hash(key ^ 0x454D_4252, Int64(index)) % emberShare == 0
+    /// Whether the flake of this index on this depth's key is born an ember, in an air of this night's share.
+    static func isEmber(key: UInt64, index: Int, night: Float) -> Bool {
+        unit(SeededRandom.hash(key ^ 0x454D_4252, Int64(index))) < byNight(emberShare, night)
     }
 
     /// How far a flake has moved sideways after `falling` seconds (game px): the steady wind carries it at `ashDrift`
@@ -1917,8 +1951,14 @@ enum FrameBuilder {
         let whole = geometry.whole(entry.plane)
         let lane = geometry.whole(.world)
         let tint = ashTint(alpha: entry.alpha, ambient: ambient)
-        let night = 1 - rainShade(ambient)
-        let body: Float = entry.plane == .foreground ? 1 - night * (1 - ashForegroundNight) : 1
+        let day = rainShade(ambient)
+        let night = 1 - day
+        // Step 4: the foreground is drawn over the emissive pass, so at night its flake could only be a dark speck over
+        // its own warm copy: it fades out with the day, and the near and the lane's depths carry the night's ash.
+        let body: Float = entry.plane == .foreground ? day : 1
+        let warm = ashNightWarm * (ashNightGlow * (depth == 0 ? ashNearNightLift : 1))
+        let life = byNight(emberLife, night)
+        let big = byNight(emberBig, night)
         let key = SeededRandom.hash(weather.gustSeed ^ 0x41_5348, Int64(depth + 1))
         var list: [SpriteInstance] = []
         var glow: [EmissiveInstance] = []
@@ -1955,26 +1995,32 @@ enum FrameBuilder {
             let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
                                     Float(size.height))
             var grey: Float = 1
-            if isEmber(key: key, index: index) && share < emberLife {
-                let life = Float(share / emberLife)
-                let point = life < 0.5 ? 13 : 12
-                let heat = emberColor * (emberGlow * (1 - life) * fade)
-                list.append(SpriteInstance(sprite: .ashFlake, frame: point, rect: rect,
-                                           tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z,
-                                                              min(ashAlphaCap, 1 - life) * fade), flipped: false))
+            if !reduceMotion && isEmber(key: key, index: index, night: night) && share < life {
+                let age = Float(share / life)
+                let large = Double(age) < big
+                let heat = emberHeat(life: age) * (emberGlow * fade)
+                let shown = min(ashAlphaCap, 1 - age) * fade * (entry.plane == .foreground ? day : 1)
+                if shown > 0.01 {
+                    list.append(SpriteInstance(sprite: .ashFlake,
+                                               frame: large ? emberFrames.bigBody : emberFrames.body, rect: rect,
+                                               tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z, shown),
+                                               flipped: false))
+                }
                 glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                             color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), frame: point))
-                grey = life
+                                             color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), kind: .glass,
+                                             source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
+                                             frame: large ? emberFrames.bigPoint : emberFrames.point))
+                grey = age
             }
             // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks into
             // the list: the same flakes stand in the list from one moment to the next.
             list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
                                        tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
                                        flipped: flipped))
-            if night > 0.02 {
-                let pale = ashNightShade * (ashNightGlow * night * fade * grey)
+            if night * fade * grey > 0.01 && entry.plane != .foreground {
+                let ash = warm * (night * fade * grey)
                 glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                             color: SIMD4<Float>(pale.x, pale.y, pale.z, 1), flipped: flipped,
+                                             color: SIMD4<Float>(ash.x, ash.y, ash.z, 1), flipped: flipped,
                                              frame: frame))
             }
         }

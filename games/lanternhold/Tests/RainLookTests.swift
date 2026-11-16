@@ -21,11 +21,12 @@ final class RainLookTests: XCTestCase {
     }
 
     private func shot(_ s: GameState, focus: Double, weather: WeatherSample, time: Double = 1.5,
-                      reduceMotion: Bool = false) -> Shot {
+                      reduceMotion: Bool = false, gloom: GloomFog? = nil) -> Shot {
         var options = FrameOptions(flickerTime: time)
         options.look = .two
         options.weather = weather
         options.reduceMotion = reduceMotion
+        options.gloom = gloom
         let screen = RainLookTests.screen
         let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
         let camera = Camera(focusX: focus, pixelScale: pixelScale)
@@ -108,7 +109,7 @@ final class RainLookTests: XCTestCase {
             XCTAssertGreaterThan(Double(splash.rect.x) + gorge.lane, gorge.seam - RainLook.band - 1, "ash never splashes")
         }
         // Each depth its own size of flake (by day: at night the near depth stays out of the bank, which stands at 500
-        // on night 12); an ember's point is frame 12 or 13.
+        // on night 12); an ember's body is frame 12 or 13.
         let noon = GameFrameSupport.demoDay(hour: 12)
         let dayGorge = shot(noon, focus: 300, weather: weather(noon, WeatherOverride(mode: .storm)))
         for (depth, entry) in FrameBuilder.ashDepths.enumerated() {
@@ -254,10 +255,12 @@ final class RainLookTests: XCTestCase {
 
     func testTheLightsKeepTheirWarmthAndTheEmbersDieEarly() {
         let night = GameFrameSupport.demoNight(hour: 23.2)
-        // Step 3 (the director's idea): about one flake in six is born an ember, an orange point in the emissive pass
-        // for the first third of its fall, and never one lower down.
+        // Step 3 (the director's idea), step 4 (the director's call 1 of 07:27): at night about one flake in three is
+        // born an ember, a point of fire in the emissive pass, drawn as window glass (its colour as it is) for the
+        // first 0.45 of its fall and never lower down; two by two for its first 30 %, then one pixel.
         let storm = weather(night, WeatherOverride(mode: .storm))
         var embers = 0
+        var large = 0
         var flakes = 0
         for index in 0..<8 {
             let time = 2 + Double(index) * 3.1
@@ -265,24 +268,53 @@ final class RainLookTests: XCTestCase {
                              time: time)
             let points = gorge.desc.emissives.filter { $0.sprite == .ashFlake && $0.frame >= 12 }
             embers += points.count
+            large += points.filter { $0.frame == FrameBuilder.emberFrames.bigPoint }.count
             flakes += sprites(gorge, .ashFlake).filter { $0.frame < 12 }.count
             for point in points {
-                XCTAssertGreaterThan(point.color.x, point.color.z * 3, "orange, not grey")
-                let entry = FrameBuilder.ashDepths.first { $0.plane == point.plane }
+                XCTAssertEqual(point.kind, .glass, "the ember's light arrives as it is")
+                XCTAssertEqual(point.source, SIMD4<Float>(0, 0, 5, 5), "the whole cell")
+                XCTAssertTrue(point.frame == FrameBuilder.emberFrames.point
+                              || point.frame == FrameBuilder.emberFrames.bigPoint)
+                XCTAssertGreaterThanOrEqual(point.color.x, point.color.z * 2, "fire, not grey")
+                XCTAssertGreaterThan(point.color.x, point.color.y, "never yellow-white")
                 let floor = point.plane == .foreground ? Float(gorge.desc.targetHeight)
                                                        : Float(gorge.desc.groundRow)
-                XCTAssertNotNil(entry)
-                XCTAssertLessThan(point.rect.y, floor * 0.4, "an ember dies in the first third of its fall")
+                XCTAssertLessThan(point.rect.y, floor * 0.5, "an ember dies in the first 0.45 of its fall")
             }
+            // At night no ember has a body on the foreground, which is drawn over the emissive pass.
+            XCTAssertTrue(sprites(gorge, .ashFlake, .foreground).allSatisfy { $0.frame < 12 }, "no dark body over it")
         }
         XCTAssertGreaterThan(embers, 0, "embers fall")
-        XCTAssertLessThan(Double(embers), Double(flakes) / 6 + 8, "a few")
-        XCTAssertEqual(Double((0..<6000).filter { FrameBuilder.isEmber(key: 77, index: $0) }.count), 1000, accuracy: 90)
-        // At night each flake has its faint pale copy in the emissive pass; by day none.
+        XCTAssertGreaterThan(large, 0, "the young ones are two by two")
+        XCTAssertLessThan(large, embers, "then one pixel")
+        XCTAssertLessThan(Double(embers), Double(flakes) / 3 + 8, "one in three at most")
+        XCTAssertEqual(Double((0..<6000).filter { FrameBuilder.isEmber(key: 77, index: $0, night: 1) }.count), 2000,
+                       accuracy: 140, "one in three at night")
+        XCTAssertEqual(Double((0..<6000).filter { FrameBuilder.isEmber(key: 77, index: $0, night: 0) }.count), 1500,
+                       accuracy: 120, "one in four by day")
+        // It dies in colour: fire gold, the torch's orange, a deep red, then nothing.
+        let gold = FrameBuilder.emberHeat(life: 0)
+        let half = FrameBuilder.emberHeat(life: 0.5)
+        let late = FrameBuilder.emberHeat(life: 0.85)
+        XCTAssertGreaterThan(gold.y / gold.x, half.y / half.x, "gold, then orange")
+        XCTAssertGreaterThan(half.y / half.x, late.y / late.x, "orange, then red")
+        XCTAssertGreaterThan(late.x, 0.15, "the red still shows")
+        XCTAssertEqual(FrameBuilder.emberHeat(life: 1), SIMD3<Float>(0, 0, 0), "then nothing")
+        // No ember under Reduce Motion: it would pulse in place.
+        let held = shot(night, focus: 300, weather: weather(night, WeatherOverride(mode: .storm), reduceMotion: true),
+                        reduceMotion: true)
+        XCTAssertTrue(held.desc.emissives.filter { $0.sprite == .ashFlake }.allSatisfy { $0.frame < 12 })
+        XCTAssertTrue(sprites(held, .ashFlake).allSatisfy { $0.frame < 12 })
+        // At night each flake of the near and the lane's depth has its faint warm copy in the emissive pass, with no
+        // blue in it; by day none.
         let nightGorge = shot(night, focus: 300, weather: storm)
         let copies = nightGorge.desc.emissives.filter { $0.sprite == .ashFlake && $0.frame < 12 }
         XCTAssertFalse(copies.isEmpty)
-        XCTAssertTrue(copies.allSatisfy { $0.color.x <= FrameBuilder.ashNightGlow + 1e-4 }, "never a glow")
+        XCTAssertTrue(copies.allSatisfy { $0.plane != .foreground }, "the foreground's flakes rest at night")
+        XCTAssertTrue(copies.allSatisfy {
+            $0.color.x <= FrameBuilder.ashNightGlow * FrameBuilder.ashNearNightLift + 1e-4
+        }, "never a glow")
+        XCTAssertTrue(copies.allSatisfy { $0.color.x > $0.color.y && $0.color.y > $0.color.z }, "warm: r > g > b")
         let noon = GameFrameSupport.demoDay(hour: 12)
         let dayGorge = shot(noon, focus: 300, weather: weather(noon, WeatherOverride(mode: .storm)))
         XCTAssertTrue(dayGorge.desc.emissives.filter { $0.sprite == .ashFlake }.allSatisfy { $0.frame >= 12 },
@@ -363,8 +395,10 @@ final class RainLookTests: XCTestCase {
         let noon = GameFrameSupport.demoDay(hour: 12)
         let rain = WeatherOverride(mode: .clear, wind: 0.35, rain: 1)
         let cases: [(name: String, state: GameState, focus: Double, sprite: SpriteID, sign: Float, least: Float)] = [
-            ("ash at night, the band", night, 520, .ashFlake, 1, 40),
-            ("ash at night, the gorge", night, 300, .ashFlake, 1, 40),
+            // Step 4 (the director's call 1 of 07:27): at night a small step over the sky, never white
+            // (`testTheNightAshIsWarmAndTheEmbersGlowOnTheDrawnPixel` holds the upper bound and the colour).
+            ("ash at night, the band", night, 520, .ashFlake, 1, 8),
+            ("ash at night, the gorge", night, 300, .ashFlake, 1, 8),
             ("ash at noon, the band", noon, 480, .ashFlake, -1, 40),
             ("water at noon, the town", noon, 2900, .rainStreak, 1, 24),
         ]
@@ -378,6 +412,78 @@ final class RainLookTests: XCTestCase {
             let median = found.sorted()[found.count / 2]
             XCTAssertGreaterThanOrEqual(median, item.least, "\(item.name): the drawn contrast (median of \(found.count))")
         }
+    }
+
+    /// Step 4 (the director's call 1 of 07:27, the critic's H1): ash is never snow and the embers carry the night. On
+    /// the drawn pixel of the live night picture (23:00, rain over the band, the Gloom's fog on): at least six pixels of
+    /// the band's sky are fire (r >= 2 b) and brighter than the sky beside them; no pixel of a whole flake of the lane's
+    /// depth in the upper sky (clear of the fog's low strips) has b >= r, and none stands more than a small step over
+    /// the sky (60 of 255: never white).
+    func testTheNightAshIsWarmAndTheEmbersGlowOnTheDrawnPixel() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let night = GameFrameSupport.demoNight(hour: 23)
+        let rain = WeatherOverride(mode: .clear, wind: 0.35, rain: 1)
+        let gloom = GloomFog(night: night.day, fogNight: false)
+        let frame = shot(night, focus: 480, weather: weather(night, rain), gloom: gloom).desc
+        let picture = try renderer.renderOffscreen(frame, settings: settings)
+        let s = frame.scale
+        func color(_ plane: Plane, _ column: Int, _ row: Int) -> SIMD3<Float> {
+            let shift = frame.layer(plane).offset.deviceShift
+            return picture.color(x: column * s - shift + s / 2, y: picture.height - (frame.targetHeight - row) * s + s / 2)
+        }
+        func luma(_ c: SIMD3<Float>) -> Float { 0.2126 * c.x + 0.7152 * c.y + 0.0722 * c.z }
+        let sky = frame.groundRow - 70
+        // The embers: the pixels of each glass point.
+        var fire = 0
+        var points = 0
+        for point in frame.emissives where point.sprite == .ashFlake && point.kind == .glass {
+            let left = Int(point.rect.x)
+            let top = Int(point.rect.y)
+            guard left >= 4, left + 9 < frame.targetWidth, top >= 0, top + 4 < sky else { continue }
+            points += 1
+            let beside = (luma(color(point.plane, left - 3, top + 2)) + luma(color(point.plane, left + 7, top + 2))) / 2
+            let cells = point.frame == FrameBuilder.emberFrames.bigPoint ? [(1, 2), (2, 2), (1, 3), (2, 3)] : [(2, 2)]
+            for (dx, dy) in cells {
+                let c = color(point.plane, left + dx, top + dy)
+                if c.x >= 2 * c.z && luma(c) > beside + 0.02 {
+                    fire += 1
+                }
+            }
+        }
+        // The grey flakes of the lane's depth, whole (not fading in the band, not an ember's), east of the bank's sheet.
+        var pixels = 0
+        var blue = 0
+        var white = 0
+        var steps: [Int] = []
+        let whole = FrameBuilder.ashDepths[1].alpha - 0.01
+        for flake in frame.layer(.world).sprites where flake.sprite == .ashFlake && flake.frame < 12
+            && flake.tint.w > whole {
+            let left = Int(flake.rect.x)
+            let top = Int(flake.rect.y)
+            guard Float(left) > frame.bankEdge + Float(FrameBuilder.ashBankFace), left >= 4,
+                  left + 9 < frame.targetWidth, top >= 2, top + 5 < sky else { continue }
+            let beside = (luma(color(.world, left - 3, top + 2)) + luma(color(.world, left + 7, top + 2))) / 2
+            for (dy, row) in PlaceholderWeather.ashClumps[flake.frame].enumerated() {
+                for (dx, cell) in row.enumerated() where cell != "." {
+                    let c = color(.world, left + (flake.flipped ? 4 - dx : dx), top + dy)
+                    pixels += 1
+                    if c.z >= c.x { blue += 1 }
+                    let step = (luma(c) - beside) * 255
+                    if step > 60 { white += 1 }
+                    steps.append(Int(step))
+                }
+            }
+        }
+        let median = steps.isEmpty ? 0 : steps.sorted()[steps.count / 2]
+        print("NIGHTASH band 23:00, fog on: \(points) embers in the sky, \(fire) fire pixels; \(pixels) flake pixels, "
+              + "\(blue) with b >= r, \(white) white, median step \(median)")
+        XCTAssertGreaterThanOrEqual(fire, 6, "the embers carry the night: fire in the band's sky")
+        XCTAssertGreaterThanOrEqual(pixels, 12, "enough whole flakes in the upper sky")
+        XCTAssertEqual(blue, 0, "ash is never snow: no flake pixel with b >= r")
+        XCTAssertEqual(white, 0, "only a small step over the sky")
     }
 
     /// The drawn contrasts of the lane plane's `sprite`s whose cells lie wholly in the upper sky (above the ground's

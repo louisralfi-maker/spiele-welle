@@ -66,18 +66,21 @@ enum PlaceholderWeather {
         return p.image
     }
 
-    /// An ash flake (frames 0-3 small, 4-7 middling, 8-11 big, 12 and 13 the ember's point; tools/weatherart.py's
-    /// strip replaces it, the same clumps): a hard clump, a lit top pixel over a darker body, turned as it tumbles.
+    /// An ash flake (frames 0-3 small, 4-7 middling, 8-11 big, 12 and 13 the ember's body by day, one pixel and two by
+    /// two, 14 and 15 its glass point in the window glass's ink, the same pixels; tools/weatherart.py's strip replaces
+    /// it, the same clumps): a hard clump, a lit top pixel over a darker body, turned as it tumbles.
     static let ashClumps: [[String]] = [
         [".....", ".LB..", ".BB.."], [".....", ".L...", ".BB.."], [".....", ".....", ".LB.."], [".....", "..L..", ".BB.."],
         [".....", ".LLB.", ".BBB."], [".....", "..LB.", ".BB..", ".BD.."], [".....", ".LB..", ".BB..", ".BD.."],
         [".....", ".LB..", "..BB.", "..DB."],
         [".....", ".LLB.", ".BBBB", ".BD.D"], [".....", "LLB..", ".BBB.", "..BD."], [".....", "..L..", "..B..", "...D."],
         [".....", "..BLL", ".BBB.", ".DB.."],
-        [".....", ".....", "..h.."], [".....", ".....", ".ho.."],
+        [".....", ".....", "..h.."], [".....", ".....", ".hh..", ".ho.."],
+        [".....", ".....", "..g.."], [".....", ".....", ".gg..", ".gg.."],
     ]
     static let ashPalette: [Character: RGBA] = [
         "L": RGBA(0xFFFCF6), "B": RGBA(0xB8B4B0), "D": RGBA(0x969290), "h": RGBA(0xFFC65A), "o": RGBA(0xFF8A2A),
+        "g": RGBA(0x2A2230),
     ]
 
     static func ashFlake(_ frame: Int) -> PixelImage {

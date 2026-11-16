@@ -580,7 +580,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .windmillSails: return Weather.sailFrames
         case .keepFlag: return Weather.flagFrames
         case .keepFlagRim: return 2 * Weather.flagFrames
-        case .ashFlake: return 14   // build 3 step 3: three sizes by four tumbles, then the ember's two points
+        case .ashFlake: return 16   // build 3 step 3: three sizes by four tumbles, the ember's body (step 4: and its glass)
         case .weatherVane: return Weather.vaneFrames
         case .gustLeaf: return 15
         case .flameBent, .brazierFlameBent: return 4

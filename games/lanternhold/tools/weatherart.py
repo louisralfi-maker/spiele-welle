@@ -5,7 +5,7 @@
   weatherart.py vane [--out DIR]   writes DIR/weatherVane.png
   weatherart.py gust [--out DIR]   writes DIR/gustLeaf.png
 
-ashFlake: 14 frames of 5x5, the ash that falls west of the outermost standing wall where the rain is water on the
+ashFlake: 16 frames of 5x5, the ash that falls west of the outermost standing wall where the rain is water on the
 town's side. Step 3 (the critic's H2, the director's calls 1 and 3): hard pixel clumps with no soft alpha ring, so a
 flake is a thing that falls and never a smudge on the glass.
 
@@ -14,8 +14,11 @@ flake is a thing that falls and never a smudge on the glass.
   frame, and it is a kinked sliver one pixel thick, never a straight 1 x 3 dash: no flake looks like a tiny streak.
 - two tones a flake: a lit top pixel and a darker body. White and light grey, because the engine tints it by the hour
   (`FrameBuilder.ashTint`: warm soot by day; pale at night, where a faint emissive copy keeps the value).
-- frames 12 and 13: the ember (the director's idea): one pixel and two pixels in fire orange, drawn as an emissive point
-  where a flake that is born an ember starts its fall; it dies to the grey flake within the first third of the fall.
+- frames 12 and 13: the ember's body by day (the director's idea): one pixel, and two by two in fire gold over the
+  torch's orange, where a flake that is born an ember starts its fall; it dies to the grey flake.
+- frames 14 and 15 (step 4, the critic's H1): the same pixels in the window glass's ink (42, 34, 48). The ember's light
+  goes out as a glass quad over them, and the renderer lights only glass-ink pixels in a glass quad, its colour as it
+  is (the glow quad kept 40 % of the hue and the ember came out pale peach).
 
 No streak and no splash: the difference from the rain reads in the shape, the value and the slow drift.
 
@@ -54,11 +57,14 @@ CLUMPS = [
     [".....", "..L..", "..B..", "...D.", "....."],
     [".....", "..BLL", ".BBB.", ".DB..", "....."],
 ]
+GLASS_INK = (42, 34, 48, 255)    # the palette's ink: a glass pixel for the renderer's glass quad
 EMBERS = [
     [".....", ".....", "..h..", ".....", "....."],
-    [".....", ".....", ".ho..", ".....", "....."],
+    [".....", ".....", ".hh..", ".ho..", "....."],
+    [".....", ".....", "..g..", ".....", "....."],
+    [".....", ".....", ".gg..", ".gg..", "....."],
 ]
-COLOURS = {"L": LIT, "B": BODY, "D": EDGE, "h": EMBER_HOT, "o": EMBER}
+COLOURS = {"L": LIT, "B": BODY, "D": EDGE, "h": EMBER_HOT, "o": EMBER, "g": GLASS_INK}
 
 
 def frame(rows):
