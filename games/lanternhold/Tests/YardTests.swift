@@ -203,7 +203,9 @@ final class YardTests: XCTestCase {
         s.king.x = Yard.fenceX
         stand(&s, seconds: 6)
         XCTAssertFalse(Yard.doubledToday(s), "08:00: nobody drills yet")
+        s.king.x = Realm.throneX
         run(&s, until: 10)
+        XCTAssertFalse(Yard.doubledToday(s), "nobody at the fence")
         s.king.x = Yard.fenceX
         // Walking past is no watching.
         var events: [SimEvent] = []
@@ -310,14 +312,17 @@ final class YardTests: XCTestCase {
         XCTAssertEqual(s.yard?.kettle, .inUse, "Bram brought it at dawn")
         XCTAssertEqual(s.lastReport?.yard?.kettle, true)
         XCTAssertEqual(Yard.balance(balance, for: s).fireArrowEvery, 3, "every third arrow")
-        // In the battle: per archer every third shot burns.
+        // In the battle: per archer every third shot burns. Harmless creatures, so the wall holds and every archer
+        // shoots from his post all night.
+        var harmless = balance
+        harmless.creatureHarmScale = 0
         func night(kettle: Bool) -> (fire: Int, expected: Int) {
             var n = GameState.newRealm(seed: 4, balance: balance)
             n.day = 2
             Yard.proof(&n, stage: 2, kettle: kettle, trained: false, balance: balance)
             n.hour = 18.9
             var bot = Autoplay.buildsNothing
-            Sim.run(&n, untilHour: 23, balance: balance, bot: &bot)
+            Sim.run(&n, untilHour: 2, balance: harmless, bot: &bot)
             let every = kettle ? 3 : 4
             var expected = 0
             for soldier in n.soldiers where soldier.kind == .archer { expected += soldier.shots / every }
