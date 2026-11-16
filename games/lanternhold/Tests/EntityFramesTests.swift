@@ -1141,4 +1141,55 @@ final class EntityFramesTests: XCTestCase {
             }, "\(id): under Reduce Motion it holds the reach, still")
         }
     }
+
+    func testTheMistIsTheirBackdropNeverTheirVeil() {
+        // Step 4 (the director's second law): outside the bank a small one is seen at least `fogFloor` and fog B lies
+        // over it at its veil only; deeper in the bank than a body is drawn nothing changes; its cold point takes no
+        // fog. The renderer gets both through the packed cap (`HordeLook.pack`); every other figure keeps its plain cap.
+        for cap: Float in [0.5, 0.99] {
+            for veil: Float in [0, 0.15, 0.5, 1] {
+                let back = HordeLook.unpack(HordeLook.pack(cap: cap, veil: veil))
+                XCTAssertEqual(back?.cap ?? 0, cap, accuracy: 0.001)
+                XCTAssertEqual(back?.veil ?? -1, veil, accuracy: 0.001)
+            }
+        }
+        XCTAssertNil(HordeLook.unpack(EntityFrames.creatureLightCap), "a plain cap is no small one")
+        let edge = 500.0
+        XCTAssertEqual(HordeLook.veil(x: edge + 40, bankEdge: edge), 1 - HordeLook.fogFloor, accuracy: 1e-6)
+        XCTAssertEqual(HordeLook.veil(x: edge - 40, bankEdge: edge), 1, accuracy: 1e-6, "inside the bank, whole fog")
+        XCTAssertEqual(HordeLook.seen(0.2, x: edge + 40, bankEdge: edge), HordeLook.fogFloor, accuracy: 1e-6)
+        XCTAssertEqual(HordeLook.seen(0, x: edge - 40, bankEdge: edge), 0, accuracy: 1e-6, "deep in the bank, unseen")
+        XCTAssertEqual(HordeLook.seen(1, x: edge + 40, bankEdge: edge), 1, accuracy: 1e-6)
+
+        var s = GameFrameSupport.demoNight(hour: 23)
+        for plot in Realm.lines[2].braziers { s.plots[plot].snuffed = true }
+        let carrier = (0..<60).first { HordeLook.hasThread(id: $0) } ?? 0
+        s.creatures = [GameFrameSupport.creature(.sootling, x: s.bankEdge + 40, id: carrier, lit: false),
+                       GameFrameSupport.creature(.shadehound, x: s.bankEdge + 90, id: 61, lit: false)]
+        var options = FrameOptions(flickerTime: 1.5)
+        options.look = .two
+        options.gloom = GloomFog(night: 12, fogNight: false)
+        let screen = GameFrameSupport.pro
+        let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
+        let scene = SceneFilter.gameScene(GameFrameSupport.world, state: s)
+        let layer = EntityFrames.layer(state: s, balance: balance, scene: scene,
+                                       camera: Camera(focusX: s.bankEdge + 60, pixelScale: pixelScale),
+                                       pixelScale: pixelScale, options: options, animTime: 1.5,
+                                       effects: BattleEffects())
+        guard let body = layer.actors.first(where: { EntityFramesTests.smallSprites.contains($0.sprite) }),
+              let eye = layer.actors.first(where: { [SpriteID.sootlingGlow, .sootlingBGlow].contains($0.sprite) }),
+              let thread = layer.actors.first(where: { HordeLook.threadSprites.contains($0.sprite) }),
+              let hound = layer.actors.first(where: { $0.sprite == .shadehound }) else {
+            XCTFail("the small one, its cold point, its wisp and the hound are drawn")
+            return
+        }
+        XCTAssertGreaterThanOrEqual(body.tint.w, HordeLook.fogFloor, "seen at least the floor in the open")
+        XCTAssertEqual(HordeLook.unpack(body.lightCap)?.veil ?? 1, 1 - HordeLook.fogFloor, accuracy: 0.011)
+        XCTAssertEqual(HordeLook.unpack(eye.lightCap)?.veil ?? 1, HordeLook.eyeVeil, accuracy: 0.011,
+                       "the cold point under no fog")
+        XCTAssertEqual(HordeLook.unpack(thread.lightCap)?.veil ?? 1, 1 - HordeLook.fogFloor, accuracy: 0.011,
+                       "the wisp at its body's veil")
+        XCTAssertLessThanOrEqual(thread.tint.w, body.tint.w, "the wisp takes its body's seen")
+        XCTAssertNil(HordeLook.unpack(hound.lightCap), "the other creatures keep their plain cap")
+    }
 }

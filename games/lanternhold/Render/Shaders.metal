@@ -1374,6 +1374,12 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         fogCover = max(mistTex.read(mist).a, fogATex.read(c.fogA).a) * lh2_fog_region(c, u);
     }
     float3 albedo = texel.rgb * in.tint.rgb;
+    // b3-horde (build 3, lane 4 step A; the director's laws of 16.11.2026 06:15; one block for the join): a small one
+    // hands its veil and its own light cap through flags.w (`HordeLook.pack`: 1000, the veil in hundredths, the cap as
+    // the fraction; under 1000 it is no small one). The mist is its backdrop, never its veil: fog B lies over its
+    // body, its wisp and its rim at the veil only (its cold point at none), and the bank's lift with it.
+    bool horde = in.flags.w >= 1000.0f;
+    float hordeVeil = horde ? (floor(in.flags.w) - 1000.0f) * 0.01f : 1.0f;
     // Lit as the world: firelight displaces the cold, inside a cut-away room the figure takes its warm fill.
     float shade = lh_shade(albedo);
     float peak = max(info.light.r, max(info.light.g, info.light.b));
@@ -1403,11 +1409,12 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     }
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
-    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
+    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover, hordeVeil);
     if (unlit && in.flags.x < 0.5f) {
         // Inside the bank the body takes the bank's whole fog and stands one value step lighter than it, a dark mass
         // the eye can read; its top edge catches the moon in a cool blue-grey line (none where firelight outshines).
-        float bankA = fogBTex.read(c.fogB).a * lh2_fog_region(c, u);
+        // (b3-horde: a small one takes the lift at its veil, so in the open it stays a black shape.)
+        float bankA = fogBTex.read(c.fogB).a * lh2_fog_region(c, u) * hordeVeil;
         color = color * (1.0f + kCreatureLift2 * bankA) + kCreatureFill2 * bankA;
         if (topEdge) {
             color = mix(color, kCreatureRim2, 0.6f * rimStrength * (1.0f - saturate(peak * 1.5f)));

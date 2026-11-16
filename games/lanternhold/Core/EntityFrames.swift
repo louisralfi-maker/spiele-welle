@@ -1256,9 +1256,23 @@ enum EntityFrames {
                 // World-3 fix round 4: deep in the bank no body, only the bank's eyes (`CreatureLook.bodyShare`).
                 seen *= CreatureLook.bodyShare(x: c.x, bankEdge: s.bankEdge)
             }
+            // b3-horde step 4 (the director's second law: the mist is their backdrop, never their veil): outside the
+            // bank a small one is seen at least `HordeLook.fogFloor`, and fog B lies over it, its wisp and its rim at
+            // its veil only; its cold point under no fog at all (`HordeLook.pack`, read by the look-2 shader).
+            var cap = creatureLightCap
+            var eyeCap: Float = 0
+            var veil: Float = 1
+            if c.kind == .sootling {
+                seen = HordeLook.seen(seen, x: c.x, bankEdge: s.bankEdge)
+                veil = HordeLook.veil(x: c.x, bankEdge: s.bankEdge)
+                if look == .two {
+                    cap = HordeLook.pack(cap: HordeLook.worldCap, veil: veil)
+                    eyeCap = HordeLook.pack(cap: HordeLook.worldCap, veil: HordeLook.eyeVeil)
+                }
+            }
             if seen > 0.02 {
                 add(sprite, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, seen),
-                    lit: c.isLit, lightCap: creatureLightCap, moonRim: c.isLit ? 0 : unlitRim * night * seen)
+                    lit: c.isLit, lightCap: cap, moonRim: c.isLit ? 0 : unlitRim * night * seen)
             }
             if let glow = glowStrip(sprite) {
                 // World-3 fix round 2 (the critic's L2): inside the bank an unlit creature's red line at 30 %.
@@ -1266,7 +1280,7 @@ enum EntityFrames {
                 // (world-3 fix round 4: none at all deep in the bank)
                 if share > 0.02 {
                 add(glow, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(share, share, share, 1),
-                    emissive: true, lit: c.isLit)
+                    emissive: true, lit: c.isLit, lightCap: eyeCap)
                 }
             }
             if c.kind == .sootling && HordeLook.hasThread(id: c.id) {
@@ -1283,10 +1297,13 @@ enum EntityFrames {
                     let length = HordeLook.threadLength(id: c.id)
                     let strand = HordeLook.threadFrame(length: length, lean: lean, sway: sway,
                                                        curl: HordeLook.threadCurl(id: c.id))
+                    // step 4 (the director's second law): the wisp takes its body's seen and its veil
+                    var tint = HordeLook.threadTint(night: night, share: share)
+                    tint.w *= min(1, seen)
                     add(HordeLook.threadSprite(strand), frame: HordeLook.threadCell(strand),
                         x: c.x + root.dx,
-                        y: y + root.dy, tint: HordeLook.threadTint(night: night, share: share), emissive: true,
-                        lit: c.isLit)
+                        y: y + root.dy, tint: tint, emissive: true,
+                        lit: c.isLit, lightCap: look == .two ? HordeLook.pack(cap: HordeLook.worldCap, veil: veil) : 0)
                 }
             }
         }
@@ -1303,6 +1320,11 @@ enum EntityFrames {
             let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
             // step 3: it falls where it stood (its pixel of height by id), so it never jumps as it dies
             let fallY = effect.y + (effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0)
+            // step 4 (the director's second law): the fall, its flare and its orphan under fog B at its veil, as it
+            // walked; the flare under none
+            let fallVeil = HordeLook.veil(x: effect.x, bankEdge: s.bankEdge)
+            let fallCap = look == .two ? HordeLook.pack(cap: HordeLook.worldCap, veil: fallVeil) : creatureLightCap
+            let flareCap = look == .two ? HordeLook.pack(cap: HordeLook.worldCap, veil: HordeLook.eyeVeil) : 0
             if let fall = HordeLook.fallFrame(body, seconds: seconds, reduceMotion: reduceMotion) {
                 // An unlit one falls at the night's value with its moon rim, as it walked (a sweep never flashes),
                 // and deep in the bank, where no body was drawn, no heap either (`CreatureLook.bodyShare`).
@@ -1312,14 +1334,14 @@ enum EntityFrames {
                 if seen > 0.02 {
                     add(.sootFall, frame: fall.frame, x: effect.x, y: fallY,
                         tint: SIMD4<Float>(shade, shade, shade, fall.alpha * seen), lit: effect.lit,
-                        lightCap: creatureLightCap, moonRim: effect.lit ? 0 : unlitRim * night * seen)
+                        lightCap: fallCap, moonRim: effect.lit ? 0 : unlitRim * night * seen)
                 }
                 if fall.frame % 3 != 1 {
                     // the socket's last flare (frame 0), then it is out; the last spark falling (frame 2)
                     let flaring = fall.frame % 3 == 0 && seconds < HordeLook.flareSeconds
                     let flare = (flaring ? HordeLook.flareGlow : 1) * fall.alpha
                     add(.sootFallGlow, frame: fall.frame, x: effect.x, y: fallY,
-                        tint: SIMD4<Float>(flare, flare, flare, 1), emissive: true)
+                        tint: SIMD4<Float>(flare, flare, flare, 1), emissive: true, lightCap: flareCap)
                 }
             }
             let wind = reduceMotion ? weather.mean : Weather.wind(at: effect.x, weather, time: animTime)
@@ -1331,7 +1353,8 @@ enum EntityFrames {
                 var tint = HordeLook.threadTint(night: night, share: 1, bright: thread.bright)
                 tint.w *= thread.alpha
                 add(HordeLook.threadSprite(thread.frame), frame: HordeLook.threadCell(thread.frame),
-                    x: effect.x + thread.dx, y: fallY + thread.dy, tint: tint, emissive: true)
+                    x: effect.x + thread.dx, y: fallY + thread.dy, tint: tint, emissive: true,
+                    lightCap: look == .two ? HordeLook.pack(cap: HordeLook.worldCap, veil: fallVeil) : 0)
             }
         }
 

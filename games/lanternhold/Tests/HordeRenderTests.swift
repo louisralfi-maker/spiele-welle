@@ -329,16 +329,162 @@ final class HordeRenderTests: XCTestCase {
         add(attachment)
     }
 
+    /// Step 4 (the director's second law, the mist is their backdrop, never their veil, and his law 6, the proof is the
+    /// live world; the critic's B2): in the dark open at 23:00, the outer line's fires out and the Gloom's fog on as the
+    /// live night draws it (night 12), six small ones stand as black shapes in front of the pale ground mist. On the
+    /// drawn pixels of their bodies (the strips' alpha, the threads, the glows and the sockets' lights left out) the
+    /// mean luminance is at most 0.6 times that of the same pixels drawn without them. The fog is on there (the same
+    /// pixels without the bodies stand paler with the fog than without it), and the cold points are never dimmed by it
+    /// (the glow pixels with the fog at least nine tenths of their value without it). Crops without and with the bodies,
+    /// four times enlarged, as `horde-dark-open`, the whole frame as `horde-dark-open-frame`, the numbers as
+    /// `horde-dark-open-values`.
+    func testInTheDarkOpenTheyStandBlackInFrontOfTheMist() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var s = GameFrameSupport.demoNight(hour: 23.0)
+        for plot in Realm.lines[2].braziers { s.plots[plot].snuffed = true }
+        let open = s.bankEdge + 30
+        s.creatures = (0..<6).map { k in
+            GameFrameSupport.creature(.sootling, x: open + Double(k) * 17, id: 3 + k, lit: false)
+        }
+        var empty = s
+        empty.creatures = []
+        let fog = GloomFog(night: 12, fogNight: false)
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let glows: Set<SpriteID> = [.sootlingGlow, .sootlingBGlow, .tumblerGlow]
+        let dropped = Set<SpriteID>(HordeLook.threadSprites).union(glows)
+        let bodyOnly: (ActorInstance) -> Bool = { !dropped.contains($0.sprite) }
+        let noThreads: (ActorInstance) -> Bool = { !HordeLook.threadSprites.contains($0.sprite) }
+        let focus = open + 45
+        let withBodies = frame(s, focus: focus, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly,
+                               dropSocketLights: true, gloom: fog)
+        let withoutBodies = frame(empty, focus: focus, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly,
+                                  dropSocketLights: true, gloom: fog)
+        let bare = frame(empty, focus: focus, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly,
+                         dropSocketLights: true)
+        let withGlows = frame(s, focus: focus, time: 1.5, wind: 0, effects: BattleEffects(), keep: noThreads,
+                              dropSocketLights: true, gloom: fog)
+        let glowsBare = frame(s, focus: focus, time: 1.5, wind: 0, effects: BattleEffects(), keep: noThreads,
+                              dropSocketLights: true)
+        let shotWith = try renderer.renderOffscreen(withBodies, settings: settings)
+        let shotWithout = try renderer.renderOffscreen(withoutBodies, settings: settings)
+        let shotBare = try renderer.renderOffscreen(bare, settings: settings)
+        let shotGlows = try renderer.renderOffscreen(withGlows, settings: settings)
+        let shotGlowsBare = try renderer.renderOffscreen(glowsBare, settings: settings)
+        attach(shotGlows, name: "horde-dark-open-frame")
+        let bodies = withBodies.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+        XCTAssertEqual(bodies.count, 6, "six small ones are drawn, unlit")
+        var notes: [String] = []
+        var crops: [[SIMD3<Float>]] = []
+        var allDrawn: Float = 0
+        var allBehind: Float = 0
+        for actor in bodies {
+            XCTAssertFalse(actor.isLit)
+            XCTAssertEqual(HordeLook.unpack(actor.lightCap)?.veil ?? 1, 1 - HordeLook.fogFloor, accuracy: 0.011,
+                           "in the open fog B lies over it at its veil")
+            let pixels = HordeRenderTests.drawnPixels(actor, of: shotWith)
+            XCTAssertGreaterThan(pixels.count, 40, "\(actor.sprite): its pixels are found")
+            guard !pixels.isEmpty else { continue }
+            var drawn: Float = 0
+            var behind: Float = 0
+            var mist: Float = 0
+            for p in pixels {
+                drawn += HordeRenderTests.luminance(shotWith.color(x: p.x, y: p.y))
+                behind += HordeRenderTests.luminance(shotWithout.color(x: p.x, y: p.y))
+                mist += HordeRenderTests.luminance(shotBare.color(x: p.x, y: p.y))
+            }
+            allDrawn += drawn
+            allBehind += behind
+            let n = Float(pixels.count)
+            let ratio = drawn / max(1e-6, behind)
+            notes.append(String(format: "%@ frame %ld at x %.0f: body %.4f, the mist behind %.4f (%.2f of it), the "
+                                + "ground without the fog %.4f (%ld px)", actor.sprite.rawValue, actor.frame,
+                                actor.rect.x, drawn / n, behind / n, ratio, mist / n, pixels.count))
+            XCTAssertLessThanOrEqual(ratio, 0.6, "\(actor.sprite) at \(actor.rect.x) is a black shape in front of the "
+                                     + "mist, not a pale hump at its value (\(ratio) of the mist)")
+            XCTAssertGreaterThan(behind, mist * 1.1, "the Gloom's fog is on behind \(actor.sprite)")
+            // the crop: without and with, side by side
+            let w = 60
+            let h = 50
+            let cx = Int(actor.rect.x + actor.rect.z / 2) - w / 2
+            let cy = Int(actor.rect.y + actor.rect.w) - h + 6
+            for shot in [shotWithout, shotGlows] {
+                var crop: [SIMD3<Float>] = []
+                for y in cy..<(cy + h) {
+                    for x in cx..<(cx + w) {
+                        let inside = x >= 0 && y >= 0 && x < shot.width && y < shot.height
+                        crop.append(inside ? shot.color(x: x, y: y) : SIMD3<Float>(0, 0, 0))
+                    }
+                }
+                crops.append(crop)
+            }
+        }
+        notes.append(String(format: "all bodies: %.2f of the mist behind them", allDrawn / max(1e-6, allBehind)))
+        // the cold points under the fog: their glow pixels as bright as without it
+        let eyes = withGlows.actors.filter { glows.contains($0.sprite) }
+        XCTAssertEqual(eyes.count, 6, "a cold point on each")
+        var lit: Float = 0
+        var unveiled: Float = 0
+        for actor in eyes {
+            XCTAssertEqual(HordeLook.unpack(actor.lightCap)?.veil ?? 1, HordeLook.eyeVeil, accuracy: 0.011)
+            for p in HordeRenderTests.drawnPixels(actor, of: shotGlows) {
+                lit += HordeRenderTests.luminance(shotGlows.color(x: p.x, y: p.y))
+                unveiled += HordeRenderTests.luminance(shotGlowsBare.color(x: p.x, y: p.y))
+            }
+        }
+        notes.append(String(format: "the cold points: %.4f with the fog, %.4f without it", lit, unveiled))
+        XCTAssertGreaterThanOrEqual(lit, unveiled * 0.9, "the fog never dims the cold points")
+        attachStrip(crops, width: 60, height: 50, name: "horde-dark-open", zoom: 4)
+        let attachment = XCTAttachment(string: notes.joined(separator: "\n"))
+        attachment.name = "horde-dark-open-values"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     // MARK: - Helpers
 
+    /// Relative luminance of an sRGB colour.
+    static func luminance(_ c: SIMD3<Float>) -> Float {
+        func linear(_ v: Float) -> Float { v <= 0.04045 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4) }
+        return 0.2126 * linear(c.x) + 0.7152 * linear(c.y) + 0.0722 * linear(c.z)
+    }
+
+    /// The screen pixels of `actor` that its strip draws (alpha over 0), with their texel in the frame.
+    static func drawnPixels(_ actor: ActorInstance, of shot: Renderer.Snapshot)
+        -> [(x: Int, y: Int, tx: Int, ty: Int)] {
+        guard let url = AtlasBuilder.artURL(for: actor.sprite, bundle: .main),
+              let strip = PNGDecoder.load(url: url) else { return [] }
+        let size = actor.sprite.size
+        let texel = actor.rect.z / Float(size.width)
+        var list: [(x: Int, y: Int, tx: Int, ty: Int)] = []
+        let x0 = Int(actor.rect.x.rounded(.down))
+        let y0 = Int(actor.rect.y.rounded(.down))
+        let x1 = Int((actor.rect.x + actor.rect.z).rounded(.up))
+        let y1 = Int((actor.rect.y + actor.rect.w).rounded(.up))
+        for y in max(0, y0)..<min(shot.height, max(0, y1)) {
+            for x in max(0, x0)..<min(shot.width, max(0, x1)) {
+                var tx = Int((Float(x) + 0.5 - actor.rect.x) / texel)
+                let ty = Int((Float(y) + 0.5 - actor.rect.y) / texel)
+                guard tx >= 0, tx < size.width, ty >= 0, ty < size.height else { continue }
+                if actor.flipped { tx = size.width - 1 - tx }
+                guard strip[actor.frame * size.width + tx, ty].a > 0 else { continue }
+                list.append((x: x, y: y, tx: tx, ty: ty))
+            }
+        }
+        return list
+    }
+
     /// A game frame as `GameModel` builds it, in look 2, with the effects and a steady wind; `keep` may leave actors
-    /// out.
+    /// out; `gloom` draws the Gloom's fog as the live night does (step 4, the director's law 6).
     private func frame(_ s: GameState, focus: Double, time: Double, wind: Double, effects: BattleEffects,
-                       keep: ((ActorInstance) -> Bool)? = nil, dropSocketLights: Bool = false) -> FrameDesc {
+                       keep: ((ActorInstance) -> Bool)? = nil, dropSocketLights: Bool = false,
+                       gloom: GloomFog? = nil) -> FrameDesc {
         var options = FrameOptions(flickerTime: time)
         options.look = .two
         options.weather.mean = wind
         options.weather.wind = wind
+        options.gloom = gloom
         let screen = HordeRenderTests.screen
         let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
         let camera = Camera(focusX: focus, pixelScale: pixelScale)

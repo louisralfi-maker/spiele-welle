@@ -129,6 +129,56 @@ enum HordeLook {
         body == .tumbler ? 7 : 6
     }
 
+    // MARK: - The fog (step 4, the director's second law of 16.11.2026 06:15)
+
+    /// The mist is their backdrop, never their veil: outside the bank a small one is seen at least this much (in the
+    /// open it stands as a black shape in front of the pale ground mist), and the Gloom's near fog (fog B, drawn over
+    /// the figures) lies over it, its wisp and its rim at one minus this only (`veil`). Step 3's dark open drew them
+    /// as pale humps at the mist's own value: there the body was whole (`GloomFog.bodyAlpha` is 1 past the bank's
+    /// edge), but fog B lay over it at full strength.
+    static let fogFloor: Float = 0.85
+
+    /// How much of the floor holds at `x`: none deeper in the bank than a body is drawn, coming in as the body steps
+    /// out of the bank (`CreatureLook.bodyShare`, the last 16 px, short of the bank's eyes 26 px and more behind its
+    /// edge), whole from the bank's edge on. So a small one forms out of the fog at the bank's edge only.
+    static func floorShare(x: Double, bankEdge: Double) -> Float {
+        CreatureLook.bodyShare(x: x, bankEdge: bankEdge)
+    }
+
+    /// A small one's body alpha with the floor: `seen` (the Gloom's and the bank's), never under the floor outside
+    /// the bank.
+    static func seen(_ seen: Float, x: Double, bankEdge: Double) -> Float {
+        max(seen, fogFloor * floorShare(x: x, bankEdge: bankEdge))
+    }
+
+    /// The share of fog B over a small one, its wisp and its rim at `x` (1 inside the bank ... 1 - `fogFloor` in the
+    /// open). Its cold point takes none (`eyeVeil`): in the dark the player counts the horde by its points.
+    static func veil(x: Double, bankEdge: Double) -> Float {
+        1 - fogFloor * floorShare(x: x, bankEdge: bankEdge)
+    }
+
+    static let eyeVeil: Float = 0
+
+    /// A small one hands the renderer its veil and its light cap in one value (`ActorInstance.lightCap`, the quad's
+    /// flags.w in look 2): `packBase` + the veil in hundredths + the cap (0.01 ... 0.99) as the fraction. Any
+    /// value under `packBase` is the plain cap of every other figure.
+    static let packBase: Float = 1000
+
+    static func pack(cap: Float, veil: Float) -> Float {
+        packBase + (max(0, min(1, veil)) * 100).rounded() + max(0.01, min(0.99, cap))
+    }
+
+    /// The cap and the veil of a packed value, nil for a plain cap.
+    static func unpack(_ value: Float) -> (cap: Float, veil: Float)? {
+        guard value >= packBase else { return nil }
+        let whole = value.rounded(.down)
+        return (cap: value - whole, veil: (whole - packBase) / 100)
+    }
+
+    /// Step 4's first commit keeps look 2's light on them as it was (the world's cap, `kLitCap2` 1.0); the second
+    /// gives them their own (`litCap`).
+    static let worldCap: Float = 0.99
+
     // MARK: - The thread
 
     /// Where the thread rises on each body, frame by frame (walk 0 ... 3, then the attack frames): the rag's torn edge

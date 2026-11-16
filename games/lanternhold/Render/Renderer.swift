@@ -844,12 +844,17 @@ final class Renderer {
         }
         guard look == .two else {
             let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
-            let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, actor.lightCap)
+            // b3-horde step 4: a small one's packed cap (`HordeLook.pack`) is a plain cap in look 1
+            let cap = HordeLook.unpack(actor.lightCap)?.cap ?? actor.lightCap
+            let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, cap)
             return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
         }
         let rim: Float = rimmed.contains(actor.sprite) ? Look2.rim
             : (people.contains(actor.sprite) ? Look2.peopleRim : 0)
-        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, 0)
+        // b3-horde step 4 (the director's laws of 16.11.2026 06:15): look 2 keeps one cap for every figure; only a small
+        // one hands its veil and its own cap through w (`HordeLook.pack`, read by `lh_actor2_fragment`).
+        let horde: Float = actor.lightCap >= HordeLook.packBase ? actor.lightCap : 0
+        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, horde)
         return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
     }
 
