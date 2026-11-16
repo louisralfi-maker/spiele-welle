@@ -585,6 +585,9 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(PayFreeze.parse("1"), .full)
         XCTAssertEqual(PayFreeze.parse("sealed"), .sealed)
         XCTAssertEqual(PayFreeze.parse("back"), .back)
+        XCTAssertEqual(PayFreeze.parse("lit:0.3"), .lit(0.3), "step 3: the light by day held at an age")
+        XCTAssertEqual(PayFreeze.lit(0.3).litHold, 0.3)
+        XCTAssertNil(PayFreeze.sealed.litHold)
         XCTAssertNil(PayFreeze.parse("soon"))
         XCTAssertNil(PayFreeze.parse(nil))
         #if DEBUG

@@ -957,8 +957,8 @@ extension GameModel {
 
     /// The site lanterns the seals lit (H2), each hanging from its crook without the board: the 9 x 13 lantern blooming
     /// for two frames as it catches, embers rising from its cap once, then burning while its job runs, with its light,
-    /// the glow of its flame's heart, a warm rim on its post and crook and a small strong light on the wall behind (step
-    /// 3, the director's call 6: by day the lighting is an event), and its warm halo (0.9 of it by day, whole by
+    /// the glow of its flame's heart, a warm rim on its post and crook and a small strong light on the wall behind
+    /// (step 3, the director's call 6: by day the lighting is an event), and its warm halo (0.9 of it by day, whole by
     /// night); gone out, it stands dark a moment and fades.
     private func countLanternsWorld(_ layer: inout EntityLayer, framing: TouchFraming, night: Double) {
         guard !touch.countLanterns.isEmpty else { return }
@@ -966,7 +966,9 @@ extension GameModel {
         let gold = GamePalette.fireGold
         let warm = GamePalette.fireWhite
         for lantern in touch.countLanterns {
-            let age = max(0, now - lantern.litAt)
+            var age = max(0, now - lantern.litAt)
+            // `-GWCountFreeze lit:<s>` (Debug, the pictures): the lantern held at that age.
+            if let hold = args.countFreeze?.litHold { age = min(age, hold) }
             var alpha: Float = 1
             var lit = true
             if let out = lantern.outAt {

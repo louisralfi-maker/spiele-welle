@@ -65,8 +65,11 @@ final class CountUITests: XCTestCase {
     /// touch brings the board, he steps beside it, then a hold counts from the press until the freeze.
     func testTheCountsFilmstrip() {
         XCUIDevice.shared.orientation = .landscapeLeft
+        // Step 3 (the director's call 6): the light by day as an event, the lantern held at its bloom and at its
+        // embers (the rim while the work runs is 172b).
         for (name, freeze) in [("173a-count-empty", "0"), ("173c-count-half", "0.5"), ("173e-count-full", "full"),
-                               ("173f-count-sealed", "sealed")] {
+                               ("173f-count-sealed", "sealed"), ("173g-count-lit-bloom", "lit:0.03"),
+                               ("173h-count-lit-embers", "lit:0.3")] {
             let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", freeze], name: name)
             guard let app else { continue }
             if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
@@ -75,7 +78,7 @@ final class CountUITests: XCTestCase {
                 pause(0.3)
                 attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
                 note("\(name)-state", sceneField(app, "count:") ?? "?")
-                if freeze == "sealed" {
+                if freeze == "sealed" || freeze.hasPrefix("lit:") {
                     XCTAssertTrue(waitForField(app, "last:paid:touch-plot-0", timeout: 2), "sealed: paid")
                 } else {
                     XCTAssertEqual(sceneGold(app), 200, "\(name): nothing paid before the seal")
