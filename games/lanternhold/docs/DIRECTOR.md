@@ -1101,3 +1101,10 @@ schneller geht."
   - Step 8 is green at b8ccc0fe (round lh-b3h-83). Kept and closed as art: a planted tip in the strips, the runt's ramped back, the cloth under a cold top, the V strike. In the dark open the bodies are black shapes with a cold rim and one eye; the cloth shows by the fires and by day. That is the design.
   - Still wrong live: the body is drawn at a continuous x, so a planted hand drifts a stride and steps back. Step 9, one agent, code only: the step that picks the walk frame also places the body, every stride is the strip's whole stride, neighbours differ by a phase.
   - Rule: a planted foot needs step-locked drawing; a strip alone cannot plant it.
+
+- **The count's models judged; the board becomes a counter under them (16.11.2026, 15:48).**
+  - Step 5 is green (claude/lh-b3-count ff169042, round lh-b3c-52); the critic gave 6/10 with one blocker and two highs.
+  - Kept: the models are the offer and nothing prices the street at idle; the ballista; the hop; the swap.
+  - Fails: at the main gate the board stood on the far side over the barracks' archer half and Marek's cart; the catapult did not read; bars-first packing gave the dearer engine the smaller board (two hollows for 110 against seven for 70).
+  - Decision: at a model plot the board rises in the row's own slot and the models stand on its cap (one law for every model plot); a price under 200 there is counted in coins only, so the dearer board is the bigger one; the catapult is redrawn.
+  - Step 6 is one Opus agent in two phases: a python proof card first (the counter against a stall form), the director picks, then the build and one round.
