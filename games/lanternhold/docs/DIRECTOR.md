@@ -1108,3 +1108,8 @@ schneller geht."
   - Fails: at the main gate the board stood on the far side over the barracks' archer half and Marek's cart; the catapult did not read; bars-first packing gave the dearer engine the smaller board (two hollows for 110 against seven for 70).
   - Decision: at a model plot the board rises in the row's own slot and the models stand on its cap (one law for every model plot); a price under 200 there is counted in coins only, so the dearer board is the bigger one; the catapult is redrawn.
   - Step 6 is one Opus agent in two phases: a python proof card first (the counter against a stall form), the director picks, then the build and one round.
+
+- **The horde's walk is step-locked; the horde lane is closed for wave 1 (16.11.2026, 15:56).**
+  - Step 9 is green (claude/lh-b3-horde 3b932dc6, round lh-b3h-91, first round).
+  - The body is placed by the step count that picks the walk frame, so a planted hand stands; whole strides, a phase by hash between neighbours, an ease over the last stride before a stop.
+  - Carried to wave 3: the climber's sideways jump, a kill in mid-walk, no ease when guards stop holding.
