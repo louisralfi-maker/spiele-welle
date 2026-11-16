@@ -54,24 +54,28 @@ extension SceneLayout {
 
     // MARK: The weather vane (item 4; step 3, part B)
 
-    /// The vane on the keep's east tower: its rod's column in the keep's sprite and the height of the roof it stands on
-    /// above the keep's foot (the merlon's top at tiers 1 and 2, the cone's apex at tier 3; tools/keepfix.py's tower,
-    /// the sprites' top rows 60, 40 and 26). None while the keep's tier 2 or 3 is under way (`keepT2Build`,
-    /// `keepT3Build`: the tower is in scaffold); tier 1 under way builds only the front, so the keep keeps its vane.
+    /// The vane on the keep's great roof: its rod's column in the keep's sprite and the height of the roof it stands on
+    /// above the keep's foot. Step 4 (the critic's H2 (d)): on the east tower it stood before the grey cliff and read as
+    /// a T or a church cross; from the keep's set piece camera the sky shows between the cliffs over the great roof's
+    /// west half (round lh-b3w-33's shot 392: about cols 129 to 164 of the keep's sprite above the ridge), so the rod
+    /// stands on the roof's west slope, three columns short of the ridge's west end (col 142), where the arrow (cols 130
+    /// to 142) rises clear over the ridge into that sky and keeps clear of the great flag when it flies west (cols 144
+    /// to 159). The roof's top there (tools/keepfix.py's roof, the sprites' top rows at col 136): 118 at tier 1, 138 at
+    /// tiers 2 and 3. None while the keep's tier 2 or 3 is under way (`keepT2Build`, `keepT3Build`: the roof is off or in
+    /// scaffold); tier 1 under way builds only the front, so the keep keeps its vane.
     static func castleKeepVane(_ stage: CastleStage) -> (dx: Double, top: Double)? {
         guard !(stage.building && stage.tier >= 2) else { return nil }
-        switch stage.tier {
-        case 1: return (dx: 236, top: 115)
-        case 2: return (dx: 236, top: 135)
-        default: return (dx: 238, top: 149)
-        }
+        return (dx: castleKeepVaneColumn, top: stage.tier == 1 ? 118 : 138)
     }
+    static let castleKeepVaneColumn = 136.0
+    /// The vane's rod in its sprite (`weatherVane`, 13 wide): the middle column, so it mirrors round its rod.
+    static let weatherVaneRod = 6.0
 
     /// The vane as a prop: in the near plane's picture with the keep (moving with the mist band), its collar a row down
     /// into the roof, its rod over the column; drawn after the keep.
     static func castleKeepVaneEntry(_ stage: CastleStage, keepX: Double) -> Entry? {
         guard let vane = castleKeepVane(stage) else { return nil }
-        return Entry(sprite: .weatherVane, x: keepX + vane.dx - 4, y: vane.top - 1, z: 5, region: .castle,
+        return Entry(sprite: .weatherVane, x: keepX + vane.dx - weatherVaneRod, y: vane.top - 1, z: 5, region: .castle,
                      movesWith: .mistBand)
     }
 

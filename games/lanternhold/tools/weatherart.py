@@ -89,30 +89,65 @@ def ash_strip():
 
 
 # ------------------------------------------------------------------------------------------------ the weather vane
-# Step 3 (part B, POLISH.md 2 item 4): a small iron vane on the keep's east tower (the cone's apex at tier 3, the
-# merlons at tiers 1 and 2), seen side on: a knob on the rod, an arrow whose head points into the wind, a swallowtail fin
-# downwind (kin of the keep's flag), a small cross bar on the rod and its collar on the roof. Iron in the keep's slate
-# values (stoneDark body, stoneMid on the lit upper edges, stoneLight on the knob). 9 x 12, the rod at col 4, so the
-# vane mirrors round its rod. Frames: 0 side on (the head west, for a wind toward the valley), 1 and 2 turned a third and
-# two thirds away, 3 end on, 4 side on with the fin flexed and the head dipped (a storm's shiver). Mirrored for a wind
-# toward the shadow land (`WindLook`).
-VANE_W, VANE_H = 9, 12
-VANE_COLOURS = {"I": (47, 48, 62, 255), "i": (70, 73, 87, 255), "k": (150, 154, 162, 255), "F": (70, 73, 87, 255),
-                "f": (47, 48, 62, 255)}
-VANE_ROD = ["....I....", "...iIi...", "....I....", "....I....", "....I....", "....I....", "...IIi..."]
+# Step 3 (part B, POLISH.md 2 item 4), redrawn in step 4 (the critic's H2): an iron arrow on a rod that reads at 1x and
+# says which way the wind blows. 13 x 11, the rod at col 6, so the vane mirrors round its rod. Side on: a triangular
+# head on the windward end (3 wide, from a tip two rows tall to barbs six rows tall), a shaft two rows thick (a pale lit
+# top over the iron), a swallowtail fin on the other end (3 x 6, its two tails reaching out past a 2 x 2 notch), so head
+# and fin differ in silhouette everywhere; no crossbar (that made a church cross); a 2 x 2 ball on the rod under the arrow, its collar a
+# row into the roof. Iron in the keep's slate (stoneDark, stoneMid on the collar), the lit top edge in the keep's lit
+# stone (stonePale), the ball stoneLight. Frames: 0 side on (the head west, for a wind toward the valley), 1 and 2
+# turned a third and two thirds away (the head point and the fin's tails kept), 3 end on (the fin edge on, the head's
+# point before it, the ball), 4 side on with the head dipped a pixel and the fin flexed (a storm's shiver). Mirrored for
+# a wind toward the shadow land (`WindLook`).
+VANE_W, VANE_H = 13, 11
+VANE_COLOURS = {"I": (47, 48, 62, 255), "i": (70, 73, 87, 255), "l": (187, 188, 190, 255),
+                "k": (150, 154, 162, 255)}
+VANE_ROD = ["......I......", "......I......", "......I......", ".....iIi....."]
 VANE_FRAMES = [
-    ["....k....", ".i..I..FF", "iIIIIIIFf", ".I..I..f."],
-    ["....k....", "..i.I.FF.", ".iIIIIFf.", "..I.I.f.."],
-    ["....k....", "....IF...", "..iIIf...", "....I...."],
-    ["....k....", "....I....", "...iIi...", "....I...."],
-    ["....k..F.", ".i..I..Ff", "iIIIIIIf.", ".I..I...."],
+    ["..l........ll",
+     ".lI.......lI.",
+     "lIIlllllllI..",
+     "IIIIIIIIIII..",
+     ".II...I...II.",
+     "..I...lk...II",
+     "......ki....."],
+    ["....l....ll..",
+     "...lI...lI...",
+     "..lIIlllI....",
+     "..IIIIIII....",
+     "...II.I.II...",
+     "....I.lk.II..",
+     "......ki....."],
+    ["........l....",
+     ".....l.lI....",
+     "....lIlI.....",
+     "....IIII.....",
+     ".....IIII....",
+     "......lkI....",
+     "......ki....."],
+    ["......l......",
+     "......I......",
+     ".....lI......",
+     ".....II......",
+     "......I......",
+     "......lk.....",
+     "......ki....."],
+    ["...........ll",
+     "..l.......lI.",
+     ".lIlllllllI..",
+     "lIIIIIIIIII..",
+     "III...I...II.",
+     ".II...lk...II",
+     "..I...ki....."],
 ]
 
 
 def vane_strip():
     out = Image(VANE_W * len(VANE_FRAMES), VANE_H)
     for k, top in enumerate(VANE_FRAMES):
-        for y, row in enumerate(top + ["....I...."] + VANE_ROD):
+        rows = top + VANE_ROD
+        assert len(rows) == VANE_H and all(len(r) == VANE_W for r in rows), k
+        for y, row in enumerate(rows):
             for x, ch in enumerate(row):
                 if ch != ".":
                     out.set(k * VANE_W + x, y, VANE_COLOURS[ch])

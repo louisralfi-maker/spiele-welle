@@ -128,13 +128,15 @@ enum PlaceholderWeather {
         return p.image
     }
 
-    /// The weather vane (step 3; tools/weatherart.py's strip replaces it): the rod, an arrow shortening as it turns.
+    /// The weather vane (step 3; tools/weatherart.py's strip replaces it): the rod, an arrow shortening as it turns, its
+    /// head a step taller than its shaft (step 4: 13 x 11, the rod at col 6).
     static func vane(_ frame: Int) -> PixelImage {
         var p = Painter(SpriteID.weatherVane.size, salt: 0)
         let iron = RGBA(0x2F303E)
-        p.rect(4, 0, 1, 12, iron)
-        let half = [4, 3, 2, 0, 4][min(frame, 4)]
-        p.rect(4 - half, 2, 2 * half + 1, 1, iron)
+        p.rect(6, 3, 1, 8, iron)
+        let half = [6, 4, 2, 0, 6][min(frame, 4)]
+        p.rect(6 - half, 2, 2 * half + 1, 2, iron)
+        p.rect(6 - half, 1, 1, 4, iron)
         return p.image
     }
 

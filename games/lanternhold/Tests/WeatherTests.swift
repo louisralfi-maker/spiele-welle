@@ -824,15 +824,47 @@ final class WeatherTests: XCTestCase {
         let vane = try XCTUnwrap(world.props.first { $0.sprite == .weatherVane }, "the vane on the keep")
         XCTAssertEqual(vane.plane, .near)
         XCTAssertEqual(vane.movesWith, .mistBand)
-        XCTAssertEqual(vane.x, SceneLayout.castleKeepX + 236 - 4, "over the east tower's merlon (tier 1)")
+        // Step 4 (the critic's H2 (d)): on the great roof's west slope, where the sky stands behind it from the keep's
+        // set piece camera, clear of the great flag flying west (its cloth from col 144).
+        XCTAssertEqual(vane.x, SceneLayout.castleKeepX + 136 - 6, "on the great roof's west slope (tier 1)")
+        XCTAssertEqual(vane.y, 117, "its collar a row into the roof")
         XCTAssertNil(SceneLayout.castleKeepVane(CastleStage(tier: 2, building: true)), "none on the scaffold")
         XCTAssertNil(SceneLayout.castleKeepVane(CastleStage(tier: 3, building: true)), "none on the scaffold")
-        XCTAssertEqual(SceneLayout.castleKeepVane(CastleStage(tier: 1, building: true))?.dx, 236,
+        XCTAssertEqual(SceneLayout.castleKeepVane(CastleStage(tier: 1, building: true))?.dx, 136,
                        "tier 1 under way builds the front: the keep keeps its vane")
-        XCTAssertEqual(SceneLayout.castleKeepVane(CastleStage(tier: 3))?.dx, 238, "the cone's apex at tier 3")
+        XCTAssertEqual(SceneLayout.castleKeepVane(CastleStage(tier: 3))?.top, 138, "tier 3: the same roof")
+        XCTAssertLessThan(SceneLayout.castleKeepVaneColumn + SceneLayout.weatherVaneRod,
+                          SceneLayout.castleKeepPoles(CastleStage(tier: 2))[0].dx + 1
+                          - Double(SpriteID.keepFlag.size.width), "clear of the great flag flying west")
         XCTAssertEqual(AtlasLayout.shared.sources[.weatherVane], .png)
         XCTAssertEqual(AtlasLayout.shared.cells[.weatherVane]?.count, Weather.vaneFrames)
-        let rod = vane.x + 4
+        // The sprite (the critic's H2 (a)-(c)): an arrow, its head and its fin different in silhouette by six pixels or
+        // more (so east and west read apart), no crossbar under it, a pale lit top edge along it.
+        let art = AtlasBuilder.frames(for: .weatherVane, bundle: .main)
+        XCTAssertEqual(art.source, .png)
+        let side = try XCTUnwrap(art.frames.first)
+        XCTAssertEqual(PixelSize(width: side.width, height: side.height), SpriteID.weatherVane.size)
+        func filled(_ image: PixelImage, columns: Range<Int>) -> Set<Int> {
+            var set = Set<Int>()
+            for y in 0..<image.height {
+                for x in columns where image[x: x, y: y].a > 0 {
+                    set.insert(y * image.width + x)
+                }
+            }
+            return set
+        }
+        let ends = 0..<3
+        XCTAssertGreaterThanOrEqual(filled(side, columns: ends)
+            .symmetricDifference(filled(side.flippedHorizontally(), columns: ends)).count, 6, "head and fin differ")
+        XCTAssertGreaterThanOrEqual((0..<side.width).filter { side[x: $0, y: 3].a > 0 }.count, 11, "a long arrow")
+        for y in 6..<side.height {
+            XCTAssertLessThanOrEqual((0..<side.width).filter { side[x: $0, y: y].a > 0 }.count, 3, "no crossbar, row \(y)")
+        }
+        for x in 0..<side.width {
+            guard let top = (0..<6).first(where: { side[x: x, y: $0].a > 0 }) else { continue }
+            XCTAssertGreaterThan(side[x: x, y: top].r, 150, "a pale lit top edge, col \(x)")
+        }
+        let rod = vane.x + SceneLayout.weatherVaneRod
         func frames(_ override: WeatherOverride, reduceMotion: Bool = false) -> [Int] {
             (0..<(12 * 30)).map {
                 let time = 3 + Double($0) / 30

@@ -37,9 +37,9 @@ enum WindLook {
             let west = Weather.blowsWest(at: middle, weather, time: time, reduceMotion: reduceMotion)
             return Pose(frame: Weather.bannerFrame(pose: swing, west: west), flipped: false, dx: 0)
         case .weatherVane:
-            // Step 3 (part B): the vane turns its head into the wind; mirrored round its rod (col 4 of 9) for a wind
-            // toward the shadow land.
-            let rod = prop.x + 4
+            // Step 3 (part B): the vane turns its head into the wind; mirrored round its rod (step 4: col 6 of 13) for a
+            // wind toward the shadow land.
+            let rod = prop.x + SceneLayout.weatherVaneRod
             return Pose(frame: Weather.vaneFrame(x: rod, weather, time: time, reduceMotion: reduceMotion),
                         flipped: Weather.blowsWest(at: rod, weather, time: time, reduceMotion: reduceMotion), dx: 0)
         default:
