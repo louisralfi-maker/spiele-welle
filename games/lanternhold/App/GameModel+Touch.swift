@@ -114,6 +114,8 @@ struct TouchState: Sendable {
     var overMoment = false
     /// The touch is a look-around's drag: the finger holds the view.
     var panning = false
+    /// The look-around's finger went 10 pt sideways at some point: a swipe that never did lowers the lantern on lift.
+    var panWide = false
     /// Where the touch the scene's going inactive forgot went down: that touch's later events are nothing.
     var voided: CGPoint?
     /// The look-around's view (`LookAround`), and the strip's column of the view's left edge it last showed.
@@ -160,6 +162,7 @@ extension GameModel {
             // Build 3, lane 5 (no dead tap): under the lantern a touch is a tap that does the deed or a drag that looks
             // around; nothing is pressed, held on the lord or counted while it is down.
             touch.overMoment = lanternMoment != nil
+            touch.panWide = false
             if touch.overMoment {
                 touch.pressed = nil
                 touch.onLord = false
@@ -193,6 +196,7 @@ extension GameModel {
             }
         }
         if touch.panning {
+            if !TouchRules.isTap(travel: abs(Double(translation.width))) { touch.panWide = true }
             dragLookAround(translation: translation, in: size)
         } else if touch.dragging {
             setDrag(offset: Double(translation.width))
@@ -218,6 +222,7 @@ extension GameModel {
         }
         let dragged = touch.dragging
         let panned = touch.panning
+        let panWide = touch.panWide
         let overMoment = touch.overMoment
         let raised = touch.raised
         let counting = touch.countPress && !dragged
@@ -231,6 +236,12 @@ extension GameModel {
         if panned {
             // The look-around: letting go glides the view home to the lord; the lantern stays up.
             touch.look.release(reduceMotion: reduceMotion)
+            // A swipe that never went sideways looked at nothing: like a tap on the empty world it lowers the lantern
+            // (never a swallowed touch).
+            if !panWide {
+                lowerLanternMoment()
+                touch.lastTap = "lowered"
+            }
             return
         }
         if dragged {

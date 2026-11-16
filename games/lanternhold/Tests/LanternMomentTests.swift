@@ -519,6 +519,29 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertFalse(game.touch.look.isHeld)
     }
 
+    /// A swipe under the lantern that never goes 10 pt sideways is no look-around: on lift it lowers the lantern, so
+    /// the touch is never swallowed. A sideways pan that comes back near its start keeps the lantern up.
+    func testAnUprightSwipeUnderTheLanternLowersIt() throws {
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        let start = CGPoint(x: 600, y: 250)
+        game.touchChanged(start: start, at: start, translation: .zero, in: proPoints)
+        game.touchChanged(start: start, at: CGPoint(x: 603, y: 150), translation: CGSize(width: 3, height: -100),
+                          in: proPoints)
+        game.touchEnded(at: CGPoint(x: 603, y: 150), translation: CGSize(width: 3, height: -100), in: proPoints)
+        XCTAssertNil(game.lanternMoment, "an upright swipe lowered the lantern")
+        XCTAssertEqual(game.touch.lastTap, "lowered")
+        XCTAssertNil(game.touch.errand)
+        // A sideways pan that ends near where it began still keeps the lantern up.
+        game.openLanternMoment()
+        run(game, seconds: 0.2)
+        game.touchChanged(start: start, at: start, translation: .zero, in: proPoints)
+        drag(game, from: start, dx: -60)
+        drag(game, from: start, dx: -2)
+        game.touchEnded(at: CGPoint(x: start.x - 2, y: start.y), translation: CGSize(width: -2, height: 0),
+                        in: proPoints)
+        XCTAssertNotNil(game.lanternMoment, "a look-around keeps the lantern up")
+    }
+
     /// VoiceOver's double tap on a thing under the lantern lowers it and does the deed, as the finger's tap does.
     func testAVoiceOverDeedUnderTheLanternLowersIt() throws {
         let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
