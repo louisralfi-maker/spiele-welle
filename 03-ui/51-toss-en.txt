@@ -1,0 +1,1 @@
+day:2 owing:23,24,25 paid:21 knocked: shut: hand: collector:no held:12

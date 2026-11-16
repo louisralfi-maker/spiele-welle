@@ -1,0 +1,9 @@
+touch-plot-6: Build: Wall 20 gold
+touch-plot-7: Build: Tower 40 gold
+touch-shingle-10-ballista: Build: Ballista 70 gold
+touch-shingle-10-catapult: Build: Catapult 110 gold
+touch-lord: Robin, day 3, 91 gold, the town is glad, 16 people 
+touch-plot-2: Upgrade: Brazier 40 gold
+touch-plot-3: Upgrade: Brazier 40 gold
+touch-plot-1: Build: Tower 40 gold
+touch-plot-0: Upgrade: Wall 90 gold
