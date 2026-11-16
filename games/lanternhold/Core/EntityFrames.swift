@@ -215,6 +215,10 @@ enum EntityFrames {
         layer.actors = actors(s, balance: balance, layouts: layouts, origins: origins, view: view, ambient: ambient,
                               isDay: isDay, animTime: animTime, effects: effects, look: options.look,
                               reduceMotion: options.reduceMotion, gloom: gloom, weather: options.weather, lifts: lifts)
+        #if DEBUG
+        // b3-horde: the runner's clip waits until the horde is on screen (`HordeProof.probe`, a `dark` proof only).
+        if HordeProof.probing { HordeProof.probe(layer.actors, hour: s.hour) }
+        #endif
         return layer
     }
 

@@ -6,19 +6,25 @@
 # GAME_DIR, PROJECT, SCHEME and SIM exported. Put it after the build (it installs the Debug app from build/SimData)
 # and after a ui step (which leaves the simulator turned to landscape). This script:
 #   1. launches night 12 of the demo realm live at 23:00 with the horde's proof (step 2, Debug only: `-GWHorde
-#      dark`, `HordeProof`: no archers, the outer line's fires out, one wave strung out from deep in the bank and twelve
-#      already at the outer wall), the lord behind the outer wall (x 660), so the camera holds the bank's edge, the
+#      dark`, `HordeProof`: no archers, the outer line's fires out, one wave strung out from deep in the bank, twelve
+#      already at the outer wall and, step 3, a stream of sixty more through the battle's spawn queue, one a second
+#      for a minute), the lord behind the outer wall (x 660), so the camera holds the bank's edge, the
 #      open and the wall, clear of the Dynamic Island. The night then runs at its own speed (12 s a game hour): the
 #      small ones step out of the bank, cross the open and climb the heap while the catapult's firepots fall on it;
 #   2. waits until the world is on screen, then records 10 s with `xcrun simctl io recordVideo`. The simulator shows
 #      the home screen before the launch (as big a PNG as the world), so the wait first takes the home screen's size,
 #      waits for the launch call to return, and then needs two probes in a row, at least 3 s later, that are over
 #      250 KB and differ from the home screen by more than a tenth (the launch colour and the black before the first
-#      frame are a few KB). The recorder is stopped with a time limit, so a stuck recording never holds the round;
+#      frame are a few KB). Step 3: then it waits until the app's own value probe (tmp/horde-probe.txt in its data
+#      container, `HordeProof.probe`) says ten or more small ones are drawn, and records 10 s by the clock from the
+#      recorder's "Recording started". The recorder is stopped with a time limit, so a stuck recording never holds
+#      the round;
 #   3. turns it upright (the simulator records its portrait frame buffer: the game stands on its side in it) at the
 #      shape of 2622 x 1206, 1310 x 602, under 8 MB, in $CI_OUT/clip/horde-clip.mp4: with ffmpeg when the runner has it
 #      or brew can bottle it within 5 minutes, else with scripts/ci/clip-turn.swift (AVFoundation), else shrunk with
-#      avconvert as it stands; clip-note.txt says which worked; plus a still at its end.
+#      avconvert as it stands; clip-note.txt says which worked; plus a still at its end;
+#   4. pulls three stills from the upright clip at 1, 4 and 7 s (horde-clip-1s.png ...) and sets them side by side
+#      (horde-clip-stills.png), so the gate sees what the clip holds before it reports.
 # Everything lands in $CI_OUT/clip/ (published with the round's results by publish-results.sh). It never fails a round:
 # whatever goes wrong, it says so in clip-note.txt and exits 0.
 set -u
@@ -100,11 +106,41 @@ if [ "$READY" != 1 ]; then
     xcrun simctl terminate "$SIM" "$BUNDLE" >/dev/null 2>&1
     done_
 fi
-note "== $(date +%H:%M:%S) the world is on screen after $(( $(date +%s) - START )) s; recording 10 s"
+note "== $(date +%H:%M:%S) the world is on screen after $(( $(date +%s) - START )) s"
+
+# 2b. Step 3 (the director's call 9): the clip must show the horde. The app itself counts the small ones it draws (a
+# `dark` proof writes `seen:<n> hour:<h>` into tmp/horde-probe.txt of its data container every quarter second,
+# `HordeProof.probe`); recording starts once it says seen >= 10 (at most 90 s), else it records anyway and says so.
+DATA=$(xcrun simctl get_app_container "$SIM" "$BUNDLE" data 2>/dev/null)
+PROBE=""
+[ -n "$DATA" ] && [ -d "$DATA" ] && PROBE="$DATA/tmp/horde-probe.txt"
+[ -n "$PROBE" ] || note "NOTE: no data container for $BUNDLE: no value probe"
+seen_now() { sed -nE 's/.*seen:([0-9]+).*/\1/p' "$PROBE" 2>/dev/null | head -1; }
+SEEN=""
+BEST=0
+WAITED=$(date +%s)
+while [ $(( $(date +%s) - WAITED )) -lt 90 ]; do
+    SEEN=$(seen_now)
+    [ -n "$SEEN" ] && [ "$SEEN" -gt "$BEST" ] && BEST=$SEEN
+    [ -n "$SEEN" ] && [ "$SEEN" -ge 10 ] && break
+    sleep 0.5
+done
+if [ -n "$SEEN" ] && [ "$SEEN" -ge 10 ]; then
+    note "== $(date +%H:%M:%S) value probe: $(head -1 "$PROBE"); recording 10 s"
+else
+    note "NOTE: HORDE NOT SEEN: the value probe never said seen >= 10 in 90 s (best ${BEST}, file ${PROBE:-none}:" \
+        "$(head -1 "$PROBE" 2>/dev/null)); recording anyway"
+fi
 rm -f "$RAW"
 xcrun simctl io "$SIM" recordVideo --codec=h264 --force "$RAW" >"$OUT/record.txt" 2>&1 &
 RECORDER=$!
-sleep 10
+# 10 s by the clock from the moment the recorder says it records (it takes a second or two to start).
+for _ in $(seq 40); do grep -q "Recording started" "$OUT/record.txt" 2>/dev/null && break; sleep 0.5; done
+grep -q "Recording started" "$OUT/record.txt" 2>/dev/null || note "NOTE: the recorder never said it started"
+REC0=$(date +%s)
+sleep 10.5
+note "recorded from $(date -r "$REC0" +%H:%M:%S) for $(( $(date +%s) - REC0 )) s by the clock; probe at the end:" \
+    "$(head -1 "$PROBE" 2>/dev/null)"
 # Stop it with a time limit: SIGINT lets it finish the file; a recorder still running after 15 s is killed.
 kill -INT "$RECORDER" 2>/dev/null
 for _ in $(seq 15); do kill -0 "$RECORDER" 2>/dev/null || break; sleep 1; done
@@ -209,4 +245,23 @@ if [ -s "$CLIP" ] && [ "$(size "$CLIP")" -gt "$LIMIT" ]; then
     rm -f "$CLIP"
 fi
 [ -s "$CLIP" ] && note "clip: clip/horde-clip.mp4, $(size "$CLIP") bytes" || note "NOTE: no clip kept"
+
+# 4. Step 3 (call 9: nobody sends a clip that nobody watched): three stills from the upright clip at 1, 4 and 7 s, and
+# the three side by side, so the gate sees what the clip holds without playing it.
+if [ -s "$CLIP" ] && command -v ffmpeg >/dev/null 2>&1; then
+    LEN=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$CLIP" 2>/dev/null)
+    note "clip length: ${LEN:-?} s"
+    for T in 1 4 7; do
+        capped 60 ffmpeg -y -v error -ss "$T" -i "$CLIP" -frames:v 1 "$OUT/horde-clip-${T}s.png" \
+            || note "NOTE: no still at $T s"
+    done
+    if [ -s "$OUT/horde-clip-1s.png" ] && [ -s "$OUT/horde-clip-4s.png" ] && [ -s "$OUT/horde-clip-7s.png" ]; then
+        capped 60 ffmpeg -y -v error -i "$OUT/horde-clip-1s.png" -i "$OUT/horde-clip-4s.png" -i "$OUT/horde-clip-7s.png" \
+            -filter_complex "[0][1][2]hstack=inputs=3" "$OUT/horde-clip-stills.png" \
+            && note "stills: clip/horde-clip-1s.png, -4s.png, -7s.png and side by side clip/horde-clip-stills.png" \
+            || note "NOTE: the stills could not be put side by side"
+    fi
+else
+    note "NOTE: no stills (no clip or no ffmpeg)"
+fi
 done_

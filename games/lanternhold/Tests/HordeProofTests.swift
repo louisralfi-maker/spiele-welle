@@ -7,12 +7,24 @@ import XCTest
 /// more at the outer wall in a heap of more than one level, before and after the battle has run a second; by day it
 /// does nothing; `dark` puts the outer line's fires out.
 final class HordeProofTests: XCTestCase {
-    private func check(_ s: GameState, _ when: String, open wanted: Int = 10, file: StaticString = #filePath,
-                       line: UInt = #line) {
+    private func check(_ s: GameState, _ when: String, open wanted: Int = 10, streaming: Bool = false,
+                       file: StaticString = #filePath, line: UInt = #line) {
         let wallX = Realm.wallX[2]
         let small = s.creatures.filter { $0.kind == .sootling && $0.hp > 0 }
         XCTAssertEqual(s.archerCount, 0, "\(when): no archers", file: file, line: line)
-        XCTAssertTrue(s.spawns.isEmpty, "\(when): one wave, no more to come", file: file, line: line)
+        if streaming {
+            // step 3 (the director's call 9): the clip's stream, small ones only, in time order, for about a minute
+            XCTAssertGreaterThanOrEqual(s.spawns.count, HordeProof.streamQueued - 2, "\(when): the stream is queued",
+                                        file: file, line: line)
+            XCTAssertTrue(s.spawns.allSatisfy { $0.kind == .sootling }, "\(when): small ones only", file: file,
+                          line: line)
+            XCTAssertEqual(s.spawns.map(\.time), s.spawns.map(\.time).sorted(), "\(when): in time order", file: file,
+                           line: line)
+            XCTAssertGreaterThanOrEqual((s.spawns.last?.time ?? 0) - s.nightTime, 55, "\(when): for a minute",
+                                        file: file, line: line)
+        } else {
+            XCTAssertTrue(s.spawns.isEmpty, "\(when): one wave, no more to come", file: file, line: line)
+        }
         XCTAssertEqual(small.count, s.creatures.count, "\(when): small ones only", file: file, line: line)
         let open = small.filter { $0.action == .walking && $0.x > s.bankEdge && $0.x < wallX - 20 }
         XCTAssertGreaterThanOrEqual(open.count, wanted, "\(when): \(wanted) or more in the open", file: file, line: line)
@@ -36,7 +48,8 @@ final class HordeProofTests: XCTestCase {
 
         var dark = GameFrameSupport.demoNight(hour: 23.0)
         HordeProof.apply(&dark, balance: .standard, seconds: 1, dark: true)
-        check(dark, "dark", open: 3)
+        check(dark, "dark", open: 3, streaming: true)
+        XCTAssertFalse(HordeProof.probing, "the probe runs only in the clip's launch")
         XCTAssertTrue(Realm.lines[2].braziers.allSatisfy { dark.plots[$0].snuffed }, "dark: the outer fires out")
         let stream = dark.creatures.filter { $0.action == .walking }.map(\.x)
         XCTAssertLessThan(stream.min() ?? 0, dark.bankEdge, "dark: the stream still steps out of the bank")

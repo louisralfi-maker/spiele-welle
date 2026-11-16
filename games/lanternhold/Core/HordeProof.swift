@@ -10,8 +10,13 @@ import Foundation
 /// in its own steps, so where they stand, what is lit and the heap are the battle's own; the fires still burn them.
 /// `dark` (the runner's clip, live) puts the outer line's brazier and fire tower out as well, so the wave lives to heap
 /// at the wall while the catapult's firepots still fall on it, and strings the open ones out from deep in the bank
-/// (`streamFrom`, `streamSpacing`), so the clip, which starts a few seconds into the night, sees them step out of the
-/// bank, cross the open and climb the heap.
+/// (`streamFrom`, `streamSpacing`).
+/// Step 3 (the director's call 9: the clip must show the horde): a live night runs 12 s a game hour from the launch,
+/// and the runner's launch and its world probe took half a minute, so in step 2 the wave was spent before the
+/// recording began. Now `dark` also queues a stream through the battle's own spawn queue (`streamQueued` small ones,
+/// one every `streamEvery` s of the night from `streamDelay` on), so small ones keep stepping out of the bank, crossing
+/// the open and climbing the heap for a minute, whenever the first world frame comes. The clip starts recording only
+/// once the app has drawn ten or more of them (`probe`, read by scripts/ci/sim-clip.sh).
 enum HordeProof {
     static let openCount = 16
     static let wallCount = 12
@@ -21,6 +26,11 @@ enum HordeProof {
     static let openSpacing = 6.0
     static let streamFrom = -120.0
     static let streamSpacing = 12.0
+    /// `dark`: the stream through the battle's spawn queue (from the realm's spawn point, 40 px; about 14 s to the
+    /// bank's edge, 4 s across the open), one small one every `streamEvery` s from `streamDelay` s into the proof.
+    static let streamQueued = 60
+    static let streamDelay = 1.0
+    static let streamEvery = 1.0
 
     static func apply(_ s: inout GameState, balance: Balance, seconds: Double, dark: Bool = false) {
         guard !s.defeated, DayClock.phase(at: s.hour) != .day else { return }
@@ -49,6 +59,13 @@ enum HordeProof {
             s.creatures[index].action = .attackingWall
             s.creatures[index].target = line.wall
         }
+        if dark {
+            // the stream: queued in time order, as `Battle.planNight` leaves the queue
+            for k in 0..<streamQueued {
+                s.spawns.append(SpawnEntry(time: s.nightTime + streamDelay + Double(k) * streamEvery, kind: .sootling,
+                                           wave: 0))
+            }
+        }
         var events: [SimEvent] = []
         var left = min(30, max(0, seconds))
         while left > 1e-9 && !s.defeated {
@@ -57,6 +74,28 @@ enum HordeProof {
             Sim.step(&s, dt: dt, balance: balance, events: &events)
             left -= dt
         }
+    }
+
+    // MARK: - The clip's value probe
+
+    /// True in a `dark` proof (the runner's clip): the world frames note how many small ones they draw.
+    static let probing: Bool = DebugArgs.horde?.dark == true
+    /// The probe's file in the app's temporary folder; scripts/ci/sim-clip.sh reads it through
+    /// `xcrun simctl get_app_container <sim> <bundle> data` (`tmp/horde-probe.txt`).
+    static let probeName = "horde-probe.txt"
+    /// One note every this many world frames (a quarter of a second).
+    static let probeEvery = 15
+    nonisolated(unsafe) static var probeFrames = 0
+
+    /// Notes `seen:<small bodies drawn on screen> hour:<the night's hour>` into the probe's file.
+    static func probe(_ actors: [ActorInstance], hour: Double) {
+        probeFrames += 1
+        guard probeFrames % probeEvery == 1 else { return }
+        let small: Set<SpriteID> = [.sootling, .sootlingB, .tumbler]
+        let seen = actors.filter { small.contains($0.sprite) && !$0.isEmissive }.count
+        let text = String(format: "seen:%ld hour:%.3f frame:%ld\n", seen, hour, probeFrames)
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(probeName)
+        try? text.write(to: url, atomically: true, encoding: .utf8)
     }
 }
 #endif
