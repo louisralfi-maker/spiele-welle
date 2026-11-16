@@ -595,6 +595,66 @@ final class RainLookTests: XCTestCase {
         XCTAssertTrue(warm[0] > warm[1] && warm[1] > warm[2], "warm, never snow: r > g > b (\(warm))")
     }
 
+    /// b3-wind: build 3 step 5 (the director's call 6 of 11:07, M-c: a dark navy point, (27, 33, 57) on a sky of (43, 51,
+    /// 88), in the night ash strip s4/00 cells 5 to 7, moving a little from cell to cell). The strip's own moments (the
+    /// band at world 600, 22:00, rain in a wind of 0.35, 32.4 to 33.2 s, the UI's seed 1) rendered offscreen: every
+    /// pixel of the open sky more than 12/255 darker than the even sky four game pixels either side of it, named by what
+    /// covers it (sprite, plane and, for the ash, the flake's kind). A measurement: it prints, and holds only that the
+    /// frames render.
+    func testTheNightsDarkSpecksAreNamed() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        let night = GameFrameSupport.demoNight(hour: 22, seed: 1)
+        let rain = WeatherOverride(mode: .clear, wind: 0.35, rain: 1)
+        var named: [String: Int] = [:]
+        var places: [String] = []
+        for cell in 5...7 {
+            let time = 30.4 + Double(cell) * 0.4
+            var settings = RenderSettings()
+            settings.time = time
+            let frame = shot(night, focus: 600, weather: weather(night, rain, time: time), time: time).desc
+            let picture = try renderer.renderOffscreen(frame, settings: settings)
+            let s = frame.scale
+            let shift = frame.layer(.world).offset.deviceShift
+            func luma(_ column: Int, _ row: Int) -> Float {
+                let c = picture.color(x: column * s - shift + s / 2,
+                                      y: picture.height - (frame.targetHeight - row) * s + s / 2)
+                return 0.2126 * c.x + 0.7152 * c.y + 0.0722 * c.z
+            }
+            for row in 4..<(frame.groundRow - 60) {
+                for column in 6..<(frame.targetWidth - 6) {
+                    let left = luma(column - 4, row)
+                    let right = luma(column + 4, row)
+                    guard abs(left - right) < 4.0 / 255, luma(column, row) < min(left, right) - 12.0 / 255 else { continue }
+                    var what: [String] = []
+                    for plane in Plane.allCases {
+                        for item in frame.layer(plane).sprites where Float(column) >= item.rect.x
+                            && Float(column) < item.rect.x + item.rect.z && Float(row) >= item.rect.y
+                            && Float(row) < item.rect.y + item.rect.w && item.tint.w > 0.01 {
+                            var name = "\(item.sprite) \(plane)"
+                            if item.sprite == .ashFlake {
+                                name += item.frame >= 12 ? " ember body" : " flake"
+                            }
+                            what.append(name)
+                        }
+                    }
+                    let key = what.isEmpty ? "nothing of the planes (the sky, fog or the light)" : what.sorted().joined(separator: " + ")
+                    named[key, default: 0] += 1
+                    if places.count < 24 {
+                        places.append("cell \(cell) at \(column),\(row): \(key)")
+                    }
+                }
+            }
+        }
+        for (key, count) in named.sorted(by: { $0.value > $1.value }) {
+            print("NIGHTDARK \(count) px: \(key)")
+        }
+        for place in places {
+            print("NIGHTDARK \(place)")
+        }
+        XCTAssertTrue(true)
+    }
+
     /// The drawn contrasts of the lane plane's `sprite`s whose cells lie wholly in the upper sky (above the ground's
     /// last 50 rows), embers and faded flakes left out: `sign` × (the cell's extreme luma − the mean of the pixels
     /// three game pixels left of it and right of it at its middle row), × 255.

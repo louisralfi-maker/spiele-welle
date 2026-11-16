@@ -4647,6 +4647,28 @@ lines above.
 - **For the join**: the pale wisps with a bright foot over the town are build 2's back-row chimney smoke (world-3 M4:
   `CastleSmoke.puffs` and `glow`, `FrameBuilder.castleSmoke`, `SceneLayout.castleChimney` with `townRowChimney`).
 
+Step 5 (16.11.2026, the director's calls of 11:07, one agent; blocks tagged `b3-wind`): where it differs, it replaces the
+lines above.
+
+- **The smoke shows the wind** (call 1; the lane takes `CastleSmoke` and `FrameBuilder.castleSmoke`): the plume leans
+  by `CastleSmoke.angle` with the wind at the chimney, its sign and its strength: upright in still air, 13 degrees on a
+  calm day (build 2's), about 28 in a breeze, 74 in a storm, where its path grows by half and it is torn into three
+  groups along it (each puff keeps the moment it left the chimney, so the groups travel). Under Reduce Motion it
+  stands leaned by the steady wind. The back row's chimneys smoke at 0.55 of the alpha, fade in over a quarter of the
+  rise and have no fire under them: no bright head, no comet tail.
+- **The embers glow** (call 2): two in five at night, a life of 0.6 of the fall, 2 x 2 for its first 45 % (by day a
+  quarter); the 2 x 2 point is three orange pixels round a core of the gold × 1.6 (a second glass quad on its rect,
+  coloured the difference); the grey flake grows in only after half the ember's life. The near plane's embers stay
+  on their plane: the emissive pass is one target read at the world's coordinates (`Renderer` 689-696, `lh2_base`), so
+  a plane of the instance moves nothing; that, and the `.glass` chroma under the night's grade, are the join's.
+- **The night ash** (call 3): `ashNightGlow` 0.36, a small step over the sky (+2 to +12 of 255 on the drawn pixel).
+- **The vane** (call 4): the head a filled wedge of 1, 3 and 5 px in stoneLight; the fin a solid dark plate 4 x 5 with
+  a 2 px notch (18 px); the lit edge on the shaft and the head only; the calm's frame a wedge of two columns.
+- **The gust** (call 5): no leaf frame under 2 px thick (the edge-on frame a 4 x 2 sliver), a darker lower edge on
+  every leaf, the autumn leaf a darker ochre; the near plane's trees are crowns too (the town's trees stand there), so
+  leaves leave every crown in view; a burst's 4 to 6 leaves leave one crown together as the gust rises
+  (`gustBurstLead` 0.08 s, shown at once).
+
 ## Risks
 
 | Risk | What we do |
