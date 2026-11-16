@@ -292,6 +292,13 @@ if [ -s "$CLIP" ] && command -v ffmpeg >/dev/null 2>&1; then
             && note "stills: clip/horde-clip-1s.png, -4s.png, -7s.png and side by side clip/horde-clip-stills.png" \
             || note "NOTE: the stills could not be put side by side"
     fi
+    # b3-horde step 8 (the director's call G10): eight stills 0.06 s apart from 4 s on (a walker's animation frame,
+    # 4 px at its pace, takes about 0.12 s), so a planted tip can be followed from one walk frame to the next
+    for N in 0 1 2 3 4 5 6 7; do
+        capped 60 ffmpeg -y -v error -ss "4.$(printf '%02d' $((N * 6)))" -i "$CLIP" -frames:v 1 \
+            "$OUT/horde-clip-gait-$N.png" || note "NOTE: no gait still $N"
+    done
+    note "gait stills: clip/horde-clip-gait-0.png ... -7.png, 0.06 s apart from 4.00 s"
 else
     note "NOTE: no stills (no clip or no ffmpeg)"
 fi
