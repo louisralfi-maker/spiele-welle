@@ -277,10 +277,14 @@ extension GameModel {
             guard left >= 0, right <= Realm.walkEnd else { return false }
             return !blocked.contains { $0.lowerBound < right && $0.upperBound > left }
         }
+        // The side follows the place found (the review: a narrow thing's board searched inward could end past its far
+        // side, and the lord must still stand on the board's outer side).
+        let middle = (frameLeft + frameRight) / 2
         for step in 0...GameModel.countBoardSearch {
             let offsets = step == 0 ? [0.0] : [Double(step) * side, -Double(step) * side]
             for offset in offsets where clear(ideal + offset) {
-                return (ideal + offset, side)
+                let x = ideal + offset
+                return (x, x < middle ? -1 : 1)
             }
         }
         return (ideal, side)
