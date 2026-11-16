@@ -632,6 +632,9 @@ final class PaySignTests: XCTestCase {
         let framing = try XCTUnwrap(game.touch.framing)
         let minimum = game.touchMinimum(framing: framing)
         let place = (x: catapult.middle, lift: 12.0, minimum: minimum)
+        // Step 6: with the lord at 1455 a townsman of day 3 may pass in front of the catapult (round lh-b3c-62); the
+        // rule is tested from an empty street, then with one person put inside the area.
+        game.touch.things.removeAll { $0.isPerson }
         XCTAssertEqual(game.modelAt(place)?.item, .catapult)
         game.touch.things.append(TouchThing(id: "touch-talk-test", kind: .talk, act: .talk(who: "test"),
                                             x: catapult.middle, standX: catapult.middle + 12, halfWidth: 6, top: 30,
