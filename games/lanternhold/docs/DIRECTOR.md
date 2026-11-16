@@ -1050,3 +1050,10 @@ schneller geht."
   - The call: the small ones become the giant's children. Step 6 is a design card (python only, one agent): three candidates (the knuckle-walker, the dragger, the hood) beside the giant and today's bodies. The director picks, then the strips are rebuilt under the same sprite ids.
   - Also decided: the warm rim goes, the body carries no bloom, the proof stage's heap gets a knock-off, the kill's fall is drawn in front of the crowd.
   - The join can take the lane at c93cd45f; the new strips follow in the lane's own files.
+
+- **The horde's design card judged; the knuckle-walker is picked (16.11.2026, 11:43).**
+  - Three candidates stood beside the giant and today's bodies at phone size (ci-out/director/b3/horde/s6/).
+  - The hood is out: an upright hooded biped with a stick, too near another kingdom game's small runners. The dragger is out: a mound.
+  - The knuckle-walker is picked, but as drawn it is a hump with a short arm. The giant's mark is missing: two long thin stilt arms with open air under the belly.
+  - Step 6B is a second cheap design pass (python only, one agent): stilt arms and no hind legs, the opening kept at 1x, taller than wide, a hauling gait whose hump bobs so the crowd's skyline rolls, a smaller runt as the second body, a climb and a strike frame.
+  - Its second card is a family scene at phone size: the giant in a stream of 24 of his kin. If it reads, the strips are built in the lane.
