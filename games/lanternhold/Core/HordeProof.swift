@@ -93,8 +93,9 @@ enum HordeProof {
 
     /// `dark` (the clip, step 4): after a live step, the night's clock held at `heldHour`, the outer wall kept at its
     /// strength, the outer line's engine silent, and one small one more out of the bank's edge every `streamEvery` s
-    /// (while fewer than `streamCap` live), so the open and the heap hold the horde whenever the recording starts and
-    /// for as long as it runs. By day, or once the realm has fallen, it does nothing.
+    /// (at `streamCap` alive the newest at the wall falls first, a live fall at the top of the heap), so the open and
+    /// the heap hold the horde whenever the recording starts and for as long as it runs. By day, or once the realm has
+    /// fallen, it does nothing.
     static func drive(_ s: inout GameState, balance: Balance) {
         guard !s.defeated, DayClock.phase(at: s.hour) != .day else { return }
         s.hour = heldHour
@@ -105,7 +106,15 @@ enum HordeProof {
         s.plots[line.engine].cooldown = max(s.plots[line.engine].cooldown, 1)
         guard s.simTime >= nextStream else { return }
         nextStream = s.simTime + streamEvery
-        guard s.creatures.filter({ $0.kind == .sootling && $0.hp > 0 }).count < streamCap else { return }
+        // at the cap the newest small one at the wall falls (the battle takes it away in the next step), so the
+        // stream never stops: in the dark proof nothing else kills at the wall, and without this the open stood empty
+        // from about 12 s on while the heap alone still filled the probe (the gate's review of step 4)
+        let alive = s.creatures.indices.filter { s.creatures[$0].kind == .sootling && s.creatures[$0].hp > 0 }
+        if alive.count >= streamCap,
+           let top = alive.last(where: { s.creatures[$0].action == .attackingWall }) {
+            s.creatures[top].hp = 0
+        }
+        guard alive.count < streamCap || alive.contains(where: { s.creatures[$0].hp <= 0 }) else { return }
         Battle.spawn(&s, kind: .sootling, x: s.bankEdge + streamFrom, wave: 0, balance: balance, fromWave: false)
     }
 
