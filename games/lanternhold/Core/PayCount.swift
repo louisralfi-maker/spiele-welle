@@ -698,10 +698,25 @@ struct PayBoardLayout: Sendable, Equatable {
     /// Step 4 (the director's call 5, M-c): the same board with each row's hollows in the other order, for a lord who
     /// stands on its right: the hollows fill from his side, the nearest first, so the shortest throw comes first and
     /// the clink rises from near to far. Hollow `i` still holds coin `i` (a row holds one kind of coin).
+    /// Each row is reflected inside its own span (not the board's width), so a row whose slack is odd keeps its exact
+    /// places and a mixed row keeps its spacing.
     func mirrored() -> PayBoardLayout {
+        // A hollow's plank: its top lies inside the plank's 12 rows (a mixed row's hollows differ in y).
+        func plankOf(_ hollow: Hollow) -> Int { (hollow.y - PayBoardLayout.cap) / PayBoardLayout.plank }
+        var spans: [Int: (lo: Int, hi: Int)] = [:]
+        for hollow in hollows {
+            let right = hollow.x + hollow.coin.hollow.size.width
+            if let span = spans[plankOf(hollow)] {
+                spans[plankOf(hollow)] = (lo: min(span.lo, hollow.x), hi: max(span.hi, right))
+            } else {
+                spans[plankOf(hollow)] = (lo: hollow.x, hi: right)
+            }
+        }
         var flipped = self
         flipped.hollows = hollows.map { hollow in
-            Hollow(coin: hollow.coin, x: width - hollow.x - hollow.coin.hollow.size.width, y: hollow.y)
+            let span = spans[plankOf(hollow)] ?? (lo: hollow.x, hi: hollow.x + hollow.coin.hollow.size.width)
+            return Hollow(coin: hollow.coin, x: span.lo + span.hi - hollow.x - hollow.coin.hollow.size.width,
+                          y: hollow.y)
         }
         return flipped
     }
