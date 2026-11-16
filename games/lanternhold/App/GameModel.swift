@@ -465,6 +465,15 @@ final class GameModel {
                          reduceMotion: reduceMotion)
             camera = follow
         }
+        // b3-lantern: the look-around (`LookAround`, GameModel+Lantern.swift): its glide home steps, its pan rides on
+        // the world's camera, and the moment's figures and the strip's view bracket follow the slid view.
+        stepLookAround(seconds)
+        if var view = camera, view.pan != touch.look.pan {
+            view.setPan(touch.look.pan)
+            camera = view
+            followLookAround()
+        }
+        // b3-lantern end
         stepCourt(seconds, state: game.state)
         stepTown()
         // The hall stage: the change of stage, the lord's walk in the hall, its camera and its court.

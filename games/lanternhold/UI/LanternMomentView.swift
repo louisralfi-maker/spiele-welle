@@ -38,6 +38,10 @@ enum LanternKitImages {
 /// town's mood, the people and their count, and under them the day as the dawn sign and its number; at the top the
 /// realm strip (a tap there walks him to that place); in the top right corner the gear to the pause sheet. Any other
 /// touch lowers the lantern and the world runs on. No word stands on the world: VoiceOver reads the elements.
+/// Build 3, lane 5 (no dead tap): the dim takes no finger; every other touch goes through `TouchLayer` to the model,
+/// where a tap on a person or a thing lowers the lantern and does the deed in the same touch, a tap on the empty world
+/// only lowers it, and a sideways drag looks around the still realm (`LookAround`). The strip and the gear keep
+/// their own taps.
 @MainActor
 struct LanternMomentView: View {
     let model: GameModel
@@ -63,8 +67,8 @@ struct LanternMomentView: View {
         .transition(model.reduceMotion ? .identity : .opacity)
     }
 
-    /// The dim over the whole screen (a touch on it lowers the lantern) and the figures above the lord, placed on the
-    /// world's pixel grid in device pixels.
+    /// The dim over the whole screen (it takes no finger: the touch goes through to the world; VoiceOver's double tap on
+    /// it lowers the lantern) and the figures above the lord, placed on the world's pixel grid in device pixels.
     private var world: some View {
         GeometryReader { geometry in
             let perDevice = geometry.size.width / max(1, CGFloat(show.physicalWidth))
@@ -75,8 +79,7 @@ struct LanternMomentView: View {
             let blockHeight = CGFloat(show.block.height) * unit
             ZStack(alignment: .topLeading) {
                 Color.black.opacity(0.18)
-                    .contentShape(Rectangle())
-                    .onTapGesture { model.lowerLanternMoment() }
+                    .allowsHitTesting(false)
                     .accessibilityElement()
                     .accessibilityLabel(Text(verbatim: show.summary))
                     .accessibilityHint(Text("Double tap to go on"))

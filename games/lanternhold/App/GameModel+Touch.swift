@@ -109,6 +109,16 @@ struct TouchState: Sendable {
     var modelHopLead: [Int: Int] = [:]
     var modelRide: [Int: Double] = [:]
     var modelRideAt: Double?
+    // Build 3, lane 5 (the lantern moment answers the hand; never saved).
+    /// The touch went down while the lantern was up: its lift is the deed's tap (`momentTap`), its drag a look-around.
+    var overMoment = false
+    /// The touch is a look-around's drag: the finger holds the view.
+    var panning = false
+    /// Where the touch the scene's going inactive forgot went down: that touch's later events are nothing.
+    var voided: CGPoint?
+    /// The look-around's view (`LookAround`), and the strip's column of the view's left edge it last showed.
+    var look = LookAround()
+    var lookColumn = -1
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -137,27 +147,54 @@ extension GameModel {
         guard overlay == nil else { return }
         // Build 2 review, app-ui-1: a touch the system cancelled never ended; a new start point is a new touch.
         if let down = touch.down, down != start { resetTouch() }
+        // Build 3, lane 5: the touch the scene's going inactive forgot stays forgotten until a new touch starts.
+        if touch.down == nil, let voided = touch.voided {
+            if voided == start { return }
+            touch.voided = nil
+        }
         if touch.down == nil {
             touch.down = start
             touch.dragging = false
-            touch.pressed = thingAt(start, in: size)?.id
-            // Raise the lantern: a hold on the lord at night (`stepTouch` counts it).
-            touch.onLord = touch.pressed == nil && stagePoint(start, in: size).map(isOnLord) == true
             touch.downAt = clock.elapsed
             touch.raised = false
-            // Build 3, the count: a touch on a thing that is bought brings its board up and holds it; on the open
-            // board it holds (`GameModel+Pay.swift`).
-            if countDown(at: start, in: size) { touch.onLord = false }
+            // Build 3, lane 5 (no dead tap): under the lantern a touch is a tap that does the deed or a drag that looks
+            // around; nothing is pressed, held on the lord or counted while it is down.
+            touch.overMoment = lanternMoment != nil
+            if touch.overMoment {
+                touch.pressed = nil
+                touch.onLord = false
+            } else {
+                touch.pressed = thingAt(start, in: size)?.id
+                // Raise the lantern: a hold on the lord at night (`stepTouch` counts it).
+                touch.onLord = touch.pressed == nil && stagePoint(start, in: size).map(isOnLord) == true
+                // Build 3, the count: a touch on a thing that is bought brings its board up and holds it; on the open
+                // board it holds (`GameModel+Pay.swift`).
+                if countDown(at: start, in: size) { touch.onLord = false }
+            }
         }
         let travel = hypot(Double(translation.width), Double(translation.height))
         if !touch.dragging && !TouchRules.isTap(travel: travel) {
             touch.dragging = true
             touch.pressed = nil
-            // A drag is a walk, never a count (the director's notes of 15.11., item 5).
-            countDragged()
-            cancelErrand()
+            if touch.overMoment {
+                if canLookAround {
+                    // Build 3, lane 5: with the lantern up a drag slides the still realm under the finger.
+                    grabLookAround(translation: translation, in: size)
+                } else {
+                    // In the hall there is no realm to look over: the drag lowers the lantern and walks.
+                    touch.overMoment = false
+                    lowerLanternMoment()
+                }
+            }
+            if !touch.panning {
+                // A drag is a walk, never a count (the director's notes of 15.11., item 5).
+                countDragged()
+                cancelErrand()
+            }
         }
-        if touch.dragging {
+        if touch.panning {
+            dragLookAround(translation: translation, in: size)
+        } else if touch.dragging {
             setDrag(offset: Double(translation.width))
         } else if let pressed = touch.pressed, thingAt(point, in: size)?.id != pressed {
             // The finger slid off the thing: its mark goes back to idle.
@@ -165,23 +202,44 @@ extension GameModel {
         }
     }
 
-    /// The finger lifted at `point`: a tap when it never moved past 10 pt, else the end of a drag.
-    func touchEnded(at point: CGPoint, translation: CGSize, in size: CGSize) {
+    /// The finger lifted at `point`: a tap when it never moved past 10 pt, else the end of a drag. `active`: the scene
+    /// was active at the lift (`TouchLayer`).
+    func touchEnded(at point: CGPoint, translation: CGSize, in size: CGSize, active: Bool = true) {
         guard kind == .world else {
             setDrag(offset: nil)
             return
         }
+        // Build 3, lane 5: a lift while the scene is not active, or of a touch that is no longer down (the scene went
+        // inactive, a card or the lantern took the finger), is never a tap.
+        guard active, let start = touch.down else {
+            resetTouch()
+            touch.voided = nil
+            return
+        }
         let dragged = touch.dragging
-        let start = touch.down ?? point
+        let panned = touch.panning
+        let overMoment = touch.overMoment
         let raised = touch.raised
         let counting = touch.countPress && !dragged
         touch.down = nil
         touch.dragging = false
+        touch.panning = false
+        touch.overMoment = false
         touch.pressed = nil
         touch.onLord = false
         touch.raised = false
+        if panned {
+            // The look-around: letting go glides the view home to the lord; the lantern stays up.
+            touch.look.release(reduceMotion: reduceMotion)
+            return
+        }
         if dragged {
             setDrag(offset: nil)
+            return
+        }
+        // Build 3, lane 5 (no dead tap): a tap under the lantern lowers it and does the deed in the same touch.
+        if overMoment {
+            momentTap(at: start, in: size)
             return
         }
         // Build 3, the count: the finger leaves the board; a press that set no coin was a tap and sets one.
@@ -204,6 +262,12 @@ extension GameModel {
             touch.countFirst = false
             touch.count?.lift(tap: false)
         }
+        // Build 3, lane 5: a look-around the system took lets the view glide home (the lantern stays up).
+        if touch.panning {
+            touch.panning = false
+            touch.look.release(reduceMotion: reduceMotion)
+        }
+        touch.overMoment = false
         let dragged = touch.dragging
         touch.down = nil
         touch.dragging = false
@@ -211,6 +275,13 @@ extension GameModel {
         touch.onLord = false
         touch.raised = false
         if dragged { setDrag(offset: nil) }
+    }
+
+    /// Build 3, lane 5: the scene went inactive (`GameView`'s scene phase): the finger is forgotten as by `resetTouch`,
+    /// and the touch that was down stays nothing: its later moves and its lift, if they ever come, are no tap.
+    func voidTouch() {
+        if let down = touch.down { touch.voided = down }
+        resetTouch()
     }
 
     /// The thing under a point of the screen, nil for the ground.
@@ -232,8 +303,19 @@ extension GameModel {
         return (framing.stageX(deviceX: deviceX), framing.lift(deviceY: deviceY), minimum)
     }
 
-    /// A tap at `point`: on a thing, its errand; on the lord, nothing; else he walks to that x.
-    func tap(at point: CGPoint, in size: CGSize) {
+    /// Build 3, lane 5 (no dead tap; docs/HUD.md section 2): a tap while the lantern is up lowers it, and on a person or
+    /// a thing the same touch does what a tap does with the lantern down (he walks there, the board comes, the talk
+    /// starts); on the empty world and on the lord himself it only lowers the lantern.
+    func momentTap(at point: CGPoint, in size: CGSize) {
+        guard lanternMoment != nil else { return }
+        lowerLanternMoment()
+        touch.lastTap = "lowered"
+        tap(at: point, in: size, underLantern: true)
+    }
+
+    /// A tap at `point`: on a thing, its errand; on the lord, nothing; else he walks to that x. `underLantern`: the tap
+    /// lowered the lantern (`momentTap`): on the lord and on the ground it does nothing more.
+    func tap(at point: CGPoint, in size: CGSize, underLantern: Bool = false) {
         guard kind == .world, overlay == nil, stageChange == nil, driver?.bot == nil,
               let place = stagePoint(point, in: size) else { return }
         if firstTouchSlip { firstTouchSlip = false }
@@ -244,6 +326,7 @@ extension GameModel {
         // there for the second touch that pays.
         if isOnLordsBody(place), picked.map({ prefersLord(over: $0, x: place.x) }) ?? true,
            modelAt(place) == nil {
+            if underLantern { return }
             touch.lastTap = "moment"
             openLanternMoment()
             return
@@ -275,10 +358,13 @@ extension GameModel {
         // A tap on the lord raises the lantern moment (stage-3-interface, HUD.md section 2; a hold at night still
         // raises the lantern against the dark).
         if isOnLord(place) {
+            if underLantern { return }
             touch.lastTap = "moment"
             openLanternMoment()
             return
         }
+        // Build 3, lane 5: the empty world under the lantern only lowers it.
+        if underLantern { return }
         touch.lastTap = "ground"
         cancelErrand()
         feedback.play(.touched)

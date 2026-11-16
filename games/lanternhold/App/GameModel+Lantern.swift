@@ -19,6 +19,9 @@ struct LanternMomentShow: Sendable, Equatable {
     var people: Int
     var day: Int
     var clock: String
+    /// Build 3, lane 5: the block's left edge on the stage (game px): while the look-around slides the view, the block
+    /// rides with the world over the lord and `left` follows (`followLookAround`).
+    var blockX: Double? = nil
 }
 
 /// docs/HUD.md on screen (stage lane, step stage-3-interface, 15.11.2026): nothing stands on the walked world. A tap
@@ -66,12 +69,19 @@ extension GameModel {
                                      physicalWidth: framing.physicalWidth, physicalHeight: framing.physicalHeight,
                                      summary: lanternSummary(state), gold: shown, happiness: state.happiness,
                                      people: state.citizens, day: state.day,
-                                     clock: GameModel.format(hour: state.hour))
+                                     clock: GameModel.format(hour: state.hour), blockX: Double(left))
         withDriver { game in
             game.isPaused = true
             game.setDrag(offset: nil)
         }
         lanternMoment = show
+        #if DEBUG
+        // b3-lantern: `-GWLookAround <dx>[:<slow>]`, the look-around's pictures: the view stands slid at once.
+        if let look = DebugArgs.lookAround, stage == .world, let view = camera {
+            touch.look.glideScale = look.slow
+            if look.pan != 0 { touch.look.place(look.pan, range: view.panRange) }
+        }
+        #endif
         stripCalling = false
         feedback.play(.touched)
         refreshHUD()
@@ -81,6 +91,11 @@ extension GameModel {
     func lowerLanternMoment() {
         guard lanternMoment != nil else { return }
         lanternMoment = nil
+        // Build 3, lane 5: a view the look-around slid glides home as the world runs on.
+        if touch.look.pan != 0 || touch.look.isHeld {
+            touch.panning = false
+            touch.look.release(reduceMotion: reduceMotion)
+        }
         withDriver { $0.isPaused = overlay != nil }
         refreshHUD()
     }
@@ -95,6 +110,66 @@ extension GameModel {
     func travelFromLantern(toFraction fraction: Double) {
         lowerLanternMoment()
         travel(toFraction: fraction)
+    }
+
+    // MARK: - The look-around (build 3, lane 5)
+
+    /// The look-around can slide the view now: the lantern is up on the world (in the hall there is no realm to look
+    /// over).
+    var canLookAround: Bool {
+        kind == .world && lanternMoment != nil && stage == .world && overlay == nil && camera != nil
+    }
+
+    /// A drag began under the lantern (`touchChanged`): the finger takes the view.
+    func grabLookAround(translation: CGSize, in size: CGSize) {
+        touch.panning = true
+        touch.look.grab(travel: lookTravel(translation, in: size))
+    }
+
+    /// The finger moved: the realm slides with it, one to one, inside the world.
+    func dragLookAround(translation: CGSize, in size: CGSize) {
+        guard let view = camera else { return }
+        touch.look.drag(travel: lookTravel(translation, in: size), range: view.panRange)
+    }
+
+    /// The finger's sideways travel in game px of the world (points of the touch layer through the device's pixels).
+    func lookTravel(_ translation: CGSize, in size: CGSize) -> Double {
+        guard let framing = touch.framing, size.width > 0, framing.scale > 0 else { return 0 }
+        return Double(translation.width) * framing.physicalWidth / Double(size.width) / framing.scale
+    }
+
+    /// One frame of real time (`advanceGame`, before the pan rides on the camera): the glide home goes on. A view still
+    /// slid after the lantern went down another way (a card, the gear, the strip, the hall) goes home: at once under a
+    /// card or out of the world, else gliding.
+    func stepLookAround(_ seconds: Double) {
+        if !canLookAround, touch.look.pan != 0 || touch.look.isHeld {
+            touch.panning = false
+            if overlay != nil || stage != .world {
+                touch.look.home()
+            } else if !touch.look.isGliding {
+                touch.look.release(reduceMotion: reduceMotion)
+            }
+        }
+        touch.look.step(seconds)
+    }
+
+    /// The camera's pan changed (`advanceGame`): the moment's block rides with the world over the lord, and the
+    /// strip's view bracket moves with the view (the strip is made again when the view's edge crosses a column).
+    func followLookAround() {
+        guard kind == .world, stage == .world, let view = camera else { return }
+        if var show = lanternMoment, let blockX = show.blockX, let pixelScale = lastPixelScale {
+            let framing = TouchFraming.world(camera: view, pixelScale: pixelScale)
+            let left = framing.deviceX(stageX: blockX)
+            if left != show.left {
+                show.left = left
+                lanternMoment = show
+            }
+        }
+        let column = RealmMapPixels.column(view.x)
+        if column != touch.lookColumn {
+            touch.lookColumn = column
+            refreshHUD()
+        }
     }
 
     /// "Mira, day 12, 93 gold, the town is content, 28 people".

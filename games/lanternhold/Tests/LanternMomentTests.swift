@@ -334,4 +334,224 @@ final class LanternMomentTests: XCTestCase {
         let xs = game.touchSpots.map(\.rect.minX)
         XCTAssertEqual(xs, xs.sorted(), "left to right, the lord among the things")
     }
+
+    // MARK: - Build 3, lane 5: the lantern moment answers the hand (no dead tap, the look-around)
+
+    /// A point of the 17 Pro's screen (points) at a stage x and a lift over the walk line.
+    private func screenPoint(_ game: GameModel, x: Double, lift: Double) throws -> CGPoint {
+        let framing = try XCTUnwrap(game.touch.framing)
+        return CGPoint(x: framing.deviceX(stageX: x) / 3, y: framing.deviceY(lift: lift) / 3)
+    }
+
+    /// The middle of a thing's touch area on screen.
+    private func thingPoint(_ game: GameModel, _ thing: TouchThing) throws -> CGPoint {
+        let area = TouchRules.area(thing, minimum: 0)
+        return try screenPoint(game, x: (area.left + area.right) / 2, lift: (area.top + area.bottom) / 2)
+    }
+
+    /// One finger through the touch layer's path: down at `point`, up at `point` (a tap).
+    private func tapThrough(_ game: GameModel, _ point: CGPoint) {
+        game.touchChanged(start: point, at: point, translation: .zero, in: proPoints)
+        game.touchEnded(at: point, translation: .zero, in: proPoints)
+    }
+
+    /// The finger that went down at `start` is `dx` pt to the side of it.
+    private func drag(_ game: GameModel, from start: CGPoint, dx: Double) {
+        game.touchChanged(start: start, at: CGPoint(x: start.x + dx, y: start.y),
+                          translation: CGSize(width: dx, height: 0), in: proPoints)
+    }
+
+    /// Game px of the world per point of the finger on the 17 Pro.
+    private func pixelsPerPoint(_ game: GameModel) throws -> Double {
+        let framing = try XCTUnwrap(game.touch.framing)
+        return framing.physicalWidth / Double(proPoints.width) / framing.scale
+    }
+
+    /// A raised lantern over a world whose camera has settled on the lord.
+    private func raised(_ values: [String: String]) throws -> GameModel {
+        let game = model(values)
+        run(game, seconds: 0.2)
+        game.openLanternMoment()
+        XCTAssertNotNil(game.lanternMoment, "the lantern is up")
+        run(game, seconds: 1.5)
+        return game
+    }
+
+    /// No dead tap: with the lantern up, a tap on a thing lowers it and starts the thing's errand in the same touch.
+    func testATapOnAThingWhileTheLanternIsUpLowersItAndStartsItsErrand() throws {
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" }, "the hall's door offers")
+        let p = try thingPoint(game, door)
+        XCTAssertEqual(game.thingAt(p, in: proPoints)?.id, door.id, "the finger is on the door")
+        tapThrough(game, p)
+        XCTAssertNil(game.lanternMoment, "the same touch lowered the lantern")
+        XCTAssertFalse(game.isPaused, "the world runs on")
+        XCTAssertEqual(game.touch.lastTap, door.id)
+        XCTAssertEqual(game.touch.errand?.id, door.id, "and started the door's errand")
+        XCTAssertNotNil(game.driver?.travelTarget, "he walks there")
+    }
+
+    /// With the lantern up, a tap on the empty world, or on the lord himself, only lowers it.
+    func testATapOnNothingWhileTheLanternIsUpOnlyLowersIt() throws {
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "2900"])
+        let lord = game.stageLordX
+        var empty: CGPoint?
+        for dx in [60.0, -60, 90, -90, 120, -120, 150, -150, 180, -180] {
+            let p = try screenPoint(game, x: lord + dx, lift: -3)
+            if game.thingAt(p, in: proPoints) == nil, game.townDoor(at: p, in: proPoints) == nil,
+               let place = game.stagePoint(p, in: proPoints), game.modelAt(place) == nil {
+                empty = p
+                break
+            }
+        }
+        let p = try XCTUnwrap(empty, "an empty patch of ground in view")
+        let x = try XCTUnwrap(game.driver?.state.king.x)
+        tapThrough(game, p)
+        XCTAssertNil(game.lanternMoment, "lowered")
+        XCTAssertEqual(game.touch.lastTap, "lowered", "and nothing else")
+        XCTAssertNil(game.touch.errand)
+        XCTAssertNil(game.driver?.travelTarget, "he does not walk")
+        run(game, seconds: 0.5)
+        XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.x), x, accuracy: 0.01, "he stands")
+        // A tap on the lord under the lantern lowers it and never raises it again in the same touch.
+        game.openLanternMoment()
+        run(game, seconds: 0.2)
+        tapThrough(game, try lordPoint(game))
+        XCTAssertNil(game.lanternMoment, "a tap on the lord lowered it")
+        XCTAssertEqual(game.touch.lastTap, "lowered")
+    }
+
+    /// The look-around: with the lantern up a sideways drag slides the still realm one to one with the finger, the
+    /// view stops at both ends of the world and turns back with the finger at once, and the strip's bracket moves.
+    func testTheLookAroundSlidesTheRealmOneToOneAndClampsAtBothEnds() throws {
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        let home = try XCTUnwrap(game.camera?.x)
+        let perPoint = try pixelsPerPoint(game)
+        let hour = try XCTUnwrap(game.driver?.state.hour)
+        let start = CGPoint(x: 600, y: 250)
+        game.touchChanged(start: start, at: start, translation: .zero, in: proPoints)
+        drag(game, from: start, dx: -20)
+        XCTAssertTrue(game.touch.panning, "past 10 pt the touch is a look-around")
+        drag(game, from: start, dx: -120)
+        game.advance(by: 1.0 / 60)
+        XCTAssertEqual(try XCTUnwrap(game.camera?.x), home + 100 * perPoint, accuracy: 0.05,
+                       "the finger 100 pt left: the realm slid 100 pt left with it")
+        XCTAssertNotNil(game.lanternMoment, "the lantern stays up during the pan")
+        XCTAssertTrue(game.isPaused, "the world stays still")
+        XCTAssertNil(game.driver?.travelTarget, "a drag under the lantern is no walk")
+        XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.velocity), 0, "he stands")
+        // Far past the east end, then 10 pt back.
+        drag(game, from: start, dx: -20_000)
+        game.advance(by: 1.0 / 60)
+        let east = try XCTUnwrap(game.camera)
+        XCTAssertEqual(east.x, east.maxLeft, accuracy: 0.01, "the view stops at the east end")
+        drag(game, from: start, dx: -19_990)
+        game.advance(by: 1.0 / 60)
+        XCTAssertEqual(try XCTUnwrap(game.camera?.x), east.maxLeft - 10 * perPoint, accuracy: 0.01,
+                       "back with the finger at once")
+        drag(game, from: start, dx: 20_000)
+        game.advance(by: 1.0 / 60)
+        XCTAssertEqual(try XCTUnwrap(game.camera?.x), 0, accuracy: 0.01, "the view stops at the west end")
+        game.refreshHUD()
+        XCTAssertEqual(try XCTUnwrap(game.strip?.window?.lowerBound), 0, accuracy: 0.001,
+                       "the strip's view bracket moved along")
+        XCTAssertEqual(game.driver?.state.hour, hour, "no time passed")
+        // The moment's figures ride with the world over the lord.
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let show = try XCTUnwrap(game.lanternMoment)
+        let slid = try XCTUnwrap(game.touch.framing)
+        XCTAssertEqual(show.left, slid.deviceX(stageX: try XCTUnwrap(show.blockX)), accuracy: 0.5,
+                       "the block stands over the lord in the slid view")
+    }
+
+    /// Letting go glides the view home to the lord (an ease-out of about 0.35 s); the lantern stays up. Under Reduce
+    /// Motion the view is home at once.
+    func testLettingGoGlidesHomeAndReduceMotionJumps() throws {
+        for reduce in [false, true] {
+            var values = ["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"]
+            if reduce { values["GWReduceMotion"] = "YES" }
+            let game = try raised(values)
+            let home = try XCTUnwrap(game.camera?.x)
+            let perPoint = try pixelsPerPoint(game)
+            let start = CGPoint(x: 600, y: 250)
+            game.touchChanged(start: start, at: start, translation: .zero, in: proPoints)
+            drag(game, from: start, dx: -20)
+            drag(game, from: start, dx: -220)
+            game.advance(by: 1.0 / 60)
+            let slid = 200 * perPoint
+            XCTAssertEqual(try XCTUnwrap(game.camera?.x), home + slid, accuracy: 0.05)
+            game.touchEnded(at: CGPoint(x: start.x - 220, y: start.y), translation: CGSize(width: -220, height: 0),
+                            in: proPoints)
+            XCTAssertFalse(game.touch.panning)
+            XCTAssertNotNil(game.lanternMoment, "the lantern stays up after the pan")
+            game.advance(by: 1.0 / 60)
+            if reduce {
+                XCTAssertEqual(try XCTUnwrap(game.camera?.x), home, accuracy: 0.01, "Reduce Motion: home at once")
+            } else {
+                let first = try XCTUnwrap(game.camera?.x) - home
+                XCTAssertGreaterThan(first, slid * 0.5, "it glides, it does not jump")
+                XCTAssertLessThan(first, slid, "it set off at once")
+                game.advance(by: 0.1)
+                let mid = try XCTUnwrap(game.camera?.x) - home
+                XCTAssertGreaterThan(mid, 0)
+                XCTAssertLessThan(mid, slid * 0.5, "an ease-out: past half way within a third of the glide")
+                game.advance(by: 0.25)
+                XCTAssertEqual(try XCTUnwrap(game.camera?.x), home, accuracy: 0.01, "home after about 0.35 s")
+            }
+            XCTAssertNotNil(game.lanternMoment, "the lantern is still up")
+            XCTAssertTrue(game.isPaused, "the world still stands")
+            XCTAssertEqual(try XCTUnwrap(game.camera?.pan), 0)
+        }
+    }
+
+    /// A view still slid when a tap lowers the lantern glides home while the world runs on.
+    func testLoweringTheLanternWhileSlidGlidesHome() throws {
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        let start = CGPoint(x: 600, y: 250)
+        game.touchChanged(start: start, at: start, translation: .zero, in: proPoints)
+        drag(game, from: start, dx: -20)
+        drag(game, from: start, dx: -220)
+        game.advance(by: 1.0 / 60)
+        game.lowerLanternMoment()
+        XCTAssertNil(game.lanternMoment)
+        run(game, seconds: 0.6)
+        XCTAssertEqual(try XCTUnwrap(game.camera?.pan), 0, "home with the world running")
+        XCTAssertFalse(game.touch.look.isHeld)
+    }
+
+    /// A lift after the scene went inactive is never a tap: not with the lantern down, not with it up; nor is a lift
+    /// while the scene is not active. A new touch afterwards is a tap again.
+    func testALiftAfterTheSceneWentInactiveIsNoTap() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        run(game, seconds: 0.2)
+        let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" })
+        let p = try thingPoint(game, door)
+        XCTAssertEqual(game.thingAt(p, in: proPoints)?.id, door.id)
+        // The lantern down: the finger on the door, the scene goes inactive, the same touch moves and lifts later.
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        game.voidTouch()
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        XCTAssertNil(game.touch.down, "the forgotten touch stays forgotten")
+        game.touchEnded(at: p, translation: .zero, in: proPoints)
+        XCTAssertNil(game.touch.errand, "no errand from the stale lift")
+        XCTAssertNil(game.driver?.travelTarget)
+        XCTAssertEqual(game.touch.lastTap, "none")
+        // A lift while the scene is not active.
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        game.touchEnded(at: p, translation: .zero, in: proPoints, active: false)
+        XCTAssertNil(game.touch.errand, "no errand from a lift while inactive")
+        XCTAssertNil(game.touch.down)
+        // The lantern up: the stale lift neither lowers it nor does the deed.
+        game.openLanternMoment()
+        XCTAssertNotNil(game.lanternMoment)
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        game.voidTouch()
+        game.touchEnded(at: p, translation: .zero, in: proPoints)
+        XCTAssertNotNil(game.lanternMoment, "the lantern stays up")
+        XCTAssertNil(game.touch.errand)
+        // A new touch is a tap again: it lowers the lantern and sends him to the door.
+        tapThrough(game, p)
+        XCTAssertNil(game.lanternMoment)
+        XCTAssertEqual(game.touch.errand?.id, door.id, "a fresh touch counts")
+    }
 }

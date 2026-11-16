@@ -48,7 +48,9 @@ struct GameView: View {
                 }
                 // M3: a court member's line in a bubble over him.
                 if let bubble = model.talkBubble, model.overlay == nil {
+                    // Build 3, lane 5: under the lantern the bubble takes no finger (the touch lowers it first).
                     TalkBubbleView(bubble: bubble, model: model)
+                        .allowsHitTesting(model.lanternMoment == nil)
                 }
                 // The hall stage: the horn's slip over the hall's door.
                 if let slip = model.hornSlip, model.overlay == nil, model.stage == .hall {
@@ -78,8 +80,9 @@ struct GameView: View {
         .accessibilityIdentifier("world-root")
         .onChange(of: scenePhase) { _, phase in
             model.setActive(phase == .active)
-            // Build 2 review, app-ui-1: a touch the system cancels never ends.
-            if phase != .active { model.resetTouch() }
+            // Build 2 review, app-ui-1: a touch the system cancels never ends. Build 3, lane 5: and its lift, should it
+            // come, is never a tap.
+            if phase != .active { model.voidTouch() }
             // Build 2 review, app-ui-6: no idle timer while the scene is active, the system's own rule when it is not.
             UIApplication.shared.isIdleTimerDisabled = phase == .active
             if phase == .background {
