@@ -587,9 +587,13 @@ enum FrameBuilder {
     // and the mouth's puff last (so the newer stand in front), each white × `CastleSmoke.tint` with its light of the
     // hour (`CastleSmoke.glow`: day, dusk sky, moon, the fire under the lowest); at night one warm pixel at the mouth
     // (`CastleSmoke.mouthFrame` as a glow quad), not over the back row, which has no fire under its smoke.
+    /// `hiddenBy`: the rects (the plane's target pixels) of what stands in front of the chimney on its own plane; a puff
+    /// that would overlap one is not drawn (round lh-b3w-61: the back row's smoke stood over the lindens before it,
+    /// and its light shone through them).
     private static func chimneyPuffs(at chimney: (x: Double, y: Double), whole: Double, plane: Plane, town: Bool,
                                      fire: Bool, hearth: Bool, wind: Double, time: Double, ambient: AmbientSample,
-                                     geometry: Geometry, list: inout [SpriteInstance], glow: inout EmissiveList) {
+                                     geometry: Geometry, hiddenBy: [SIMD4<Float>] = [],
+                                     list: inout [SpriteInstance], glow: inout EmissiveList) {
         let size = SpriteID.smokePuff.size
         let tint = CastleSmoke.tint
         let puffs = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
@@ -600,6 +604,12 @@ enum FrameBuilder {
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
             let top = geometry.top(y: (chimney.y + puff.rise).rounded(), height: Double(size.height))
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            // The puff's own pixels: `puff.frame + 2` columns (the mouth's pixel: 1) on the cell's bottom rows.
+            let side = Float(puff.frame < CastleSmoke.sizes ? puff.frame + 2 : 1)
+            let x0 = rect.x + ((rect.z - side) / 2).rounded(.down)
+            let y0 = rect.y + rect.w - side
+            let hidden = hiddenBy.contains { $0.x < x0 + side && x0 < $0.x + $0.z && $0.y < y0 + side && y0 < $0.y + $0.w }
+            guard !hidden else { continue }
             list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
                                        tint: SIMD4<Float>(tint.x, tint.y, tint.z, puff.alpha), flipped: false))
             let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire, hearth: hearth)
@@ -640,9 +650,18 @@ enum FrameBuilder {
             if back && !CastleSmoke.smokes(x: chimney.x, hour: hour) { continue }
             let whole = geometry.whole(prop.movesWith ?? prop.plane)
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
+            // b3-wind (step 6, round lh-b3w-61): the trees that stand before the back row hide its smoke.
+            let before: [SIMD4<Float>] = !back ? [] : props.filter {
+                $0.plane == plane && swaying.contains($0.sprite) && $0.anchor == .ground
+                    && ($0.z, $0.id) > (prop.z, prop.id)
+            }.map { tree in
+                let left = tree.x - geometry.whole(tree.movesWith ?? tree.plane)
+                return SIMD4<Float>(Float(left), Float(geometry.top(y: tree.y, height: Double(tree.height))),
+                                    Float(tree.width), Float(tree.height))
+            }
             chimneyPuffs(at: chimney, whole: whole, plane: plane, town: back, fire: prop.sprite == .bakehouse,
                          hearth: !back, wind: wind, time: reduceMotion ? 0 : animTime, ambient: ambient,
-                         geometry: geometry, list: &list, glow: &glow)
+                         geometry: geometry, hiddenBy: before, list: &list, glow: &glow)
         }
         return list
     }
@@ -2139,6 +2158,10 @@ enum FrameBuilder {
     static let ribbonFade = 30.0
     /// The first leaf's pace and the last's (× the leaf speed), so the ribbon stretches as it goes.
     static let ribbonPace = (first: 1.25, last: 0.8)
+    /// Each leaf's own pace within ± `ribbonPaceJitter`, and its scatter off the arc, ± (1 + along / `ribbonFan`) px
+    /// (round lh-b3w-61: a ribbon of even dots on one line read as a dotted line).
+    static let ribbonPaceJitter = 0.08
+    static let ribbonFan = 35.0
     /// How often a leaf flips between its two frames (per second).
     static let ribbonFlip = 7.0
     /// The crown a ribbon leaves: the upper `ribbonCrownShare` of its tree's rect; the leaves set off at the row
@@ -2158,7 +2181,7 @@ enum FrameBuilder {
     static func ribbon(_ weather: WeatherSample, time: Double) -> (cell: Int64, since: Double)? {
         guard Weather.sailLevel(weather.mean) > 0 else { return nil }
         let speed = gustLeafSpeed + gustLeafDrive * abs(weather.mean)
-        let life = ribbonLeave + ribbonReach / (ribbonPace.last * 0.95 * speed)
+        let life = ribbonLeave + ribbonReach / (ribbonPace.last * (1 - ribbonPaceJitter) * speed)
         let now = min(1.0e12, max(0, time))
         let cell = Int64((now / ribbonEvery).rounded(.down))
         for index in [cell, cell - 1] {
@@ -2185,12 +2208,13 @@ enum FrameBuilder {
             let mark = SeededRandom.hash(key, Int64(16 + place))
             let off = ribbonLeave * share.squareRoot()
             let pace = speed * (ribbonPace.first + (ribbonPace.last - ribbonPace.first) * share)
-                * (0.95 + 0.1 * unit(SeededRandom.hash(mark, 3)))
+                * (1 - ribbonPaceJitter + 2 * ribbonPaceJitter * unit(SeededRandom.hash(mark, 3)))
             let along = pace * (since - off)
             guard along > 0, along < ribbonReach else { continue }
             let arc = along < ribbonPeak ? rise * sin(along / ribbonPeak * Double.pi / 2)
                                          : rise - (along - ribbonPeak) * ribbonSink
-            let up = arc + (unit(SeededRandom.hash(mark, 4)) - 0.5) * 2
+            // Round lh-b3w-61: with a pixel of scatter the ribbon read as a dotted line; it fans out as it goes.
+            let up = arc + (unit(SeededRandom.hash(mark, 4)) - 0.5) * 2 * (1 + along / ribbonFan)
             let shape = unit(SeededRandom.hash(mark, 5)) < 0.4 ? 0 : 1
             let flip = Int((since * ribbonFlip + 2 * unit(SeededRandom.hash(mark, 6))).rounded(.down)) % 2
             leaves.append((along: along, up: up, shape: shape, flip: flip,

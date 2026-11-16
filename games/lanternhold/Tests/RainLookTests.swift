@@ -360,14 +360,14 @@ final class RainLookTests: XCTestCase {
     /// 2900, the UI's seed 1) at 0.5 s of a ribbon, in a dry storm and in a breeze, every leaf lies lee of the edge of
     /// the crown it left (the crown whose lee edge is the nearest upwind of the ribbon), none inside that crown's rect
     /// (its upper `ribbonCrownShare`, grown by four columns for the sway), and all of them in a band 24 px tall; 7 to 9
-    /// leaves. `WindUITests`' strip 400 starts 0.08 s after a ribbon set off and its still 395 shows one at 0.6 s.
+    /// leaves. `WindUITests`' strip 400 starts 0.08 s after a ribbon set off and its still 395 shows one at 0.45 s.
     func testTheRibbonLeavesTheLeeOfOneCrown() throws {
         let s = GameFrameSupport.demoDay(hour: 12, seed: 1)
         let trees: Set<SpriteID> = [.linden, .lindenB, .lindenC, .poplar, .poplarB, .poplarC, .appleTree, .appleTreeB,
                                     .appleTreeC, .willow, .willowB, .willowC, .firA, .firB, .firC, .firD, .deadTreeA,
                                     .deadTreeB]
         XCTAssertEqual(FrameBuilder.ribbonStart(cell: 4), 33.99, accuracy: 0.01, "the strip 400's ribbon (34.07 s on)")
-        XCTAssertEqual(FrameBuilder.ribbonStart(cell: 3), 25.95, accuracy: 0.01, "the still 395's ribbon (26.55 s)")
+        XCTAssertEqual(FrameBuilder.ribbonStart(cell: 3), 25.95, accuracy: 0.01, "the still 395's ribbon (26.40 s)")
         for (name, override) in [("storm", WeatherOverride(mode: .storm, rain: 0)), ("breeze", WeatherOverride(mode: .breeze))] {
             let time = FrameBuilder.ribbonStart(cell: 4) + 0.5
             let sample = weather(s, override, time: time)

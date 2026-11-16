@@ -1026,7 +1026,7 @@ final class WeatherTests: XCTestCase {
             XCTAssertGreaterThan(late.filter { $0.along < (near + far) / 2 }.count, late.count / 2,
                                  "dense near the tree, sparse far from it")
             let ups = late.map(\.up)
-            XCTAssertLessThanOrEqual((ups.max() ?? 0) - (ups.min() ?? 0), 12, "one shared arc")
+            XCTAssertLessThanOrEqual((ups.max() ?? 0) - (ups.min() ?? 0), 16, "one shared arc, fanning out")
             XCTAssertNotEqual(FrameBuilder.ribbonLeaves(cell: cell, since: 0.6, speed: speed).map(\.flip),
                               FrameBuilder.ribbonLeaves(cell: cell, since: 0.6 + 1 / FrameBuilder.ribbonFlip,
                                                         speed: speed).map(\.flip), "they flip")
