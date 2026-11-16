@@ -626,6 +626,65 @@ def coins():
     return fade(normalize(lowpass(x, 5500)), 0.001, 0.08)
 
 
+def coins_back():
+    """The count let go (PAY.md section 1.4): the coins slide off the tally board back into the purse. A soft rustle of
+    leather swelling and falling over a third of a second, and under it three muted clinks, low and close together, as
+    coins settle against each other inside the pouch. Quiet and short: nothing was lost."""
+    rng = Rng(141)
+    x = zeros(secs(0.45))
+    n = secs(0.36)
+    rustle = biquad([rng.bipolar() for _ in range(n)], "bp", 1900, 0.9)
+    env = [math.sin(math.pi * min(1.0, i / n)) ** 1.6 * (0.75 + 0.25 * math.sin(i / SR * TWO_PI * 23))
+           for i in range(n)]
+    add_into(x, [a * b for a, b in zip(rustle, env)], 0, 0.8)
+    add_into(x, lowpass([rng.bipolar() * math.exp(-i / (0.05 * SR)) for i in range(secs(0.15))], 380), secs(0.2), 0.9)
+    t = 0.14
+    for k in range(3):
+        add_into(x, lowpass(coin_clink(rng, rng.uniform(1100, 1350), 0.42 - 0.08 * k), 2600), secs(t))
+        t += rng.uniform(0.045, 0.07)
+    return fade(normalize(lowpass(x, 4800), 0.6), 0.004, 0.08)
+
+
+def coin_step(k):
+    """The count's rising clink (PAY.md section 2; step 2's critic H4): the coin resampled k semitones up (k 0 to 12, an
+    octave at most), so the pitch truly rises and the clink grows a little shorter with it, as a smaller coin rings.
+    An AVAudioPlayer's rate only stretches time and keeps the pitch, so the steps are files: step 0 is coin.wav itself
+    (no copy of it), coin_p12 an octave over it. One sound at a rising pitch, never a tune. The low steps ring past
+    `COIN_STEP_SECONDS` and are cut there with a short fade: a count's coins come 0.05 to 0.1 s apart, so nobody
+    hears that tail, and the 4 MB sound budget keeps its room."""
+    x = coin()
+    ratio = 2.0 ** (k / 12.0)
+    n = int((len(x) - 1) / ratio)
+    out = []
+    for i in range(n):
+        t = i * ratio
+        j = int(t)
+        f = t - j
+        out.append(x[j] * (1.0 - f) + x[j + 1] * f)
+    if len(out) > secs(COIN_STEP_SECONDS):
+        out = fade(out[:secs(COIN_STEP_SECONDS)], 0.0, 0.08)
+    return out
+
+
+COIN_STEP_SECONDS = 0.26
+
+
+def seal_low():
+    """The count's seal (PAY.md section 2; step 3, the director's call 9): the seal resampled to 0.82 of its pitch, so
+    it sounds deep as made. Step 2 played the seal at a player's rate of 0.82, which only stretches it in time (the same
+    fault H4 fixed for the clink)."""
+    x = seal()
+    ratio = 0.82
+    n = int((len(x) - 1) / ratio)
+    out = []
+    for i in range(n):
+        t = i * ratio
+        j = int(t)
+        f = t - j
+        out.append(x[j] * (1.0 - f) + x[min(len(x) - 1, j + 1)] * f)
+    return fade(out, 0.0, 0.03)
+
+
 def hammer_tap(rng, g=1.0):
     n = secs(0.16)
     body = grain(n, rng.uniform(200, 225), 0.035)
@@ -984,9 +1043,16 @@ SOUNDS = [
     ("creature_hit", creature_hit), ("dissolve", dissolve), ("wall_hit", wall_hit), ("wall_break", wall_break),
     ("gate", gate), ("step_1", step_1), ("step_2", step_2), ("parchment", parchment), ("tap", tap),
     ("seal", seal), ("decline", decline), ("engine", engine),
+    # build 3, the count (PAY.md): the coins sliding back into the purse
+    ("coins_back", coins_back),
     ("door_creak", door_creak), ("door_latch", door_latch),
     ("amb_throat", amb_throat), ("amb_bailey", amb_bailey), ("amb_valley", amb_valley), ("amb_river", amb_river),
 ]
+# build 3, the count's step 2: the clink a semitone higher for every coin, thirteen steps (coin.wav, then coin_p01 ...
+# coin_p12; step 0 is the coin itself and has no file of its own)
+SOUNDS += [("coin_p%02d" % k, (lambda k=k: coin_step(k))) for k in range(1, 13)]
+# build 3, the count's step 3: the seal rendered deep
+SOUNDS += [("seal_low", seal_low)]
 
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -1064,7 +1130,9 @@ def main(argv):
         manifest[name] = (str(size), digest)
         print(f"{name:14s} {len(x) / SR:5.2f} s {size / 1024:7.1f} KB  {time.time() - began:5.1f} s", flush=True)
         time.sleep(1)
+    # Lines another tool wrote (taxsound.py's knock) stay, after this script's own.
     names = [n for n, _ in SOUNDS if n in manifest]
+    names += [n for n in manifest if n not in names]
     with open(path, "w") as f:
         for n in names:
             f.write(f"{n} {manifest[n][0]} {manifest[n][1]}\n")

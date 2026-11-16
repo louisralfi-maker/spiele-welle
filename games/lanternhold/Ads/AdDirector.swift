@@ -118,6 +118,10 @@ final class AdDirector {
             self.openMerchantCard()
             return self.merchantCardOpen
         }
+        // Build 3, the count: the same question without opening the card (a touch on the cart is his, not a count's).
+        model.merchantOpen = { [weak self] in
+            self?.merchantOffer != nil
+        }
         consent?.refreshAtLaunch()
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "GWMerchant") { openMerchantCard() }

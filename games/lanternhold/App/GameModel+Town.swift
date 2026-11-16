@@ -106,16 +106,23 @@ extension GameModel {
     /// toss, or to knock where nobody opens). Returns whether a door took the touch.
     @discardableResult
     func touchTown(at point: CGPoint, in size: CGSize) -> Bool {
+        guard let plot = townDoor(at: point, in: size) else { return false }
+        return knock(plot: plot)
+    }
+
+    /// The town door under a point of the screen, by day only (a knock is a day's errand), nil elsewhere. Asks only:
+    /// the count (build 3) leaves a touch on a door to `tap(at:)`, which knocks.
+    func townDoor(at point: CGPoint, in size: CGSize) -> Int? {
         guard kind == .world, overlay == nil, let game = driver, game.bot == nil, let view = camera,
-              let pixelScale = lastPixelScale, size.width > 0, size.height > 0 else { return false }
+              let pixelScale = lastPixelScale, size.width > 0, size.height > 0,
+              DayClock.phase(at: game.state.hour) == .day else { return nil }
         let fx = Double(point.x / size.width)
         let fy = Double(point.y / size.height)
         let height = Double(pixelScale.physicalHeight)
         let ground = Double(Camera.groundDeviceY(physicalHeight: pixelScale.physicalHeight, scale: pixelScale.scale))
         let worldX = view.x + fx * view.viewWidth
         let worldY = (ground - fy * height) / Double(max(1, pixelScale.scale))
-        guard let plot = TownShow.door(atX: worldX, y: worldY, state: game.state) else { return false }
-        return knock(plot: plot)
+        return TownShow.door(atX: worldX, y: worldY, state: game.state)
     }
 
     /// While the door he knocked at opens, the lord takes half a step back (`TownShow.knockBackX`), facing it still,

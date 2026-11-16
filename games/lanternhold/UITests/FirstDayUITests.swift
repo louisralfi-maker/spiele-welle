@@ -4,7 +4,8 @@ import XCTest
 /// M2b part 2's UI (DESIGN.md "Tests", "UI"): `testFirstDay` plays day 1 from a fresh realm (`-GWReset YES`, no
 /// onboarding, the clock twice as fast): the treasury in the great hall (no HUD on the world since stage-3), a tap on the realm strip that takes him out
 /// by the hall's door past the chandler's household (her toss, town-2), a walk, a touch on a site (touch the world,
-/// step stage-2) and its build card and an order, a touch on the barracks, a touch on the hall's door and on the throne
+/// step stage-2) and its build card and an order, the archer paid by his count at the barracks (build 3, PAY.md), a
+/// touch on the hall's door and on the throne
 /// for the audience with the tutorial's farmer (M3), no tax card at the lectern (taxes on foot), the horn, the night,
 /// the dawn
 /// report. `testScreens` opens the dawn report and the
@@ -67,50 +68,52 @@ final class FirstDayUITests: XCTestCase {
         // The lantern moment's own pictures and figures are TouchUITests' 40, 160 and 162 to 167 (the day runs fast
         // here).
 
-        // Touch the world (step stage-2): a touch on line 1's empty brazier site sends him there; its card opens
-        // when he arrives. No action button any more.
+        // Touch the world (step stage-2): a touch on line 1's empty brazier site sends him there. Build 3, the count's
+        // step 4: no card from a plot any more; the site's one offer brings its tally board up beside it, he steps to
+        // it, and a hold pays the brazier coin by coin. No action button.
         XCTAssertFalse(element(app, "action-button").exists, "the action button is gone")
         if let site = waitForThing(app, "touch-plot-2", timeout: 8) {
             checkTarget(site, "the site")
             touchThing(site)
-            XCTAssertTrue(waitForField(app, "errand:touch-plot-2", timeout: 4) || element(app, "build-card").exists,
-                          "he set off to the site")
+            XCTAssertTrue(waitForField(app, "count:touch-plot-2", timeout: 4), "the site's board comes up")
+            XCTAssertFalse(element(app, "build-card").exists, "no card")
+            waitForStill(app)
+            _ = waitForField(app, ":there", timeout: 6)
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "41-site-board-\(language)")
+            if let again = waitForThing(app, "touch-plot-2", timeout: 3) {
+                again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 1.4)
+            }
+            XCTAssertTrue(waitForField(app, "last:paid:touch-plot-2", timeout: 4), "the hold paid the brazier")
         } else {
             XCTFail("the brazier site offers nothing")
         }
-        let card = element(app, "build-card")
-        XCTAssertTrue(card.waitForExistence(timeout: 20), "the build card opens when he arrives")
-        pause(0.5)
-        attach(XCUIScreen.main.screenshot(), "41-build-card-\(language)")
-        let brazier = element(app, "build-option-brazier")
-        XCTAssertTrue(brazier.exists, "the brazier is on the card")
-        checkTarget(brazier, "build option")
-        checkTarget(element(app, "build-card-close"), "close")
-        XCTAssertTrue(brazier.isEnabled, "60 gold pay for a brazier")
-        brazier.tap()
-        XCTAssertTrue(waitForGone(card, timeout: 6), "the card closes after the order")
+        XCTAssertFalse(element(app, "build-card").exists, "no card at all")
         // The coins leave him: the coin and the figure tick down above his head (HUD.md section 3).
         pause(0.25)
         attach(XCUIScreen.main.screenshot(), "161-purse-at-lord-\(language)")
         XCTAssertTrue(waitForField(app, "gold:48", timeout: 6), "the order cost 12 gold")
 
-        // The barracks: the realm strip takes him near, a touch on the barracks opens the recruit card.
+        // The barracks (build 3, the count; PAY.md): the realm strip takes him near; a touch on the archer's half of
+        // the barracks brings its tally board up on its post and he steps beside it; a hold pays the archer coin by
+        // coin (one big coin), the seal falls and the site lantern is lit. No recruit card any more.
         tapRealmStrip(app, worldX: 1513)
         XCTAssertTrue(waitForKing(app, near: 1513, within: 14, timeout: 20), "the king ran to the barracks")
-        if let barracks = waitForThing(app, "touch-recruit-barracks", timeout: 6) {
-            // Fix lane D (player-first-2): he stands at the barracks' middle and his whole figure takes it (a touch
-            // there stills the world), so the touch goes to the barracks above his head.
-            barracks.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
-            let recruit = element(app, "recruit-card")
-            if recruit.waitForExistence(timeout: 12) {
-                pause(0.5)
-                attach(XCUIScreen.main.screenshot(), "42-recruit-\(language)")
-                checkTarget(element(app, "recruit-archer"), "recruit archer")
-                element(app, "recruit-card-close").tap()
-                XCTAssertTrue(waitForGone(recruit, timeout: 6))
-            } else {
-                XCTFail("the recruit card did not open")
+        waitForStill(app)
+        if let archer = waitForThing(app, "touch-recruit-archer", timeout: 6) {
+            checkTarget(archer, "the archer's half")
+            // High on the barracks, above the lord's head (his figure takes a touch on it).
+            archer.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
+            XCTAssertTrue(waitForField(app, "count:touch-recruit-archer", timeout: 4), "the archer's board comes up")
+            waitForStill(app)
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "42-recruit-board-\(language)")
+            if let again = waitForThing(app, "touch-recruit-archer", timeout: 3) {
+                again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).press(forDuration: 1.2)
             }
+            XCTAssertTrue(waitForField(app, "last:paid:touch-recruit-archer", timeout: 4), "the hold paid the archer")
+            attach(XCUIScreen.main.screenshot(), "42b-recruit-paid-\(language)")
+            XCTAssertTrue(waitForField(app, "gold:38", timeout: 4), "the archer cost 10 gold")
         } else {
             XCTFail("the barracks offer nothing")
         }

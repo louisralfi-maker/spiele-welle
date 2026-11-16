@@ -41,6 +41,8 @@ extension GameModel {
         guard canRaiseLanternMoment, lanternMoment == nil, let state = driver?.state,
               let framing = touch.framing, framing.stage == stage else { return }
         // Build 2 review, app-ui-1: no finger stays down under the moment (the background raises it mid-touch).
+        // Build 3 (PAY.md 4): the moment cuts a count off; it pays nothing.
+        cutCount()
         resetTouch()
         cancelErrand()
         if stage == .hall { stopWalking() }
@@ -121,7 +123,23 @@ extension GameModel {
         guard kind == .world, let game = driver else { return }
         let state = game.state
         let visible = overlay == nil && stageChange == nil && lanternMoment == nil && game.bot == nil && !isShowcase
-        purse.update(gold: townShownGold(state, balance: game.balance), now: clock.elapsed, visible: visible)
+        // Build 3, the count: the coins on the board are shown as gone from the purse (HUD.md 3: the gold runs down coin
+        // by coin), though nothing leaves the treasury before the seal.
+        purse.update(gold: max(0, townShownGold(state, balance: game.balance) - countHeld), now: clock.elapsed,
+                     visible: visible)
+        // The count's figure drops with each clink, never trailing the board (PAY.md 1.2; round lh-b3c-13: the full
+        // board of 90 showed 132 of 110, the ticker's stride falls behind coins 0.05 s apart).
+        // Step 2 (H5): the same while the coins of a let go come home one by one.
+        if visible, countMoving, let shown = purse.shown, shown != purse.target {
+            purse.shown = purse.target
+            purse.lastTick = clock.elapsed
+        }
+        // Step 3 (the director's call 9, M-f): a count frozen for its pictures keeps the purse's figure up, so the
+        // picture shows the gold running down.
+        if visible, countFrozen {
+            if purse.shown == nil { purse.shown = purse.target }
+            purse.lastTick = clock.elapsed
+        }
         notes.update(happiness: state.happiness, people: state.citizens, clock: clock.elapsed, visible: visible)
         // Fix round 2 (the critic's high 5): the call's strip waits while the first minute's hint slip stands.
         let calling = stripCall.update(strip, hour: state.hour, clock: clock.elapsed, allowed: visible,
@@ -132,6 +150,8 @@ extension GameModel {
     /// A jump (a new realm, a replayed day, a second chance): the purse and the notes take the realm as it is.
     func resetLanternHUD() {
         guard let state = driver?.state else { return }
+        // Build 3, the count's step 3 (call 9): no board, coin or site lantern crosses a jump.
+        resetCount()
         purse.reset(gold: townShownGold(state, balance: driver?.balance ?? .standard))
         notes.reset(happiness: state.happiness, people: state.citizens)
         stripCall = StripCall()
@@ -151,7 +171,9 @@ extension GameModel {
     func lanternWorld(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming) {
         let block = lordNotesBlock
         if !block.pieces.isEmpty {
-            layer.actors += HUDKitActors.actors(block, lordX: state.king.x, groundLift: 0, framing: framing)
+            // Build 3, the count's step 2 (M2): the figure never touches a board standing by the lord.
+            let room = countPurseRoom(width: block.width, lordX: state.king.x)
+            layer.actors += HUDKitActors.actors(block, lordX: room.x, groundLift: room.ground, framing: framing)
         }
         if touch.lordHintOn && lanternMoment == nil { lordHintGlint(&layer, state: state) }
         guard lanternMoment != nil else { return }

@@ -208,6 +208,13 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // kit"): the lantern moment's row and day line, the gold at the lord, the cards' coin, face and people; drawn
     // unlit, never lit by the world
     case hudFigures, hudArrow, hudCoin, hudFace, hudPeople, hudGear, hudDawn
+    // b3-count (build 3, lane 1: the count, PAY.md; tools/hudart.py): the big coin and the two hollows the kit already
+    // drew, the bar and its hollow, the tally board's tiles with its post, the site lantern unlit and lit; step 2: the
+    // small coin of the count (its faces and its edge in flight) and the lit lantern's halo; step 3: the small coin and
+    // its hollow 7 px, the big one 11 px (one look tells 1 from 10); step 5: the builder's models on their trestles at a
+    // plot with several offers
+    case hudCoinTen, hudHollow, hudHollowTen, hudCoinBar, hudHollowBar, payBoard, siteLantern, payCoin, siteHalo
+    case paySign
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -521,6 +528,17 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hudCoin, .hudFace: return PixelSize(width: 9, height: 9)
         case .hudPeople: return PixelSize(width: 13, height: 9)
         case .hudGear: return PixelSize(width: 10, height: 10)
+        // b3-count
+        case .hudCoinTen: return PixelSize(width: 11, height: 11)
+        case .hudHollow: return PixelSize(width: 7, height: 7)
+        case .hudHollowTen: return PixelSize(width: 11, height: 11)
+        case .hudCoinBar: return PixelSize(width: 13, height: 8)
+        case .hudHollowBar: return PixelSize(width: 13, height: 9)
+        case .payBoard: return PixelSize(width: 6, height: 12)
+        case .siteLantern: return PixelSize(width: 9, height: 13)
+        case .payCoin: return PixelSize(width: 7, height: 7)
+        case .siteHalo: return PixelSize(width: 25, height: 25)
+        case .paySign: return PixelSize(width: 24, height: 17)
         case .hudDawn: return PixelSize(width: 11, height: 9)
         }
     }
@@ -615,6 +633,17 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hudFigures: return 12
         case .hudArrow: return 2
         case .hudFace: return 4
+        // b3-count: empty and holding one of three faces; the board's 28 tiles (step 3: the crook's four, a knot);
+        // unlit, lit and two of bloom; the count's coins: three faces, the edge and the half turn (step 3); the halo by
+        // night and the warm pool by day (step 4); the board's tiles and the signpost's bar (step 4: 31); the trestle,
+        // the ballista's, the catapult's and any other building's model, their rims and four glint steps each (step 5);
+        // the row's second trestle and each model's contact shadow on the counter (step 6: 23, the cell 24 x 17).
+        case .hudHollow, .hudHollowTen, .hudHollowBar: return 4
+        case .payBoard: return 31
+        case .siteLantern: return 4
+        case .siteHalo: return 2
+        case .paySign: return 23
+        case .payCoin, .hudCoinTen, .hudCoinBar: return 5
         default: return 1
         }
     }

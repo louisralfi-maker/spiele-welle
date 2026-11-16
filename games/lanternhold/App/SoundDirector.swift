@@ -82,6 +82,42 @@ final class SoundDirector: FeedbackHub {
         player.play()
     }
 
+    // b3-count: the count's coin (FeedbackHub.countCoin, build 3 lane 1); it needs this file's private voices.
+    func countCoin(rate: Double, strength: Double) {
+        // Every coin on its own (the count's gaps fall to 0.05 s, under the coin's own throttle): no throttle, no
+        // jitter (each coin must sound a little higher than the last), and the oldest voice cut for a new one.
+        if hapticsOn {
+            softImpact.impactOccurred(intensity: CGFloat(max(0.2, min(1, strength))))
+        }
+        // Step 2 (the critic's H4): the rate picks a file rendered at that pitch (`coin`, `coin_p01` ... `coin_p12`),
+        // played as made; a player's rate would only stretch the clink in time. The plain coin at the rate if a step is missing.
+        guard soundOn, let sound = FeedbackCue.countCoin.sound else { return }
+        let step = voice(SoundID.coinStep(rate: rate))
+        guard let player = step ?? voice(sound.id) else { return }
+        player.volume = Float(max(0, min(1, sound.volume)))
+        player.rate = Float(max(0.5, min(2, step == nil ? sound.rate * rate : sound.rate)))
+        player.currentTime = 0
+        activateSession()
+        player.play()
+    }
+
+    // b3-count: a coin home in the purse after a let go (FeedbackHub.countTick): a soft tick only, never throttled.
+    func countTick(strength: Double) {
+        guard hapticsOn else { return }
+        softImpact.impactOccurred(intensity: CGFloat(max(0.1, min(1, strength))))
+    }
+
+    // b3-count (step 3, the director's call 9): a board rose; the clink's steps and the deep seal get a player each now
+    // (loaded and prepared once), so the first coin never hitches; the haptic engine wakes for the ticks.
+    func countWarm() {
+        for id in SoundID.coinSteps + [.sealLow] where (voices[id] ?? []).isEmpty {
+            _ = voice(id)?.prepareToPlay()
+        }
+        softImpact.prepare()
+        heavyImpact.prepare()
+    }
+    // end b3-count
+
     func ambience(_ mix: AmbienceMix) {
         let now = CACurrentMediaTime()
         let dt = min(0.25, max(0, now - (lastAmbience ?? now)))

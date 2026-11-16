@@ -106,18 +106,18 @@ final class TouchCraftTests: XCTestCase {
     }
 
     func testTheBarracksCarryTheirMarkOnlyWhileARecruitCanBePaid() {
+        // Build 3, the count: each half of the barracks is a thing with its own recruit and price.
         var s = GameState.newRealm(seed: 2)
         s.hour = 10
         s.gold = 0
-        let poor = TouchThings.world(s, balance: .standard, figures: [], talked: []).first {
-            $0.id == "touch-recruit-barracks"
-        }
-        XCTAssertEqual(poor?.marked, false, "no mark that leads to a card of refusals")
-        let cheapest = min(Balance.standard.archerPrice, Balance.standard.guardPrice)
-        XCTAssertEqual(poor?.price, cheapest, "the slip names the cheapest recruit")
+        let poor = TouchThings.world(s, balance: .standard, figures: [], talked: [])
+        let archer = poor.first { $0.id == "touch-recruit-archer" }
+        XCTAssertEqual(archer?.marked, false, "no mark that leads to a refusal")
+        XCTAssertEqual(archer?.price, Balance.standard.archerPrice, "the archer's price")
+        XCTAssertEqual(poor.first { $0.id == "touch-recruit-guard" }?.price, Balance.standard.guardPrice)
         s.gold = 1_000
         let rich = TouchThings.world(s, balance: .standard, figures: [], talked: []).first {
-            $0.id == "touch-recruit-barracks"
+            $0.id == "touch-recruit-guard"
         }
         XCTAssertEqual(rich?.marked, s.taxpayers > 0)
     }
@@ -264,7 +264,7 @@ final class TouchCraftTests: XCTestCase {
         s.hour = 10
         s.gold = 1_000
         let barracks = try XCTUnwrap(TouchThings.world(s, balance: .standard, figures: [], talked: []).first {
-            $0.id == "touch-recruit-barracks"
+            $0.id == "touch-recruit-archer"
         })
         if CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
             XCTAssertTrue(barracks.noRim, "no rim while the cart stands before the barracks")

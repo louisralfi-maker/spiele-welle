@@ -88,21 +88,27 @@ enum TouchThings {
             }
         }
         // Fix round 1: the barracks carry their mark only while the treasury can pay a recruit (the sites' rule; at 3
-        // gold the mark led to a card of refusals); the slip names the cheapest recruit's price.
-        let barracks = KingTargets.barracksX
+        // gold the mark led to a card of refusals). Build 3, the count (PAY.md): the barracks are two things, the
+        // archer's half on the left and the guard's on the right, each with its own tally board and price; the mark
+        // shows over the one nearer the lord (the building spacing keeps it to one).
         let recruits = RecruitCard.make(s, balance: balance).options
-        var recruit = TouchThing(id: "touch-recruit-barracks", kind: .recruit, act: .recruit, x: barracks,
-                                 standX: barracks, halfWidth: Double(SpriteID.barracks.size.width) / 2 - 4,
-                                 top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit),
-                                 price: recruits.map(\.price).min(),
-                                 marked: recruits.contains { $0.canRecruit })
-        // Stage-3-interface (stage-2 critic look 2, high 3): on Marek's days his cart stands before the barracks; the
-        // barracks' sign hangs at the edge the cart leaves free, and the barracks carry no rim (it read as the cart's).
-        if CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
-            recruit.markAt = TouchRules.barracksFreeX
-            recruit.noRim = true
+        let cart = CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart })
+        for option in recruits {
+            let archer = option.kind == .archer
+            let x = KingTargets.barracksX + (archer ? -1 : 1) * TouchThings.recruitOffset
+            var recruit = TouchThing(id: archer ? "touch-recruit-archer" : "touch-recruit-guard", kind: .recruit,
+                                     act: .recruit, x: x, standX: x, halfWidth: TouchThings.recruitHalf,
+                                     top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit),
+                                     price: option.price, marked: option.canRecruit, soldier: option.kind)
+            // Stage-3-interface (stage-2 critic look 2, high 3): on Marek's days his cart stands before the barracks;
+            // the barracks' sign hangs at the edge the cart leaves free, and the barracks carry no rim (it read as the
+            // cart's).
+            if cart {
+                recruit.markAt = TouchRules.barracksFreeX
+                recruit.noRim = true
+            }
+            list.append(recruit)
         }
-        list.append(recruit)
         list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallRules.doorX,
                                standX: HallRules.doorX, halfWidth: 9, top: worldDoorTop,
                                rank: TouchRules.rank(.door), marked: abs(s.king.x - HallRules.doorX) > doorQuiet))
@@ -110,6 +116,11 @@ enum TouchThings {
         if let collector = CollectorTouch.thing(s) { list.append(collector) }
         return list
     }
+
+    /// Build 3, the count: each recruit's half of the barracks, its middle this far from the barracks' middle, and
+    /// half its width.
+    static let recruitOffset = 16.0
+    static let recruitHalf = 14.0
 
     /// While the lord stands this near a door (he just came through it) its mark rests; the door still answers a
     /// touch (the first sweep: the door's mark over his head was the first thing he saw inside).

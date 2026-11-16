@@ -13,15 +13,62 @@ Sprites (each a horizontal strip of equal frames, AtlasBuilder.splitFrames cuts 
                pixels, so the dark edges of neighbours overlap by one pixel and a ticking number never jumps.
   hudArrow     8x9, 2 frames: up, down (the change notes of HUD.md section 3; they stand like a figure)
   hudCoin      9x9: the small coin (one; PAY.md), the row's gold sign
-  hudCoinTen   11x11: the big coin (ten), struck with the Roman X
-  hudHollow    9x9, 2 frames: a hollow of the tally board, empty and holding a small coin (no ink edge: it is cut
-               into the board's wood, which the world lane draws)
-  hudHollowTen 11x11, 2 frames: the same for the big coin
+  hudHollow    a hollow of the tally board (no ink edge: it is cut into the board's wood); see the count below
   hudFace      9x9, 4 frames: glad, even, grim, unrest; a townsman's head in his hood (FACE_STYLE "hood"; the
                rivals "cap", a head in profile, and "disc", the first round face, stay buildable with --face)
   hudDawn      11x9: the dawn sign, a half sun on the horizon; the day line is this sign and the day's number
   hudPeople    13x9: two heads and shoulders, one a step behind the other
   hudGear      10x10: the gear in the corner (opens the pause sheet)
+
+The count (PAY.md, build 3 lane 1): the tally board on its post, a thing in the world (HUD.md: drawn lit by the world,
+never on a plate), its bar coin and the site lantern the one who was paid lights.
+
+  hudCoinBar   13x8, 5 frames: the bar (a hundred), a small cast ingot with a struck C, lit from the upper left;
+               frames 0 to 2 its face (the glint and the stamp a pixel apart, so a board of bars is no row of copies),
+               3 its end, a 3 px sliver, 4 half turned, as it turns in the air
+  hudHollowBar 13x9, 4 frames: its hollow in the board, empty and holding the bar's faces 0 to 2 (no ink edge)
+  payBoard     6x12, 28 frames: the board's tiles, so a board fits any price (PayBoardLayout in Core/PayCount.swift):
+               0 plank's left end, 1 2 14 15 four plank middles (the count picks one per tile by a hash and shifts
+               every second row by half a tile, so no streak lines up), 3 plank's right end, 4 5 6 the cap over the
+               top plank (left, middle, right; in the cell's last 3 rows), 16 17 two more cap middles, 7 8 9 the foot
+               under the last plank (in the cell's first 2 rows), 10 the post (every row alike, so tiles stack and
+               overlap unseen), 11 the post's foot in the ground, 12 the hasp on the shut lid, 13 the post's top, the
+               iron plate the lantern stands on (in the cell's last 3 rows); the lid: 18 its left end, 19 20 two
+               middles, 21 its right end (a wider seam than the board's planks), 22 a batten nailed across its planks;
+               step 3: the site lantern's crook, 23 24 pointing right (the post's iron-bound top bending over, then the
+               arm's end with its hook and 2 px chain), 25 26 pointing left (the arm's end, then the post's top); 27 a
+               fifth plank middle with a knot (the grain as streaks of 3 to 6 px: one tile in five shows a knot);
+               step 4: the signpost's iron bar, 28 its left end, 29 a middle, 30 its right end (in the cell's last 4
+               rows, as the cap)
+  paySign      24x17, 23 frames (step 5, the builder's models at a plot with several offers: the models are the
+               offer, the pay board's hollows are the price): 0 the sawhorse trestle (24 x 10 in the cell's bottom
+               rows), 1 the ballista (22 x 13: a great crossbow on a post with splayed feet, its bolt's iron point out
+               in front), 2 the catapult (22 x 15, step 6: an A-frame, the arm 2 px thick at 45 degrees rising
+               over it to a dark iron cup, a 4 x 4 weight box hanging with air under it, two wheels with dark
+               hubs), 3 any other building (a gabled house, 16 x 13); fresh pale timber in
+               three tones with an ink edge all round, standing on the trestle's beam; 4 5 6 the chosen model's warm
+               rim (its ink edge fire gold along the top, gold down the right), laid over it; 7-10, 11-14, 15-18 the
+               glint passing over the ballista, the catapult and the house in four steps; 19 the second trestle
+               of a row (a darker plank and a knot in its beam); 20 21 22 each model's 1 px contact shadow on the
+               counter's cap (step 6)
+  siteLantern  9x13, 4 frames: the site lantern on the post, unlit (dark glass), lit (a 5x5 flame in the fire ramp,
+               white at its heart), and the two frames of its bloom as it catches (the stage lane adds its light, the
+               glow of its glass and its halo)
+  siteHalo     25x25, 2 frames: 0 the lit lantern's halo by night, light falling off in whole pixels, ordered-dithered
+               (white; the stage lane tints it with the fire's gold and adds it as light); 1 (step 4) the warm pool by
+               day, an opaque disc 8 px round with an edge to 10 px kept by an ordered mask jittered per pixel (step
+               5, M-e: no ring), cut past the post for a crook pointing right (the stage lane mirrors it for one
+               pointing left) (white; the stage lane draws it blended over the wall toward fire gold at about 0.4,
+               never added as light on a lit wall)
+
+The count's coins in flight (build 3, the count's step 2: each coin flies from the lord's hand to its hollow, turning):
+
+  payCoin      7x7, 5 frames: the small coin of the count (step 3: 7 px, a paler straw gold, a plain face, so one
+               look tells it from the big one): 0 to 2 its faces (the glint a step along the rim, or none), 3 its edge,
+               4 half turned (step 3: face, half, edge, half as it turns)
+  hudCoinTen   11x11, 5 frames: the big coin, deep gold, struck with the house's lantern (as on the gate's banners)
+               embossed one step lighter with a darker lower edge, 0 to 2 its faces, 3 its edge, 4 half turned
+  hudHollow    7x7, hudHollowTen 11x11: 4 frames each, the hollow empty and holding the coin's faces 0 to 2
 
 The row of the lantern moment is 9 game pixels high (figures, coin, face, people); the big coin and its hollow are
 board and flight pieces only.
@@ -53,6 +100,11 @@ LEGEND = {
     "w": "fireWhite",   # one glint
     "s": "straw",       # a coin's shaded rim and struck ring
     "d": "woodLight",   # the deepest shade of gold
+    "q": "strawLight",  # step 3's small coin face (kept for the record; step 4 made it gold again)
+    "Q": "parchment",   # its lit rim
+    "e": "cloth4",      # the count's small coin (step 4, the director's call 4): its face, the big coin's gold a step
+                        # lighter and about a fifth less saturated (a fixed palette value: the portrait ramps' lightest
+                        # cloth, which no look moves)
     "k": "woodDark",    # a hollow's shadowed wall
     "K": "soilDark",    # a hollow's floor
     "l": "woodLight",   # a hollow's lit lower wall
@@ -216,15 +268,116 @@ COIN = ["..hhg..",
         ".gggsd.",
         "..sdd.."]
 
+# the count's small coin, two more faces: the glint a step along the lit rim, the struck I a column over or leaning
+COIN_B = ["..hhg..",
+          ".hhwgg.",
+          "hhggsgs",
+          "hgggsgs",
+          "ggggsgd",
+          ".gggsd.",
+          "..sdd.."]
+
+COIN_C = ["..hhg..",
+          ".hgggg.",
+          "hwgsggs",
+          "hgsgggs",
+          "ggsgggd",
+          ".gggsd.",
+          "..sdd.."]
+
+# the count's small coin (step 3, the director's call 7: one look tells 1 from 10): 7 px with its edge and a plain
+# face. Step 4 (call 4, the critic's H4: step 3's straw read as a pebble): money again, its ramp the big coin's a step
+# lighter and about a fifth less saturated (face cloth4 where the big one is gold; lit rim fireGold; shade straw), with
+# a 1 px darker rim (woodLight, the big coin's deepest gold) round its lower right so it reads as a disc; three faces
+# (the glint a step along the rim, or none), its edge, and half turned
+PAY_SMALL = [".hhe.",
+             "hweed",
+             "heeed",
+             "eeesd",
+             ".ddd."]
+PAY_SMALL_B = [".hwe.",
+               "hheed",
+               "heeed",
+               "eeesd",
+               ".ddd."]
+PAY_SMALL_C = [".hhe.",
+               "hheed",
+               "heeed",
+               "eeesd",
+               ".ddd."]
+PAY_SMALL_EDGE = ["h", "e", "e", "s", "d"]
+PAY_SMALL_HALF = [".h.",
+                  "hed",
+                  "hed",
+                  "esd",
+                  ".d."]
+
+# the big coin (ten), 11 px with its edge, deep gold, struck with the house's lantern, the mark of the gate's banners:
+# a ring, the cap, the frame round one pane, the foot. Embossed (step 3, the director's call 7: step 2's dark-filled
+# stamp read as a blot, even a padlock): the mark stands one step lighter than the face with a 1 px darker edge under
+# it, no dark fill; three faces (the glint along the rim, on the ring, or none)
 COIN_TEN = ["..hhhgg..",
-            ".hwhgggs.",
-            "hhdgggdgs",
-            "hggdgdggs",
-            "hgggdgggd",
-            "gggdgdggd",
-            "ggdgggdgd",
-            ".ggggssd.",
+            ".hwghggs.",
+            "hhghhhgss",
+            "hgghghgsd",
+            "ggghghgsd",
+            "ggghhhgsd",
+            "gggsssgsd",
+            ".gggggsd.",
             "..sdddd.."]
+
+COIN_TEN_B = ["..hwhgg..",
+              ".hhghggs.",
+              "hhghhhgss",
+              "hgghghgsd",
+              "ggghghgsd",
+              "ggghhhgsd",
+              "gggsssgsd",
+              ".gggggsd.",
+              "..sdddd.."]
+
+COIN_TEN_C = ["..hhhgg..",
+              ".hhgwggs.",
+              "hhghhhgss",
+              "hgghghgsd",
+              "ggghghgsd",
+              "ggghhhgsd",
+              "gggsssgsd",
+              ".gggggsd.",
+              "..sdddd.."]
+
+COIN_TEN_EDGE = ["h", "h", "g", "g", "g", "g", "s", "s", "d"]
+COIN_TEN_HALF = [".hhg.",
+                 "hwhgs",
+                 "hhhgs",
+                 "hghgs",
+                 "hghgd",
+                 "hhhgd",
+                 "gsssd",
+                 "gggsd",
+                 ".sdd."]
+
+# the rivals kept for the director: the kit's Roman X (it can read as "cancel" at phone size, step 1's critic) and a
+# long plus cross, the fallback should the lantern muddy
+COIN_TEN_X = ["..hhhgg..",
+              ".hwhgggs.",
+              "hhdgggdgs",
+              "hggdgdggs",
+              "hgggdgggd",
+              "gggdgdggd",
+              "ggdgggdgd",
+              ".ggggssd.",
+              "..sdddd.."]
+
+COIN_TEN_PLUS = ["..hhhgg..",
+                 ".hwhdggs.",
+                 "hhggdgggs",
+                 "hgggdgggs",
+                 "hgdddddgd",
+                 "ggggdgggd",
+                 "ggggdgggd",
+                 ".ggggssd.",
+                 "..sdddd.."]
 
 FACES = {
     "glad": ["..XXX..",
@@ -385,6 +538,15 @@ GEARS = {
 }
 GEAR = GEARS["c"]
 
+# the small coin's hollow (step 3: 7x7 for the 7 px coin), drawn without an ink edge (cut into the board)
+HOLLOW_SMALL = ["..kkk..",
+                ".kKKKk.",
+                "kKKKKKk",
+                "kKKKKKl",
+                "kkKKKll",
+                ".kkKll.",
+                "..lll.."]
+
 # hollows: drawn without an ink edge (cut into the board); 9x9 and 11x11
 HOLLOW = ["..kkkkk..",
           ".kKKKKKk.",
@@ -407,6 +569,667 @@ HOLLOW_TEN = ["...kkkkk...",
               ".kkKKKKKll.",
               ".kkkKKKlll.",
               "...lllll..."]
+
+
+# --- the count: the bar, its hollow, the board's tiles, the site lantern ------------------------------------------------
+# the bar: a small cast ingot, its top face lit, a C struck on its front (C is a hundred; never a currency sign)
+COIN_BAR = ["..hwhhhgg..",
+            ".hhgggggggs",
+            "hgggsssgggd",
+            "ggggsgggggd",
+            "sgggsssggdd",
+            ".ssddddddd."]
+
+# two more faces: the glint further along the top, the C struck a column over; the end as it turns (a 3 px sliver)
+COIN_BAR_B = ["..hhhwhgg..",
+              ".hhgggggggs",
+              "hggggsssggd",
+              "gggggsggggd",
+              "sggggsssgdd",
+              ".ssddddddd."]
+
+COIN_BAR_C = ["..whhhhgg..",
+              ".hhgggggggs",
+              "hggsssggggd",
+              "gggsgggggdd",
+              "sggsssgggdd",
+              ".ssddddddd."]
+
+COIN_BAR_EDGE = ["h", "g", "g", "s", "d", "d"]
+# the bar half turned: its front shortened, its end coming round into the light
+COIN_BAR_HALF = ["..hwhg.",
+                 ".hhgggs",
+                 "hggssgd",
+                 "gggsggd",
+                 "sggssdd",
+                 ".sdddd."]
+
+HOLLOW_BAR = [".kkkkkkkkkkk.",
+              "kKKKKKKKKKKKk",
+              "kKKKKKKKKKKKk",
+              "kKKKKKKKKKKKk",
+              "kKKKKKKKKKKKk",
+              "kKKKKKKKKKKKl",
+              "kkKKKKKKKKKll",
+              ".kkKKKKKKKll.",
+              "..lllllllll.."]
+
+# the board's colours: a plank face of weathered wood, its grain darker and lighter, the seam between planks in shade,
+# iron nails at the ends, the ink edge round the whole board
+BOARD_LEGEND = {
+    "i": "ink",
+    "F": "wood",        # the plank's face
+    "L": "woodLight",   # grain catching light, the top bevel, a lit edge
+    "D": "woodDark",    # grain in shade, the seam, the shaded edge, the underside
+    "S": "soil",        # a knot's dark heart
+    "n": "stoneMid",    # a nail head
+    "N": "stoneLight",  # its glint
+    "b": "stoneDark",   # iron
+    "B": "stone",       # iron in light
+    "w": "strawLight",  # the top edge's highest light
+}
+
+# a plank row is 12 rows: 11 of face and its seam under it
+PLANK_L = ["iLFFFF",
+           "iLFFFF",
+           "iLFFLL",
+           "iLnFFF",
+           "iLNFFF",
+           "iLFFFF",
+           "iLFFFF",
+           "iLFDSD",
+           "iLFFFF",
+           "iLFFFF",
+           "iDFFFF",
+           "iDDDDD"]
+# five middles (the count picks one per tile by a hash of the thing, the row and the tile, never the same twice in a
+# row, and starts every second row half a tile over). Step 3 (the director's call 9, M-c): the grain is streaks of
+# 3 to 6 px, some running to the tile's edge so they go on in the next tile, one dark and one light a tile, on
+# rows of their own; the fifth middle has a knot the grain flows round, so one tile in five shows a knot
+PLANK_M1 = ["FFFFFF",
+            "FFFFFF",
+            "FLLLLF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "DDDFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_M2 = ["FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFDDDD",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "LLLLLF",
+            "FFFFFF",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_M3 = ["FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "LLLFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FDDDDD",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_M4 = ["FFFFFF",
+            "FFFLLL",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "FDDDDF",
+            "FFFFFF",
+            "FFFFFF",
+            "FFFFFF",
+            "LLLFFF",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_M5 = ["FFFFFF",
+            "FFFFFF",
+            "LLLFFF",
+            "FFDDFF",
+            "FDSSDF",
+            "FFDDFF",
+            "FFFFFF",
+            "FFFFLL",
+            "FFFFFF",
+            "DDFFFF",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_R = ["FFFFDi",
+           "FFFFDi",
+           "FFFFDi",
+           "FFFnDi",
+           "FFFNDi",
+           "LLFFDi",
+           "FFFFDi",
+           "FFFFDi",
+           "FFFFDi",
+           "LFFFDi",
+           "FFFFDi",
+           "DDDDDi"]
+# the cap's top edge catches the light in short runs at no fixed step (three middles, picked like the planks)
+CAP_L = [".iiiii",
+         "iLwwLL",
+         "iLLLLL"]
+CAP_M = ["iiiiii",
+         "LLwwLL",
+         "LLLLLL"]
+CAP_M2 = ["iiiiii",
+          "LLLLLw",
+          "LLLLLL"]
+CAP_M3 = ["iiiiii",
+          "wwLLLL",
+          "LLLLDL"]
+CAP_R = ["iiiii.",
+         "LLLwDi",
+         "LLLLDi"]
+FOOT_L = ["iDDDDD",
+          ".iiiii"]
+FOOT_M = ["DDDDDD",
+          "iiiiii"]
+FOOT_R = ["DDDDDi",
+          "iiiii."]
+POST = [".iLDi."] * 12
+POST_FOOT = [".iLDi."] * 9 + [".iLDi.", "iDLDDi", "iiiiii"]
+HASP = ["......",
+        "......",
+        "..ii..",
+        ".ibBi.",
+        "ibBBbi",
+        "ibi.bi",
+        "ibi.bi",
+        "ibBBbi",
+        ".ibbi.",
+        "..ii..",
+        "......",
+        "......"]
+POST_TOP = [".iiii.",
+            "ibBBbi",
+            "ibbbbi"]
+
+# the lid (the seal): planks of its own with a wider seam, two battens nailed across them and the hasp in the middle,
+# so the shut board reads as a lid and not as the board without its hollows
+LID_L = ["iLFFFF",
+         "iLFFFF",
+         "iLFFFF",
+         "iLnFFF",
+         "iLNFFF",
+         "iLFFFF",
+         "iLFFLF",
+         "iLFFFF",
+         "iLFFFF",
+         "iDFFFF",
+         "iDDDDD",
+         "iiDDDD"]
+LID_M1 = ["FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FLLLLL",
+          "FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "DDDDFF",
+          "FFFFFF",
+          "FFFFFF",
+          "DDDDDD",
+          "DDDDDD"]
+LID_M2 = ["FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FFFFFF",
+          "FFDDDD",
+          "FFFFFF",
+          "FFFFFF",
+          "LLLLFF",
+          "FFFFFF",
+          "DDDDDD",
+          "DDDDDD"]
+LID_R = ["FFFFDi",
+         "FFFFDi",
+         "FFFFDi",
+         "FFFnDi",
+         "FFFNDi",
+         "LLFFDi",
+         "FFFFDi",
+         "FFFFDi",
+         "FFFFDi",
+         "FFFFDi",
+         "DDDDDi",
+         "DDDDii"]
+# a batten across the lid's planks (one tile a plank, they stack): lit on its left, its own edge and its shadow on the
+# right, a nail into every plank it crosses; it runs over the seams
+BATTEN = [".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".NnDD.",
+          ".LnDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD.",
+          ".LFDD."]
+
+# the site lantern's crook (step 3, the director's call 5: a builder's lantern on a crook, never a street lamp): the
+# lantern's own short post, cut to about the lord's shoulder, its top bound in iron that bends over toward the work and
+# ends in a hook with a 2 px chain; the lantern hangs from the chain (its ring under the chain's last link). Drawn 12
+# wide and cut into two tiles: the post's top with the bend (it stacks on the post tiles below) and the arm's end with
+# the hook and the chain. Pointing right, and pointing left with the post's own light kept on its left.
+CROOK_RIGHT = ["..iiiiiiiii.",
+               ".iiBBBBBBBii",
+               ".iBiiiiiiiBi",
+               ".iBbi....ibi",
+               ".iBbi....iii",
+               ".iLDi.....b.",
+               ".iLDi.....i.",
+               ".iLDi.......",
+               ".iLDi.......",
+               ".iLDi.......",
+               ".iLDi.......",
+               ".iLDi......."]
+CROOK_LEFT = [".iiiiiiiii..",
+              "iiBBBBBBBii.",
+              "iBiiiiiiiBi.",
+              "ibi....iBbi.",
+              "iii....iBbi.",
+              ".b.....iLDi.",
+              ".i.....iLDi.",
+              ".......iLDi.",
+              ".......iLDi.",
+              ".......iLDi.",
+              ".......iLDi.",
+              ".......iLDi."]
+# where the chain's last link hangs in the 12-wide crook (column, row): the lantern's ring (its column 4) hangs under it
+CROOK_CHAIN = {"right": (10, 6), "left": (1, 6)}
+
+# the signpost's iron bar (step 4): an iron band lit on its top, its own ink edge, the ends capped (cell's last 4 rows)
+SIGN_BAR_L = [".iiiii",
+              "ibBBBB",
+              "ibbbbb",
+              ".iiiii"]
+SIGN_BAR_M = ["iiiiii",
+              "BBBBBB",
+              "bbbbbb",
+              "iiiiii"]
+SIGN_BAR_R = ["iiiii.",
+              "BBBBbi",
+              "bbbbbi",
+              "iiiii."]
+
+# the builder's models on their trestles (step 5, the director's notes of 16.11., 12:44, P1 to P4: the models are the
+# offer, the board's hollows are the price; nothing but the things themselves stands at a plot with several offers).
+# One 24 x 17 cell per frame (step 6: 13 before; the catapult's arm needs the height): 0 the sawhorse trestle (24 x 10,
+# in the cell's bottom 10 rows: a beam on two splayed legs, weathered wood); 1 2 3 the models standing on it
+# (bottom-aligned, centred): the ballista 22 x 13, the catapult 24 x 17 with its edge (step 6, R3) and any other
+# building, a gabled house 16 x 13; fresh pale timber in three tones lit from the upper left,
+# dark timber for the frames and legs, a dark ink edge all round (4 neighbours, so a diagonal stays thin) so they
+# read on grey stone, on the blue banner and at night, one iron accent each (the bolt's point, the cup, the door's
+# hinge); the string is parchment with no edge; 4 5 6 the chosen model's warm rim (its ink edge fire gold along the top,
+# gold down the right), laid over the model; 7 to 18 the glint passing over each model in four steps (a short streak of fire white on its lit edge),
+# ballista 7-10, catapult 11-14, house 15-18; 19 the row's second trestle (step 6). Drawn by hand, never reduced from the engines' sprites.
+MODEL_CELL = (24, 17)
+MODEL_TONES = {"T": ("strawLight", "straw", "woodLight"),   # fresh timber: lit, face, shade
+               "D": ("straw", "woodLight", "wood"),         # the dark timber of frames, bolts and legs
+               "W": ("woodLight", "wood", "woodDark"),      # wheels and the winch's drum
+               "I": ("stonePale", "stoneLight", "stone"),   # iron
+               "C": ("stoneDark", "stoneDark", "stoneDark"),  # step 6: the catapult's dark iron cup
+               "L": ("stonePale", "stonePale", "stonePale"),  # its one light pixel
+               "H": ("woodDark", "woodDark", "woodDark")}     # the wheels' dark hubs
+# T timber, D dark timber, W wheel (the catapult's weight box since step 6), I iron, C the cup's dark iron, L its light
+# pixel, H a hub, s string (parchment, no ink edge), . empty; at most 22 wide and 15 rows (the ballista 11, the house 11)
+MODEL_BALLISTA = [".......DDD..........",   # facing left, as its sprite: a great crossbow on a post with
+                  "......DD..s.........",   # splayed feet; the bow in dark timber, 2 px thick, its string drawn
+                  ".I...DD....ss.......",   # back to the nut; the bolt in the stock's groove with its iron point
+                  "IIIDDDDDDDDDDsDTTTTW",   # well out in front; the stock's butt and the winch's stub behind
+                  ".I..TDDTTTTTTsTTTTTW",
+                  ".....DD....DD..TTTT.",
+                  "......DD..sDD.......",
+                  ".......DDD.DD.......",
+                  "...........DD.......",
+                  "..........DDDD......",
+                  "........DD.DD.DD...."]
+MODEL_CATAPULT = ["...............CCC....",   # step 6 (R3), facing right: an A-frame whose pivot stands 7 px over
+                  ".............TTCLC....",   # the base, the arm 2 px thick at 45 degrees rising 4 px over it to a
+                  "............TT........",   # dark iron cup (3 x 2, inked, one light pixel); the 4 x 4 weight box
+                  "...........TT.........",   # hangs at the arm's short end with 1 px of air over the base; the
+                  "..........TT..........",   # pivot's iron pin; the base beam on two 4 x 4 wheels with dark hubs;
+                  ".........TTID.........",   # its cup stands 4 px over the ballista's top (the cell is 17 high)
+                  ".....WWWWT.D.D........",
+                  ".....WWWW..D..D.......",
+                  ".....WWWW.D...D.......",
+                  ".....WWWW.D....D......",
+                  "..........D....D......",
+                  ".DTTDDDDDDDDDDDDDTTDD.",
+                  ".THHT...........THHT..",
+                  ".THHT...........THHT..",
+                  "..TT.............TT..."]
+MODEL_HOUSE = ["......TT......",
+               ".....TTTT.....",
+               "....TTTTTT....",
+               "...TTTTTTTT...",
+               "..TTTTTTTTTT..",
+               ".DDDDDDDDDDDD.",
+               "..TTTTTTTTTT..",
+               "..TTTDDTTTTT..",
+               "..TTTDDTTTTT..",
+               "..TTTDITTTTT..",
+               "..TTTDDTTTTT.."]
+# the sawhorse (24 x 10): a beam lit on its top, nailed, on two pairs of legs splayed out past its ends
+TRESTLE_LEGEND = {"i": "ink", "L": "woodLight", "F": "wood", "D": "woodDark", "n": "stoneMid"}
+TRESTLE = ["..iiiiiiiiiiiiiiiiiiii..",
+           ".iLLLLLLLLLLLLLLLLLLLLi.",
+           ".iFFFnFFFFFFFFFFFFnFFFi.",
+           "..iiiiiiiiiiiiiiiiiiii..",
+           "..iLFi............iLFi..",
+           "..iLFi............iLFi..",
+           ".iLFi..............iLFi.",
+           ".iLFi..............iLFi.",
+           "iLFi................iLFi",
+           "iLFi................iLFi"]
+# step 6 (R3): the second trestle of a row, not a copy: one darker plank let into its beam and a knot
+TRESTLE_B = ["..iiiiiiiiiiiiiiiiiiii..",
+             ".iLLLLLLLLLLFFFFFLLLLLi.",
+             ".iFFFnFFFDFFDDDDDFnFFFi.",
+             "..iiiiiiiiiiiiiiiiiiii..",
+             "..iLFi............iLFi..",
+             "..iLFi............iLFi..",
+             ".iLFi..............iLFi.",
+             ".iLFi..............iLFi.",
+             "iLFi................iLFi",
+             "iLFi................iLFi"]
+
+
+def model_grid(rows):
+    """The body `rows` in the cell, centred and standing on its bottom row with a pixel for the ink edge all round."""
+    cw, ch = MODEL_CELL
+    w, h = len(rows[0]), len(rows)
+    assert all(len(r) == w for r in rows) and w + 2 <= cw and h + 2 <= ch, rows
+    ox, oy = (cw - w) // 2, ch - 1 - h
+    grid = [["." for _ in range(cw)] for _ in range(ch)]
+    for y, row in enumerate(rows):
+        for x, c in enumerate(row):
+            grid[oy + y][ox + x] = c
+    return grid
+
+
+def model_solid(grid, x, y):
+    return 0 <= y < len(grid) and 0 <= x < len(grid[0]) and grid[y][x] not in (".", "s")
+
+
+def model_image(rows, pal):
+    """A model: each material in three tones (lit where its top or left is open, shaded where its foot or right is
+    open), the string in parchment, an ink edge on every empty pixel beside the body (4 neighbours)."""
+    grid = model_grid(rows)
+    cw, ch = MODEL_CELL
+    img = Image(cw, ch)
+    for y in range(ch):
+        for x in range(cw):
+            c = grid[y][x]
+            if c in MODEL_TONES:
+                lit = not model_solid(grid, x, y - 1) or not model_solid(grid, x - 1, y)
+                dark = not model_solid(grid, x, y + 1) or not model_solid(grid, x + 1, y)
+                tone = MODEL_TONES[c][0] if lit else MODEL_TONES[c][2] if dark else MODEL_TONES[c][1]
+                img.set(x, y, pal.color(tone) + (255,))
+            elif c == "s":
+                img.set(x, y, pal.color("parchment") + (255,))
+            elif any(model_solid(grid, x + i, y + j) for i, j in ((-1, 0), (1, 0), (0, -1), (0, 1))):
+                img.set(x, y, pal.color("ink") + (255,))
+    return img
+
+
+def model_rim(rows, pal):
+    """The chosen model's warm rim, laid over it: its ink edge turns fire gold along its top and gold down its right
+    side, as if the lantern's light caught it; the timber keeps its tones."""
+    grid = model_grid(rows)
+    cw, ch = MODEL_CELL
+    img = Image(cw, ch)
+    for y in range(ch):
+        for x in range(cw):
+            if grid[y][x] not in (".", "s"):
+                continue
+            if model_solid(grid, x, y - 1):
+                continue
+            if model_solid(grid, x, y + 1):
+                img.set(x, y, pal.color("fireGold") + (255,))
+            elif model_solid(grid, x - 1, y) and not model_solid(grid, x + 1, y):
+                img.set(x, y, pal.color("gold") + (255,))
+    return img
+
+
+def model_glints(rows, pal, steps=4):
+    """The glint passing over a model left to right in `steps` frames: on each, the lit timber pixels on one short
+    diagonal (top-left to bottom-right) burn fire white."""
+    grid = model_grid(rows)
+    cw, ch = MODEL_CELL
+    lit = [(x, y) for y in range(ch) for x in range(cw)
+           if grid[y][x] in ("T", "D") and (not model_solid(grid, x, y - 1) or not model_solid(grid, x - 1, y))]
+    lo = min(x - y for x, y in lit)
+    hi = max(x - y for x, y in lit)
+    frames = []
+    for k in range(steps):
+        band = lo + (hi - lo) * (k + 0.5) / steps
+        img = Image(cw, ch)
+        for x, y in lit:
+            if abs((x - y) - band) <= 1.0:
+                img.set(x, y, pal.color("fireWhite") + (255,))
+        frames.append(img)
+    return frames
+
+
+def model_frames(pal):
+    cw, ch = MODEL_CELL
+    models = (MODEL_BALLISTA, MODEL_CATAPULT, MODEL_HOUSE)
+    frames = [legend_image(TRESTLE, pal, TRESTLE_LEGEND, ch, top=False)]
+    frames += [model_image(m, pal) for m in models]
+    frames += [model_rim(m, pal) for m in models]
+    for m in models:
+        frames += model_glints(m, pal)
+    # step 6 (R3): 19 the second trestle (appended, so every other frame keeps its number)
+    frames.append(legend_image(TRESTLE_B, pal, TRESTLE_LEGEND, ch, top=False))
+    # step 6 (R1): 20 21 22 each model's contact shadow on the counter's cap, in the cell's bottom row
+    frames += [model_shadow(m, pal) for m in models]
+    return frames
+
+
+def model_shadow(rows, pal):
+    """A model's 1 px contact shadow (step 6, R1): in the cell's bottom row, under every column whose foot rests on the
+    cell's last row, one pixel wider each side; drawn one row lower, on the counter's top cap."""
+    grid = model_grid(rows)
+    cw, ch = MODEL_CELL
+    img = Image(cw, ch)
+    feet = [x for x in range(cw) if model_solid(grid, x, ch - 2)]
+    for x in range(cw):
+        if any(abs(x - f) <= 1 for f in feet):
+            img.set(x, ch - 1, pal.color("ink") + (255,))
+    return img
+
+# the site lantern (9x13, step 2's critic H2: the 7x10 one was a speck by day): a ring, a cap, a 5x5 glass in an iron
+# frame, a foot; unlit its glass is the night's dark glass (as the street lanterns' heads), lit a flame stands in the
+# fire ramp, white at its heart; as it catches, two frames of bloom: the glass burns white and the light spills
+# through the frame's seams
+LANTERN_LEGEND = {"i": "ink", "b": "stoneDark", "B": "stone", "g": "night2", "G": "night1",
+                  "w": "fireWhite", "y": "fireGold", "o": "fireOrange"}
+LANTERN_FRAME = ["...iii...",
+                 "...i.i...",
+                 "..iBBBi..",
+                 ".iBBbBBi.",
+                 "ibbbbbbbi",
+                 "ib.....bi",
+                 "ib.....bi",
+                 "ib.....bi",
+                 "ib.....bi",
+                 "ib.....bi",
+                 "ibbbbbbbi",
+                 ".ibbbbbi.",
+                 "..iiiii.."]
+LANTERN_GLASS = {
+    "unlit": ["gGggg",
+              "gGggg",
+              "ggGgg",
+              "gggGg",
+              "ggggG"],
+    "lit": ["ooyoo",
+            "oywyo",
+            "oywyo",
+            "ywwwy",
+            "oyyyo"],
+    "bloom1": ["ywwwy",
+               "wwwww",
+               "wwwww",
+               "wwwww",
+               "ywwwy"],
+    "bloom2": ["oywyo",
+               "ywwwy",
+               "wwwww",
+               "ywwwy",
+               "oyyyo"],
+}
+# the light through the frame's seams while it blooms (row, column, colour) on top of the frame
+LANTERN_SPILL = {
+    "bloom1": [(4, 3, "y"), (4, 4, "w"), (4, 5, "y"), (10, 3, "y"), (10, 4, "y"), (10, 5, "y"),
+               (6, 1, "y"), (7, 1, "y"), (6, 7, "y"), (7, 7, "y"), (1, 4, "y")],
+    "bloom2": [(4, 4, "y"), (10, 4, "o"), (7, 1, "o"), (7, 7, "o")],
+}
+
+
+def lantern_frame(kind, pal):
+    rows = [list(r) for r in LANTERN_FRAME]
+    for y, row in enumerate(LANTERN_GLASS[kind]):
+        for x, c in enumerate(row):
+            rows[5 + y][2 + x] = c
+    for y, x, c in LANTERN_SPILL.get(kind, []):
+        rows[y][x] = c
+    return legend_image(["".join(r) for r in rows], pal, LANTERN_LEGEND)
+
+
+def halo(radius=12):
+    """The lit lantern's halo (white; the stage lane tints it warm): light falling off from the middle in whole pixels,
+    in ten steps of alpha ordered-dithered on a 2x2 grid, so no step shows as a ring (step 3, the director's call 6:
+    step 2's four rings read as hard square bands), and its outer 2 px thinned on a checkerboard, so the edge melts
+    into the night and never shows as a circle."""
+    size = 2 * radius + 1
+    top = 0.6
+    steps = 10
+    bayer = [[0.0, 0.5], [0.75, 0.25]]
+    img = Image(size, size)
+    for y in range(size):
+        for x in range(size):
+            d = ((x - radius) ** 2 + (y - radius) ** 2) ** 0.5
+            if d > radius + 0.5:
+                continue
+            if d > radius - 1.5 and (x + y) % 2 == 1:
+                continue
+            a = top * max(0.0, 1.0 - d / (radius + 0.5)) ** 1.5
+            q = int(a * steps / top + bayer[y % 2][x % 2]) * top / steps
+            if q > 0:
+                img.set(x, y, (255, 255, 255, int(round(q * 255))))
+    return img
+
+
+POOL_BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]
+# step 5 (M-e of step 4's critic): the pool stops at the post: for a crook pointing right the post's far edge stands
+# at the cell's column 3 (the pool's left is 2 px left of the post's tile), so columns 0 to 2 stay empty; the stage
+# lane mirrors the pool for a crook pointing left
+POOL_CUT = 3
+
+
+def pool(radius=12, inner=8.0, edge=10.5):
+    """The warm pool by day (step 4, the director's call 3): an opaque disc `inner` px round about the cell's middle,
+    then out to `edge` a falling share of pixels kept by an ordered 4 x 4 mask jittered by a hash per pixel (step 5,
+    M-e: the checkerboard drew a clean ring), so the pool's rim melts into the wall and never shows as a circle; cut at
+    the post (`POOL_CUT`). White: the stage lane blends it toward fire gold."""
+    size = 2 * radius + 1
+    img = Image(size, size)
+    for y in range(size):
+        for x in range(POOL_CUT, size):
+            d = ((x - radius) ** 2 + (y - radius) ** 2) ** 0.5
+            if d <= inner:
+                on = True
+            elif d <= edge + 0.5:
+                share = (edge + 0.5 - d) / (edge + 0.5 - inner)
+                jitter = (((x * 73856093) ^ (y * 19349663)) % 7 - 3) / 24.0
+                on = share > (POOL_BAYER[y % 4][x % 4] + 0.5) / 16.0 + jitter
+            else:
+                on = False
+            if on:
+                img.set(x, y, (255, 255, 255, 255))
+    return img
+
+
+def legend_image(rows, pal, legend, h=None, top=True):
+    """The rows in `legend`'s colours, in a cell `h` rows high (the rows at its top, or at its bottom)."""
+    w = len(rows[0])
+    assert all(len(r) == w for r in rows), rows
+    ch = h or len(rows)
+    oy = 0 if top else ch - len(rows)
+    img = Image(w, ch)
+    for y, row in enumerate(rows):
+        for x, c in enumerate(row):
+            if c != ".":
+                img.set(x, y + oy, pal.color(legend[c]) + (255,))
+    return img
+
+
+def board_tiles(pal):
+    cell = 12
+    tiles = [PLANK_L, PLANK_M1, PLANK_M2, PLANK_R]
+    frames = [legend_image(t, pal, BOARD_LEGEND) for t in tiles]
+    frames += [legend_image(t, pal, BOARD_LEGEND, cell, top=False) for t in (CAP_L, CAP_M, CAP_R)]
+    frames += [legend_image(t, pal, BOARD_LEGEND, cell, top=True) for t in (FOOT_L, FOOT_M, FOOT_R)]
+    frames.append(legend_image(POST, pal, BOARD_LEGEND))
+    frames.append(legend_image(POST_FOOT, pal, BOARD_LEGEND))
+    frames.append(legend_image(HASP, pal, BOARD_LEGEND))
+    frames.append(legend_image(POST_TOP, pal, BOARD_LEGEND, cell, top=False))
+    # step 2: 14 15 two more plank middles, 16 17 two more cap middles, 18 to 21 the lid, 22 its batten
+    frames += [legend_image(t, pal, BOARD_LEGEND) for t in (PLANK_M3, PLANK_M4)]
+    frames += [legend_image(t, pal, BOARD_LEGEND, cell, top=False) for t in (CAP_M2, CAP_M3)]
+    frames += [legend_image(t, pal, BOARD_LEGEND) for t in (LID_L, LID_M1, LID_M2, LID_R, BATTEN)]
+    # step 3: 23 24 the crook pointing right (the post's top with the bend, then the arm's end, hook and chain), 25 26
+    # the crook pointing left (the arm's end, hook and chain, then the post's top with the bend)
+    for crook in (CROOK_RIGHT, CROOK_LEFT):
+        frames.append(legend_image([r[:6] for r in crook], pal, BOARD_LEGEND))
+        frames.append(legend_image([r[6:] for r in crook], pal, BOARD_LEGEND))
+    # step 3: 27 the fifth plank middle, with its knot
+    frames.append(legend_image(PLANK_M5, pal, BOARD_LEGEND))
+    # step 4: 28 29 30 the signpost's iron bar (left end, middle, right end)
+    frames += [legend_image(t, pal, BOARD_LEGEND, cell, top=False) for t in (SIGN_BAR_L, SIGN_BAR_M, SIGN_BAR_R)]
+    return frames
+
+
+def coin_frames(faces, edge, half, pal, w, h):
+    """A coin of the count: its faces, each with its ink edge, then its edge and its half turn as it turns, centred in
+    the same cell."""
+    frames = [edged(grid_image(face, pal), pal) for face in faces]
+    frames.append(edged(grid_image(edge, pal), pal, w, h))
+    frames.append(edged(grid_image(half, pal), pal, w, h))
+    return frames
+
+
+def bar_hollow(with_bar, pal, face=None):
+    img = grid_image(HOLLOW_BAR, pal)
+    if with_bar:
+        bar = grid_image(face or COIN_BAR, pal)
+        ox = (img.w - bar.w) // 2
+        oy = (img.h - bar.h) // 2
+        for y in range(bar.h):
+            for x in range(bar.w):
+                c = bar.get(x, y)
+                if c[3]:
+                    img.set(x + ox, y + oy, c)
+    return img
 
 
 def grid_image(rows, pal):
@@ -503,12 +1326,16 @@ def frames_for(sprite, pal, style="hand", face=None):
         return [edged(grid_image(ARROWS[k], pal), pal) for k in ("up", "down")]
     if sprite == "hudCoin":
         return [edged(grid_image(COIN, pal), pal)]
+    if sprite == "payCoin":
+        return coin_frames([PAY_SMALL, PAY_SMALL_B, PAY_SMALL_C], PAY_SMALL_EDGE, PAY_SMALL_HALF, pal, 7, 7)
     if sprite == "hudCoinTen":
-        return [edged(grid_image(COIN_TEN, pal), pal)]
+        return coin_frames([COIN_TEN, COIN_TEN_B, COIN_TEN_C], COIN_TEN_EDGE, COIN_TEN_HALF, pal, 11, 11)
     if sprite == "hudHollow":
-        return [grid_image(HOLLOW, pal), hollow_with_coin(HOLLOW, COIN, pal)]
+        return [grid_image(HOLLOW_SMALL, pal)] + [hollow_with_coin(HOLLOW_SMALL, c, pal)
+                                                  for c in (PAY_SMALL, PAY_SMALL_B, PAY_SMALL_C)]
     if sprite == "hudHollowTen":
-        return [grid_image(HOLLOW_TEN, pal), hollow_with_coin(HOLLOW_TEN, COIN_TEN, pal)]
+        return [grid_image(HOLLOW_TEN, pal)] + [hollow_with_coin(HOLLOW_TEN, c, pal)
+                                                for c in (COIN_TEN, COIN_TEN_B, COIN_TEN_C)]
     if sprite == "hudFace":
         faces = FACE_STYLES[face or FACE_STYLE]
         return [edged(grid_image(faces[k], pal), pal) for k in ("glad", "even", "grim", "unrest")]
@@ -518,11 +1345,24 @@ def frames_for(sprite, pal, style="hand", face=None):
         return [people(pal)]
     if sprite == "hudGear":
         return [edged(grid_image(GEAR, pal), pal)]
+    if sprite == "hudCoinBar":
+        return coin_frames([COIN_BAR, COIN_BAR_B, COIN_BAR_C], COIN_BAR_EDGE, COIN_BAR_HALF, pal, 13, 8)
+    if sprite == "hudHollowBar":
+        return [bar_hollow(False, pal)] + [bar_hollow(True, pal, c) for c in (COIN_BAR, COIN_BAR_B, COIN_BAR_C)]
+    if sprite == "payBoard":
+        return board_tiles(pal)
+    if sprite == "siteLantern":
+        return [lantern_frame(k, pal) for k in ("unlit", "lit", "bloom1", "bloom2")]
+    if sprite == "siteHalo":
+        return [halo(), pool()]
+    if sprite == "paySign":
+        return model_frames(pal)
     raise SystemExit("unknown sprite " + sprite)
 
 
 SPRITES = ["hudFigures", "hudArrow", "hudCoin", "hudCoinTen", "hudHollow", "hudHollowTen", "hudFace", "hudPeople",
-           "hudGear", "hudDawn"]
+           "hudGear", "hudDawn", "hudCoinBar", "hudHollowBar", "payBoard", "siteLantern", "payCoin", "siteHalo",
+           "paySign"]
 
 
 def palette():

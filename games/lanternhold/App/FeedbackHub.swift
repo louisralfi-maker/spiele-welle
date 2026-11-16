@@ -9,6 +9,16 @@ protocol FeedbackHub: AnyObject {
     var soundOn: Bool { get set }
     var hapticsOn: Bool { get set }
     func play(_ cue: FeedbackCue)
+    /// One coin of the count (build 3, PAY.md section 2): the clink at playback rate `rate` (each coin a little higher,
+    /// at most an octave in all) and a tick of `strength` (0 ... 1, growing through the count). Never throttled away:
+    /// every coin is heard on its own.
+    func countCoin(rate: Double, strength: Double)
+    /// A coin of a count that was let go comes home into the purse (build 3, the count's step 2): a soft tick of
+    /// `strength` (0 ... 1) in the hand, no sound (the rustle `coinsBack` plays once for them all).
+    func countTick(strength: Double)
+    /// The count's step 3 (the director's call 9): a board rose; the clink's steps and the deep seal are made ready, so
+    /// the first coin never hitches on a file loading.
+    func countWarm()
     /// The ambience's target mix for this frame (the hub crossfades toward it).
     func ambience(_ mix: AmbienceMix)
 }
@@ -22,6 +32,11 @@ final class SilentFeedback: FeedbackHub {
     private(set) var last: FeedbackCue?
     private(set) var played: [FeedbackCue] = []
     private(set) var lastMix: AmbienceMix?
+    /// The count's coins: the rate and strength each was played at; the ticks of the coins coming home.
+    private(set) var coins: [(rate: Double, strength: Double)] = []
+    private(set) var ticks: [Double] = []
+    /// How often the count asked for its sounds to be made ready.
+    private(set) var warmed = 0
 
     init() {}
 
@@ -29,6 +44,19 @@ final class SilentFeedback: FeedbackHub {
         count += 1
         last = cue
         if played.count < 512 { played.append(cue) }
+    }
+
+    func countCoin(rate: Double, strength: Double) {
+        play(.countCoin)
+        if coins.count < 512 { coins.append((rate: rate, strength: strength)) }
+    }
+
+    func countTick(strength: Double) {
+        if ticks.count < 512 { ticks.append(strength) }
+    }
+
+    func countWarm() {
+        warmed += 1
     }
 
     func ambience(_ mix: AmbienceMix) {

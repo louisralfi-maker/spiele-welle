@@ -15,11 +15,32 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     case knock
     // The hall stage (stage lane, 14.11.2026): the hall's door opening on its iron hinges, and its latch falling
     case doorCreak = "door_creak", doorLatch = "door_latch"
+    // The count (build 3, PAY.md; tools/soundsynth.py): the coins sliding back into the purse, a soft rustle
+    case coinsBack = "coins_back"
+    // The count's step 2 (tools/soundsynth.py `coin_step`): the coin resampled a semitone higher for every step, so the
+    // clink truly rises (a player's rate only stretches time); played by `FeedbackHub.countCoin`, not by a cue. Step 0
+    // is `coin` itself (no copy of it: the 4 MB sound budget)
+    case coinP01 = "coin_p01", coinP02 = "coin_p02", coinP03 = "coin_p03", coinP04 = "coin_p04"
+    case coinP05 = "coin_p05", coinP06 = "coin_p06", coinP07 = "coin_p07", coinP08 = "coin_p08", coinP09 = "coin_p09"
+    case coinP10 = "coin_p10", coinP11 = "coin_p11", coinP12 = "coin_p12"
+    // The count's step 3 (the director's call 9, M-e): the seal rendered deep (tools/soundsynth.py `seal_low`, the seal
+    // resampled down), played as made; a player's rate only stretched it in time
+    case sealLow = "seal_low"
 
     static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall,
                                    .ambThroat, .ambBailey, .ambValley, .ambRiver]
 
     var isLoop: Bool { SoundID.loops.contains(self) }
+
+    /// The count's clink, one step a semitone (`coin` itself, then `coin_p01` to `coin_p12`, an octave over it).
+    static let coinSteps: [SoundID] = [.coin, .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07,
+                                       .coinP08, .coinP09, .coinP10, .coinP11, .coinP12]
+
+    /// The step that sounds a playback rate's pitch: round(12 × log2(rate)) semitones, kept to 0 ... 12.
+    static func coinStep(rate: Double) -> SoundID {
+        let semitones = rate > 0 && rate.isFinite ? Int((12 * log2(rate)).rounded()) : 0
+        return coinSteps[min(coinSteps.count - 1, max(0, semitones))]
+    }
 
     /// The same sound starts at most this often (seconds of real time): nothing rattles like a machine gun, whoever
     /// asks for it (the thinner's gaps count the simulation's cues; the cards' taps come straight from the player).
@@ -35,7 +56,11 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .dissolve: return 0.15
         case .step1, .step2: return 0.12
         case .bow, .arrowHit: return 0.1
-        case .coin, .coins, .seal, .decline, .knock: return 0.08
+        case .coin, .coins, .seal, .sealLow, .decline, .knock: return 0.08
+        case .coinsBack: return 0.2
+        case .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07, .coinP08, .coinP09,
+             .coinP10, .coinP11, .coinP12:
+            return 0.04
         case .tap: return 0.06
         case .ambDay, .ambNight, .ambRain, .ambFire, .ambHall: return 0
         case .ambThroat, .ambBailey, .ambValley, .ambRiver: return 0
@@ -122,6 +147,12 @@ extension FeedbackCue {
         case .doorShut: return SoundPlay(id: .doorLatch, volume: 0.75)
         case .touched: return SoundPlay(id: .tap, volume: 0.22, rate: 1.25)
         case .lanternRaised: return SoundPlay(id: .lantern, volume: 0.8, rate: 1.3)
+        // The count: a coin as the plain clink (the hub's `countCoin` gives it its rising pitch); the seal deep and
+        // full; the site lantern catching; the coins going back, soft.
+        case .countCoin: return SoundPlay(id: .coin, volume: 0.6)
+        case .countSeal: return SoundPlay(id: .sealLow, volume: 0.85)
+        case .countLantern: return SoundPlay(id: .lantern, volume: 0.7, rate: 1.1)
+        case .coinsBack: return SoundPlay(id: .coinsBack, volume: 0.55)
         }
     }
 
@@ -136,6 +167,9 @@ extension FeedbackCue {
         case .doorShut: return .soft
         case .touched: return .light
         case .lanternRaised: return .medium
+        // The count (PAY.md section 2): a light tick per coin (`countCoin` grows it), one heavy beat at the seal.
+        case .countCoin: return .soft
+        case .countSeal: return .heavy
         case .taxesCounted: return .success
         case .defeat: return .error
         case .knock: return .rigid

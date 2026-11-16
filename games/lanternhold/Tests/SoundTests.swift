@@ -36,7 +36,8 @@ final class SoundTests: XCTestCase {
             XCTAssertTrue((0.5...2).contains(sound.rate), "\(cue)")
         }
         let used = Set(FeedbackCue.allCases.compactMap { $0.sound?.id })
-        for id in SoundID.allCases where !id.isLoop && id != .step2 {
+        // The count's clink steps are played by `FeedbackHub.countCoin` (build 3, b3-count), not by a cue.
+        for id in SoundID.allCases where !id.isLoop && id != .step2 && !SoundID.coinSteps.contains(id) {
             XCTAssertTrue(used.contains(id), "\(id.rawValue) is played by some cue")
         }
     }
