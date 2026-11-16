@@ -1114,12 +1114,27 @@ final class EntityFramesTests: XCTestCase {
                 XCTAssertTrue(fringe, "\(sprite) frame \(frame): two tails of cloth hang behind, a pixel apart")
                 // and the crawler's neck dips: between the back's peak and the cold point a column stands lower than
                 // both neighbours (the loper's long arm leaves its shoulder over the neck on every frame)
-                let tops = (0..<14).map { x in (0..<14).first(where: { at(x, $0).a > 0 }) ?? 14 }
-                let eyeX = (0..<14).first(where: { x in (0..<14).contains { glow[frame * 14 + x, $0] == white } }) ?? 0
-                let peakX = tops.indices.min { tops[$0] < tops[$1] || (tops[$0] == tops[$1] && $0 > $1) } ?? 0
+                var tops: [Int] = []
+                for x in 0..<14 {
+                    let top: Int? = (0..<14).first(where: { at(x, $0).a > 0 })
+                    tops.append(top ?? 14)
+                }
+                var eyeX = 0
+                for x in (0..<14).reversed() where (0..<14).contains(where: { glow[frame * 14 + x, $0] == white }) {
+                    eyeX = x
+                }
+                var peakX = 0
+                for x in 0..<14 where tops[x] <= tops[peakX] {
+                    peakX = x                                  // the highest column, the rightmost of a tie
+                }
                 let from = max(1, peakX + 1)
                 let to = min(13, eyeX)
-                let dip = from < to && (from..<to).contains { x in tops[x] > tops[x - 1] && tops[x] > tops[x + 1] }
+                var dip = false
+                if from < to {
+                    for x in from..<to where tops[x] > tops[x - 1] && tops[x] > tops[x + 1] {
+                        dip = true
+                    }
+                }
                 if body == .crawler {
                     XCTAssertTrue(dip, "\(sprite) frame \(frame): a dip at the neck, the head jutting low")
                 }
@@ -1197,10 +1212,12 @@ final class EntityFramesTests: XCTestCase {
         let later = hordeLayer(s, focus: 640, time: 1.3, look: .two, effects: effects)
         let flakes = later.actors.filter { $0.sprite == .sootFlake }
         XCTAssertFalse(flakes.isEmpty, "the puff's flakes are drawn")
-        XCTAssertTrue(flakes.allSatisfy { abs((HordeLook.unpack($0.lightCap)?.cap ?? 0) - HordeLook.litCap) < 0.001 },
+        let flakeCaps: [Float] = flakes.map { HordeLook.unpack($0.lightCap)?.cap ?? 0 }
+        XCTAssertTrue(flakeCaps.allSatisfy { abs($0 - HordeLook.litCap) < 0.001 },
                       "the flakes take the small ones' cap: grey soot by the fires")
         let falls = later.actors.filter { $0.sprite == .sootFall }
-        XCTAssertTrue(falls.allSatisfy { abs((HordeLook.unpack($0.lightCap)?.cap ?? 0) - HordeLook.litCap) < 0.001 })
+        let fallCaps: [Float] = falls.map { HordeLook.unpack($0.lightCap)?.cap ?? 0 }
+        XCTAssertTrue(fallCaps.allSatisfy { abs($0 - HordeLook.litCap) < 0.001 })
     }
 
     func testTheClimbersTakeAClimbPose() {
