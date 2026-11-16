@@ -1,0 +1,1 @@
+XCTAssertTrue failed - T16 FAIL: nights 8-14, 4 seeds, budgets ["1.0", "1.5", "2.0"]: soldiers lost reference 81, yard 78 (4 % fewer, band 20-35 %); at the gatehouse reference 477, yard 431 (10 % fewer, band 15-25 %); clear losses held 0; in place of walls: lost 0, at the gatehouse 379 (worse: false)
