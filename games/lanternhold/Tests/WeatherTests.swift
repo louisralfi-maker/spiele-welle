@@ -873,7 +873,7 @@ final class WeatherTests: XCTestCase {
         // never on the fin.
         let head = (0..<3).map { x in (0..<7).filter { side[x, $0].a > 0 }.count }
         XCTAssertEqual(head, [1, 3, 5], "the head a filled wedge")
-        let fin = (9..<13).flatMap { x in (0..<7).filter { side[x, $0].a > 0 } }.count
+        let fin = (9..<13).map { x in (0..<7).filter { side[x, $0].a > 0 }.count }.reduce(0, +)
         XCTAssertEqual(fin, 18, "a solid plate with a notch")
         XCTAssertGreaterThanOrEqual(fin - head.reduce(0, +), 8, "the tail clearly heavier than the head")
         XCTAssertGreaterThanOrEqual(filled(side, columns: 0..<4)
