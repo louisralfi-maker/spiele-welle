@@ -1865,7 +1865,9 @@ enum FrameBuilder {
     static let ashDayShade = SIMD3<Float>(0.30, 0.27, 0.26)
     static let ashNightShade = SIMD3<Float>(0.04, 0.035, 0.03)
     static let ashNightWarm = SIMD3<Float>(1.0, 0.5, 0.0)
-    static let ashNightGlow: Float = 0.28
+    /// b3-wind: build 3 step 5 (the director's call 3 of 11:07, M-a: at 0.28 the night flake sat 3/255 under the sky):
+    /// a small step over the sky, felt in motion, never white.
+    static let ashNightGlow: Float = 0.36
     /// The far depth's copy a little stronger: the near plane's haze lays the night's blue air over its body.
     static let ashNearNightLift: Float = 1.2
     /// The near depth's flakes stay this far east of the bank's edge (the face of its sheet on fog A): never drawn dark

@@ -509,6 +509,9 @@ final class RainLookTests: XCTestCase {
         var blue = 0
         var white = 0
         var steps: [Int] = []
+        var reds: [Float] = []
+        var greens: [Float] = []
+        var blues: [Float] = []
         let whole = FrameBuilder.ashDepths[1].alpha - 0.01
         for flake in frame.layer(.world).sprites where flake.sprite == .ashFlake && flake.frame < 12
             && flake.tint.w > whole {
@@ -525,6 +528,9 @@ final class RainLookTests: XCTestCase {
                     let step = (luma(c) - beside) * 255
                     if step > 60 { white += 1 }
                     steps.append(Int(step))
+                    reds.append(c.x)
+                    greens.append(c.y)
+                    blues.append(c.z)
                 }
             }
         }
@@ -540,6 +546,14 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(pixels, 12, "enough whole flakes in the upper sky")
         XCTAssertEqual(blue, 0, "ash is never snow: no flake pixel with b >= r")
         XCTAssertEqual(white, 0, "only a small step over the sky")
+        // b3-wind (step 5, the director's call 3 of 11:07, M-a): the night flake stands a small step over the sky beside
+        // it (median +2 to +12 of 255) and stays warm (its median drawn pixel r > g > b).
+        func middle(_ values: [Float]) -> Float { values.isEmpty ? 0 : values.sorted()[values.count / 2] }
+        let warm = [middle(reds), middle(greens), middle(blues)].map { Int($0 * 255) }
+        print("NIGHTASH median flake pixel \(warm), median step \(median)")
+        XCTAssertGreaterThanOrEqual(median, 2, "a small step over the sky, not under it")
+        XCTAssertLessThanOrEqual(median, 12, "felt in motion, never white")
+        XCTAssertTrue(warm[0] > warm[1] && warm[1] > warm[2], "warm, never snow: r > g > b (\(warm))")
     }
 
     /// The drawn contrasts of the lane plane's `sprite`s whose cells lie wholly in the upper sky (above the ground's
