@@ -11,13 +11,19 @@ struct CountBoard: Sendable, Equatable {
     /// -1: the board stands left of its thing, 1: right of it (the lord stands on its outer side).
     var side: Double = -1
 
-    /// The board's bottom stands this high over the walk line, on its post.
+    /// A board of one plank stands its bottom this high over the walk line, on its post; a board of two or three
+    /// planks hangs lower (step 3, the director's call 4: its lowest row about 3 px over the ground line's things, its
+    /// top row at the lord's reach, so the throw reads as into the board, not up at it).
     static let lift = 8
+    static let lowLift = 3
+
+    /// This board's bottom over the walk line.
+    var bottom: Int { layout.rows >= 2 ? CountBoard.lowLift : CountBoard.lift }
 
     /// The board's left edge and its top (game px over the walk line), the post's left edge and its top (the iron
     /// plate the site lantern stands on), and the lantern's top.
     var left: Int { Int(x.rounded(.down)) - layout.width / 2 }
-    var top: Double { Double(CountBoard.lift + layout.height) }
+    var top: Double { Double(bottom + layout.height) }
     var postLeft: Int { left + layout.width / 2 - 3 }
     var postTop: Double { top + 3 }
     var lanternTop: Double { postTop + 3 + Double(SpriteID.siteLantern.size.height) }
@@ -71,8 +77,6 @@ struct CountLantern: Sendable, Equatable {
 /// rebuilds, the Great Beacon's stages), a damaged wall's repair, the two recruits; an empty plot keeps its card (the
 /// director's notes of 15.11., item 6).
 extension GameModel {
-    /// The board's bottom stands this high over the walk line, on its post.
-    static let countBoardLift = CountBoard.lift
     /// The lord stands this far beside the board's edge to pay.
     static let countStandGap = 10.0
     /// Step 2 (H3): the board's place is searched this far either way from beside its thing; a door is this wide
@@ -199,7 +203,7 @@ extension GameModel {
     func countBoardThing(_ place: (x: Double, lift: Double, minimum: Double)) -> TouchThing? {
         guard let count = touch.count, count.isOpen, let board = touch.countBoard else { return nil }
         let half = max(Double(board.layout.width) / 2, place.minimum / 2)
-        let top = Double(GameModel.countBoardLift + board.layout.height) + 14
+        let top = board.top + 14
         guard abs(place.x - board.x) <= half, place.lift >= -TouchRules.footRoom, place.lift <= top else { return nil }
         return touch.things.first { $0.id == count.thing }
     }

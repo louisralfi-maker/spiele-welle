@@ -979,6 +979,28 @@ final class PayCountTests: XCTestCase {
         }
     }
 
+    /// Step 3 (the director's call 4): a board of two or three planks hangs low, its lowest row a few pixels over the
+    /// ground, its top row at the lord's reach (between his shoulder, where the coins leave his hand, and a little
+    /// over his head); a one-plank board stands on its post as before.
+    func testTheBoardHangsAtTheLordsReach() throws {
+        for price in [90, 180, 14, 40] {
+            let layout = PayBoardLayout.make(PayCount.hollows(price: price))
+            let board = CountBoard(x: 100, stand: 60, act: .build(plot: 0), layout: layout)
+            let topRow = try XCTUnwrap(layout.hollows.first)
+            let rowMiddle = board.top - Double(topRow.y) - Double(topRow.coin.hollow.size.height) / 2
+            let lowest = try XCTUnwrap(layout.hollows.last)
+            let lowestBottom = board.top - Double(lowest.y + lowest.coin.hollow.size.height)
+            if layout.rows >= 2 {
+                XCTAssertLessThanOrEqual(lowestBottom, 8, "\(price): the lowest row a few px over the ground")
+                XCTAssertGreaterThanOrEqual(lowestBottom, 3, "\(price): never on it")
+                XCTAssertGreaterThanOrEqual(rowMiddle, GameModel.countHandLift - 6, "\(price): the top row at his reach")
+                XCTAssertLessThanOrEqual(rowMiddle, Double(HUDKit.lordHead) + 8, "\(price): never far over his head")
+            } else {
+                XCTAssertEqual(board.bottom, CountBoard.lift, "\(price): one plank stands on its post")
+            }
+        }
+    }
+
     /// The critic's M2: the purse's figure never touches a board that stands by the lord.
     func testThePurseFigureStandsClearOfTheBoard() throws {
         let game = gateGame(gold: 200)
