@@ -413,8 +413,11 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(wet, frame(night, focus: 900, weather: storm()), "the same moment gives the same rain")
         XCTAssertEqual(wet.rain, 1)
         XCTAssertEqual(wet.wetness, 1)
+        // Build 3 step 2: the streaks are counted well east of the band at the outer wall (Realm.wallX[2] 640 and the
+        // 160 px west of it), where every one is water (RainLookTests has the band).
+        let east = frame(night, focus: 1000, weather: storm())
         for (depth, entry) in FrameBuilder.rainDepths.enumerated() {
-            let streaks = wet.layer(entry.plane).sprites.filter { $0.sprite == .rainStreak }
+            let streaks = east.layer(entry.plane).sprites.filter { $0.sprite == .rainStreak }
             XCTAssertEqual(streaks.count, entry.count, "depth \(depth)")
             XCTAssertTrue(streaks.allSatisfy { $0.frame == depth * 3 + 2 && !$0.flipped },
                           "a storm toward the valley slants the rain")
@@ -433,7 +436,7 @@ final class Look2FrameTests: XCTestCase {
         // Drizzle from the west: fewer streaks, mirrored.
         let west = Weather.sample(seed: night.seed, day: night.day, hour: night.hour, time: 1.5,
                                   override: WeatherOverride(mode: .clear, wind: -0.4, rain: 0.5))
-        let drizzle = frame(night, focus: 900, weather: west)
+        let drizzle = frame(night, focus: 1000, weather: west)
         XCTAssertEqual(count(drizzle, .rainStreak, .world),
                        FrameBuilder.rainCount(FrameBuilder.rainDepths[1].count, rain: 0.5))
         XCTAssertEqual(FrameBuilder.rainCount(70, rain: 0.5), 49, "by the root: half the rain is 0.7 of the streaks")

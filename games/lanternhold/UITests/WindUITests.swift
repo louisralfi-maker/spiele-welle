@@ -11,7 +11,7 @@ import XCTest
 ///   outer wall (stone, world 640) by day and by night, water east of it and ash west of it; the gorge in ash at night;
 ///   a calm rain and a storm's rain over the town; the band under Reduce Motion (the forms held).
 /// - `testFilmstrips` (step 2): eight frames 1/12 s of game time apart: both keep flags in a breeze, the sails in a dry
-///   storm, the curtain's banner in a dry storm, the rain's and the ash's fall at the band.
+///   storm, the curtain's banner in a dry storm, the rain's and the ash's fall at the band, the rain on a gusty day.
 /// Only keys that exist: `-GWWeather`, `-GWWind`, `-GWRain`, `-GWCameraX`, `-GWCastle`, `-GWReduceMotion`.
 /// Saves `<nnn>-wind-<what>-<lang>` from 300.
 @MainActor
@@ -44,6 +44,8 @@ final class WindUITests: XCTestCase {
     private let dryStorm = ["-GWWeather", "storm", "-GWRain", "0"]
     /// Rain on a breezy day: the slant of the steady wind, the ash drifting with it.
     private let rain = ["-GWWeather", "clear", "-GWWind", "0.35", "-GWRain", "1"]
+    /// Rain on a gusty day: calm spells and sudden gusts.
+    private let gustyRain = ["-GWWeather", "gusty", "-GWRain", "1"]
 
     func testWind() {
         XCUIDevice.shared.orientation = .landscapeLeft
@@ -81,6 +83,8 @@ final class WindUITests: XCTestCase {
             ("325-rain-calm-town", town + calm + ["-GWRain", "1"] + noon(30.4)),
             ("326-rain-storm-town", town + storm + noon(30.4)),
             ("327-rain-band-reduce-motion", band + rain + ["-GWReduceMotion", "YES"] + noon(30.4)),
+            // The gate: rain on a gusty day (each streak keeps the lean it set off with; the gusts lean the next ones).
+            ("328-rain-gusty-town", town + gustyRain + noon(30.4)),
         ]
         for still in stills {
             shoot(still.name, still.arguments)
@@ -94,6 +98,7 @@ final class WindUITests: XCTestCase {
             (330, "sails-storm-mill", mill + dryStorm),
             (340, "banner-storm-tier3", tierThree + dryStorm),
             (350, "rain-fall-band", band + rain),
+            (360, "rain-gusty-town", town + gustyRain),
         ]
         for strip in strips {
             for index in 0..<8 {

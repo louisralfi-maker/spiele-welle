@@ -1571,8 +1571,8 @@ enum FrameBuilder {
     /// the screen to the plane's floor (the ground behind the near trees, the lane, the screen's bottom edge), then
     /// starts again in another column; the columns belong to the plane's picture, so the rain stays in the world
     /// when the camera moves. Build 3 step 2 (the two rains): a streak falls only where the rain is water at the lane's
-    /// x under it (`RainLook`: east of the outermost standing wall, thinning out over the band west of it), and it
-    /// leans by the wind where it falls, so a gust leans it further.
+    /// x it starts over (`RainLook`: east of the outermost standing wall, thinning out over the band west of it), and
+    /// it leans by the wind there at the moment it set off, so a gust leans the streaks it meets further.
     private static func rainStreaks(depth: Int, animTime: Double, ambient: AmbientSample, seam: Double,
                                     geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
@@ -1580,8 +1580,9 @@ enum FrameBuilder {
         let count = rainCount(entry.count, rain: weather.rain)
         guard count > 0 else { return [] }
         let size = SpriteID.rainStreak.size
-        let slant = rainSlant(weather)
-        let slope = rainSlopes[slant] * (weather.mean < 0 ? -1 : 1)
+        // The furthest any streak leans today (the steady wind and its whole gust), so a streak that leans in a gust
+        // still covers the screen's leeward edge.
+        let widest = rainSlopes[rainSlant(force: abs(weather.mean) + abs(weather.gust))] * (weather.mean < 0 ? -1 : 1)
         let lowest: Double
         switch entry.plane {
         case .foreground: lowest = Double(geometry.targetHeight)
@@ -1589,7 +1590,7 @@ enum FrameBuilder {
         default: lowest = Double(geometry.groundRow - 8)
         }
         let fall = lowest + Double(size.height)
-        let reach = abs(slope) * fall
+        let reach = abs(widest) * fall
         let span = Double(geometry.targetWidth) + reach
         let whole = geometry.whole(entry.plane)
         let lane = geometry.whole(.world)
@@ -1597,7 +1598,8 @@ enum FrameBuilder {
         let key = SeededRandom.hash(weather.gustSeed, Int64(depth + 1))
         var list: [SpriteInstance] = []
         for index in 0..<count {
-            let progress = animTime * entry.speed / fall + unit(SeededRandom.hash(key, Int64(index)))
+            let own = unit(SeededRandom.hash(key, Int64(index)))
+            let progress = animTime * entry.speed / fall + own
             let cycle = progress.rounded(.down)
             let y = (progress - cycle) * fall - Double(size.height)
             let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
@@ -1605,10 +1607,14 @@ enum FrameBuilder {
             let column = unit(pick) * span
             var x = (column - whole).truncatingRemainder(dividingBy: span)
             if x < 0 { x += span }
-            x -= slope > 0 ? reach : 0
-            let below = x + slope * y + lane
-            guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: below, seam: seam) else { continue }
-            let wind = Weather.wind(at: below, weather, time: animTime)
+            x -= widest > 0 ? reach : 0
+            // Decided once for the whole fall, at the column it starts from: water or ash (so no streak blinks out in
+            // the band), and its lean by the wind of the moment it set off (a gust leans the streaks that start in it,
+            // never one in mid-fall).
+            let start = x + lane
+            guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: start, seam: seam) else { continue }
+            let born = (cycle - own) * fall / entry.speed
+            let wind = Weather.wind(at: start, weather, time: born)
             let leaning = rainSlant(force: abs(wind))
             let lean = rainSlopes[leaning] * (wind < 0 ? -1 : 1)
             x += lean * y
@@ -1690,6 +1696,9 @@ enum FrameBuilder {
     /// How far a flake drifts sideways per second in a wind of 1 beyond a calm's (game px/s), how far it sways as it
     /// tumbles in a whole wind, and how many tumble steps it turns a second in still air and in a wind of 1 more.
     static let ashDrift = 30.0
+    /// How far a flake leans further downwind in a gust of 1 above the steady wind (game px): a gust leans the ash a
+    /// few pixels, never so fast that a flake runs against the wind as it eases.
+    static let ashGustReach = 6.0
     static let ashSway = 2.0
     static let ashTumble = (still: 2.0, wind: 5.0)
     /// The wind under which ash falls straight (a calm day's).
@@ -1703,6 +1712,18 @@ enum FrameBuilder {
         let shade = rainShade(ambient)
         let rgb = ashNightShade + (ashDayShade - ashNightShade) * shade
         return SIMD4<Float>(rgb.x, rgb.y, rgb.z, min(0.49, alpha))
+    }
+
+    /// How far a flake has moved sideways after `falling` seconds (game px): the steady wind carries it at `ashDrift`
+    /// beyond a calm's, the wind of the moment above the steady one leans it by at most `ashGustReach`, and it sways as
+    /// it tumbles (by the steady wind). So it always goes the steady wind's way, faster in a gust, and falls straight
+    /// in a calm.
+    static func ashSideways(falling: Double, own: Double, wind: Double, mean: Double) -> Double {
+        let beyond = max(0, abs(mean) - ashCalm)
+        let steady = beyond * (mean < 0 ? -1 : 1) * ashDrift * falling
+        let gust = (wind - mean) * ashGustReach * min(1, max(0, abs(wind) - ashCalm) / 0.1)
+        let sway = ashSway * min(1, beyond / 0.3) * sin(falling * 2.3 + own * 2 * Double.pi)
+        return steady + gust + sway
     }
 
     /// The ash's flakes on one depth's plane, each a pure function of its index and the time: slow and soft, drifting
@@ -1742,18 +1763,21 @@ enum FrameBuilder {
             let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
             var x = (unit(pick) * span - whole).truncatingRemainder(dividingBy: span)
             if x < 0 { x += span }
-            let wind = Weather.wind(at: x - margin + lane, weather, time: animTime)
-            let push = max(0, abs(wind) - ashCalm) * (wind < 0 ? -1 : 1)
-            let sway = ashSway * min(1, max(0, abs(wind) - ashCalm) / 0.3)
-            x += push * ashDrift * falling + sway * sin(falling * 2.3 + own * 2 * Double.pi)
+            // Ash or water, decided once at the column it starts from (no flake blinks out in mid-air); a flake that
+            // drifts toward the wall fades as the water's share grows, and is gone at the wall.
+            let start = x - margin + lane
+            guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: start, seam: seam) else { continue }
+            let wind = Weather.wind(at: start, weather, time: animTime)
+            x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
             x = (x.truncatingRemainder(dividingBy: span) + span).truncatingRemainder(dividingBy: span) - margin
-            guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: x + lane, seam: seam) else { continue }
+            let fade = Float(1 - RainLook.waterShare(x: x + lane, seam: seam))
+            guard fade > 0.02 else { continue }
             let tumble = Int(min(1.0e15, falling * (ashTumble.still + ashTumble.wind * abs(wind)) + own * 4)
                 .rounded(.down)) % 4
             let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
                                     Float(size.height))
-            list.append(SpriteInstance(sprite: .ashFlake, frame: entry.size * 4 + tumble, rect: rect, tint: tint,
-                                       flipped: own > 0.5))
+            list.append(SpriteInstance(sprite: .ashFlake, frame: entry.size * 4 + tumble, rect: rect,
+                                       tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade), flipped: own > 0.5))
         }
         return list
     }

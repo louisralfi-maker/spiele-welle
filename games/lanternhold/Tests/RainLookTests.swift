@@ -158,6 +158,25 @@ final class RainLookTests: XCTestCase {
             slants.formUnion(sprites(gusty, .rainStreak).map { $0.frame % 3 })
         }
         XCTAssertEqual(slants, [1, 2], "the steady slant and the gust's")
+        // The gate (the reviewer's must-fix): a streak keeps its lean for its whole fall. On a gusty day, from one
+        // 1/60 s to the next, each streak still falling (the same index: every streak at the castle is water, so the
+        // lists keep their order) keeps its frame and moves sideways only by its own slant, never jumps.
+        for index in 0..<6 {
+            let time = 3 + Double(index) * 2.3
+            func at(_ t: Double) -> [SpriteInstance] {
+                sprites(shot(s, focus: 1000, weather: weather(s, WeatherOverride(mode: .gusty, rain: 1), time: t),
+                             time: t), .rainStreak, .world)
+            }
+            let a = at(time)
+            let b = at(time + 1.0 / 60)
+            XCTAssertEqual(a.count, b.count)
+            for (before, after) in zip(a, b) where after.rect.y > before.rect.y {
+                XCTAssertEqual(after.frame, before.frame, "a falling streak keeps its slant at \(time)")
+                XCTAssertEqual(after.flipped, before.flipped)
+                let run = Float(FrameBuilder.rainSlopes[after.frame % 3]) * (after.rect.y - before.rect.y)
+                XCTAssertLessThanOrEqual(abs(after.rect.x - before.rect.x), run + 2, "no sideways jump at \(time)")
+            }
+        }
         // The ash drifts with the wind, the same way, and falls straight in a calm (the gorge, all ash: the flakes
         // keep their order from one moment to the next).
         func drift(_ wind: Double) -> [Double] {
@@ -172,6 +191,29 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThan(median(drift(0.5)), 3, "downwind toward the valley")
         XCTAssertLessThan(median(drift(-0.5)), -3, "toward the shadow land")
         XCTAssertEqual(median(drift(0.08)), 0, "a calm: straight down")
+        // The gate (the reviewer's should-fix): a gust leans the ash further but never sends it upwind as it eases.
+        // On a gusty day and in a storm a flake's sideways place, 1/12 s by 1/12 s through its fall, only ever moves
+        // the steady wind's way.
+        for mode in [WeatherOverride.Mode.gusty, .storm, .breeze] {
+            for (index, own) in [0.07, 0.31, 0.58, 0.83].enumerated() {
+                var last: Double?
+                for step in 0..<(16 * 12) {
+                    let falling = Double(step) / 12
+                    let time = 40 + Double(index) * 9.1 + falling
+                    let sample = weather(s, WeatherOverride(mode: mode), time: time)
+                    let wind = Weather.wind(at: 420, sample, time: time)
+                    let x = FrameBuilder.ashSideways(falling: falling, own: own, wind: wind, mean: sample.mean)
+                    if let last {
+                        XCTAssertGreaterThanOrEqual((x - last) * (sample.mean < 0 ? -1 : 1), -1e-9,
+                                                    "\(mode): never upwind (\(own), \(falling) s)")
+                    }
+                    last = x
+                }
+            }
+        }
+        XCTAssertEqual(FrameBuilder.ashSideways(falling: 9, own: 0.3, wind: 0.08, mean: 0.08), 0, "a calm: straight")
+        XCTAssertGreaterThan(FrameBuilder.ashSideways(falling: 4, own: 0.25, wind: 0.9, mean: 0.55),
+                             FrameBuilder.ashSideways(falling: 4, own: 0.25, wind: 0.55, mean: 0.55), "a gust: further")
     }
 
     func testReduceMotionHoldsTheirForms() {
