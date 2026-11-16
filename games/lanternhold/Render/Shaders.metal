@@ -930,7 +930,9 @@ constant float kHordeBloom2 = 0.0f;
 constant float kHordeEyeBloom2 = 0.4f;
 constant float kHordeRim2 = 0.75f;
 constant float kHordeRimShare2 = 0.51f;
-constant float kHordeContact2 = 0.45f;
+// (Round lh-b3h-53: laid on after the fog, the edge measured 0.62 of the unmarked one at 0.45, about a third of the
+// climbers' lower-edge pixels being covered by the bodies in front of them: 0.3, so the rows part as step 4 asked.)
+constant float kHordeContact2 = 0.3f;
 // b3-horde (the director's call 3 of 16.11.2026 06:15): unlit at night a small one's top contour catches the moon
 // harder than the other creatures' (at least 0.035 linear): the rag's pixels in the giant's cloak night tone, the navy's
 // in the cool rim, each at its own share of the night.
