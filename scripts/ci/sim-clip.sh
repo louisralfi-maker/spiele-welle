@@ -5,18 +5,20 @@
 # run-check.sh runs a sh step from the game's folder (games/<slug>) after booting the simulator, with REPO, CI_OUT,
 # GAME_DIR, PROJECT, SCHEME and SIM exported. Put it after the build (it installs the Debug app from build/SimData)
 # and after a ui step (which leaves the simulator turned to landscape). This script:
-#   1. launches night 12 of the demo realm live (no frozen time: the bot plays it to the start hour, then the night
-#      runs at its own speed, 12 s a game hour), the lord at the outer wall. The start hour is 0.3 game hours (about
-#      4 s, the wait for the world below) before the wall's hour that HordeUITests found and noted in the ui step
-#      before this one (`*-ui/209-horde-hours-en.txt`, "wall=<hour>"); without that note, 22:06, as the first wave
-#      steps out of the bank;
+#   1. launches night 12 of the demo realm live at 23:00 with the horde's proof (step 2, Debug only: `-GWHorde
+#      dark`, `HordeProof`: no archers, the outer line's fires out, one wave strung out from deep in the bank and twelve
+#      already at the outer wall), the lord behind the outer wall (x 660), so the camera holds the bank's edge, the
+#      open and the wall, clear of the Dynamic Island. The night then runs at its own speed (12 s a game hour): the
+#      small ones step out of the bank, cross the open and climb the heap while the catapult's firepots fall on it;
 #   2. waits until the world is on screen, then records 10 s with `xcrun simctl io recordVideo`. The simulator shows
 #      the home screen before the launch (as big a PNG as the world), so the wait first takes the home screen's size,
 #      waits for the launch call to return, and then needs two probes in a row, at least 3 s later, that are over
 #      250 KB and differ from the home screen by more than a tenth (the launch colour and the black before the first
 #      frame are a few KB). The recorder is stopped with a time limit, so a stuck recording never holds the round;
-#   3. keeps the clip under 8 MB in $CI_OUT/clip/horde-clip.mp4: turned upright and shrunk to 720 rows with ffmpeg when
-#      the runner has it, else shrunk with avconvert when it is too big, else as recorded; plus a still at its end.
+#   3. turns it upright (the simulator records its portrait frame buffer: the game stands on its side in it) at the
+#      shape of 2622 x 1206, 1310 x 602, under 8 MB, in $CI_OUT/clip/horde-clip.mp4: with ffmpeg when the runner has it
+#      or brew can bottle it within 5 minutes, else with scripts/ci/clip-turn.swift (AVFoundation), else shrunk with
+#      avconvert as it stands; clip-note.txt says which worked; plus a still at its end.
 # Everything lands in $CI_OUT/clip/ (published with the round's results by publish-results.sh). It never fails a round:
 # whatever goes wrong, it says so in clip-note.txt and exits 0.
 set -u
@@ -60,23 +62,12 @@ world_probe() {
     [ $(( d * 10 )) -gt "$HOME_SIZE" ]
 }
 
-# The start hour from HordeUITests' note.
-CLIP_HOUR=22.1
-HOURS_NOTE=$(ls "${CI_OUT:-ci-out}"/*-ui/209-horde-hours-en.txt 2>/dev/null | head -1)
-if [ -n "$HOURS_NOTE" ]; then
-    WALL=$(sed -n 's/.*wall=\([0-9][0-9.]*\).*/\1/p' "$HOURS_NOTE" | head -1)
-    if [ -n "$WALL" ]; then
-        CLIP_HOUR=$(awk -v w="$WALL" 'BEGIN { s = w - 0.3; if (s < 0) s += 24; printf "%.3f", s }')
-    fi
-    note "hours note: $(head -1 "$HOURS_NOTE")"
-else
-    note "NOTE: no hours note from HordeUITests; the default start"
-fi
-note "start hour: $CLIP_HOUR"
+CLIP_HOUR=23.0
+note "start hour: $CLIP_HOUR, the horde's proof (dark), the lord at 660"
 
 # 1. The live night. The launch call can take 15 s on the runner; it returns once the process runs (at most 90 s here).
-xcrun simctl launch "$SIM" "$BUNDLE" -GWNight 12 -GWHour "$CLIP_HOUR" -GWBuild demo -GWCameraX 640 -GWLook 2 \
-    -GWWeather breeze >"$OUT/launch.txt" 2>&1 &
+xcrun simctl launch "$SIM" "$BUNDLE" -GWNight 12 -GWHour "$CLIP_HOUR" -GWBuild demo -GWHorde dark:0 -GWCameraX 660 \
+    -GWLook 2 -GWWeather breeze >"$OUT/launch.txt" 2>&1 &
 LAUNCHER=$!
 START=$(date +%s)
 while kill -0 "$LAUNCHER" 2>/dev/null && [ $(( $(date +%s) - START )) -lt 90 ]; do sleep 1; done
@@ -130,32 +121,78 @@ if [ ! -s "$RAW" ]; then
 fi
 note "recorded $(size "$RAW") bytes"
 
-# 3. Upright and small.
+# 3. Upright and small: 1310 x 602 (2622 x 1206's shape, even sides), the game standing as it is played.
+CLIP_W=1310
+CLIP_H=602
+# Runs "$@" in the background for at most $1 seconds (macOS has no timeout(1)); 0 when it finished in time and well.
+capped() {
+    local limit=$1
+    shift
+    "$@" >>"$NOTE" 2>&1 &
+    local pid=$! start=$(date +%s)
+    while kill -0 "$pid" 2>/dev/null; do
+        if [ $(( $(date +%s) - start )) -ge "$limit" ]; then
+            kill "$pid" 2>/dev/null; sleep 2; kill -9 "$pid" 2>/dev/null
+            note "NOTE: $1 took over $limit s and was stopped"
+            return 1
+        fi
+        sleep 2
+    done
+    wait "$pid"
+}
+if ! command -v ffmpeg >/dev/null 2>&1 && command -v brew >/dev/null 2>&1; then
+    note "== $(date +%H:%M:%S) no ffmpeg: brew install ffmpeg (at most 300 s)"
+    HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 capped 300 brew install --quiet ffmpeg \
+        || note "NOTE: brew could not install ffmpeg"
+fi
 if command -v ffmpeg >/dev/null 2>&1; then
-    # The simulator records its portrait frame buffer; a landscape game stands on its side in it (turn it back).
+    # A portrait buffer turns a quarter counterclockwise (transpose=2): the world's west to the left, the ground down.
     TURN=""
     DIMS=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "$RAW" 2>/dev/null)
     W=${DIMS%%,*}
     H=${DIMS##*,}
     if [ -n "$W" ] && [ -n "$H" ] && [ "$H" -gt "$W" ] 2>/dev/null; then TURN="transpose=2,"; fi
-    if ffmpeg -y -v error -i "$RAW" -vf "${TURN}scale=-2:720" -c:v libx264 -crf 26 -preset veryfast -an \
-        -movflags +faststart "$CLIP" >>"$NOTE" 2>&1; then
-        note "ffmpeg: ${DIMS:-?} -> 720 rows${TURN:+, turned upright}: $(size "$CLIP") bytes"
+    if capped 180 ffmpeg -y -v error -i "$RAW" -vf "${TURN}scale=$CLIP_W:$CLIP_H" -c:v libx264 -crf 24 \
+        -preset veryfast -pix_fmt yuv420p -an -movflags +faststart "$CLIP"; then
+        note "upright with ffmpeg: ${DIMS:-?} -> ${CLIP_W}x${CLIP_H}${TURN:+, turned}: $(size "$CLIP") bytes"
     else
         note "NOTE: ffmpeg failed"
         rm -f "$CLIP"
     fi
 fi
+if [ ! -s "$CLIP" ] && command -v swift >/dev/null 2>&1; then
+    TURNER="${REPO:-$(cd "$(dirname "$0")/../.." && pwd)}/scripts/ci/clip-turn.swift"
+    note "== $(date +%H:%M:%S) turning with $TURNER"
+    if capped 300 swift "$TURNER" "$RAW" "$CLIP" "$CLIP_W" "$CLIP_H" && [ -s "$CLIP" ]; then
+        note "upright with clip-turn.swift: $(size "$CLIP") bytes"
+    else
+        note "NOTE: clip-turn.swift failed"
+        rm -f "$CLIP"
+    fi
+fi
+if [ -s "$CLIP" ] && [ "$(size "$CLIP")" -gt "$LIMIT" ]; then
+    note "NOTE: the upright clip is $(size "$CLIP") bytes, over 8 MB; shrinking it with avconvert"
+    mv "$CLIP" "$OUT/upright.mp4"
+    for P in Preset960x540 Preset640x480; do
+        rm -f "$CLIP"
+        if avconvert --source "$OUT/upright.mp4" --preset "$P" --output "$CLIP" --replace >>"$NOTE" 2>&1 \
+            && [ -s "$CLIP" ] && [ "$(size "$CLIP")" -le "$LIMIT" ]; then
+            note "avconvert $P on the upright clip: $(size "$CLIP") bytes"
+            break
+        fi
+    done
+    rm -f "$OUT/upright.mp4"
+fi
 if [ ! -s "$CLIP" ]; then
     if [ "$(size "$RAW")" -le "$LIMIT" ]; then
-        mv "$RAW" "$CLIP"
-        note "kept as recorded (no ffmpeg on the runner: the frame may stand on its side)"
+        cp "$RAW" "$CLIP"
+        note "NOTE: kept as recorded (nothing could turn it: it stands on its side)"
     else
         for P in Preset1280x720 Preset960x540; do
             rm -f "$CLIP"
             if avconvert --source "$RAW" --preset "$P" --output "$CLIP" --replace >>"$NOTE" 2>&1 \
                 && [ -s "$CLIP" ] && [ "$(size "$CLIP")" -le "$LIMIT" ]; then
-                note "avconvert $P: $(size "$CLIP") bytes (the frame may stand on its side)"
+                note "NOTE: avconvert $P as recorded: $(size "$CLIP") bytes (nothing could turn it: on its side)"
                 break
             fi
         done
