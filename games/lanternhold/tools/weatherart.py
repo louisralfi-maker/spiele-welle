@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
-"""Lanternhold: the weather's own sprites (build 3, POLISH pass 1 step 2; docs/POLISH.md 2 "The two rains"; lane 3).
+"""Lanternhold: the weather's own sprites (build 3, POLISH pass 1; docs/POLISH.md 2 "The two rains"; lane 3).
 
   weatherart.py ash [--out DIR]    writes DIR/ashFlake.png (default games/lanternhold/Resources/Art)
 
-ashFlake: 12 frames of 5x5, the ash that falls west of the outermost standing wall where the rain is water on the
-town's side: three sizes (frames 0-3 small, 4-7 middling, 8-11 big) by four steps of a tumble (the flake flat, turning,
-edge on, turning back the other way). A soft flake: an ellipse sampled four by four per pixel, so its edge fades in
-alpha, never a hard square; white with a faint grey grain, because the engine tints it by the hour
-(`FrameBuilder.ashTint`: dark against a pale day sky, pale against the night). No streak and no splash: the
-difference from the rain reads in the shape and the slow drift.
+ashFlake: 14 frames of 5x5, the ash that falls west of the outermost standing wall where the rain is water on the
+town's side. Step 3 (the critic's H2, the director's calls 1 and 3): hard pixel clumps with no soft alpha ring, so a
+flake is a thing that falls and never a smudge on the glass.
+
+- frames 0-3 small (a 2 x 2 clump), 4-7 middling (3 x 2 or 2 x 3), 8-11 big (4 x 3 with a notch), each four steps of a
+  tumble by turning the clump: flat, tilted one way, edge on, tilted the other way. Only the big size has a true edge-on
+  frame, and it is a kinked sliver one pixel thick, never a straight 1 x 3 dash: no flake looks like a tiny streak.
+- two tones a flake: a lit top pixel and a darker body. White and light grey, because the engine tints it by the hour
+  (`FrameBuilder.ashTint`: warm soot by day; pale at night, where a faint emissive copy keeps the value).
+- frames 12 and 13: the ember (the director's idea): one pixel and two pixels in fire orange, drawn as an emissive point
+  where a flake that is born an ember starts its fall; it dies to the grey flake within the first third of the fall.
+
+No streak and no splash: the difference from the rain reads in the shape, the value and the slow drift.
 
 Pure python 3 (pixelart.py's PNG code), deterministic, well under a second.
 """
 import argparse
-import math
 import os
 import sys
 
@@ -22,50 +28,48 @@ sys.path.insert(0, HERE)
 from pixelart import Image, write_png  # noqa: E402
 
 ASH_S = 5
-ASH_SIZES = (1.05, 1.5, 2.05)        # the flake's half length, by size
-ASH_TUMBLE = 4
+LIT = (255, 252, 246, 255)     # the lit top pixel
+BODY = (184, 180, 176, 255)    # the body, a step darker
+EDGE = (150, 146, 144, 255)    # the shaded underside of the big clump
+EMBER_HOT = (255, 198, 90, 255)   # fireGold: the ember's heart
+EMBER = (255, 138, 42, 255)       # fireOrange: the torch's orange
+
+# The clumps, each drawn into the 5 x 5 cell (rows top to bottom): L lit, B body, D the shaded underside.
+CLUMPS = [
+    # small, 2 x 2: flat, tilted, edge on (lying: a 2 x 1), tilted back
+    [".....", ".LB..", ".BB..", ".....", "....."],
+    [".....", ".L...", ".BB..", ".....", "....."],
+    [".....", ".....", ".LB..", ".....", "....."],
+    [".....", "..L..", ".BB..", ".....", "....."],
+    # middling, 3 x 2 and 2 x 3: flat, tilted (a parallelogram), standing, tilted back
+    [".....", ".LLB.", ".BBB.", ".....", "....."],
+    [".....", "..LB.", ".BB..", ".BD..", "....."],
+    [".....", ".LB..", ".BB..", ".BD..", "....."],
+    [".....", ".LB..", "..BB.", "..DB.", "....."],
+    # big, 4 x 3 with a notch: flat, tilted, edge on (a kinked sliver), tilted back
+    [".....", ".LLB.", ".BBBB", ".BD.D", "....."],
+    [".....", "LLB..", ".BBB.", "..BD.", "....."],
+    [".....", "..L..", "..B..", "...D.", "....."],
+    [".....", "..BLL", ".BBB.", ".DB..", "....."],
+]
+EMBERS = [
+    [".....", ".....", "..h..", ".....", "....."],
+    [".....", ".....", ".ho..", ".....", "....."],
+]
+COLOURS = {"L": LIT, "B": BODY, "D": EDGE, "h": EMBER_HOT, "o": EMBER}
 
 
-def h01(*k):
-    v = 2166136261
-    for a in k:
-        v = ((v ^ (a & 0xFFFFFFFF)) * 16777619) & 0xFFFFFFFF
-        v ^= v >> 13
-    v = (v * 2654435761) & 0xFFFFFFFF
-    return (v >> 8) / float(1 << 24)
-
-
-def ash_frame(size, step):
-    """One flake: half length a, its width shrinking as it turns edge on (step 2) and its axis turning a quarter of
-    a half turn a step; alpha from the coverage of 16 samples per pixel."""
-    a = ASH_SIZES[size]
-    phase = step * math.pi / ASH_TUMBLE
-    b = 0.32 + 0.5 * a * abs(math.cos(phase))
-    th = math.radians(18 + 40 * step)
-    c, s = math.cos(th), math.sin(th)
-    cx = cy = (ASH_S - 1) / 2.0
+def frame(rows):
     img = Image(ASH_S, ASH_S)
-    for y in range(ASH_S):
-        for x in range(ASH_S):
-            hit = 0
-            for j in range(4):
-                for i in range(4):
-                    px = x + (i + 0.5) / 4 - 0.5 - cx
-                    py = y + (j + 0.5) / 4 - 0.5 - cy
-                    u = px * c + py * s
-                    v = -px * s + py * c
-                    if (u / a) ** 2 + (v / b) ** 2 <= 1:
-                        hit += 1
-            if hit:
-                cover = hit / 16.0
-                grain = int(18 * h01(size, step, x, y))
-                g = 255 - grain
-                img.set(x, y, (g, g, g - 4, int(round(255 * min(1.0, cover * 1.15)))))
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                img.set(x, y, COLOURS[ch])
     return img
 
 
 def ash_strip():
-    frames = [ash_frame(size, step) for size in range(len(ASH_SIZES)) for step in range(ASH_TUMBLE)]
+    frames = [frame(rows) for rows in CLUMPS + EMBERS]
     out = Image(ASH_S * len(frames), ASH_S)
     for k, f in enumerate(frames):
         for y in range(ASH_S):

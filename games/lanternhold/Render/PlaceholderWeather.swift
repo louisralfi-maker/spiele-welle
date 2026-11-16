@@ -10,7 +10,7 @@ enum PlaceholderWeather {
         case .windmillSails: return (0..<Weather.sailFrames).map { millSails($0) }
         case .keepFlag: return (0..<Weather.flagFrames).map { flag($0) }
         case .keepFlagRim: return (0..<(2 * Weather.flagFrames)).map { flagRim($0) }
-        case .ashFlake: return (0..<12).map { ashFlake($0) }
+        case .ashFlake: return (0..<SpriteID.ashFlake.frameCount).map { ashFlake($0) }
         case .flameBent: return (0..<4).map { bentFlame(PlaceholderSprites.flameRows, sprite: .flameBent, frame: $0) }
         case .brazierFlameBent: return (0..<4).map { bentFlame(PlaceholderSprites.brazierFlameRows, sprite: .brazierFlameBent, frame: $0) }
         default: return []
@@ -63,23 +63,23 @@ enum PlaceholderWeather {
         return p.image
     }
 
-    /// An ash flake (frames 0-3 small, 4-7 middling, 8-11 big; tools/weatherart.py's strip replaces it): a soft
-    /// grey dot that turns from flat to edge on.
+    /// An ash flake (frames 0-3 small, 4-7 middling, 8-11 big, 12 and 13 the ember's point; tools/weatherart.py's
+    /// strip replaces it, the same clumps): a hard clump, a lit top pixel over a darker body, turned as it tumbles.
+    static let ashClumps: [[String]] = [
+        [".....", ".LB..", ".BB.."], [".....", ".L...", ".BB.."], [".....", ".....", ".LB.."], [".....", "..L..", ".BB.."],
+        [".....", ".LLB.", ".BBB."], [".....", "..LB.", ".BB..", ".BD.."], [".....", ".LB..", ".BB..", ".BD.."],
+        [".....", ".LB..", "..BB.", "..DB."],
+        [".....", ".LLB.", ".BBBB", ".BD.D"], [".....", "LLB..", ".BBB.", "..BD."], [".....", "..L..", "..B..", "...D."],
+        [".....", "..BLL", ".BBB.", ".DB.."],
+        [".....", ".....", "..h.."], [".....", ".....", ".ho.."],
+    ]
+    static let ashPalette: [Character: RGBA] = [
+        "L": RGBA(0xFFFCF6), "B": RGBA(0xB8B4B0), "D": RGBA(0x969290), "h": RGBA(0xFFC65A), "o": RGBA(0xFF8A2A),
+    ]
+
     static func ashFlake(_ frame: Int) -> PixelImage {
         var p = Painter(SpriteID.ashFlake.size, salt: 0)
-        let size = frame / 4
-        let flat = frame % 2 == 0
-        let core = RGBA(0xF0F0EC)
-        let soft = RGBA(0xF0F0EC, alpha: 110)
-        p.put(2, 2, core)
-        if size >= 1 {
-            if flat { p.put(1, 2, core); p.put(3, 2, soft) } else { p.put(2, 1, soft); p.put(2, 3, core) }
-        }
-        if size >= 2 {
-            p.put(1, 1, soft)
-            p.put(3, 3, soft)
-            if flat { p.put(0, 2, soft); p.put(4, 2, soft) } else { p.put(2, 0, soft); p.put(2, 4, soft) }
-        }
+        p.stamp(ashClumps[min(frame, ashClumps.count - 1)], ashPalette, x: 0, y: 0)
         return p.image
     }
 
