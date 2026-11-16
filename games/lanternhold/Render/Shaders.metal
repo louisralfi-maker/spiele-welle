@@ -916,8 +916,11 @@ constant float kFireCold2 = 0.7f;
 constant float kLitCap2 = 1.0f;
 // b3-horde (build 3, lane 4 step A; the director's first law of 16.11.2026 06:15, shadow swallows light; one block for
 // the join): how much of a fire's hue a lit small one loses (its own cap comes with it, `HordeLook.litCap`), its warm
-// rim's share of the fire's light, and how dark a climber's lower edge is drawn.
-constant float kHordeGrey2 = 0.7f;
+// rim's share of the fire's light, and how dark a climber's lower edge is drawn. (Round lh-b3h-42: at 0.7 the heap's
+// navy by the braziers measured r 0.176 over b 0.147 after the fires' bloom and the warm grade: 0.9 of the hue goes, and
+// a small one outside the bank takes the fires' bloom at `kHordeBloom2`.)
+constant float kHordeGrey2 = 0.9f;
+constant float kHordeBloom2 = 0.4f;
 constant float kHordeRim2 = 0.75f;
 constant float kHordeContact2 = 0.45f;
 // b3-horde (the director's call 3 of 16.11.2026 06:15): unlit at night a small one's top contour catches the moon
@@ -1283,7 +1286,10 @@ static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant Com
     }
     if (u.bloom.y > 0.5f) {
         constexpr sampler linear_clamp(coord::normalized, filter::linear, address::clamp_to_edge);
-        color += bloomTex.sample(linear_clamp, c.bloomUV).rgb * u.bloom.x;
+        // b3-horde (shadow swallows light): only a small one passes a fog share under 1; outside the bank it takes the
+        // fires' bloom at `kHordeBloom2`, so their glow does not wash its navy brown
+        float bloomShare = fogShare < 1.0f ? mix(kHordeBloom2, 1.0f, fogShare) : 1.0f;
+        color += bloomTex.sample(linear_clamp, c.bloomUV).rgb * (u.bloom.x * bloomShare);
     }
     // Warm light keeps its saturation (not in dense fog: it turned the glow pink), the cold grade pushes blue, the
     // darks lift toward navy, never to grey or black.
