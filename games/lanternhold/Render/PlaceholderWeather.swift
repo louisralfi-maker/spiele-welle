@@ -8,7 +8,8 @@ enum PlaceholderWeather {
         // Build 3, POLISH pass 1 (lane 3): stand-ins until tools/worldart.py's and tools/bannerart.py's strips load.
         case .windmillTower: return [millTower()]
         case .windmillSails: return (0..<Weather.sailFrames).map { millSails($0) }
-        case .keepFlag: return (0..<4).map { flag($0) }
+        case .keepFlag: return (0..<Weather.flagFrames).map { flag($0) }
+        case .keepFlagRim: return (0..<(2 * Weather.flagFrames)).map { flagRim($0) }
         default: return []
         }
     }
@@ -48,14 +49,21 @@ enum PlaceholderWeather {
         return p.image
     }
 
-    /// A flag hanging (frame 0) or flying (1 to 3) from the cell's top-left corner.
+    /// A flag hanging (frame 0), stirring (1) or flying (2 to 9) from the cell's top-left corner, its hoist from row 2.
     static func flag(_ frame: Int) -> PixelImage {
         var p = Painter(SpriteID.keepFlag.size, salt: 0)
-        if frame == 0 {
-            p.rect(0, 0, 4, 14, teal)
-        } else {
-            p.rect(0, 0, 10 + frame, 7, teal)
+        switch frame {
+        case 0: p.rect(0, 2, 6, 13, teal)
+        case 1: p.rect(0, 2, 10, 9, teal)
+        default: p.rect(0, 2 + frame % 2, 13 + frame % 2, 7, teal)
         }
+        return p.image
+    }
+
+    /// The flag's dusk rim: its hoist's column (streaming east) or its fly's (frames from `Weather.flagFrames`).
+    static func flagRim(_ frame: Int) -> PixelImage {
+        var p = Painter(SpriteID.keepFlagRim.size, salt: 0)
+        p.rect(frame < Weather.flagFrames ? 0 : 12, 2, 1, 7, RGBA(0xFF8A2A))
         return p.image
     }
 

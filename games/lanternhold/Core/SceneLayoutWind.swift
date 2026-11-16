@@ -36,12 +36,16 @@ extension SceneLayout {
 
     /// The keep's flags (`keepFlag`), one on each pole: in the near plane's picture and moving with the mist band like
     /// the keep, drawn after it; the cloth's hoist one column right of the pole, its top row under the pole's top.
+    /// Step 2 (the critic's M7): the keep's dusk rim lights the cloth too (`keepFlagRim`, `FrameBuilder.keepRimShare`).
     static func castleKeepFlags(_ stage: CastleStage, keepX: Double) -> [Entry] {
         castleKeepPoles(stage).map { pole in
             Entry(sprite: .keepFlag, x: keepX + pole.dx + 1, y: pole.top - Double(SpriteID.keepFlag.size.height),
-                  z: 5, region: .castle, movesWith: .mistBand)
+                  z: 5, region: .castle, emitters: [castleFlagRim], movesWith: .mistBand)
         }
     }
+
+    /// The flag's dusk rim: an emissive overlay of its own frame (mirrored with it), at the keep's rim's strength.
+    static let castleFlagRim = Emitter.sprite(.keepFlagRim, dx: 0, dy: 0, glow: .window, fades: false)
 
     /// The columns of room either side of the curtain's banner (tier 3) for its foot to swing in
     /// (tools/bannerart.py `BANNER_SWING`): the painting stands this far right of the sprite's left edge.

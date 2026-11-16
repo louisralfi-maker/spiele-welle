@@ -68,9 +68,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // the splash on the lane (three frames), painted in code until the art lane brings them
     case rainStreak, rainSplash
     // Build 3, POLISH pass 1 (docs/POLISH.md 2; lane 3): look 2's windmill at the valley's end and its sails, a prop of
-    // their own the wind turns (six frames: a quarter turn); the keep's flag (four frames: limp, stirring, flying,
-    // snapping; tools/bannerart.py)
+    // their own the wind turns (step 2: twelve frames, a quarter turn); the keep's flag (step 2: ten frames, limp,
+    // stirring, a flying and a snapping cycle; tools/bannerart.py)
     case windmillTower, windmillSails, keepFlag
+    // build 3 step 2 (lane 3): the keep's dusk rim on the flag's cloth (20 frames: streaming east, then west)
+    case keepFlagRim
     // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer (world-2: one castle, the
     // far castle in its slots, the patch and the slots' lights are gone)
     case weltmauer
@@ -337,7 +339,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .rainSplash: return PixelSize(width: 5, height: 3)
         case .windmillTower: return PixelSize(width: 26, height: 44)
         case .windmillSails: return PixelSize(width: 47, height: 47)
-        case .keepFlag: return PixelSize(width: 16, height: 21)
+        case .keepFlag, .keepFlagRim: return PixelSize(width: 16, height: 21)
         case .weltmauer: return PixelSize(width: 888, height: 190)
         case .d2FirBeltFar: return PixelSize(width: 520, height: 40)
         case .shadowForest: return PixelSize(width: 224, height: 104)
@@ -557,7 +559,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9
         case .windmillSails: return Weather.sailFrames
-        case .keepFlag: return 4
+        case .keepFlag: return Weather.flagFrames
+        case .keepFlagRim: return 2 * Weather.flagFrames
         case .castleBanner: return 7   // build 3: hanging, swung 1 to 3 toward the valley, 1 to 3 toward the west
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
         // The hall stage (stage lane): the great fire's six frames, idle and pressed marks, eight plaster patches.

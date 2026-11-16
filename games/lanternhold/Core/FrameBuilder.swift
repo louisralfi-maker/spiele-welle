@@ -858,8 +858,9 @@ enum FrameBuilder {
         if part.fadesByDay {
             strength *= ambient.torchStrength
         }
-        if SceneLayout.castleKeepRims.contains(part.sprite) {
-            // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm.
+        if SceneLayout.castleKeepRims.contains(part.sprite) || part.sprite == .keepFlagRim {
+            // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm (build 3
+            // step 2, lane 3: on the flags' cloth too).
             strength *= keepRimShare(ambient)
         }
         if SceneLayout.beaconRims.contains(part.sprite) || SceneLayout.look2MoonRims.contains(part.sprite) {
@@ -906,6 +907,13 @@ enum FrameBuilder {
             rgb = SceneLayout.posternFarColor(ambient) * strength
         }
         let color = SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)
+        if part.sprite == .keepFlagRim {
+            // Build 3 step 2 (lane 3): the flag's rim follows its frame; a flag mirrored to stream west takes the rim
+            // drawn on its other edges (frames from `Weather.flagFrames`), so mirrored it still faces the low sun.
+            return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color,
+                                    flipped: prop.flipped,
+                                    frame: prop.frame + (prop.flipped ? Weather.flagFrames : 0))
+        }
         return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color,
                                 flipped: part.mirrors && prop.flipped)
     }

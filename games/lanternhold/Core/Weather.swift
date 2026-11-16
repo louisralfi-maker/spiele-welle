@@ -371,34 +371,107 @@ enum Weather {
     static let flagStir = 0.15
     static let flagFly = 0.3
     static let flagSnap = 0.7
-    /// A flag's beats per second while it stirs, flies and snaps: a storm beats fastest.
-    static let flagBeats: [Double] = [0, 0.9, 2.6, 6.5]
+    /// A flag's frames a second by its pose: none while it hangs limp, its beats while it stirs, about six of the
+    /// flying cycle in a breeze and twelve of the snapping cycle in a storm (step 2, the critic's H2).
+    static let flagBeats: [Double] = [0, 0.9, 6, 12]
+    /// The keep's flag's frames (`keepFlag`, tools/bannerart.py `wind keepFlag`): 0 limp, 1 stirring, a flying cycle
+    /// from `flagFlying` and a snapping cycle from `flagSnapping`, `flagCycle` frames each, in which a fold runs from
+    /// the hoist to the fly.
+    static let flagFrames = 10
+    static let flagCycle = 4
+    static let flagFlying = 2
+    static let flagSnapping = 6
+    /// A calm flag stirs once in every slot of `flagStirSlot` seconds, at a moment of its own up to `flagStirSpread`
+    /// either side of the slot's middle (so 6 to 10 s apart), for `flagStirLength` seconds (the critic's M3: quiet,
+    /// not dead).
+    static let flagStirSlot = 8.0
+    static let flagStirSpread = 1.0
+    static let flagStirLength = 0.5
+    /// The salt of a flag's own phase: chosen so that the keep's two poles (tier 2) and the curtain's three banners
+    /// (tier 3) start their cycles at least a frame and a bit apart (WeatherTests pins it).
+    static let flagSalt: UInt64 = 0x464C_41C3
 
     /// A flag's pose for a force: 0 limp, 1 stirring, 2 flying, 3 snapping.
     static func flagLevel(_ force: Double) -> Int {
         force < flagStir ? 0 : force < flagFly ? 1 : force < flagSnap ? 2 : 3
     }
 
-    /// A flag's beats per second at a force (none while it hangs limp).
+    /// A flag's frames a second at a force (none while it hangs limp).
     static func flagPace(_ force: Double) -> Double {
         flagBeats[flagLevel(force)]
     }
 
-    /// The frame of a flag or a banner whose pole stands at world x (`keepFlag`, `castleBanner`): 0 limp, 1 stirring,
-    /// 2 flying, 3 snapping. Calm leaves it limp; stirring, it lifts and falls back; flying, it snaps every third
-    /// beat; snapping, it slackens every third beat, beating fastest. Each flag beats at a phase and a pace of its own
-    /// (by its x) and reads the gust where it stands, so two flags never move in step. With Reduce Motion it stands
-    /// in the steady wind's pose.
+    /// The flag's or banner's own place in its cycle at world x, 0 ..< `flagCycle` frames.
+    static func flagPhase(x: Double) -> Double {
+        unit(SeededRandom.hash(flagSalt, Int64(x.rounded()))) * Double(flagCycle)
+    }
+
+    /// True while a flag at world x stirs on a calm day: once in every slot of 8 s, half a second long, at a moment
+    /// of its own (by its x and the slot).
+    static func calmStir(x: Double, time: Double) -> Bool {
+        let t = max(0, min(1.0e15, time))
+        let slot = (t / flagStirSlot).rounded(.down)
+        let own = unit(SeededRandom.hash(SeededRandom.hash(flagSalt ^ 0x5354_4952, Int64(x.rounded())),
+                                         Int64(slot)))
+        let start = slot * flagStirSlot + flagStirSlot / 2 + flagStirSpread * (2 * own - 1)
+        return t >= start && t < start + flagStirLength
+    }
+
+    /// The count of a cycle's frames passed at `rate` frames a second from the flag's own phase.
+    private static func cycleStep(time: Double, rate: Double, phase: Double) -> Int {
+        Int(min(1.0e15, max(0, time) * rate + phase).rounded(.down)) % flagCycle
+    }
+
+    /// The frame of a flag whose pole stands at world x (`keepFlag`): limp in a calm, stirring for half a second at
+    /// its own moment every 6 to 10 s while any air moves (still air leaves it as drawn); stirring, it lifts and falls
+    /// back every third beat; flying, it runs its flying cycle (2 to 5) at about six frames a second; snapping, its
+    /// snapping cycle (6 to 9) at about twelve. Each flag runs from its own place in the cycle (`flagPhase`) and reads
+    /// the gust where it stands, so two flags are never in one pose and never change together; a gust's arrival
+    /// changes the cycle, not the phase. With Reduce Motion it holds one frame: the steady wind's limp, stirring,
+    /// first flying or first snapping frame.
     static func flagFrame(x: Double, _ sample: WeatherSample, time: Double, reduceMotion: Bool = false) -> Int {
-        let level = flagLevel(force(at: x, sample, time: time, reduceMotion: reduceMotion))
-        guard level > 0, !reduceMotion else { return level }
-        let own = unit(SeededRandom.hash(0x46_4C_4147, Int64(x.rounded())))
-        let beats = max(0, time) * flagBeats[level] * (0.9 + 0.2 * own) + own * 7
-        let accent = Int(min(1.0e15, beats).rounded(.down)) % 3 == 2
+        let blow = Weather.force(at: x, sample, time: time, reduceMotion: reduceMotion)
+        let level = flagLevel(blow)
+        if reduceMotion {
+            return [0, 1, flagFlying, flagSnapping][level]
+        }
+        let phase = flagPhase(x: x)
         switch level {
-        case 1: return accent ? 0 : 1
-        case 2: return accent ? 3 : 2
-        default: return accent ? 2 : 3
+        case 0:
+            return blow > 0 && calmStir(x: x, time: time) ? 1 : 0
+        case 1:
+            let beats = max(0, time) * flagBeats[1] + phase * 7 / Double(flagCycle)
+            return Int(min(1.0e15, beats).rounded(.down)) % 3 == 2 ? 0 : 1
+        case 2:
+            return flagFlying + cycleStep(time: time, rate: flagBeats[2], phase: phase)
+        default:
+            return flagSnapping + cycleStep(time: time, rate: flagBeats[3], phase: phase)
+        }
+    }
+
+    /// A banner's sway in a breeze and in a storm (pixels its foot swings, a cycle each) and the cycles' steps a
+    /// second.
+    static let bannerSways: [[Int]] = [[1, 2, 2, 1], [2, 3, 3, 2]]
+    static let bannerRates = [4.0, 8.0]
+
+    /// A banner hung against a wall (`castleBanner`, tier 3) swings its foot instead: 0 hanging, 1 to 3 pixels
+    /// downwind. Calm: it hangs, and swings a pixel at its own moment while any air moves; stirring, it swings a
+    /// pixel and back; in a breeze it sways between one and two pixels (four steps a second), in a storm between two
+    /// and three at twice that. With Reduce Motion it holds the steady wind's swing.
+    static func bannerSwing(x: Double, _ sample: WeatherSample, time: Double, reduceMotion: Bool = false) -> Int {
+        let blow = Weather.force(at: x, sample, time: time, reduceMotion: reduceMotion)
+        let level = flagLevel(blow)
+        if reduceMotion { return level }
+        let phase = flagPhase(x: x)
+        switch level {
+        case 0:
+            return blow > 0 && calmStir(x: x, time: time) ? 1 : 0
+        case 1:
+            let beats = max(0, time) * flagBeats[1] + phase * 7 / Double(flagCycle)
+            return Int(min(1.0e15, beats).rounded(.down)) % 3 == 2 ? 0 : 1
+        default:
+            let sway = bannerSways[level - 2]
+            return sway[cycleStep(time: time, rate: bannerRates[level - 2], phase: phase)]
         }
     }
 

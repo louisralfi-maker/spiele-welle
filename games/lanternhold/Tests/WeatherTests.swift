@@ -302,7 +302,16 @@ final class WeatherTests: XCTestCase {
         let still = fixed(WeatherOverride(mode: .clear, wind: 0.08))
         for sample in [natural, still, WeatherSample.clear] {
             for x in [180.0, 1730, 1890, 2101] {
-                XCTAssertEqual(Set(flagFrames(x: x, sample)), [0], "limp at \(x)")
+                let frames = flagFrames(x: x, sample)
+                if sample == .clear {
+                    XCTAssertEqual(Set(frames), [0], "still air: limp at \(x)")
+                } else {
+                    // Step 2 (the critic's M3): quiet, not dead. It stirs for half a second now and then.
+                    XCTAssertTrue(Set(frames).isSubset(of: [0, 1]), "limp or stirring at \(x)")
+                    let stirring = frames.filter { $0 == 1 }.count
+                    XCTAssertGreaterThan(stirring, 0, "it stirs now and then at \(x)")
+                    XCTAssertLessThan(Double(stirring) / Double(frames.count), 0.15, "but hangs at \(x)")
+                }
                 for index in 0..<240 {
                     XCTAssertEqual(Weather.sailFrame(x: x, sample, time: Double(index) * 0.05), 0, "the sails stand")
                 }
@@ -316,11 +325,18 @@ final class WeatherTests: XCTestCase {
         let storm = fixed(WeatherOverride(mode: .storm))
         let flying = flagFrames(x: 1890, breeze)
         let snapping = flagFrames(x: 1890, storm)
-        XCTAssertEqual(Set(flying), [2, 3], "a breeze flies it and snaps it now and then")
-        XCTAssertGreaterThan(flying.filter { $0 == 2 }.count, flying.filter { $0 == 3 }.count)
-        XCTAssertEqual(Set(snapping), [2, 3], "a storm never lets it fall")
-        XCTAssertGreaterThan(snapping.filter { $0 == 3 }.count, snapping.filter { $0 == 2 }.count,
-                             "in a storm it shows the snapping frame most")
+        // Step 2 (the critic's H2): cycles, not poses. A breeze runs the flying cycle at about six frames a second,
+        // a storm the snapping cycle at about twelve, every frame of each in turn.
+        XCTAssertEqual(Set(flying), Set(Weather.flagFlying..<(Weather.flagFlying + Weather.flagCycle)),
+                       "a breeze runs the flying cycle")
+        XCTAssertEqual(Set(snapping), Set(Weather.flagSnapping..<(Weather.flagSnapping + Weather.flagCycle)),
+                       "a storm runs the snapping cycle")
+        XCTAssertEqual(Weather.flagSnapping + Weather.flagCycle, Weather.flagFrames)
+        for (a, b) in zip(flying, flying.dropFirst()) where a != b {
+            XCTAssertEqual(b, a == Weather.flagFlying + 3 ? Weather.flagFlying : a + 1, "the fold runs one way")
+        }
+        XCTAssertEqual(Double(changes(flying)) / 12, 6, accuracy: 0.5, "about six frames a second")
+        XCTAssertEqual(Double(changes(snapping)) / 12, 12, accuracy: 0.5, "about twelve in a storm")
         XCTAssertGreaterThan(changes(snapping), changes(flying), "and beats fastest")
         XCTAssertEqual(Weather.flagPace(1), Weather.flagBeats.max())
         XCTAssertEqual(Weather.flagLevel(0.1), 0)
@@ -332,7 +348,9 @@ final class WeatherTests: XCTestCase {
         XCTAssertEqual(Set(light), [0, 1])
         // The gusts of a gusty day fly it and snap it in turn.
         let gusty = flagFrames(x: 1890, fixed(WeatherOverride(mode: .gusty)), seconds: 60)
-        XCTAssertTrue(gusty.allSatisfy { $0 >= 2 })
+        XCTAssertTrue(gusty.allSatisfy { $0 >= Weather.flagFlying })
+        XCTAssertTrue(gusty.contains { $0 < Weather.flagSnapping } && gusty.contains { $0 >= Weather.flagSnapping },
+                      "a gusty day flies it and snaps it in its gusts")
         // It streams with the wind: toward the valley, toward the shadow land in a west wind.
         XCTAssertFalse(Weather.blowsWest(at: 1890, storm, time: 3))
         XCTAssertTrue(Weather.blowsWest(at: 1890, fixed(WeatherOverride(mode: .clear, wind: -0.5)), time: 3))
@@ -356,6 +374,51 @@ final class WeatherTests: XCTestCase {
                 XCTAssertNotEqual(flagFrames(x: a, sample), flagFrames(x: b, sample), "\(a) and \(b) in step")
             }
         }
+        // Step 2 (the critic's H2): the keep's two flags at tier 2 are never in one pose and never change together,
+        // in a breeze and in a storm.
+        let keep = SceneLayout.castleKeepPoles(CastleStage(tier: 2)).map { SceneLayout.castleKeepX + $0.dx }
+        XCTAssertEqual(keep.count, 2)
+        for sample in [fixed(WeatherOverride(mode: .breeze)), storm, fixed(WeatherOverride(mode: .storm, rain: 0))] {
+            let great = flagFrames(x: keep[0], sample, seconds: 20)
+            let turret = flagFrames(x: keep[1], sample, seconds: 20)
+            for index in great.indices {
+                XCTAssertNotEqual(great[index], turret[index], "one pose at sample \(index)")
+                if index > 0 {
+                    XCTAssertFalse(great[index] != great[index - 1] && turret[index] != turret[index - 1],
+                                   "they change together at sample \(index)")
+                }
+            }
+        }
+        XCTAssertNotEqual(Weather.flagPhase(x: keep[0]), Weather.flagPhase(x: keep[1]))
+    }
+
+    func testACalmFlagStirsAtItsOwnMomentEverySixToTenSeconds() {
+        // Step 2 (the critic's M3): half a second, 6 to 10 s apart, each flag at its own moment; still air never.
+        for x in [1218.0, 1088, 2373] {
+            var starts: [Double] = []
+            var was = false
+            for index in 0..<(120 * 60) {
+                let time = Double(index) / 60
+                let now = Weather.calmStir(x: x, time: time)
+                if now && !was { starts.append(time) }
+                if now != was && !now {
+                    XCTAssertEqual(time - starts[starts.count - 1], Weather.flagStirLength, accuracy: 0.02)
+                }
+                was = now
+            }
+            XCTAssertGreaterThanOrEqual(starts.count, 12, "\(x)")
+            for (a, b) in zip(starts, starts.dropFirst()) {
+                XCTAssertGreaterThanOrEqual(b - a, 6 - 0.02, "\(x)")
+                XCTAssertLessThanOrEqual(b - a, 10 + 0.02, "\(x)")
+            }
+        }
+        let a = (0..<(60 * 60)).map { Weather.calmStir(x: 1218, time: Double($0) / 60) }
+        let b = (0..<(60 * 60)).map { Weather.calmStir(x: 1088, time: Double($0) / 60) }
+        XCTAssertNotEqual(a, b, "each flag at its own moment")
+        XCTAssertEqual(Weather.flagFrame(x: 1218, .clear, time: 4.2), 0)
+        // The sails stay still on a calm day.
+        let calm = fixed(WeatherOverride(mode: .clear, wind: 0.08))
+        XCTAssertTrue((0..<600).allSatisfy { Weather.sailFrame(x: 2101, calm, time: Double($0) * 0.05) == 0 })
     }
 
     func testTheSailsTurnWithTheWindAndNeverBlur() {
@@ -392,7 +455,10 @@ final class WeatherTests: XCTestCase {
             let still = fixed(WeatherOverride(mode: mode), reduceMotion: true)
             let flags = flagFrames(x: 1890, still, seconds: 30, reduceMotion: true)
             XCTAssertEqual(Set(flags).count, 1, "\(mode): the flag stands")
-            XCTAssertEqual(flags.first, Weather.flagLevel(abs(still.mean)), "\(mode): in the steady wind's pose")
+            let held = [0, 1, Weather.flagFlying, Weather.flagSnapping][Weather.flagLevel(abs(still.mean))]
+            XCTAssertEqual(flags.first, held, "\(mode): in the steady wind's pose")
+            let swings = (0..<300).map { Weather.bannerSwing(x: 1506, still, time: Double($0) * 0.1, reduceMotion: true) }
+            XCTAssertEqual(Set(swings), [Weather.flagLevel(abs(still.mean))], "\(mode): the banner stands")
             for index in 0..<300 {
                 let time = Double(index) * 0.1
                 XCTAssertEqual(Weather.sailFrame(x: 2101, still, time: time, reduceMotion: true), 0, "\(mode)")
@@ -487,7 +553,9 @@ final class WeatherTests: XCTestCase {
                 }
             }
         }
-        XCTAssertEqual(layout.cells[.keepFlag]?.count, 4, "limp, stirring, flying, snapping")
+        XCTAssertEqual(layout.cells[.keepFlag]?.count, Weather.flagFrames, "limp, stirring, flying, snapping")
+        XCTAssertEqual(layout.cells[.keepFlagRim]?.count, 2 * Weather.flagFrames, "its dusk rim, east and west")
+        XCTAssertEqual(layout.sources[.keepFlagRim], .png)
         XCTAssertEqual(layout.sources[.keepFlag], .png)
         XCTAssertEqual(layout.sources[.windmillTower], .png)
         XCTAssertEqual(layout.sources[.windmillSails], .png)
@@ -505,16 +573,17 @@ final class WeatherTests: XCTestCase {
         let still = flags(WeatherOverride(mode: .clear), time: 4)
         XCTAssertEqual(still.count, 2, "both flags in view from the hall door")
         XCTAssertTrue(still.allSatisfy { $0.frame == 0 && !$0.flipped }, "still air: limp, as drawn")
-        XCTAssertTrue(flags(WeatherOverride(mode: .clear, wind: 0.08), time: 4).allSatisfy { $0.frame == 0 })
+        XCTAssertTrue(flags(WeatherOverride(mode: .clear, wind: 0.08), time: 1).allSatisfy { $0.frame == 0 })
         var snapped = Set<Int>()
         var apart = false
         for index in 0..<40 {
             let storm = flags(WeatherOverride(mode: .storm), time: 4 + Double(index) * 0.05)
-            XCTAssertTrue(storm.allSatisfy { $0.frame >= 2 && !$0.flipped }, "a storm toward the valley flies them")
+            XCTAssertTrue(storm.allSatisfy { $0.frame >= Weather.flagSnapping && !$0.flipped },
+                          "a storm toward the valley snaps them")
             snapped.formUnion(storm.map(\.frame))
             if storm.count == 2 && storm[0].frame != storm[1].frame { apart = true }
         }
-        XCTAssertEqual(snapped, [2, 3])
+        XCTAssertEqual(snapped, Set(Weather.flagSnapping..<Weather.flagFrames))
         XCTAssertTrue(apart, "the two flags never move in step")
         // A wind from the valley: mirrored on the pole's other side, 17 columns to the left.
         let west = flags(WeatherOverride(mode: .clear, wind: -0.5), time: 4)
@@ -529,7 +598,7 @@ final class WeatherTests: XCTestCase {
             flags(WeatherOverride(mode: .storm), time: 4 + Double(index) * 0.13, reduceMotion: true).map(\.frame)
         }
         XCTAssertEqual(Set(poses).count, 1)
-        XCTAssertEqual(poses.first, [3, 3])
+        XCTAssertEqual(poses.first, [Weather.flagSnapping, Weather.flagSnapping])
     }
 
     func testTheCurtainsBannersSwingTheirFootDownwind() {
@@ -553,7 +622,7 @@ final class WeatherTests: XCTestCase {
             XCTAssertTrue(frames(WeatherOverride(mode: .storm), time: time).allSatisfy { (2...3).contains($0) },
                           "a storm toward the valley swings it right")
             let west = frames(WeatherOverride(mode: .clear, wind: -0.5), time: time)
-            XCTAssertTrue(west.allSatisfy { (5...6).contains($0) }, "a wind from the valley swings it left")
+            XCTAssertTrue(west.allSatisfy { (4...5).contains($0) }, "a wind from the valley sways it left")
         }
         XCTAssertEqual(Set((0..<10).flatMap { frames(WeatherOverride(mode: .storm), time: 4 + Double($0) * 0.2,
                                                      reduceMotion: true) }), [3], "Reduce Motion: it stands")
