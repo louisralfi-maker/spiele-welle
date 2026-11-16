@@ -749,16 +749,19 @@ enum PayFreeze: Sendable, Equatable {
     case share(Double)
     /// The last coin landed, before the seal.
     case full
-    /// A quarter second after the seal: the board shut, the lantern lit and flaring.
+    /// A quarter second after the seal: the board shut (its site lantern catches as the board has gone).
     case sealed
     /// Half way through the coins sliding back after a let go.
     case back
     /// Step 2's filmstrips: coin `coin` (from 0) at `share` of its flight from the lord's hand (0 ... 1 in the air;
     /// past 1, that many flights after it left, so 1.95 is a little after it landed and settled).
     case flight(coin: Int, share: Double)
-    /// Step 3's light by day: this many seconds after the seal, the board shut and the site lantern held at that age
-    /// (its bloom, its embers).
+    /// Step 3's light by day: the count held as its board has just gone (`litMoment` after the seal), and the site
+    /// lantern, which catches then, held at this age (its bloom, its embers).
     case lit(Double)
+
+    /// The count's moment `lit` holds it at: the board faded all but out (never drawn), the count not yet gone.
+    static let litMoment = PayCount.sealSeconds + PayCount.fadeSeconds - 0.001
 
     /// The age the lit site lanterns are held at (`lit` only).
     var litHold: Double? {
@@ -800,9 +803,9 @@ enum PayFreeze: Sendable, Equatable {
             return count.isFull && count.isOpen
         case .sealed:
             return (count.sinceSeal ?? 0) >= 0.25
-        case .lit(let seconds):
+        case .lit:
             guard let since = count.sinceSeal else { return false }
-            return since >= seconds
+            return since >= PayFreeze.litMoment - 1e-9
         case .back:
             return (count.slideShare ?? 0) >= 0.5
         case .flight(let coin, let share):
@@ -828,9 +831,9 @@ enum PayFreeze: Sendable, Equatable {
             if let since = count.sinceSeal { return max(0, 0.25 - since) }
             if let seal = count.sealAt { return max(0, seal - count.time) + 0.25 }
             return nil
-        case .lit(let seconds):
-            if let since = count.sinceSeal { return max(0, seconds - since) }
-            if let seal = count.sealAt { return max(0, seal - count.time) + seconds }
+        case .lit:
+            if let since = count.sinceSeal { return max(0, PayFreeze.litMoment - since) }
+            if let seal = count.sealAt { return max(0, seal - count.time) + PayFreeze.litMoment }
             return nil
         default:
             return nil

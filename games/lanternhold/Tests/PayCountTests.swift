@@ -689,7 +689,8 @@ final class PayCountTests: XCTestCase {
         let rates = hub.coins.map { $0.rate }
         XCTAssertEqual(rates, rates.sorted(), "each a little higher")
         XCTAssertTrue(hub.played.contains(.countSeal), "the seal")
-        run(game, seconds: 1)
+        XCTAssertFalse(hub.played.contains(.countLantern), "the lantern waits for the board to go")
+        run(game, seconds: CountLantern.catchAfterSeal + 0.1)
         XCTAssertTrue(hub.played.contains(.countLantern), "then the lantern")
         XCTAssertTrue(hub.played.contains(.buildOrdered), "then the work's own sound")
         run(game, seconds: 3)
@@ -891,7 +892,7 @@ final class PayCountTests: XCTestCase {
         XCTAssertFalse(board.isEmpty, "the board on its post")
         XCTAssertTrue(board.allSatisfy { $0.isLit && !$0.isEmissive }, "a thing in the world, lit by it")
         XCTAssertEqual(frame.actors.filter { $0.sprite == .hudHollowTen }.count, 9, "nine hollows for 90")
-        XCTAssertTrue(frame.actors.contains { $0.sprite == .siteLantern && $0.frame == 0 }, "the lantern unlit")
+        XCTAssertFalse(frame.actors.contains { $0.sprite == .siteLantern }, "no lantern on top of its post")
         XCTAssertTrue(frame.actors.contains { $0.sprite == .hudCoinTen }, "the first coin rocks over its hollow")
     }
 
@@ -1300,10 +1301,12 @@ final class PayCountTests: XCTestCase {
         XCTAssertTrue(game.touch.countLanterns.isEmpty, "out and gone when the work is done")
     }
 
-    /// Step 3 (the director's call 5): the site lantern hangs from a crook on its own short post beside the board,
-    /// toward the work, unlit before the seal and lit after it; no lantern ever stands on top of a pole. Drawn: the
-    /// lantern is clear of its post's column, under the crook's top, over the ground, and the post's crook reaches no
-    /// higher than the lord's head.
+    /// Step 3 (the director's call 5; the review: on a post of its own past the board's edge the lantern hung over the
+    /// gate's portcullis): no lantern stands on the board's post while the count runs; from the seal the site lantern
+    /// hangs from a crook on the board's own post, unlit behind the shut board, and once the board has gone it burns
+    /// there, the post cut to about the lord's shoulder. Drawn: the lantern is clear of the post's column, under the
+    /// crook's top, over the ground, inside the board's own door-clear span, and the crook reaches no higher than his
+    /// head.
     func testTheLanternHangsFromACrook() throws {
         let game = gateGame(gold: 200)
         let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
@@ -1311,8 +1314,13 @@ final class PayCountTests: XCTestCase {
         run(game, seconds: 10) { game.touch.count?.ready == true }
         let board = try XCTUnwrap(game.touch.countBoard)
         XCTAssertEqual(board.toward, gate.x > board.x ? 1 : -1, "the crook points at the work")
+        XCTAssertEqual(board.lanternPostLeft, board.postLeft, "on the board's own post")
+        let counting = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertFalse(counting.actors.contains { $0.sprite == .siteLantern }, "no lantern on the post while it counts")
         func check(_ frame: FrameDesc, lit: Bool, _ when: String) throws {
             let framing = try XCTUnwrap(game.touch.framing)
+            let boardLeft = framing.deviceX(stageX: Double(board.left))
+            let boardRight = framing.deviceX(stageX: Double(board.left + board.layout.width))
             let lantern = try XCTUnwrap(frame.actors.first { $0.sprite == .siteLantern && ($0.frame > 0) == lit },
                                         "\(when): the lantern")
             let postLeft = framing.deviceX(stageX: Double(board.lanternPostLeft + 1))
@@ -1321,6 +1329,8 @@ final class PayCountTests: XCTestCase {
             let right = Double(lantern.rect.x + lantern.rect.z)
             XCTAssertTrue(right <= postLeft + 1 || left >= postRight - 1,
                           "\(when): beside its post, never on top of it")
+            XCTAssertTrue(left >= boardLeft - 1 && right <= boardRight + 1,
+                          "\(when): inside the board's span, clear of the doorway")
             let crookTop = framing.deviceY(lift: CountLantern.crookTop)
             XCTAssertGreaterThan(Double(lantern.rect.y), crookTop, "\(when): it hangs under the crook")
             XCTAssertLessThan(Double(lantern.rect.y + lantern.rect.w), framing.deviceY(lift: 0),
@@ -1331,16 +1341,24 @@ final class PayCountTests: XCTestCase {
                           "\(when): its crook")
             XCTAssertLessThanOrEqual(CountLantern.crookTop, Double(HUDKit.lordHead), "cut to about his shoulder")
         }
-        try check(game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight), lit: false,
-                  "before the seal")
         var count = try XCTUnwrap(game.touch.count)
         count.press()
         game.touch.count = count
         run(game, seconds: 3) { game.touch.countLast.hasPrefix("paid") }
-        run(game, seconds: 2.5)
+        run(game, seconds: 0.3)
+        XCTAssertNotNil(game.touch.count, "the board stands shut")
+        let shut = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        try check(shut, lit: false, "behind the shut board")
+        let lanternIndex = try XCTUnwrap(shut.actors.firstIndex { $0.sprite == .siteLantern })
+        let hollowIndex = try XCTUnwrap(shut.actors.firstIndex { $0.sprite == .hudHollowTen })
+        XCTAssertLessThan(lanternIndex, hollowIndex, "drawn behind the board's face")
+        run(game, seconds: 2.2)
         XCTAssertNil(game.touch.count, "the board has gone")
-        try check(game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight), lit: true,
-                  "while the work runs")
+        let after = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        try check(after, lit: true, "while the work runs")
+        let cut = try XCTUnwrap(game.touch.framing).deviceY(lift: CountLantern.crookTop) - 0.5
+        XCTAssertTrue(after.actors.filter { $0.sprite == .payBoard }.allSatisfy { Double($0.rect.y) >= cut },
+                      "the post stands cut to the crook, no higher")
     }
 
     /// Step 3 (the director's call 6), on the drawn pixels: the same scene rendered with the site lantern burning and

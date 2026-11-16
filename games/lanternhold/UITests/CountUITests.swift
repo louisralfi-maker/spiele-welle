@@ -6,10 +6,12 @@ import XCTest
 /// 90) and the lord steps to its outer side; a hold counts the coins onto the board, each flying from his hand, the seal
 /// falls and the site lantern is lit, and it burns on its post while the work runs; the treasury pays once (170 to
 /// 172b). Then the count's pictures, each its own launch with the Debug-only `-GWCountFreeze` holding the count still
-/// on an exact moment: the board at fixed shares (173a, 173c, 173e, 173f: empty, half, full, sealed), one coin of a
-/// hold in the air at three points of its arc and landed (176a to 176d), the same for a tap (177a to 177d), the coins
-/// going home after a let go with the purse mid-count (174), the guard's board of mixed coins beside the barracks
-/// (175), a board of bars for the great gate (178), and the lit lantern at night with its halo (179). English only
+/// on an exact moment: the board at fixed shares (173a, 173c, 173e, 173f: empty, half, full, sealed), the site lantern
+/// catching on the crook of the board's post as the board has gone (173g bloom, 173h embers), the third coin of a hold
+/// in the air at three points of its throw and landed (176a to 176d), the same for a tap's first coin (177a to 177d),
+/// the coins going home after a let go with the purse mid-count (174), the guard's board of mixed coins beside the
+/// barracks (175), a board of bars for the great gate (178), the lit lantern at night with its halo (179), the board's
+/// dip under a bar (180a/b) and a far coin's throw on a three-row board (181a to 181c). English only
 /// (the director's notes of 15.11., item 4). Saves `<nn>-count-<what>-<lang>`.
 @MainActor
 final class CountUITests: XCTestCase {
@@ -75,6 +77,11 @@ final class CountUITests: XCTestCase {
             if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
                 gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 2.6)
                 XCTAssertTrue(waitForField(app, "count:touch-plot-0", timeout: 3), "\(name): the board stands")
+                if freeze.hasPrefix("lit:") {
+                    // The lantern catches as the shut board has gone, 1.1 s after the seal; the freeze holds there.
+                    XCTAssertTrue(waitForField(app, "last:paid:touch-plot-0", timeout: 3), "\(name): sealed")
+                    pause(1.5)
+                }
                 pause(0.3)
                 attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
                 note("\(name)-state", sceneField(app, "count:") ?? "?")

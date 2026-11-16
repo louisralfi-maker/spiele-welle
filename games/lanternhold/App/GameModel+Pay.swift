@@ -27,11 +27,13 @@ struct CountBoard: Sendable, Equatable {
     var postLeft: Int { left + layout.width / 2 - 3 }
     var postTop: Double { top + 3 }
 
-    /// Step 3 (the director's call 5: a builder's lantern on a crook, never a street lamp): the site lantern has its
-    /// own short post just past the board's edge toward the thing, its crook pointing at the work (`toward`: 1 right,
-    /// -1 left), the lantern hanging from the crook's chain. Its post's left edge (a `payBoard` post tile).
+    /// Step 3 (the director's call 5: a builder's lantern on a crook, never a street lamp): once the board has gone,
+    /// its own post stands cut to about the lord's shoulder, a crook at its top pointing at the work (`toward`: 1
+    /// right, -1 left), the site lantern hanging from the crook's chain. So the lantern hangs inside the board's own
+    /// door-clear box, never in front of the thing's doorway (the review of step 3: on a post of its own past the
+    /// board's edge it hung over the gate's portcullis). The lantern's post is the board's post.
     var toward: Double { -side }
-    var lanternPostLeft: Int { toward > 0 ? left + layout.width - 1 : left - 5 }
+    var lanternPostLeft: Int { postLeft }
 }
 
 /// A cue that comes a moment after the seal (the site lantern, then the work's own sound), at the clock's second.
@@ -55,6 +57,9 @@ struct CountLantern: Sendable, Equatable {
     /// at the lord's shoulder, the iron bends over above it); the lantern's top hangs `hang` under it, from the chain.
     static let crookTop = 30.0
     static let hang = 7.0
+    /// The lantern catches as its board has gone (the lid's receipt held, then its fade): the seal lights it this long
+    /// after the lid shuts. Until then it hangs unlit behind the shut board.
+    static let catchAfterSeal = PayCount.sealSeconds + PayCount.fadeSeconds
 
     /// The hanging lantern's left edge for a post at `postLeft` whose crook points `toward` (its ring under the chain's
     /// last link: tools/hudart.py CROOK_CHAIN), before its sway.
@@ -587,13 +592,15 @@ extension GameModel {
                 if sealed.done {
                     feedback.play(.countSeal)
                     let now = clock.elapsed
-                    touch.countCues.append(CountCue(at: now + 0.1, cue: .countLantern))
+                    touch.countCues.append(CountCue(at: now + CountLantern.catchAfterSeal, cue: .countLantern))
                     for cue in sealed.later { touch.countCues.append(CountCue(at: now + 0.22, cue: cue)) }
                     touch.countLast = "paid:\(count.thing)"
-                    // The one who was paid lights the site lantern; it burns while the job runs (H2).
+                    // The one who was paid lights the site lantern; it burns while the job runs (H2). Step 3: it hangs
+                    // from the crook of the board's own post and catches as the board has gone.
                     if let board = touch.countBoard {
                         touch.countLanterns.append(CountLantern(offer: count.offer, postLeft: board.lanternPostLeft,
-                                                                toward: board.toward, litAt: now))
+                                                                toward: board.toward,
+                                                                litAt: now + CountLantern.catchAfterSeal))
                     }
                 } else {
                     // The treasury or the offer changed under the count: nothing paid, the coins go back.
@@ -776,7 +783,7 @@ extension GameModel {
     /// picked by a hash, every second row half a tile over: step 2, H1), cap and foot, the hollows and the coins in
     /// them, a coin settling and squashing as it lands, the next coin swaying over its hollow while nothing is in the
     /// air, the coins flying from the lord's hand, the lid with its battens and hasp snapping shut, the coins flying
-    /// home, and the unlit lantern on the post.
+    /// home. No lantern stands on its post (step 3, the director's call 5).
     private func countBoardActors(_ count: PayCount, _ board: CountBoard, framing: TouchFraming,
                                   glows: inout [EntityGlow]) -> [ActorInstance] {
         let rise = count.riseShare
@@ -810,14 +817,10 @@ extension GameModel {
         }
         let tile = PayBoardLayout.tile
         let middles = max(0, (layout.width - 2 * tile) / tile)
-        // The board's post; beside it, until the seal, the site lantern's own post with the lantern hanging unlit from
-        // its crook (after the seal the lit one stands there: `countLanternsWorld`).
+        // The board's post (no lantern on it while the board stands: from the seal the site lantern hangs from the
+        // crook of this same post behind the shut board, and catches as the board has gone: `countLanternsWorld`).
         actors += countPostActors(postLeft: board.postLeft, postTop: board.postTop + shift, shift: shift,
                                   alpha: alpha, framing: framing)
-        if sealed == nil {
-            actors += countCrookActors(postLeft: board.lanternPostLeft, toward: board.toward, shift: shift,
-                                       lanternFrame: 0, alpha: alpha, framing: framing).actors
-        }
         // The planks (or the lid's), the cap over them and the foot under them.
         func planks(lid: Bool, offset: Double) {
             for row in 0..<layout.rows {
@@ -998,8 +1001,9 @@ extension GameModel {
         return actors
     }
 
-    /// The site lanterns the seals lit (H2), each hanging from its crook without the board: the 9 x 13 lantern blooming
-    /// for two frames as it catches, embers rising from its cap once, then burning while its job runs, with its light,
+    /// The site lanterns the seals lit (H2), each hanging from the crook of its board's post: unlit behind the shut
+    /// board until the board has gone (step 3, the review), then the 9 x 13 lantern blooming for two frames as it
+    /// catches, embers rising from its cap once, then burning while its job runs, with its light,
     /// the glow of its flame's heart, a warm rim on its post and crook and a small strong light on the wall behind
     /// (step 3, the director's call 6: by day the lighting is an event), and its warm halo (0.9 of it by day, whole by
     /// night); gone out, it stands dark a moment and fades.
@@ -1017,6 +1021,9 @@ extension GameModel {
             if let out = lantern.outAt {
                 lit = false
                 alpha = Float(min(1, max(0, (CountLantern.outSeconds - (now - out)) / CountLantern.fadeSeconds)))
+            } else if now < lantern.litAt {
+                // Behind the shut board, unlit, until the board has gone.
+                lit = false
             }
             guard alpha > 0.01 else { continue }
             var frame = lit ? 1 : 0
