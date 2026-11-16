@@ -1152,3 +1152,9 @@ schneller geht."
   - Before the TestFlight drop the rest of build 2's final check runs on the same commit (lh-b3j-7, -8, -9: hall, audience, ads, title, the story and town classes, the device Release compile). Then round tf-lh-3 uploads it.
   - Lesson kept: with clean rehearsal merges the director joins without an agent, and splits the proof into parallel rounds; the whole join cost no agent quota.
   - Wave 2's lanes are cut from ab29d2d4.
+
+- **Wave 1 of build 3 is in TestFlight: version 1.0.0 build 396 (16.11.2026, 20:09).**
+  - Round tf-lh-3 (build, testflight) passed on `claude/lh-b3join` ab29d2d4 and uploaded at 20:07. It holds the keep, the wind and rains, the small shadow creatures and paying coin by coin, on top of build 331.
+  - Before the drop, six parallel rounds proved the joined commit (lh-b3j-4 to -9: the whole unit suite, every UI class the game owns except the picture suites, and the unsigned Release build for a device). The tf round then needed only `build testflight`.
+  - After the drop, 38 merged build 2 worktrees were removed (branches stay); the disk went from 12 to 23 GB free. `lh-i18n` stays for its translation sources.
+  - Wave 2's lanes are cut from ab29d2d4.
