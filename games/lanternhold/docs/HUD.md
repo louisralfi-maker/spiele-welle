@@ -76,3 +76,18 @@ The ledger slip top right, the pause seal top left, the realm strip as a standin
   show nothing; is the gold read on noon sky, dusk and night; does a first-time player find the pause inside a
   minute; does anything on the world look like a layer from another game.
 - **Not a copy:** no pouch, no coin on the ground, nothing of another game's screen (DESIGN.md "Not a copy").
+
+
+## Decision of 16.11.2026: the town's mood stands at the map
+
+Louis asked for a sign beside the map that shows how the townspeople feel. Without it, caring for them reads as
+optional. This changes section 2 for build 3:
+
+- The hood face and the people's count leave the row above the lord. They stand at the realm strip, at its town
+  end. The lord's row keeps the purse alone.
+- The face is bigger than today and carries the mood in colour as well as in its pose: warm gold when glad, bone
+  when even, cold grey when grim, wax red in unrest. A short finer reading stands beside it (a design card decides
+  its form before it is built).
+- On a change the small arrow shows as today. A touch on the face gives one slip with the main reason in a few
+  words, such as "The tax is high."
+- Nothing of it stands on the walked world: it shows with the strip, in the lantern moment and on a call.
