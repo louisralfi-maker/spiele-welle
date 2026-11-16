@@ -1017,3 +1017,9 @@ schneller geht."
   - What fails: at night the ash is pale flakes on blue, which is snow, and no ember glows (the director's own call for a pale night ash made it); the weather vane does not read as a vane; the gust's leaves are lost in front of the houses.
   - The director's calls for step 4: ash is never snow (a warm grey with no blue, only a small step over the sky) and the embers carry the night (a glowing 2 x 2 point that dies from gold to red, one flake in three at night, proved on the drawn pixel of the live night picture); the vane as an arrow against the sky; the leaves rise over the roofs in bursts; the band's water at noon; the sounds stay for the join.
   - Step 4 is briefed and held: the week stands at 77 % with two steps running, and the stop is 80 %. A lane step costs nearer 1.5 % than 1 %.
+
+- **Lane 6's step 1 done: the frozen build-2 save (16.11.2026, 08:08).**
+  - Green at b37405dc on claude/lh-b3-keep (round lh-b3k-2). Three files under Tests/, nothing else.
+  - The fixture is a real save that build 2's own code (309ebb46) wrote on the runner: day 9, every part of the state filled. Nine tests load it field by field, round-trip it byte for byte and launch the game on it.
+  - The join takes the three files first and runs Build2SaveTests in every round. A saved value a lane adds or changes fails the test; a new saved field is the director's decision by name, never a lane's.
+  - Louis raised the week's stop to 99 % at 07:37; the week stands at 78 %.
