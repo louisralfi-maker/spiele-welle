@@ -261,7 +261,10 @@ final class PayCountTests: XCTestCase {
         var atOnce = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
         atOnce.payAtOnce()
         atOnce.arrive()
-        XCTAssertEqual(seals(run(&atOnce, seconds: 0.2, gold: 100)), 1, "VoiceOver pays in one step")
+        // Step 3 (the director's call 3): the last coin's beat holds for VoiceOver too, so the seal falls
+        // `sealDelay` after the coins (all of them on the first step).
+        XCTAssertEqual(seals(run(&atOnce, seconds: PayCount.sealDelay + 0.1, gold: 100)), 1,
+                       "VoiceOver pays in one step")
     }
 
     func testTheBoardRisesAndTheCoinsSlideInTheirTime() {
