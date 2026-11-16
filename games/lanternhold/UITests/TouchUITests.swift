@@ -179,8 +179,9 @@ final class TouchUITests: XCTestCase {
             .joined(separator: "\n"))
         attach(XCUIScreen.main.screenshot(), "150-touch-front-\(language)")
 
-        // A touch on a site some way off: he walks, the slip above it says what he will do.
-        let site = ["touch-plot-3", "touch-plot-2", "touch-plot-4", "touch-plot-1"].lazy
+        // A touch on a site some way off: he walks, the slip above it says what he will do. Build 3: an empty plot (its
+        // card stays for the choice); a built one with one offer brings its tally board instead (CountUITests).
+        let site = ["touch-plot-1", "touch-plot-7", "touch-plot-6", "touch-plot-4"].lazy
             .compactMap { self.waitForThing(app, $0, timeout: 2) }.first
         guard let site else {
             XCTFail("no site offers anything at the front")
@@ -252,7 +253,12 @@ final class TouchUITests: XCTestCase {
             pause(0.4)
             attach(XCUIScreen.main.screenshot(), "153-touch-wall-board-\(language)")
             XCTAssertFalse(element(app, "touch-slip").exists, "no slip: the board is the price")
+            // An empty board goes down two seconds after the lord stands beside it with no touch (PAY.md 1.4; round
+            // lh-b3c-11: the test's own pauses outlasted it). Then the touch that brings it and a quick second touch,
+            // the coin (a tap while he walks waits for him).
+            XCTAssertTrue(waitForField(app, "count:none", timeout: 6), "the untouched board goes down")
             if let again = waitForThing(app, "touch-wall-0", timeout: 2) {
+                touchThing(again)
                 touchThing(again)
                 XCTAssertTrue(waitForField(app, "last:paid:touch-wall-0", timeout: 3), "the coin paid the repair")
                 pause(0.15)
@@ -289,7 +295,9 @@ final class TouchUITests: XCTestCase {
             waitForStill(poor)
             pause(0.4)
             attach(XCUIScreen.main.screenshot(), "153a-touch-wall-short-\(language)")
+            XCTAssertTrue(waitForField(poor, "count:none", timeout: 6), "the untouched board goes down")
             if let again = waitForThing(poor, "touch-wall-0", timeout: 2) {
+                touchThing(again)
                 touchThing(again)
                 XCTAssertTrue(waitForField(poor, "last:short:touch-wall-0", timeout: 3), "short of gold: nothing paid")
             }
