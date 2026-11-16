@@ -801,8 +801,7 @@ extension GameModel {
         }
         // Raise the lantern: at night a small flame stands over the lantern's glass while it can be raised.
         if night > 0.5, LanternRaise.canRaise(state), overlay == nil, driver?.bot == nil {
-            let x = state.king.x + EntityFrames.kingGlass.dx * Double(state.king.facing)
-            let left = framing.deviceX(stageX: x.rounded(.down))
+            let left = GameModel.raiseFlameLeft(kingX: state.king.x, facing: state.king.facing, framing: framing)
             let top = framing.deviceY(lift: EntityFrames.kingGlass.dy + 5)
             let s = Float(framing.scale)
             let gold = GamePalette.fireGold
@@ -931,6 +930,14 @@ extension GameModel {
             layer.glows.append(EntityGlow(.hallMote, x: glassX + spark.dx, y: glassY + spark.dy,
                                           color: SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)))
         }
+    }
+
+    /// The device x of the raise flame's left edge over the lantern's glass (lane 5 step 2a, the smooth walk, suspect
+    /// 2). The glass's offset from the lord's anchor is floored, not the sum, so the flame stands on one of the lord's
+    /// own sprite columns (`Camera.deviceX`, device px) and keeps its distance to him while he walks; flooring the sum
+    /// put it on the ground's grid, where it buzzed 3 to 4 device px against him. On average it stands where it stood.
+    static func raiseFlameLeft(kingX: Double, facing: Int, framing: TouchFraming) -> Double {
+        framing.deviceX(stageX: kingX + (EntityFrames.kingGlass.dx * Double(facing)).rounded(.down))
     }
 
     /// After each frame: the slip over the errand's thing, and four times a second the accessibility elements.

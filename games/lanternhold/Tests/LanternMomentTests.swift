@@ -606,4 +606,23 @@ final class LanternMomentTests: XCTestCase {
         }
         XCTAssertEqual(gaps.count, 1, "one distance to the lord in every frame: \(gaps.sorted())")
     }
+
+    /// Suspect 2: the raise flame over the lantern's glass at night keeps one distance in device px to the walking
+    /// lord, whichever way he faces, on one of his own sprite columns (where the floored flame stood on average).
+    func testTheRaiseFlameKeepsItsDistanceToTheWalkingLord() {
+        for facing in [1, -1] {
+            var gaps: Set<Double> = []
+            for step in 0..<120 {
+                let lordX = 1000.3 + 0.6 * Double(step * facing)
+                let camera = Camera(focusX: lordX, pixelScale: pro)
+                let framing = TouchFraming.world(camera: camera, pixelScale: pro)
+                let left = GameModel.raiseFlameLeft(kingX: lordX, facing: facing, framing: framing)
+                let anchor = camera.deviceX(worldX: lordX, scale: pro.scale, mode: .smooth)
+                gaps.insert(left - Double(anchor))
+            }
+            XCTAssertEqual(gaps.count, 1, "facing \(facing): one distance in every frame: \(gaps.sorted())")
+            let column = (EntityFrames.kingGlass.dx * Double(facing)).rounded(.down) * Double(pro.scale)
+            XCTAssertEqual(gaps.first ?? 0, column, accuracy: 0.001, "facing \(facing): on the glass's column")
+        }
+    }
 }
