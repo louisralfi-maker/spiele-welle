@@ -98,6 +98,14 @@ enum GameStart {
             HordeProof.apply(&state, balance: balance, seconds: horde.seconds, dark: horde.dark)
         }
         #endif
+        // b3-yard (build 3, wave 2, lane 2, step 1; one block for the joiner): `-GWYard`, `-GWTrained`, the drill yard
+        // for its pictures, Debug only (`Yard.proof`, `DebugArgs.yard`); the dawn snapshot takes it too.
+        #if DEBUG
+        if let yard = DebugArgs.yard {
+            Yard.proof(&state, stage: yard.stage, kettle: yard.kettle, trained: yard.trained, balance: balance)
+            Yard.proof(&dawn, stage: yard.stage, kettle: yard.kettle, trained: yard.trained, balance: balance)
+        }
+        #endif
         return Result(state: state, dawn: dawn, bot: bot)
     }
 

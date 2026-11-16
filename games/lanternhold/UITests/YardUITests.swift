@@ -1,0 +1,168 @@
+import UIKit
+import XCTest
+
+/// The drill yard (build 3, wave 2, lane 2, step 1; docs/YARD.md), with placeholder props: on day 4 (seed 2) at 10:00
+/// the yard's site in the courtyard offers the drill yard; a touch brings its tally board (seven hollows for 70), a hold
+/// pays it coin by coin, the seal orders it and the site lantern burns until its dawn (300 to 302). With the Debug-only
+/// `-GWYard <stage>[,kettle]` and `-GWTrained YES`: the noon drill on day 5 with the yard standing and the kettle's
+/// place offered (303), and a night with the kettle in use and every soldier trained (304). English only (the
+/// director's notes of 15.11., item 4). Saves `<nn>-yard-<what>-<lang>`.
+@MainActor
+final class YardUITests: XCTestCase {
+    override func setUp() async throws {
+        continueAfterFailure = true
+    }
+
+    private var language: String {
+        ProcessInfo.processInfo.environment["GW_LANG"] ?? "en"
+    }
+
+    private static let base = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWSeed", "2",
+                               "-GWStage", "world"]
+
+    /// Day 4: the yard's site, its counter, the hold that pays it.
+    func testDayFourTheYardIsPaidAtItsCounter() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = YardUITests.base + ["-GWDay", "4", "-GWClock", "10", "-GWCameraX", "1500",
+                                                  "-GWGold", "200"]
+        app.launch()
+        guard waitUntilReady(app, name: "yard-day4") else { return }
+        pause(0.8)
+        attach(XCUIScreen.main.screenshot(), "300-yard-site-day4-\(language)")
+        note("300-yard-state", sceneField(app, "yard:") ?? "?")
+        XCTAssertEqual(sceneField(app, "yard:"), "none", "a realm without a yard")
+        guard let site = waitForThing(app, "touch-yard", timeout: 4) else {
+            XCTFail("the yard offers nothing on day 4")
+            app.terminate()
+            return
+        }
+        checkTarget(site, "the yard's site")
+        XCTAssertTrue(site.value.map { "\($0)" }?.contains("70") == true, "its element says the price")
+        touchThing(site)
+        XCTAssertTrue(waitForField(app, "count:touch-yard:0/7", timeout: 3), "the board comes up, seven hollows")
+        XCTAssertFalse(element(app, "build-card").exists, "no card")
+        waitForStill(app)
+        XCTAssertTrue(waitForField(app, ":there", timeout: 6), "he stands beside the board")
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "301-yard-counter-\(language)")
+        XCTAssertEqual(sceneGold(app), 200, "nothing paid for the touch that brought the board")
+        if let again = waitForThing(app, "touch-yard", timeout: 3) {
+            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 2.2)
+        }
+        XCTAssertTrue(waitForField(app, "last:paid:touch-yard", timeout: 4), "the hold paid the yard")
+        XCTAssertTrue(waitForSceneGold(app, 130, timeout: 4), "70 gold, once")
+        XCTAssertTrue(sceneField(app, "yard:")?.hasPrefix("1+2") == true, "the drill yard is ordered: "
+                      + (sceneField(app, "yard:") ?? "?"))
+        XCTAssertTrue(waitForField(app, "count:none", timeout: 4), "the board has gone")
+        pause(1.0)
+        XCTAssertEqual(sceneField(app, "lanterns:"), "1", "the site lantern burns on")
+        attach(XCUIScreen.main.screenshot(), "302-yard-paid-lantern-\(language)")
+        app.terminate()
+    }
+
+    /// Day 5 at noon with the drill yard standing: they drill; the kettle's place is offered.
+    func testTheNoonDrill() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "12", "-GWCameraX", "1500",
+                                                  "-GWGold", "200", "-GWYard", "2", "-GWFreezeTime", "YES"]
+        app.launch()
+        guard waitUntilReady(app, name: "yard-noon") else { return }
+        pause(1.0)
+        let word = sceneField(app, "yard:") ?? "?"
+        note("303-yard-state", word)
+        XCTAssertTrue(word.hasPrefix("2"), "the drill yard stands: \(word)")
+        XCTAssertTrue(word.contains("drill"), "noon: they drill: \(word)")
+        XCTAssertNotNil(waitForThing(app, "touch-yard-kettle", timeout: 4), "the kettle's place is offered")
+        attach(XCUIScreen.main.screenshot(), "303-yard-noon-drill-\(language)")
+        app.terminate()
+    }
+
+    /// A night with the pitch kettle in use and every soldier trained (the archers' every third arrow burns).
+    func testANightWithTheKettle() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = YardUITests.base + ["-GWNight", "6", "-GWHour", "22", "-GWCameraX", "1300",
+                                                  "-GWYard", "2,kettle", "-GWTrained", "YES"]
+        app.launch()
+        guard waitUntilReady(app, name: "yard-night") else { return }
+        pause(2.5)
+        let word = sceneField(app, "yard:") ?? "?"
+        note("304-yard-state", word)
+        XCTAssertTrue(word.contains("k:u"), "the kettle is in use: \(word)")
+        if let trained = word.split(separator: ",").first(where: { $0.hasPrefix("t:") }) {
+            let parts = trained.dropFirst(2).split(separator: "/")
+            XCTAssertEqual(parts.first, parts.last, "every soldier is trained: \(word)")
+        } else {
+            XCTFail("no trained count: \(word)")
+        }
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "touch-yard-kettle").firstMatch.exists,
+                       "no yard thing at night")
+        attach(XCUIScreen.main.screenshot(), "304-yard-night-kettle-\(language)")
+        app.terminate()
+    }
+
+    // MARK: - Helpers (as CountUITests has them)
+
+    private func waitUntilReady(_ app: XCUIApplication, name: String) -> Bool {
+        let scene = element(app, "world-scene")
+        guard scene.waitForExistence(timeout: 60) else {
+            attach(XCUIScreen.main.screenshot(), "\(name)-missing-\(language)")
+            XCTFail("\(name): no scene")
+            return false
+        }
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value CONTAINS %@", "ready"),
+                                              object: scene)
+        guard XCTWaiter().wait(for: [ready], timeout: 60) == .completed else {
+            attach(XCUIScreen.main.screenshot(), "\(name)-notready-\(language)")
+            XCTFail("\(name): the scene never reported ready")
+            return false
+        }
+        return true
+    }
+
+    private func waitForField(_ app: XCUIApplication, _ text: String, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            if ((element(app, "world-scene").value as? String) ?? "").contains(text) { return true }
+            pause(0.15)
+        }
+        return false
+    }
+
+    private func element(_ app: XCUIApplication, _ identifier: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+    }
+
+    /// DESIGN.md "Accessibility": every target at least 44 pt.
+    private func checkTarget(_ element: XCUIElement, _ name: String) {
+        guard element.exists else {
+            XCTFail("\(name) is missing")
+            return
+        }
+        let frame = element.frame
+        XCTAssertGreaterThanOrEqual(frame.width, 43.5, "\(name) is \(frame.width) pt wide")
+        XCTAssertGreaterThanOrEqual(frame.height, 43.5, "\(name) is \(frame.height) pt high")
+    }
+
+    private func attach(_ screenshot: XCUIScreenshot, _ name: String) {
+        let attachment = XCTAttachment(screenshot: screenshot)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func note(_ name: String, _ text: String) {
+        let attachment = XCTAttachment(string: text)
+        attachment.name = "\(name)-\(language)"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func pause(_ seconds: TimeInterval) {
+        let gone = expectation(description: "wait \(seconds) s")
+        gone.isInverted = true
+        wait(for: [gone], timeout: seconds)
+    }
+}

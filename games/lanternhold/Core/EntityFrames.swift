@@ -625,7 +625,30 @@ enum EntityFrames {
             let width = Double((job.target == .bigLodge ? SpriteID.bigLodge : SpriteID.lodge).size.width)
             scaffold(&props, centre: lodgeCentre, width: width)
         }
+        yardProps(s, props: &props)
     }
+
+    /// b3-yard (build 3, wave 2, lane 2, step 1): the drill yard's placeholder props, sprites the game already has,
+    /// until the picture step draws the yard (tools/yardart.py): while it stands a row of pells (the stake row), and
+    /// with the pitch kettle a small pot burning by them, with a small warm light.
+    static let yardPellsX = Yard.groundLeft + 1
+    static let yardKettleX = Yard.groundRight - 7
+
+    private static func yardProps(_ s: GameState, props: inout PropList) {
+        guard let yard = s.yard, yard.stands else { return }
+        props.add(.stakePit, x: yardPellsX, z: 1, frame: 0)
+        guard yard.kettleInUse else { return }
+        let seed: UInt64 = 0x5941_5244_4B45
+        let flame = fire(.brazierFlame, dx: -1.5, dy: 4, seed: seed)
+        props.add(.firepot, x: yardKettleX, z: 1, emissive: [flame],
+                  lights: [LightSource(kind: .brazier, x: yardKettleX + 2.5, y: 8, radius: 14, intensity: 0.55,
+                                       flickerSeed: seed)])
+    }
+
+    /// b3-yard (step 1, placeholder): at most this many soldiers are drawn at the drill, this far apart, from here.
+    static let yardDrillers = 4
+    static let yardDrillGap = 5.0
+    static let yardDrillX = Yard.groundLeft + 27
 
     /// The lit rooms of a town house (round 2 joined; SPRITES.md "The town at night"): in look 2 an emissive sprite
     /// of the house's size, painted over its glass, shows a room in every window at dusk and night (a wall brightest
@@ -1468,6 +1491,19 @@ enum EntityFrames {
                 waiting += 1
             default:
                 break
+            }
+        }
+
+        // b3-yard (build 3, wave 2, lane 2, step 1; placeholder): while they drill (09:00 to 16:00, the yard standing) a
+        // few of the soldiers stand in the yard by the pells with the sprites they have, facing the wall; the drill walk,
+        // the butts and the looks come with the picture step. Reduce Motion: they stand still.
+        if Yard.drilling(s, balance: balance) {
+            var drawnAtDrill = 0
+            for soldier in s.soldiers where soldier.state == .reserve && drawnAtDrill < yardDrillers {
+                let x = yardDrillX + yardDrillGap * Double(drawnAtDrill)
+                let frame = reduceMotion ? 0 : Int((time * 2 + Double(soldier.id % 5) * 0.37).rounded(.down)) % 2
+                add(soldier.kind == .archer ? .archer : .guardsman, frame: frame, x: x, y: 0, flipped: true)
+                drawnAtDrill += 1
             }
         }
 
