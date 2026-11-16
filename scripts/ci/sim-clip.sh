@@ -32,6 +32,11 @@
 # the stream has run before the clip starts; the app's value probe is read again at 1, 4 and 7 s of the recording and
 # noted beside the stills ("clip probe <t> s: ..."), and the note says "NO HORDE" in its last line unless each of the
 # three says seen >= 8.
+# Step 5 (the director's call 3: a horde, not a file): the stream comes in spawns of their own gaps, clumps and paces
+# (`HordeProof.spawnStream`, a stand-in for the packs of step B), each probe also says open:<n> (the small ones crossing
+# the open, not the heap), and NO HORDE stands unless open >= 8 too; the upright clip loses its left 80 px (M5: the
+# simulator's sensor pill), cut with as much of the top and bottom as keeps its shape. (clip-turn.swift, the fallback
+# when ffmpeg is missing, does not cut it.)
 # Everything lands in $CI_OUT/clip/ (published with the round's results by publish-results.sh). It never fails a round:
 # whatever goes wrong, it says so in clip-note.txt and exits 0.
 set -u
