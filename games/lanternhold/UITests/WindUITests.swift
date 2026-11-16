@@ -1,13 +1,18 @@
 import UIKit
 import XCTest
 
-/// Build 3, POLISH pass 1 (docs/POLISH.md section 2; lane 3): the wind seen, look 2, every shot held still
-/// (`-GWFreezeTime YES`, `-GWFlickerTime`): the windmill at the valley's end (camera at the world's end) and the keep
-/// with its two flags (the demo realm's tier 2, from the hall door) on a calm day (`-GWWind 0.08`), in a breeze and in
-/// a storm; the keep in a wind from the valley (the flags stream west) and in a storm under Reduce Motion (they stand);
-/// then a filmstrip of one gust on a gusty day at the keep, eight frames 0.25 s of game time apart (the gust reaches
-/// the great pole's flag between the second and the fourth frame; seed 1). Only keys that exist: `-GWWeather`,
-/// `-GWWind`, `-GWRain`, `-GWCameraX`.
+/// Build 3, POLISH pass 1 (docs/POLISH.md section 2; lane 3): the wind seen and the two rains, look 2, every shot held
+/// still (`-GWFreezeTime YES`, `-GWFlickerTime`) and asserting the world strip (`stage:world`).
+/// - `testWind`: the windmill at the valley's end (camera at the world's end) and the keep with its two flags (the demo
+///   realm's tier 2, from the hall door) on a calm day (`-GWWind 0.08`), in a breeze and in a storm; the keep in a wind
+///   from the valley (the flags stream west) and in a storm under Reduce Motion (they stand); tier 3 at dusk and at
+///   noon (the keep's flag, the postern's, the curtain's banners).
+/// - `testRain` (step 2, the two rains): the town in rain at noon and at dusk with its windows lit; the band at the
+///   outer wall (stone, world 640) by day and by night, water east of it and ash west of it; the gorge in ash at night;
+///   a calm rain and a storm's rain over the town; the band under Reduce Motion (the forms held).
+/// - `testFilmstrips` (step 2): eight frames 1/12 s of game time apart: both keep flags in a breeze, the sails in a dry
+///   storm, the curtain's banner in a dry storm, the rain's and the ash's fall at the band.
+/// Only keys that exist: `-GWWeather`, `-GWWind`, `-GWRain`, `-GWCameraX`, `-GWCastle`, `-GWReduceMotion`.
 /// Saves `<nnn>-wind-<what>-<lang>` from 300.
 @MainActor
 final class WindUITests: XCTestCase {
@@ -23,16 +28,25 @@ final class WindUITests: XCTestCase {
     /// in the world strip: a lord placed at the hall door would otherwise start inside the hall (`startStage`).
     private func noon(_ time: Double, hour: String = "12") -> [String] {
         ["-GWDay", "12", "-GWHour", hour, "-GWBuild", "demo", "-GWFreezeTime", "YES",
-         "-GWFlickerTime", String(format: "%.2f", time), "-GWLook", "2", "-GWStage", "world"]
+         "-GWFlickerTime", String(format: "%.4f", time), "-GWLook", "2", "-GWStage", "world"]
     }
+
+    private let mill = ["-GWCameraX", "3900"]
+    private let keep = ["-GWCameraX", "1830"]
+    private let tierThree = ["-GWCameraX", "1960", "-GWCastle", "3"]
+    private let town = ["-GWCameraX", "2900"]
+    /// The outer line's stone wall (world 640) a little right of the screen's middle: water east, ash west.
+    private let band = ["-GWCameraX", "600"]
+    private let gorge = ["-GWCameraX", "300"]
+    private let calm = ["-GWWeather", "clear", "-GWWind", "0.08"]
+    private let breeze = ["-GWWeather", "breeze"]
+    private let storm = ["-GWWeather", "storm"]
+    private let dryStorm = ["-GWWeather", "storm", "-GWRain", "0"]
+    /// Rain on a breezy day: the slant of the steady wind, the ash drifting with it.
+    private let rain = ["-GWWeather", "clear", "-GWWind", "0.35", "-GWRain", "1"]
 
     func testWind() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        let mill = ["-GWCameraX", "3900"]
-        let keep = ["-GWCameraX", "1830"]
-        let calm = ["-GWWeather", "clear", "-GWWind", "0.08"]
-        let breeze = ["-GWWeather", "breeze"]
-        let storm = ["-GWWeather", "storm"]
         let stills: [(name: String, arguments: [String])] = [
             ("300-wind-calm-mill", mill + calm + noon(30.4)),
             ("301-wind-breeze-mill", mill + breeze + noon(30.4)),
@@ -47,17 +61,46 @@ final class WindUITests: XCTestCase {
             ("307-wind-west-keep", keep + ["-GWWeather", "clear", "-GWWind", " -0.6"] + noon(30.4)),
             ("308-wind-storm-reduce-motion-keep", keep + storm + ["-GWReduceMotion", "YES"] + noon(30.4)),
             // Dusk on a breezy day at tier 3: the keep's flag and the curtain's banners by torchlight.
-            ("309-wind-breeze-dusk-banners", ["-GWCameraX", "1960", "-GWCastle", "3"] + breeze
-                + noon(30.4, hour: "19.2")),
+            ("309-wind-breeze-dusk-banners", tierThree + breeze + noon(30.4, hour: "19.2")),
+            // Step 2 (the critic's M4): tier 3 at noon, the banners' lit edge against the curtain by day.
+            ("318-wind-breeze-noon-tier3", tierThree + breeze + noon(30.4)),
         ]
         for still in stills {
             shoot(still.name, still.arguments)
         }
-        // One gust on a gusty day: 30.40 s to 32.15 s of game time.
-        for index in 0..<8 {
-            let time = 30.4 + Double(index) * 0.25
-            shoot(String(format: "%03d-wind-gust-keep-%d", 310 + index, index),
-                  keep + ["-GWWeather", "gusty"] + noon(time))
+    }
+
+    func testRain() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let stills: [(name: String, arguments: [String])] = [
+            ("320-rain-town-noon", town + rain + noon(30.4)),
+            ("321-rain-town-dusk-windows", town + rain + noon(30.4, hour: "19.4")),
+            ("322-rain-band-outer-wall-noon", band + rain + noon(30.4)),
+            ("323-rain-band-outer-wall-night", band + rain + noon(30.4, hour: "22")),
+            ("324-rain-gorge-ash-night", gorge + rain + noon(30.4, hour: "22")),
+            ("325-rain-calm-town", town + calm + ["-GWRain", "1"] + noon(30.4)),
+            ("326-rain-storm-town", town + storm + noon(30.4)),
+            ("327-rain-band-reduce-motion", band + rain + ["-GWReduceMotion", "YES"] + noon(30.4)),
+        ]
+        for still in stills {
+            shoot(still.name, still.arguments)
+        }
+    }
+
+    func testFilmstrips() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let strips: [(first: Int, what: String, arguments: [String])] = [
+            (310, "flags-breeze-keep", keep + breeze),
+            (330, "sails-storm-mill", mill + dryStorm),
+            (340, "banner-storm-tier3", tierThree + dryStorm),
+            (350, "rain-fall-band", band + rain),
+        ]
+        for strip in strips {
+            for index in 0..<8 {
+                let time = 30.4 + Double(index) / 12
+                shoot(String(format: "%03d-wind-strip-%@-%d", strip.first + index, strip.what, index),
+                      strip.arguments + noon(time))
+            }
         }
     }
 
