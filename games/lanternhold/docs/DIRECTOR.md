@@ -964,3 +964,10 @@ schneller geht."
   - Apple's processing follows before it shows on the phone. English only, taxes on foot.
   - Asked of Louis: tap "Double taxes today" once on a dawn from day 9 on and say whether the taxes double; the lantern menu's fade; the cold launch.
   - Build 3, wave 1, step 1 runs since 15.11. 23:50 as three workflows (count, wind, horde), each build, review, gate, critic.
+
+- **Build 3, the horde lane: step 1 is green but the picture fails; step 2 is briefed (16.11.2026, 01:53).**
+  - `claude/lh-b3-horde` f5fdb308, round `lh-b3h-12` ALL PASSED (verified on origin). Three bodies, the thread, the fall, the heap and the clip step exist; Battle, Balance, GameState and Sim are untouched.
+  - The critic: fail, 5/10. In play no body shows at night, the threads are ruled sticks, the death does not read, the sockets pair up into eyes, the tumbler is too near a famous film's soot sprite. The director looked and confirms all of it.
+  - The director's art direction: the small ones are scraps shed from the Ash Giant's cloak that learned to walk: an ochre and olive rag over the back, navy limbs, one cold point. Kin of the giant, and readable at night as he is.
+  - Decision: the horde lane may add one tagged Debug-only block each in App/DebugArgs.swift and App/GameStart.swift for a `-GWHorde` proof key.
+  - Step 2 = the fix round with proof shots (ten in the open, a heap at a wall, an upright clip). Quota 65 % of the week.
