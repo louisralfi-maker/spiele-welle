@@ -200,6 +200,15 @@ final class PaySignTests: XCTestCase {
     /// board (the count then waits, as it does today).
     func testAPoorPurseShowsAHollowCoin() throws {
         let game = engineGame(gold: 80)
+        // The purse the player sees holds back the town's coins still in the air (`townShownGold`; round lh-b3c-41:
+        // with 80 in the purse it showed under 70): set what he sees to 80.
+        let state = try XCTUnwrap(game.driver?.state)
+        let held = state.gold - game.townShownGold(state, balance: game.driver?.balance ?? .standard)
+        game.withDriver { driver in driver.state.gold = 80 + held }
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let shownState = try XCTUnwrap(game.driver?.state)
+        let shown = game.townShownGold(shownState, balance: game.driver?.balance ?? .standard)
+        XCTAssertTrue(shown >= 70 && shown < 110, "the purse shows \(shown): enough for the ballista, not the catapult")
         let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         XCTAssertEqual(frame.actors.filter { $0.sprite == .payCoin && $0.frame == 0 }.count, 1, "70: a gold coin")
         XCTAssertEqual(frame.actors.filter { $0.sprite == .hudHollow && $0.frame == 0 }.count, 1, "110: a hollow")
@@ -232,11 +241,15 @@ final class PaySignTests: XCTestCase {
         let shingles = frame.actors.filter { $0.sprite == .paySign }
         XCTAssertEqual(shingles.count, 1, "only the chosen one")
         XCTAssertEqual(shingles.first?.frame, 0, "the ballista's")
-        let postMiddle = framing.deviceX(stageX: Double(board.postLeft) + 3)
+        // The camera follows the lord as he walks to the board (round lh-b3c-41: measured with the framing from before
+        // the walk, the shingle stood 3.5 px off): the framing and the board of this frame.
+        let seen = try XCTUnwrap(game.touch.framing)
+        let standing = try XCTUnwrap(game.touch.countBoard)
+        let postMiddle = seen.deviceX(stageX: Double(standing.postLeft) + 3)
         if let chosen = shingles.first {
-            XCTAssertEqual(Double(chosen.rect.x + chosen.rect.z / 2), postMiddle, accuracy: Double(framing.scale) * 1.6,
+            XCTAssertEqual(Double(chosen.rect.x + chosen.rect.z / 2), postMiddle, accuracy: Double(seen.scale) * 1.6,
                            "centred on the board's post")
-            XCTAssertLessThan(Double(chosen.rect.y + chosen.rect.w), framing.deviceY(lift: board.top),
+            XCTAssertLessThan(Double(chosen.rect.y + chosen.rect.w), seen.deviceY(lift: standing.top),
                               "over the board")
         }
         run(game, seconds: 12) { game.touch.count?.ready == true }
