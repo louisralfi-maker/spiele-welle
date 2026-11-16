@@ -237,8 +237,20 @@ extension GameModel {
         touch.firstSlipPending = false
         let layout = PayBoardLayout.make(PayCount.hollows(price: found.price))
         let place = countBoardPlace(thing, layout: layout)
-        let stand = groundX(place.x + place.side * (Double(layout.width) / 2 + GameModel.countStandGap))
-        let board = CountBoard(x: place.x, stand: stand, act: thing.act, layout: layout, side: place.side)
+        let reach = Double(layout.width) / 2 + GameModel.countStandGap
+        var boardX = place.x
+        var stand = groundX(boardX + place.side * reach)
+        // A repair is ordered within the king's reach of the wall (Sim.inReach, measured from the wall's thing x; round
+        // lh-b3c-21: beside the gate he stood 8 px out of reach and the seal was refused). The board steps in toward
+        // the wall's jamb until his stand, give or take his arrival, is in reach; he stays on its outer side.
+        if thing.kind == .wall, let game = driver {
+            let over = abs(stand - thing.x) - (game.balance.kingReach - TouchRules.arrival - 1)
+            if over > 0 {
+                boardX -= place.side * over.rounded(.up)
+                stand = groundX(boardX + place.side * reach)
+            }
+        }
+        let board = CountBoard(x: boardX, stand: stand, act: thing.act, layout: layout, side: place.side)
         // A lantern still lit on this post (the last recruit's, 3 s) gives way to the new board and its own unlit
         // lantern (the review of step 2: an unlit lantern was drawn over a lit one whose heart still glowed).
         touch.countLanterns.removeAll { abs($0.postLeft - board.postLeft) < SpriteID.siteLantern.size.width }
@@ -255,8 +267,8 @@ extension GameModel {
     /// Where `thing`'s board stands (step 2, the critic's H3: the gate's board covered its doorway, the guard's stood
     /// in Marek's cart): beside the thing on the lord's side, its far edge at the thing's frame (the barracks: the
     /// archer's board at its left wall, the guard's at its right), never over the thing itself; the nearest place
-    /// within `countBoardSearch` px whose box is clear of everyone standing there, Marek's cart and every door (the
-    /// outer way first), else that first place. Returns the board's middle and its side.
+    /// within `countBoardSearch` px outward whose box is clear of everyone standing there, Marek's cart and every door,
+    /// else that first place. Returns the board's middle and its side.
     func countBoardPlace(_ thing: TouchThing, layout: PayBoardLayout) -> (x: Double, side: Double) {
         let half = Double(layout.width) / 2
         var frameLeft = thing.x - thing.halfWidth
@@ -277,15 +289,10 @@ extension GameModel {
             guard left >= 0, right <= Realm.walkEnd else { return false }
             return !blocked.contains { $0.lowerBound < right && $0.upperBound > left }
         }
-        // The side follows the place found (the review: a narrow thing's board searched inward could end past its far
-        // side, and the lord must still stand on the board's outer side).
-        let middle = (frameLeft + frameRight) / 2
-        for step in 0...GameModel.countBoardSearch {
-            let offsets = step == 0 ? [0.0] : [Double(step) * side, -Double(step) * side]
-            for offset in offsets where clear(ideal + offset) {
-                let x = ideal + offset
-                return (x, x < middle ? -1 : 1)
-            }
+        // Outward only (the review): every place toward the thing reaches into its frame until it has crossed it, and a
+        // board past a narrow thing's far side would leave the lord between the two, or the board on the wrong side.
+        for step in 0...GameModel.countBoardSearch where clear(ideal + Double(step) * side) {
+            return (ideal + Double(step) * side, side)
         }
         return (ideal, side)
     }
