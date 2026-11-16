@@ -129,7 +129,8 @@ extension GameModel {
                      visible: visible)
         // The count's figure drops with each clink, never trailing the board (PAY.md 1.2; round lh-b3c-13: the full
         // board of 90 showed 132 of 110, the ticker's stride falls behind coins 0.05 s apart).
-        if visible, touch.count?.isOpen == true, let shown = purse.shown, shown != purse.target {
+        // Step 2 (H5): the same while the coins of a let go come home one by one.
+        if visible, countMoving, let shown = purse.shown, shown != purse.target {
             purse.shown = purse.target
             purse.lastTick = clock.elapsed
         }
@@ -162,7 +163,9 @@ extension GameModel {
     func lanternWorld(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming) {
         let block = lordNotesBlock
         if !block.pieces.isEmpty {
-            layer.actors += HUDKitActors.actors(block, lordX: state.king.x, groundLift: 0, framing: framing)
+            // Build 3, the count's step 2 (M2): the figure never touches a board standing by the lord.
+            let room = countPurseRoom(width: block.width, lordX: state.king.x)
+            layer.actors += HUDKitActors.actors(block, lordX: room.x, groundLift: room.ground, framing: framing)
         }
         if touch.lordHintOn && lanternMoment == nil { lordHintGlint(&layer, state: state) }
         guard lanternMoment != nil else { return }

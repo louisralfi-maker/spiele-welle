@@ -84,6 +84,11 @@ struct TouchState: Sendable {
     /// The cues still to come after a seal, and how the last count ended (`paid:touch-plot-0`; the scene's value).
     var countCues: [CountCue] = []
     var countLast = "none"
+    /// Step 2: the board a new count replaced (its coins still going home, it sinks away), and the site lanterns the
+    /// seals lit, burning on their posts while their jobs run.
+    var countOld: PayCount?
+    var countOldBoard: CountBoard?
+    var countLanterns: [CountLantern] = []
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger

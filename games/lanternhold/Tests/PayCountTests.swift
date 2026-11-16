@@ -231,7 +231,8 @@ final class PayCountTests: XCTestCase {
         _ = run(&count, seconds: 0.5, gold: 100)
         XCTAssertEqual(count.placed, 0, "the first touch brings the board, no coin")
         count.tap()
-        _ = run(&count, seconds: 0.1, gold: 100)
+        // Step 2: the coin flies from his hand and lands a flight later.
+        _ = run(&count, seconds: 0.2, gold: 100)
         XCTAssertEqual(count.placed, 1, "a tap sets one coin")
         count.tap()
         count.tap()
@@ -240,7 +241,7 @@ final class PayCountTests: XCTestCase {
         // A quick press that set no coin is a tap.
         count.press()
         count.lift(tap: true)
-        _ = run(&count, seconds: 0.1, gold: 100)
+        _ = run(&count, seconds: 0.2, gold: 100)
         XCTAssertEqual(count.placed, 4)
         // A hold goes on from there.
         count.press()
@@ -270,14 +271,151 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(count.riseShare, 1, "up 0.15 s after the touch")
         count.arrive()
         count.tap()
-        _ = run(&count, seconds: 0.1, gold: 100)
+        _ = run(&count, seconds: 0.2, gold: 100)
+        XCTAssertEqual(count.placed, 1)
         XCTAssertNil(count.slideShare, "the coin lies on the board")
         var beats: [PayBeat] = []
         while !beats.contains(.slideBack) { beats += count.step(step, gold: 100) }
         XCTAssertEqual(count.result, .letGo, "two seconds without a touch")
-        XCTAssertEqual(count.slideShare ?? -1, 0, accuracy: 0.06, "the slide starts")
+        XCTAssertEqual(count.slideShare ?? -1, 0, accuracy: 0.1, "the slide starts")
         _ = run(&count, seconds: PayCount.slideSeconds + step, gold: 100)
-        XCTAssertEqual(count.slideShare ?? 0, 1, accuracy: 1e-9, "back in 0.3 s")
+        XCTAssertEqual(count.slideShare ?? 0, 1, accuracy: 1e-9, "one coin home in its flight")
+    }
+
+    // MARK: - Step 2: the flight, the waits, the way home
+
+    /// The critic's blocker: every coin leaves the lord's hand a flight before its moment and lands on it, so the
+    /// schedule of PAY.md section 2 stands; never more than two coins in the air, even on the longest board.
+    func testACoinFliesFromTheHandAndLandsOnItsMoment() {
+        for price in [90, 199] {
+            var count = PayCount(thing: "t", offer: .patch(plot: 0), price: price, holding: true)
+            count.arrive()
+            let n = count.coins.count
+            let landings = PayCount.landings(count: n)
+            var beats: [PayBeat] = []
+            var sawInAir = false
+            var most = 0
+            while count.result == nil && count.time < 3 {
+                beats += count.step(step, gold: 500)
+                most = max(most, count.inFlight)
+                if count.placed == 0, let share = count.flightShare(0), share > 0, share < 1 { sawInAir = true }
+            }
+            XCTAssertTrue(sawInAir, "\(price): the first coin is seen in the air")
+            XCTAssertEqual(count.launched.count, n)
+            XCTAssertEqual(count.landed.count, n)
+            for index in 0..<min(n, count.landed.count) {
+                XCTAssertEqual(count.launched[index], landings[index] - PayCount.flight, accuracy: 1e-6,
+                               "\(price): coin \(index) leaves his hand a flight before its moment")
+                XCTAssertEqual(count.landed[index], landings[index], accuracy: 1e-6, "\(price): and lands on it")
+            }
+            XCTAssertLessThanOrEqual(most, 2, "\(price): at most two coins in the air")
+            XCTAssertEqual(coins(beats), n, "a clink for every landing")
+            XCTAssertEqual(count.result, .paid)
+        }
+        XCTAssertGreaterThanOrEqual(PayCount.flight, 0.1)
+        XCTAssertLessThanOrEqual(PayCount.flight, 0.14)
+    }
+
+    /// A tap: the coin leaves his hand at once and lands a flight later; the clink comes at the landing.
+    func testATapLeavesAtOnceAndLandsAFlightLater() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        count.arrive()
+        _ = run(&count, seconds: 0.5, gold: 100)
+        count.tap()
+        let tapped = count.time
+        var beats = count.step(step, gold: 100)
+        XCTAssertEqual(count.launched.count, 1, "the tapped coin leaves his hand at once")
+        XCTAssertEqual(count.placed, 0, "it is in the air")
+        XCTAssertEqual(coins(beats), 0, "no clink yet")
+        beats += run(&count, seconds: PayCount.flight - 2 * step, gold: 100)
+        XCTAssertEqual(count.placed, 0, "still in the air")
+        beats += run(&count, seconds: 3 * step, gold: 100)
+        XCTAssertEqual(count.placed, 1, "it lands a flight later")
+        XCTAssertEqual(coins(beats), 1, "the clink at the landing")
+        XCTAssertEqual(count.launched.first ?? 0, tapped + step, accuracy: 1e-9)
+        XCTAssertEqual((count.landed.first ?? 0) - (count.launched.first ?? 0), PayCount.flight, accuracy: 1e-6)
+    }
+
+    /// The critic's H5: an empty board waits five seconds for the finger (the rocking coin is the lesson); once a
+    /// coin lies on it, two.
+    func testAnEmptyBoardWaitsFiveSecondsAndALaidCoinTwo() {
+        var empty = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        empty.arrive()
+        _ = run(&empty, seconds: PayCount.emptyWait - 0.2, gold: 100)
+        XCTAssertTrue(empty.isOpen, "an empty board waits five seconds")
+        _ = run(&empty, seconds: 0.4, gold: 100)
+        XCTAssertEqual(empty.result, .letGo)
+        var laid = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        laid.arrive()
+        laid.tap()
+        _ = run(&laid, seconds: 0.3, gold: 100)
+        XCTAssertEqual(laid.placed, 1)
+        _ = run(&laid, seconds: PayCount.slideAfter - 0.3, gold: 100)
+        XCTAssertTrue(laid.isOpen, "a coin on the board: it waits two seconds after it")
+        _ = run(&laid, seconds: 0.5, gold: 100)
+        XCTAssertEqual(laid.result, .letGo)
+    }
+
+    /// The critic's H5: let go, the coins come home one by one, the last laid first, `homeGap` apart, and the purse
+    /// takes each as it arrives (`heldValue` counts the coins not yet home).
+    func testTheCoinsComeHomeOneByOneTheLastFirst() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        count.arrive()
+        for _ in 0..<4 { count.tap() }
+        _ = run(&count, seconds: 0.5, gold: 100)
+        XCTAssertEqual(count.placed, 4)
+        XCTAssertEqual(count.heldValue, 40)
+        count.letGo()
+        XCTAssertEqual(count.heldValue, 40, "nothing is home yet")
+        var homes: [Int] = []
+        var moments: [Double] = []
+        var values = [count.heldValue]
+        var guardSteps = 0
+        while !count.isGone && guardSteps < 600 {
+            guardSteps += 1
+            for beat in count.step(step, gold: 100) {
+                if case .home(let index) = beat {
+                    homes.append(index)
+                    moments.append(count.time)
+                }
+            }
+            if values.last != count.heldValue { values.append(count.heldValue) }
+        }
+        XCTAssertEqual(homes, [3, 2, 1, 0], "the last laid first")
+        XCTAssertEqual(values, [40, 30, 20, 10, 0], "the purse takes each coin as it arrives")
+        for index in 1..<moments.count {
+            XCTAssertEqual(moments[index] - moments[index - 1], PayCount.homeGap, accuracy: step + 1e-9)
+        }
+        XCTAssertEqual(count.homeShare(0), 1)
+        XCTAssertTrue(count.isGone, "then the board goes down")
+    }
+
+    /// The critic's H1 and M1: each plank tile is picked by a hash, never the same as its neighbour, and stays put;
+    /// the coins' faces never run in a plain cycle.
+    func testTheTilesAndFacesVary() {
+        for thing in ["touch-plot-0", "touch-wall-6", "touch-recruit-guard"] {
+            for row in 0..<3 {
+                var previous: Int?
+                var seen = Set<Int>()
+                for index in 0..<12 {
+                    let pick = PayBoardLayout.pick(PayBoardLayout.plankMiddles, thing: thing, row: row, index: index,
+                                                   previous: previous)
+                    XCTAssertTrue(PayBoardLayout.plankMiddles.contains(pick))
+                    XCTAssertNotEqual(pick, previous, "no two alike side by side")
+                    XCTAssertEqual(pick, PayBoardLayout.pick(PayBoardLayout.plankMiddles, thing: thing, row: row,
+                                                             index: index, previous: previous), "it stays put")
+                    seen.insert(pick)
+                    previous = pick
+                }
+                XCTAssertGreaterThanOrEqual(seen.count, 2)
+            }
+        }
+        let faces = (0..<9).map { PayBoardLayout.face(of: $0) }
+        XCTAssertEqual(Set(faces), [0, 1, 2], "three faces")
+        XCTAssertNotEqual(faces, [0, 1, 2, 0, 1, 2, 0, 1, 2], "not a plain cycle")
+        XCTAssertEqual(SpriteID.hudHollowTen.frameCount, 4, "empty and three faces")
+        XCTAssertEqual(SpriteID.payCoin.frameCount, 4, "three faces and the edge")
+        XCTAssertEqual(SpriteID.siteLantern.size, PixelSize(width: 9, height: 13), "the lantern is no speck")
     }
 
     // MARK: - The board
@@ -358,6 +496,21 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(count.placed, 4, "half of nine coins")
         XCTAssertTrue(PayFreeze.share(0).holds(count))
         XCTAssertFalse(PayFreeze.full.holds(count))
+        // Step 2's filmstrips: a coin at an exact share of its flight.
+        XCTAssertEqual(PayFreeze.parse("fly:1:0.5"), .flight(coin: 1, share: 0.5))
+        XCTAssertNil(PayFreeze.parse("fly:x:0.5"))
+        XCTAssertNil(PayFreeze.parse("fly:1"))
+        var held = PayCount(thing: "t", offer: .patch(plot: 0), price: 90, holding: true)
+        held.arrive()
+        let fly = PayFreeze.flight(coin: 1, share: 0.5)
+        var frames = 0
+        while !fly.holds(held) && frames < 600 {
+            frames += 1
+            let room = fly.room(held) ?? step
+            _ = held.step(min(step, room), gold: 500)
+        }
+        XCTAssertEqual(held.flightShare(1) ?? -1, 0.5, accuracy: 1e-6, "frozen on the exact moment")
+        XCTAssertEqual(held.placed, 1, "the first coin lies, the second is half way")
     }
 
     // MARK: - Through the game
@@ -619,5 +772,161 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(frame.actors.filter { $0.sprite == .hudHollowTen }.count, 9, "nine hollows for 90")
         XCTAssertTrue(frame.actors.contains { $0.sprite == .siteLantern && $0.frame == 0 }, "the lantern unlit")
         XCTAssertTrue(frame.actors.contains { $0.sprite == .hudCoinTen }, "the first coin rocks over its hollow")
+    }
+
+    // MARK: - Step 2 through the game
+
+    /// The critic's blocker: on a hold the coin is drawn in the air between the lord's hand and its hollow, turning
+    /// (its edge frame on the way), and lands in the hollow.
+    func testTheCoinIsDrawnFlyingFromTheLordsHand() throws {
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        let board = try XCTUnwrap(game.touch.countBoard)
+        var sawOff = false
+        var sawEdge = false
+        for _ in 0..<40 {
+            game.advance(by: 1.0 / 60)
+            let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            guard let live = game.touch.count, live.inFlight > 0, let framing = game.touch.framing else { continue }
+            let lordX = framing.deviceX(stageX: game.driver?.state.king.x ?? 0)
+            let near = board.side < 0 ? board.left : board.left + board.layout.width
+            let nearEdge = framing.deviceX(stageX: Double(near))
+            let boardTop = framing.deviceY(lift: board.top)
+            for actor in frame.actors where actor.sprite == .hudCoinTen {
+                let middle = Double(actor.rect.x + actor.rect.z / 2)
+                // Off the board: between his hand and the board's near edge, or over the board's top on its arc.
+                let beside = (middle - lordX) * (nearEdge - lordX) >= 0 && abs(middle - lordX) <= abs(nearEdge - lordX)
+                if beside || Double(actor.rect.y) < boardTop { sawOff = true }
+                if actor.frame == 3 { sawEdge = true }
+            }
+        }
+        XCTAssertTrue(sawOff, "a coin in the air off the board, on its way from his hand")
+        XCTAssertTrue(sawEdge, "turning in the air")
+        XCTAssertGreaterThan(game.touch.count?.placed ?? 0, 0, "and they land")
+    }
+
+    /// The critic's H3: the gate's board stands beside the gatehouse on the lord's side, never over the gate; the
+    /// recruits' boards beside the barracks, clear of Marek's cart; the lord on the board's outer side.
+    func testTheBoardStandsBesideItsThing() throws {
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        let lordX = try XCTUnwrap(game.driver?.state.king.x)
+        game.touchThing(gate)
+        let board = try XCTUnwrap(game.touch.countBoard)
+        let half = Double(board.layout.width) / 2
+        XCTAssertTrue(board.x + half <= gate.x - gate.halfWidth || board.x - half >= gate.x + gate.halfWidth,
+                      "never over the gate or its doorway")
+        XCTAssertEqual(board.side, lordX <= gate.x ? -1 : 1, "on the lord's side")
+        XCTAssertEqual(board.stand > board.x, board.side > 0, "he stands on its outer side")
+        let edge = board.side < 0 ? gate.x - gate.halfWidth - (board.x + half)
+            : board.x - half - (gate.x + gate.halfWidth)
+        XCTAssertLessThanOrEqual(edge, Double(GameModel.countBoardSearch) + 1, "beside it")
+        let blocked = game.countObstacles(gate)
+        let clear = !blocked.contains { $0.lowerBound < board.x + half + 1 && $0.upperBound > board.x - half - 1 }
+        let ideal = board.side < 0 ? (gate.x - gate.halfWidth - half).rounded(.down)
+            : (gate.x + gate.halfWidth + half).rounded(.up)
+        XCTAssertTrue(clear || board.x == ideal, "clear of everyone and every door, or no clear place within reach")
+
+        let barracks = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1580",
+                              "GWGold": "60"])
+        _ = barracks.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let cartLeft = CourtLayout.marekCartX
+        let cartRight = cartLeft + Double(SpriteID.marekCart.size.width)
+        let wallLeft = EntityFrames.barracksLeft
+        let wallRight = wallLeft + Double(SpriteID.barracks.size.width)
+        for id in ["touch-recruit-archer", "touch-recruit-guard"] {
+            let thing = try XCTUnwrap(barracks.touch.things.first { $0.id == id })
+            let layout = PayBoardLayout.make(PayCount.hollows(price: thing.price ?? 10))
+            let place = barracks.countBoardPlace(thing, layout: layout)
+            let w = Double(layout.width) / 2
+            XCTAssertFalse(place.x - w < cartRight && place.x + w > cartLeft, "\(id): never in Marek's cart")
+            XCTAssertFalse(place.x - w < wallRight && place.x + w > wallLeft, "\(id): beside the barracks")
+            XCTAssertEqual(place.side, id.hasSuffix("archer") ? -1 : 1, "\(id): at its own wall")
+        }
+    }
+
+    /// The critic's M2: the purse's figure never touches a board that stands by the lord.
+    func testThePurseFigureStandsClearOfTheBoard() throws {
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        let board = try XCTUnwrap(game.touch.countBoard)
+        let lordX = try XCTUnwrap(game.driver?.state.king.x)
+        for width in [17, 27, 33] {
+            let room = game.countPurseRoom(width: width, lordX: lordX)
+            let left = Double(HUDKit.centredLeft(lordX: room.x, width: width))
+            let right = left + Double(width)
+            let bottom = Double(HUDKit.lordHead + HUDKit.purseAbove) + room.ground
+            let overlaps = left < Double(board.left + board.layout.width) && right > Double(board.left)
+            XCTAssertTrue(!overlaps || bottom >= board.top + 4, "a figure \(width) px wide clears the board")
+        }
+    }
+
+    /// The critic's H2: the seal lights the site lantern; it stays lit on its post, with its halo and without the
+    /// board, while the work runs, and goes out when the work is done.
+    func testTheLitLanternBurnsWhileTheJobRuns() throws {
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        run(game, seconds: 3) { game.touch.countLast.hasPrefix("paid") }
+        XCTAssertEqual(game.touch.countLanterns.count, 1, "the seal lit the site lantern")
+        run(game, seconds: 2.5)
+        XCTAssertNil(game.touch.count, "the board has gone")
+        XCTAssertNotNil(game.driver?.state.plots[0].job, "the work runs")
+        XCTAssertEqual(game.touch.countLanterns.count, 1)
+        XCTAssertNil(game.touch.countLanterns.first?.outAt, "its lantern burns on")
+        let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertTrue(frame.actors.contains { $0.sprite == .siteLantern && $0.frame == 1 }, "lit on its post")
+        XCTAssertTrue(frame.actors.contains { $0.sprite == .payBoard }, "its post stands")
+        XCTAssertFalse(frame.actors.contains { $0.sprite == .hudHollowTen }, "without the board")
+        XCTAssertTrue(frame.emissives.contains { $0.sprite == .siteHalo }, "with its halo")
+        XCTAssertTrue(game.countWord.contains("lanterns:1"))
+        game.withDriver { driver in driver.state.plots[0].job = nil }
+        run(game, seconds: 1.5)
+        XCTAssertTrue(game.touch.countLanterns.isEmpty, "out and gone when the work is done")
+    }
+
+    /// Step 2's small edges: a count started on another thing lets the old board's coins come home one by one (the
+    /// purse ticks up with each) while the new board comes up; nothing is paid.
+    func testANewCountLetsTheOldBoardsCoinsComeHome() throws {
+        let game = gateGame(gold: 200)
+        let hub = SilentFeedback()
+        game.feedback = hub
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        run(game, seconds: 0.6)
+        var lifted = try XCTUnwrap(game.touch.count)
+        lifted.lift(tap: false)
+        game.touch.count = lifted
+        XCTAssertGreaterThan(lifted.placed, 0)
+        let other = try XCTUnwrap(game.touch.things.first { thing in
+            guard thing.id != gate.id, let found = game.countOffer(thing), let driver = game.driver else {
+                return false
+            }
+            return !PayOffers.refused(found.offer, state: driver.state, balance: driver.balance)
+        }, "another thing to buy")
+        game.touchThing(other)
+        XCTAssertEqual(game.touch.count?.thing, other.id, "the new board")
+        XCTAssertEqual(game.touch.countOld?.result, .letGo, "the old one lets its coins go")
+        let laid = game.touch.countOld?.placed ?? 0
+        XCTAssertGreaterThan(game.countHeld, 0, "its coins are not home yet")
+        run(game, seconds: 1)
+        XCTAssertNil(game.touch.countOld, "home, and the old board went down")
+        XCTAssertEqual(hub.ticks.count, laid, "a soft tick for every coin home")
+        XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid")
     }
 }

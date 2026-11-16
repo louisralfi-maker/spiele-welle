@@ -253,12 +253,10 @@ final class TouchUITests: XCTestCase {
             pause(0.4)
             attach(XCUIScreen.main.screenshot(), "153-touch-wall-board-\(language)")
             XCTAssertFalse(element(app, "touch-slip").exists, "no slip: the board is the price")
-            // An empty board goes down two seconds after the lord stands beside it with no touch (PAY.md 1.4; round
-            // lh-b3c-11: the test's own pauses outlasted it). Then the touch that brings it and a quick second touch,
-            // the coin (a tap while he walks waits for him).
-            XCTAssertTrue(waitForField(app, "count:none", timeout: 6), "the untouched board goes down")
+            // Step 2 (H5): an empty board waits 5 s for the finger once the lord stands beside it, so the second
+            // touch sets the coin on the board the first one brought; it flies from his hand and the seal falls.
+            XCTAssertTrue(waitForField(app, "count:touch-wall-0:0/1:there", timeout: 2), "the board still waits")
             if let again = waitForThing(app, "touch-wall-0", timeout: 2) {
-                touchThing(again)
                 touchThing(again)
                 XCTAssertTrue(waitForField(app, "last:paid:touch-wall-0", timeout: 3), "the coin paid the repair")
                 pause(0.15)
@@ -295,9 +293,8 @@ final class TouchUITests: XCTestCase {
             waitForStill(poor)
             pause(0.4)
             attach(XCUIScreen.main.screenshot(), "153a-touch-wall-short-\(language)")
-            XCTAssertTrue(waitForField(poor, "count:none", timeout: 6), "the untouched board goes down")
+            XCTAssertTrue(waitForField(poor, "count:touch-wall-0:0/1:there", timeout: 2), "the board still waits")
             if let again = waitForThing(poor, "touch-wall-0", timeout: 2) {
-                touchThing(again)
                 touchThing(again)
                 XCTAssertTrue(waitForField(poor, "last:short:touch-wall-0", timeout: 3), "short of gold: nothing paid")
             }

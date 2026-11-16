@@ -2,12 +2,25 @@ import CoreGraphics
 import Foundation
 
 /// Where a count's board stands (game px of the world strip): its middle, where the lord stands to pay, what the
-/// thing offers (the errand's act), and the board's layout.
+/// thing offers (the errand's act), the board's layout, and the side of the thing it stands on.
 struct CountBoard: Sendable, Equatable {
     var x: Double
     var stand: Double
     var act: KingTarget
     var layout: PayBoardLayout
+    /// -1: the board stands left of its thing, 1: right of it (the lord stands on its outer side).
+    var side: Double = -1
+
+    /// The board's bottom stands this high over the walk line, on its post.
+    static let lift = 8
+
+    /// The board's left edge and its top (game px over the walk line), the post's left edge and its top (the iron
+    /// plate the site lantern stands on), and the lantern's top.
+    var left: Int { Int(x.rounded(.down)) - layout.width / 2 }
+    var top: Double { Double(CountBoard.lift + layout.height) }
+    var postLeft: Int { left + layout.width / 2 - 3 }
+    var postTop: Double { top + 3 }
+    var lanternTop: Double { postTop + 3 + Double(SpriteID.siteLantern.size.height) }
 }
 
 /// A cue that comes a moment after the seal (the site lantern, then the work's own sound), at the clock's second.
@@ -16,19 +29,65 @@ struct CountCue: Sendable, Equatable {
     var cue: FeedbackCue
 }
 
-/// The count on screen (build 3, lane 1, step 1; docs/PAY.md sections 1, 2 and 4): a touch on a thing that is bought
-/// brings its tally board up on a short post at the thing (0.15 s) and sends the lord to stand beside it; a hold
-/// counts coin by coin, a tap sets one coin, both mix; letting go pays nothing (after 2 s the coins slide back); the
-/// last coin comes a beat late, then the seal: the order that exists today, the board snaps shut and the site lantern
-/// is lit. Not enough gold: the empty hollows blink, `decline`, the coins go back. A card, the horn, the background
-/// or the lantern moment cut a count off and it pays nothing. Nothing is saved while a count runs (`PayCount` is the
-/// pure part). For: the built plots' one offer (tiers, rebuilds, the Great Beacon's stages), a damaged wall's repair,
-/// the two recruits; an empty plot keeps its card (the director's notes of 15.11., item 6).
+/// A site lantern a seal lit (step 2, the critic's H2: "at night he sees what he paid for"): it stays on its post,
+/// without the board, while the paid job runs, read from the job state that exists (nothing saved), then goes out.
+struct CountLantern: Sendable, Equatable {
+    var offer: PayOffer
+    /// Its post's left edge and top (game px of the world strip).
+    var postLeft: Int
+    var postTop: Double
+    /// When it was lit, and when it went out (the clock's seconds).
+    var litAt: Double
+    var outAt: Double? = nil
+
+    /// A recruit is taken on at once: his lantern burns this long while he steps up.
+    static let recruitSeconds = 3.0
+    /// Gone out, the lantern stands dark this long and fades over the last `fadeSeconds` of it.
+    static let outSeconds = 0.7
+    static let fadeSeconds = 0.3
+
+    /// True while the paid job runs: a building or a tier while its plot has a job, a repair while its cooldown runs,
+    /// a recruit for `recruitSeconds` after the seal.
+    func burns(state: GameState, now: Double) -> Bool {
+        switch offer {
+        case .build(let plot, _):
+            return plot >= 0 && plot < state.plots.count && state.plots[plot].job != nil
+        case .patch:
+            return state.king.patchCooldown > 0
+        case .recruit:
+            return now - litAt < CountLantern.recruitSeconds
+        }
+    }
+}
+
+/// The count on screen (build 3, lane 1; docs/PAY.md sections 1, 2 and 4): a touch on a thing that is bought brings
+/// its tally board up on a short post beside the thing (0.15 s) and sends the lord to stand beside it; a hold counts
+/// coin by coin, a tap sets one coin, both mix; every coin flies from the lord's hand to its hollow (step 2) and
+/// clinks as it lands; letting go pays nothing (2 s after the last touch, 5 s for an empty board, the coins come home
+/// one by one); the last coin comes a beat late, then the seal: the order that exists today, the lid snaps shut and
+/// the site lantern is lit, and it burns on its post while the job runs. Not enough gold: the empty hollows blink,
+/// `decline`, the coins go home. A card, the horn, the background or the lantern moment cut a count off and it pays
+/// nothing. Nothing is saved while a count runs (`PayCount` is the pure part). For: the built plots' one offer (tiers,
+/// rebuilds, the Great Beacon's stages), a damaged wall's repair, the two recruits; an empty plot keeps its card (the
+/// director's notes of 15.11., item 6).
 extension GameModel {
     /// The board's bottom stands this high over the walk line, on its post.
-    static let countBoardLift = 8
+    static let countBoardLift = CountBoard.lift
     /// The lord stands this far beside the board's edge to pay.
     static let countStandGap = 10.0
+    /// Step 2 (H3): the board's place is searched this far either way from beside its thing; a door is this wide
+    /// either side of its middle.
+    static let countBoardSearch = 40
+    static let countDoorHalf = 6.0
+    /// Step 2 (B1): a coin leaves the lord's hand this high over the walk line, this far toward the board from his
+    /// middle, and flies on an arc this high.
+    static let countHandLift = 22.0
+    static let countHandReach = 5.0
+    static let countArc = 8.0
+    /// Step 2 (H5): a coin home in the purse ticks this softly.
+    static let countHomeTick = 0.3
+    /// Step 2 (H2): the halo's light, by night (half of it by day).
+    static let countHaloStrength: Float = 1.0
 
     // MARK: - What is bought
 
@@ -38,8 +97,18 @@ extension GameModel {
         return PayOffers.offer(thing, state: game.state, balance: game.balance)
     }
 
-    /// The gold on the board while it counts (the purse above the lord shows the treasury less this).
-    var countHeld: Int { touch.count?.heldValue ?? 0 }
+    /// The gold on the boards (the purse above the lord shows the treasury less this): the coins of the open count,
+    /// and the coins of a count that was let go that are not home yet.
+    var countHeld: Int { (touch.count?.heldValue ?? 0) + (touch.countOld?.heldValue ?? 0) }
+
+    /// True while a count is open or its coins are on their way home: the purse's figure follows every coin.
+    var countMoving: Bool {
+        for count in [touch.count, touch.countOld] {
+            guard let count, !count.isGone else { continue }
+            if count.isOpen || count.homeStart != nil { return true }
+        }
+        return false
+    }
 
     // MARK: - The finger
 
@@ -71,10 +140,11 @@ extension GameModel {
         return touch.count?.thing == thing.id
     }
 
-    /// The count's thing when `place` lies on its standing board (wider than the thing's own area), else nil.
+    /// The count's thing when `place` lies on its standing board (wider than the thing's own area, and at least the
+    /// smallest touch target wide: step 2, M7), else nil.
     func countBoardThing(_ place: (x: Double, lift: Double, minimum: Double)) -> TouchThing? {
         guard let count = touch.count, count.isOpen, let board = touch.countBoard else { return nil }
-        let half = Double(board.layout.width) / 2
+        let half = max(Double(board.layout.width) / 2, place.minimum / 2)
         let top = Double(GameModel.countBoardLift + board.layout.height) + 14
         guard abs(place.x - board.x) <= half, place.lift >= -TouchRules.footRoom, place.lift <= top else { return nil }
         return touch.things.first { $0.id == count.thing }
@@ -104,7 +174,7 @@ extension GameModel {
     }
 
     /// The finger became a drag (`touchChanged`): a board not yet up goes as if it never came (a drag is a walk); a
-    /// standing one lets its coins go back, since the lord walks away.
+    /// standing one lets its coins go home one by one, since the lord walks away.
     func countDragged() {
         let pressing = touch.countPress
         touch.countPress = false
@@ -145,8 +215,8 @@ extension GameModel {
         return true
     }
 
-    /// The board comes up at `thing`. Refused at once (the repair cooling down, nobody left to recruit): `decline`,
-    /// no board. Another thing's open board lets its coins go.
+    /// The board comes up beside `thing`. Refused at once (the repair cooling down, nobody left to recruit):
+    /// `decline`, no board. Another thing's board lets its coins go home and goes down in its own time.
     private func startCount(_ thing: TouchThing, _ found: (offer: PayOffer, price: Int), holding: Bool) {
         guard kind == .world, stage == .world, overlay == nil, stageChange == nil, lanternMoment == nil,
               let game = driver, game.bot == nil else { return }
@@ -154,23 +224,87 @@ extension GameModel {
             feedback.play(.refused)
             return
         }
-        if var old = touch.count, old.isOpen {
-            old.letGo()
-            if old.placed > 0 { feedback.play(.coinsBack) }
+        if var old = touch.count, let oldBoard = touch.countBoard, !old.isGone {
+            if old.isOpen {
+                old.letGo()
+                if old.placed > 0 { feedback.play(.coinsBack) }
+            }
+            // Step 2's small edges: its coins come home one by one and the board sinks away, never vanishes.
+            touch.countOld = old
+            touch.countOldBoard = oldBoard
         }
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
         let layout = PayBoardLayout.make(PayCount.hollows(price: found.price))
-        let side: Double = stageLordX <= thing.x ? -1 : 1
-        let stand = groundX(thing.x + side * (Double(layout.width) / 2 + GameModel.countStandGap))
+        let place = countBoardPlace(thing, layout: layout)
+        let stand = groundX(place.x + place.side * (Double(layout.width) / 2 + GameModel.countStandGap))
         touch.count = PayCount(thing: thing.id, offer: found.offer, price: found.price, holding: holding)
-        touch.countBoard = CountBoard(x: thing.x, stand: stand, act: thing.act, layout: layout)
+        touch.countBoard = CountBoard(x: place.x, stand: stand, act: thing.act, layout: layout, side: place.side)
         touch.countSent = false
         touch.countFirst = holding
         touch.countPress = holding
         if touch.errand != nil { cancelErrand() }
         feedback.play(.touched)
         if !holding { sendLordToCount() }
+    }
+
+    /// Where `thing`'s board stands (step 2, the critic's H3: the gate's board covered its doorway, the guard's stood
+    /// in Marek's cart): beside the thing on the lord's side, its far edge at the thing's frame (the barracks: the
+    /// archer's board at its left wall, the guard's at its right), never over the thing itself; the nearest place
+    /// within `countBoardSearch` px whose box is clear of everyone standing there, Marek's cart and every door (the
+    /// outer way first), else that first place. Returns the board's middle and its side.
+    func countBoardPlace(_ thing: TouchThing, layout: PayBoardLayout) -> (x: Double, side: Double) {
+        let half = Double(layout.width) / 2
+        var frameLeft = thing.x - thing.halfWidth
+        var frameRight = thing.x + thing.halfWidth
+        var side: Double = stageLordX <= thing.x ? -1 : 1
+        if thing.kind == .recruit {
+            frameLeft = EntityFrames.barracksLeft
+            frameRight = EntityFrames.barracksLeft + Double(SpriteID.barracks.size.width)
+            side = thing.soldier == .archer ? -1 : 1
+        }
+        // Whole pixels, rounded away from the thing, so even the first place never reaches into its frame.
+        let ideal = side < 0 ? (frameLeft - half).rounded(.down) : (frameRight + half).rounded(.up)
+        var blocked = countObstacles(thing)
+        blocked.append(min(frameLeft, frameRight)...max(frameLeft, frameRight))
+        func clear(_ x: Double) -> Bool {
+            let left = x - half - 1
+            let right = x + half + 1
+            guard left >= 0, right <= Realm.walkEnd else { return false }
+            return !blocked.contains { $0.lowerBound < right && $0.upperBound > left }
+        }
+        for step in 0...GameModel.countBoardSearch {
+            let offsets = step == 0 ? [0.0] : [Double(step) * side, -Double(step) * side]
+            for offset in offsets where clear(ideal + offset) {
+                return (ideal + offset, side)
+            }
+        }
+        return (ideal, side)
+    }
+
+    /// The boxes (x ranges, game px of the world strip) a board keeps clear of: everyone standing there, the doors
+    /// that are things (the great hall's), Marek's cart on his days and the town's doors.
+    func countObstacles(_ thing: TouchThing) -> [ClosedRange<Double>] {
+        var boxes: [ClosedRange<Double>] = []
+        func add(_ a: Double, _ b: Double) {
+            boxes.append(min(a, b)...max(a, b))
+        }
+        for other in touch.things where other.id != thing.id && (other.isPerson || other.kind == .door) {
+            add(other.x - other.halfWidth, other.x + other.halfWidth)
+        }
+        guard let state = driver?.state else { return boxes }
+        for figure in CourtFrames.figures(state: state, catalog: .standard, scene: court, animTime: animationTime)
+        where figure.alpha > 0.5 {
+            let half = Double(figure.sprite.size.width) / 2
+            add(figure.x - half, figure.x + half)
+        }
+        if CourtLayout.props(state, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
+            add(CourtLayout.marekCartX, CourtLayout.marekCartX + Double(SpriteID.marekCart.size.width))
+        }
+        for spot in TownShow.spots(state) {
+            add(spot.doorX - GameModel.countDoorHalf, spot.doorX + GameModel.countDoorHalf)
+        }
+        return boxes
     }
 
     /// The lord sets off to stand beside the board (at once if he is there).
@@ -203,12 +337,33 @@ extension GameModel {
         if count.placed > 0 { feedback.play(.coinsBack) }
     }
 
+    /// Where the purse's figure stands while a board stands by the lord (step 2, M2: it touched the board's corner):
+    /// on the lord's far side when a small step clears the board, else lifted over the board's top. Returns the x to
+    /// centre it on and the lift of its ground (0: as always).
+    func countPurseRoom(width: Int, lordX: Double) -> (x: Double, ground: Double) {
+        guard stage == .world, let board = touch.countBoard, let count = touch.count, !count.isGone else {
+            return (lordX, 0)
+        }
+        let boardLeft = Double(board.left) - 1
+        let boardRight = Double(board.left + board.layout.width) + 1
+        let blockHalf = Double(width) / 2 + 1
+        guard lordX + blockHalf > boardLeft, lordX - blockHalf < boardRight else { return (lordX, 0) }
+        let right = lordX >= board.x
+        let shift = right ? boardRight - (lordX - blockHalf) : (lordX + blockHalf) - boardLeft
+        if shift <= blockHalf { return (lordX + (right ? shift : -shift), 0) }
+        let bottom = max(Double(HUDKit.lordHead + 8), board.top + 4)
+        return (lordX, bottom - Double(HUDKit.lordHead + HUDKit.purseAbove))
+    }
+
     // MARK: - Time
 
     /// One frame of real time (`stepTouch`, before the purse): the count moves on unless `-GWCountFreeze` holds it,
-    /// its beats are heard and felt, the seal orders, and the cues after the seal come in turn.
+    /// its beats are heard and felt, the seal orders and lights the site lantern, and the cues after the seal come in
+    /// turn; a replaced board's coins go home; the site lanterns go out when their jobs are done.
     func stepCount(_ seconds: Double) {
         playCountCues()
+        stepCountLanterns()
+        stepOldCount(seconds)
         guard var count = touch.count else { return }
         // Any card cuts it: the model's own, and those that hold the world without one (Marek's card, the consent
         // form, a video on screen: `AdDirector.holdWorld`).
@@ -234,12 +389,17 @@ extension GameModel {
         // holds at least this much.
         var gold = 0
         if let game = driver { gold = townShownGold(game.state, balance: game.balance) }
+        // A freeze for the pictures stops on its exact moment (a coin at a share of its flight), not the frame after.
+        var seconds = seconds
+        if let freeze = args.countFreeze, let room = freeze.room(count) { seconds = min(seconds, room) }
         let beats = count.step(seconds, gold: gold)
         for beat in beats {
             switch beat {
             case .coin(let index):
                 feedback.countCoin(rate: PayCount.rate(index: index, count: count.coins.count),
                                    strength: PayCount.strength(index: index, count: count.coins.count))
+            case .home:
+                feedback.countTick(strength: GameModel.countHomeTick)
             case .seal:
                 let sealed = sealOrder(count.offer)
                 if sealed.done {
@@ -248,6 +408,11 @@ extension GameModel {
                     touch.countCues.append(CountCue(at: now + 0.1, cue: .countLantern))
                     for cue in sealed.later { touch.countCues.append(CountCue(at: now + 0.22, cue: cue)) }
                     touch.countLast = "paid:\(count.thing)"
+                    // The one who was paid lights the site lantern; it burns while the job runs (H2).
+                    if let board = touch.countBoard {
+                        touch.countLanterns.append(CountLantern(offer: count.offer, postLeft: board.postLeft,
+                                                                postTop: board.postTop, litAt: now))
+                    }
                 } else {
                     // The treasury or the offer changed under the count: nothing paid, the coins go back.
                     count.unseal()
@@ -275,6 +440,38 @@ extension GameModel {
         }
     }
 
+    /// The board a new count replaced (step 2's small edges): its coins come home one by one and it sinks away.
+    private func stepOldCount(_ seconds: Double) {
+        guard var old = touch.countOld else { return }
+        for beat in old.step(seconds, gold: 0) {
+            if case .home = beat { feedback.countTick(strength: GameModel.countHomeTick) }
+        }
+        if old.isGone {
+            touch.countOld = nil
+            touch.countOldBoard = nil
+        } else {
+            touch.countOld = old
+        }
+    }
+
+    /// The site lanterns whose jobs are done go out (never before their board has gone), and the dark ones go.
+    private func stepCountLanterns() {
+        guard !touch.countLanterns.isEmpty else { return }
+        let now = clock.elapsed
+        let state = driver?.state
+        for index in touch.countLanterns.indices where touch.countLanterns[index].outAt == nil {
+            let lantern = touch.countLanterns[index]
+            let young = now - lantern.litAt < PayCount.sealSeconds + PayCount.fadeSeconds
+            var burns = false
+            if let state { burns = lantern.burns(state: state, now: now) }
+            if !young && !burns { touch.countLanterns[index].outAt = now }
+        }
+        touch.countLanterns.removeAll { lantern in
+            guard let out = lantern.outAt else { return false }
+            return now - out >= CountLantern.outSeconds
+        }
+    }
+
     /// The cues after the seal whose moment has come.
     private func playCountCues() {
         guard !touch.countCues.isEmpty else { return }
@@ -286,8 +483,8 @@ extension GameModel {
     }
 
     /// The count for the scene's value (`count:`, Debug): `none`, or `<thing>:<placed>/<coins>:<state>` (`open`,
-    /// `there`, or how it ended), and the last
-    /// result (`last:paid:touch-plot-0`).
+    /// `there`, or how it ended), and the last result (`last:paid:touch-plot-0`), then the lit site lanterns
+    /// (`lanterns:1`).
     var countWord: String {
         var word = "none"
         if let count = touch.count {
@@ -295,141 +492,322 @@ extension GameModel {
             let state = count.result?.rawValue ?? (count.ready ? "there" : "open")
             word = "\(count.thing):\(count.placed)/\(count.coins.count):\(state)"
         }
-        return "\(word) last:\(touch.countLast)"
+        let lit = touch.countLanterns.filter { $0.outAt == nil }.count
+        return "\(word) last:\(touch.countLast) lanterns:\(lit)"
     }
 
     // MARK: - The picture
 
-    /// The board on its post, its hollows and coins, the lid and the site lantern, as actors on the world's pixel grid,
-    /// lit by the world like any thing that stands there (HUD.md: nothing of the interface stands on the walked world);
-    /// the lit lantern's light and the glow of its glass. With Reduce Motion the board appears and goes without its
-    /// rise, the coins without their drop and slide, the lantern lights without its flare.
+    /// The boards on their posts, their hollows and coins, the coins in the air, the lid, and the site lanterns, as
+    /// actors on the world's pixel grid, lit by the world like any thing that stands there (HUD.md: nothing of the
+    /// interface stands on the walked world); a lit lantern's light, the glow of its glass and its halo. With Reduce
+    /// Motion the board appears and goes without its rise, the coins appear in their hollows without a flight and go
+    /// home without one, the lantern lights without its bloom.
     func countWorld(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming) {
-        guard let count = touch.count, let board = touch.countBoard, stage == .world else { return }
-        let rise = count.riseShare
-        guard rise > 0 else { return }
-        let layout = board.layout
+        guard stage == .world else { return }
+        let night = Double(AmbientRamp.sample(at: state.hour, look: args.look).torchStrength)
+        countLanternsWorld(&layer, framing: framing, night: night)
+        if let old = touch.countOld, let board = touch.countOldBoard {
+            layer.actors += countBoardActors(old, board, framing: framing)
+        }
+        if let count = touch.count, let board = touch.countBoard {
+            layer.actors += countBoardActors(count, board, framing: framing)
+        }
+    }
+
+    /// One actor of the count at `x`, `lift` (its top-left in game px of the world strip, lift over the walk line), at
+    /// its own size or `width` x `height` game px (a squash, a coin shrinking home); nil when it is off the screen.
+    private func countActor(_ sprite: SpriteID, _ frame: Int, x: Double, lift: Double, alpha: Float,
+                            framing: TouchFraming, width: Double? = nil, height: Double? = nil) -> ActorInstance? {
+        let size = sprite.size
         let scale = Float(framing.scale)
+        let w = Float(width ?? Double(size.width))
+        let h = Float(height ?? Double(size.height))
+        let rect = SIMD4<Float>(Float(framing.deviceX(stageX: x)), Float(framing.deviceY(lift: lift)), w * scale,
+                                h * scale)
+        guard rect.x + rect.z >= 0, rect.x <= Float(framing.physicalWidth) else { return nil }
+        return ActorInstance(sprite: sprite, frame: frame, rect: rect, tint: SIMD4<Float>(1, 1, 1, alpha),
+                             flipped: false, isEmissive: false, isLit: true)
+    }
+
+    /// The post from its foot in the ground up to its iron plate (`postTop`, which carries the board's rise).
+    private func countPostActors(postLeft: Int, postTop: Double, shift: Double, alpha: Float,
+                                 framing: TouchFraming) -> [ActorInstance] {
+        var list: [ActorInstance] = []
+        let plank = Double(PayBoardLayout.plank)
+        func put(_ frame: Int, _ lift: Double) {
+            if let actor = countActor(.payBoard, frame, x: Double(postLeft), lift: lift, alpha: alpha,
+                                      framing: framing) {
+                list.append(actor)
+            }
+        }
+        put(PayBoardLayout.postFoot, plank + shift)
+        var lift = plank + shift
+        while lift < postTop {
+            lift = min(postTop, lift + plank)
+            put(PayBoardLayout.post, lift)
+        }
+        put(PayBoardLayout.postTop, postTop + plank)
+        return list
+    }
+
+    /// One board: its post (until the seal: then the site lantern's own post stands there), its planks (each tile
+    /// picked by a hash, every second row half a tile over: step 2, H1), cap and foot, the hollows and the coins in
+    /// them, a coin settling and squashing as it lands, the next coin swaying over its hollow while nothing is in the
+    /// air, the coins flying from the lord's hand, the lid with its battens and hasp snapping shut, the coins flying
+    /// home, and the unlit lantern on the post.
+    private func countBoardActors(_ count: PayCount, _ board: CountBoard, framing: TouchFraming) -> [ActorInstance] {
+        let rise = count.riseShare
+        guard rise > 0 else { return [] }
+        let layout = board.layout
         var alpha = Float(count.fadeShare)
         var shift = 0.0
         if reduceMotion {
-            if rise < 0.5 { return }
+            if rise < 0.5 { return [] }
         } else {
             alpha *= Float(rise)
             shift = -((1 - rise) * 4).rounded()
-            if let sealed = count.sinceSeal, sealed < 0.06 { shift -= 1 }
+            // Going down without a seal it sinks as it came up (step 2's small edges: never a pop).
+            if count.result != nil && count.result != .paid { shift -= ((1 - count.fadeShare) * 4).rounded() }
         }
-        guard alpha > 0.01 else { return }
-        let left = Int(board.x.rounded(.down)) - layout.width / 2
-        let bottom = Double(GameModel.countBoardLift) + shift
-        let top = bottom + Double(layout.height)
-        let postTop = top + 3
-        let postLeft = left + layout.width / 2 - 3
+        guard alpha > 0.01 else { return [] }
+        let left = board.left
+        let top = board.top + shift
+        let sealed = count.sinceSeal
         var actors: [ActorInstance] = []
-        func put(_ sprite: SpriteID, _ frame: Int, _ x: Int, _ lift: Double, alpha a: Float = 1) {
-            let size = sprite.size
-            let rect = SIMD4<Float>(Float(framing.deviceX(stageX: Double(x))), Float(framing.deviceY(lift: lift)),
-                                    Float(size.width) * scale, Float(size.height) * scale)
-            guard rect.x + rect.z >= 0, rect.x <= Float(framing.physicalWidth) else { return }
-            actors.append(ActorInstance(sprite: sprite, frame: frame, rect: rect,
-                                        tint: SIMD4<Float>(1, 1, 1, alpha * a), flipped: false, isEmissive: false,
-                                        isLit: true))
+        func put(_ sprite: SpriteID, _ frame: Int, _ x: Int, _ lift: Double) {
+            if let actor = countActor(sprite, frame, x: Double(x), lift: lift, alpha: alpha, framing: framing) {
+                actors.append(actor)
+            }
         }
         let tile = PayBoardLayout.tile
         let middles = max(0, (layout.width - 2 * tile) / tile)
-        // The post: its foot in the ground, then tiles up to its top (alike in every row, so they overlap unseen).
-        put(.payBoard, 11, postLeft, Double(PayBoardLayout.plank) + shift)
-        var postLift = Double(PayBoardLayout.plank) + shift
-        while postLift < postTop {
-            postLift = min(postTop, postLift + Double(PayBoardLayout.plank))
-            put(.payBoard, 10, postLeft, postLift)
+        // The post (after the seal the lit lantern's post stands in its place: `countLanternsWorld`).
+        if sealed == nil {
+            actors += countPostActors(postLeft: board.postLeft, postTop: board.postTop + shift, shift: shift,
+                                      alpha: alpha, framing: framing)
         }
-        put(.payBoard, 13, postLeft, postTop + Double(PayBoardLayout.plank))
-        // The planks, the cap over them and the foot under them.
-        func planks() {
+        // The planks (or the lid's), the cap over them and the foot under them.
+        func planks(lid: Bool, offset: Double) {
             for row in 0..<layout.rows {
-                let lift = top - Double(PayBoardLayout.cap + row * PayBoardLayout.plank)
-                put(.payBoard, 0, left, lift)
-                for m in 0..<middles { put(.payBoard, 1 + m % 2, left + tile + m * tile, lift) }
-                put(.payBoard, 3, left + layout.width - tile, lift)
+                let lift = top + offset - Double(PayBoardLayout.cap + row * PayBoardLayout.plank)
+                let half = !lid && row % 2 == 1 ? tile / 2 : 0
+                let choices = lid ? PayBoardLayout.lidMiddles : PayBoardLayout.plankMiddles
+                var previous: Int?
+                for m in 0..<(middles + (half > 0 ? 1 : 0)) {
+                    let pick = PayBoardLayout.pick(choices, thing: count.thing, row: lid ? 100 + row : row, index: m,
+                                                   previous: previous)
+                    previous = pick
+                    put(.payBoard, pick, left + tile - half + m * tile, lift)
+                }
+                put(.payBoard, lid ? PayBoardLayout.lidLeft : PayBoardLayout.plankLeft, left, lift)
+                put(.payBoard, lid ? PayBoardLayout.lidRight : PayBoardLayout.plankRight, left + layout.width - tile,
+                    lift)
             }
         }
-        planks()
         let capLift = top + Double(PayBoardLayout.plank - PayBoardLayout.cap)
-        put(.payBoard, 4, left, capLift)
-        for m in 0..<middles { put(.payBoard, 5, left + tile + m * tile, capLift) }
-        put(.payBoard, 6, left + layout.width - tile, capLift)
+        func cap() {
+            put(.payBoard, PayBoardLayout.capLeft, left, capLift)
+            var previous: Int?
+            for m in 0..<middles {
+                let pick = PayBoardLayout.pick(PayBoardLayout.capMiddles, thing: count.thing, row: -1, index: m,
+                                               previous: previous)
+                previous = pick
+                put(.payBoard, pick, left + tile + m * tile, capLift)
+            }
+            put(.payBoard, PayBoardLayout.capRight, left + layout.width - tile, capLift)
+        }
+        planks(lid: false, offset: 0)
+        cap()
         let footLift = top - Double(PayBoardLayout.cap + layout.rows * PayBoardLayout.plank)
-        put(.payBoard, 7, left, footLift)
-        for m in 0..<middles { put(.payBoard, 8, left + tile + m * tile, footLift) }
-        put(.payBoard, 9, left + layout.width - tile, footLift)
-        // The hollows and the coins in them; a coin just landed drops its last 3 px; sliding back, the coins leave
-        // their hollows toward the lord's purse.
-        let slide = count.slideShare
-        let lordX = stageLordX
+        put(.payBoard, PayBoardLayout.footLeft, left, footLift)
+        for m in 0..<middles { put(.payBoard, PayBoardLayout.footMiddle, left + tile + m * tile, footLift) }
+        put(.payBoard, PayBoardLayout.footRight, left + layout.width - tile, footLift)
+        // The hollows and the coins in them. Coins in the air or going home are drawn after the board's face.
+        var flying: [(coin: PayCoin, face: Int, share: Double, x: Int, lift: Double)] = []
+        var homing: [(coin: PayCoin, face: Int, share: Double, x: Int, lift: Double)] = []
+        let settle = PayCount.settleSeconds
         for (index, hollow) in layout.hollows.enumerated() {
             let x = left + hollow.x
             let lift = top - Double(hollow.y)
-            let filled = index < count.placed
-            if !filled && count.blinking { continue }
-            var dropping: Double?
-            if filled && !reduceMotion, let since = count.sinceLanding(index), since < 0.07 {
-                dropping = 1 - since / 0.07
+            let coinSize = hollow.coin.sprite.size
+            let hollowSize = hollow.coin.hollow.size
+            let coinX = x + (hollowSize.width - coinSize.width) / 2
+            let coinLift = lift - Double((hollowSize.height - coinSize.height) / 2)
+            let face = PayBoardLayout.face(of: index)
+            guard index < count.placed else {
+                if count.blinking { continue }
+                put(hollow.coin.hollow, 0, x, lift)
+                if !reduceMotion, let share = count.flightShare(index) {
+                    flying.append((coin: hollow.coin, face: face, share: share, x: coinX, lift: coinLift))
+                }
+                continue
             }
-            let showsCoin = filled && slide == nil && dropping == nil
-            put(hollow.coin.hollow, showsCoin ? 1 : 0, x, lift)
+            if let home = count.homeShare(index) {
+                // Going home: under Reduce Motion each coin leaves its hollow at its moment, without a flight.
+                if home <= 0 || (reduceMotion && home < 1) {
+                    put(hollow.coin.hollow, 1 + face, x, lift)
+                } else {
+                    put(hollow.coin.hollow, 0, x, lift)
+                    if home < 1 {
+                        homing.append((coin: hollow.coin, face: face, share: home, x: coinX, lift: coinLift))
+                    }
+                }
+            } else if !reduceMotion, let since = count.sinceLanding(index), since < settle + PayCount.squashSeconds {
+                put(hollow.coin.hollow, 0, x, lift)
+                if since < settle {
+                    // The last 3 px of its fall into the hollow.
+                    put(hollow.coin.sprite, face, coinX, coinLift + (3 * (1 - since / settle)).rounded())
+                } else if let actor = countActor(hollow.coin.sprite, face, x: Double(coinX), lift: coinLift - 1,
+                                                 alpha: alpha, framing: framing,
+                                                 height: Double(coinSize.height - 1)) {
+                    // One frame of a 1 px squash as it sits down.
+                    actors.append(actor)
+                }
+            } else {
+                put(hollow.coin.hollow, 1 + face, x, lift)
+            }
+        }
+        // The next coin sways over its hollow while the board waits for the finger (the whole lesson, PAY.md 1.1):
+        // only while no coin is in the air or settling (M3), sideways at 1.2 Hz (M5), 2 px clear of the coins above.
+        let next = count.launched.count
+        let settling = count.placed > 0
+            && (count.sinceLanding(count.placed - 1) ?? 1) < settle + PayCount.squashSeconds
+        if count.isOpen, sealed == nil, count.sealAt == nil, rise >= 1, next < layout.hollows.count,
+           count.inFlight == 0, !count.pendingShort, reduceMotion || !settling {
+            let hollow = layout.hollows[next]
             let coin = hollow.coin.sprite.size
             let hollowSize = hollow.coin.hollow.size
-            let coinX = x + (hollowSize.width - coin.width) / 2
-            let coinLift = lift - Double((hollowSize.height - coin.height) / 2)
-            if let dropping {
-                put(hollow.coin.sprite, 0, coinX, coinLift + (3 * dropping).rounded())
-            } else if filled, let slide, slide < 1, !reduceMotion {
-                let travel = (lordX - Double(coinX)) * slide
-                let arc = (6 * sin(slide * Double.pi)).rounded()
-                put(hollow.coin.sprite, 0, coinX + Int(travel.rounded()), coinLift + arc, alpha: Float(1 - slide))
+            let hollowTop = top - Double(hollow.y)
+            let sway = reduceMotion ? 0 : [0, 1, 0, -1][Int((animationTime * 1.2 * 4).rounded(.down)) & 3]
+            let x = left + hollow.x + (hollowSize.width - coin.width) / 2 + sway
+            let inHollow = hollowTop - Double((hollowSize.height - coin.height) / 2)
+            var rock = hollowTop + Double(coin.height) - 3
+            for (other, above) in layout.hollows.enumerated() where other < count.placed && above.y < hollow.y {
+                let otherX = left + above.x
+                let otherSize = above.coin.hollow.size
+                guard otherX < x + coin.width + 2, otherX + otherSize.width > x - 2 else { continue }
+                let otherCoin = above.coin.sprite.size
+                let otherTop = top - Double(above.y) - Double((otherSize.height - otherCoin.height) / 2)
+                rock = min(rock, otherTop - Double(otherCoin.height) - 2)
+            }
+            put(hollow.coin.sprite, PayBoardLayout.face(of: next), x, max(rock, inHollow))
+        }
+        // The seal: the lid comes down (2 px high, then a pixel past its rest, then home: M4), with its battens across
+        // its planks and its iron hasp; it slides out from under the cap.
+        if let sealedFor = sealed {
+            var offset = 0.0
+            if !reduceMotion {
+                if sealedFor < 0.03 {
+                    offset = 2
+                } else if sealedFor < 0.06 {
+                    offset = -1
+                }
+            }
+            planks(lid: true, offset: offset)
+            if layout.width >= 30 {
+                for battenX in [left + layout.width / 4 - 2, left + 3 * layout.width / 4 - 3] {
+                    for row in 0..<layout.rows {
+                        put(.payBoard, PayBoardLayout.batten, battenX,
+                            top + offset - Double(PayBoardLayout.cap + row * PayBoardLayout.plank))
+                    }
+                }
+            }
+            let middle = top + offset - Double(PayBoardLayout.cap) - Double(layout.rows * PayBoardLayout.plank) / 2
+            put(.payBoard, PayBoardLayout.hasp, left + layout.width / 2 - 3, (middle + 6).rounded())
+            if offset > 0 { cap() }
+        } else {
+            // The site lantern stands unlit on the post until the seal.
+            put(.siteLantern, 0, board.postLeft - 1, board.lanternTop + shift)
+        }
+        // The coins in the air: from the lord's hand to 3 px over their hollows on an arc, the drop at the end
+        // (ease-in), on whole pixels, turning face and edge (B1).
+        let lordX = stageLordX
+        let handX = lordX + GameModel.countHandReach * (board.x >= lordX ? 1 : -1)
+        for coin in flying {
+            let p = coin.share
+            let size = coin.coin.sprite.size
+            let startX = handX - Double(size.width) / 2
+            let startLift = GameModel.countHandLift + Double(size.height) / 2
+            let endX = Double(coin.x)
+            let endLift = coin.lift + 3
+            let x = (startX + (endX - startX) * p).rounded()
+            let lift = (startLift + (endLift - startLift) * p * p + GameModel.countArc * 4 * p * (1 - p)).rounded()
+            let edge = Int(p * 5) % 2 == 1
+            if let actor = countActor(coin.coin.sprite, edge ? 3 : coin.face, x: x, lift: lift, alpha: alpha,
+                                      framing: framing) {
+                actors.append(actor)
             }
         }
-        // The next coin rocks over its hollow while the board waits for the finger (the whole lesson, PAY.md 1.1).
-        if count.isOpen, count.sealAt == nil, rise >= 1, count.placed < layout.hollows.count {
-            let hollow = layout.hollows[count.placed]
-            let coin = hollow.coin.sprite.size
-            let hollowSize = hollow.coin.hollow.size
-            let bob = reduceMotion ? 0.0 : (sin(animationTime * 2 * Double.pi * 1.6) > 0 ? 1.0 : 0.0)
-            let x = left + hollow.x + (hollowSize.width - coin.width) / 2
-            put(hollow.coin.sprite, 0, x, top - Double(hollow.y) + Double(coin.height) - 3 + bob)
+        // The coins going home (H5): opaque, the last laid first, each shrinking to a pixel at the lord's hand.
+        for coin in homing {
+            let p = coin.share
+            let size = coin.coin.sprite.size
+            let w = max(1, (Double(size.width) * (1 - p)).rounded())
+            let h = max(1, (Double(size.height) * (1 - p)).rounded())
+            let fromX = Double(coin.x) + Double(size.width) / 2
+            let fromY = coin.lift - Double(size.height) / 2
+            let centreX = fromX + (handX - fromX) * p
+            let centreY = fromY + (GameModel.countHandLift - fromY) * p + 5 * 4 * p * (1 - p)
+            if let actor = countActor(coin.coin.sprite, coin.face, x: (centreX - w / 2).rounded(),
+                                      lift: (centreY + h / 2).rounded(), alpha: 1, framing: framing, width: w,
+                                      height: h) {
+                actors.append(actor)
+            }
         }
-        // The seal: the lid shuts over the hollows with its iron hasp, and the site lantern burns.
-        let sinceSeal = count.sinceSeal
-        if sinceSeal != nil {
-            planks()
-            let middle = top - Double(PayBoardLayout.cap) - Double(layout.rows * PayBoardLayout.plank) / 2
-            put(.payBoard, 12, left + layout.width / 2 - 3, (middle + 6).rounded())
-        }
-        let lanternTop = postTop + 3 + Double(SpriteID.siteLantern.size.height)
-        put(.siteLantern, sinceSeal == nil ? 0 : 1, postLeft, lanternTop)
-        layer.actors += actors
-        guard let sealedFor = sinceSeal else { return }
-        let flare = reduceMotion ? 0 : max(0, 1 - sealedFor / 0.45)
-        let fade = Double(alpha)
-        let glassX = Double(postLeft + 2)
+        return actors
+    }
+
+    /// The site lanterns the seals lit (H2), each on its post without the board: the 9 x 13 lantern blooming for two
+    /// frames as it catches, then burning while its job runs, with its light, the glow of its flame's heart and its
+    /// halo (half by day, whole by night); gone out, it stands dark a moment and fades.
+    private func countLanternsWorld(_ layer: inout EntityLayer, framing: TouchFraming, night: Double) {
+        guard !touch.countLanterns.isEmpty else { return }
+        let now = clock.elapsed
         let gold = GamePalette.fireGold
-        layer.lights.append((source: LightSource(kind: .lantern, x: glassX + 1, y: lanternTop - 5, radius: 36,
-                                                 color: gold, intensity: (0.9 + 1.4 * flare) * fade),
-                             plane: .world))
         let warm = GamePalette.fireWhite
-        for dy in 4...6 {
-            for dx in 0...2 {
-                let k = Float((0.7 + 1.2 * flare) * fade)
-                layer.glows.append(EntityGlow(.hallMote, x: glassX + Double(dx), y: lanternTop - Double(dy) - 1,
-                                              color: SIMD4<Float>(warm.x * k, warm.y * k, warm.z * k, 1)))
+        for lantern in touch.countLanterns {
+            let age = max(0, now - lantern.litAt)
+            var alpha: Float = 1
+            var lit = true
+            if let out = lantern.outAt {
+                lit = false
+                alpha = Float(min(1, max(0, (CountLantern.outSeconds - (now - out)) / CountLantern.fadeSeconds)))
             }
-        }
-        guard flare > 0.01 else { return }
-        // The flare: a few sparks rising off the glass for its first moment.
-        for (dx, up, share) in [(-1.0, 2.0, 0.9), (3.0, 3.0, 0.8), (1.0, 5.0, 0.7), (-2.0, 6.0, 0.5)] {
-            let k = Float(flare * share)
-            layer.glows.append(EntityGlow(.hallMote, x: glassX + dx, y: lanternTop + up * (1 - flare) + 1,
+            guard alpha > 0.01 else { continue }
+            layer.actors += countPostActors(postLeft: lantern.postLeft, postTop: lantern.postTop, shift: 0,
+                                            alpha: alpha, framing: framing)
+            let lanternLeft = Double(lantern.postLeft - 1)
+            let lanternTop = lantern.postTop + 3 + Double(SpriteID.siteLantern.size.height)
+            var frame = lit ? 1 : 0
+            if lit && !reduceMotion {
+                if age < 0.06 {
+                    frame = 2
+                } else if age < 0.12 {
+                    frame = 3
+                }
+            }
+            if let actor = countActor(.siteLantern, frame, x: lanternLeft, lift: lanternTop, alpha: alpha,
+                                      framing: framing) {
+                layer.actors.append(actor)
+            }
+            guard lit else { continue }
+            let flare = reduceMotion ? 0 : max(0, 1 - age / 0.45)
+            // The flame's middle: column 4, row 7 of the lantern (its 5 x 5 glass is columns 2 to 6, rows 5 to 9).
+            layer.lights.append((source: LightSource(kind: .lantern, x: lanternLeft + 4.5, y: lanternTop - 7.5,
+                                                     radius: 36, color: gold, intensity: 0.9 + 1.4 * flare),
+                                 plane: .world))
+            let heart = Float(0.7 + 1.2 * flare)
+            for row in 6...8 {
+                for column in 3...5 {
+                    layer.glows.append(EntityGlow(.hallMote, x: lanternLeft + Double(column),
+                                                  y: lanternTop - Double(row) - 1,
+                                                  color: SIMD4<Float>(warm.x * heart, warm.y * heart, warm.z * heart,
+                                                                      1)))
+                }
+            }
+            let k = Float((0.5 + 0.5 * min(1, max(0, night))) * (1 + 0.8 * flare)) * GameModel.countHaloStrength
+            layer.glows.append(EntityGlow(.siteHalo, x: lanternLeft + 4 - 12, y: lanternTop - 20,
                                           color: SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)))
         }
     }

@@ -17,10 +17,11 @@ enum PayCoin: Int, Sendable, Equatable, CaseIterable {
 
     var value: Int { rawValue }
 
-    /// The coin as it flies (the interface kit's coins, an ink edge round each).
+    /// The coin as it flies (an ink edge round each; step 2: frames 0 to 2 its faces, 3 its edge as it turns; the
+    /// small one is `payCoin`, the kit's `hudCoin` with its other faces and its edge).
     var sprite: SpriteID {
         switch self {
-        case .small: return .hudCoin
+        case .small: return .payCoin
         case .big: return .hudCoinTen
         case .bar: return .hudCoinBar
         }
@@ -60,8 +61,10 @@ enum PayResult: String, Sendable, Equatable {
 
 /// What one step of a count asks the picture and the sound for.
 enum PayBeat: Sendable, Equatable {
-    /// Coin `index` (from 0) landed in its hollow.
+    /// Coin `index` (from 0) landed in its hollow (it left the lord's hand a flight before).
     case coin(index: Int)
+    /// Coin `index` came home into the purse after a let go, a short or a cut (the last laid first).
+    case home(index: Int)
     /// The board is full and the beat has passed: the seal, and the order now.
     case seal
     /// The purse ran dry: the empty hollows blink, then the coins slide back.
@@ -123,8 +126,15 @@ struct PayCount: Sendable, Equatable {
     static let boardDelay = 0.15
     /// It rises over this long, so it stands whole at `boardDelay`.
     static let riseSeconds = 0.1
-    /// The first coin, while holding, this long after the touch.
+    /// The first coin, while holding, lands this long after the touch.
     static let firstCoin = 0.3
+    /// Step 2 (the critic's blocker): every coin flies from the lord's hand to its hollow in this long, so a held coin
+    /// leaves his hand a flight before its moment and lands on it, and a tapped coin leaves at once and lands a flight
+    /// later; the clink and the tick come at the landing. With the gaps down to 0.05 s at most two are in the air.
+    static let flight = 0.1
+    /// After its landing a coin settles its last 3 px over this long, then squashes by a pixel for this long.
+    static let settleSeconds = 0.06
+    static let squashSeconds = 0.03
     /// A later press on a board already up sets its first coin this long after it went down.
     static let pressFirst = 0.15
     /// The gap between coins starts here and falls toward `gapEnd` (each gap `gapDecay` of the last one's share).
@@ -137,9 +147,14 @@ struct PayCount: Sendable, Equatable {
     static let lastBeat = 0.12
     /// The seal falls this long after the last coin lands.
     static let sealDelay = 0.05
-    /// After this long without a touch the coins slide back, in `slideSeconds`.
+    /// After this long without a touch the coins go back (PAY.md 1.4); an empty board waits `emptyWait` (step 2, the
+    /// critic's H5: the rocking coin is the whole lesson, and 2 s were too short to read it and reach).
     static let slideAfter = 2.0
-    static let slideSeconds = 0.3
+    static let emptyWait = 5.0
+    /// Going back, the coins leave one by one, the last laid first, `homeGap` apart; each flies home to the lord's
+    /// hand in `slideSeconds`, shrinking to a pixel, and the purse takes it as it arrives.
+    static let homeGap = 0.04
+    static let slideSeconds = 0.2
     /// When the purse runs dry the empty hollows blink once over this long, then the coins slide back.
     static let blinkSeconds = 0.3
     /// After the seal the shut board and the lit lantern stand this long, then fade over `fadeSeconds`.
@@ -221,9 +236,13 @@ struct PayCount: Sendable, Equatable {
     let coins: [PayCoin]
     /// Seconds since the touch that brought the board.
     private(set) var time: Double
+    /// Coins that left the lord's hand, and the second each left (`launched.count - placed` are in the air).
+    private(set) var launched: [Double] = []
     /// Coins on the board, and the second each landed.
     private(set) var placed = 0
     private(set) var landed: [Double] = []
+    /// The purse ran dry while coins were still in the air: the count is short once they have landed.
+    private(set) var pendingShort = false
     /// A finger holds on the board or its thing.
     private(set) var holding = false
     /// While holding: the second the next coin lands.
@@ -267,8 +286,15 @@ struct PayCount: Sendable, Equatable {
     }
 
     /// The gold the picture holds back from the purse: what lies on the board while it counts; nothing once it was
-    /// paid (the treasury paid it) or the coins went back.
-    var heldValue: Int { result == nil ? placedValue : 0 }
+    /// paid (the treasury paid it); after a let go, a short or a cut the coins not yet home (step 2: the purse ticks up
+    /// as each arrives).
+    var heldValue: Int {
+        guard let result else { return placedValue }
+        guard result != .paid else { return 0 }
+        var held = 0
+        for index in 0..<min(placed, coins.count) where (homeShare(index) ?? 1) < 1 { held += coins[index].value }
+        return held
+    }
 
     var isFull: Bool { placed == coins.count && !coins.isEmpty }
 
@@ -280,13 +306,38 @@ struct PayCount: Sendable, Equatable {
         min(1, max(0, (time - (PayCount.boardDelay - PayCount.riseSeconds)) / PayCount.riseSeconds))
     }
 
-    /// The coins sliding back: 0 ... 1 (nil while they lie, or after a seal).
-    var slideShare: Double? {
+    /// When the coins start for home (nil while they lie, or after a seal): after a short, once the hollows blinked.
+    var homeStart: Double? {
         guard let result, result != .paid else { return nil }
-        let start = resultAt + (result == .short ? PayCount.blinkSeconds : 0)
-        guard time >= start else { return 0 }
-        return min(1, (time - start) / PayCount.slideSeconds)
+        return resultAt + (result == .short ? PayCount.blinkSeconds : 0)
     }
+
+    /// The way home of all the coins, from the first leaving to the last arriving.
+    var returnSeconds: Double { PayCount.homeGap * Double(max(0, placed - 1)) + PayCount.slideSeconds }
+
+    /// The coins going back, all of them: 0 ... 1 (nil while they lie, or after a seal).
+    var slideShare: Double? {
+        guard let start = homeStart else { return nil }
+        guard time >= start else { return 0 }
+        return min(1, (time - start) / returnSeconds)
+    }
+
+    /// Coin `index` on its way home: 0 still in its hollow ... 1 home in the purse (nil while the coins lie, or for a
+    /// coin never laid). The last laid goes first.
+    func homeShare(_ index: Int) -> Double? {
+        guard let start = homeStart, index >= 0, index < placed else { return nil }
+        let begin = start + Double(placed - 1 - index) * PayCount.homeGap
+        return min(1, max(0, (time - begin) / PayCount.slideSeconds))
+    }
+
+    /// Coin `index` in the air from the lord's hand: 0 just left ... 1 landing (nil when it is not in the air).
+    func flightShare(_ index: Int) -> Double? {
+        guard index >= placed, index < launched.count else { return nil }
+        return min(1, max(0, (time - launched[index]) / PayCount.flight))
+    }
+
+    /// Coins in the air now.
+    var inFlight: Int { launched.count - placed }
 
     /// The empty hollows hidden for the short blink (the middle of the blink's time).
     var blinking: Bool {
@@ -301,8 +352,8 @@ struct PayCount: Sendable, Equatable {
         let start: Double
         switch result {
         case .paid: start = resultAt + PayCount.sealSeconds
-        case .short: start = resultAt + PayCount.blinkSeconds + PayCount.slideSeconds
-        case .letGo, .cutOff: start = resultAt + PayCount.slideSeconds
+        case .short: start = resultAt + PayCount.blinkSeconds + returnSeconds
+        case .letGo, .cutOff: start = resultAt + returnSeconds
         }
         return min(1, max(0, 1 - (time - start) / PayCount.fadeSeconds))
     }
@@ -319,11 +370,11 @@ struct PayCount: Sendable, Equatable {
 
     /// A finger went down on the board or its thing: the hold.
     mutating func press() {
-        guard result == nil, sealAt == nil else { return }
+        guard result == nil, sealAt == nil, !pendingShort else { return }
         holding = true
         pressPlaced = 0
         lastTouch = time
-        if placed < coins.count { due = time + nextDelay(fresh: true) }
+        if launched.count < coins.count { due = time + nextDelay(fresh: true) }
     }
 
     /// The finger lifted. `tap`: a lift whose press set no coin sets one (not the touch that brought the board).
@@ -338,7 +389,7 @@ struct PayCount: Sendable, Equatable {
 
     /// One coin (a quick touch on the board or its thing): it lands at once, or as soon as the lord stands there.
     mutating func tap() {
-        guard result == nil, sealAt == nil, placed + queued < coins.count else { return }
+        guard result == nil, sealAt == nil, !pendingShort, launched.count + queued < coins.count else { return }
         queued += 1
         lastTouch = time
     }
@@ -383,41 +434,67 @@ struct PayCount: Sendable, Equatable {
     /// Moves the count on by `seconds`; `gold` is the treasury now. Returns what happened, in order.
     mutating func step(_ seconds: Double, gold: Int) -> [PayBeat] {
         var beats: [PayBeat] = []
+        let before = time
         time += max(0, seconds)
         if result == nil {
             if holding { lastTouch = time }
-            if ready && sealAt == nil {
+            // The coins in the air whose flight is over land first.
+            land(&beats)
+            if ready && sealAt == nil && !pendingShort {
                 if atOnce {
-                    while placed < coins.count && result == nil { place(gold: gold, beats: &beats) }
+                    // VoiceOver's double tap: every coin at once, each landing now (no flight).
+                    while launched.count < coins.count && result == nil && !pendingShort {
+                        launch(gold: gold, at: time - PayCount.flight, beats: &beats)
+                        land(&beats)
+                    }
                 } else {
-                    // Queued taps first, a coin at most every `queueGap`.
-                    if queued > 0 && placed < coins.count {
-                        let last = landed.last ?? -1
+                    // Queued taps first, a coin leaving his hand at most every `queueGap`.
+                    if queued > 0 && launched.count < coins.count {
+                        let last = launched.last ?? -1
                         if time - last >= PayCount.queueGap {
                             queued -= 1
-                            place(gold: gold, beats: &beats)
-                            if holding, result == nil, placed < coins.count { due = time + nextDelay(fresh: false) }
+                            launch(gold: gold, at: time, beats: &beats)
+                            if holding, result == nil, !pendingShort, launched.count < coins.count {
+                                due = time + PayCount.flight + nextDelay(fresh: false)
+                            }
                         }
                     }
-                    while result == nil, holding, placed < coins.count, let next = due, time >= next {
-                        place(gold: gold, beats: &beats)
+                    // A hold: each coin leaves a flight before its moment, so it lands on it.
+                    while result == nil, !pendingShort, holding, launched.count < coins.count, let next = due,
+                          time >= next - PayCount.flight {
+                        launch(gold: gold, at: next - PayCount.flight, beats: &beats)
+                        guard result == nil, !pendingShort else { break }
                         pressPlaced += 1
-                        due = placed < coins.count ? next + PayCount.gap(before: placed, count: coins.count) : nil
+                        due = launched.count < coins.count
+                            ? next + PayCount.gap(before: launched.count, count: coins.count) : nil
                     }
+                    land(&beats)
                 }
+            }
+            if result == nil, pendingShort, launched.count == placed {
+                beats.append(finish(.short))
             }
             if result == nil, let seal = sealAt, time >= seal {
                 result = .paid
                 resultAt = seal
                 beats.append(.seal)
             }
-            if result == nil, sealAt == nil, !holding, queued == 0, !atOnce,
-               time - max(lastTouch, readyAt ?? time) >= PayCount.slideAfter {
+            let wait = placed == 0 ? PayCount.emptyWait : PayCount.slideAfter
+            if result == nil, sealAt == nil, !holding, queued == 0, !atOnce, !pendingShort, launched.count == placed,
+               time - max(lastTouch, readyAt ?? time) >= wait {
                 beats.append(finish(.letGo))
             }
-        } else if result == .short, time - resultAt >= PayCount.blinkSeconds,
-                  time - seconds < resultAt + PayCount.blinkSeconds {
-            beats.append(.slideBack)
+        } else {
+            if result == .short, time - resultAt >= PayCount.blinkSeconds, before < resultAt + PayCount.blinkSeconds {
+                beats.append(.slideBack)
+            }
+            // The coins coming home, the last laid first.
+            if let start = homeStart, placed > 0 {
+                for index in stride(from: placed - 1, through: 0, by: -1) {
+                    let home = start + Double(placed - 1 - index) * PayCount.homeGap + PayCount.slideSeconds
+                    if home > before && home <= time { beats.append(.home(index: index)) }
+                }
+            }
         }
         if result != nil, !over, fadeShare <= 0 {
             over = true
@@ -434,7 +511,7 @@ struct PayCount: Sendable, Equatable {
     /// The wait before the next coin of a hold: the first a little after the press (the first of the count 0.3 s after
     /// its touch), then the falling gaps; the last one a beat late.
     private func nextDelay(fresh: Bool) -> Double {
-        let next = placed
+        let next = launched.count
         if next == 0 {
             let first = time < PayCount.boardDelay ? PayCount.firstCoin - time : PayCount.pressFirst
             return first + (coins.count == 1 ? PayCount.lastBeat : 0)
@@ -443,27 +520,52 @@ struct PayCount: Sendable, Equatable {
             : PayCount.gap(before: next, count: coins.count)
     }
 
-    /// Lays the next coin, if the purse holds it; else the count is short.
-    private mutating func place(gold: Int, beats: inout [PayBeat]) {
-        guard placed < coins.count else { return }
-        if placedValue + coins[placed].value > gold {
-            beats.append(finish(.short))
+    /// The next coin leaves the lord's hand at `moment`, if the purse holds it; else no coin leaves, and the count is
+    /// short (once the coins still in the air have landed).
+    private mutating func launch(gold: Int, at moment: Double, beats: inout [PayBeat]) {
+        let next = launched.count
+        guard next < coins.count else { return }
+        let value = coins.prefix(next + 1).reduce(0) { $0 + $1.value }
+        if value > gold {
+            due = nil
+            queued = 0
+            atOnce = false
+            if launched.count == placed {
+                beats.append(finish(.short))
+            } else {
+                pendingShort = true
+            }
             return
         }
-        landed.append(time)
-        placed += 1
+        launched.append(moment)
         lastTouch = time
-        beats.append(.coin(index: placed - 1))
-        if placed == coins.count {
-            sealAt = time + PayCount.sealDelay
+        if launched.count == coins.count {
             holding = false
             due = nil
             queued = 0
         }
     }
 
-    /// Ends the count without the seal (`.paid` comes only from the seal in `step`); returns its beat.
+    /// The coins whose flight is over land in their hollows, each on its own moment; the last one brings the seal.
+    private mutating func land(_ beats: inout [PayBeat]) {
+        while placed < launched.count, time >= launched[placed] + PayCount.flight - 1e-9 {
+            let moment = min(time, launched[placed] + PayCount.flight)
+            landed.append(moment)
+            placed += 1
+            lastTouch = time
+            beats.append(.coin(index: placed - 1))
+            if placed == coins.count { sealAt = moment + PayCount.sealDelay }
+        }
+    }
+
+    /// Ends the count without the seal (`.paid` comes only from the seal in `step`); returns its beat. Coins still in
+    /// the air drop into their hollows at once (a cut mid-flight), so they go home with the rest.
     private mutating func finish(_ end: PayResult) -> PayBeat {
+        while placed < launched.count {
+            landed.append(time)
+            placed += 1
+        }
+        pendingShort = false
         result = end
         resultAt = time
         sealAt = nil
@@ -552,6 +654,42 @@ struct PayBoardLayout: Sendable, Equatable {
         guard !row.isEmpty else { return 0 }
         return row.reduce(0) { $0 + $1.hollow.size.width } + spacing * (row.count - 1)
     }
+
+    // MARK: - The tiles (step 2, the critic's H1: the planks repeated every 12 px)
+
+    /// The board's tiles in `payBoard` (tools/hudart.py): the plank's ends, its four middles, the cap's ends and its
+    /// three middles, the foot, the post, the hasp, the post's top, the lid's ends and two middles, the batten.
+    static let plankLeft = 0, plankRight = 3, capLeft = 4, capRight = 6
+    static let footLeft = 7, footMiddle = 8, footRight = 9
+    static let post = 10, postFoot = 11, hasp = 12, postTop = 13
+    static let lidLeft = 18, lidRight = 21, batten = 22
+    static let plankMiddles = [1, 2, 14, 15]
+    static let capMiddles = [5, 16, 17]
+    static let lidMiddles = [19, 20]
+
+    /// A tile from `choices` for tile `index` of `row` of the board at `thing`, picked by a hash so each board's grain
+    /// is its own and stays put frame to frame, never the tile `previous` (no two alike side by side).
+    static func pick(_ choices: [Int], thing: String, row: Int, index: Int, previous: Int? = nil) -> Int {
+        guard !choices.isEmpty else { return 0 }
+        var hash: UInt64 = 0xCBF2_9CE4_8422_2325
+        for byte in thing.utf8 { hash = (hash ^ UInt64(byte)) &* 0x0000_0100_0000_01B3 }
+        for value in [row &+ 7, index &+ 3] {
+            hash = (hash ^ UInt64(UInt32(truncatingIfNeeded: value))) &* 0x0000_0100_0000_01B3
+            hash ^= hash >> 29
+        }
+        var choice = choices[Int(hash % UInt64(choices.count))]
+        if choice == previous, choices.count > 1, let at = choices.firstIndex(of: choice) {
+            choice = choices[(at + 1) % choices.count]
+        }
+        return choice
+    }
+
+    /// Which of its three faces the coin in hollow `index` shows (M1: nine coins are not nine copies), never in a
+    /// plain cycle.
+    static func face(of index: Int) -> Int {
+        let i = max(0, index)
+        return (i &* 5 &+ i / 3) % 3
+    }
 }
 
 /// `-GWCountFreeze` (Debug builds only; the count's pictures): the count stands still at one moment, so a screenshot
@@ -565,10 +703,19 @@ enum PayFreeze: Sendable, Equatable {
     case sealed
     /// Half way through the coins sliding back after a let go.
     case back
+    /// Step 2's filmstrips: coin `coin` (from 0) at `share` of its flight from the lord's hand (0 ... 1 in the air;
+    /// past 1, that many flights after it left, so 1.95 is a little after it landed and settled).
+    case flight(coin: Int, share: Double)
 
-    /// `0.5`, `full`, `sealed`, `back`; nil for anything else.
+    /// `0.5`, `full`, `sealed`, `back`, `fly:<coin>:<share>`; nil for anything else.
     static func parse(_ text: String?) -> PayFreeze? {
         guard let word = text?.trimmingCharacters(in: .whitespaces).lowercased(), !word.isEmpty else { return nil }
+        if word.hasPrefix("fly:") {
+            let parts = word.split(separator: ":")
+            guard parts.count == 3, let coin = Int(parts[1]), coin >= 0, let share = Double(parts[2]),
+                  share.isFinite, share >= 0 else { return nil }
+            return .flight(coin: coin, share: share)
+        }
         switch word {
         case "full": return .full
         case "sealed", "lit": return .sealed
@@ -592,6 +739,30 @@ enum PayFreeze: Sendable, Equatable {
             return (count.sinceSeal ?? 0) >= 0.25
         case .back:
             return (count.slideShare ?? 0) >= 0.5
+        case .flight(let coin, let share):
+            guard coin < count.launched.count else { return false }
+            return count.time >= count.launched[coin] + share * PayCount.flight - 1e-9
+        }
+    }
+
+    /// How far `count` may step now without passing this moment (nil: as far as the frame goes), so a picture
+    /// freezes on the exact moment rather than the frame after it.
+    func room(_ count: PayCount) -> Double? {
+        switch self {
+        case .flight(let coin, let share):
+            if coin < count.launched.count {
+                return max(0, count.launched[coin] + share * PayCount.flight - count.time)
+            }
+            if coin == count.launched.count, count.holding, count.ready, let due = count.due {
+                return max(0, due - PayCount.flight + share * PayCount.flight - count.time)
+            }
+            return nil
+        case .sealed:
+            if let since = count.sinceSeal { return max(0, 0.25 - since) }
+            if let seal = count.sealAt { return max(0, seal - count.time) + 0.25 }
+            return nil
+        default:
+            return nil
         }
     }
 }
