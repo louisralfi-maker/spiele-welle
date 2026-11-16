@@ -1,0 +1,17 @@
+Test Case '-[LanternholdUITests.CountUITests testLetGoSlidesTheCoinsBack]' passed (27.168 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (19.757 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (91.055 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (15.225 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (177.575 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (50.899 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (91.417 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:198: error: -[LanternholdUITests.TouchUITests testTouchTheWorld] : failed - no slip above touch-plot-3
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:201: error: -[LanternholdUITests.TouchUITests testTouchTheWorld] : XCTAssertTrue failed - the card opens when he arrives at touch-plot-3
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:257: error: -[LanternholdUITests.TouchUITests testTouchTheWorld] : XCTAssertTrue failed - the coin paid the repair
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:294: error: -[LanternholdUITests.TouchUITests testTouchTheWorld] : XCTAssertTrue failed - short of gold: nothing paid
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' failed (174.131 seconds).
+Test Suite 'TouchUITests' failed at 2026-11-16 00:26:34.904.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-16 00:26:34.905.
+Test Suite 'Selected tests' failed at 2026-11-16 00:26:34.906.
+exit=65
+screenshots: 48

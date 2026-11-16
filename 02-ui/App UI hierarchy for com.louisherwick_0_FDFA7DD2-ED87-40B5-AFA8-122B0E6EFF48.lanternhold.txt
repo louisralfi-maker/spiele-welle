@@ -1,0 +1,24 @@
+Application, 0x101ae04a0, pid: 3356, label: 'Lanternhold' <App element pid: 3356>
+  Window (Main), 0x101a91d60, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 3356, elementOrHash.elementID: 4322727920.4>
+    Other, 0x101ae1f40, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 3356, elementOrHash.elementID: 4322847152.5>
+      Other, 0x101c63b70, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 3356, elementOrHash.elementID: 4323365648.6>
+        Other, 0x101c712c0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 3356, elementOrHash.elementID: 4322686784.7>
+          Other, 0x101c72060, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 3356, elementOrHash.elementID: 4325717376.8>
+            Other, 0x101c701b0, {{0.0, 0.0}, {902.7, 402.0}}, identifier: 'world-root' <AX element pid: 3356, elementOrHash.elementID: 4325715920.9>
+              Other, 0x101c70870, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:540 ready da... <AX element pid: 3356, elementOrHash.elementID: 4323441600.10>
+              Other, 0x101a7e0e0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 3356, elementOrHash.elementID: 4325704624.11>
+              Other, 0x101a7bb00, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 3356, elementOrHash.elementID: 4325705056.12>
+              Other, 0x101abb470, {{0.0, 0.0}, {1.0, 1.0}}, identifier: 'town-status', value: day:3 owing: paid:... <AX element pid: 3356, elementOrHash.elementID: 4325705840.13>
+              Other, 0x101dc6710, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 3356, elementOrHash.elementID: 4325707296.14>
+              Other, 0x101d47390, {{437.0, 2.0}, {0.0, 4.0}} <AX element pid: 3356, elementOrHash.elementID: 4325707728.15>
+              Other, 0x101de0d00, {{84.7, 140.7}, {818.0, 214.7}} <AX element pid: 3356, elementOrHash.elementID: 4325714384.16>
+                Button, 0x106c121f0, {{84.7, 140.7}, {56.0, 214.7}}, identifier: 'touch-door-hall', label: 'Leave the great hall' <AX element pid: 3356, elementOrHash.elementID: 4322909568.23>
+                Button, 0x101af15b0, {{341.3, 224.7}, {84.0, 130.7}}, identifier: 'touch-bench-0', label: 'Talk to Yrsa' <AX element pid: 3356, elementOrHash.elementID: 4325708512.18>
+                Button, 0x101ae3800, {{415.0, 271.3}, {44.3, 70.0}}, identifier: 'touch-lord', label: 'Robin, day 3, 91 gold, the town is glad, 16 people' <AX element pid: 3356, elementOrHash.elementID: 4325709968.19>
+                Button, 0x101af67f0, {{858.3, 201.3}, {44.3, 154.0}}, identifier: 'touch-talk-odile', label: 'Talk to Odile' <AX element pid: 3356, elementOrHash.elementID: 4325712176.20>
+              Button, 0x101ae2360, {{259.3, 230.0}, {300.0, 55.0}}, identifier: 'talk-bubble', label: 'Yrsa, We wait for the throne, my lord.' <AX element pid: 3356, elementOrHash.elementID: 4325735504.27>
+                Image, 0x101ac2c20, {{259.3, 230.0}, {300.0, 55.0}} <AX element pid: 3356, elementOrHash.elementID: 4325657296.29>
+                StaticText, 0x101a91100, {{271.4, 238.0}, {28.3, 16.7}}, label: 'Yrsa' <AX element pid: 3356, elementOrHash.elementID: 4325723504.30>
+                StaticText, 0x101ae0ec0, {{271.4, 256.7}, {211.0, 20.3}}, label: 'We wait for the throne, my lord.' <AX element pid: 3356, elementOrHash.elementID: 4325735072.31>
+              Image, 0x101ad10b0, {{402.3, 285.0}, {14.0, 8.0}} <AX element pid: 3356, elementOrHash.elementID: 4325738704.28>
+              Other, 0x101ae2ba0, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 3356, elementOrHash.elementID: 4325715488.17>
