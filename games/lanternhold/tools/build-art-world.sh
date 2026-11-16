@@ -59,7 +59,8 @@ W3F3="beaconTower beaconTowerRim beaconRuinRim beaconBaseRim greatBeaconRim gate
 # frames of its foot swinging (bannerart.py from keepart.py's painting; it left CASTLE). Step 2: the flag's dusk rim,
 # the ash flake of the two rains (tools/weatherart.py).
 # Step 3: the banner's dusk rim and gold mark (castleBannerRim).
-WIND="windmillTower keepFlag keepFlagRim castleBanner castleBannerRim ashFlake"
+# Step 3, part B: the weather vane on the keep's east tower and the gust's leaves and dust (tools/weatherart.py).
+WIND="windmillTower keepFlag keepFlagRim castleBanner castleBannerRim ashFlake weatherVane gustLeaf"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -91,6 +92,10 @@ build() { # name: one sprite (or one group of small ones)
         wa mill $A ;;
     ashFlake)   # build 3, POLISH pass 1 step 2: the ash west of the outermost wall (three sizes, a tumble)
         python3 -I -B games/lanternhold/tools/weatherart.py ash --out $A ;;
+    weatherVane)   # step 3, part B: the vane (five frames)
+        python3 -I -B games/lanternhold/tools/weatherart.py vane --out $A ;;
+    gustLeaf)   # step 3, part B: three leaves by four tumbles, three puffs of dust
+        python3 -I -B games/lanternhold/tools/weatherart.py gust --out $A ;;
     keepFlag|keepFlagRim|castleBanner|castleBannerRim)   # build 3, POLISH pass 1: the keep's flag (step 2: ten
                                          # frames) and its dusk rim (twenty), the curtain's banner and its rim (step 3:
                                          # fifteen poses each)

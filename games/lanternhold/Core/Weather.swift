@@ -497,6 +497,32 @@ enum Weather {
         return east + (west ? 7 : 0)
     }
 
+    /// Step 3 (part B, POLISH.md 2 item 4): the weather vane's frames (`weatherVane`, tools/weatherart.py `vane`): 0 side
+    /// on, its head into the wind, 1 and 2 turned a third and two thirds away, 3 end on, 4 the storm's shiver.
+    static let vaneFrames = 5
+    /// How long a breeze's swing of the vane takes (s), and its storm shiver's beats a second.
+    static let vaneSwingPeriod = 3.2
+    static let vaneShiver = 10.0
+
+    /// The weather vane's frame at world x (it is mirrored toward the side the wind comes from, `blowsWest`): in still
+    /// air as drawn; in a calm it stands a third turned, where the last wind left it; stirring and in a breeze it points
+    /// into the wind and swings a third away and back every few seconds, at its own phase; in a storm it holds into the
+    /// wind and shivers (the fin flexing about every third beat of ten a second). With Reduce Motion it stands into the
+    /// steady wind.
+    static func vaneFrame(x: Double, _ sample: WeatherSample, time: Double, reduceMotion: Bool = false) -> Int {
+        let blow = Weather.force(at: x, sample, time: time, reduceMotion: reduceMotion)
+        let level = flagLevel(blow)
+        guard blow > 0 else { return 0 }
+        if level == 0 { return 1 }
+        if reduceMotion { return 0 }
+        if level == 3 {
+            let beat = Int(min(1.0e15, max(0, time) * vaneShiver * flagRate(x: x)).rounded(.down))
+            return beat % 3 == 0 ? 4 : 0
+        }
+        let swing = sin(2 * Double.pi * (max(0, time) / vaneSwingPeriod + flagPhase(x: x) / Double(flagCycle)))
+        return swing > 0.6 ? 1 : 0
+    }
+
     /// The frames of the windmill's sails (`windmillSails`): a quarter turn of its four sails, 7.5 degrees a frame
     /// (step 2, the critic's H3: at 15 degrees they ticked like a clock hand).
     static let sailFrames = 12

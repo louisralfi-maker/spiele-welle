@@ -20,6 +20,7 @@ enum WindLook {
     /// - A banner hung against the curtain (`castleBanner`, tier 3) swings its foot downwind by `Weather.bannerSwing`
     ///   at its middle (`Weather.bannerFrame`: out and back toward the valley, 1 to 7, the same toward the shadow land,
     ///   8 to 14), both drawn with the light on the left.
+    /// - Step 3: the weather vane on the keep's east tower turns its head into the wind (`Weather.vaneFrame`).
     static func pose(of prop: Prop, weather: WeatherSample, time: Double, reduceMotion: Bool) -> Pose? {
         switch prop.sprite {
         case .windmillSails:
@@ -35,6 +36,12 @@ enum WindLook {
             let swing = Weather.bannerSwing(x: middle, weather, time: time, reduceMotion: reduceMotion)
             let west = Weather.blowsWest(at: middle, weather, time: time, reduceMotion: reduceMotion)
             return Pose(frame: Weather.bannerFrame(pose: swing, west: west), flipped: false, dx: 0)
+        case .weatherVane:
+            // Step 3 (part B): the vane turns its head into the wind; mirrored round its rod (col 4 of 9) for a wind
+            // toward the shadow land.
+            let rod = prop.x + 4
+            return Pose(frame: Weather.vaneFrame(x: rod, weather, time: time, reduceMotion: reduceMotion),
+                        flipped: Weather.blowsWest(at: rod, weather, time: time, reduceMotion: reduceMotion), dx: 0)
         default:
             return nil
         }

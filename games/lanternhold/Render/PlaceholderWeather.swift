@@ -11,6 +11,8 @@ enum PlaceholderWeather {
         case .keepFlag: return (0..<Weather.flagFrames).map { flag($0) }
         case .keepFlagRim: return (0..<(2 * Weather.flagFrames)).map { flagRim($0) }
         case .castleBannerRim: return (0..<Weather.bannerFrames).map { _ in bannerRim() }
+        case .weatherVane: return (0..<Weather.vaneFrames).map { vane($0) }
+        case .gustLeaf: return (0..<15).map { gustLeaf($0) }
         case .ashFlake: return (0..<SpriteID.ashFlake.frameCount).map { ashFlake($0) }
         case .flameBent: return (0..<4).map { bentFlame(PlaceholderSprites.flameRows, sprite: .flameBent, frame: $0) }
         case .brazierFlameBent: return (0..<4).map { bentFlame(PlaceholderSprites.brazierFlameRows, sprite: .brazierFlameBent, frame: $0) }
@@ -119,6 +121,27 @@ enum PlaceholderWeather {
                 }
             }
             p.stamp([String(cells)], PlaceholderSprites.firePalette, x: 2 + shift, y: index)
+        }
+        return p.image
+    }
+
+    /// The weather vane (step 3; tools/weatherart.py's strip replaces it): the rod, an arrow shortening as it turns.
+    static func vane(_ frame: Int) -> PixelImage {
+        var p = Painter(SpriteID.weatherVane.size, salt: 0)
+        let iron = RGBA(0x2F303E)
+        p.rect(4, 0, 1, 12, iron)
+        let half = [4, 3, 2, 0, 4][min(frame, 4)]
+        p.rect(4 - half, 2, 2 * half + 1, 1, iron)
+        return p.image
+    }
+
+    /// A gust's leaf (frames 0-11) or puff of dust (12-14), a stand-in for tools/weatherart.py's strip.
+    static func gustLeaf(_ frame: Int) -> PixelImage {
+        var p = Painter(SpriteID.gustLeaf.size, salt: 0)
+        if frame < 12 {
+            p.rect(1, 1, 2, 2, RGBA(frame / 4 == 2 ? 0xA68A54 : 0x354E30))
+        } else {
+            p.put(1 + frame % 3, 3, RGBA(0x64513F))
         }
         return p.image
     }

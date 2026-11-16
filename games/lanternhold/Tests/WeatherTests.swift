@@ -817,6 +817,47 @@ final class WeatherTests: XCTestCase {
                       "the open fires lean")
     }
 
+    /// Step 3 (part B, POLISH.md 2 item 4): the weather vane on the keep's east tower turns its head into the wind,
+    /// swings a little in a breeze, shivers in a storm and stands in a calm; Reduce Motion stands it.
+    func testTheWeatherVaneTurnsIntoTheWind() throws {
+        let world = PlaceholderScene.world(look: .two)
+        let vane = try XCTUnwrap(world.props.first { $0.sprite == .weatherVane }, "the vane on the keep")
+        XCTAssertEqual(vane.plane, .near)
+        XCTAssertEqual(vane.movesWith, .mistBand)
+        XCTAssertEqual(vane.x, SceneLayout.castleKeepX + 236 - 4, "over the east tower's merlon (tier 1)")
+        XCTAssertNil(SceneLayout.castleKeepVane(CastleStage(tier: 2, building: true)), "none on the scaffold")
+        XCTAssertEqual(SceneLayout.castleKeepVane(CastleStage(tier: 3))?.dx, 238, "the cone's apex at tier 3")
+        XCTAssertEqual(AtlasLayout.shared.sources[.weatherVane], .png)
+        XCTAssertEqual(AtlasLayout.shared.cells[.weatherVane]?.count, Weather.vaneFrames)
+        let rod = vane.x + 4
+        func frames(_ override: WeatherOverride, reduceMotion: Bool = false) -> [Int] {
+            (0..<(12 * 30)).map {
+                let time = 3 + Double($0) / 30
+                let sample = Weather.sample(seed: 3, day: 12, hour: 12, time: time, override: override,
+                                            reduceMotion: reduceMotion)
+                return Weather.vaneFrame(x: rod, sample, time: time, reduceMotion: reduceMotion)
+            }
+        }
+        XCTAssertEqual(Set(frames(WeatherOverride(mode: .clear, wind: 0.08))), [1], "a calm: it stands")
+        XCTAssertEqual(Weather.vaneFrame(x: rod, .clear, time: 4), 0, "still air: as drawn")
+        let breeze = frames(WeatherOverride(mode: .breeze))
+        XCTAssertEqual(Set(breeze), [0, 1], "a breeze swings it a little")
+        XCTAssertLessThan(zip(breeze, breeze.dropFirst()).filter { $0 != $1 }.count, 12, "slowly")
+        let storm = frames(WeatherOverride(mode: .storm))
+        XCTAssertEqual(Set(storm), [0, 4], "a storm: it shivers")
+        XCTAssertGreaterThan(zip(storm, storm.dropFirst()).filter { $0 != $1 }.count, 40, "fast")
+        XCTAssertEqual(Set(frames(WeatherOverride(mode: .storm), reduceMotion: true)), [0], "Reduce Motion: it stands")
+        // It turns to the wind's side: mirrored round its rod for a wind toward the shadow land.
+        func pose(_ wind: Double) -> WindLook.Pose? {
+            let sample = Weather.sample(seed: 3, day: 12, hour: 12, time: 4,
+                                        override: WeatherOverride(mode: .clear, wind: wind))
+            return WindLook.pose(of: vane, weather: sample, time: 4, reduceMotion: false)
+        }
+        XCTAssertEqual(pose(0.5)?.flipped, false, "the head west, into a wind toward the valley")
+        XCTAssertEqual(pose(-0.5)?.flipped, true, "the head east, into a wind from the valley")
+        XCTAssertEqual(pose(-0.5)?.dx, 0, "it turns on its rod")
+    }
+
     func testTheFiresLeanAndGutterWithTheWind() {
         XCTAssertEqual(Weather.fireLean(x: 1500, .clear, time: 2), 0)
         let storm = fixed(WeatherOverride(mode: .storm))

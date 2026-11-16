@@ -81,6 +81,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case flameBent, brazierFlameBent
     // build 3 step 3 (lane 3, the critic's M4): the curtain banner's dusk rim and gold lantern, one frame per pose
     case castleBannerRim
+    // build 3 step 3 (lane 3, part B): the weather vane on the keep's east tower (5 frames: side on, turned a third and
+    // two thirds, end on, a storm's shiver), the gust's leaves and dust (15 frames: three leaves by four tumbles, three
+    // puffs of dust; tools/weatherart.py)
+    case weatherVane, gustLeaf
     // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer (world-2: one castle, the
     // far castle in its slots, the patch and the slots' lights are gone)
     case weltmauer
@@ -346,6 +350,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .rainStreak: return PixelSize(width: 7, height: 11)
         case .rainSplash: return PixelSize(width: 5, height: 3)
         case .ashFlake: return PixelSize(width: 5, height: 5)
+        case .weatherVane: return PixelSize(width: 9, height: 12)
+        case .gustLeaf: return PixelSize(width: 5, height: 4)
         case .flameBent: return PixelSize(width: 8, height: 5)
         case .brazierFlameBent: return PixelSize(width: 12, height: 7)
         case .windmillTower: return PixelSize(width: 26, height: 44)
@@ -575,6 +581,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .keepFlag: return Weather.flagFrames
         case .keepFlagRim: return 2 * Weather.flagFrames
         case .ashFlake: return 14   // build 3 step 3: three sizes by four tumbles, then the ember's two points
+        case .weatherVane: return Weather.vaneFrames
+        case .gustLeaf: return 15
         case .flameBent, .brazierFlameBent: return 4
         // build 3 step 3: hanging, out 1 to 4 and back 3 to 1 toward the valley, the same toward the west
         case .castleBanner, .castleBannerRim: return Weather.bannerFrames

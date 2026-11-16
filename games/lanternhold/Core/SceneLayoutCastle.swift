@@ -199,6 +199,10 @@ extension SceneLayout {
         for flag in castleKeepFlags(stage, keepX: castleKeepX) {
             list.append((.near, flag))
         }
+        // Step 3 (lane 3, part B): the weather vane on its east tower (`castleKeepVaneEntry`, `WindLook`).
+        if let vane = castleKeepVaneEntry(stage, keepX: castleKeepX) {
+            list.append((.near, vane))
+        }
         // Fix round 1 (blocker 1: "no mist at its foot"): a feathered bank of mist on the mistBand plane, its billows
         // standing over the curtain's crenels at dawn, dusk and night.
         // On fog A (in front of the near plane's picture, behind the world's), so it takes the hour's fog colour and

@@ -52,6 +52,28 @@ extension SceneLayout {
                                          y: castlePosternPole.top - Double(SpriteID.keepFlag.size.height), z: 1,
                                          emitters: [castleFlagRim])
 
+    // MARK: The weather vane (item 4; step 3, part B)
+
+    /// The vane on the keep's east tower: its rod's column in the keep's sprite and the height of the roof it stands on
+    /// above the keep's foot (the merlon's top at tiers 1 and 2, the cone's apex at tier 3; tools/keepfix.py's tower,
+    /// the sprites' top rows 60, 40 and 26). None while a tier is under way: the tower is in scaffold.
+    static func castleKeepVane(_ stage: CastleStage) -> (dx: Double, top: Double)? {
+        guard !stage.building else { return nil }
+        switch stage.tier {
+        case 1: return (dx: 236, top: 115)
+        case 2: return (dx: 236, top: 135)
+        default: return (dx: 238, top: 149)
+        }
+    }
+
+    /// The vane as a prop: in the near plane's picture with the keep (moving with the mist band), its collar a row down
+    /// into the roof, its rod over the column; drawn after the keep.
+    static func castleKeepVaneEntry(_ stage: CastleStage, keepX: Double) -> Entry? {
+        guard let vane = castleKeepVane(stage) else { return nil }
+        return Entry(sprite: .weatherVane, x: keepX + vane.dx - 4, y: vane.top - 1, z: 5, region: .castle,
+                     movesWith: .mistBand)
+    }
+
     /// The flag's dusk rim: an emissive overlay of its own frame (mirrored with it), at the keep's rim's strength.
     static let castleFlagRim = Emitter.sprite(.keepFlagRim, dx: 0, dy: 0, glow: .window, fades: false)
 
