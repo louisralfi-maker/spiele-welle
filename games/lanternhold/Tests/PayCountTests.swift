@@ -1196,6 +1196,56 @@ final class PayCountTests: XCTestCase {
         XCTAssertTrue(sawShrunk, "and shrinks near the hand")
     }
 
+    /// Step 4 (the director's call 2, the critic's H2): let go, the coins fly home face-on, 0.07 s apart, on a low hop
+    /// that ends at the lord's belt; drawn, no coin's rect ever meets the purse figure's, and the figure counts up as
+    /// each coin arrives.
+    func testTheCoinsGoHomeToTheBeltUnderThePurse() throws {
+        XCTAssertEqual(PayCount.homeGap, 0.07, accuracy: 1e-9)
+        let end = GameModel.countHome(1, fromX: 0, fromLift: 40, toX: 30, toLift: 25)
+        XCTAssertEqual(end.x, 30, accuracy: 1e-9)
+        XCTAssertEqual(end.lift, 25, accuracy: 1e-9, "the way ends where it is sent")
+        let mid = GameModel.countHome(0.5, fromX: 0, fromLift: 40, toX: 30, toLift: 25)
+        XCTAssertLessThanOrEqual(mid.lift, 40 + GameModel.countHomeHop, "a low hop, never the throw's high arc")
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        for _ in 0..<5 { count.tap() }
+        game.touch.count = count
+        run(game, seconds: 1)
+        XCTAssertEqual(game.touch.count?.placed, 5)
+        var letGo = try XCTUnwrap(game.touch.count)
+        letGo.letGo()
+        game.touch.count = letGo
+        let figureSprites: [SpriteID] = [.hudCoin, .hudFigures, .hudArrow]
+        var sawBoth = false
+        var sawHome = false
+        var shown: [Int] = []
+        for _ in 0..<50 {
+            game.advance(by: 1.0 / 60)
+            let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            if let value = game.purse.shown, shown.last != value { shown.append(value) }
+            let figure = frame.actors.filter { $0.isEmissive && figureSprites.contains($0.sprite) }
+            let home = frame.actors.filter { !$0.isEmissive && $0.sprite == .hudCoinTen }
+            if !home.isEmpty { sawHome = true }
+            XCTAssertTrue(home.allSatisfy { $0.frame < 3 }, "face-on, never turning")
+            guard !figure.isEmpty, !home.isEmpty else { continue }
+            sawBoth = true
+            for coin in home {
+                for piece in figure {
+                    let apart = coin.rect.x + coin.rect.z <= piece.rect.x || piece.rect.x + piece.rect.z <= coin.rect.x
+                        || coin.rect.y + coin.rect.w <= piece.rect.y || piece.rect.y + piece.rect.w <= coin.rect.y
+                    XCTAssertTrue(apart, "a coin going home never meets the purse figure")
+                }
+            }
+        }
+        XCTAssertTrue(sawHome, "the coins went home")
+        XCTAssertTrue(sawBoth, "with the purse figure up")
+        XCTAssertEqual(shown, shown.sorted(), "the figure only counts up as the coins arrive")
+        XCTAssertGreaterThan(shown.count, 1, "it counts up")
+    }
+
     /// Step 3 (the director's call 9, M-e and M-c): the seal is the rendered deep seal played at rate 1; the planks
     /// have five middles, one of them knotted, so one tile in five shows a knot.
     func testTheSealIsRenderedDeepAndThePlanksKnotted() {

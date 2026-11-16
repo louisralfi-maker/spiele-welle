@@ -159,9 +159,10 @@ struct PayCount: Sendable, Equatable {
     /// critic's H5: the rocking coin is the whole lesson, and 2 s were too short to read it and reach).
     static let slideAfter = 2.0
     static let emptyWait = 5.0
-    /// Going back, the coins leave one by one, the last laid first, `homeGap` apart; each flies home to the lord's
-    /// hand in `slideSeconds`, shrinking to a pixel, and the purse takes it as it arrives.
-    static let homeGap = 0.04
+    /// Going back, the coins leave one by one, the last laid first, `homeGap` apart (step 4, the director's call 2:
+    /// 0.07 s, so they never bunch); each flies home to the lord's belt in `slideSeconds`, shrinking to a pixel, and the
+    /// purse takes it as it arrives.
+    static let homeGap = 0.07
     static let slideSeconds = 0.2
     /// When the purse runs dry the empty hollows blink once over this long, then the coins slide back.
     static let blinkSeconds = 0.3

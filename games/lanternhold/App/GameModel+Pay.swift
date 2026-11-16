@@ -204,6 +204,37 @@ extension GameModel {
         min(1, max(0, (1 - share) / 0.4))
     }
 
+    /// Step 4 (the director's call 2, the critic's H2): a coin going home ends at the lord's belt, this far under the
+    /// hand that threw it, under the purse figure, never rising past his head.
+    static let countBeltDrop = 6.0
+    /// It rises this little over the straight way home (a hop, never the throw's high arc).
+    static let countHomeHop = 3.0
+
+    /// Where a coin going home is at `share` (0 ... 1) of its way from (`fromX`, `fromLift`) in its hollow to
+    /// (`toX`, `toLift`) at the lord's belt (its top-left, game px): eased across, a low hop over the straight line.
+    nonisolated static func countHome(_ share: Double, fromX: Double, fromLift: Double, toX: Double,
+                                      toLift: Double) -> (x: Double, lift: Double) {
+        let p = min(1, max(0, share))
+        let across = 1 - (1 - p) * (1 - p)
+        let hop = 3.0 * 4 * p * (1 - p)  // countHomeHop (a literal here: this function is nonisolated)
+        return (fromX + (toX - fromX) * across, fromLift + (toLift - fromLift) * p + hop)
+    }
+
+    /// The purse figure above the lord as `lanternWorld` draws it (game px of the world strip: its left and right
+    /// edges, its bottom and top over the walk line), nil while it does not show.
+    func countPurseRect(framing: TouchFraming, lordX: Double) -> (left: Double, right: Double, bottom: Double,
+                                                                  top: Double)? {
+        let block = lordNotesBlock
+        guard !block.pieces.isEmpty else { return nil }
+        let room = countPurseRoom(width: block.width, lordX: lordX)
+        let viewLeft = framing.viewLeft.rounded(.up) + 2
+        let viewRight = framing.viewRight.rounded(.down) - 2
+        var left = Double(HUDKit.centredLeft(lordX: room.x, width: block.width))
+        left = min(max(left, viewLeft), viewRight - Double(block.width))
+        let bottom = room.ground + Double(HUDKit.lordHead + HUDKit.purseAbove)
+        return (left, left + Double(block.width), bottom, bottom + Double(block.height))
+    }
+
     /// Each hollow's flight on `board` (step 3: by its distance from the hand of the lord standing at `board.stand`):
     /// `PayCount.flight` for the near one up to `PayCount.flightFar` for the far one.
     static func countFlights(_ board: CountBoard) -> [Double] {
@@ -993,23 +1024,27 @@ extension GameModel {
                 actors.append(actor)
             }
         }
-        // The coins going home (H5; step 3, the director's call 8): opaque, the last laid first, each on the throw's
-        // high arc back over the coins still lying to the lord's hand, at its full size for the first 60 % of the way
-        // and shrinking to a pixel over the last 40 %.
+        // The coins going home (H5; step 3, the director's call 8; step 4, call 2): opaque, face-on, the last laid
+        // first, 0.07 s apart, each on a low hop to the lord's belt (never the throw's high arc), at its full size for
+        // the first 60 % of the way and shrinking to a pixel over the last 40 %; under the purse figure wherever it
+        // crosses it, so no coin's rect meets the figure's.
+        let figure = homing.isEmpty ? nil : countPurseRect(framing: framing, lordX: lordX)
         for coin in homing {
             let size = coin.coin.sprite.size
             let scale = GameModel.countHomeScale(coin.share)
             let w = max(1, (Double(size.width) * scale).rounded())
             let h = max(1, (Double(size.height) * scale).rounded())
-            let at = GameModel.countThrow(coin.share, fromX: Double(coin.x), fromLift: coin.lift,
-                                          toX: handX - Double(size.width) / 2,
-                                          toLift: GameModel.countHandLift + Double(size.height) / 2,
-                                          coinHeight: Double(size.height))
+            let at = GameModel.countHome(coin.share, fromX: Double(coin.x), fromLift: coin.lift,
+                                         toX: handX - Double(size.width) / 2,
+                                         toLift: GameModel.countHandLift - GameModel.countBeltDrop
+                                             + Double(size.height) / 2)
             let centreX = at.x + Double(size.width) / 2
             let centreY = at.lift - Double(size.height) / 2
-            if let actor = countActor(coin.coin.sprite, coin.face, x: (centreX - w / 2).rounded(),
-                                      lift: (centreY + h / 2).rounded(), alpha: 1, framing: framing, width: w,
-                                      height: h) {
+            let left = (centreX - w / 2).rounded()
+            var lift = (centreY + h / 2).rounded()
+            if let figure, left < figure.right + 1, left + w > figure.left - 1 { lift = min(lift, figure.bottom - 2) }
+            if let actor = countActor(coin.coin.sprite, coin.face, x: left, lift: lift, alpha: 1, framing: framing,
+                                      width: w, height: h) {
                 actors.append(actor)
             }
         }
