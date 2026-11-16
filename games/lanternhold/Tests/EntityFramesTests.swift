@@ -1079,6 +1079,35 @@ final class EntityFramesTests: XCTestCase {
                 }
                 XCTAssertGreaterThanOrEqual(rims, 1, "\(sprite) frame \(frame): a rim over the body")
                 XCTAssertEqual(capped, 0, "\(sprite) frame \(frame): no outline over the upper contour")
+                // Step 4 (the director's call 4): the cloth is a fringe: on some row behind the body two tails of
+                // it, each two pixels wide, stand a pixel or more apart
+                var fringe = false
+                for y in 0..<14 where !fringe {
+                    var runs: [Int] = []
+                    var run = 0
+                    for x in 0..<14 {
+                        if rag.contains(at(x, y)) {
+                            run += 1
+                        } else {
+                            if run > 0 { runs.append(run) }
+                            run = 0
+                            if at(x, y).a > 0 { break }       // the body: the fringe is behind it
+                        }
+                    }
+                    fringe = runs.filter { $0 >= 2 }.count >= 2
+                }
+                XCTAssertTrue(fringe, "\(sprite) frame \(frame): two tails of cloth hang behind, a pixel apart")
+                // and the crawler's neck dips: between the back's peak and the cold point a column stands lower than
+                // both neighbours (the loper's long arm leaves its shoulder over the neck on every frame)
+                let tops = (0..<14).map { x in (0..<14).first(where: { at(x, $0).a > 0 }) ?? 14 }
+                let eyeX = (0..<14).first(where: { x in (0..<14).contains { glow[frame * 14 + x, $0] == white } }) ?? 0
+                let peakX = tops.indices.min { tops[$0] < tops[$1] || (tops[$0] == tops[$1] && $0 > $1) } ?? 0
+                let dip = (max(1, peakX + 1)..<max(1, min(13, eyeX))).contains { x in
+                    tops[x] > tops[x - 1] && tops[x] > tops[x + 1]
+                }
+                if body == .crawler {
+                    XCTAssertTrue(dip, "\(sprite) frame \(frame): a dip at the neck, the head jutting low")
+                }
             }
         }
     }

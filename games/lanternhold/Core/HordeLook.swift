@@ -197,9 +197,10 @@ enum HordeLook {
     /// Where the thread rises on each body, frame by frame (walk 0 ... 3, then the attack frames): the rag's torn edge
     /// at the nape, as column and row of the 14 x 14 cell (`tools/creatures/hordekit.py` `peak`, the tumbler's
     /// `PEAKS`).
+    /// Step 4: the mantle's peak over the drape the tails hang from.
     static let roots: [[(x: Int, y: Int)]] = [
-        [(8, 4), (7, 5), (8, 4), (7, 5), (8, 4), (8, 5)],
-        [(5, 4), (6, 4), (7, 3), (6, 4), (5, 5), (5, 5)],
+        [(6, 4), (6, 5), (6, 4), (6, 5), (6, 4), (6, 5)],
+        [(4, 4), (5, 4), (6, 3), (5, 4), (4, 5), (6, 6)],
         [(3, 6), (3, 6), (3, 6), (3, 6), (3, 8), (3, 9), (3, 7)],
     ]
 
@@ -322,7 +323,7 @@ enum HordeLook {
     /// eyes.
     static let sockets: [[(dx: Double, dy: Double)]] = [
         [(5.5, 5.5), (5.5, 5.5), (5.5, 5.5), (5.5, 5.5), (5.5, 6.5), (5.5, 4.5)],
-        [(2.5, 5.5), (3.5, 5.5), (4.5, 6.5), (3.5, 5.5), (2.5, 4.5), (2.5, 4.5)],
+        [(3.5, 5.5), (4.5, 5.5), (5.5, 6.5), (4.5, 5.5), (3.5, 4.5), (5.5, 3.5)],
         [(2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 3.5), (2.5, 3.5), (2.5, 4.5)],
     ]
 
@@ -377,8 +378,8 @@ enum HordeLook {
     /// The socket on fall frame 0 (the flare), from the anchor: `tools/creatures/hordekit.py` `fall`.
     static func fallSocket(_ body: Body) -> (dx: Double, dy: Double) {
         switch body {
-        case .crawler: return (dx: 5.5, dy: 2.5)
-        case .loper: return (dx: 2.5, dy: 1.5)
+        case .crawler: return (dx: 5.5, dy: 1.5)
+        case .loper: return (dx: 3.5, dy: 1.5)
         case .tumbler: return (dx: 2.5, dy: 2.5)
         }
     }

@@ -270,6 +270,8 @@ LEGEND = {
     "g": ("nightSlate", "wraithDim", False),
     # bare pixels (no outline): thin limbs, claws, the strips' loose ends
     "l": ("night0", None, True), "L": ("nightBlue", None, True), "k": ("nightDeep", None, True),
+    # step 4: a bare rim pixel (the moon on a contour that keeps a notch open beside it: the neck's dip)
+    "h": ("nightHaze", None, True),
     "a": ("stoneDark", None, True),
     "1": ("moorDark", None, True), "3": ("soilDark", None, True), "2": ("moor", None, True),
 }
