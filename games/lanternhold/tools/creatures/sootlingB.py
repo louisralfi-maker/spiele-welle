@@ -8,7 +8,7 @@ carry no outline), the one cold point in it, never two, never a face. It crawls,
 its arm never closes into a loop: thrown forward at shoulder height at the top of its stride (step 5: never over the
 head, which read as a crook), the hand points ahead and down. To
 strike it lunges: the body thrown forward and down, the arm thrown out low and straight ahead with the hand in the
-ground, the tails flying back; with the arm reaching up and ahead it climbs a heap. 11 px high at the top of its
+ground, the tails flying back; with the arm reaching ahead it climbs a heap. 11 px high at the top of its
 vault (step 5: 14 while the arm rose over the head). (hordekit.py `LEGEND`: the pixels.)"""
 from hordekit import draw, place, limbs, uncap
 
@@ -48,9 +48,11 @@ POSE = [
     # throw goes forward at shoulder height, the wrist no higher than the mantle's peak, the hand pointing down)
     dict(at=(1, 4), torso=TORSO, elbow=(9, 5), wrist=(12, 4), hand=[(12, 4), (13, 5)],
          leg=[(5, 11), (4, 13)]),
-    # attack 4: the gather before the lunge, the body drawn back and low, the arm reaching up and ahead (also its climb
-    # on a heap: the hand stands clear over its back), the tails hanging
-    dict(at=(0, 5), torso=TORSO, elbow=(9, 4), wrist=(12, 2), hand=[(12, 2), (13, 1), (13, 3)],
+    # attack 4: the gather before the lunge, the body drawn back and low, the arm reaching ahead at shoulder height
+    # (also its climb on a heap; step 5, the gate's review: reaching up over the mantle with a hooked hand it held up a
+    # stick on every heap, so the climb reads from the body's lift and the claw of frame 5), the hand pointing down,
+    # the tails hanging
+    dict(at=(0, 5), torso=TORSO, elbow=(9, 6), wrist=(12, 5), hand=[(12, 5), (13, 6)],
          leg=[(4, 12), (3, 13)]),
     # attack 5: the lunge, the body thrown forward and down, the arm thrown out low and straight ahead, the hand in
     # the ground, the tails flying back

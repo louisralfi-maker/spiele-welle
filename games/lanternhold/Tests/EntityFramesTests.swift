@@ -597,24 +597,27 @@ final class EntityFramesTests: XCTestCase {
 
     func testTheLopersThrowIsNoCrook() {
         // Step 5 (the critic's M2): at the top of its stride (walk frame 3) the loper throws its arm forward at shoulder
-        // height: nothing of it stands over the peak of its mantle (the cloth, warmer than blue in the strip).
+        // height: nothing of it stands over the peak of its mantle (the cloth, warmer than blue in the strip). The
+        // gate's review: the same for the gather (4, also its climb on every heap) and the lunge (5).
         guard let url = AtlasBuilder.artURL(for: .sootlingB, bundle: .main), let strip = PNGDecoder.load(url: url) else {
             XCTFail("sootlingB.png is in the bundle")
             return
         }
         let size = SpriteID.sootlingB.size
-        var top = size.height
-        var mantle = size.height
-        for y in 0..<size.height {
-            for x in 0..<size.width {
-                let c = strip[3 * size.width + x, y]
-                guard c.a > 0 else { continue }
-                top = min(top, y)
-                if Int(c.r) > Int(c.b) { mantle = min(mantle, y) }
+        for frame in 3...5 {
+            var top = size.height
+            var mantle = size.height
+            for y in 0..<size.height {
+                for x in 0..<size.width {
+                    let c = strip[frame * size.width + x, y]
+                    guard c.a > 0 else { continue }
+                    top = min(top, y)
+                    if Int(c.r) > Int(c.b) { mantle = min(mantle, y) }
+                }
             }
+            XCTAssertLessThan(mantle, size.height, "frame \(frame): the mantle is found")
+            XCTAssertGreaterThanOrEqual(top, mantle, "frame \(frame): nothing of the arm stands over the mantle's peak")
         }
-        XCTAssertLessThan(mantle, size.height, "the mantle is found")
-        XCTAssertGreaterThanOrEqual(top, mantle, "nothing of the throw stands over the mantle's peak")
     }
 
     func testALowerGroundLineIsDrawnInFront() {
