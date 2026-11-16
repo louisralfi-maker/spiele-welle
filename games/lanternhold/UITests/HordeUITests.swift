@@ -18,7 +18,9 @@ import XCTest
 ///   live launch of the dark proof (step 3, M4), so the march, the climb and a fall can be judged without a video.
 /// The falls live only in the live loop's `BattleEffects`, so no still shot holds one: their proof is the unit test
 /// `HordeRenderTests` (`horde-fall-filmstrip`, rendered through the game's renderer) and scripts/ci/sim-clip.sh's live
-/// clip of the same proof (`-GWHorde dark`), where the catapult's firepots fall on the heap.
+/// clip of the same proof (`-GWHorde dark`). Since step 4 every dark launch runs `HordeProof.drive`: the clock held at
+/// 23:00, the outer catapult silent, the lord at x 680 (over `-GWCameraX`), a small one a second out of the bank's
+/// edge, and at forty alive the newest at the wall falls (the live falls).
 /// Saves `2nn-horde-<what>-<lang>`.
 @MainActor
 final class HordeUITests: XCTestCase {
@@ -78,8 +80,9 @@ final class HordeUITests: XCTestCase {
     }
 
     /// Step 3 (M4: the film must show a march and a live fall): eight shots of one live launch of the dark proof
-    /// (`-GWHorde dark`, the night clock running, no held time), taken one after another, so the stream is seen
-    /// stepping out of the bank and crossing the open while the catapult's firepots fall on the heap. A fall lives only
+    /// (`-GWHorde dark`; since step 4 the clock held at 23:00 and the catapult silent, `HordeProof.drive`), taken one
+    /// after another, so the stream is seen stepping out of the bank and crossing the open while the newest at the
+    /// heap's top falls once forty are alive. A fall lives only
     /// in the live loop, so a held shot never holds one; here a fall is caught when one happens between two shots
     /// (the still proof of a fall stays `HordeRenderTests`' filmstrip).
     func testHordeFilmstrip() {
