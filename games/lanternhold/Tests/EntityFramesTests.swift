@@ -598,25 +598,29 @@ final class EntityFramesTests: XCTestCase {
     func testTheLopersThrowIsNoCrook() {
         // Step 5 (the critic's M2): at the top of its stride (walk frame 3) the loper throws its arm forward at shoulder
         // height: nothing of it stands over the peak of its mantle (the cloth, warmer than blue in the strip). The
-        // gate's review: the same for the gather (4, also its climb on every heap) and the lunge (5).
-        guard let url = AtlasBuilder.artURL(for: .sootlingB, bundle: .main), let strip = PNGDecoder.load(url: url) else {
-            XCTFail("sootlingB.png is in the bundle")
-            return
-        }
-        let size = SpriteID.sootlingB.size
-        for frame in 3...5 {
-            var top = size.height
-            var mantle = size.height
-            for y in 0..<size.height {
-                for x in 0..<size.width {
-                    let c = strip[frame * size.width + x, y]
-                    guard c.a > 0 else { continue }
-                    top = min(top, y)
-                    if Int(c.r) > Int(c.b) { mantle = min(mantle, y) }
-                }
+        // gate's review: the same for the gather (4, also its climb on every heap) and the lunge (5), and for the
+        // crawler's rear and strike (4, its climb, and 5).
+        for (sprite, frames) in [(SpriteID.sootlingB, 3...5), (SpriteID.sootling, 4...5)] {
+            guard let url = AtlasBuilder.artURL(for: sprite, bundle: .main), let strip = PNGDecoder.load(url: url) else {
+                XCTFail("\(sprite).png is in the bundle")
+                continue
             }
-            XCTAssertLessThan(mantle, size.height, "frame \(frame): the mantle is found")
-            XCTAssertGreaterThanOrEqual(top, mantle, "frame \(frame): nothing of the arm stands over the mantle's peak")
+            let size = sprite.size
+            for frame in frames {
+                var top = size.height
+                var mantle = size.height
+                for y in 0..<size.height {
+                    for x in 0..<size.width {
+                        let c = strip[frame * size.width + x, y]
+                        guard c.a > 0 else { continue }
+                        top = min(top, y)
+                        if Int(c.r) > Int(c.b) { mantle = min(mantle, y) }
+                    }
+                }
+                XCTAssertLessThan(mantle, size.height, "\(sprite) frame \(frame): the mantle is found")
+                XCTAssertGreaterThanOrEqual(top, mantle,
+                                            "\(sprite) frame \(frame): nothing of the arm stands over the mantle's peak")
+            }
         }
     }
 

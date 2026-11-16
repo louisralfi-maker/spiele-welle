@@ -6,9 +6,9 @@ their ends torn to a single pixel, so the rear at 1x is a fringe like the hem of
 highest over the mantle; the head juts forward below it behind a one-pixel dip at the neck (kept open: the pixels on
 either side of it carry no outline), the one cold point in it, never two, never a face. Between the thin legs the
 ground shows under the belly. The back pumps a pixel in the scuttle (its peak sinks, the belly stays off the ground);
-the near legs and the far legs take turns. It rears with a fore claw two pixels thick reaching up and ahead, three
-pixels over its back (also its pose when it climbs a heap: the claw stands clear of the heap's outline), and strikes
-down. 10 px high. (hordekit.py `LEGEND`: the pixels.)"""
+the near legs and the far legs take turns. It rears with a fore claw
+thrown ahead at the height of its back, its hook pointing down (also its pose when it climbs a heap; step 5:
+never over its back, which held up a stick), and strikes down. 10 px high. (hordekit.py `LEGEND`: the pixels.)"""
 from hordekit import draw
 
 SIZE = (14, 14, 6)
@@ -61,14 +61,12 @@ F = [
      ".....l....l.l.",
      ".....l....l.l.",
      "....l.....l..l"],
-    # attack 4: it rears, the head up a row, a fore claw two pixels thick reaching up and ahead over its back, the
-    # tails hanging (also its climb on a heap: the claw stands three pixels clear of its back)
-    [E,
-     "...........kk.",
-     "..........LL.k",
-     ".........LL...",
-     ".....mq.LL....",
-     "...113SMh.....",
+    # attack 4: it rears, the head up a row, a fore claw thrown ahead at the height of its back, its hook pointing
+    # down in front of the head, the tails hanging (also its climb on a heap; step 5, the gate's review: reaching up
+    # three pixels over its back with a hooked end it held up a stick on every heap, the staff Louis rejected)
+    [E, E, E, E,
+     ".....mq.LLLL..",
+     "...113SMh...Lk",
      ".13.13.lBh.hM.",
      ".13.13.lBSLLE.",
      "13..k..lDB.Le.",
