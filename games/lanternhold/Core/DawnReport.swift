@@ -51,6 +51,10 @@ struct DawnReport: Codable, Sendable, Equatable {
     /// The gorge beacons' half (front lane hook, docs/lanes/front.md "front-3"): beacons lit and lost, land freed. nil
     /// without the rule.
     var gorge: GorgeDawnReport?
+    /// The drill yard's half (build 3, wave 2, lane 2, `Yard.dawn`): who was trained this morning, the trained men who
+    /// fell in the night by name, what came at this dawn. nil without a yard, on a dawn with nothing to tell and in
+    /// saves from before this field.
+    var yard: YardDawnReport?
 
     /// No soldier fell tonight: the report shows a small banner.
     var noLosses: Bool { fallen.isEmpty }

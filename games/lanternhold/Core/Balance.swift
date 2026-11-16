@@ -281,6 +281,10 @@ struct Balance: Sendable, Equatable {
 
     var front = FrontTuning()
 
+    // MARK: The drill yard (build 3, wave 2, lane 2; every number of docs/YARD.md that is built)
+
+    var yard = YardTuning()
+
     // MARK: Lookups
 
     func stats(_ item: BuildItem) -> ItemStats { items[item.index] }

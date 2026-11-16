@@ -1137,7 +1137,8 @@ enum EntityFrames {
     /// the next, idle 0 ... 1 otherwise and whenever no lit creature is in reach.
     static func archerFrame(_ soldier: Soldier, balance: Balance, time: Double, aiming: Bool = true) -> Int {
         if aiming {
-            if soldier.cooldown > balance.archerPeriod - archerLooseSeconds { return 4 }
+            // b3-yard: a trained archer's reload is his own (`Yard.archerPeriod`), so his loose pose shows as long.
+            if soldier.cooldown > Yard.archerPeriod(soldier, balance: balance) - archerLooseSeconds { return 4 }
             if soldier.cooldown > 0 && soldier.cooldown < archerDrawSeconds {
                 return soldier.cooldown < archerDrawSeconds / 2 ? 3 : 2
             }

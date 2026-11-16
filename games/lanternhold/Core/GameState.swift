@@ -102,6 +102,11 @@ struct Soldier: Codable, Sendable, Equatable {
     var cooldown: Double = 0
     /// Arrows shot tonight: every fourth is a fire arrow.
     var shots: Int = 0
+    /// The drill yard (docs/YARD.md section 3; build 3, wave 2, lane 2): the days he drilled, and whether he is trained
+    /// (an archer looses faster, a guard holds more: `Yard`). Optional: nil is a recruit who never drilled (every older
+    /// save, every soldier of a realm without a yard).
+    var drilled: Int?
+    var trained: Bool?
 
     var isOnGround: Bool { state != .posted }
 }
@@ -406,6 +411,10 @@ struct GameState: Codable, Sendable, Equatable {
     /// "front-3"): four beacons raised into the gorge, the fog held at the furthest lit one, the land they free.
     /// Optional: nil plays by the old rules (the reference bots, saves from before it); `Gorge.adopt` turns it on.
     var gorge: GorgeState?
+    /// The drill yard (docs/YARD.md; build 3, wave 2, lane 2, `Yard`): its stage, the works ordered and in use, today's
+    /// roll and the lord at the fence. Optional: nil is the realm without a yard (stage 1, the barracks only, nobody
+    /// trained): every older save and every reference bot; the first order at the yard opens it.
+    var yard: YardState?
 
     /// The lord of this realm: the chosen one, else the standard (the Burgherr with the default name).
     var lordOrDefault: LordIdentity { lord ?? .standard }

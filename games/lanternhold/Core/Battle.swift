@@ -1057,7 +1057,9 @@ enum Battle {
                                                 toX: c.x, toY: c.y + height * 0.5, duration: duration,
                                                 target: c.id, damage: shot))
                 s.creatures[target].incoming += shot
-                soldier.cooldown += balance.archerPeriod
+                // b3-yard (YARD.md section 3): a trained archer looses every 1.25 s (a recruit, and every soldier of a
+                // realm without a yard, every `archerPeriod` as before).
+                soldier.cooldown += Yard.archerPeriod(soldier, balance: balance)
                 s.night.arrows += 1
                 if fire { s.night.fireArrows += 1 }
                 events.append(.arrow(fire: fire, x: soldier.x))
