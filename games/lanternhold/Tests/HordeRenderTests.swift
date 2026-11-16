@@ -49,12 +49,14 @@ final class HordeRenderTests: XCTestCase {
             XCTAssertEqual(threads.count, s.creatures.filter { HordeLook.hasThread(id: $0.id) }.count + 1,
                            "the threads of those that carry one and the orphan at \(after) s")
             if cropRect == nil, let fall = falls.first {
-                let w = 240
-                let h = 150
+                // step 4 (the critic's M3): each panel cropped to the dying one (about 21 x 18 game px round it),
+                // attached four times enlarged: twice the phone's own size
+                let w = 64
+                let h = 54
                 let midX = Int(fall.rect.x + fall.rect.z / 2)
                 let bottom = Int(fall.rect.y + fall.rect.w)
                 cropRect = (x: max(0, min(HordeRenderTests.screen.0 - w, midX - w / 2)),
-                            y: max(0, min(HordeRenderTests.screen.1 - h, bottom - h + 20)), w: w, h: h)
+                            y: max(0, min(HordeRenderTests.screen.1 - h, bottom - h + 9)), w: w, h: h)
             }
             guard let rect = cropRect else {
                 XCTFail("the fall is drawn at \(after) s")
@@ -76,7 +78,7 @@ final class HordeRenderTests: XCTestCase {
             crops.append(crop)
         }
         if let rect = cropRect {
-            attachStrip(crops, width: rect.w, height: rect.h, name: "horde-fall-filmstrip")
+            attachStrip(crops, width: rect.w, height: rect.h, name: "horde-fall-filmstrip", zoom: 4)
         }
     }
 

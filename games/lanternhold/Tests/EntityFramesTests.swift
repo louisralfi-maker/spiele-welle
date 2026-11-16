@@ -818,7 +818,8 @@ final class EntityFramesTests: XCTestCase {
                         }
                     }
                 }
-                XCTAssertLessThanOrEqual(Double(cloth), Double(filled) / 3,
+                // step 4 (the director's call 4): with a pixel of margin
+                XCTAssertLessThanOrEqual(cloth * 3, filled - 3,
                                          "\(sprite) frame \(frame): the rag is an accent, a third of it at most")
                 XCTAssertGreaterThanOrEqual(Double(cloth), Double(filled) / 6, "\(sprite) frame \(frame): it wears one")
                 XCTAssertEqual(checkers, 0, "\(sprite) frame \(frame): flat tones, no checker dither")
