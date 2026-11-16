@@ -14,7 +14,10 @@ final class HordeProofTests: XCTestCase {
         XCTAssertEqual(s.archerCount, 0, "\(when): no archers", file: file, line: line)
         // step 4: the clip's stream comes from `HordeProof.drive`, never through the battle's spawn queue
         XCTAssertTrue(s.spawns.isEmpty, "\(when): one wave, no more to come", file: file, line: line)
-        XCTAssertEqual(small.count, s.creatures.count, "\(when): small ones only", file: file, line: line)
+        // (step 5, round lh-b3h-51: the dark proof's heap cap lets the newest at the wall fall in the last step's
+        // drive, and the battle takes it away in the next, so a fallen small one may still be in the list)
+        XCTAssertTrue(s.creatures.allSatisfy { $0.kind == .sootling }, "\(when): small ones only",
+                      file: file, line: line)
         let open = small.filter { $0.action == .walking && $0.x > s.bankEdge && $0.x < wallX - 20 }
         XCTAssertGreaterThanOrEqual(open.count, wanted, "\(when): \(wanted) or more in the open", file: file, line: line)
         let atWall = small.filter { $0.action == .attackingWall && $0.target == Realm.lines[2].wall }
