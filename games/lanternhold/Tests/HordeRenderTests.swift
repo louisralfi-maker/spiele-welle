@@ -131,9 +131,13 @@ final class HordeRenderTests: XCTestCase {
 
     /// Step 2 (the director's art direction, 16.11.2026; the critic's B1): an unlit small one in the open at 23:00
     /// reads against the ground behind it. The outer line's fires are out, so nothing lights it but the night; each of
-    /// the three bodies is rendered once with and once without it (its thread and its socket's glow left out, so the
-    /// body alone is judged), and over the body's own pixels (its strip's alpha) the mean relative luminance of the
-    /// two must differ by 1.6 : 1 or more, either way. The crops are attached side by side, four times enlarged, as
+    /// the three bodies is rendered once with and once without it, under the same lights (its thread, its socket's glow
+    /// and the sockets' render lights left out, so the body alone is judged). Over the body's own pixels (its strip's
+    /// alpha, without the outline and the socket's shell: the rag, the moon rim and the navy) each pixel's relative
+    /// luminance stands against the ground right behind it; the geometric mean of those per-pixel ratios (either way)
+    /// must be 1.6 : 1 or more. A ratio of the means would let the dark navy and the pale rag average out toward the
+    /// ground (the review of step 2). The values note also gives the ratio of the means, the rag and rim alone
+    /// (brighter than the ground) and the navy alone. The crops are attached side by side, four times enlarged, as
     /// `horde-night-contrast`, with the numbers as `horde-night-contrast-values`.
     func testAnUnlitSmallOneReadsAgainstTheNightInTheOpen() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
@@ -150,8 +154,15 @@ final class HordeRenderTests: XCTestCase {
         settings.time = 1.5
         let dropped: Set<SpriteID> = [.sootThread, .sootlingGlow, .sootlingBGlow, .tumblerGlow]
         let bodyOnly: (ActorInstance) -> Bool = { !dropped.contains($0.sprite) }
-        let withBodies = frame(s, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly)
-        let withoutBodies = frame(empty, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly)
+        let withBodies = frame(s, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly,
+                               dropSocketLights: true)
+        let withoutBodies = frame(empty, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly,
+                                  dropSocketLights: true)
+        // The strip's outline (nightDeep) and socket shell (stoneLight) are left out; the rag (moor, moorDark,
+        // soilDark) and its moon rim (stone, stoneMid, stoneDark, nightHaze) are the part that should carry the read.
+        let skipped: Set<RGBA> = [RGBA(0x0A1124), RGBA(0x969AA2)]
+        let pale: Set<RGBA> = [RGBA(0x4A4536), RGBA(0x2A2922), RGBA(0x2B2421), RGBA(0x5E6170), RGBA(0x464957),
+                               RGBA(0x2F303E), RGBA(0x2F3F72)]
         let shotWith = try renderer.renderOffscreen(withBodies, settings: settings)
         let shotWithout = try renderer.renderOffscreen(withoutBodies, settings: settings)
         func luminance(_ c: SIMD3<Float>) -> Float {
@@ -174,6 +185,10 @@ final class HordeRenderTests: XCTestCase {
             var body: Float = 0
             var ground: Float = 0
             var count = 0
+            var logRatio: Float = 0
+            var paleBody: Float = 0
+            var paleGround: Float = 0
+            var paleCount = 0
             let x0 = Int(actor.rect.x.rounded(.down))
             let y0 = Int(actor.rect.y.rounded(.down))
             let x1 = Int((actor.rect.x + actor.rect.z).rounded(.up))
@@ -182,21 +197,39 @@ final class HordeRenderTests: XCTestCase {
                 for x in max(0, x0)..<min(shotWith.width, x1) {
                     let tx = Int((Float(x) + 0.5 - actor.rect.x) / texel)
                     let ty = Int((Float(y) + 0.5 - actor.rect.y) / texel)
-                    guard tx >= 0, tx < size.width, ty >= 0, ty < size.height,
-                          strip[actor.frame * size.width + tx, ty].a > 0 else { continue }
-                    body += luminance(shotWith.color(x: x, y: y))
-                    ground += luminance(shotWithout.color(x: x, y: y))
+                    guard tx >= 0, tx < size.width, ty >= 0, ty < size.height else { continue }
+                    let texelColour = strip[actor.frame * size.width + tx, ty]
+                    guard texelColour.a > 0, !skipped.contains(texelColour) else { continue }
+                    let b = luminance(shotWith.color(x: x, y: y))
+                    let g = luminance(shotWithout.color(x: x, y: y))
+                    body += b
+                    ground += g
+                    logRatio += log(max(b, g, 1e-5) / max(1e-5, min(b, g)))
                     count += 1
+                    if pale.contains(texelColour) {
+                        paleBody += b
+                        paleGround += g
+                        paleCount += 1
+                    }
                 }
             }
             XCTAssertGreaterThan(count, 40, "\(actor.sprite): its pixels are found")
             guard count > 0 else { continue }
+            let perPixel = exp(logRatio / Float(count))
+            let navyCount = count - paleCount
+            let navyBody = (body - paleBody) / Float(max(1, navyCount))
+            let navyGround = (ground - paleGround) / Float(max(1, navyCount))
             body /= Float(count)
             ground /= Float(count)
-            let ratio = max(body, ground) / max(1e-5, min(body, ground))
-            notes.append(String(format: "%@ frame %ld: body %.4f, ground %.4f, %.2f : 1 (%ld px)",
-                                actor.sprite.rawValue, actor.frame, body, ground, ratio, count))
-            XCTAssertGreaterThanOrEqual(ratio, 1.6, "\(actor.sprite) stands \(ratio) : 1 against the night ground")
+            let means = max(body, ground) / max(1e-5, min(body, ground))
+            let paleRatio = (paleBody / Float(max(1, paleCount))) / max(1e-5, paleGround / Float(max(1, paleCount)))
+            let navyRatio = navyBody / max(1e-5, navyGround)
+            notes.append(String(format: "%@ frame %ld: per pixel %.2f : 1 (%ld px); means body %.4f ground %.4f "
+                                + "%.2f : 1; rag and rim %.2f : 1 (%ld px, body over ground); navy %.2f : 1",
+                                actor.sprite.rawValue, actor.frame, perPixel, count, body, ground, means, paleRatio,
+                                paleCount, navyRatio))
+            XCTAssertGreaterThanOrEqual(perPixel, 1.6,
+                                        "\(actor.sprite) stands \(perPixel) : 1 against the night ground")
             // the crop: without and with, side by side
             let w = 60
             let h = 50
@@ -227,7 +260,7 @@ final class HordeRenderTests: XCTestCase {
     /// A game frame as `GameModel` builds it, in look 2, with the effects and a steady wind; `keep` may leave actors
     /// out.
     private func frame(_ s: GameState, focus: Double, time: Double, wind: Double, effects: BattleEffects,
-                       keep: ((ActorInstance) -> Bool)? = nil) -> FrameDesc {
+                       keep: ((ActorInstance) -> Bool)? = nil, dropSocketLights: Bool = false) -> FrameDesc {
         var options = FrameOptions(flickerTime: time)
         options.look = .two
         options.weather.mean = wind
@@ -239,6 +272,13 @@ final class HordeRenderTests: XCTestCase {
         var layer = EntityFrames.layer(state: s, balance: .standard, scene: scene, camera: camera,
                                        pixelScale: pixelScale, options: options, animTime: time, effects: effects)
         if let keep { layer.actors = layer.actors.filter(keep) }
+        if dropSocketLights {
+            // the small ones' socket and flare render lights (`EntityFrames.creatureLights`)
+            layer.lights.removeAll {
+                $0.source.kind == .moon && ($0.source.radius == HordeLook.socketRadius
+                                            || $0.source.radius == HordeLook.socketRadius * 2)
+            }
+        }
         var clock = DayClock(hour: s.hour, day: s.day)
         clock.isFrozen = true
         clock.advance(by: time)
