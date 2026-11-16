@@ -25,13 +25,30 @@ extension GameModel {
         return false
     }
 
+    /// The ground the count's boards and site lanterns stand on now (game px of the world strip): a signpost in their
+    /// way steps aside while they stand, so a board never stands in front of shingles (the barracks' archer board
+    /// beside the line-1 engine's plot).
+    func signBlockers() -> [ClosedRange<Double>] {
+        var spans: [ClosedRange<Double>] = []
+        for (count, board) in [(touch.count, touch.countBoard), (touch.countOld, touch.countOldBoard)] {
+            guard let count, let board, !count.isGone else { continue }
+            spans.append(Double(board.left)...Double(board.left + board.layout.width))
+        }
+        for lantern in touch.countLanterns {
+            spans.append(Double(lantern.postLeft - 10)...Double(lantern.postLeft + 16))
+        }
+        return spans
+    }
+
     /// The signposts standing now: each plot with several offers, its post at the plot, its row of shingles on the
     /// side that covers least of the other things' touch areas (people, who walk, left out so it never jumps). A plot
-    /// whose board stands has none: its chosen shingle hangs on the board's post.
+    /// whose board stands has none: its chosen shingle hangs on the board's post; nor does one with a board or a site
+    /// lantern standing in its way.
     func signposts(_ state: GameState, balance: Balance, framing: TouchFraming) -> [PaySignpost] {
         guard stage == .world else { return [] }
         let minimum = touchMinimum(framing: framing)
         let layouts = KingTargets.layouts(state, balance: balance)
+        let blockers = signBlockers()
         var list: [PaySignpost] = []
         for entry in PaySignpost.plots(state, balance: balance) {
             let id = "touch-plot-\(entry.plot)"
@@ -55,7 +72,11 @@ extension GameModel {
                     bestCover = cover
                 }
             }
-            if let best { list.append(best) }
+            guard let best else { continue }
+            let left = Double(best.barLeft) - 2
+            let right = Double(best.barLeft + best.barWidth) + 2
+            if blockers.contains(where: { $0.lowerBound < right && $0.upperBound > left }) { continue }
+            list.append(best)
         }
         return list
     }
