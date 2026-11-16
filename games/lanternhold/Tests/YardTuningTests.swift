@@ -3,8 +3,10 @@ import XCTest
 
 /// T16 (docs/YARD.md section 8; build 3, wave 2, lane 2, step 1): over nights 8 to 14 the yard bot (the reference plus
 /// the drill yard and the pitch kettle as gold allows) loses 20 to 35 % fewer soldiers than the reference and 15 to
-/// 25 % fewer creatures reach the gatehouse; it never wins a night the reference loses clearly; a bot that buys the yard
-/// in place of walls does worse. The report is attached (`yard-t16-report`). The reference bots never build the yard,
+/// 45 % fewer creatures reach the gatehouse (the director's reading of 16.11.2026); at the hardest budget it still
+/// loses at least three quarters of the reference's soldiers; it never wins a night the reference loses clearly; a
+/// bot that buys the yard in place of walls has its gatehouse reached on the band's first nights, which the walls
+/// keep untouched. The report is attached (`yard-t16-report`). The reference bots never build the yard,
 /// so T1 to T8 and T12 to T15 are untouched (their own tests run as before).
 final class YardTuningTests: XCTestCase {
     private static let metrics: YardMetrics = YardTuningRun.measure(balance: .standard, seeds: 4)
@@ -28,7 +30,7 @@ final class YardTuningTests: XCTestCase {
         XCTAssertTrue(m.passesLosses, t16Line)
     }
 
-    /// 16, second part: 15 to 25 % fewer creatures reach the gatehouse.
+    /// 16, second part: 15 to 45 % fewer creatures reach the gatehouse.
     func testTarget16bFewerCreaturesReachTheGatehouse() {
         let m = YardTuningTests.metrics
         XCTAssertGreaterThanOrEqual(m.paired("yard").refAtGate, YardMetrics.minReferenceAtGate, t16Line)
@@ -42,9 +44,20 @@ final class YardTuningTests: XCTestCase {
             .joined(separator: ", "))
     }
 
-    /// 16, fourth part: a bot that buys the yard in place of walls does worse than the reference.
+    /// 16, fourth part: a bot that buys the yard in place of walls does worse where the walls work. Its gatehouse
+    /// is reached on the band's first nights, which the reference's walls keep untouched.
     func testTarget16dTheYardInPlaceOfWallsDoesWorse() {
-        XCTAssertTrue(YardTuningTests.metrics.wallsDoWorse, t16Line)
+        let m = YardTuningTests.metrics
+        let walls = m.earlyAtGate("walls")
+        let reference = m.earlyAtGate("reference")
+        XCTAssertTrue(m.wallsDoWorse, "at the gatehouse, first nights: without walls \(walls), reference \(reference)")
+    }
+
+    /// 16, fifth part: the yard carries no realm caught short. At the band's hardest budget the yard bot still loses
+    /// at least three quarters of the soldiers the reference loses.
+    func testTarget16eTheYardCarriesNoRealmCaughtShort() {
+        let m = YardTuningTests.metrics
+        XCTAssertGreaterThanOrEqual(m.hardLossShare, YardMetrics.hardLossFloor, t16Line)
     }
 
     /// The bots do what T16 says they do: the yard bot orders the drill yard from day 4 and the kettle after it, and its

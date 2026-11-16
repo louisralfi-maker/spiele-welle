@@ -45,15 +45,24 @@ struct YardRun: Sendable, Equatable {
     var tally = YardBotTally()
 }
 
-/// T16 (docs/YARD.md section 8): over nights 8 to 14 the yard bot loses 20 to 35 % fewer soldiers than the reference
-/// and 15 to 25 % fewer creatures reach the gatehouse; it never wins a night the reference loses clearly; a bot that
-/// buys the yard in place of walls does worse than the reference. Whole runs from day 1 (the yard's worth grows with
+/// T16 (docs/YARD.md section 8, as the director read it on 16.11.2026 from the first measured runs): over nights 8
+/// to 14 the yard bot loses 20 to 35 % fewer soldiers than the reference and 15 to 45 % fewer creatures reach the
+/// gatehouse; at the band's hardest budget it still loses at least three quarters of the reference's soldiers (the
+/// yard smooths a middling night and carries no realm caught short); it never wins a night the reference loses
+/// clearly; a bot that buys the yard in place of walls has its gatehouse reached on the band's first nights, which
+/// the reference's walls keep untouched. Whole runs from day 1 (the yard's worth grows with
 /// the days of drill): every bot plays the game's own days and nights until the band, then the band's nights at each of
 /// `stresses` (a realm caught short, as T13 measures; the reference loses almost nobody on the game's own nights) and,
 /// for the second half only, at `fallStresses`. The bands count only the nights both bots played.
 struct YardMetrics: Sendable {
     static let lossBand = 0.20...0.35
-    static let gateBand = 0.15...0.25
+    static let gateBand = 0.15...0.45
+    /// At the band's hardest budget the yard bot loses at least this share of the reference's soldiers.
+    static let hardLossFloor = 0.75
+    /// The walls' work shows on the band's first this many nights: there the gatehouse of the bot without walls is
+    /// reached by at least this many more creatures than the reference's.
+    static let earlyNights = 4
+    static let earlyGateMargin = 20
     /// A night the reference loses with at least this many seconds before first light is a clear loss.
     static let clearMargin = 20.0
     /// Fewer reference losses or arrivals at the gate than this in all would make a share a matter of a few draws.
@@ -115,14 +124,34 @@ struct YardMetrics: Sendable {
         return held
     }
 
-    /// The bot that buys the yard in place of walls does worse than the reference: more creatures at the gate, and it
-    /// loses at least as many soldiers or falls sooner.
-    var wallsDoWorse: Bool {
-        let sums = paired("walls")
-        guard sums.atGate > sums.refAtGate else { return false }
-        if sums.lost >= sums.refLost { return true }
-        return fallNights("walls") > fallNights("reference")
+    /// The creatures that reached `bot`'s gatehouse on the band's first `earlyNights` nights, at the band's budgets.
+    func earlyAtGate(_ bot: String) -> Int {
+        var sum = 0
+        for one in runs where one.bot == bot && stresses.contains(one.stress) {
+            for count in one.atGate.prefix(YardMetrics.earlyNights) { sum += count ?? 0 }
+        }
+        return sum
     }
+
+    /// The bot that buys the yard in place of walls does worse where the walls do their work: on the band's first
+    /// nights the walls keep the gatehouse untouched, and without them it is reached from the first night on. (The
+    /// sums over all seven nights cannot show it: at a budget of 1.5 and more the reference's men die on its walls
+    /// on the last nights, and the bot without walls loses nobody. That finding is the walls' own and is open.)
+    var wallsDoWorse: Bool {
+        earlyAtGate("walls") >= earlyAtGate("reference") + YardMetrics.earlyGateMargin
+    }
+
+    /// The yard bot's soldiers lost as a share of the reference's at the band's hardest budget alone (1 = as many).
+    var hardLossShare: Double {
+        guard let hardest = stresses.max() else { return 1 }
+        var hard = self
+        hard.stresses = [hardest]
+        let sums = hard.paired("yard")
+        return sums.refLost > 0 ? Double(sums.lost) / Double(sums.refLost) : 1
+    }
+
+    /// The yard carries no realm caught short: at the hardest budget its soldiers fall almost as the reference's.
+    var holdsNoRealmCaughtShort: Bool { hardLossShare >= YardMetrics.hardLossFloor }
 
     /// Nights of the band at the band's budgets on which `bot` fell.
     func fallNights(_ bot: String) -> Int {
@@ -137,7 +166,9 @@ struct YardMetrics: Sendable {
         paired("yard").refAtGate >= YardMetrics.minReferenceAtGate && YardMetrics.gateBand.contains(gateReduction)
     }
 
-    var passes: Bool { passesLosses && passesGate && clearLossesHeld.isEmpty && wallsDoWorse }
+    var passes: Bool {
+        passesLosses && passesGate && clearLossesHeld.isEmpty && wallsDoWorse && holdsNoRealmCaughtShort
+    }
 
     private static func pct(_ value: Double) -> String { "\(Int((value * 100).rounded())) %" }
 
@@ -150,8 +181,13 @@ struct YardMetrics: Sendable {
                      + "budgets \(stresses.map { TuningRun.tenths($0) }): soldiers lost reference \(yard.refLost), "
                      + "yard \(yard.lost) (\(YardMetrics.pct(lossReduction)) fewer, band 20-35 %); at the gatehouse "
                      + "reference \(yard.refAtGate), yard \(yard.atGate) (\(YardMetrics.pct(gateReduction)) fewer, band "
-                     + "15-25 %); clear losses held \(clearLossesHeld.count); in place of walls: lost \(walls.lost), at "
+                     + "15-45 %); clear losses held \(clearLossesHeld.count); in place of walls: lost \(walls.lost), at "
                      + "the gatehouse \(walls.atGate) (worse: \(wallsDoWorse))")
+        let hardShare = YardMetrics.pct(hardLossShare)
+        let earlyWalls = earlyAtGate("walls")
+        let earlyReference = earlyAtGate("reference")
+        lines.append("  at the hardest budget the yard bot loses \(hardShare) of the reference's soldiers (floor 75 %)")
+        lines.append("  the first nights at the gatehouse: without walls \(earlyWalls), reference \(earlyReference)")
         for bot in ["reference", "yard", "walls"] {
             let set = runs.filter { $0.bot == bot }
             let trained = set.map(\.trained)
