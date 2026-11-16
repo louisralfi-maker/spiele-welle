@@ -257,6 +257,7 @@ def fall(src, k, seed):
 SLUMP = (0.8, 0.55)          # frames 0 and 1: the slump's height as a share of the body's own height (never under half
                              # at 0.15 s, when frame 1 starts)
 HEAP = (0.36, 0.56)           # frame 2: each column of the heap keeps this share of its pixels, uneven by column
+PALE_EDGE = "nightHaze"     # step 8 (G5): the slump's pale edge, two value steps over the body (was stone)
 
 
 def slump(src, k, seed):
@@ -316,6 +317,9 @@ def slump(src, k, seed):
                     f.put(x, y, "stoneMid", "wraithGlow")
                 else:
                     f.put(x, y, "stoneDark", "wraithDim")
+            elif (k == 2 and i == 0 and body == MOON and len(picked) > 1
+                  and picked[1][0] in ("moor", "soilDark", "moorDark")):
+                f.put(x, y, picked[1][0])     # step 8 (G3): the cold top sinks, the cloth folds over the heap
             elif k == 2 and i == 0 and body in ("nightBlue", "nightSlate", "nightHaze", "night0"):
                 f.put(x, y, ("stoneDark", "stoneMid", "night0")[(x + seed) % 3])     # ash on the heap's top
             else:
@@ -335,14 +339,16 @@ def slump(src, k, seed):
 
 def pale(f):
     """Step 7 (the director's call 8 of 16.11.2026 12:02, H4: a kill reads in the live crowd): the slump's upper
-    edge pale, the outline over each column's topmost pixel in the moon's grey (stone), so a falling one stands out
-    of the dark crowd behind it for its first two frames; the heap (frame 2) has its ash on top."""
+    edge pale, the outline over each column's topmost pixel in the moon's tone, so a falling one stands out of the
+    dark crowd behind it for its first two frames; the heap (frame 2) has its ash on top. Step 8 (the director's
+    call G5, the critic's M5): the edge in nightHaze, two value steps over the navy body, never the grey stone that
+    read as a hard white line."""
     for x in range(CELL):
         for y in range(CELL - 1):
             if f.b[y][x] is None:
                 continue
             if f.b[y][x] == "nightDeep" and f.b[y + 1][x] is not None and f.g[y][x] is None:
-                f.b[y][x] = "stone"
+                f.b[y][x] = PALE_EDGE
             break
     return f
 
@@ -515,3 +521,77 @@ def kin(body, k):
              and not any(f.has(q[0] + dx, q[1] + dy) for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)))]
     limbs(f, [([q, q], "k") for q in loose])
     return f
+
+
+# --- Step 8 (the director's calls G1 to G6 of 16.11.2026 13:38): the gait, the runt's back, the cloth ---------------
+# Each body is hand-set as three silhouettes of its walk, one per phase of a half cycle (`STEP8_PHASES`): the plant
+# (the hump at its lowest, the planted arm leaning forward), the upright (the hump at its highest, the planted arm
+# upright under it) and the end of the haul (the planted arm leaning back, the hem dragged back along the ground).
+# The arms run half a cycle apart: the near arm is planted on walk frames 0 to 2 and swings on 3 to 5, the far arm the
+# other way round, so one tip stands on the ground in every frame. A planted tip moves back in the cell by exactly
+# the body's stride (HordeLook.stride: the walker 4, the runt 3) per frame, so it stands still on the ground while the
+# body travels past it; a swinging tip is lifted off the ground line and travels forward. The silhouette's
+# characters: '#' the shroud, painted by `step8_paint` (each column's top pixel the cold moon tone nightHaze, never tan;
+# below it on the back the giant's cloth hangs in stripes, moor with soilDark between and navy gaps, `pattern` by
+# column, `depth[x]` rows deep; the rest navy, each column's lowest pixel night0); the head and its eye in `LEGEND`
+# characters (S, B, E); 'l' a bare fray of the hem. No bloom, no emissive on the cloth: it is cloth, not a light.
+STEP8_PHASES = "PUE"
+
+
+def step8_paint(sil, depth, front, pattern):
+    """A silhouette's grid in `LEGEND` characters: the top of each '#' column nightHaze (M), the cloth stripes under it
+    on the back (x < front, at most depth[x] rows under the column's top; `pattern` by column), the column's lowest
+    pixel night0 (D), the rest nightBlue (B)."""
+    check(sil)
+    g = [list(r) for r in sil]
+    for x in range(CELL):
+        col = [y for y in range(CELL) if sil[y][x] == "#"]
+        for y in col:
+            if y == col[0]:
+                c = "M"
+            elif x < front and y - col[0] <= depth[x]:
+                c = pattern[x % len(pattern)]
+            elif y == col[-1]:
+                c = "D"
+            else:
+                c = "B"
+            g[y][x] = c
+    return ["".join(r) for r in g]
+
+
+def step8_frame(body, sil, near, far):
+    """A finished frame: the painted silhouette (`draw`: flat tones, the outline round the sides and the underside, none
+    over the upper contour), the far arm behind the body, the near arm over it but behind the head; each arm a
+    polyline from the shoulder, one pixel wide, bare."""
+    f = draw(step8_paint(sil, body["depth"], body["front"], body["pattern"]), seed=body["seed"])
+    head = {(x, y) for y in range(CELL) for x in range(CELL) if sil[y][x] in "SBE"}
+    limbs(f, [(far, "l")])
+    keep = {(x, y): (f.b[y][x], f.g[y][x]) for (x, y) in head}
+    limbs(f, [(near, "L")], over=True)
+    for (x, y), (bb, gg) in keep.items():            # the head stays in front of the near arm
+        if bb is not None:
+            f.b[y][x], f.g[y][x] = bb, gg
+            f.bare.discard((x, y))
+    return f
+
+
+def step8_walk(body, k):
+    """Walk frame k (0 ... 5) of a step-8 body: its phase's silhouette and shoulder, the planted arm's tip from `plant`
+    (the stride back per frame), the swinging arm's tip from `swing`; the near arm plants on 0 to 2."""
+    ph = STEP8_PHASES[k % 3]
+    s = body["shoulder"][ph]
+    planted = [s, body["plant"][k % 3]]
+    swinging = [s] + list(body["swing"][k % 3])
+    near, far = (planted, swinging) if k < 3 else (swinging, planted)
+    return step8_frame(body, body["sil"][ph], near, far)
+
+
+def step8(body, k):
+    """Frame k of a step-8 body: walk 0 ... 5, 6 the climb (the plant's shroud hanging, both arms up the wall ahead,
+    the hands hooked over), 7 the strike (the upright body, the arms parted in a V: the near one raised with its hook,
+    the far one planted)."""
+    if k < KIN_WALK:
+        return step8_walk(body, k)
+    ph, near, far = body["climb"] if k == 6 else body["strike"]
+    s = body["shoulder"][ph]
+    return step8_frame(body, body["sil"][ph], [s] + list(near), [s] + list(far))

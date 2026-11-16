@@ -391,10 +391,12 @@ enum HordeLook {
     /// The socket's middle from the anchor, body by body and frame by frame (M3: it follows the walk; the art's
     /// `wraithWhite` pixel). Its height differs by body and frame (step 7: the walker's and the runt's in the head hung
     /// low in front, bobbing with the haul; the tumbler's in the hub) and by id (`stand`), so neighbours never pair up
-    /// into eyes.
+    /// into eyes. Step 8 (the director's call G1 of 16.11.2026 13:38, the gait): the head stays in its column while the
+    /// planted arm hauls the body past its tip; the eye bobs with the hump (lowest at the plant, frames 0 and 3; highest
+    /// upright, 1 and 4; between at the end of the haul, 2 and 5).
     static let sockets: [[(dx: Double, dy: Double)]] = [
-        [(2.5, 5.5), (2.5, 5.5), (3.5, 6.5), (3.5, 7.5), (3.5, 6.5), (2.5, 5.5), (3.5, 5.5), (3.5, 7.5)],
-        [(1.5, 5.5), (1.5, 5.5), (2.5, 6.5), (2.5, 6.5), (2.5, 6.5), (1.5, 5.5), (2.5, 5.5), (2.5, 6.5)],
+        [(3.5, 5.5), (3.5, 7.5), (3.5, 6.5), (3.5, 5.5), (3.5, 7.5), (3.5, 6.5), (3.5, 5.5), (3.5, 7.5)],
+        [(1.5, 5.5), (1.5, 6.5), (1.5, 5.5), (1.5, 5.5), (1.5, 6.5), (1.5, 5.5), (1.5, 5.5), (1.5, 6.5)],
         [(2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 4.5), (2.5, 3.5), (2.5, 3.5), (2.5, 4.5)],
     ]
 
@@ -536,7 +538,7 @@ enum HordeLook {
     /// the walker's and the runt's shroud folding down over their arms, the head hung low in front near the ground).
     static func fallSocket(_ body: Body) -> (dx: Double, dy: Double) {
         switch body {
-        case .crawler: return (dx: 2.5, dy: 1.5)
+        case .crawler: return (dx: 3.5, dy: 1.5)     // step 8: the walker's head a column further forward
         case .loper: return (dx: 1.5, dy: 1.5)
         case .tumbler: return (dx: 2.5, dy: 4.5)
         }
