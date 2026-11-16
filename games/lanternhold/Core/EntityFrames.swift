@@ -1337,6 +1337,10 @@ enum EntityFrames {
             let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
             // step 3: it falls where it stood (its pixel of height by id), so it never jumps as it dies
             let fallY = effect.y + (effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0)
+            // step 5 (the gate's review): a climber falls where it was drawn, aside by its id and facing as it faced
+            let climbed = effect.id >= 0 && effect.y > 0
+            let fallX = effect.x + (climbed ? HordeLook.heapJitter(id: effect.id) : 0)
+            let fallFlipped = climbed && HordeLook.facesAway(id: effect.id)
             // step 4 (the director's second law): the fall, its flare and its orphan under fog B at its veil, as it
             // walked; the flare under none
             let fallVeil = HordeLook.veil(x: effect.x, bankEdge: s.bankEdge)
@@ -1349,7 +1353,7 @@ enum EntityFrames {
                 let seen: Float = look == .two && !effect.lit
                     ? CreatureLook.bodyShare(x: effect.x, bankEdge: s.bankEdge) : 1
                 if seen > 0.02 {
-                    add(.sootFall, frame: fall.frame, x: effect.x, y: fallY,
+                    add(.sootFall, frame: fall.frame, x: fallX, y: fallY, flipped: fallFlipped,
                         tint: SIMD4<Float>(shade, shade, shade, fall.alpha * seen), lit: effect.lit,
                         lightCap: fallCap, moonRim: effect.lit ? 0 : unlitRim * night * seen)
                 }
@@ -1357,7 +1361,7 @@ enum EntityFrames {
                     // step 5 (the director's call 4): the socket's last flare (frame 0), then the cold point sinks with
                     // the slump (frame 1) and goes out over the low heap (frame 2), the last of it, by 0.45 s
                     let flare = point * (reduceMotion ? fall.alpha : 1)
-                    add(.sootFallGlow, frame: fall.frame, x: effect.x, y: fallY,
+                    add(.sootFallGlow, frame: fall.frame, x: fallX, y: fallY, flipped: fallFlipped,
                         tint: SIMD4<Float>(flare, flare, flare, 1), emissive: true, lightCap: flareCap)
                 }
             }
@@ -1640,7 +1644,8 @@ enum EntityFrames {
                 let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
                 let stand = effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0
                 let middle = effect.y + stand + Double(HordeLook.height(body)) * 0.4
-                let thin = HordeLook.puffAlpha(puff)
+                // (the gate's review: under Reduce Motion the flakes thin as before step 5, the still form unchanged)
+                let thin = reduceMotion ? Float(1 - puff) : HordeLook.puffAlpha(puff)
                 let drift = reduceMotion ? 0 : puff
                 for k in 0..<HordeLook.puffFlakes {
                     guard spend() else { return }
