@@ -23,8 +23,9 @@ guard let track = asset.tracks(withMediaType: .video).first else {
     print("clip-turn: no video track in \(input.path)")
     exit(1)
 }
-// The frame as the recorder stored it, after its own transform (identity for the simulator's recordings).
-let stored = track.naturalSize.applying(track.preferredTransform)
+// The frame as the recorder coded it. Its own transform (a rotation tag; identity for the simulator's recordings) is
+// left out, so the turn below is the only one, as sim-clip.sh's ffmpeg path does with -noautorotate.
+let stored = track.naturalSize
 let srcW = abs(stored.width)
 let srcH = abs(stored.height)
 guard srcW > 0, srcH > 0 else {
@@ -37,7 +38,7 @@ let scale = CGAffineTransform(scaleX: width / srcH, y: height / srcW)
 let instruction = AVMutableVideoCompositionInstruction()
 instruction.timeRange = CMTimeRange(start: .zero, duration: asset.duration)
 let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
-layer.setTransform(track.preferredTransform.concatenating(turn).concatenating(scale), at: .zero)
+layer.setTransform(turn.concatenating(scale), at: .zero)
 instruction.layerInstructions = [layer]
 let composition = AVMutableVideoComposition()
 composition.instructions = [instruction]
@@ -65,5 +66,5 @@ guard export.status == .completed else {
     print("clip-turn: export \(export.status.rawValue): \(export.error.map { "\($0)" } ?? "no error")")
     exit(1)
 }
-print("clip-turn: \(Int(srcW))x\(Int(srcH)) -> \(Int(width))x\(Int(height)), turned upright")
+print("clip-turn: \(Int(srcW))x\(Int(srcH)) (transform \(track.preferredTransform)) -> \(Int(width))x\(Int(height)), turned upright")
 exit(0)

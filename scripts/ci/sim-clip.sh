@@ -152,7 +152,12 @@ if command -v ffmpeg >/dev/null 2>&1; then
     W=${DIMS%%,*}
     H=${DIMS##*,}
     if [ -n "$W" ] && [ -n "$H" ] && [ "$H" -gt "$W" ] 2>/dev/null; then TURN="transpose=2,"; fi
-    if capped 180 ffmpeg -y -v error -i "$RAW" -vf "${TURN}scale=$CLIP_W:$CLIP_H" -c:v libx264 -crf 24 \
+    # The coded size decides the turn, so a rotation tag must not turn it a second time (-noautorotate); the tag is
+    # noted for the record.
+    ROT=$(ffprobe -v error -select_streams v:0 -show_entries stream_side_data=rotation -of csv=p=0 "$RAW" 2>/dev/null \
+        | tr -d '\n')
+    note "recorded frame ${DIMS:-?}, rotation tag: ${ROT:-none}"
+    if capped 180 ffmpeg -y -v error -noautorotate -i "$RAW" -vf "${TURN}scale=$CLIP_W:$CLIP_H" -c:v libx264 -crf 24 \
         -preset veryfast -pix_fmt yuv420p -an -movflags +faststart "$CLIP"; then
         note "upright with ffmpeg: ${DIMS:-?} -> ${CLIP_W}x${CLIP_H}${TURN:+, turned}: $(size "$CLIP") bytes"
     else
