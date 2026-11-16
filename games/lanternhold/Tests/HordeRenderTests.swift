@@ -559,6 +559,11 @@ final class HordeRenderTests: XCTestCase {
                         rimCount += 1
                     }
                 } else if lifted && !opaque(p.tx, p.ty + 1) {
+                    // step 8 (round lh-b3h-81): the shroud's underside, a run of the lower contour with an opaque
+                    // texel on each side; the stilt arms are one texel wide, every pixel of a slanted arm is a lower
+                    // edge, and on the phone frame they blend with the fire-lit ground beside them (about half the
+                    // lower-edge texels of the new climb and still frames), which hid the mark the rows part by
+                    guard opaque(p.tx - 1, p.ty) && opaque(p.tx + 1, p.ty) else { continue }
                     edge += HordeRenderTests.luminance(drawn)
                     edgePlain += HordeRenderTests.luminance(shotPlain.color(x: p.x, y: p.y))
                     edgeCount += 1
