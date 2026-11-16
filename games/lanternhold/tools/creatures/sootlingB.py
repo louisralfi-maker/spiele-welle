@@ -6,7 +6,7 @@ shoulders, the arm's root, and two strips of it trailing past the rump, each of 
 head hangs in front below the hump, the one cold point in it, never two, never a face. It crawls, it never perches,
 it never stands. It swings the long arm over its back and down to strike; with the arm reaching up it climbs a heap.
 14 px high at the top of the arm's arch. (hordekit.py `LEGEND`: the pixels.)"""
-from hordekit import draw, place, limbs
+from hordekit import draw, place, limbs, uncap
 
 SIZE = (14, 14, 6)
 HEIGHT = 14
@@ -56,4 +56,5 @@ def frame(k):
     # the long arm over everything but the socket, two pixels thick: its shaded half under its lit half
     limbs(f, [([(sh[0], sh[1] + 1), (el[0] - 1, el[1] + 1), (wr[0] - 1, wr[1])], "l"),
               ([sh, el, wr], "L"), (p["hook"][:2], "k")], over=True)
-    return limbs(f, [(p["hook"][1:], "a")], over=True)
+    # uncap again at the end: a strip's torn end drawn under an outline pixel that the first uncap left alone
+    return uncap(limbs(f, [(p["hook"][1:], "a")], over=True))
