@@ -1,0 +1,31 @@
+2026-11-16 07:06:30.332580+0000 Lanternhold[24047:79493] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-16 07:06:33.150248+0000 Lanternhold[24047:80369] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 07:06:33.150328+0000 Lanternhold[24047:80365] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 07:06:33.151418+0000 Lanternhold[24047:80367] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 07:06:33.214552+0000 Lanternhold[24047:80365] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 07:06:33.218966+0000 Lanternhold[24047:80365] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 07:06:33.293589+0000 Lanternhold[24047:80365] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.Build2SaveTests testLoadSaveLoadIsTheSameSaveAndTheSameBytes]' passed (0.278 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheCourtAndTheCraft]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheFrontTheHearthAndTheGorge]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheFrozenBytesAreBuild2s]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheGameResumesBuild2sSave]' passed (0.026 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testThePeopleAndThePlots]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheRealmsNumbers]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheSaveAndItsSettingsAndPacing]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheTownAndTheTable]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.Build86SaveTests testABuild86SaveStartsANewRealmAndKeepsTheRest]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.Build86SaveTests testTheGameKeepsItsSaveWhereBuild86KeptIt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.Build86SaveTests testTheSecondLaunchResumesTheNewRealmAndMovesNothing]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.Build86SaveTests testTodaysDecoderReadsBuild86sBytes]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testACorruptFileIsReportedAsCorrupt]' passed (0.235 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testAnOlderSaveWithoutOptionalFieldsLoads]' passed (0.244 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testARoundTripGivesTheSameRealm]' passed (0.355 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlayingOnFromALoadedSaveMatchesPlayingStraightOn]' passed (0.711 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlotCountsAndIndicesAreCheckedOnLoad]' passed (0.031 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testSettingsAndPacingWithoutTheirFieldsDecodeWithDefaults]' passed (0.253 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheChronicleKeepsRecordsPerTrackAcrossRealms]' passed (0.350 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheFrozenVersionOneSaveStillLoads]' passed (0.039 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testUnknownFieldsOfNewerVersionsAreIgnored]' passed (0.255 seconds).
+exit=0
+screenshots: 0
