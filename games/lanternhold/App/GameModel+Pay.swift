@@ -238,8 +238,12 @@ extension GameModel {
         let layout = PayBoardLayout.make(PayCount.hollows(price: found.price))
         let place = countBoardPlace(thing, layout: layout)
         let stand = groundX(place.x + place.side * (Double(layout.width) / 2 + GameModel.countStandGap))
+        let board = CountBoard(x: place.x, stand: stand, act: thing.act, layout: layout, side: place.side)
+        // A lantern still lit on this post (the last recruit's, 3 s) gives way to the new board and its own unlit
+        // lantern (the review of step 2: an unlit lantern was drawn over a lit one whose heart still glowed).
+        touch.countLanterns.removeAll { abs($0.postLeft - board.postLeft) < SpriteID.siteLantern.size.width }
         touch.count = PayCount(thing: thing.id, offer: found.offer, price: found.price, holding: holding)
-        touch.countBoard = CountBoard(x: place.x, stand: stand, act: thing.act, layout: layout, side: place.side)
+        touch.countBoard = board
         touch.countSent = false
         touch.countFirst = holding
         touch.countPress = holding

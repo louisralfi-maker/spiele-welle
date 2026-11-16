@@ -919,6 +919,24 @@ final class PayCountTests: XCTestCase {
         XCTAssertTrue(game.touch.countLanterns.isEmpty, "out and gone when the work is done")
     }
 
+    /// The review of step 2: a second recruit's board comes up on the post where the last recruit's lantern still
+    /// burns; that lantern gives way, so an unlit lantern is never drawn over a lit one.
+    func testANewBoardTakesThePostOfALitLantern() throws {
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1580",
+                          "GWGold": "60"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let thing = try XCTUnwrap(game.touch.things.first { $0.id == "touch-recruit-guard" })
+        let layout = PayBoardLayout.make(PayCount.hollows(price: thing.price ?? 14))
+        let place = game.countBoardPlace(thing, layout: layout)
+        let post = CountBoard(x: place.x, stand: place.x, act: thing.act, layout: layout, side: place.side)
+        game.touch.countLanterns = [CountLantern(offer: .recruit(.guardsman), postLeft: post.postLeft,
+                                                 postTop: post.postTop, litAt: 0)]
+        game.touchThing(thing)
+        let board = try XCTUnwrap(game.touch.countBoard, "the guard's board comes up")
+        XCTAssertEqual(board.postLeft, post.postLeft, "on the same post")
+        XCTAssertTrue(game.touch.countLanterns.isEmpty, "the lit lantern there gave way")
+    }
+
     /// Step 2's small edges: a count started on another thing lets the old board's coins come home one by one (the
     /// purse ticks up with each) while the new board comes up; nothing is paid.
     func testANewCountLetsTheOldBoardsCoinsComeHome() throws {
