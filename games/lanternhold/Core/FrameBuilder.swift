@@ -2021,10 +2021,14 @@ enum FrameBuilder {
                 grey = age
             }
             // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks into
-            // the list: the same flakes stand in the list from one moment to the next.
-            list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
-                                       tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
-                                       flipped: flipped))
+            // the list: the same flakes stand in the list from one moment to the next. A foreground flake that rests at
+            // night (`body` 0) is left out, so it costs no instance; `body` depends on the air alone, never on the
+            // time, so the list still holds from one moment to the next.
+            if body > 0.004 {
+                list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
+                                           tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
+                                           flipped: flipped))
+            }
             if night * fade * grey > 0.01 && entry.plane != .foreground {
                 let ash = warm * (night * fade * grey)
                 glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
