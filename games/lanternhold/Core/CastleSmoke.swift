@@ -118,6 +118,10 @@ enum CastleSmoke {
     /// holds under the pale backdrop. From the dusk their tint rises by up to `townNightLift` with the night, so their
     /// darker body keeps the blue-grey of the night's puffs.
     static let townNightLift: Float = 1.6
+    /// b3-wind (step 7, round lh-b3w-72: the live noon frame drew the caps cream-white, (251, 245, 223), over warm
+    /// brown bodies, (121, 110, 99)): by day the town's puffs take a cool tint of their own, so the live body is a cool
+    /// grey (about 80, 86, 100) under a pale grey cap (about 176, 182, 194), never white.
+    static let townDayTint = SIMD3<Float>(0.607, 0.651, 0.731)
 
     /// How far the wind has leaned the plume, 0 (a calm and below) ... 1 (the storm's angle).
     static func share(wind: Double) -> Double {
@@ -159,11 +163,11 @@ enum CastleSmoke {
         return frame < sizes ? frame + 2 : 1
     }
 
-    /// b3-wind (step 7, call T3): the town's puffs' albedo tint at this hour: the keep's by day (their art is grey),
-    /// lifted with the night by up to `townNightLift`.
+    /// b3-wind (step 7, call T3): the town's puffs' albedo tint at this hour: `townDayTint` by day, toward the keep's
+    /// lifted by `townNightLift` with the night.
     static func townTint(_ ambient: AmbientSample) -> SIMD3<Float> {
         let night = min(1, max(0, ambient.torchStrength))
-        return tint * (1 + (townNightLift - 1) * night)
+        return townDayTint * (1 - night) + tint * (townNightLift * night)
     }
 
     /// The emissive colour of a puff `rise` rows over its chimney's mouth (`fire`: the bakehouse's oven under it) at

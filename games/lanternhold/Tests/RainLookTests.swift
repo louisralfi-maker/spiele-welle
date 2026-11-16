@@ -449,8 +449,10 @@ final class RainLookTests: XCTestCase {
                     guard step >= 1 || under >= 1 || lit >= 1 else { continue }
                     let town = puff.frame >= CastleSmoke.townFrame
                     found.append(Int((town ? max(step, lit) : step).rounded()))
-                    if town && plane == .world {
-                        townBodies.append((x: puff.rect.x, step: Int(step.rounded())))
+                    if town {
+                        // Round lh-b3w-72: the back row's chimneys (the near plane) are the town's too; each plane's
+                        // columns apart.
+                        townBodies.append((x: puff.rect.x + Float(plane.rawValue) * 10_000, step: Int(step.rounded())))
                     }
                 }
             }

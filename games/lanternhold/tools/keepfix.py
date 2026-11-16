@@ -983,7 +983,9 @@ PUFF_SHAPES = [
 ]
 PUFF_BODY = (255, 255, 255, 255)
 PUFF_UNDER = (182, 186, 205, 255)
-PUFF_TOWN = {"c": (255, 255, 255, 255), "b": (118, 122, 134, 255), "d": (90, 95, 111, 255)}
+# Round lh-b3w-72: the noon light is warm and lifts the darker values toward brown, so the body is cooler in the art
+# and the day tint (CastleSmoke.townDayTint) cool: the live body about (80, 86, 100), the cap about (176, 182, 194).
+PUFF_TOWN = {"c": (255, 255, 255, 255), "b": (109, 130, 152, 255), "d": (78, 104, 132, 255)}
 
 
 def smoke_puff():
