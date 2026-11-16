@@ -348,10 +348,23 @@ extension GameModel {
                 old.letGo()
                 if old.placed > 0 { feedback.play(.coinsBack) }
             }
-            // Step 2's small edges: its coins come home one by one and the board sinks away, never vanishes.
-            touch.countOld = old
-            touch.countOldBoard = oldBoard
+            // Step 2's small edges: its coins come home one by one and the board sinks away, never vanishes. Step 3
+            // (the director's call 9): a recount of the same thing never stacks two boards on one place; the old one
+            // goes (its coins are home at once).
+            if old.thing == thing.id {
+                touch.countOld = nil
+                touch.countOldBoard = nil
+            } else {
+                touch.countOld = old
+                touch.countOldBoard = oldBoard
+            }
         }
+        if touch.countOld?.thing == thing.id {
+            touch.countOld = nil
+            touch.countOldBoard = nil
+        }
+        // Step 3 (call 9): the clink's steps are made ready as the board rises.
+        feedback.countWarm()
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
         let layout = PayBoardLayout.make(PayCount.hollows(price: found.price))
@@ -473,6 +486,26 @@ extension GameModel {
         withDriver { game in
             game.state.king.facing = board.x >= game.state.king.x ? 1 : -1
         }
+    }
+
+    /// A jump (a new realm, a replayed day, a second chance: `resetLanternHUD`): no board, no coins on their way home
+    /// and no site lantern of the realm before it stays (step 3, the director's call 9). Nothing is paid.
+    func resetCount() {
+        touch.count = nil
+        touch.countBoard = nil
+        touch.countOld = nil
+        touch.countOldBoard = nil
+        touch.countLanterns = []
+        touch.countCues = []
+        touch.countPress = false
+        touch.countFirst = false
+        touch.countSent = false
+    }
+
+    /// True while `-GWCountFreeze` (Debug, the pictures) holds the open count still.
+    var countFrozen: Bool {
+        guard let freeze = args.countFreeze, let count = touch.count, !count.isGone else { return false }
+        return freeze.holds(count)
     }
 
     /// A card, the horn, the background, the lantern moment, a change of stage: the count ends and pays nothing.

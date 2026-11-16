@@ -669,6 +669,22 @@ def coin_step(k):
 COIN_STEP_SECONDS = 0.26
 
 
+def seal_low():
+    """The count's seal (PAY.md section 2; step 3, the director's call 9): the seal resampled to 0.82 of its pitch, so
+    it sounds deep as made. Step 2 played the seal at a player's rate of 0.82, which only stretches it in time (the same
+    fault H4 fixed for the clink)."""
+    x = seal()
+    ratio = 0.82
+    n = int((len(x) - 1) / ratio)
+    out = []
+    for i in range(n):
+        t = i * ratio
+        j = int(t)
+        f = t - j
+        out.append(x[j] * (1.0 - f) + x[min(len(x) - 1, j + 1)] * f)
+    return fade(out, 0.0, 0.03)
+
+
 def hammer_tap(rng, g=1.0):
     n = secs(0.16)
     body = grain(n, rng.uniform(200, 225), 0.035)
@@ -1035,6 +1051,8 @@ SOUNDS = [
 # build 3, the count's step 2: the clink a semitone higher for every coin, thirteen steps (coin.wav, then coin_p01 ...
 # coin_p12; step 0 is the coin itself and has no file of its own)
 SOUNDS += [("coin_p%02d" % k, (lambda k=k: coin_step(k))) for k in range(1, 13)]
+# build 3, the count's step 3: the seal rendered deep
+SOUNDS += [("seal_low", seal_low)]
 
 
 # ----------------------------------------------------------------------------------------------------------------

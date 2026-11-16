@@ -276,6 +276,9 @@ struct PayCount: Sendable, Equatable {
     private(set) var resultAt = 0.0
     /// The beat `.gone` was given.
     private(set) var over = false
+    /// Coins that had landed when the count ended without a seal (step 3, the director's call 9: coins still in the air
+    /// at a cut never left the purse in its figure, so the figure does not dip for them).
+    private(set) var laidAtEnd: Int?
 
     /// A count for `thing`, made at `time` seconds after its touch (0 for a tap; `boardDelay` for a hold that brought
     /// it), the finger still down when `holding`; `flights` each hollow's planned flight (empty: `flight`).
@@ -305,7 +308,9 @@ struct PayCount: Sendable, Equatable {
         guard let result else { return placedValue }
         guard result != .paid else { return 0 }
         var held = 0
-        for index in 0..<min(placed, coins.count) where (homeShare(index) ?? 1) < 1 { held += coins[index].value }
+        for index in 0..<min(laidAtEnd ?? placed, placed, coins.count) where (homeShare(index) ?? 1) < 1 {
+            held += coins[index].value
+        }
         return held
     }
 
@@ -599,6 +604,7 @@ struct PayCount: Sendable, Equatable {
     /// Ends the count without the seal (`.paid` comes only from the seal in `step`); returns its beat. Coins still in
     /// the air drop into their hollows at once (a cut mid-flight), so they go home with the rest.
     private mutating func finish(_ end: PayResult) -> PayBeat {
+        laidAtEnd = placed
         while placed < launched.count {
             landed.append(time)
             placed += 1
@@ -705,7 +711,9 @@ struct PayBoardLayout: Sendable, Equatable {
     /// Step 3 (the director's call 5): the site lantern's crook, pointing right (the post's iron-bound top, then the
     /// arm's end with its hook and chain) and pointing left (the post's top; the arm's end goes a tile to its left).
     static let crookRightPost = 23, crookRightArm = 24, crookLeftArm = 25, crookLeftPost = 26
-    static let plankMiddles = [1, 2, 14, 15]
+    /// Step 3 (the director's call 9, M-c): the fifth plank middle has a knot, so one tile in five shows one.
+    static let plankKnot = 27
+    static let plankMiddles = [1, 2, 14, 15, 27]
     static let capMiddles = [5, 16, 17]
     static let lidMiddles = [19, 20]
 

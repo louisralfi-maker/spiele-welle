@@ -134,6 +134,12 @@ extension GameModel {
             purse.shown = purse.target
             purse.lastTick = clock.elapsed
         }
+        // Step 3 (the director's call 9, M-f): a count frozen for its pictures keeps the purse's figure up, so the
+        // picture shows the gold running down.
+        if visible, countFrozen {
+            if purse.shown == nil { purse.shown = purse.target }
+            purse.lastTick = clock.elapsed
+        }
         notes.update(happiness: state.happiness, people: state.citizens, clock: clock.elapsed, visible: visible)
         // Fix round 2 (the critic's high 5): the call's strip waits while the first minute's hint slip stands.
         let calling = stripCall.update(strip, hour: state.hour, clock: clock.elapsed, allowed: visible,
@@ -144,6 +150,8 @@ extension GameModel {
     /// A jump (a new realm, a replayed day, a second chance): the purse and the notes take the realm as it is.
     func resetLanternHUD() {
         guard let state = driver?.state else { return }
+        // Build 3, the count's step 3 (call 9): no board, coin or site lantern crosses a jump.
+        resetCount()
         purse.reset(gold: townShownGold(state, balance: driver?.balance ?? .standard))
         notes.reset(happiness: state.happiness, people: state.citizens)
         stripCall = StripCall()

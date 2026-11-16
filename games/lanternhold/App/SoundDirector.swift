@@ -106,6 +106,16 @@ final class SoundDirector: FeedbackHub {
         guard hapticsOn else { return }
         softImpact.impactOccurred(intensity: CGFloat(max(0.1, min(1, strength))))
     }
+
+    // b3-count (step 3, the director's call 9): a board rose; the clink's steps and the deep seal get a player each now
+    // (loaded and prepared once), so the first coin never hitches; the haptic engine wakes for the ticks.
+    func countWarm() {
+        for id in SoundID.coinSteps + [.sealLow] where (voices[id] ?? []).isEmpty {
+            _ = voice(id)?.prepareToPlay()
+        }
+        softImpact.prepare()
+        heavyImpact.prepare()
+    }
     // end b3-count
 
     func ambience(_ mix: AmbienceMix) {

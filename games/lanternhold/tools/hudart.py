@@ -27,7 +27,7 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
                frames 0 to 2 its face (the glint and the stamp a pixel apart, so a board of bars is no row of copies),
                3 its end, a 3 px sliver, 4 half turned, as it turns in the air
   hudHollowBar 13x9, 4 frames: its hollow in the board, empty and holding the bar's faces 0 to 2 (no ink edge)
-  payBoard     6x12, 27 frames: the board's tiles, so a board fits any price (PayBoardLayout in Core/PayCount.swift):
+  payBoard     6x12, 28 frames: the board's tiles, so a board fits any price (PayBoardLayout in Core/PayCount.swift):
                0 plank's left end, 1 2 14 15 four plank middles (the count picks one per tile by a hash and shifts
                every second row by half a tile, so no streak lines up), 3 plank's right end, 4 5 6 the cap over the
                top plank (left, middle, right; in the cell's last 3 rows), 16 17 two more cap middles, 7 8 9 the foot
@@ -36,7 +36,8 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
                iron plate the lantern stands on (in the cell's last 3 rows); the lid: 18 its left end, 19 20 two
                middles, 21 its right end (a wider seam than the board's planks), 22 a batten nailed across its planks;
                step 3: the site lantern's crook, 23 24 pointing right (the post's iron-bound top bending over, then the
-               arm's end with its hook and 2 px chain), 25 26 pointing left (the arm's end, then the post's top)
+               arm's end with its hook and 2 px chain), 25 26 pointing left (the arm's end, then the post's top); 27 a
+               fifth plank middle with a knot (the grain as streaks of 3 to 6 px: one tile in five shows a knot)
   siteLantern  9x13, 4 frames: the site lantern on the post, unlit (dark glass), lit (a 5x5 flame in the fire ramp,
                white at its heart), and the two frames of its bloom as it catches (the stage lane adds its light, the
                glow of its glass and its halo)
@@ -620,16 +621,17 @@ PLANK_L = ["iLFFFF",
            "iLFFFF",
            "iDFFFF",
            "iDDDDD"]
-# four middles (the count picks one per tile by a hash of the thing, the row and the tile, never the same twice in a
-# row, and starts every second row half a tile over): each keeps its grain inside the tile, a streak or two on its
-# own rows, so no dash lines up with another and the 6-px tile never shows (step 1's critic, H1)
+# five middles (the count picks one per tile by a hash of the thing, the row and the tile, never the same twice in a
+# row, and starts every second row half a tile over). Step 3 (the director's call 9, M-c): the grain is streaks of
+# 3 to 6 px, some running to the tile's edge so they go on in the next tile, one dark and one light a tile, on
+# rows of their own; the fifth middle has a knot the grain flows round, so one tile in five shows a knot
 PLANK_M1 = ["FFFFFF",
             "FFFFFF",
-            "FLLLFF",
+            "FLLLLF",
             "FFFFFF",
             "FFFFFF",
             "FFFFFF",
-            "FFFDDF",
+            "DDDFFF",
             "FFFFFF",
             "FFFFFF",
             "FFFFFF",
@@ -639,37 +641,49 @@ PLANK_M2 = ["FFFFFF",
             "FFFFFF",
             "FFFFFF",
             "FFFFFF",
-            "FDDDFF",
+            "FFDDDD",
             "FFFFFF",
             "FFFFFF",
             "FFFFFF",
-            "FFFLLF",
+            "LLLLLF",
             "FFFFFF",
             "FFFFFF",
             "DDDDDD"]
 PLANK_M3 = ["FFFFFF",
             "FFFFFF",
             "FFFFFF",
-            "FFFFFF",
-            "FFFFFF",
-            "FLLLLF",
+            "LLLFFF",
             "FFFFFF",
             "FFFFFF",
             "FFFFFF",
-            "FFDDFF",
+            "FDDDDD",
+            "FFFFFF",
+            "FFFFFF",
             "FFFFFF",
             "DDDDDD"]
 PLANK_M4 = ["FFFFFF",
-            "FFFFFF",
-            "FFFFFF",
-            "FFDDDF",
-            "FFFFFF",
+            "FFFLLL",
             "FFFFFF",
             "FFFFFF",
             "FFFFFF",
+            "FDDDDF",
             "FFFFFF",
             "FFFFFF",
-            "FLLFFF",
+            "FFFFFF",
+            "LLLFFF",
+            "FFFFFF",
+            "DDDDDD"]
+PLANK_M5 = ["FFFFFF",
+            "FFFFFF",
+            "LLLFFF",
+            "FFDDFF",
+            "FDSSDF",
+            "FFDDFF",
+            "FFFFFF",
+            "FFFFLL",
+            "FFFFFF",
+            "DDFFFF",
+            "FFFFFF",
             "DDDDDD"]
 PLANK_R = ["FFFFDi",
            "FFFFDi",
@@ -740,11 +754,11 @@ LID_L = ["iLFFFF",
 LID_M1 = ["FFFFFF",
           "FFFFFF",
           "FFFFFF",
-          "FLLLFF",
+          "FLLLLL",
           "FFFFFF",
           "FFFFFF",
           "FFFFFF",
-          "FFFDDF",
+          "DDDDFF",
           "FFFFFF",
           "FFFFFF",
           "DDDDDD",
@@ -754,10 +768,10 @@ LID_M2 = ["FFFFFF",
           "FFFFFF",
           "FFFFFF",
           "FFFFFF",
-          "FFDDFF",
+          "FFDDDD",
           "FFFFFF",
           "FFFFFF",
-          "FLLFFF",
+          "LLLLFF",
           "FFFFFF",
           "DDDDDD",
           "DDDDDD"]
@@ -936,6 +950,8 @@ def board_tiles(pal):
     for crook in (CROOK_RIGHT, CROOK_LEFT):
         frames.append(legend_image([r[:6] for r in crook], pal, BOARD_LEGEND))
         frames.append(legend_image([r[6:] for r in crook], pal, BOARD_LEGEND))
+    # step 3: 27 the fifth plank middle, with its knot
+    frames.append(legend_image(PLANK_M5, pal, BOARD_LEGEND))
     return frames
 
 

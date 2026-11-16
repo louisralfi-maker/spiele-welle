@@ -1152,6 +1152,105 @@ final class PayCountTests: XCTestCase {
         XCTAssertTrue(sawShrunk, "and shrinks near the hand")
     }
 
+    /// Step 3 (the director's call 9, M-e and M-c): the seal is the rendered deep seal played at rate 1; the planks
+    /// have five middles, one of them knotted, so one tile in five shows a knot.
+    func testTheSealIsRenderedDeepAndThePlanksKnotted() {
+        XCTAssertEqual(FeedbackCue.countSeal.sound, SoundPlay(id: .sealLow, volume: 0.85), "seal_low at rate 1")
+        XCTAssertEqual(FeedbackCue.countSeal.haptic, .heavy, "the seal keeps the heavy beat")
+        XCTAssertEqual(PayBoardLayout.plankMiddles.count, 5)
+        XCTAssertTrue(PayBoardLayout.plankMiddles.contains(PayBoardLayout.plankKnot))
+        XCTAssertEqual(SpriteID.payBoard.frameCount, 28)
+        var knots = 0
+        var tiles = 0
+        for thing in ["touch-plot-0", "touch-plot-3", "touch-wall-6", "touch-recruit-guard", "touch-recruit-archer"] {
+            for row in 0..<3 {
+                var previous: Int?
+                for index in 0..<12 {
+                    let pick = PayBoardLayout.pick(PayBoardLayout.plankMiddles, thing: thing, row: row, index: index,
+                                                   previous: previous)
+                    previous = pick
+                    tiles += 1
+                    if pick == PayBoardLayout.plankKnot { knots += 1 }
+                }
+            }
+        }
+        XCTAssertGreaterThan(knots, tiles / 10, "knots are seen")
+        XCTAssertLessThan(knots, tiles * 3 / 10, "about one tile in five")
+    }
+
+    /// Step 3 (the director's call 9): a count cut while coins are in the air never shows the purse dipping (those
+    /// coins were never taken from its figure); the ones laid come home as before.
+    func testACutMidFlightNeverDipsThePurse() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 90, holding: true)
+        count.arrive()
+        while (count.inFlight == 0 || count.placed < 2) && count.time < 3 { _ = count.step(step, gold: 500) }
+        XCTAssertGreaterThan(count.inFlight, 0, "a coin in the air")
+        let before = count.heldValue
+        count.cut()
+        XCTAssertLessThanOrEqual(count.heldValue, before, "the figure never dips at the cut")
+        var most = count.heldValue
+        while !count.isGone && count.time < 5 {
+            _ = count.step(step, gold: 500)
+            most = max(most, count.heldValue)
+        }
+        XCTAssertLessThanOrEqual(most, before, "nor while the coins go home")
+        XCTAssertEqual(count.heldValue, 0)
+    }
+
+    /// Step 3 (the director's call 9): the coin steps are made ready as the first board rises; a recount of the same
+    /// thing never stacks two boards; a jump to a new realm leaves no board, no coins going home and no site lantern.
+    func testTheCountsSmallEdges() throws {
+        let game = gateGame(gold: 200)
+        let hub = SilentFeedback()
+        game.feedback = hub
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        XCTAssertGreaterThanOrEqual(hub.warmed, 1, "the clink's steps are made ready as the board rises")
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.tap()
+        count.tap()
+        game.touch.count = count
+        run(game, seconds: 0.6)
+        var lifted = try XCTUnwrap(game.touch.count)
+        lifted.letGo()
+        game.touch.count = lifted
+        game.touchThing(gate)
+        XCTAssertEqual(game.touch.count?.thing, gate.id, "the gate's board again")
+        XCTAssertNil(game.touch.countOld, "never two boards stacked on one place")
+        XCTAssertNil(game.touch.countOldBoard)
+        game.touch.countLanterns = [CountLantern(offer: .recruit(.archer), postLeft: 1200, litAt: 0)]
+        game.resetLanternHUD()
+        XCTAssertNil(game.touch.count, "a jump leaves no board")
+        XCTAssertNil(game.touch.countOld)
+        XCTAssertTrue(game.touch.countLanterns.isEmpty, "and no site lantern of the realm before")
+        XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid")
+    }
+
+    #if DEBUG
+    /// Step 3 (the director's call 9, M-f): a count frozen for its pictures keeps the purse's figure up, showing the
+    /// gold less the coins on the board.
+    func testAFrozenCountKeepsThePurseUp() throws {
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+                          "GWGold": "200", "GWCountFreeze": "0.5"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        run(game, seconds: 3) { game.countFrozen }
+        XCTAssertTrue(game.countFrozen, "frozen half full")
+        run(game, seconds: 4)
+        let held = game.touch.count?.heldValue ?? 0
+        XCTAssertGreaterThan(held, 0)
+        let driver = try XCTUnwrap(game.driver)
+        let seen = game.townShownGold(driver.state, balance: driver.balance)
+        XCTAssertEqual(game.purse.shown, seen - held, "the figure stays up, the gold run down")
+    }
+    #endif
+
     /// The critic's M2: the purse's figure never touches a board that stands by the lord.
     func testThePurseFigureStandsClearOfTheBoard() throws {
         let game = gateGame(gold: 200)

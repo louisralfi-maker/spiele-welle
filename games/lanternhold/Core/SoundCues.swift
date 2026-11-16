@@ -23,6 +23,9 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     case coinP01 = "coin_p01", coinP02 = "coin_p02", coinP03 = "coin_p03", coinP04 = "coin_p04"
     case coinP05 = "coin_p05", coinP06 = "coin_p06", coinP07 = "coin_p07", coinP08 = "coin_p08", coinP09 = "coin_p09"
     case coinP10 = "coin_p10", coinP11 = "coin_p11", coinP12 = "coin_p12"
+    // The count's step 3 (the director's call 9, M-e): the seal rendered deep (tools/soundsynth.py `seal_low`, the seal
+    // resampled down), played as made; a player's rate only stretched it in time
+    case sealLow = "seal_low"
 
     static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall,
                                    .ambThroat, .ambBailey, .ambValley, .ambRiver]
@@ -53,7 +56,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .dissolve: return 0.15
         case .step1, .step2: return 0.12
         case .bow, .arrowHit: return 0.1
-        case .coin, .coins, .seal, .decline, .knock: return 0.08
+        case .coin, .coins, .seal, .sealLow, .decline, .knock: return 0.08
         case .coinsBack: return 0.2
         case .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07, .coinP08, .coinP09,
              .coinP10, .coinP11, .coinP12:
@@ -147,7 +150,7 @@ extension FeedbackCue {
         // The count: a coin as the plain clink (the hub's `countCoin` gives it its rising pitch); the seal deep and
         // full; the site lantern catching; the coins going back, soft.
         case .countCoin: return SoundPlay(id: .coin, volume: 0.6)
-        case .countSeal: return SoundPlay(id: .seal, volume: 0.85, rate: 0.82)
+        case .countSeal: return SoundPlay(id: .sealLow, volume: 0.85)
         case .countLantern: return SoundPlay(id: .lantern, volume: 0.7, rate: 1.1)
         case .coinsBack: return SoundPlay(id: .coinsBack, volume: 0.55)
         }
