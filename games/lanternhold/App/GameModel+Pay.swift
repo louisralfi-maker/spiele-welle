@@ -129,8 +129,27 @@ extension GameModel {
 
     /// Step 2 (H5): a coin home in the purse ticks this softly.
     static let countHomeTick = 0.3
-    /// Step 2 (H2): the halo's light, by night (half of it by day).
+    /// Step 2 (H2), step 3 (the director's call 6): the halo's light, by night; by day it is `countHaloDay` of it (the
+    /// sun outshines a halo, so by day the proof is the event: the bloom, the embers, the warm rim).
     static let countHaloStrength: Float = 1.0
+    static let countHaloDay = 0.9
+    /// Step 3 (call 6): while the job runs, a warm rim on the lit side of the lantern's post and crook (a glow this
+    /// strong) and on the wall behind it (a small strong light).
+    static let countRimGlow: Float = 0.45
+    static let countRimRadius = 20.0
+    static let countRimIntensity = 1.3
+    /// Step 3 (call 6): as the lantern catches, these embers rise from its cap once, about 6 px each (column from the
+    /// lantern's left, delay and life in seconds); none under Reduce Motion.
+    static let countEmbers: [(column: Double, delay: Double, life: Double)] = [(3, 0.04, 0.55), (5, 0.1, 0.6),
+                                                                                (4, 0.17, 0.5), (6, 0.24, 0.45)]
+    static let countEmberRise = 6.0
+
+    /// The halo's warm tint (step 3, call 6: fireGold leaning to the flame, never cream-white).
+    static var countHaloTint: SIMD3<Float> {
+        let gold = GamePalette.fireGold
+        let orange = GamePalette.fireOrange
+        return gold + (orange - gold) * 0.3
+    }
 
     // MARK: - The throw (step 3, the director's call 1)
 
@@ -936,9 +955,11 @@ extension GameModel {
         return actors
     }
 
-    /// The site lanterns the seals lit (H2), each on its post without the board: the 9 x 13 lantern blooming for two
-    /// frames as it catches, then burning while its job runs, with its light, the glow of its flame's heart and its
-    /// halo (half by day, whole by night); gone out, it stands dark a moment and fades.
+    /// The site lanterns the seals lit (H2), each hanging from its crook without the board: the 9 x 13 lantern blooming
+    /// for two frames as it catches, embers rising from its cap once, then burning while its job runs, with its light,
+    /// the glow of its flame's heart, a warm rim on its post and crook and a small strong light on the wall behind (step
+    /// 3, the director's call 6: by day the lighting is an event), and its warm halo (0.9 of it by day, whole by
+    /// night); gone out, it stands dark a moment and fades.
     private func countLanternsWorld(_ layer: inout EntityLayer, framing: TouchFraming, night: Double) {
         guard !touch.countLanterns.isEmpty else { return }
         let now = clock.elapsed
@@ -981,9 +1002,54 @@ extension GameModel {
                                                                       1)))
                 }
             }
-            let k = Float((0.5 + 0.5 * min(1, max(0, night))) * (1 + 0.8 * flare)) * GameModel.countHaloStrength
+            // The wall behind takes a warm light, the post and the crook a warm rim on their lit side (call 6).
+            layer.lights.append((source: LightSource(kind: .lantern, x: lanternLeft + 4.5, y: lanternTop - 6.5,
+                                                     radius: GameModel.countRimRadius, color: gold,
+                                                     intensity: GameModel.countRimIntensity), plane: .world))
+            countRim(&layer, lantern: lantern, lanternTop: lanternTop)
+            // The embers rise once as it catches (call 6).
+            if !reduceMotion {
+                let ember = GamePalette.ember
+                let orange = GamePalette.fireOrange
+                for spark in GameModel.countEmbers {
+                    let t = (age - spark.delay) / spark.life
+                    guard t >= 0, t < 1 else { continue }
+                    let rise = (GameModel.countEmberRise * (1 - (1 - t) * (1 - t))).rounded()
+                    let fade = Float(1 - t) * 1.4
+                    let tint = orange + (ember - orange) * Float(t)
+                    layer.glows.append(EntityGlow(.hallMote, x: lanternLeft + spark.column, y: lanternTop - 2 + rise,
+                                                  color: SIMD4<Float>(tint.x * fade, tint.y * fade, tint.z * fade, 1)))
+                }
+            }
+            let halo = GameModel.countHaloTint
+            let share = GameModel.countHaloDay + (1 - GameModel.countHaloDay) * min(1, max(0, night))
+            let k = Float(share * (1 + 0.5 * flare)) * GameModel.countHaloStrength
             layer.glows.append(EntityGlow(.siteHalo, x: lanternLeft + 4 - 12, y: lanternTop - 20,
-                                          color: SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)))
+                                          color: SIMD4<Float>(halo.x * k, halo.y * k, halo.z * k, 1)))
+        }
+    }
+
+    /// The warm rim of a burning site lantern (step 3, the director's call 6): one pixel on the lit side of its post's
+    /// wood near the lantern, and on the crook's arm and hook over it (tools/hudart.py CROOK_RIGHT, CROOK_LEFT).
+    private func countRim(_ layer: inout EntityLayer, lantern: CountLantern, lanternTop: Double) {
+        let gold = GamePalette.fireGold
+        let k = GameModel.countRimGlow
+        let colour = SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)
+        let crookTop = CountLantern.crookTop
+        let right = lantern.toward > 0
+        // The post's wood on the lantern's side, from the crook's band down past the lantern's foot.
+        let woodX = Double(lantern.postLeft + (right ? 3 : 2))
+        var lift = crookTop - 5
+        while lift > lanternTop - Double(SpriteID.siteLantern.size.height) - 2 {
+            layer.glows.append(EntityGlow(.hallMote, x: woodX, y: lift - 1, color: colour))
+            lift -= 1
+        }
+        // The crook's arm over the lantern and its hook (columns of the 12-wide crook, row from its top).
+        let origin = right ? lantern.postLeft : lantern.postLeft - PayBoardLayout.tile
+        for (column, row) in [(6, 1), (7, 1), (8, 1), (9, 1), (10, 2), (10, 3)] {
+            let x = right ? column : 11 - column
+            layer.glows.append(EntityGlow(.hallMote, x: Double(origin + x), y: crookTop - Double(row) - 1,
+                                          color: colour))
         }
     }
 }

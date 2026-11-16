@@ -853,24 +853,26 @@ def lantern_frame(kind, pal):
 
 
 def halo(radius=12):
-    """The lit lantern's halo: white rings of light in whole pixels, stepped from the middle out, each step's edge
-    dithered on a checkerboard so the rings read as pixels and never as a smooth disc."""
-    steps = [(4.5, 0.55), (7.5, 0.36), (10.0, 0.2), (radius + 0.5, 0.09)]
+    """The lit lantern's halo (white; the stage lane tints it warm): light falling off from the middle in whole pixels,
+    in ten steps of alpha ordered-dithered on a 2x2 grid, so no step shows as a ring (step 3, the director's call 6:
+    step 2's four rings read as hard square bands), and its outer 2 px thinned on a checkerboard, so the edge melts
+    into the night and never shows as a circle."""
     size = 2 * radius + 1
+    top = 0.6
+    steps = 10
+    bayer = [[0.0, 0.5], [0.75, 0.25]]
     img = Image(size, size)
     for y in range(size):
         for x in range(size):
             d = ((x - radius) ** 2 + (y - radius) ** 2) ** 0.5
-            alpha = 0.0
-            for index, (edge, a) in enumerate(steps):
-                if d <= edge:
-                    alpha = a
-                    # on the step's outer edge every second pixel takes the next step's light
-                    if d > edge - 0.75 and (x + y) % 2 == 1:
-                        alpha = steps[index + 1][1] if index + 1 < len(steps) else 0.0
-                    break
-            if alpha > 0:
-                img.set(x, y, (255, 255, 255, int(round(alpha * 255))))
+            if d > radius + 0.5:
+                continue
+            if d > radius - 1.5 and (x + y) % 2 == 1:
+                continue
+            a = top * max(0.0, 1.0 - d / (radius + 0.5)) ** 1.5
+            q = int(a * steps / top + bayer[y % 2][x % 2]) * top / steps
+            if q > 0:
+                img.set(x, y, (255, 255, 255, int(round(q * 255))))
     return img
 
 

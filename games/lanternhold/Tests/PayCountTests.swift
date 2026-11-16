@@ -1180,6 +1180,110 @@ final class PayCountTests: XCTestCase {
                   "while the work runs")
     }
 
+    /// Step 3 (the director's call 6), on the drawn pixels: the same scene rendered with the site lantern burning and
+    /// gone out. At night the light round it is warm (the halo and its light add far more red than blue: never
+    /// cream-white); by day the lighting is still seen: the warm rim on the post's lit side and the halo beside it.
+    func testTheLanternsLightIsWarmByNightAndSeenByDay() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var settings = RenderSettings()
+        settings.time = 2
+        for night in [true, false] {
+            var values = ["GWStage": "world", "GWSeed": "2", "GWCameraX": "1240", "GWWeather": "clear",
+                          "GWFlickerTime": "2"]
+            if night {
+                values["GWNight"] = "3"
+                values["GWHour"] = "21.5"
+            } else {
+                values["GWDay"] = "3"
+                values["GWClock"] = "10"
+            }
+            let game = model(values)
+            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+            let layout = PayBoardLayout.make(PayCount.hollows(price: 90))
+            let place = game.countBoardPlace(gate, layout: layout)
+            let board = CountBoard(x: place.x, stand: place.x, act: gate.act, layout: layout, side: place.side)
+            let now = game.clock.elapsed
+            let burning = CountLantern(offer: .recruit(.archer), postLeft: board.lanternPostLeft, toward: board.toward,
+                                       litAt: now - 2)
+            var out = burning
+            out.outAt = now
+            game.touch.countLanterns = [burning]
+            let lit = try renderer.renderOffscreen(game.frame(physicalWidth: pro.physicalWidth,
+                                                              physicalHeight: pro.physicalHeight), settings: settings)
+            game.touch.countLanterns = [out]
+            let dark = try renderer.renderOffscreen(game.frame(physicalWidth: pro.physicalWidth,
+                                                               physicalHeight: pro.physicalHeight), settings: settings)
+            let framing = try XCTUnwrap(game.touch.framing)
+            let half = Double(framing.scale) / 2
+            /// The mean added light over a 3 x 3 block of game pixels round (`x`, `lift`).
+            func added(_ x: Double, _ lift: Double) -> SIMD3<Float> {
+                var sum = SIMD3<Float>(0, 0, 0)
+                for dx in -1...1 {
+                    for dy in -1...1 {
+                        let px = Int(framing.deviceX(stageX: x + Double(dx)) + half)
+                        let py = Int(framing.deviceY(lift: lift + Double(dy)) - half)
+                        sum += lit.color(x: px, y: py) - dark.color(x: px, y: py)
+                    }
+                }
+                return sum / 9
+            }
+            let lanternLeft = Double(CountLantern.lanternLeft(postLeft: board.lanternPostLeft, toward: board.toward))
+            let lanternTop = CountLantern.crookTop - CountLantern.hang
+            let middleX = lanternLeft + 4.5
+            let middleLift = lanternTop - 7
+            let beside = added(middleX + 8 * board.toward, middleLift)
+            if night {
+                XCTAssertGreaterThan(beside.x, 0.04, "the halo is seen at night")
+                XCTAssertGreaterThan(beside.x, beside.y, "warm: more red than green")
+                XCTAssertGreaterThan(beside.y, beside.z, "warm: more green than blue")
+                XCTAssertLessThan(beside.z, 0.7 * beside.x, "never cream-white")
+            } else {
+                XCTAssertGreaterThan(beside.x, 0.02, "by day the halo is still seen beside the lantern")
+                let rimX = Double(board.lanternPostLeft + (board.toward > 0 ? 3 : 2))
+                let px = Int(framing.deviceX(stageX: rimX) + half)
+                let py = Int(framing.deviceY(lift: middleLift) - half)
+                let rim = lit.color(x: px, y: py) - dark.color(x: px, y: py)
+                XCTAssertGreaterThan(rim.x, 0.05, "by day the post's lit side takes a warm rim")
+                XCTAssertGreaterThanOrEqual(rim.x, rim.z, "a warm one")
+            }
+        }
+    }
+
+    /// Step 3 (the director's call 6): as the lantern catches, three or four embers rise from its cap once, about
+    /// 6 px, and are gone; never under Reduce Motion.
+    func testEmbersRiseOnceAsTheLanternCatches() throws {
+        for still in [false, true] {
+            var values = ["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240"]
+            if still { values["GWReduceMotion"] = "YES" }
+            let game = model(values)
+            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let framing = try XCTUnwrap(game.touch.framing)
+            let state = try XCTUnwrap(game.driver?.state)
+            let lanternTop = CountLantern.crookTop - CountLantern.hang
+            func embers(age: Double) -> [EntityGlow] {
+                game.touch.countLanterns = [CountLantern(offer: .recruit(.archer), postLeft: 1200, toward: 1,
+                                                         litAt: game.clock.elapsed - age)]
+                var layer = EntityLayer()
+                game.countWorld(&layer, state: state, framing: framing)
+                // The embers are the orange points (the flame's heart is white, the rim gold).
+                return layer.glows.filter { $0.sprite == .hallMote && $0.color.y < 0.65 * $0.color.x }
+            }
+            let rising = embers(age: 0.3)
+            let gone = embers(age: 1.2)
+            if still {
+                XCTAssertTrue(rising.isEmpty, "Reduce Motion: no embers")
+            } else {
+                XCTAssertTrue((2...4).contains(rising.count), "embers rise (\(rising.count))")
+                XCTAssertTrue(rising.contains { $0.y >= lanternTop + 1 }, "over the lantern's top")
+                XCTAssertTrue(rising.allSatisfy { $0.y <= lanternTop - 2 + GameModel.countEmberRise + 0.5 },
+                              "about 6 px, no higher")
+            }
+            XCTAssertTrue(gone.isEmpty, "and gone")
+        }
+    }
+
     /// The review of step 2: a second recruit's board comes up on the post where the last recruit's lantern still
     /// burns; that lantern gives way, so an unlit lantern is never drawn over a lit one.
     func testANewBoardTakesThePostOfALitLantern() throws {
