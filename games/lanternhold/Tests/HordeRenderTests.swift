@@ -345,7 +345,7 @@ final class HordeRenderTests: XCTestCase {
     /// live night draws it (night 12), six small ones stand as black shapes in front of the pale ground mist. On the
     /// drawn pixels of their bodies (the strips' alpha, the threads, the glows and the sockets' lights left out) the
     /// mean luminance is at most 0.6 times that of the same pixels drawn without them. The fog is on there (the same
-    /// pixels without the bodies stand paler with the fog than without it), and the cold points are never dimmed by it
+    /// pixels without the bodies differ by a tenth or more with the fog and without it), and the cold points are never dimmed by it
     /// (the glow pixels with the fog at least nine tenths of their value without it). Crops without and with the bodies,
     /// four times enlarged, as `horde-dark-open`, the whole frame as `horde-dark-open-frame`, the numbers as
     /// `horde-dark-open-values`.
@@ -414,7 +414,9 @@ final class HordeRenderTests: XCTestCase {
                                 actor.rect.x, drawn / n, behind / n, ratio, mist / n, pixels.count))
             XCTAssertLessThanOrEqual(ratio, 0.6, "\(actor.sprite) at \(actor.rect.x) is a black shape in front of the "
                                      + "mist, not a pale hump at its value (\(ratio) of the mist)")
-            XCTAssertGreaterThan(behind, mist * 1.1, "the Gloom's fog is on behind \(actor.sprite)")
+            // (round lh-b3h-42: at 23:00 the Gloom's fog lies darker than the bare ground over most of the open and
+            // paler over some of it, so the proof that it is drawn there is that it changes those pixels by a tenth)
+            XCTAssertGreaterThan(abs(behind - mist), mist * 0.1, "the Gloom's fog is on behind \(actor.sprite)")
             // the crop: without and with, side by side
             let w = 60
             let h = 50

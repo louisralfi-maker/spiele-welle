@@ -417,10 +417,11 @@ final class GloomFogTests: XCTestCase {
         XCTAssertEqual(eyes(still).map(\.rect), eyes(later).map(\.rect))
         // b3-horde step 4 (the director's call 8): single points, none within 9 px of another, so a close pair of
         // slots shows one. The seven Reduce Motion slots stand at about x 635, 679, 641, 696, 584, 630 and 497 on this
-        // night (the bank at 500, the fog's front at 900): 641 and 630 fall to 635, so five points stay, or four if
-        // the outer wall's clearance moves the three near 635 onto one spot next to 679.
+        // night (the bank at 500, the fog's front at 900); the buildings' clearance (`EyeRules.placedInFog`) moves the
+        // six over the line onto one spot past them, so before this step six pairs stood stacked on one x. Round
+        // lh-b3h-42 measured two points (plane x 142 and 380): the one at 497 and, by the x, where the six met.
         let stillX = eyes(still).map { Int($0.rect.x) }
-        XCTAssertTrue((3...6).contains(eyes(still).count), "\(eyes(still).count) points at screen x \(stillX)")
+        XCTAssertTrue((2...6).contains(eyes(still).count), "\(eyes(still).count) points at plane x \(stillX)")
         let points = eyes(still).map(\.rect).sorted { $0.x < $1.x }
         XCTAssertTrue(points.allSatisfy { $0.z == 1 && $0.w == 1 }, "single points, never pairs")
         for (a, b) in zip(points, points.dropFirst()) {
