@@ -978,3 +978,10 @@ schneller geht."
   - Step 2: the fixes (a 4-frame flying and a 4-frame snapping cycle with a travelling fold, 12 sail frames lit from one side, a rare stir on a calm day, flames that bend) and the two rains: water over the realm, ash over the dark side, a soft band at the outermost standing wall.
   - Step 3 of the lane (new): gust leaves and dust, the sounds, the weather vane.
   - The horde lane's step 2 runs since 01:56 (workflow run wf_c7cc9280-5f2).
+
+- **Build 3, the count lane: step 1 is green, the coins do not fly yet; step 2 is briefed (16.11.2026, 03:18).**
+  - `claude/lh-b3-count` 630315a5, round `lh-b3c-14` ALL PASSED (the full gate `lh-b3c-12` on 14ad7dee): the tally board on its post, hollows that fill coin by coin on a hold or on taps, the purse counting down in step, the lid with its hasp as the receipt, let go, short of gold, cut off; tiers, repairs, the Great Beacon's stages and recruits are paid by the count.
+  - The critic gave 6/10 (1 blocker, 5 highs) and the director confirms: the coins pop into the hollows instead of flying from the lord's hand, the board stands over the gate it buys, the light at the end is a speck, the planks are ruled, the clink does not rise in pitch.
+  - The director's calls: the coins fly; the board stands beside the door; bars stay greedy from 100 up; an empty board waits 5 s; the big coin bears the house's lantern; the site lantern burns while the job runs; the clink's steps are rendered wavs.
+  - Step 2 is the fix round; the pictograms over a plot move to a step 3.
+  - Wave 1 now: all three lanes are in their second step (horde, wind, count).
