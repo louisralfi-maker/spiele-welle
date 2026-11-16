@@ -877,6 +877,9 @@ final class EntityFramesTests: XCTestCase {
                        "the socket flares")
         let flareLights = EntityFrames.creatureLights(s, time: 1.05, effects: effects, animTime: 1.05)
         XCTAssertEqual(flareLights.filter { $0.radius == HordeLook.socketRadius * 2 }.count, 1, "and lights round it")
+        XCTAssertTrue(EntityFrames.creatureLights(s, time: 1.05, effects: effects, animTime: 1.05, reduceMotion: true)
+                        .filter { $0.radius == HordeLook.socketRadius * 2 }.isEmpty,
+                      "under Reduce Motion nothing flares")
         XCTAssertTrue(EntityFrames.creatureLights(s, time: 1.15, effects: effects, animTime: 1.15).isEmpty,
                       "then it is out")
         let puffed = hordeLayer(s, focus: 640, time: 1.3, effects: effects).actors.filter { $0.sprite == .shard }

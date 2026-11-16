@@ -202,7 +202,8 @@ enum EntityFrames {
         // b3-horde: the heap's lifts once a frame, for the sockets' lights and the bodies.
         let lifts = HordeLook.heapLifts(s.creatures)
         if options.look == .two {
-            for light in creatureLights(s, time: s.simTime, lifts: lifts, effects: effects, animTime: animTime) {
+            for light in creatureLights(s, time: s.simTime, lifts: lifts, effects: effects, animTime: animTime,
+                                        reduceMotion: options.reduceMotion) {
                 lights.append((source: light, plane: .world))
             }
         }
@@ -972,7 +973,8 @@ enum EntityFrames {
     /// for each one out of the bank, where its frame puts it, none beside another lit one. `lifts` are the heap's
     /// (computed here when not given), `effects` and `animTime` the falls'.
     static func creatureLights(_ s: GameState, time: Double, lifts: [Int: Double]? = nil,
-                               effects: BattleEffects? = nil, animTime: Double = 0) -> [LightSource] {
+                               effects: BattleEffects? = nil, animTime: Double = 0,
+                               reduceMotion: Bool = false) -> [LightSource] {
         var list: [LightSource] = []
         let creatures = s.creatures.filter { $0.hp > 0 && ($0.kind == .gloomweaver || $0.kind == .ashGiant) }
             .sorted { ($0.x, $0.id) > ($1.x, $1.id) }
@@ -988,8 +990,9 @@ enum EntityFrames {
                                         color: GamePalette.ember, intensity: stomp ? 1.1 : 0.6, flickerSeed: seed))
             }
         }
-        // b3-horde: a falling small one's socket flares before it snuffs (its first fall frame), the newest first.
-        if let effects {
+        // b3-horde: a falling small one's socket flares before it snuffs (its first fall frame), the newest first;
+        // under Reduce Motion the fall shows its last frame at once and nothing flares.
+        if let effects, !reduceMotion {
             for effect in effects.items.reversed() where effect.kind == .fall && list.count < maxCreatureLights {
                 let seconds = animTime - effect.start
                 guard seconds >= 0, seconds < HordeLook.flareSeconds else { continue }
@@ -1012,18 +1015,20 @@ enum EntityFrames {
         .sorted { ($0.x, $0.id) > ($1.x, $1.id) }
         guard !small.isEmpty else { return list }
         let lifts = lifts ?? HordeLook.heapLifts(s.creatures)
-        let points: [(x: Double, y: Double)] = small.map { c in
+        // The rule of `HordeLook.litSockets`, walked by hand so it stops as soon as the free slots are filled.
+        var kept: [(x: Double, y: Double)] = []
+        for c in small {
+            if kept.count >= free { break }
             let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: creatureFrame(c, time: time))
-            return (x: c.x + eye.dx, y: c.y + (lifts[c.id] ?? 0) + eye.dy)
-        }
-        var added = 0
-        for (index, keep) in HordeLook.litSockets(points).enumerated() where keep && added < free {
-            let c = small[index]
+            let p = (x: c.x + eye.dx, y: c.y + (lifts[c.id] ?? 0) + eye.dy)
+            if kept.contains(where: {
+                abs($0.x - p.x) < HordeLook.socketApartX && abs($0.y - p.y) <= HordeLook.socketApartY
+            }) { continue }
+            kept.append(p)
             let seed = SeededRandom.mix(UInt64(c.id) &* 0x9E37_79B9 &+ 0x534F_434B)
-            list.append(LightSource(kind: .moon, x: points[index].x, y: points[index].y,
+            list.append(LightSource(kind: .moon, x: p.x, y: p.y,
                                     radius: HordeLook.socketRadius, color: HordeLook.socketCold,
                                     intensity: HordeLook.socketIntensity, flickerSeed: seed))
-            added += 1
         }
         return list
     }
@@ -1278,11 +1283,16 @@ enum EntityFrames {
             fallsDrawn += 1
             let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
             if let fall = HordeLook.fallFrame(body, seconds: seconds, reduceMotion: reduceMotion) {
-                // An unlit one falls at the night's value with its moon rim, as it walked (a sweep never flashes).
+                // An unlit one falls at the night's value with its moon rim, as it walked (a sweep never flashes),
+                // and deep in the bank, where no body was drawn, no heap either (`CreatureLook.bodyShare`).
                 let shade: Float = effect.lit ? 1 : value
-                add(.sootFall, frame: fall.frame, x: effect.x, y: effect.y,
-                    tint: SIMD4<Float>(shade, shade, shade, fall.alpha), lit: effect.lit, lightCap: creatureLightCap,
-                    moonRim: effect.lit ? 0 : unlitRim * night)
+                let seen: Float = look == .two && !effect.lit
+                    ? CreatureLook.bodyShare(x: effect.x, bankEdge: s.bankEdge) : 1
+                if seen > 0.02 {
+                    add(.sootFall, frame: fall.frame, x: effect.x, y: effect.y,
+                        tint: SIMD4<Float>(shade, shade, shade, fall.alpha * seen), lit: effect.lit,
+                        lightCap: creatureLightCap, moonRim: effect.lit ? 0 : unlitRim * night * seen)
+                }
                 if fall.frame % 3 != 1 {
                     // the socket's last flare (frame 0), then it is out; the last spark falling (frame 2)
                     let flaring = fall.frame % 3 == 0 && seconds < HordeLook.flareSeconds
@@ -1558,7 +1568,7 @@ enum EntityFrames {
                     guard spend() else { return }
                     let x = effect.x + (unit(k, 2) - 0.5) * 10 + (unit(k, 3) - 0.5) * 8 * puff
                     let y = middle + puff * (10 + 12 * unit(k, 4))
-                    add(.shard, k % 2, x, y, false, SIMD4<Float>(0.42, 0.42, 0.47, 1), false, true)
+                    add(.shard, k % 2, x, y, false, SIMD4<Float>(0.42, 0.42, 0.47, 1), false, effect.lit)
                 }
             case .beaconFlare:
                 for k in 0..<6 {
