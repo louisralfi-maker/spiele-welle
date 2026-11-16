@@ -1145,3 +1145,10 @@ schneller geht."
   - What the player gets: at a plot with two offers the models stand beside the lord with no price in the street; a touch on a model makes the wooden counter rise there with both models on its cap; coins only, 7 hollows for the ballista against 11 for the catapult, so the dearer thing has the bigger board.
   - Four small follow-ups go to wave 2's polish (the falling coin crosses a model, the purse figure meets a speech bubble, the site lantern's crook after a seal, the chosen ballista's silhouette).
   - All three lanes of wave 1 are now closed. The join's last stage runs: `claude/lh-b3join` ab29d2d4 (local) with rounds lh-b3j-4, -5, -6.
+
+- **Wave 1 of build 3 is one game: `claude/lh-b3join` ab29d2d4 (16.11.2026, 19:05).**
+  - It holds the frozen build 2 save tests, the wind and rains, the horde of small creatures and the count (paying coin by coin at the counter). All merges were clean; Battle, Balance, GameState and Sim are untouched against build 2.
+  - Proof: three parallel rounds on ab29d2d4, each ALL PASSED (lh-b3j-4 the whole unit suite; lh-b3j-5 ui Count, Touch, FirstDay; lh-b3j-6 ui Wind, Horde, Lord, Town).
+  - Before the TestFlight drop the rest of build 2's final check runs on the same commit (lh-b3j-7, -8, -9: hall, audience, ads, title, the story and town classes, the device Release compile). Then round tf-lh-3 uploads it.
+  - Lesson kept: with clean rehearsal merges the director joins without an agent, and splits the proof into parallel rounds; the whole join cost no agent quota.
+  - Wave 2's lanes are cut from ab29d2d4.
