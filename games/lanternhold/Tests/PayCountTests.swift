@@ -94,6 +94,60 @@ final class PayCountTests: XCTestCase {
         XCTAssertGreaterThan(PayCount.rate(index: 1, count: 9), 1, "the second coin is higher")
     }
 
+    /// Step 2 (the critic's H4): the rising clink is thirteen files, each a semitone over the last (a player's rate
+    /// only stretches time), all in the app; their zero-crossing rate rises from step to step, and the count's rates
+    /// pick them in order.
+    func testTheRisingClinkIsThirteenFilesThatRise() throws {
+        XCTAssertEqual(SoundID.coinSteps.count, 13)
+        var last = 0.0
+        for (k, id) in SoundID.coinSteps.enumerated() {
+            XCTAssertEqual(id.rawValue, String(format: "coin_p%02d", k))
+            let url = Bundle.main.url(forResource: id.rawValue, withExtension: "wav", subdirectory: "Sound")
+                ?? Bundle.main.url(forResource: id.rawValue, withExtension: "wav")
+            let data = try Data(contentsOf: try XCTUnwrap(url, "\(id.rawValue).wav is in the app"))
+            let samples = PayCountTests.samples(data)
+            XCTAssertGreaterThan(samples.count, 1000, id.rawValue)
+            guard samples.count > 1 else { continue }
+            var crossings = 0
+            for i in 1..<samples.count where (samples[i - 1] < 0) != (samples[i] < 0) { crossings += 1 }
+            let rate = Double(crossings) / (Double(samples.count) / 22050)
+            XCTAssertGreaterThan(rate, last, "\(id.rawValue) rings higher than the step before")
+            last = rate
+        }
+        XCTAssertEqual(SoundID.coinStep(rate: 1), .coinP00)
+        XCTAssertEqual(SoundID.coinStep(rate: 2), .coinP12)
+        XCTAssertEqual(SoundID.coinStep(rate: pow(2, 5.0 / 12)), .coinP05)
+        XCTAssertEqual(SoundID.coinStep(rate: 4), .coinP12, "never past the octave")
+        XCTAssertEqual(SoundID.coinStep(rate: 0.5), .coinP00)
+        let steps = (0..<9).map { SoundID.coinStep(rate: PayCount.rate(index: $0, count: 9)) }
+        XCTAssertEqual(Set(steps).count, 9, "nine coins, nine steps up")
+        XCTAssertEqual(steps.first, .coinP00)
+    }
+
+    /// The 16-bit mono samples of a WAV file's data chunk.
+    private static func samples(_ data: Data) -> [Int16] {
+        let bytes = [UInt8](data)
+        var pos = 12
+        while pos + 8 <= bytes.count {
+            let id = String(decoding: bytes[pos..<pos + 4], as: UTF8.self)
+            let size = Int(bytes[pos + 4]) | Int(bytes[pos + 5]) << 8 | Int(bytes[pos + 6]) << 16
+                | Int(bytes[pos + 7]) << 24
+            if id == "data" {
+                let end = min(bytes.count, pos + 8 + size)
+                var out: [Int16] = []
+                out.reserveCapacity(max(0, (end - pos - 8) / 2))
+                var i = pos + 8
+                while i + 1 < end {
+                    out.append(Int16(bitPattern: UInt16(bytes[i]) | UInt16(bytes[i + 1]) << 8))
+                    i += 2
+                }
+                return out
+            }
+            pos += 8 + size + (size & 1)
+        }
+        return []
+    }
+
     // MARK: - PAY.md section 4
 
     func testAFullCountPaysOnceAndOnlyOnce() {

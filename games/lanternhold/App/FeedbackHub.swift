@@ -13,6 +13,9 @@ protocol FeedbackHub: AnyObject {
     /// at most an octave in all) and a tick of `strength` (0 ... 1, growing through the count). Never throttled away:
     /// every coin is heard on its own.
     func countCoin(rate: Double, strength: Double)
+    /// A coin of a count that was let go comes home into the purse (build 3, the count's step 2): a soft tick of
+    /// `strength` (0 ... 1) in the hand, no sound (the rustle `coinsBack` plays once for them all).
+    func countTick(strength: Double)
     /// The ambience's target mix for this frame (the hub crossfades toward it).
     func ambience(_ mix: AmbienceMix)
 }
@@ -26,8 +29,9 @@ final class SilentFeedback: FeedbackHub {
     private(set) var last: FeedbackCue?
     private(set) var played: [FeedbackCue] = []
     private(set) var lastMix: AmbienceMix?
-    /// The count's coins: the rate and strength each was played at.
+    /// The count's coins: the rate and strength each was played at; the ticks of the coins coming home.
     private(set) var coins: [(rate: Double, strength: Double)] = []
+    private(set) var ticks: [Double] = []
 
     init() {}
 
@@ -40,6 +44,10 @@ final class SilentFeedback: FeedbackHub {
     func countCoin(rate: Double, strength: Double) {
         play(.countCoin)
         if coins.count < 512 { coins.append((rate: rate, strength: strength)) }
+    }
+
+    func countTick(strength: Double) {
+        if ticks.count < 512 { ticks.append(strength) }
     }
 
     func ambience(_ mix: AmbienceMix) {

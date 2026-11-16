@@ -89,12 +89,22 @@ final class SoundDirector: FeedbackHub {
         if hapticsOn {
             softImpact.impactOccurred(intensity: CGFloat(max(0.2, min(1, strength))))
         }
-        guard soundOn, let sound = FeedbackCue.countCoin.sound, let player = voice(sound.id) else { return }
+        // Step 2 (the critic's H4): the rate picks a file rendered at that pitch (`coin_p00` ... `coin_p12`), played as
+        // made; a player's rate would only stretch the clink in time. The plain coin at the rate if a step is missing.
+        guard soundOn, let sound = FeedbackCue.countCoin.sound else { return }
+        let step = voice(SoundID.coinStep(rate: rate))
+        guard let player = step ?? voice(sound.id) else { return }
         player.volume = Float(max(0, min(1, sound.volume)))
-        player.rate = Float(max(0.5, min(2, sound.rate * rate)))
+        player.rate = Float(max(0.5, min(2, step == nil ? sound.rate * rate : sound.rate)))
         player.currentTime = 0
         activateSession()
         player.play()
+    }
+
+    // b3-count: a coin home in the purse after a let go (FeedbackHub.countTick): a soft tick only, never throttled.
+    func countTick(strength: Double) {
+        guard hapticsOn else { return }
+        softImpact.impactOccurred(intensity: CGFloat(max(0.1, min(1, strength))))
     }
     // end b3-count
 

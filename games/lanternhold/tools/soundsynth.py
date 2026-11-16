@@ -645,6 +645,23 @@ def coins_back():
     return fade(normalize(lowpass(x, 4800), 0.6), 0.004, 0.08)
 
 
+def coin_step(k):
+    """The count's rising clink (PAY.md section 2; step 2's critic H4): the coin resampled k semitones up (k 0 to 12, an
+    octave at most), so the pitch truly rises and the clink grows a little shorter with it, as a smaller coin rings.
+    An AVAudioPlayer's rate only stretches time and keeps the pitch, so the steps are files: coin_p00 is the coin
+    itself, coin_p12 an octave over it. One sound at a rising pitch, never a tune."""
+    x = coin()
+    ratio = 2.0 ** (k / 12.0)
+    n = int((len(x) - 1) / ratio)
+    out = []
+    for i in range(n):
+        t = i * ratio
+        j = int(t)
+        f = t - j
+        out.append(x[j] * (1.0 - f) + x[j + 1] * f)
+    return out
+
+
 def hammer_tap(rng, g=1.0):
     n = secs(0.16)
     body = grain(n, rng.uniform(200, 225), 0.035)
@@ -1008,6 +1025,8 @@ SOUNDS = [
     ("door_creak", door_creak), ("door_latch", door_latch),
     ("amb_throat", amb_throat), ("amb_bailey", amb_bailey), ("amb_valley", amb_valley), ("amb_river", amb_river),
 ]
+# build 3, the count's step 2: the clink a semitone higher for every coin, thirteen steps (coin_p00 ... coin_p12)
+SOUNDS += [("coin_p%02d" % k, (lambda k=k: coin_step(k))) for k in range(13)]
 
 
 # ----------------------------------------------------------------------------------------------------------------
