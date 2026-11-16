@@ -475,6 +475,8 @@ extension GameModel {
 
     /// VoiceOver or Switch Control activated a thing's element: the same as a tap on it.
     func touchSpot(_ id: String) {
+        // Build 3, lane 5 (no dead tap): VoiceOver's deed under the lantern lowers it first, as the finger's does.
+        if lanternMoment != nil { lowerLanternMoment() }
         // Build 3, the count's step 5: a model's element pays its offer in one step (PAY.md section 2).
         if id.hasPrefix("touch-model-"),
            let model = touch.models.flatMap(\.models).first(where: { $0.id == id }) {

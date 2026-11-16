@@ -519,6 +519,16 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertFalse(game.touch.look.isHeld)
     }
 
+    /// VoiceOver's double tap on a thing under the lantern lowers it and does the deed, as the finger's tap does.
+    func testAVoiceOverDeedUnderTheLanternLowersIt() throws {
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" }, "the hall's door offers")
+        game.touchSpot(door.id)
+        XCTAssertNil(game.lanternMoment, "the deed lowered the lantern")
+        XCTAssertFalse(game.isPaused, "the world runs on")
+        XCTAssertEqual(game.touch.errand?.id, door.id, "and started the door's errand")
+    }
+
     /// A lift after the scene went inactive is never a tap: not with the lantern down, not with it up; nor is a lift
     /// while the scene is not active. A new touch afterwards is a tap again.
     func testALiftAfterTheSceneWentInactiveIsNoTap() throws {
