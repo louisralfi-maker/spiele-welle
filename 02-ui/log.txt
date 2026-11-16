@@ -1,0 +1,10 @@
+Test Case '-[LanternholdUITests.CountUITests testLetGoSlidesTheCoinsBack]' passed (37.664 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (26.976 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (117.245 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (19.352 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (184.373 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (58.610 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (115.215 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (195.925 seconds).
+exit=0
+screenshots: 49
