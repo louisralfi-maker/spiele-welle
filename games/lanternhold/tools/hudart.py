@@ -37,7 +37,14 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
                middles, 21 its right end (a wider seam than the board's planks), 22 a batten nailed across its planks;
                step 3: the site lantern's crook, 23 24 pointing right (the post's iron-bound top bending over, then the
                arm's end with its hook and 2 px chain), 25 26 pointing left (the arm's end, then the post's top); 27 a
-               fifth plank middle with a knot (the grain as streaks of 3 to 6 px: one tile in five shows a knot)
+               fifth plank middle with a knot (the grain as streaks of 3 to 6 px: one tile in five shows a knot);
+               step 4: the signpost's iron bar, 28 its left end, 29 a middle, 30 its right end (in the cell's last 4
+               rows, as the cap)
+  paySign      29x26, 3 frames (step 4, the signpost over a plot with several offers): a small wooden shingle hung on
+               two links (the top 3 rows), the building's silhouette burnt into it in rows 5 to 13 (0 the ballista, a
+               long bolt on its stock over an A-frame; 1 the catapult, its arm and cup over a wheeled base; 2 any other
+               building, a gabled house); rows 15 to 23 stay plain wood for the coin and the price the stage lane lays
+               on in the purse's figures
   siteLantern  9x13, 4 frames: the site lantern on the post, unlit (dark glass), lit (a 5x5 flame in the fire ramp,
                white at its heart), and the two frames of its bloom as it catches (the stage lane adds its light, the
                glow of its glass and its halo)
@@ -840,6 +847,87 @@ CROOK_LEFT = [".iiiiiiiii..",
 # where the chain's last link hangs in the 12-wide crook (column, row): the lantern's ring (its column 4) hangs under it
 CROOK_CHAIN = {"right": (10, 6), "left": (1, 6)}
 
+# the signpost's iron bar (step 4): an iron band lit on its top, its own ink edge, the ends capped (cell's last 4 rows)
+SIGN_BAR_L = [".iiiii",
+              "ibBBBB",
+              "ibbbbb",
+              ".iiiii"]
+SIGN_BAR_M = ["iiiiii",
+              "BBBBBB",
+              "bbbbbb",
+              "iiiiii"]
+SIGN_BAR_R = ["iiiii.",
+              "BBBBbi",
+              "bbbbbi",
+              "iiiii."]
+
+# the signpost's shingle (step 4): 29 wide; two iron links (columns 6 and 22, rows 0 to 2) to nail heads on its top
+# bevel; the board lit along its top and left, shaded along its right and foot, a little grain at its edges (the
+# middle stays clear for the silhouette and the price); the silhouette is burnt in, in ink
+SHINGLE = ["......i...............i......",
+           "......b...............b......",
+           "......i...............i......",
+           ".iiiiiiiiiiiiiiiiiiiiiiiiiii.",
+           "iLLLLLnLLLLLLLLLLLLLLLnLLLLDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFLLFFFFFFFFFFFFFFFFFFFDDFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFDDFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFLLFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFLLLFFFFFFFFFFFDDDFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iLFFFFFFFFFFFFFFFFFFFFFFFFFDi",
+           "iDDDDDDDDDDDDDDDDDDDDDDDDDDDi",
+           ".iiiiiiiiiiiiiiiiiiiiiiiiiii."]
+# the silhouettes (13 x 9, burnt in at column 8, row 5): each its own outline at phone size
+SIL_BALLISTA = ["........i....",
+                ".........i...",
+                "iiiiiiiiiiiii",
+                "..iiiiiiiii..",
+                "....i....i...",
+                "...i.i..i....",
+                "..i...i......",
+                ".i.....i.....",
+                "i.......i...."]
+SIL_CATAPULT = ["ii...........",
+                "iii..........",
+                ".iii.........",
+                "...ii...i....",
+                ".....ii.i....",
+                ".......iii...",
+                ".iiiiiiiiiii.",
+                ".ii.......ii.",
+                ".ii.......ii."]
+SIL_HOUSE = ["......i......",
+             ".....iii.....",
+             "....iiiii....",
+             "...iiiiiii...",
+             "..iiiiiiiii..",
+             "...iiiiiii...",
+             "...iiiiiii...",
+             "...iii.iii...",
+             "...iii.iii..."]
+
+
+def shingle(silhouette, pal):
+    rows = [list(r) for r in SHINGLE]
+    for y, row in enumerate(silhouette):
+        for x, c in enumerate(row):
+            if c != ".":
+                rows[5 + y][8 + x] = c
+    return legend_image(["".join(r) for r in rows], pal, BOARD_LEGEND)
+
 # the site lantern (9x13, step 2's critic H2: the 7x10 one was a speck by day): a ring, a cap, a 5x5 glass in an iron
 # frame, a foot; unlit its glass is the night's dark glass (as the street lanterns' heads), lit a flame stands in the
 # fire ramp, white at its heart; as it catches, two frames of bloom: the glass burns white and the light spills
@@ -980,6 +1068,8 @@ def board_tiles(pal):
         frames.append(legend_image([r[6:] for r in crook], pal, BOARD_LEGEND))
     # step 3: 27 the fifth plank middle, with its knot
     frames.append(legend_image(PLANK_M5, pal, BOARD_LEGEND))
+    # step 4: 28 29 30 the signpost's iron bar (left end, middle, right end)
+    frames += [legend_image(t, pal, BOARD_LEGEND, cell, top=False) for t in (SIGN_BAR_L, SIGN_BAR_M, SIGN_BAR_R)]
     return frames
 
 
@@ -1129,11 +1219,14 @@ def frames_for(sprite, pal, style="hand", face=None):
         return [lantern_frame(k, pal) for k in ("unlit", "lit", "bloom1", "bloom2")]
     if sprite == "siteHalo":
         return [halo(), pool()]
+    if sprite == "paySign":
+        return [shingle(s, pal) for s in (SIL_BALLISTA, SIL_CATAPULT, SIL_HOUSE)]
     raise SystemExit("unknown sprite " + sprite)
 
 
 SPRITES = ["hudFigures", "hudArrow", "hudCoin", "hudCoinTen", "hudHollow", "hudHollowTen", "hudFace", "hudPeople",
-           "hudGear", "hudDawn", "hudCoinBar", "hudHollowBar", "payBoard", "siteLantern", "payCoin", "siteHalo"]
+           "hudGear", "hudDawn", "hudCoinBar", "hudHollowBar", "payBoard", "siteLantern", "payCoin", "siteHalo",
+           "paySign"]
 
 
 def palette():

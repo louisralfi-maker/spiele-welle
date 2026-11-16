@@ -68,28 +68,27 @@ final class FirstDayUITests: XCTestCase {
         // The lantern moment's own pictures and figures are TouchUITests' 40, 160 and 162 to 167 (the day runs fast
         // here).
 
-        // Touch the world (step stage-2): a touch on line 1's empty brazier site sends him there; its card opens
-        // when he arrives. No action button any more.
+        // Touch the world (step stage-2): a touch on line 1's empty brazier site sends him there. Build 3, the count's
+        // step 4: no card from a plot any more; the site's one offer brings its tally board up beside it, he steps to
+        // it, and a hold pays the brazier coin by coin. No action button.
         XCTAssertFalse(element(app, "action-button").exists, "the action button is gone")
         if let site = waitForThing(app, "touch-plot-2", timeout: 8) {
             checkTarget(site, "the site")
             touchThing(site)
-            XCTAssertTrue(waitForField(app, "errand:touch-plot-2", timeout: 4) || element(app, "build-card").exists,
-                          "he set off to the site")
+            XCTAssertTrue(waitForField(app, "count:touch-plot-2", timeout: 4), "the site's board comes up")
+            XCTAssertFalse(element(app, "build-card").exists, "no card")
+            waitForStill(app)
+            _ = waitForField(app, ":there", timeout: 6)
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "41-site-board-\(language)")
+            if let again = waitForThing(app, "touch-plot-2", timeout: 3) {
+                again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 1.4)
+            }
+            XCTAssertTrue(waitForField(app, "last:paid:touch-plot-2", timeout: 4), "the hold paid the brazier")
         } else {
             XCTFail("the brazier site offers nothing")
         }
-        let card = element(app, "build-card")
-        XCTAssertTrue(card.waitForExistence(timeout: 20), "the build card opens when he arrives")
-        pause(0.5)
-        attach(XCUIScreen.main.screenshot(), "41-build-card-\(language)")
-        let brazier = element(app, "build-option-brazier")
-        XCTAssertTrue(brazier.exists, "the brazier is on the card")
-        checkTarget(brazier, "build option")
-        checkTarget(element(app, "build-card-close"), "close")
-        XCTAssertTrue(brazier.isEnabled, "60 gold pay for a brazier")
-        brazier.tap()
-        XCTAssertTrue(waitForGone(card, timeout: 6), "the card closes after the order")
+        XCTAssertFalse(element(app, "build-card").exists, "no card at all")
         // The coins leave him: the coin and the figure tick down above his head (HUD.md section 3).
         pause(0.25)
         attach(XCUIScreen.main.screenshot(), "161-purse-at-lord-\(language)")

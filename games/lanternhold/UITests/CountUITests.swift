@@ -11,8 +11,11 @@ import XCTest
 /// in the air at three points of its throw and landed (176a to 176d), the same for a tap's first coin (177a to 177d),
 /// the coins going home after a let go with the purse mid-count (174), the guard's board of mixed coins beside the
 /// barracks (175), a board of bars for the great gate (178), the lit lantern at night with its halo (179), the board's
-/// dip under a bar (180a/b) and a far coin's throw on a three-row board (181a to 181c). English only
-/// (the director's notes of 15.11., item 4). Saves `<nn>-count-<what>-<lang>`.
+/// dip under a bar (180a/b) and a far coin's throw on a three-row board (181a to 181c), the glint (188). Step 4, part B:
+/// the signpost over the line-1 engine's empty plot (190), a touch on the ballista's shingle bringing its board with the
+/// shingle on its post (191), the hold that pays it and starts the work (192), the shingles with a poor purse (193) and
+/// at night, unlit and no touch thing (194). English only (the director's notes of 15.11., item 4). Saves
+/// `<nn>-count-<what>-<lang>`.
 @MainActor
 final class CountUITests: XCTestCase {
     override func setUp() async throws {
@@ -271,6 +274,77 @@ final class CountUITests: XCTestCase {
         pause(0.3)
         attach(XCUIScreen.main.screenshot(), "179-count-lantern-night-\(language)")
         app.terminate()
+    }
+
+    /// Step 4, part B: day 3 (seed 2) at 10:00 at the line-1 engine's empty plot, its two offers on a signpost. A touch
+    /// on the ballista's shingle brings its tally board (seven hollows for 70) and the shingle onto the board's post
+    /// while the rest of the signpost goes; a hold pays it and the work starts (its lantern burns while it runs).
+    func testTheSignpost() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let base = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWSeed", "2",
+                    "-GWStage", "world", "-GWCameraX", "1440"]
+        let day = base + ["-GWDay", "3", "-GWClock", "10"]
+        let app = XCUIApplication()
+        app.launchArguments = day + ["-GWGold", "200"]
+        app.launch()
+        guard waitUntilReady(app, name: "count-sign") else { return }
+        pause(0.8)
+        XCTAssertTrue(waitForField(app, "signs:4:ballista,catapult", timeout: 4), "the engine's plot carries its signpost")
+        attach(XCUIScreen.main.screenshot(), "190-count-signpost-day-\(language)")
+        guard let shingle = waitForThing(app, "touch-shingle-4-ballista", timeout: 4) else {
+            XCTFail("the ballista's shingle is no element")
+            app.terminate()
+            return
+        }
+        checkTarget(shingle, "the ballista's shingle")
+        checkTarget(element(app, "touch-shingle-4-catapult"), "the catapult's shingle")
+        XCTAssertEqual(shingle.label, "Build: Ballista", "VoiceOver names it")
+        XCTAssertTrue(shingle.value.map { "\($0)" }?.contains("70") == true, "and its price")
+        XCTAssertFalse(element(app, "touch-plot-4").exists, "the plot gives way to its shingles")
+        touchThing(shingle)
+        XCTAssertTrue(waitForField(app, "count:touch-plot-4:0/7", timeout: 3), "the ballista's board, seven hollows")
+        XCTAssertFalse(element(app, "build-card").exists, "no card")
+        waitForStill(app)
+        XCTAssertTrue(waitForField(app, ":there", timeout: 6), "he stands beside the board")
+        let signs = sceneField(app, "signs:") ?? ""
+        XCTAssertFalse(signs.split(separator: ";").contains { $0.hasPrefix("4:") },
+                       "the signpost goes while the board stands (\(signs))")
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "191-count-shingle-on-post-\(language)")
+        if let plot = waitForThing(app, "touch-plot-4", timeout: 3) {
+            plot.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 2.0)
+        } else {
+            XCTFail("the plot is no element while its board stands")
+        }
+        XCTAssertTrue(waitForField(app, "last:paid:touch-plot-4", timeout: 4), "the hold paid the ballista")
+        XCTAssertTrue(waitForSceneGold(app, 130, timeout: 4), "70 gold, once")
+        XCTAssertTrue(waitForField(app, "lanterns:1", timeout: 3), "the work starts: its lantern burns while it runs")
+        pause(1.2)
+        attach(XCUIScreen.main.screenshot(), "192-count-shingle-paid-\(language)")
+        app.terminate()
+
+        // A poor purse: the catapult's coin is a dark hollow (110 over 80), the ballista's gold.
+        let poor = XCUIApplication()
+        poor.launchArguments = day + ["-GWGold", "80"]
+        poor.launch()
+        if waitUntilReady(poor, name: "count-sign-poor") {
+            pause(0.8)
+            XCTAssertTrue(waitForField(poor, "signs:4:", timeout: 4), "the signpost stands")
+            attach(XCUIScreen.main.screenshot(), "193-count-signpost-poor-\(language)")
+        }
+        poor.terminate()
+
+        // At night it hangs unlit and is no touch thing.
+        let night = XCUIApplication()
+        night.launchArguments = base + ["-GWNight", "3", "-GWHour", "22", "-GWGold", "200"]
+        night.launch()
+        if waitUntilReady(night, name: "count-sign-night") {
+            pause(0.8)
+            XCTAssertTrue(waitForField(night, "signs:4:", timeout: 4), "it still hangs there at night")
+            XCTAssertFalse(element(night, "touch-shingle-4-ballista").exists, "no touch thing at night")
+            attach(XCUIScreen.main.screenshot(), "194-count-signpost-night-\(language)")
+        }
+        night.terminate()
     }
 
     // MARK: - Helpers

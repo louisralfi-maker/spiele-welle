@@ -284,21 +284,23 @@ final class TouchWorldTests: XCTestCase {
 
     // MARK: - The errands
 
-    func testATapOnASiteWalksHimThereAndOpensItsCard() throws {
+    /// Build 3, the count's step 4: a tap on an empty site with one offer brings its tally board and walks the lord
+    /// beside it; no card opens from a plot any more.
+    func testATapOnASiteBringsItsBoardAndNoCard() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1180"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let plot = Realm.lines[0].braziers[0]
         let site = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-\(plot)" }, "the site offers")
         XCTAssertNil(game.overlay)
         game.tap(at: try point(of: site, in: game), in: proPoints)
-        XCTAssertEqual(game.touch.errand?.id, site.id, "he sets off")
-        XCTAssertNotNil(game.errandSlip, "the slip above the site")
-        XCTAssertNil(game.overlay, "nothing opens before he arrives")
-        run(game, seconds: 12) { game.overlay != nil }
-        XCTAssertEqual(game.overlay, .build(plot: plot), "the card opens on arrival")
-        XCTAssertNil(game.touch.errand)
+        XCTAssertEqual(game.touch.count?.thing, site.id, "its board comes up")
+        XCTAssertEqual(game.touch.errand?.id, site.id, "he sets off to stand beside it")
+        run(game, seconds: 12) { game.touch.count?.ready == true }
+        XCTAssertEqual(game.touch.count?.ready, true, "he stands beside the board")
+        XCTAssertNil(game.overlay, "no card from a plot")
         let x = try XCTUnwrap(game.driver?.state.king.x)
-        XCTAssertEqual(x, site.standX, accuracy: TouchRules.arrival)
+        let board = try XCTUnwrap(game.touch.countBoard)
+        XCTAssertEqual(x, board.stand, accuracy: TouchRules.arrival)
     }
 
     func testATapOnTheGroundWalksHimThereAndADragCallsHimOff() throws {

@@ -631,7 +631,16 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(offer.price, Balance.standard.price(.ironGate))
         let brazier = Realm.lines[0].braziers[0]
         let site = try XCTUnwrap(things.first { $0.id == "touch-plot-\(brazier)" })
-        XCTAssertNil(PayOffers.offer(site, state: s, balance: .standard), "an empty plot keeps its card")
+        // Step 4: no plot keeps a card; an empty plot with one offer goes straight to its board.
+        let only = try XCTUnwrap(Build.options(s, plot: brazier, balance: .standard).first)
+        let counted = try XCTUnwrap(PayOffers.offer(site, state: s, balance: .standard), "an empty site is counted")
+        XCTAssertEqual(counted.offer, .build(plot: brazier, item: only.item))
+        XCTAssertEqual(counted.price, only.price)
+        let engine = Realm.lines[0].engine
+        if let engineSite = things.first(where: { $0.id == "touch-plot-\(engine)" }) {
+            XCTAssertNil(PayOffers.offer(engineSite, state: s, balance: .standard),
+                         "a plot with several offers is bought by its shingles")
+        }
         let archer = try XCTUnwrap(things.first { $0.id == "touch-recruit-archer" })
         let guardsman = try XCTUnwrap(things.first { $0.id == "touch-recruit-guard" })
         XCTAssertEqual(PayOffers.offer(archer, state: s, balance: .standard)?.offer, .recruit(.archer))
@@ -1435,7 +1444,7 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(FeedbackCue.countSeal.haptic, .heavy, "the seal keeps the heavy beat")
         XCTAssertEqual(PayBoardLayout.plankMiddles.count, 5)
         XCTAssertTrue(PayBoardLayout.plankMiddles.contains(PayBoardLayout.plankKnot))
-        XCTAssertEqual(SpriteID.payBoard.frameCount, 28)
+        XCTAssertEqual(SpriteID.payBoard.frameCount, 31, "step 4: and the signpost's bar")
         var knots = 0
         var tiles = 0
         for thing in ["touch-plot-0", "touch-plot-3", "touch-wall-6", "touch-recruit-guard", "touch-recruit-archer"] {

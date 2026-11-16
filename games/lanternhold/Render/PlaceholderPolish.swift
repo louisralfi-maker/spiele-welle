@@ -29,7 +29,7 @@ enum PlaceholderPolish {
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xFFFFFF, alpha: 40))]
         case .hudHollow, .hudHollowTen, .hudHollowBar:
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0x2B2421))]
-        case .payBoard:
+        case .payBoard, .paySign:
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0x66422F))]
         default: return []
         }

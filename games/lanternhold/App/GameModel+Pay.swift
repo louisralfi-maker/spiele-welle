@@ -10,6 +10,8 @@ struct CountBoard: Sendable, Equatable {
     var layout: PayBoardLayout
     /// -1: the board stands left of its thing, 1: right of it (the lord stands on its outer side).
     var side: Double = -1
+    /// Step 4: the shingle chosen on a plot's signpost, hung on this board's post while it stands (nil: none).
+    var shingle: BuildItem? = nil
 
     /// A board of one plank stands its bottom this high over the walk line, on its post; a board of two or three
     /// planks hangs lower (step 3, the director's call 4: its lowest row about 3 px over the ground line's things, its
@@ -34,6 +36,12 @@ struct CountBoard: Sendable, Equatable {
     /// board's edge it hung over the gate's portcullis). The lantern's post is the board's post.
     var toward: Double { -side }
     var lanternPostLeft: Int { postLeft }
+
+    /// The highest the board reaches with what its post carries (step 4: the chosen shingle and its bar over it).
+    var carryTop: Double {
+        guard shingle != nil else { return top }
+        return PaySignpost.onBoard(postLeft: postLeft, boardTop: top).top + Double(PaySignpost.barRows)
+    }
 }
 
 /// A cue that comes a moment after the seal (the site lantern, then the work's own sound), at the clock's second.
@@ -299,6 +307,11 @@ extension GameModel {
         }
         // A town door is not bought: the lift knocks (`tap(at:)`, the taxes on foot), though the house's area covers it.
         if stage != .hall, townDoor(at: point, in: size) != nil { return false }
+        // Step 4: a shingle of a plot's signpost brings its offer's board and the hold counts from this touch.
+        if let shingle = signShingle(at: place) {
+            touchShingle(shingle, holding: true)
+            return touch.count?.thing == "touch-plot-\(shingle.plot)"
+        }
         guard let thing = TouchRules.pick(x: place.x, lift: place.lift, things: touch.things,
                                           minimum: place.minimum) else { return false }
         // The lord's own body keeps its touch (the lantern), as `tap(at:)` decides it.
@@ -320,7 +333,7 @@ extension GameModel {
     func countBoardThing(_ place: (x: Double, lift: Double, minimum: Double)) -> TouchThing? {
         guard let count = touch.count, count.isOpen, let board = touch.countBoard else { return nil }
         let half = max(Double(board.layout.width) / 2, place.minimum / 2)
-        let top = board.top + 14
+        let top = max(board.top + 14, board.carryTop)
         guard abs(place.x - board.x) <= half, place.lift >= -TouchRules.footRoom, place.lift <= top else { return nil }
         return touch.things.first { $0.id == count.thing }
     }
@@ -391,8 +404,10 @@ extension GameModel {
     }
 
     /// The board comes up beside `thing`. Refused at once (the repair cooling down, nobody left to recruit):
-    /// `decline`, no board. Another thing's board lets its coins go home and goes down in its own time.
-    private func startCount(_ thing: TouchThing, _ found: (offer: PayOffer, price: Int), holding: Bool) {
+    /// `decline`, no board. Another thing's board lets its coins go home and goes down in its own time. `shingle`: the
+    /// signpost's shingle that brought it (step 4), hung on the board's post while it stands.
+    func startCount(_ thing: TouchThing, _ found: (offer: PayOffer, price: Int), holding: Bool,
+                    shingle: BuildItem? = nil) {
         guard kind == .world, stage == .world, overlay == nil, stageChange == nil, lanternMoment == nil,
               let game = driver, game.bot == nil else { return }
         if PayOffers.refused(found.offer, state: game.state, balance: game.balance) {
@@ -440,7 +455,8 @@ extension GameModel {
                 stand = groundX(boardX + place.side * reach)
             }
         }
-        let board = CountBoard(x: boardX, stand: stand, act: thing.act, layout: layout, side: place.side)
+        let board = CountBoard(x: boardX, stand: stand, act: thing.act, layout: layout, side: place.side,
+                               shingle: shingle)
         // A lantern still lit on this post (the last recruit's, 3 s) gives way to the new board and its own unlit
         // lantern (the review of step 2: an unlit lantern was drawn over a lit one whose heart still glowed).
         touch.countLanterns.removeAll {
@@ -616,7 +632,7 @@ extension GameModel {
         let right = lordX >= board.x
         let shift = right ? boardRight - (lordX - blockHalf) : (lordX + blockHalf) - boardLeft
         if shift <= blockHalf { return (lordX + (right ? shift : -shift), 0) }
-        let bottom = max(Double(HUDKit.lordHead + 8), board.top + 4)
+        let bottom = max(Double(HUDKit.lordHead + 8), board.carryTop + 4)
         return (lordX, bottom - Double(HUDKit.lordHead + HUDKit.purseAbove))
     }
 
@@ -776,6 +792,8 @@ extension GameModel {
     /// home without one, the lantern lights without its bloom.
     func countWorld(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming) {
         guard stage == .world else { return }
+        // Step 4: the signposts over the plots with several offers, behind everything of the count.
+        signWorld(&layer, state: state, framing: framing)
         let night = Double(AmbientRamp.sample(at: state.hour, look: args.look).torchStrength)
         countLanternsWorld(&layer, framing: framing, night: night)
         var glows: [EntityGlow] = []
@@ -790,7 +808,7 @@ extension GameModel {
 
     /// One actor of the count at `x`, `lift` (its top-left in game px of the world strip, lift over the walk line), at
     /// its own size or `width` x `height` game px (a squash, a coin shrinking home); nil when it is off the screen.
-    private func countActor(_ sprite: SpriteID, _ frame: Int, x: Double, lift: Double, alpha: Float,
+    func countActor(_ sprite: SpriteID, _ frame: Int, x: Double, lift: Double, alpha: Float,
                             framing: TouchFraming, width: Double? = nil, height: Double? = nil) -> ActorInstance? {
         let size = sprite.size
         let scale = Float(framing.scale)
@@ -804,7 +822,7 @@ extension GameModel {
     }
 
     /// The post from its foot in the ground up to its iron plate (`postTop`, which carries the board's rise).
-    private func countPostActors(postLeft: Int, postTop: Double, shift: Double, alpha: Float,
+    func countPostActors(postLeft: Int, postTop: Double, shift: Double, alpha: Float,
                                  framing: TouchFraming) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let plank = Double(PayBoardLayout.plank)
@@ -907,6 +925,8 @@ extension GameModel {
         // crook of this same post behind the shut board, and catches as the board has gone: `countLanternsWorld`).
         actors += countPostActors(postLeft: board.postLeft, postTop: board.postTop + shift, shift: shift,
                                   alpha: alpha, framing: framing)
+        // Step 4: the shingle chosen on a plot's signpost hangs on this board's post while it stands.
+        actors += signOnBoardActors(count, board, top: board.top + shift, alpha: alpha, framing: framing)
         // The planks (or the lid's), the cap over them and the foot under them.
         func planks(lid: Bool, offset: Double) {
             for row in 0..<layout.rows {

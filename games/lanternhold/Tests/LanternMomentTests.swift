@@ -257,11 +257,16 @@ final class LanternMomentTests: XCTestCase {
         let game = model(["GWStage": "world", "GWCameraX": "1150"])
         run(game, seconds: 0.3)
         let site = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-2" }, "the brazier site offers")
+        // Build 3, the count's step 4: the site brings its tally board (no card from a plot); he pays it there.
         game.touchThing(site)
-        run(game, seconds: 20) { game.overlay != nil }
-        XCTAssertEqual(game.overlay, .build(plot: 2), "the card on arrival")
-        game.order(.brazier)
-        XCTAssertNil(game.overlay)
+        XCTAssertEqual(game.touch.count?.thing, site.id, "the site's board")
+        run(game, seconds: 20) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.payAtOnce()
+        game.touch.count = count
+        run(game, seconds: 3) { game.touch.countLast.hasPrefix("paid") }
+        XCTAssertEqual(game.touch.countLast, "paid:\(site.id)", "paid")
+        XCTAssertNil(game.overlay, "no card")
         run(game, seconds: 1.5)
         game.setTouchViewSize(proPoints)
         game.refreshTouchSpots()

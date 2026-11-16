@@ -179,9 +179,10 @@ final class TouchUITests: XCTestCase {
             .joined(separator: "\n"))
         attach(XCUIScreen.main.screenshot(), "150-touch-front-\(language)")
 
-        // A touch on a site some way off: he walks, the slip above it says what he will do. Build 3: an empty plot (its
-        // card stays for the choice); a built one with one offer brings its tally board instead (CountUITests).
-        let site = ["touch-plot-1", "touch-plot-7", "touch-plot-6", "touch-plot-4"].lazy
+        // A touch on a site some way off. Build 3, the count's step 4: no card from a plot any more; a site with one
+        // offer brings its tally board and he walks to stand beside it (a plot with several offers carries a signpost:
+        // CountUITests' shingles).
+        let site = ["touch-plot-1", "touch-plot-7", "touch-plot-6"].lazy
             .compactMap { self.waitForThing(app, $0, timeout: 2) }.first
         guard let site else {
             XCTFail("no site offers anything at the front")
@@ -190,20 +191,11 @@ final class TouchUITests: XCTestCase {
         }
         let id = site.identifier
         touchThing(site)
-        let slip = element(app, "touch-slip")
-        if slip.waitForExistence(timeout: 3) {
-            pause(0.3)
-            attach(XCUIScreen.main.screenshot(), "151-touch-front-walk-\(language)")
-            XCTAssertFalse(slip.label.isEmpty, "the slip says what he will do")
-        } else if !element(app, "build-card").exists {
-            XCTFail("no slip above \(id)")
-        }
-        let card = element(app, "build-card")
-        XCTAssertTrue(card.waitForExistence(timeout: 15), "the card opens when he arrives at \(id)")
-        if card.exists {
-            element(app, "build-card-close").tap()
-            XCTAssertTrue(waitForGone(card, timeout: 6))
-        }
+        XCTAssertTrue(waitForField(app, "count:\(id)", timeout: 3), "\(id): its board comes up")
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "151-touch-front-walk-\(language)")
+        waitForStill(app)
+        XCTAssertFalse(element(app, "build-card").exists, "no card from a plot")
 
         // A tap on the ground, low on the lane at the screen's left: he walks there and stops.
         let before = Double(sceneField(app, "lx:") ?? "") ?? 0

@@ -1359,7 +1359,7 @@ final class GameModel {
         // Stage-3-interface fix round 1: the lord's hint (on or off, how often it showed).
         text += " hint:\(touch.lordHintOn ? "on" : "off")\(touch.lordHintShown)"
         // Build 3, the count: the board up (its thing, coins on it of all, its state) and the last count's end.
-        text += " count:\(countWord)"
+        text += " count:\(countWord) signs:\(signWord)"
         #endif
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {

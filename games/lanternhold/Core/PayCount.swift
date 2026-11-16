@@ -75,16 +75,16 @@ enum PayBeat: Sendable, Equatable {
     case gone
 }
 
-/// The things the count is for and their price (PAY.md section 1; the director's notes of 15.11., item 6: in step 1
-/// an empty plot keeps its card).
+/// The things the count is for and their price (PAY.md section 1). Step 4 (the director's notes of 16.11., 09:34,
+/// part B): no plot opens the card any more; a plot with one offer, empty or built, goes straight to its board, and a
+/// plot with several carries a signpost whose shingles bring each offer's board (`PaySignpost`).
 enum PayOffers {
-    /// What a touch on `thing` counts for, and the price; nil when the thing is not bought by a count (an empty plot,
-    /// whose card offers a choice; a person; the door; a brazier to light).
+    /// What a touch on `thing` counts for, and the price; nil when the thing is not bought by a count (a plot with
+    /// several offers, whose shingles are touched instead; a free gift; a person; the door; a brazier to light).
     static func offer(_ thing: TouchThing, state s: GameState, balance: Balance) -> (offer: PayOffer, price: Int)? {
         switch thing.act {
         case .build(let plot):
-            guard plot >= 0, plot < s.plots.count, plot < Realm.plots.count, s.plots[plot].item != nil,
-                  s.isUnlocked(plot: plot) else { return nil }
+            guard plot >= 0, plot < s.plots.count, plot < Realm.plots.count, s.isUnlocked(plot: plot) else { return nil }
             let options = Build.options(s, plot: plot, balance: balance)
             guard options.count == 1, let only = options.first, only.price > 0 else { return nil }
             return (.build(plot: plot, item: only.item), only.price)
@@ -725,6 +725,8 @@ struct PayBoardLayout: Sendable, Equatable {
     static let crookRightPost = 23, crookRightArm = 24, crookLeftArm = 25, crookLeftPost = 26
     /// Step 3 (the director's call 9, M-c): the fifth plank middle has a knot, so one tile in five shows one.
     static let plankKnot = 27
+    /// Step 4 (part B): the signpost's iron bar, its left end, a middle and its right end (in each cell's bottom rows).
+    static let signBarLeft = 28, signBarMiddle = 29, signBarRight = 30
     static let plankMiddles = [1, 2, 14, 15, 27]
     static let capMiddles = [5, 16, 17]
     static let lidMiddles = [19, 20]
