@@ -1202,3 +1202,11 @@ schneller geht."
   - Left for step 2b (after the quota reset): the back planes' glows and the moon, the keep's plane, the rain's lean, the hint glint and flare sparks, the collector's slip.
   - Not judged by eye: it shows on a phone with the next TestFlight build (after wave 2's join).
   - The week's quota stands at 97 % (stop at 99 %); nothing new is started beyond about 98 %.
+
+- **The mood at the map: a design card with three forms is with Louis (16.11.2026, 23:26).**
+  - Mock-ups on real frames (python, nothing built): A the bigger coloured hood face with a ladder in the strip's row,
+    B the town's window whose lit panes are the reading, C a banner hanging from the strip's town end in the mood's
+    colour. The card recommends C; B is the weakest. Louis picks; the build is lane 5 step 3.
+  - For the build, whichever form: a 13 px face, a reading that survives phone size (three notches, no ticks),
+    a colder blue-grey for grim, the touch slip with a 44 pt hit area; for C a check of the night scene under the strip.
+  - Usage 98 %: no new agent or workflow before Louis' reset.
