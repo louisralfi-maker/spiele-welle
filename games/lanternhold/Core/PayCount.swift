@@ -77,10 +77,10 @@ enum PayBeat: Sendable, Equatable {
 
 /// The things the count is for and their price (PAY.md section 1). Step 4 (the director's notes of 16.11., 09:34,
 /// part B): no plot opens the card any more; a plot with one offer, empty or built, goes straight to its board, and a
-/// plot with several carries a signpost whose shingles bring each offer's board (`PaySignpost`).
+/// plot with several carries the builder's models, each bringing its offer's board (step 5: `PayModelRow`).
 enum PayOffers {
     /// What a touch on `thing` counts for, and the price; nil when the thing is not bought by a count (a plot with
-    /// several offers, whose shingles are touched instead; a free gift; a person; the door; a brazier to light).
+    /// several offers, whose models are touched instead; a free gift; a person; the door; a brazier to light).
     static func offer(_ thing: TouchThing, state s: GameState, balance: Balance) -> (offer: PayOffer, price: Int)? {
         switch thing.act {
         case .build(let plot):
@@ -740,7 +740,8 @@ struct PayBoardLayout: Sendable, Equatable {
     static let crookRightPost = 23, crookRightArm = 24, crookLeftArm = 25, crookLeftPost = 26
     /// Step 3 (the director's call 9, M-c): the fifth plank middle has a knot, so one tile in five shows one.
     static let plankKnot = 27
-    /// Step 4 (part B): the signpost's iron bar, its left end, a middle and its right end (in each cell's bottom rows).
+    /// Step 4 (part B): the signpost's iron bar, its left end, a middle and its right end (in each cell's bottom rows);
+    /// no longer drawn since step 5 (the models replaced the signpost), kept so the strip's frames keep their numbers.
     static let signBarLeft = 28, signBarMiddle = 29, signBarRight = 30
     static let plankMiddles = [1, 2, 14, 15, 27]
     static let capMiddles = [5, 16, 17]
@@ -794,6 +795,9 @@ enum PayFreeze: Sendable, Equatable {
     case flights(coin: Int, shares: [Double])
     /// Step 4 (M-d): coin `coin` just as it has sat down, on the frame of its glint.
     case glint(coin: Int)
+    /// Step 5 (P9): the builder's models' arrival hop held at this age (seconds since the lord reached the row's spot);
+    /// under Reduce Motion the still rim of the same moment. No count is held.
+    case hop(Double)
 
     /// How long a `flights` freeze holds each share before it moves on (long enough for a slow runner's screenshot).
     static let dwell = 3.0
@@ -832,10 +836,20 @@ enum PayFreeze: Sendable, Equatable {
         return nil
     }
 
+    /// The age the models' arrival hop is held at (`hop` only).
+    var hopHold: Double? {
+        if case .hop(let seconds) = self { return seconds }
+        return nil
+    }
+
     /// `0.5`, `full`, `sealed`, `back`, `fly:<coin>:<share>`, `fly:<coin>:<share>,<share>,...` (one hold's strip),
-    /// `glint:<coin>`, `lit:<seconds>`; nil for anything else.
+    /// `glint:<coin>`, `lit:<seconds>`, `hop:<seconds>`; nil for anything else.
     static func parse(_ text: String?) -> PayFreeze? {
         guard let word = text?.trimmingCharacters(in: .whitespaces).lowercased(), !word.isEmpty else { return nil }
+        if word.hasPrefix("hop:") {
+            guard let seconds = Double(word.dropFirst(4)), seconds.isFinite, seconds >= 0 else { return nil }
+            return .hop(seconds)
+        }
         if word.hasPrefix("lit:") {
             guard let seconds = Double(word.dropFirst(4)), seconds.isFinite, seconds >= 0 else { return nil }
             return .lit(seconds)
@@ -886,6 +900,8 @@ enum PayFreeze: Sendable, Equatable {
         case .glint(let coin):
             guard let since = count.sinceLanding(coin) else { return false }
             return since >= PayFreeze.glintAt - 1e-9
+        case .hop:
+            return false
         }
     }
 

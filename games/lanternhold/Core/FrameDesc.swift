@@ -189,8 +189,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // b3-count (build 3, lane 1: the count, PAY.md; tools/hudart.py): the big coin and the two hollows the kit already
     // drew, the bar and its hollow, the tally board's tiles with its post, the site lantern unlit and lit; step 2: the
     // small coin of the count (its faces and its edge in flight) and the lit lantern's halo; step 3: the small coin and
-    // its hollow 7 px, the big one 11 px (one look tells 1 from 10); step 4: the signpost's shingles over a plot with
-    // several offers
+    // its hollow 7 px, the big one 11 px (one look tells 1 from 10); step 5: the builder's models on their trestles at a
+    // plot with several offers
     case hudCoinTen, hudHollow, hudHollowTen, hudCoinBar, hudHollowBar, payBoard, siteLantern, payCoin, siteHalo
     case paySign
 
@@ -501,7 +501,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .siteLantern: return PixelSize(width: 9, height: 13)
         case .payCoin: return PixelSize(width: 7, height: 7)
         case .siteHalo: return PixelSize(width: 25, height: 25)
-        case .paySign: return PixelSize(width: 29, height: 26)
+        case .paySign: return PixelSize(width: 24, height: 13)
         case .hudDawn: return PixelSize(width: 11, height: 9)
         }
     }
@@ -578,13 +578,13 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hudFace: return 4
         // b3-count: empty and holding one of three faces; the board's 28 tiles (step 3: the crook's four, a knot);
         // unlit, lit and two of bloom; the count's coins: three faces, the edge and the half turn (step 3); the halo by
-        // night and the warm pool by day (step 4); the board's tiles and the signpost's bar (step 4: 31); the shingles
-        // of the ballista, the catapult and any other building (step 4).
+        // night and the warm pool by day (step 4); the board's tiles and the signpost's bar (step 4: 31); the trestle,
+        // the ballista's, the catapult's and any other building's model, their rims and four glint steps each (step 5).
         case .hudHollow, .hudHollowTen, .hudHollowBar: return 4
         case .payBoard: return 31
         case .siteLantern: return 4
         case .siteHalo: return 2
-        case .paySign: return 3
+        case .paySign: return 19
         case .payCoin, .hudCoinTen, .hudCoinBar: return 5
         default: return 1
         }

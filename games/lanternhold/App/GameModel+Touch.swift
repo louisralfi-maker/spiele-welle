@@ -93,14 +93,17 @@ struct TouchState: Sendable {
     /// clock's second it began to hold there.
     var countFreezeStep = 0
     var countFreezeSince: Double?
-    /// Step 4: the signposts standing this frame (`signWorld`), the plots whose signpost stood the frame before, and
-    /// the clock's second each came (its shingles swing as it appears).
-    var signs: [PaySignpost] = []
-    var signShown: Set<Int> = []
-    var signSince: [Int: Double] = [:]
-    /// The review of step 4: each signpost's place (its post's x and its sides by least cover), worked out once per
-    /// realm as it stands (`PaySignChoice.key`), not on every frame.
-    var signChoices: [Int: PaySignChoice] = [:]
+    /// Step 5: the rows of the builder's models standing this frame (`modelWorld`), each row's place worked out once
+    /// per realm as it stands (`PayModelChoice.key`), the plots whose spot the lord stands at, the clock's second each
+    /// row's arrival hop began, the rows and chosen models drawn the frame before, and the rows fading out as their
+    /// plots were built.
+    var models: [PayModelRow] = []
+    var modelChoices: [Int: PayModelChoice] = [:]
+    var modelHere: Set<Int> = []
+    var modelHop: [Int: Double] = [:]
+    var modelShown: [Int: PayModelRow] = [:]
+    var modelLastChosen: [Int: BuildItem] = [:]
+    var modelFades: [PayModelFade] = []
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -235,7 +238,7 @@ extension GameModel {
         // thing's area (a site he stands on), unless the finger is nearer the thing, it is a person, or he waits
         // there for the second touch that pays.
         if isOnLordsBody(place), picked.map({ prefersLord(over: $0, x: place.x) }) ?? true,
-           signShingle(at: place) == nil {
+           modelAt(place) == nil {
             touch.lastTap = "moment"
             openLanternMoment()
             return
@@ -245,10 +248,10 @@ extension GameModel {
             touch.lastTap = "door"
             return
         }
-        // Build 3, the count's step 4: a shingle of a plot's signpost brings its offer's board (after the town's doors,
-        // as `countDown` decides it).
-        if let shingle = signShingle(at: place) {
-            touchShingle(shingle, holding: false)
+        // Build 3, the count's step 5: a model at a plot with several offers brings its offer's board (after the town's
+        // doors, as `countDown` decides it).
+        if let model = modelAt(place) {
+            touchModel(model, holding: false)
             return
         }
         // Build 2 review, app-ui-3: Marek's cart stands before the barracks; while his offer is open a touch on it opens
@@ -349,14 +352,12 @@ extension GameModel {
         guard kind == .world, overlay == nil, stageChange == nil else { return }
         // Build 3, the count (PAY.md): a thing that is bought brings its board, or sets a coin on it.
         if countTap(thing) { return }
-        // The review of step 4: a plot with several offers is bought by its shingles. A touch on the plot itself (or
-        // its element while its signpost is away) walks him there with no errand and no slip promising a build, and
-        // the shingles swing as the hint.
-        if case .build(let plot) = thing.act, signPlot(plot) {
+        // The review of step 4, step 5: a plot with several offers is bought by its models. A touch on the plot itself
+        // walks him to the row's spot with no errand and no slip promising a build; there the models hop (P4).
+        if case .build(let plot) = thing.act, modelPlot(plot) {
             cancelErrand()
             feedback.play(.touched)
-            touch.signSince[plot] = clock.elapsed
-            walk(to: groundX(thing.standX), run: false)
+            walk(to: groundX(modelRow(for: thing)?.spot ?? thing.standX), run: false)
             return
         }
         feedback.play(.touched)
@@ -383,10 +384,10 @@ extension GameModel {
 
     /// VoiceOver or Switch Control activated a thing's element: the same as a tap on it.
     func touchSpot(_ id: String) {
-        // Build 3, the count's step 4: a shingle's element pays its offer in one step (PAY.md section 2).
-        if id.hasPrefix("touch-shingle-"),
-           let shingle = touch.signs.flatMap(\.shingles).first(where: { $0.id == id }) {
-            touchShingle(shingle, holding: false, atOnce: true)
+        // Build 3, the count's step 5: a model's element pays its offer in one step (PAY.md section 2).
+        if id.hasPrefix("touch-model-"),
+           let model = touch.models.flatMap(\.models).first(where: { $0.id == id }) {
+            touchModel(model, holding: false, atOnce: true)
             return
         }
         guard let thing = touch.things.first(where: { $0.id == id }) else { return }
@@ -475,8 +476,8 @@ extension GameModel {
             touch.errand = nil
         case .build(let plot):
             // Build 3, the count's step 4: a plot never opens the old card. One offer is bought by its count, several
-            // by their shingles; what reaches here is a free gift (ordered at once, with the seal) or a plot whose
-            // shingles were not touched (nothing new happens).
+            // by their models (step 5); what reaches here is a free gift (ordered at once, with the seal) or a plot
+            // whose models were not touched (nothing new happens).
             touch.errand = nil
             orderGift(plot)
         case .light:
@@ -756,15 +757,18 @@ extension GameModel {
            TouchRules.clearOfEdges(thing.markX, viewLeft: framing.viewLeft, viewRight: framing.viewRight) {
             marked = TouchRules.withErrand(marked, thing)
         }
+        // Step 5 (P4): at a plot with several offers the builder's models replace the site's mark, its pool, its rim and
+        // its footing.
+        let modelled = Set(touch.models.map { "touch-plot-\($0.plot)" })
+        marked.removeAll { modelled.contains($0.id) }
         var marks = TouchMarks.marks(marked, pressed: touch.pressed ?? heldMark(marked))
         // High 2: a slip that names a thing takes its mark's place (the errand's slip; inside, the horn's at the
         // door).
         for index in marks.indices {
             let id = marked[index].id
             if touch.errand?.id == id && touch.errand?.stage == stage { marks[index].hidden = true }
-            // Build 3: the board stands there; the mark gives way to it. Step 4: so does it to a signpost.
+            // Build 3: the board stands there; the mark gives way to it.
             if touch.count?.thing == id { marks[index].hidden = true }
-            if touch.signs.contains(where: { "touch-plot-\($0.plot)" == id }) { marks[index].hidden = true }
             if stage == .hall && hornSlip != nil && marked[index].kind == .door { marks[index].hidden = true }
         }
         return marks
@@ -872,9 +876,9 @@ extension GameModel {
             let screenScale = touch.viewWidth > 0 ? framing.physicalWidth / touch.viewWidth : 3
             let minimum = TouchRules.minimumSide(pointsPerPixel: TouchRules.pointsPerPixel(scale: framing.scale,
                                                                                            screenScale: screenScale))
-            // Build 3, the count's step 4: a plot with a signpost is touched by its shingles, each its own element.
-            let signed = Set(touch.signs.map { "touch-plot-\($0.plot)" })
-            spots += signSpots(framing: framing)
+            // Build 3, the count's step 5: a plot with models is touched by its models, each its own element.
+            let signed = Set(touch.models.map { "touch-plot-\($0.plot)" })
+            spots += modelSpots(framing: framing)
             for thing in touch.things.sorted(by: { $0.x < $1.x }) where !signed.contains(thing.id) {
                 let area = TouchRules.area(thing, minimum: minimum)
                 let left = framing.deviceX(stageX: area.left)
@@ -889,7 +893,7 @@ extension GameModel {
                 spots.append(TouchSpot(id: thing.id, label: touchLabel(thing, state: state), value: value,
                                        rect: rect))
             }
-            // Left to right (step 4: the shingles among the things).
+            // Left to right (step 5: the models among the things).
             spots.sort { $0.rect.minX < $1.rect.minX }
             // Stage-3-interface: the lord himself, whose touch raises the lantern moment (HUD.md section 2).
             if let lord = lordSpot(framing: framing, minimum: minimum) {

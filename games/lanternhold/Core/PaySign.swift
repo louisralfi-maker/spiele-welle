@@ -1,79 +1,166 @@
 import Foundation
 
-// The count's step 4 (build 3, lane 1; the director's notes of 16.11., 09:34, part B; b3-wave1.md question 1): a plot
-// with more than one offer carries a signpost in world pixels instead of a card: a short wooden post with an iron bar,
-// and one small wooden shingle per offer hung from the bar on two links. Each shingle shows the building's silhouette
-// and under it one coin and the price in the purse's face; no words. A touch on a shingle brings that offer's tally
-// board (`GameModel+Sign.swift`). This file is the pure part: which plots carry one, and where the shingles and their
-// catch areas stand.
+// The count's step 5 (build 3, lane 1; the director's notes of 16.11., 12:44, P1 to P7; b3-wave1.md question 1): at a
+// plot with more than one offer nothing but the things themselves stands: one wooden model per offer on a sawhorse
+// trestle, on the side of the lord's spot away from his pay board. No figure, no coin, no sign: the models are the offer,
+// the board's hollows are the price. A touch on a model brings that offer's board (`GameModel+Sign.swift`). This file is
+// the pure part: which plots carry models, where the row stands (and where the lord stands to pay there), and where a
+// finger catches each model. (The file keeps its step 4 name, so the join's lists stay short.)
 
-/// One shingle of a signpost: the offer it stands for, where it hangs and where a finger catches it.
-struct PayShingle: Sendable, Equatable {
+/// One model of a plot's row: the offer it stands for, its trestle's place and where a finger catches it.
+struct PayModel: Sendable, Equatable {
     var plot: Int
     var item: BuildItem
     var price: Int
-    /// Its left edge and its top (the links' top), game px of the world strip; the top over the walk line.
+    /// Its trestle's left edge (the cell's, `PayModelRow.cell` wide), game px of the world strip.
     var left: Double
-    var top: Double
-    /// Where a finger catches it: at least the smallest touch target both ways, never over another shingle's.
+    /// Where a finger catches it: its trestle and its model together, grown to the smallest touch target, never over a
+    /// neighbour's.
     var area: TouchArea
 
-    /// The accessibility identifier, stable for the UI tests: `touch-shingle-<plot>-<item>`.
-    var id: String { "touch-shingle-\(plot)-\(item.rawValue)" }
+    /// The accessibility identifier, stable for the UI tests: `touch-model-<plot>-<item>`.
+    var id: String { "touch-model-\(plot)-\(item.rawValue)" }
     /// Its middle (game px of the world strip).
-    var middle: Double { left + Double(PaySignpost.shingleWidth) / 2 }
+    var middle: Double { left + Double(PayModelRow.cell) / 2 }
+    /// What is drawn there, the trestle and the model on it (`lift`: the model raised as it is chosen): its left and
+    /// right edges and its top over the walk line (its foot is the walk line).
+    func drawn(lift: Double = 0) -> (left: Double, right: Double, top: Double) {
+        (left, left + Double(PayModelRow.cell), PayModelRow.modelLift + Double(PayModelRow.cellHeight) + lift)
+    }
 }
 
-/// Where a plot's signpost stands, worked out once for the realm as it stands (`key`): its post's x and the sides of
-/// the post in the order they cover least of the neighbours' touch areas (the review of step 4: not on every frame).
-struct PaySignChoice: Sendable, Equatable {
-    var key: String
-    var x: Double
-    var sides: [PaySignpost.Side]
-}
+/// A door on the walk line as a row of models sees it: its whole span (frame and leaves) and its opening, which nothing
+/// may stand in front of (P3: a frame or a leaf may be covered by `PayModelRow.doorCover` px at most).
+struct PayDoor: Sendable, Equatable {
+    var span: ClosedRange<Double>
+    var opening: ClosedRange<Double>
 
-/// A plot's signpost: its post and bar and its shingles.
-struct PaySignpost: Sendable, Equatable {
-    /// Which side of the post the row of shingles hangs (both sides, all to the left, all to the right).
-    enum Side: Sendable, Equatable, CaseIterable {
-        case centre, left, right
+    /// A door whose leaves stand `leaf` px inside each end of `span` (the gatehouse's passage: 6 px each side).
+    static func passage(_ span: ClosedRange<Double>, leaf: Double) -> PayDoor {
+        PayDoor(span: span, opening: (span.lowerBound + leaf)...max(span.lowerBound + leaf, span.upperBound - leaf))
     }
 
+    /// A door that is all opening (a cottage's door, the great hall's).
+    static func wide(_ span: ClosedRange<Double>) -> PayDoor {
+        PayDoor(span: span, opening: span)
+    }
+}
+
+/// Where a plot's row stands, worked out once for the realm as it stands (`key`), not on every frame.
+struct PayModelChoice: Sendable, Equatable {
+    var key: String
+    var row: PayModelRow
+}
+
+/// A plot's row of models, and where the lord stands to pay there.
+struct PayModelRow: Sendable, Equatable {
     var plot: Int
-    /// The post's left edge (a 6 px post tile), and the bar's left edge and width (game px of the world strip).
-    var postLeft: Int
-    var barLeft: Int
-    var barWidth: Int
-    var shingles: [PayShingle]
+    /// Where the lord stands to pay at this plot (game px of the world strip): the plot's standing place, moved `shift`
+    /// px toward the board's side when the row did not fit there (P3: 14 px at most).
+    var spot: Double
+    /// The side of his spot the board stands on (1 right, -1 left); the models stand on the other side.
+    var side: Double
+    var shift: Double
+    var models: [PayModel]
+    /// False when no place within the shift kept the row off every door's opening and the boards off every door: the
+    /// row then stands unforced at the plot's own place (the report says so; never at the main gate, a test pins it).
+    var fits = true
 
-    /// A shingle's cell in `paySign` (tools/hudart.py): 29 wide, its two links in the top 3 rows, the board under
-    /// them; the silhouette in rows 5 to 13, the coin and the price in rows 15 to 23.
-    static let shingleWidth = 29
-    static let shingleHeight = 26
-    /// The wood between two shingles, and the shingles' feet over the walk line.
+    /// A cell of `paySign` (tools/hudart.py): 24 wide, 13 high; the trestle fills its width and its bottom 10 rows.
+    static let cell = 24
+    static let cellHeight = 13
+    static let trestleHeight = 10
+    /// The wood between two trestles, and the row's distance from the lord's rect (his 16 px frame, 8 each side).
     static let gap = 3
-    static let foot = 6.0
-    /// The bar's rows over the links (its tiles keep it in the cell's bottom 4 rows).
-    static let barRows = 4
-    /// The price row's top under the shingle's top (row 15), and the silhouette's frames.
-    static let priceRow = 15
+    static let lordGap = 4.0
+    static let lordHalf = 8.0
+    /// The model's foot over the walk line (on the trestle's beam), and its rise as it is chosen (P4). At rest a
+    /// model's top stands at most at the lord's shoulder (the top of his shoulders: row 22 of his frame, so this edge).
+    static let modelLift = 10.0
+    static let chosenLift = 2.0
+    static let shoulder = 23.0
+    /// P3: the most the lord's spot moves toward the board's side to make room, and the most of a door's frame or leaf
+    /// the row may cover.
+    static let maxShift = 14
+    static let doorCover = 6.0
+    /// P5: a catch area at least this tall (24 px is 48 pt on a 3x phone), from `TouchRules.footRoom` under the walk line.
+    static let catchHeight = 24.0
 
-    /// The bar's top over the walk line.
-    static var barTop: Double { foot + Double(shingleHeight + barRows) }
-    /// The shingles' top (their links' top) over the walk line.
-    static var shingleTop: Double { foot + Double(shingleHeight) }
+    /// P4: the other models while one is chosen fall to this share of their value; the arrival hop (each model 2 px for
+    /// 0.15 s, 0.12 s after the one before), Reduce Motion's still rim instead (0.6 s); the glint over each model about
+    /// every 4 s (each step 0.06 s; the models of a row 2 s apart, the rows by their plot); the fade as the plot is built.
+    static let dimmed: Float = 0.6
+    static let hopRise = 2.0
+    static let hopSeconds = 0.15
+    static let hopStagger = 0.12
+    static let rimSeconds = 0.6
+    static let glintEvery = 4.0
+    static let glintStepSeconds = 0.06
+    static let fadeSeconds = 0.3
 
-    /// The shingle's frame in `paySign` for an offer: the ballista, the catapult, any other building.
+    /// The arrival hop's rise of model `index`, `age` seconds after the lord reached the spot: up and down by
+    /// `hopRise` in whole pixels over `hopSeconds`, each model `hopStagger` after the one before; none under Reduce
+    /// Motion.
+    static func hop(age: Double, index: Int, reduceMotion: Bool) -> Double {
+        guard !reduceMotion else { return 0 }
+        let t = age - Double(index) * hopStagger
+        guard t >= 0, t < hopSeconds else { return 0 }
+        return (hopRise * sin(Double.pi * t / hopSeconds)).rounded()
+    }
+
+    /// The glint's step on model `index` of `plot`'s row at the clock's second `time` (nil: no glint now): it passes
+    /// in `glintSteps` steps once every `glintEvery` seconds, each model in its own phase; under Reduce Motion it does
+    /// not travel (one still step for the same moment).
+    static func glint(time: Double, plot: Int, index: Int, reduceMotion: Bool) -> Int? {
+        guard time.isFinite else { return nil }
+        let phase = Double(plot) * 0.7 + Double(index) * glintEvery / 2
+        var cycle = (time + phase).truncatingRemainder(dividingBy: glintEvery)
+        if cycle < 0 { cycle += glintEvery }
+        let span = glintStepSeconds * Double(glintSteps)
+        guard cycle < span else { return nil }
+        return reduceMotion ? glintSteps / 2 : min(glintSteps - 1, Int(cycle / glintStepSeconds))
+    }
+
+    /// The frames of `paySign`: the trestle, each model, its warm rim, and its glint's steps.
+    static let trestleFrame = 0
+    static let glintSteps = 4
     static func frame(for item: BuildItem) -> Int {
         switch item {
-        case .ballista: return 0
-        case .catapult: return 1
-        default: return 2
+        case .ballista: return 1
+        case .catapult: return 2
+        default: return 3
         }
     }
+    static func rimFrame(for item: BuildItem) -> Int { frame(for: item) + 3 }
+    static func glintFrame(for item: BuildItem, step: Int) -> Int {
+        7 + (frame(for: item) - 1) * glintSteps + min(max(0, step), glintSteps - 1)
+    }
 
-    /// The plots that carry a signpost now, with their offers in the card's order: unlocked, empty, no job, more than
-    /// one offer (a plot with one offer goes straight to its board, as before).
+    /// The row's width for `count` models.
+    static func width(_ count: Int) -> Double {
+        Double(count * cell + max(0, count - 1) * gap)
+    }
+
+    /// The row's left and right edges (game px of the world strip).
+    var left: Double { models.first?.left ?? spot }
+    var right: Double { (models.last?.left ?? spot) + Double(PayModelRow.cell) }
+
+    /// The lord's rect at his spot (left and right edges).
+    var lordSpan: ClosedRange<Double> { (spot - PayModelRow.lordHalf)...(spot + PayModelRow.lordHalf) }
+
+    /// Where the board for a layout `width` px wide stands when he pays here, `standGap` px from his spot
+    /// (`GameModel.countStandGap`): its left and right edges.
+    func boardSpan(width: Double, standGap: Double) -> ClosedRange<Double> {
+        side > 0 ? (spot + standGap)...(spot + standGap + width) : (spot - standGap - width)...(spot - standGap)
+    }
+
+    /// The model whose catch area holds (`x`, `lift`), nil for none.
+    func model(x: Double, lift: Double) -> PayModel? {
+        models.first { $0.area.contains(x: x, lift: lift) }
+    }
+
+    /// The plots that carry models now, with their offers in the card's order: unlocked, empty, no job, more than one
+    /// offer (a plot with one offer goes straight to its board).
     static func plots(_ s: GameState, balance: Balance) -> [(plot: Int, offers: [BuildOption])] {
         var list: [(plot: Int, offers: [BuildOption])] = []
         for plot in Realm.plots.indices where plot < s.plots.count {
@@ -84,64 +171,91 @@ struct PaySignpost: Sendable, Equatable {
         return list
     }
 
-    /// The signpost of `plot` whose post stands at `x` (game px of the world strip), its shingles for `offers` hung
-    /// on `side` of it, each catch area at least `minimum` px both ways (the smallest touch target), the areas side by
-    /// side without overlap, the whole kept inside `bounds` (the world strip, so the screen at either end shows it all).
-    static func make(plot: Int, x: Double, offers: [BuildOption], side: Side = .centre, minimum: Double,
-                     bounds: ClosedRange<Double> = 0...Realm.worldWidth) -> PaySignpost {
-        let count = offers.count
-        let width = Double(shingleWidth)
-        let pitch = max(width + Double(gap), minimum)
-        let areaWidth = max(width, minimum)
-        let row = pitch * Double(max(0, count - 1)) + areaWidth
-        var middle: Double
-        switch side {
-        case .centre: middle = x
-        case .left: middle = x - 3 - row / 2
-        case .right: middle = x + 3 + row / 2
-        }
-        // Inside the bounds, the post going with the row.
-        var shift = 0.0
-        let rowLeft = middle - row / 2
-        let rowRight = middle + row / 2
-        if rowLeft < bounds.lowerBound { shift = bounds.lowerBound - rowLeft }
-        if rowRight > bounds.upperBound { shift = bounds.upperBound - rowRight }
-        middle += shift
-        let post = x + shift
-        let areaHeight = max(Double(shingleHeight), minimum)
-        let shingleMiddle = foot + Double(shingleHeight) / 2
-        let areaBottom = max(-TouchRules.footRoom, shingleMiddle - areaHeight / 2)
-        var shingles: [PayShingle] = []
+    /// The row of `offers` at `plot` for the lord standing at `spot` with his board on `side`: the trestles `gap` apart,
+    /// the nearest `lordGap` from his rect; each catch area its trestle and model, at least `minimum` wide and the
+    /// taller of `catchHeight` and `minimum`, cut at the middle of the gap where two would overlap.
+    static func make(plot: Int, spot: Double, side: Double, shift: Double = 0, offers: [BuildOption],
+                     minimum: Double) -> PayModelRow {
+        let way: Double = side < 0 ? -1 : 1
+        let near = spot - way * (lordHalf + lordGap)
+        let rowLeft = way > 0 ? near - width(offers.count) : near
+        let pitch = Double(cell + gap)
+        let wide = max(Double(cell), minimum)
+        let bottom = -TouchRules.footRoom
+        let top = max(modelLift + Double(cellHeight) + chosenLift, bottom + max(catchHeight, minimum))
+        var models: [PayModel] = []
         for (index, offer) in offers.enumerated() {
-            let centre = middle - row / 2 + areaWidth / 2 + pitch * Double(index)
-            let left = (centre - width / 2).rounded(.down)
-            let area = TouchArea(left: centre - areaWidth / 2, right: centre + areaWidth / 2, bottom: areaBottom,
-                                 top: areaBottom + areaHeight)
-            shingles.append(PayShingle(plot: plot, item: offer.item, price: offer.price, left: left,
-                                       top: shingleTop, area: area))
+            let left = rowLeft + pitch * Double(index)
+            let middle = left + Double(cell) / 2
+            var areaLeft = middle - wide / 2
+            var areaRight = middle + wide / 2
+            if index > 0 { areaLeft = max(areaLeft, left - Double(gap) / 2) }
+            if index < offers.count - 1 { areaRight = min(areaRight, left + Double(cell) + Double(gap) / 2) }
+            models.append(PayModel(plot: plot, item: offer.item, price: offer.price, left: left,
+                                   area: TouchArea(left: areaLeft, right: areaRight, bottom: bottom, top: top)))
         }
-        let postLeft = Int((post - 3).rounded(.down))
-        let first = Int(shingles.first?.left ?? post)
-        let last = Int(shingles.last?.left ?? post) + shingleWidth
-        let barLeft = min(first, postLeft) - 1
-        let barRight = max(last, postLeft + PayBoardLayout.tile) + 1
-        return PaySignpost(plot: plot, postLeft: postLeft, barLeft: barLeft, barWidth: barRight - barLeft,
-                           shingles: shingles)
+        return PayModelRow(plot: plot, spot: spot, side: way, shift: shift, models: models)
     }
 
-    /// The shingle whose catch area holds (`x`, `lift`), nil for none.
-    func shingle(x: Double, lift: Double) -> PayShingle? {
-        shingles.first { $0.area.contains(x: x, lift: lift) }
+    /// True when the row keeps off every door's opening and covers at most `doorCover` px of its frame or leaves.
+    func clear(of doors: [PayDoor]) -> Bool {
+        let left = self.left
+        let right = self.right
+        for door in doors {
+            if left < door.opening.upperBound && right > door.opening.lowerBound { return false }
+            let cover = min(right, door.span.upperBound) - max(left, door.span.lowerBound)
+            if cover > PayModelRow.doorCover + 1e-9 { return false }
+        }
+        return true
     }
 
-    /// The chosen shingle's feet over the top of the board whose post carries it (clear of the post's iron plate).
-    static let overBoard = 7.0
-
-    /// Step 4: the chosen shingle on the board's post (the post's left edge `postLeft`, the board's top `boardTop` over
-    /// the walk line): centred on the post, its feet clear over the post's iron plate; its left edge and top (game px
-    /// of the world strip; top over the walk line). Its bar stands `barRows` over that top.
-    static func onBoard(postLeft: Int, boardTop: Double) -> (left: Double, top: Double) {
-        let middle = Double(postLeft) + 3
-        return ((middle - Double(shingleWidth) / 2).rounded(.down), boardTop + overBoard + Double(shingleHeight))
+    /// The row's place at `plot` (P3): the lord at the plot's standing place `base`, his board for every offer on one
+    /// side (`boardWidths`, `standGap` from him) and the models on the other; when that does not fit, his spot moved
+    /// toward the board's side a pixel at a time, 14 px at most. A place fits when the row keeps off every door's
+    /// opening (a frame or a leaf covered by 6 px at most), every board stands clear of every door's whole span (H1),
+    /// and everything stays inside `bounds`. Of the sides that fit (each at its smallest move), the one whose row and
+    /// boards cover least of `others` (the other things' spans) wins; a tie keeps the board on the right. When no place
+    /// fits, the row stands unforced at `base` with its board on the right (`fits` false).
+    static func place(plot: Int, base: Double, offers: [BuildOption], minimum: Double, doors: [PayDoor],
+                      others: [ClosedRange<Double>], boardWidths: [Double], standGap: Double,
+                      bounds: ClosedRange<Double>) -> PayModelRow {
+        func cover(_ span: ClosedRange<Double>) -> Double {
+            var total = 0.0
+            for other in others {
+                total += max(0, min(span.upperBound, other.upperBound) - max(span.lowerBound, other.lowerBound))
+            }
+            return total
+        }
+        func boardFits(_ board: ClosedRange<Double>) -> Bool {
+            guard board.lowerBound >= bounds.lowerBound, board.upperBound <= bounds.upperBound else { return false }
+            return !doors.contains { board.lowerBound < $0.span.upperBound && board.upperBound > $0.span.lowerBound }
+        }
+        var best: (row: PayModelRow, cost: Double)?
+        for side in [1.0, -1.0] {
+            for step in 0...maxShift {
+                let row = make(plot: plot, spot: base + side * Double(step), side: side, shift: Double(step),
+                               offers: offers, minimum: minimum)
+                guard row.left >= bounds.lowerBound, row.right <= bounds.upperBound, row.clear(of: doors) else {
+                    continue
+                }
+                let boards = boardWidths.map { row.boardSpan(width: $0, standGap: standGap) }
+                guard boards.allSatisfy(boardFits) else { continue }
+                var cost = cover(row.left...row.right)
+                for board in boards { cost += cover(board) }
+                if best == nil || cost < (best?.cost ?? 0) - 1e-9 { best = (row: row, cost: cost) }
+                break
+            }
+        }
+        if let best { return best.row }
+        var unforced = make(plot: plot, spot: base, side: 1, offers: offers, minimum: minimum)
+        unforced.fits = false
+        return unforced
     }
+}
+
+/// A row fading out as its plot was built (P4: 0.3 s), with the model that was chosen there.
+struct PayModelFade: Sendable, Equatable {
+    var row: PayModelRow
+    var chosen: BuildItem?
+    var since: Double
 }

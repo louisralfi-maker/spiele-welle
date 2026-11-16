@@ -180,8 +180,8 @@ final class TouchUITests: XCTestCase {
         attach(XCUIScreen.main.screenshot(), "150-touch-front-\(language)")
 
         // A touch on a site some way off. Build 3, the count's step 4: no card from a plot any more; a site with one
-        // offer brings its tally board and he walks to stand beside it (a plot with several offers carries a signpost:
-        // CountUITests' shingles).
+        // offer brings its tally board and he walks to stand beside it (a plot with several offers carries the builder's
+        // models: CountUITests' testTheModels).
         let site = ["touch-plot-1", "touch-plot-7", "touch-plot-6"].lazy
             .compactMap { self.waitForThing(app, $0, timeout: 2) }.first
         guard let site else {

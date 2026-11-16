@@ -133,11 +133,11 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWPressed <id>|nearest`: that thing's mark held pressed while no finger is down (the pressed frame's
     /// screenshot).
     var pressed: String?
-    /// `-GWCountFreeze <share>|full|sealed|back|fly:<coin>:<share>[,<share>...]|glint:<coin>|lit:<s>` (build 3, the
-    /// count; Debug builds only): an open count stands still at that moment, so a screenshot holds it (`PayFreeze`): a
-    /// share of the coins on the board, the last coin landed, the seal a quarter second old, the coins half way back
+    /// `-GWCountFreeze <share>|full|sealed|back|fly:<coin>:<share>[,<share>...]|glint:<coin>|lit:<s>|hop:<s>` (build 3,
+    /// the count; Debug builds only): an open count stands still at that moment, so a screenshot holds it (`PayFreeze`):
+    /// a share of the coins on the board, the last coin landed, the seal a quarter second old, the coins half way back
     /// after a let go, a coin at a share of its throw (step 4: several shares, held in turn from one hold), a coin on
-    /// its glint, the site lantern at an age.
+    /// its glint, the site lantern at an age; step 5: the builder's models' arrival hop at an age.
     var countFreeze: PayFreeze?
 
     /// `-GWGloomFog` values.

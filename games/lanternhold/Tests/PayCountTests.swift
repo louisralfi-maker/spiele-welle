@@ -639,7 +639,7 @@ final class PayCountTests: XCTestCase {
         let engine = Realm.lines[0].engine
         if let engineSite = things.first(where: { $0.id == "touch-plot-\(engine)" }) {
             XCTAssertNil(PayOffers.offer(engineSite, state: s, balance: .standard),
-                         "a plot with several offers is bought by its shingles")
+                         "a plot with several offers is bought by its models")
         }
         let archer = try XCTUnwrap(things.first { $0.id == "touch-recruit-archer" })
         let guardsman = try XCTUnwrap(things.first { $0.id == "touch-recruit-guard" })

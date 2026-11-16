@@ -11,11 +11,12 @@ import XCTest
 /// in the air at three points of its throw and landed (176a to 176d), the same for a tap's first coin (177a to 177d),
 /// the coins going home after a let go with the purse mid-count (174), the guard's board of mixed coins beside the
 /// barracks (175), a board of bars for the great gate (178), the lit lantern at night with its halo (179), the board's
-/// dip under a bar (180a/b) and a far coin's throw on a three-row board (181a to 181c), the glint (188). Step 4, part B:
-/// the signpost over the line-1 engine's empty plot (190), a touch on the ballista's shingle bringing its board with the
-/// shingle on its post (191), the hold that pays it and starts the work (192), the shingles with a poor purse (193) and
-/// at night, unlit and no touch thing (194). English only (the director's notes of 15.11., item 4). Saves
-/// `<nn>-count-<what>-<lang>`.
+/// dip under a bar (180a/b) and a far coin's throw on a three-row board (181a to 181c), the glint (188). Step 5: the
+/// builder's models at the line-1 engine's empty plot (190), a touch on the ballista's model bringing its board on the
+/// far side with the ballista chosen (191), the hold on the chosen model that pays it and starts the work (192), the
+/// catapult's board with a poor purse (193), the models at night, unlit and no touch thing (194), the arrival hop as a
+/// strip of three (195a to 195c), its Reduce Motion form (196), the ballista chosen with a coin at its peak (197).
+/// English only (the director's notes of 15.11., item 4). Saves `<nn>-count-<what>-<lang>`.
 @MainActor
 final class CountUITests: XCTestCase {
     override func setUp() async throws {
@@ -276,10 +277,13 @@ final class CountUITests: XCTestCase {
         app.terminate()
     }
 
-    /// Step 4, part B: day 3 (seed 2) at 10:00 at the line-1 engine's empty plot, its two offers on a signpost. A touch
-    /// on the ballista's shingle brings its tally board (seven hollows for 70) and the shingle onto the board's post
-    /// while the rest of the signpost goes; a hold pays it and the work starts (its lantern burns while it runs).
-    func testTheSignpost() {
+    /// Step 5 (the director's notes of 16.11., 12:44, P9): day 3 (seed 2) at 10:00 at the line-1 engine's empty plot (the
+    /// main gate's), the lord at its spot. Its two offers stand as the builder's models on their trestles on the gate's
+    /// side of him, no figure, coin or sign (190, also the frame for Louis). A touch on the ballista's model brings its
+    /// tally board on the far side (seven hollows for 70), the ballista lifted with its warm rim, the catapult dimmed
+    /// (191); a hold on the chosen model pays it and the work starts while the models fade (192). With a poor purse the
+    /// catapult's board still comes (193). At night they stand unlit and are no touch thing (194).
+    func testTheModels() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let base = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWSeed", "2",
                     "-GWStage", "world", "-GWCameraX", "1440"]
@@ -287,64 +291,120 @@ final class CountUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = day + ["-GWGold", "200"]
         app.launch()
-        guard waitUntilReady(app, name: "count-sign") else { return }
+        guard waitUntilReady(app, name: "count-models") else { return }
         pause(0.8)
-        XCTAssertTrue(waitForField(app, "signs:4:ballista,catapult", timeout: 4), "the engine's plot carries its signpost")
-        attach(XCUIScreen.main.screenshot(), "190-count-signpost-day-\(language)")
-        guard let shingle = waitForThing(app, "touch-shingle-4-ballista", timeout: 4) else {
-            XCTFail("the ballista's shingle is no element")
+        XCTAssertTrue(waitForField(app, "models:4:ballista,catapult", timeout: 4), "the engine's plot carries its models")
+        attach(XCUIScreen.main.screenshot(), "190-count-models-day-\(language)")
+        guard let ballista = waitForThing(app, "touch-model-4-ballista", timeout: 4) else {
+            XCTFail("the ballista's model is no element")
             app.terminate()
             return
         }
-        checkTarget(shingle, "the ballista's shingle")
-        checkTarget(element(app, "touch-shingle-4-catapult"), "the catapult's shingle")
-        XCTAssertEqual(shingle.label, "Build: Ballista", "VoiceOver names it")
-        XCTAssertTrue(shingle.value.map { "\($0)" }?.contains("70") == true, "and its price")
-        XCTAssertFalse(element(app, "touch-plot-4").exists, "the plot gives way to its shingles")
-        touchThing(shingle)
+        checkTarget(ballista, "the ballista's model")
+        checkTarget(element(app, "touch-model-4-catapult"), "the catapult's model")
+        XCTAssertGreaterThanOrEqual(ballista.frame.height, 47.5, "48 pt tall")
+        XCTAssertEqual(ballista.label, "Build: Ballista", "VoiceOver names it")
+        XCTAssertTrue(ballista.value.map { "\($0)" }?.contains("70") == true, "and its price")
+        XCTAssertFalse(element(app, "touch-plot-4").exists, "the plot gives way to its models")
+        touchThing(ballista)
         XCTAssertTrue(waitForField(app, "count:touch-plot-4:0/7", timeout: 3), "the ballista's board, seven hollows")
         XCTAssertFalse(element(app, "build-card").exists, "no card")
         waitForStill(app)
         XCTAssertTrue(waitForField(app, ":there", timeout: 6), "he stands beside the board")
-        let signs = sceneField(app, "signs:") ?? ""
-        XCTAssertFalse(signs.split(separator: ";").contains { $0.hasPrefix("4:") },
-                       "the signpost goes while the board stands (\(signs))")
+        XCTAssertTrue(waitForField(app, "models:4:ballista,catapult=ballista", timeout: 2), "the ballista chosen")
         pause(0.3)
-        attach(XCUIScreen.main.screenshot(), "191-count-shingle-on-post-\(language)")
-        if let plot = waitForThing(app, "touch-plot-4", timeout: 3) {
-            plot.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 2.0)
+        attach(XCUIScreen.main.screenshot(), "191-count-model-chosen-\(language)")
+        if let chosen = waitForThing(app, "touch-model-4-ballista", timeout: 3) {
+            chosen.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 2.0)
         } else {
-            XCTFail("the plot is no element while its board stands")
+            XCTFail("the chosen model is no element while its board stands")
         }
         XCTAssertTrue(waitForField(app, "last:paid:touch-plot-4", timeout: 4), "the hold paid the ballista")
         XCTAssertTrue(waitForSceneGold(app, 130, timeout: 4), "70 gold, once")
         XCTAssertTrue(waitForField(app, "lanterns:1", timeout: 3), "the work starts: its lantern burns while it runs")
         pause(1.2)
-        attach(XCUIScreen.main.screenshot(), "192-count-shingle-paid-\(language)")
+        XCTAssertFalse((sceneField(app, "models:") ?? "").split(separator: ";").contains { $0.hasPrefix("4:") },
+                       "built: the models have gone")
+        attach(XCUIScreen.main.screenshot(), "192-count-model-paid-\(language)")
         app.terminate()
 
-        // A poor purse: the catapult's coin is a dark hollow (110 over 80), the ballista's gold.
+        // A poor purse: nothing at the plot says a price; a touch on the catapult (110 over 80) still brings its board.
         let poor = XCUIApplication()
         poor.launchArguments = day + ["-GWGold", "80"]
         poor.launch()
-        if waitUntilReady(poor, name: "count-sign-poor") {
+        if waitUntilReady(poor, name: "count-models-poor") {
             pause(0.8)
-            XCTAssertTrue(waitForField(poor, "signs:4:", timeout: 4), "the signpost stands")
-            attach(XCUIScreen.main.screenshot(), "193-count-signpost-poor-\(language)")
+            if let catapult = waitForThing(poor, "touch-model-4-catapult", timeout: 4) {
+                touchThing(catapult)
+                XCTAssertTrue(waitForField(poor, "count:touch-plot-4:0/", timeout: 3), "the catapult's board comes")
+                XCTAssertTrue(waitForField(poor, "=catapult", timeout: 2), "the catapult chosen")
+                waitForStill(poor)
+                pause(0.3)
+                attach(XCUIScreen.main.screenshot(), "193-count-model-poor-\(language)")
+            } else {
+                XCTFail("the catapult's model is no element")
+            }
         }
         poor.terminate()
 
-        // At night it hangs unlit and is no touch thing.
+        // At night they stand unlit and are no touch thing.
         let night = XCUIApplication()
         night.launchArguments = base + ["-GWNight", "3", "-GWHour", "22", "-GWGold", "200"]
         night.launch()
-        if waitUntilReady(night, name: "count-sign-night") {
+        if waitUntilReady(night, name: "count-models-night") {
             pause(0.8)
-            XCTAssertTrue(waitForField(night, "signs:4:", timeout: 4), "it still hangs there at night")
-            XCTAssertFalse(element(night, "touch-shingle-4-ballista").exists, "no touch thing at night")
-            attach(XCUIScreen.main.screenshot(), "194-count-signpost-night-\(language)")
+            XCTAssertTrue(waitForField(night, "models:4:", timeout: 4), "they still stand there at night")
+            XCTAssertFalse(element(night, "touch-model-4-ballista").exists, "no touch thing at night")
+            attach(XCUIScreen.main.screenshot(), "194-count-models-night-\(language)")
         }
         night.terminate()
+    }
+
+    /// Step 5 (P9): the pictures held still. The arrival hop as a strip of three (`-GWCountFreeze hop:<age>`: the lord
+    /// stands at the spot from the start, so the hop begins on the first frame and is held there): the ballista at 1 px,
+    /// at its top, the catapult at its top (195a to 195c); Reduce Motion's form, no hop and the still warm rim (196); the
+    /// ballista chosen with its board and the third coin at the peak of its throw (197).
+    func testTheModelsPictures() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let base = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWSeed", "2",
+                    "-GWStage", "world", "-GWCameraX", "1440", "-GWDay", "3", "-GWClock", "10", "-GWGold", "200"]
+        for (name, extra) in [("195a-count-models-hop-1", ["-GWCountFreeze", "hop:0.04"]),
+                              ("195b-count-models-hop-2", ["-GWCountFreeze", "hop:0.075"]),
+                              ("195c-count-models-hop-3", ["-GWCountFreeze", "hop:0.195"]),
+                              ("196-count-models-reduce-motion", ["-GWCountFreeze", "hop:0.3", "-GWReduceMotion", "YES"])] {
+            let app = XCUIApplication()
+            app.launchArguments = base + extra
+            app.launch()
+            if waitUntilReady(app, name: name) {
+                pause(0.8)
+                XCTAssertTrue(waitForField(app, "models:4:ballista,catapult", timeout: 4), "\(name): the models stand")
+                attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+            }
+            app.terminate()
+        }
+        let name = "197-count-model-chosen-coin-peak"
+        let app = XCUIApplication()
+        app.launchArguments = base + ["-GWCountFreeze", "fly:2:0.45"]
+        app.launch()
+        guard waitUntilReady(app, name: name) else { return }
+        pause(0.6)
+        guard let ballista = waitForThing(app, "touch-model-4-ballista", timeout: 4) else {
+            XCTFail("\(name): the ballista's model is no element")
+            app.terminate()
+            return
+        }
+        touchThing(ballista)
+        XCTAssertTrue(waitForField(app, "count:touch-plot-4:0/7", timeout: 3), "\(name): the board comes up")
+        waitForStill(app)
+        XCTAssertTrue(waitForField(app, ":there", timeout: 6), "\(name): he stands beside the board")
+        if let chosen = waitForThing(app, "touch-model-4-ballista", timeout: 3) {
+            chosen.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 1.2)
+        }
+        pause(0.5)
+        attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+        note("\(name)-state", sceneField(app, "count:") ?? "?")
+        XCTAssertEqual(sceneGold(app), 200, "\(name): nothing paid in the air")
+        app.terminate()
     }
 
     // MARK: - Helpers

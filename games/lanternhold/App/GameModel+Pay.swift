@@ -8,10 +8,11 @@ struct CountBoard: Sendable, Equatable {
     var stand: Double
     var act: KingTarget
     var layout: PayBoardLayout
-    /// -1: the board stands left of its thing, 1: right of it (the lord stands on its outer side).
+    /// -1: the board stands left of its thing, 1: right of it (the lord stands on its outer side; step 5: at a plot with
+    /// several offers he stands between the models and the board, at the row's spot).
     var side: Double = -1
-    /// Step 4: the shingle chosen on a plot's signpost, hung on this board's post while it stands (nil: none).
-    var shingle: BuildItem? = nil
+    /// Step 5: the model chosen at a plot with several offers (its board's offer; nil: any other board).
+    var model: BuildItem? = nil
 
     /// A board of one plank stands its bottom this high over the walk line, on its post; a board of two or three
     /// planks hangs lower (step 3, the director's call 4: its lowest row about 3 px over the ground line's things, its
@@ -36,12 +37,6 @@ struct CountBoard: Sendable, Equatable {
     /// board's edge it hung over the gate's portcullis). The lantern's post is the board's post.
     var toward: Double { -side }
     var lanternPostLeft: Int { postLeft }
-
-    /// The highest the board reaches with what its post carries (step 4: the chosen shingle and its bar over it).
-    var carryTop: Double {
-        guard shingle != nil else { return top }
-        return PaySignpost.onBoard(postLeft: postLeft, boardTop: top).top + Double(PaySignpost.barRows)
-    }
 }
 
 /// A cue that comes a moment after the seal (the site lantern, then the work's own sound), at the clock's second.
@@ -310,10 +305,10 @@ extension GameModel {
         }
         // A town door is not bought: the lift knocks (`tap(at:)`, the taxes on foot), though the house's area covers it.
         if stage != .hall, townDoor(at: point, in: size) != nil { return false }
-        // Step 4: a shingle of a plot's signpost brings its offer's board and the hold counts from this touch.
-        if let shingle = signShingle(at: place) {
-            touchShingle(shingle, holding: true)
-            return touch.count?.thing == "touch-plot-\(shingle.plot)"
+        // Step 5: a model at a plot with several offers brings its offer's board and the hold counts from this touch.
+        if let model = modelAt(place) {
+            touchModel(model, holding: true)
+            return touch.count?.thing == "touch-plot-\(model.plot)"
         }
         guard let thing = TouchRules.pick(x: place.x, lift: place.lift, things: touch.things,
                                           minimum: place.minimum) else { return false }
@@ -336,13 +331,13 @@ extension GameModel {
     func countBoardThing(_ place: (x: Double, lift: Double, minimum: Double)) -> TouchThing? {
         guard let count = touch.count, count.isOpen, let board = touch.countBoard else { return nil }
         let half = max(Double(board.layout.width) / 2, place.minimum / 2)
-        let top = max(board.top + 14, board.carryTop)
+        let top = board.top + 14
         guard abs(place.x - board.x) <= half, place.lift >= -TouchRules.footRoom, place.lift <= top else { return nil }
         return touch.things.first { $0.id == count.thing }
     }
 
-    /// A press on the open board's thing: the hold.
-    private func pressCount(_ thing: TouchThing) {
+    /// A press on the open board's thing (or its chosen model: step 5): the hold.
+    func pressCount(_ thing: TouchThing) {
         guard var count = touch.count, count.isOpen, count.thing == thing.id else { return }
         count.press()
         touch.count = count
@@ -407,10 +402,11 @@ extension GameModel {
     }
 
     /// The board comes up beside `thing`. Refused at once (the repair cooling down, nobody left to recruit):
-    /// `decline`, no board. Another thing's board lets its coins go home and goes down in its own time. `shingle`: the
-    /// signpost's shingle that brought it (step 4), hung on the board's post while it stands.
+    /// `decline`, no board. Another thing's board lets its coins go home and goes down in its own time. `model`: the
+    /// model that brought it (step 5), chosen while the board stands; at a plot with several offers the board stands on
+    /// the far side of the row's spot (`PayModelRow`), the lord at the spot.
     func startCount(_ thing: TouchThing, _ found: (offer: PayOffer, price: Int), holding: Bool,
-                    shingle: BuildItem? = nil) {
+                    model: BuildItem? = nil) {
         guard kind == .world, stage == .world, overlay == nil, stageChange == nil, lanternMoment == nil,
               let game = driver, game.bot == nil else { return }
         if PayOffers.refused(found.offer, state: game.state, balance: game.balance) {
@@ -442,24 +438,35 @@ extension GameModel {
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
         var layout = PayBoardLayout.make(PayCount.hollows(price: found.price))
-        let place = countBoardPlace(thing, layout: layout)
-        // Step 4 (the director's call 5): the hollows fill from the lord's side, the nearest first.
-        if place.side > 0 { layout = layout.mirrored() }
         let reach = Double(layout.width) / 2 + GameModel.countStandGap
-        var boardX = place.x
-        var stand = groundX(boardX + place.side * reach)
+        let side: Double
+        var boardX: Double
+        var stand: Double
+        if let row = modelRow(for: thing) {
+            // Step 5 (P3, P4): at a plot with several offers the lord stands at the row's spot and the board rises on
+            // its far side, away from the models, whichever model brought it.
+            side = row.side
+            stand = groundX(row.spot)
+            boardX = row.spot + side * reach
+        } else {
+            let place = countBoardPlace(thing, layout: layout)
+            side = place.side
+            boardX = place.x
+            stand = groundX(boardX + side * reach)
+        }
+        // Step 4 (the director's call 5): the hollows fill from the lord's side, the nearest first.
+        if stand > boardX { layout = layout.mirrored() }
         // A repair is ordered within the king's reach of the wall (Sim.inReach, measured from the wall's thing x; round
         // lh-b3c-21: beside the gate he stood 8 px out of reach and the seal was refused). The board steps in toward
         // the wall's jamb until his stand, give or take his arrival, is in reach; he stays on its outer side.
         if thing.kind == .wall, let game = driver {
             let over = abs(stand - thing.x) - (game.balance.kingReach - TouchRules.arrival - 1)
             if over > 0 {
-                boardX -= place.side * over.rounded(.up)
-                stand = groundX(boardX + place.side * reach)
+                boardX -= side * over.rounded(.up)
+                stand = groundX(boardX + side * reach)
             }
         }
-        let board = CountBoard(x: boardX, stand: stand, act: thing.act, layout: layout, side: place.side,
-                               shingle: shingle)
+        let board = CountBoard(x: boardX, stand: stand, act: thing.act, layout: layout, side: side, model: model)
         // A lantern still lit on this post (the last recruit's, 3 s) gives way to the new board and its own unlit
         // lantern (the review of step 2: an unlit lantern was drawn over a lit one whose heart still glowed).
         touch.countLanterns.removeAll {
@@ -510,7 +517,9 @@ extension GameModel {
     }
 
     /// The boxes (x ranges, game px of the world strip) a board keeps clear of: everyone standing there, the doors
-    /// that are things (the great hall's), Marek's cart on his days and the town's doors.
+    /// that are things (the great hall's), Marek's cart on his days and the town's doors; step 5 (the critic's H1 of
+    /// step 4): the gatehouse's passage and the postern's, the other plots that are bought (no board stands over the
+    /// next thing: brazier A's board over brazier B) and the builder's models.
     func countObstacles(_ thing: TouchThing) -> [ClosedRange<Double>] {
         var boxes: [ClosedRange<Double>] = []
         func add(_ a: Double, _ b: Double) {
@@ -518,6 +527,15 @@ extension GameModel {
         }
         for other in touch.things where other.id != thing.id && (other.isPerson || other.kind == .door) {
             add(other.x - other.halfWidth, other.x + other.halfWidth)
+        }
+        for passage in SceneLayout.castlePassages {
+            add(passage.lowerBound, passage.upperBound)
+        }
+        for other in touch.things where other.id != thing.id && !other.isPerson {
+            if case .build(_) = other.act { add(other.x - other.halfWidth, other.x + other.halfWidth) }
+        }
+        for row in touch.models where "touch-plot-\(row.plot)" != thing.id {
+            add(row.left, row.right)
         }
         guard let state = driver?.state else { return boxes }
         for figure in CourtFrames.figures(state: state, catalog: .standard, scene: court, animTime: animationTime)
@@ -577,6 +595,12 @@ extension GameModel {
         touch.countPress = false
         touch.countFirst = false
         touch.countSent = false
+        // Step 5: no model of the realm before it hops or fades on.
+        touch.modelHop = [:]
+        touch.modelHere = []
+        touch.modelShown = [:]
+        touch.modelLastChosen = [:]
+        touch.modelFades = []
     }
 
     /// The `-GWCountFreeze` moment in force now (Debug, the pictures): a one-hold strip's current share (step 4, M-a),
@@ -635,7 +659,7 @@ extension GameModel {
         let right = lordX >= board.x
         let shift = right ? boardRight - (lordX - blockHalf) : (lordX + blockHalf) - boardLeft
         if shift <= blockHalf { return (lordX + (right ? shift : -shift), 0) }
-        let bottom = max(Double(HUDKit.lordHead + 8), board.carryTop + 4)
+        let bottom = max(Double(HUDKit.lordHead + 8), board.top + 4)
         return (lordX, bottom - Double(HUDKit.lordHead + HUDKit.purseAbove))
     }
 
@@ -797,9 +821,8 @@ extension GameModel {
         guard stage == .world else { return }
         let night = Double(AmbientRamp.sample(at: state.hour, look: args.look).torchStrength)
         countLanternsWorld(&layer, framing: framing, night: night)
-        // Step 4: the signposts over the plots with several offers, in front of a site lantern beside them (the
-        // review: a lantern may hang beside a signpost's row) and behind the boards.
-        signWorld(&layer, state: state, framing: framing)
+        // Step 5: the builder's models at the plots with several offers, behind every figure.
+        modelWorld(&layer, state: state, framing: framing, night: night)
         var glows: [EntityGlow] = []
         if let old = touch.countOld, let board = touch.countOldBoard {
             layer.actors += countBoardActors(old, board, framing: framing, glows: &glows)
@@ -929,8 +952,6 @@ extension GameModel {
         // crook of this same post behind the shut board, and catches as the board has gone: `countLanternsWorld`).
         actors += countPostActors(postLeft: board.postLeft, postTop: board.postTop + shift, shift: shift,
                                   alpha: alpha, framing: framing)
-        // Step 4: the shingle chosen on a plot's signpost hangs on this board's post while it stands.
-        actors += signOnBoardActors(count, board, top: board.top + shift, alpha: alpha, framing: framing)
         // The planks (or the lid's), the cap over them and the foot under them.
         func planks(lid: Bool, offset: Double) {
             for row in 0..<layout.rows {
