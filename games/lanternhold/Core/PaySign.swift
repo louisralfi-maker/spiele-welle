@@ -24,6 +24,14 @@ struct PayShingle: Sendable, Equatable {
     var middle: Double { left + Double(PaySignpost.shingleWidth) / 2 }
 }
 
+/// Where a plot's signpost stands, worked out once for the realm as it stands (`key`): its post's x and the sides of
+/// the post in the order they cover least of the neighbours' touch areas (the review of step 4: not on every frame).
+struct PaySignChoice: Sendable, Equatable {
+    var key: String
+    var x: Double
+    var sides: [PaySignpost.Side]
+}
+
 /// A plot's signpost: its post and bar and its shingles.
 struct PaySignpost: Sendable, Equatable {
     /// Which side of the post the row of shingles hangs (both sides, all to the left, all to the right).

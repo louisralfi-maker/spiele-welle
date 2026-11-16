@@ -98,6 +98,9 @@ struct TouchState: Sendable {
     var signs: [PaySignpost] = []
     var signShown: Set<Int> = []
     var signSince: [Int: Double] = [:]
+    /// The review of step 4: each signpost's place (its post's x and its sides by least cover), worked out once per
+    /// realm as it stands (`PaySignChoice.key`), not on every frame.
+    var signChoices: [Int: PaySignChoice] = [:]
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -237,14 +240,15 @@ extension GameModel {
             openLanternMoment()
             return
         }
-        // Build 3, the count's step 4: a shingle of a plot's signpost brings its offer's board.
-        if let shingle = signShingle(at: place) {
-            touchShingle(shingle, holding: false)
-            return
-        }
         // The join: a touch on a town door knocks (town-2, `GameModel.touchTown`); the doors are not things.
         if stage != .hall, touchTown(at: point, in: size) {
             touch.lastTap = "door"
+            return
+        }
+        // Build 3, the count's step 4: a shingle of a plot's signpost brings its offer's board (after the town's doors,
+        // as `countDown` decides it).
+        if let shingle = signShingle(at: place) {
+            touchShingle(shingle, holding: false)
             return
         }
         // Build 2 review, app-ui-3: Marek's cart stands before the barracks; while his offer is open a touch on it opens
@@ -345,6 +349,16 @@ extension GameModel {
         guard kind == .world, overlay == nil, stageChange == nil else { return }
         // Build 3, the count (PAY.md): a thing that is bought brings its board, or sets a coin on it.
         if countTap(thing) { return }
+        // The review of step 4: a plot with several offers is bought by its shingles. A touch on the plot itself (or
+        // its element while its signpost is away) walks him there with no errand and no slip promising a build, and
+        // the shingles swing as the hint.
+        if case .build(let plot) = thing.act, signPlot(plot) {
+            cancelErrand()
+            feedback.play(.touched)
+            touch.signSince[plot] = clock.elapsed
+            walk(to: groundX(thing.standX), run: false)
+            return
+        }
         feedback.play(.touched)
         if var errand = touch.errand, errand.id == thing.id, errand.stage == stage {
             if errand.waiting {

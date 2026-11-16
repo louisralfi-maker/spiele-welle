@@ -792,10 +792,11 @@ extension GameModel {
     /// home without one, the lantern lights without its bloom.
     func countWorld(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming) {
         guard stage == .world else { return }
-        // Step 4: the signposts over the plots with several offers, behind everything of the count.
-        signWorld(&layer, state: state, framing: framing)
         let night = Double(AmbientRamp.sample(at: state.hour, look: args.look).torchStrength)
         countLanternsWorld(&layer, framing: framing, night: night)
+        // Step 4: the signposts over the plots with several offers, in front of a site lantern beside them (the
+        // review: a lantern may hang beside a signpost's row) and behind the boards.
+        signWorld(&layer, state: state, framing: framing)
         var glows: [EntityGlow] = []
         if let old = touch.countOld, let board = touch.countOldBoard {
             layer.actors += countBoardActors(old, board, framing: framing, glows: &glows)
@@ -1162,7 +1163,9 @@ extension GameModel {
                 var warmPool = pool
                 warmPool.tint = SIMD4<Float>(gold.x, gold.y, gold.z, warmPool.tint.w)
                 warmPool.isEmissive = true
-                layer.actors.append(warmPool)
+                // The review of step 4: behind every figure (as the plot's footing), so the builders and the lord
+                // who walk through it are never washed gold; still over the wall.
+                layer.actors.insert(warmPool, at: 0)
             }
             let crook = countCrookActors(postLeft: lantern.postLeft, toward: lantern.toward, shift: 0,
                                          lanternFrame: frame, alpha: alpha, framing: framing)

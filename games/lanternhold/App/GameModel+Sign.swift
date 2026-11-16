@@ -25,65 +25,104 @@ extension GameModel {
         return false
     }
 
-    /// The ground the count's boards and site lanterns stand on now (game px of the world strip): a signpost in their
-    /// way steps aside while they stand, so a board never stands in front of shingles (the barracks' archer board
-    /// beside the line-1 engine's plot).
-    func signBlockers() -> [ClosedRange<Double>] {
-        var spans: [ClosedRange<Double>] = []
+    /// The ground the count's boards (`boards`) and site lanterns (`lanterns`) stand on now (game px of the world
+    /// strip): a signpost in their way hangs on another side of its post while they stand, so a board never stands in
+    /// front of shingles (the barracks' archer board beside the line-1 engine's plot).
+    func signBlockers() -> (boards: [ClosedRange<Double>], lanterns: [ClosedRange<Double>]) {
+        var boards: [ClosedRange<Double>] = []
         for (count, board) in [(touch.count, touch.countBoard), (touch.countOld, touch.countOldBoard)] {
             guard let count, let board, !count.isGone else { continue }
-            spans.append(Double(board.left)...Double(board.left + board.layout.width))
+            boards.append(Double(board.left)...Double(board.left + board.layout.width))
         }
+        var lanterns: [ClosedRange<Double>] = []
         for lantern in touch.countLanterns {
-            spans.append(Double(lantern.postLeft - 10)...Double(lantern.postLeft + 16))
+            lanterns.append(Double(lantern.postLeft - 10)...Double(lantern.postLeft + 16))
         }
-        return spans
+        return (boards, lanterns)
+    }
+
+    /// The key of the realm as a signpost's place depends on it: the day, the touch target's size and every plot's
+    /// building, rubble and job.
+    func signKey(_ state: GameState, minimum: Double) -> String {
+        var key = "\(state.day)|\(minimum)|"
+        for plot in state.plots {
+            key += (plot.item?.rawValue ?? "-") + (plot.isRubble ? "r" : "") + (plot.job == nil ? "," : "j,")
+        }
+        return key
+    }
+
+    /// True for an empty plot with several offers now (it carries a signpost and is bought by its shingles).
+    func signPlot(_ plot: Int) -> Bool {
+        guard let game = driver, plot >= 0, plot < game.state.plots.count, game.state.isUnlocked(plot: plot),
+              game.state.plots[plot].item == nil, game.state.plots[plot].job == nil else { return false }
+        return Build.options(game.state, plot: plot, balance: game.balance).count > 1
     }
 
     /// The signposts standing now: each plot with several offers, its post at the plot, its row of shingles on the
     /// side that covers least of the other things' touch areas as they stand by day (people, who walk, left out, and
     /// the same by night, so it never jumps). A plot whose board stands has none: its chosen shingle hangs on the
-    /// board's post; nor does one with a board or a site lantern standing in its way.
+    /// board's post. While a board or a site lantern stands in the row's way it hangs on the next side by cover (the
+    /// review of step 4); a site lantern never takes the signpost away (it is drawn behind the shingles), a board in
+    /// the way of every side does, for the seconds it stands.
     func signposts(_ state: GameState, balance: Balance, framing: TouchFraming) -> [PaySignpost] {
         guard stage == .world else { return [] }
         let entries = PaySignpost.plots(state, balance: balance)
         guard !entries.isEmpty else { return [] }
         let minimum = touchMinimum(framing: framing)
-        let layouts = KingTargets.layouts(state, balance: balance)
+        let key = signKey(state, minimum: minimum)
         let blockers = signBlockers()
-        var day = state
-        day.hour = 12
-        let neighbours = TouchThings.world(day, balance: balance, figures: [], talked: []).filter { !$0.isPerson }
         var list: [PaySignpost] = []
         for entry in entries {
             let id = "touch-plot-\(entry.plot)"
             if countBoardStands(for: id) { continue }
-            let x = KingTargets.spotX(plot: entry.plot, layouts: layouts)
-            let others = neighbours.filter { $0.id != id }.map { TouchRules.area($0, minimum: minimum) }
-            var best: PaySignpost?
-            var bestCover = Double.infinity
-            for side in PaySignpost.Side.allCases {
-                let sign = PaySignpost.make(plot: entry.plot, x: x, offers: entry.offers, side: side, minimum: minimum)
-                var cover = 0.0
-                for shingle in sign.shingles {
-                    for area in others {
-                        let wide = min(shingle.area.right, area.right) - max(shingle.area.left, area.left)
-                        let tall = min(shingle.area.top, area.top) - max(shingle.area.bottom, area.bottom)
-                        if wide > 0 && tall > 0 { cover += wide * tall }
-                    }
-                }
-                if cover < bestCover - 1e-9 {
-                    best = sign
-                    bestCover = cover
-                }
+            let choice = signChoice(entry.plot, offers: entry.offers, state: state, balance: balance,
+                                    minimum: minimum, key: key)
+            func clear(_ sign: PaySignpost, of spans: [ClosedRange<Double>]) -> Bool {
+                let left = Double(sign.barLeft) - 2
+                let right = Double(sign.barLeft + sign.barWidth) + 2
+                return !spans.contains { $0.lowerBound < right && $0.upperBound > left }
             }
-            guard let best else { continue }
-            let left = Double(best.barLeft) - 2
-            let right = Double(best.barLeft + best.barWidth) + 2
-            if blockers.contains(where: { $0.lowerBound < right && $0.upperBound > left }) { continue }
-            list.append(best)
+            let signs = choice.sides.map {
+                PaySignpost.make(plot: entry.plot, x: choice.x, offers: entry.offers, side: $0, minimum: minimum)
+            }
+            if let sign = signs.first(where: { clear($0, of: blockers.boards + blockers.lanterns) })
+                ?? signs.first(where: { clear($0, of: blockers.boards) }) {
+                list.append(sign)
+            }
         }
         return list
+    }
+
+    /// The place of `plot`'s signpost for the realm as it stands (`key`), worked out again only when that changes:
+    /// its post's x and the sides by the cover of the neighbours' touch areas as they stand by day, least first.
+    func signChoice(_ plot: Int, offers: [BuildOption], state: GameState, balance: Balance, minimum: Double,
+                    key: String) -> PaySignChoice {
+        if let known = touch.signChoices[plot], known.key == key { return known }
+        let layouts = KingTargets.layouts(state, balance: balance)
+        var day = state
+        day.hour = 12
+        let id = "touch-plot-\(plot)"
+        let others = TouchThings.world(day, balance: balance, figures: [], talked: [])
+            .filter { !$0.isPerson && $0.id != id }.map { TouchRules.area($0, minimum: minimum) }
+        let x = KingTargets.spotX(plot: plot, layouts: layouts)
+        var covers: [(side: PaySignpost.Side, cover: Double)] = []
+        for side in PaySignpost.Side.allCases {
+            let sign = PaySignpost.make(plot: plot, x: x, offers: offers, side: side, minimum: minimum)
+            var cover = 0.0
+            for shingle in sign.shingles {
+                for area in others {
+                    let wide = min(shingle.area.right, area.right) - max(shingle.area.left, area.left)
+                    let tall = min(shingle.area.top, area.top) - max(shingle.area.bottom, area.bottom)
+                    if wide > 0 && tall > 0 { cover += wide * tall }
+                }
+            }
+            // A side wins only when it covers clearly less (the first, the centre, keeps a tie).
+            let index = covers.firstIndex { cover < $0.cover - 1e-9 } ?? covers.count
+            covers.insert((side: side, cover: cover), at: index)
+        }
+        let choice = PaySignChoice(key: key, x: x, sides: covers.map { $0.side })
+        touch.signChoices[plot] = choice
+        return choice
     }
 
     /// True while `plot` is a thing to touch (by day, unlocked, with offers: `TouchThings.world`).
