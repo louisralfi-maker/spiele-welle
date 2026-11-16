@@ -183,7 +183,10 @@ final class CountUITests: XCTestCase {
     /// coins on three planks, frozen half laid.
     func testABoardOfBars() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        let args = CountUITests.gate + ["-GWCastle", "2", "-GWGold", "500", "-GWCountFreeze", "0.5"]
+        // The base's own -GWGold goes: a key given twice is not sure to keep its last value (the review).
+        var base = CountUITests.gate
+        if let at = base.firstIndex(of: "-GWGold") { base.removeSubrange(at...at + 1) }
+        let args = base + ["-GWCastle", "2", "-GWGold", "500", "-GWCountFreeze", "0.5"]
         guard let app = launchAtTheBoard(args, name: "count-bars", hollows: "/9") else { return }
         if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
             gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 1.5)
