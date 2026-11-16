@@ -1,0 +1,19 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (37.959 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (72.914 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (78.691 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (20.534 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (96.075 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (20.337 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (121.479 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (19.773 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (18.060 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (183.479 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (59.712 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (102.084 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:261: error: -[LanternholdUITests.TouchUITests testTouchTheWorld] : XCTAssertTrue failed - the coin paid the repair
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' failed (194.852 seconds).
+Test Suite 'TouchUITests' failed at 2026-11-16 07:32:18.049.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-16 07:32:18.050.
+Test Suite 'Selected tests' failed at 2026-11-16 07:32:18.051.
+exit=65
+screenshots: 65
