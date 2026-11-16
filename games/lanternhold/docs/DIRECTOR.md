@@ -1091,3 +1091,8 @@ schneller geht."
   - Step 7 is green at 9a0d46c1 (round lh-b3h-71), the critic passes it at 7/10: the small ones read as the ash giant's children, hunched shrouds on stilt arms with air under the belly; the pony is gone; the heap on the wall moves.
   - Still weak: the walk skates, the runt alone is a box, the cloth is lost at night.
   - Step 8 is one agent and the lane's last look step before the join: a gait whose planted hand stands still (three frames planted, three in the swing, the arms half a cycle apart), the runt's ramped back, the cloth as dull stripes down the flank.
+
+- **The wind's smoke judged; the leaves are cut from wave 1 (16.11.2026, 14:41).**
+  - Step 6 is green at d4e0dccb (round lh-b3w-62). Kept: the keep's chimney smoke as round puffs that stand in calm, lean in a breeze and tear in a storm, with the banners and the vane agreeing.
+  - The town's smoke does not show by day (pale puffs on pale mountains; the big middle house never smokes). Step 7, one agent: three of four chimneys by day, every one from 17 h to 21 h, a wood-smoke grey that differs from its backdrop by 40 in luma, a column of at least 12 px.
+  - The leaf ribbon is cut from wave 1. A 2 x 2 px leaf is a dot, and a row of bright dots reads as fairy lights. Leaves get their own design later. Rule: a detail that reads wrong is worse than none.
