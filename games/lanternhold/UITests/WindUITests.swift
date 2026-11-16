@@ -19,10 +19,11 @@ final class WindUITests: XCTestCase {
         ProcessInfo.processInfo.environment["GW_LANG"] ?? "en"
     }
 
-    /// A noon on day 12 in the demo realm (stone walls, the iron gate: the castle's tier 2), held still at `time`.
-    private func noon(_ time: Double) -> [String] {
-        ["-GWDay", "12", "-GWHour", "12", "-GWBuild", "demo", "-GWFreezeTime", "YES",
-         "-GWFlickerTime", String(format: "%.2f", time), "-GWLook", "2"]
+    /// A noon on day 12 in the demo realm (stone walls, the iron gate: the castle's tier 2), held still at `time`,
+    /// in the world strip: a lord placed at the hall door would otherwise start inside the hall (`startStage`).
+    private func noon(_ time: Double, hour: String = "12") -> [String] {
+        ["-GWDay", "12", "-GWHour", hour, "-GWBuild", "demo", "-GWFreezeTime", "YES",
+         "-GWFlickerTime", String(format: "%.2f", time), "-GWLook", "2", "-GWStage", "world"]
     }
 
     func testWind() {
@@ -45,6 +46,9 @@ final class WindUITests: XCTestCase {
             // key, so "-0.6" would never reach the game (DebugArgs trims the space).
             ("307-wind-west-keep", keep + ["-GWWeather", "clear", "-GWWind", " -0.6"] + noon(30.4)),
             ("308-wind-storm-reduce-motion-keep", keep + storm + ["-GWReduceMotion", "YES"] + noon(30.4)),
+            // Dusk on a breezy day at tier 3: the keep's flag and the curtain's banners by torchlight.
+            ("309-wind-breeze-dusk-banners", ["-GWCameraX", "1960", "-GWCastle", "3"] + breeze
+                + noon(30.4, hour: "19.2")),
         ]
         for still in stills {
             shoot(still.name, still.arguments)
@@ -66,7 +70,9 @@ final class WindUITests: XCTestCase {
         if waitUntilReady(app, name: name) {
             pause(0.8)
             attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
-            note("\(name)-value", (element(app, "world-scene").value as? String) ?? "")
+            let value = (element(app, "world-scene").value as? String) ?? ""
+            note("\(name)-value", value)
+            XCTAssertTrue(value.contains("stage:world"), "\(name): the shot must show the world strip (\(value))")
         }
         app.terminate()
     }
