@@ -193,11 +193,17 @@ enum HordeLook {
         return ((turn * threadLengths.count + index) * 9 + (max(-4, min(4, lean)) + 4)) * 2 + (sway == 0 ? 0 : 1)
     }
 
+    /// The thread's value at full night: an unlit body's in look 2 (`EntityFrames.unlitValueLook2`), so the soot over
+    /// the small ones is never paler than they are.
+    static let threadNightValue: Float = 0.3
+
     /// The thread at its own colour (emissive: soot stays soot in firelight and in the moon, step 3's call 7: the lower
-    /// two thirds dark, the wisps paler), a little darker at night; `share` fades it with the creature's glow (none deep
-    /// in the bank); `bright` lifts it (an orphan's first moments, a fresh puff of smoke).
+    /// two thirds dark, the wisps paler), at night down to the value of an unlit body (`threadNightValue`: emissive at
+    /// its own colour it stood paler than the bodies under it and read as rain again, the review of step 3); `share`
+    /// fades it with the creature's glow (none deep in the bank); `bright` lifts it (an orphan's first moments, a fresh
+    /// puff of smoke).
     static func threadTint(night: Float, share: Float, bright: Float = 1) -> SIMD4<Float> {
-        let value = min(1.6, (1 - 0.15 * night) * bright)
+        let value = min(1.6, (1 - (1 - threadNightValue) * night) * bright)
         return SIMD4<Float>(value, value, value, 0.9 * max(0, min(1, share)))
     }
 

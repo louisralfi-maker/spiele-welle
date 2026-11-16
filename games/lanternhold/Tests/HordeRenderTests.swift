@@ -173,6 +173,7 @@ final class HordeRenderTests: XCTestCase {
         }
         var notes: [String] = []
         var crops: [[SIMD3<Float>]] = []
+        var paleMeans: [(x: Float, mean: Float)] = []
         let bodies = withBodies.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
         XCTAssertEqual(bodies.count, 3, "three small ones are drawn, unlit (step 3: the crawler and the loper)")
         XCTAssertEqual(Set(bodies.map(\.sprite)), [.sootling, .sootlingB], "both bodies of the crowd")
@@ -237,6 +238,7 @@ final class HordeRenderTests: XCTestCase {
             // same body's navy at 1.5 : 1 or more (the drawn pixels, the means of each).
             let paleMean = paleBody / Float(max(1, paleCount))
             let ragOverNavy = paleMean / max(1e-5, navyBody)
+            paleMeans.append((x: actor.rect.x + actor.rect.z / 2, mean: paleMean))
             notes.append(String(format: "%@ frame %ld: rag and rim over its navy %.2f : 1 (%.4f over %.4f)",
                                 actor.sprite.rawValue, actor.frame, ragOverNavy, paleMean, navyBody))
             XCTAssertGreaterThan(paleCount, 6, "\(actor.sprite): its rag and rim are found")
@@ -257,6 +259,64 @@ final class HordeRenderTests: XCTestCase {
                 }
                 crops.append(crop)
             }
+        }
+        // Step 3 (the review; the director's calls 7 and 10): the thread is soot, never a pale line over the night (the
+        // rain of step 2). On the drawn pixels its lower two thirds are no brighter than its body's rag and rim, and
+        // stand within 1.5 : 1 of the ground behind.
+        let withThreads = frame(s, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(),
+                                keep: { $0.sprite == .sootThread || bodyOnly($0) }, dropSocketLights: true)
+        let shotThreads = try renderer.renderOffscreen(withThreads, settings: settings)
+        let threads = withThreads.actors.filter { $0.sprite == .sootThread }
+        XCTAssertEqual(threads.count, s.creatures.filter { HordeLook.hasThread(id: $0.id) }.count,
+                       "the threads of those that carry one")
+        if let threadURL = AtlasBuilder.artURL(for: .sootThread, bundle: .main),
+           let threadStrip = PNGDecoder.load(url: threadURL) {
+            let size = SpriteID.sootThread.size
+            for actor in threads {
+                let rows = (0..<size.height).filter { y in
+                    (0..<size.width).contains { threadStrip[actor.frame * size.width + $0, y].a > 0 }
+                }
+                guard let topRow = rows.first, let bottomRow = rows.last else {
+                    XCTFail("thread frame \(actor.frame) is drawn")
+                    continue
+                }
+                let lowerFrom = topRow + (bottomRow - topRow + 1) / 3
+                let texel = actor.rect.z / Float(size.width)
+                var drawn: Float = 0
+                var behind: Float = 0
+                var count = 0
+                let x0 = Int(actor.rect.x.rounded(.down))
+                let y0 = Int(actor.rect.y.rounded(.down))
+                let x1 = Int((actor.rect.x + actor.rect.z).rounded(.up))
+                let y1 = Int((actor.rect.y + actor.rect.w).rounded(.up))
+                for y in max(0, y0)..<min(shotThreads.height, y1) {
+                    for x in max(0, x0)..<min(shotThreads.width, x1) {
+                        let tx = Int((Float(x) + 0.5 - actor.rect.x) / texel)
+                        let ty = Int((Float(y) + 0.5 - actor.rect.y) / texel)
+                        guard tx >= 0, tx < size.width, ty >= lowerFrom, ty < size.height,
+                              threadStrip[actor.frame * size.width + tx, ty].a > 0 else { continue }
+                        drawn += luminance(shotThreads.color(x: x, y: y))
+                        behind += luminance(shotWithout.color(x: x, y: y))
+                        count += 1
+                    }
+                }
+                XCTAssertGreaterThan(count, 8, "thread frame \(actor.frame): its lower two thirds are found")
+                guard count > 0 else { continue }
+                let threadMean = drawn / Float(count)
+                let groundMean = behind / Float(count)
+                let middle = actor.rect.x + actor.rect.z / 2
+                let rag = paleMeans.min { abs($0.x - middle) < abs($1.x - middle) }?.mean ?? 0
+                let overGround = max(threadMean, groundMean) / max(1e-5, min(threadMean, groundMean))
+                notes.append(String(format: "sootThread frame %ld: lower two thirds %.4f (%ld px), its body's rag and "
+                                    + "rim %.4f, the ground behind %.4f, %.2f : 1 against it",
+                                    actor.frame, threadMean, count, rag, groundMean, overGround))
+                XCTAssertLessThanOrEqual(threadMean, rag,
+                                         "the thread (\(threadMean)) is no paler than its body's rag and rim (\(rag))")
+                XCTAssertLessThanOrEqual(overGround, 1.5,
+                                         "the thread stands \(overGround) : 1 against the ground: soot")
+            }
+        } else {
+            XCTFail("sootThread.png is in the bundle")
         }
         if !crops.isEmpty {
             attachStrip(crops, width: 60, height: 50, name: "horde-night-contrast", zoom: 4)
