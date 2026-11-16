@@ -1029,7 +1029,10 @@ enum EntityFrames {
             let frame = lift != nil ? HordeLook.climbFrame(id: c.id, time: time, reduceMotion: reduceMotion)
                 : creatureFrame(c, time: time)
             let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: frame)
-            let p = (x: c.x + eye.dx, y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + eye.dy)
+            // step 5 (M3): a climber's point where its body is drawn (aside by id; mirrored when it faces away)
+            let aside = lift != nil ? HordeLook.heapJitter(id: c.id) : 0
+            let eyeDX = lift != nil && HordeLook.facesAway(id: c.id) ? -eye.dx : eye.dx
+            let p = (x: c.x + aside + eyeDX, y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + eye.dy)
             if kept.contains(where: {
                 abs($0.x - p.x) < HordeLook.socketApartX && abs($0.y - p.y) <= HordeLook.socketApartY
             }) { continue }
@@ -1235,13 +1238,20 @@ enum EntityFrames {
             let sprite = creatureSprite(c)
             var frame = creatureFrame(c, time: time)
             var y = c.y + (lifts[c.id] ?? 0)
+            var drawX = c.x
+            var flipped = false
             if c.kind == .sootling {
                 // b3-horde step 3 (the director's call 4): a pixel of height by id, and the climbers' pose on a heap.
                 y += HordeLook.stand(id: c.id)
-                if lifts[c.id] != nil { frame = HordeLook.climbFrame(id: c.id, time: time, reduceMotion: reduceMotion) }
+                if lifts[c.id] != nil {
+                    frame = HordeLook.climbFrame(id: c.id, time: time, reduceMotion: reduceMotion)
+                    // step 5 (M3): a climber up to 2 px aside by id, about every fifth facing away, so the cold points
+                    // never stand on the wall's face as a ladder
+                    drawX += HordeLook.heapJitter(id: c.id)
+                    flipped = HordeLook.facesAway(id: c.id)
+                }
             }
             if c.kind == .gloomweaver { y += weaverBob(c, time: time) }
-            var flipped = false
             if c.kind == .sootCrow && c.target >= 0 && c.target < Realm.plots.count {
                 flipped = Realm.plots[c.target].x < c.x
             }
@@ -1278,7 +1288,7 @@ enum EntityFrames {
                 }
             }
             if seen > 0.02 {
-                add(sprite, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, seen),
+                add(sprite, frame: frame, x: drawX, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, seen),
                     lit: c.isLit, lightCap: cap, moonRim: c.isLit ? 0 : unlitRim * night * seen)
             }
             if let glow = glowStrip(sprite) {
@@ -1286,7 +1296,7 @@ enum EntityFrames {
                 let share: Float = look == .two && !c.isLit ? CreatureLook.glowShare(x: c.x, bankEdge: s.bankEdge) : 1
                 // (world-3 fix round 4: none at all deep in the bank)
                 if share > 0.02 {
-                add(glow, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(share, share, share, 1),
+                add(glow, frame: frame, x: drawX, y: y, flipped: flipped, tint: SIMD4<Float>(share, share, share, 1),
                     emissive: true, lit: c.isLit, lightCap: eyeCap)
                 }
             }
@@ -1308,7 +1318,7 @@ enum EntityFrames {
                     var tint = HordeLook.threadTint(night: night, share: share)
                     tint.w *= min(1, seen)
                     add(HordeLook.threadSprite(strand), frame: HordeLook.threadCell(strand),
-                        x: c.x + root.dx,
+                        x: drawX + root.dx,
                         y: y + root.dy, tint: tint, emissive: true,
                         lit: c.isLit, lightCap: look == .two ? HordeLook.pack(cap: HordeLook.litCap, veil: veil) : 0)
                 }

@@ -619,8 +619,12 @@ final class HordeRenderTests: XCTestCase {
             if scene == 2 {
                 for plot in Realm.lines[2].braziers { s.plots[plot].snuffed = true }
             }
+            // step 5 (the critic's M1): spread by a hash, 4 to 11 px apart, never at one fixed step (each at its pixel of
+            // height by id, `HordeLook.stand`)
+            var at = from
             s.creatures = (0..<10).map { k in
-                GameFrameSupport.creature(.sootling, x: from + Double(k) * 7.5, id: 20 + k, lit: lit)
+                if k > 0 { at += 4 + Double(SeededRandom.hash(0x4352_4F57, Int64(20 + k)) % 8) }
+                return GameFrameSupport.creature(.sootling, x: at, id: 20 + k, lit: lit)
             }
             let desc = frame(s, focus: from + 40, time: 1.5, wind: 0.3, effects: BattleEffects(),
                              gloom: scene == 2 ? GloomFog(night: 12, fogNight: false) : nil)

@@ -38,11 +38,13 @@ enum HordeLook {
         }
     }
 
-    /// Each body's height in game pixels over its walk frames, outline included (the strips are 14 x 14).
+    /// Each body's height in game pixels over its walk frames, outline included (the strips are 14 x 14). Step 5 (the
+    /// critic's M2): the loper's arm no longer rises over its head at the top of its stride (it read as a crook), so
+    /// its walk stands 11 high, the top of its vault.
     static func height(_ body: Body) -> Int {
         switch body {
         case .crawler: return 10
-        case .loper: return 14
+        case .loper: return 11
         case .tumbler: return 12
         }
     }
@@ -309,6 +311,16 @@ enum HordeLook {
 
     /// The lift of each small one that climbs the heap, by id (none for the first four at a wall): the fifth to the
     /// eighth one body up, the ninth to the twelfth two, from the thirteenth three.
+    /// Step 5 (the critic's M3: in the heap every body faced the wall, so their cold points stood on its face as a
+    /// ladder of dashes): a climber stands up to 2 px aside by id (-2 ... +2), and about every fifth faces away.
+    static func heapJitter(id: Int) -> Double {
+        Double(Int(SeededRandom.hash(0x4A49_5454, Int64(id)) % 5) - 2)
+    }
+
+    static func facesAway(id: Int) -> Bool {
+        SeededRandom.hash(0x4157_4159, Int64(id)) % 5 == 0
+    }
+
     static func heapLifts(_ creatures: [Creature]) -> [Int: Double] {
         var byWall: [Int: [Int]] = [:]
         for c in creatures where c.kind == .sootling && c.hp > 0 && c.action == .attackingWall && c.target >= 0 {

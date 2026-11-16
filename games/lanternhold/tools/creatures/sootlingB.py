@@ -5,14 +5,15 @@ that learned to walk: over the hump a short mantle of his cloak (as it is in his
 hang down and back past the rump, two pixels wide and a pixel apart, their ends torn, so the rear at 1x is a fringe.
 The head hangs in front below the hump behind a one-pixel dip at the neck (kept open: the pixels on either side of it
 carry no outline), the one cold point in it, never two, never a face. It crawls, it never perches, it never stands;
-its arm never closes into a loop: thrown over the head at the top of its stride, the hand points ahead and down. To
+its arm never closes into a loop: thrown forward at shoulder height at the top of its stride (step 5: never over the
+head, which read as a crook), the hand points ahead and down. To
 strike it lunges: the body thrown forward and down, the arm thrown out low and straight ahead with the hand in the
-ground, the tails flying back; with the arm reaching up and ahead it climbs a heap. 14 px high at the top of the arm's
-throw. (hordekit.py `LEGEND`: the pixels.)"""
+ground, the tails flying back; with the arm reaching up and ahead it climbs a heap. 11 px high at the top of its
+vault (step 5: 14 while the arm rose over the head). (hordekit.py `LEGEND`: the pixels.)"""
 from hordekit import draw, place, limbs, uncap
 
 SIZE = (14, 14, 6)
-HEIGHT = 14
+HEIGHT = 11
 # the torso: the peak of the mantle, the mantle over the hump, the two tails hanging behind it (bare cloth, no outline,
 # their torn ends the deepest soot), the rump and the flank, the dip at the neck (column 8) and the head hanging low
 # in front under the shoulder; the long arm's shoulder at (6, 2) of the block, the hip at (5, 5), the socket at (10, 4)
@@ -43,7 +44,9 @@ POSE = [
          leg=[(5, 11), (4, 13)]),
     dict(at=(2, 3), torso=TORSO, elbow=(11, 8), wrist=(10, 11), hand=[(10, 11), (10, 13), (11, 13)],
          leg=[(6, 10), (5, 12), (4, 13)]),
-    dict(at=(1, 4), torso=TORSO, elbow=(10, 2), wrist=(12, 0), hand=[(12, 0), (13, 1), (13, 3)],
+    # (step 5, the critic's M2: thrown over the head the hand bent down read as a crook, the staff Louis rejected: the
+    # throw goes forward at shoulder height, the wrist no higher than the mantle's peak, the hand pointing down)
+    dict(at=(1, 4), torso=TORSO, elbow=(9, 5), wrist=(12, 4), hand=[(12, 4), (13, 5), (13, 6)],
          leg=[(5, 11), (4, 13)]),
     # attack 4: the gather before the lunge, the body drawn back and low, the arm reaching up and ahead (also its climb
     # on a heap: the hand stands clear over its back), the tails hanging

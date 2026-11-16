@@ -419,7 +419,8 @@ final class EntityFramesTests: XCTestCase {
     }
 
     func testTheThreeBodiesStandAtThreeHeights() {
-        XCTAssertEqual(Set(HordeLook.Body.allCases.map { HordeLook.height($0) }), [10, 12, 14])
+        // step 5 (M2): the loper's walk stands 11 high, its arm thrown forward at shoulder height, never over its head
+        XCTAssertEqual(Set(HordeLook.Body.allCases.map { HordeLook.height($0) }), [10, 11, 12])
         for id in 0..<60 {
             let length = HordeLook.threadLength(id: id)
             let high = HordeLook.height(HordeLook.body(id: id))
@@ -543,6 +544,77 @@ final class EntityFramesTests: XCTestCase {
         let lastLow = low.compactMap { actors.firstIndex(of: $0) }.max() ?? 0
         XCTAssertTrue(raised.compactMap { actors.firstIndex(of: $0) }.allSatisfy { $0 > lastLow },
                       "the climbers are drawn over the backs in front")
+    }
+
+    func testTheHeapNeverStandsAsALadder() {
+        // Step 5 (the critic's M3): a climber stands up to 2 px aside by id and about every fifth faces away, its cold
+        // point's light with it (mirrored when it faces away); the ones on the ground keep their place and face.
+        XCTAssertTrue((0..<200).allSatisfy { (-2...2).contains(HordeLook.heapJitter(id: $0)) })
+        XCTAssertEqual(Set((0..<200).map { HordeLook.heapJitter(id: $0) }).count, 5, "aside by id")
+        let away = (0..<200).filter { HordeLook.facesAway(id: $0) }.count
+        XCTAssertTrue((25...60).contains(away), "about every fifth faces away (\(away) of 200)")
+        let wall = Realm.lines[2].wall
+        var s = GameFrameSupport.demoNight()
+        s.creatures = (0..<14).map {
+            var c = GameFrameSupport.creature(.sootling, x: 630, id: 100 + $0, lit: true, action: .attackingWall)
+            c.target = wall
+            return c
+        }
+        let lifts = HordeLook.heapLifts(s.creatures)
+        XCTAssertEqual(lifts.count, 10)
+        let bodies = hordeLayer(s, focus: 640).actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+        XCTAssertEqual(bodies.count, 14)
+        let scale = (bodies.first?.rect.z ?? 14) / 14
+        let ground = bodies.map { $0.rect.y + $0.rect.w }.max() ?? 0
+        // (a pixel of height by id, `HordeLook.stand`, never reads as a climb: a climber stands nine up or more)
+        let climbers = bodies.filter { $0.rect.y + $0.rect.w < ground - 3 * scale }
+        let below = bodies.filter { $0.rect.y + $0.rect.w >= ground - 3 * scale }
+        XCTAssertEqual(climbers.count, 10)
+        XCTAssertEqual(Set(below.map(\.rect.x)).count, 1, "the ones on the ground keep their place")
+        XCTAssertTrue(below.allSatisfy { !$0.flipped }, "and face the wall")
+        let xs = climbers.map(\.rect.x)
+        XCTAssertGreaterThanOrEqual(Set(xs).count, 3, "the climbers stand aside by id")
+        XCTAssertLessThanOrEqual((xs.max() ?? 0) - (xs.min() ?? 0), 4 * scale + 0.01, "by 2 px at most either way")
+        XCTAssertEqual(climbers.filter(\.flipped).count, lifts.keys.filter { HordeLook.facesAway(id: $0) }.count,
+                       "those that face away are drawn so")
+        // the light of a climber that faces away sits at its mirrored socket
+        guard let turned = (10..<400).first(where: { HordeLook.facesAway(id: $0) }) else {
+            XCTFail("an id that faces away")
+            return
+        }
+        var one = s
+        one.creatures = ([0, 1, 2, 3] + [turned]).map {
+            var c = GameFrameSupport.creature(.sootling, x: 630, id: $0, lit: true, action: .attackingWall)
+            c.target = wall
+            return c
+        }
+        XCTAssertEqual(HordeLook.heapLifts(one.creatures)[turned], HordeLook.heapLift)
+        let eye = HordeLook.socket(HordeLook.body(id: turned), frame: HordeLook.climbFrame(id: turned, time: 0.2))
+        let cold = EntityFrames.creatureLights(one, time: 0.2).filter { $0.radius == HordeLook.socketRadius }
+        XCTAssertTrue(cold.contains { $0.x == 630 + HordeLook.heapJitter(id: turned) - eye.dx },
+                      "its cold point where it is drawn, mirrored")
+    }
+
+    func testTheLopersThrowIsNoCrook() {
+        // Step 5 (the critic's M2): at the top of its stride (walk frame 3) the loper throws its arm forward at shoulder
+        // height: nothing of it stands over the peak of its mantle (the cloth, warmer than blue in the strip).
+        guard let url = AtlasBuilder.artURL(for: .sootlingB, bundle: .main), let strip = PNGDecoder.load(url: url) else {
+            XCTFail("sootlingB.png is in the bundle")
+            return
+        }
+        let size = SpriteID.sootlingB.size
+        var top = size.height
+        var mantle = size.height
+        for y in 0..<size.height {
+            for x in 0..<size.width {
+                let c = strip[3 * size.width + x, y]
+                guard c.a > 0 else { continue }
+                top = min(top, y)
+                if Int(c.r) > Int(c.b) { mantle = min(mantle, y) }
+            }
+        }
+        XCTAssertLessThan(mantle, size.height, "the mantle is found")
+        XCTAssertGreaterThanOrEqual(top, mantle, "nothing of the throw stands over the mantle's peak")
     }
 
     func testALowerGroundLineIsDrawnInFront() {
