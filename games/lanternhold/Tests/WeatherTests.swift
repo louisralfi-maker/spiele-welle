@@ -826,6 +826,9 @@ final class WeatherTests: XCTestCase {
         XCTAssertEqual(vane.movesWith, .mistBand)
         XCTAssertEqual(vane.x, SceneLayout.castleKeepX + 236 - 4, "over the east tower's merlon (tier 1)")
         XCTAssertNil(SceneLayout.castleKeepVane(CastleStage(tier: 2, building: true)), "none on the scaffold")
+        XCTAssertNil(SceneLayout.castleKeepVane(CastleStage(tier: 3, building: true)), "none on the scaffold")
+        XCTAssertEqual(SceneLayout.castleKeepVane(CastleStage(tier: 1, building: true))?.dx, 236,
+                       "tier 1 under way builds the front: the keep keeps its vane")
         XCTAssertEqual(SceneLayout.castleKeepVane(CastleStage(tier: 3))?.dx, 238, "the cone's apex at tier 3")
         XCTAssertEqual(AtlasLayout.shared.sources[.weatherVane], .png)
         XCTAssertEqual(AtlasLayout.shared.cells[.weatherVane]?.count, Weather.vaneFrames)

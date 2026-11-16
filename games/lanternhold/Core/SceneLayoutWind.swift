@@ -56,9 +56,10 @@ extension SceneLayout {
 
     /// The vane on the keep's east tower: its rod's column in the keep's sprite and the height of the roof it stands on
     /// above the keep's foot (the merlon's top at tiers 1 and 2, the cone's apex at tier 3; tools/keepfix.py's tower,
-    /// the sprites' top rows 60, 40 and 26). None while a tier is under way: the tower is in scaffold.
+    /// the sprites' top rows 60, 40 and 26). None while the keep's tier 2 or 3 is under way (`keepT2Build`,
+    /// `keepT3Build`: the tower is in scaffold); tier 1 under way builds only the front, so the keep keeps its vane.
     static func castleKeepVane(_ stage: CastleStage) -> (dx: Double, top: Double)? {
-        guard !stage.building else { return nil }
+        guard !(stage.building && stage.tier >= 2) else { return nil }
         switch stage.tier {
         case 1: return (dx: 236, top: 115)
         case 2: return (dx: 236, top: 135)
