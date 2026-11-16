@@ -20,13 +20,18 @@ struct CountBoard: Sendable, Equatable {
     /// This board's bottom over the walk line.
     var bottom: Int { layout.rows >= 2 ? CountBoard.lowLift : CountBoard.lift }
 
-    /// The board's left edge and its top (game px over the walk line), the post's left edge and its top (the iron
-    /// plate the site lantern stands on), and the lantern's top.
+    /// The board's left edge and its top (game px over the walk line), and its post's left edge and top (the iron
+    /// plate over the board).
     var left: Int { Int(x.rounded(.down)) - layout.width / 2 }
     var top: Double { Double(bottom + layout.height) }
     var postLeft: Int { left + layout.width / 2 - 3 }
     var postTop: Double { top + 3 }
-    var lanternTop: Double { postTop + 3 + Double(SpriteID.siteLantern.size.height) }
+
+    /// Step 3 (the director's call 5: a builder's lantern on a crook, never a street lamp): the site lantern has its
+    /// own short post just past the board's edge toward the thing, its crook pointing at the work (`toward`: 1 right,
+    /// -1 left), the lantern hanging from the crook's chain. Its post's left edge (a `payBoard` post tile).
+    var toward: Double { -side }
+    var lanternPostLeft: Int { toward > 0 ? left + layout.width - 1 : left - 5 }
 }
 
 /// A cue that comes a moment after the seal (the site lantern, then the work's own sound), at the clock's second.
@@ -39,12 +44,23 @@ struct CountCue: Sendable, Equatable {
 /// without the board, while the paid job runs, read from the job state that exists (nothing saved), then goes out.
 struct CountLantern: Sendable, Equatable {
     var offer: PayOffer
-    /// Its post's left edge and top (game px of the world strip).
+    /// Its post's left edge (game px of the world strip), the way its crook points (1 right, -1 left).
     var postLeft: Int
-    var postTop: Double
+    var toward: Double = 1
     /// When it was lit, and when it went out (the clock's seconds).
     var litAt: Double
     var outAt: Double? = nil
+
+    /// Step 3 (the director's call 5): the crook's top stands this high over the walk line (the post's wood ends about
+    /// at the lord's shoulder, the iron bends over above it); the lantern's top hangs `hang` under it, from the chain.
+    static let crookTop = 30.0
+    static let hang = 7.0
+
+    /// The hanging lantern's left edge for a post at `postLeft` whose crook points `toward` (its ring under the chain's
+    /// last link: tools/hudart.py CROOK_CHAIN), before its sway.
+    static func lanternLeft(postLeft: Int, toward: Double) -> Int {
+        toward > 0 ? postLeft + 6 : postLeft - 9
+    }
 
     /// A recruit is taken on at once: his lantern burns this long while he steps up.
     static let recruitSeconds = 3.0
@@ -331,7 +347,9 @@ extension GameModel {
         let board = CountBoard(x: boardX, stand: stand, act: thing.act, layout: layout, side: place.side)
         // A lantern still lit on this post (the last recruit's, 3 s) gives way to the new board and its own unlit
         // lantern (the review of step 2: an unlit lantern was drawn over a lit one whose heart still glowed).
-        touch.countLanterns.removeAll { abs($0.postLeft - board.postLeft) < SpriteID.siteLantern.size.width }
+        touch.countLanterns.removeAll {
+            abs($0.postLeft - board.lanternPostLeft) < SpriteID.siteLantern.size.width
+        }
         touch.count = PayCount(thing: thing.id, offer: found.offer, price: found.price, holding: holding,
                                flights: GameModel.countFlights(board))
         touch.countBoard = board
@@ -516,8 +534,8 @@ extension GameModel {
                     touch.countLast = "paid:\(count.thing)"
                     // The one who was paid lights the site lantern; it burns while the job runs (H2).
                     if let board = touch.countBoard {
-                        touch.countLanterns.append(CountLantern(offer: count.offer, postLeft: board.postLeft,
-                                                                postTop: board.postTop, litAt: now))
+                        touch.countLanterns.append(CountLantern(offer: count.offer, postLeft: board.lanternPostLeft,
+                                                                toward: board.toward, litAt: now))
                     }
                 } else {
                     // The treasury or the offer changed under the count: nothing paid, the coins go back.
@@ -659,7 +677,44 @@ extension GameModel {
         return list
     }
 
-    /// One board: its post (until the seal: then the site lantern's own post stands there), its planks (each tile
+    /// The site lantern's post (step 3, the director's call 5): its foot, its wood up to about the lord's shoulder, the
+    /// iron-bound top bending over toward the work (`toward`), the chain, and the lantern hanging from it in `frame`,
+    /// swaying a pixel at about 0.5 Hz (still under Reduce Motion). Returns the actors and the lantern's left and top.
+    private func countCrookActors(postLeft: Int, toward: Double, shift: Double, lanternFrame: Int, alpha: Float,
+                                  framing: TouchFraming) -> (actors: [ActorInstance], lanternLeft: Double,
+                                                             lanternTop: Double) {
+        var list: [ActorInstance] = []
+        let plank = Double(PayBoardLayout.plank)
+        func put(_ frame: Int, _ x: Int, _ lift: Double) {
+            if let actor = countActor(.payBoard, frame, x: Double(x), lift: lift, alpha: alpha, framing: framing) {
+                list.append(actor)
+            }
+        }
+        let crookTop = CountLantern.crookTop + shift
+        put(PayBoardLayout.postFoot, postLeft, plank + shift)
+        var lift = plank + shift
+        while lift < crookTop - plank {
+            lift = min(crookTop - plank, lift + plank)
+            put(PayBoardLayout.post, postLeft, lift)
+        }
+        if toward > 0 {
+            put(PayBoardLayout.crookRightPost, postLeft, crookTop)
+            put(PayBoardLayout.crookRightArm, postLeft + PayBoardLayout.tile, crookTop)
+        } else {
+            put(PayBoardLayout.crookLeftPost, postLeft, crookTop)
+            put(PayBoardLayout.crookLeftArm, postLeft - PayBoardLayout.tile, crookTop)
+        }
+        let sway = reduceMotion ? 0 : [0, 1, 0, -1][Int((animationTime * 0.5 * 4).rounded(.down)) & 3]
+        let lanternLeft = Double(CountLantern.lanternLeft(postLeft: postLeft, toward: toward) + sway)
+        let lanternTop = crookTop - CountLantern.hang
+        if let actor = countActor(.siteLantern, lanternFrame, x: lanternLeft, lift: lanternTop, alpha: alpha,
+                                  framing: framing) {
+            list.append(actor)
+        }
+        return (list, lanternLeft, lanternTop)
+    }
+
+    /// One board: its post, its planks (each tile
     /// picked by a hash, every second row half a tile over: step 2, H1), cap and foot, the hollows and the coins in
     /// them, a coin settling and squashing as it lands, the next coin swaying over its hollow while nothing is in the
     /// air, the coins flying from the lord's hand, the lid with its battens and hasp snapping shut, the coins flying
@@ -697,10 +752,13 @@ extension GameModel {
         }
         let tile = PayBoardLayout.tile
         let middles = max(0, (layout.width - 2 * tile) / tile)
-        // The post (after the seal the lit lantern's post stands in its place: `countLanternsWorld`).
+        // The board's post; beside it, until the seal, the site lantern's own post with the lantern hanging unlit from
+        // its crook (after the seal the lit one stands there: `countLanternsWorld`).
+        actors += countPostActors(postLeft: board.postLeft, postTop: board.postTop + shift, shift: shift,
+                                  alpha: alpha, framing: framing)
         if sealed == nil {
-            actors += countPostActors(postLeft: board.postLeft, postTop: board.postTop + shift, shift: shift,
-                                      alpha: alpha, framing: framing)
+            actors += countCrookActors(postLeft: board.lanternPostLeft, toward: board.toward, shift: shift,
+                                       lanternFrame: 0, alpha: alpha, framing: framing).actors
         }
         // The planks (or the lid's), the cap over them and the foot under them.
         func planks(lid: Bool, offset: Double) {
@@ -842,9 +900,6 @@ extension GameModel {
             let middle = top + offset - Double(PayBoardLayout.cap) - Double(layout.rows * PayBoardLayout.plank) / 2
             put(.payBoard, PayBoardLayout.hasp, left + layout.width / 2 - 3, (middle + 6).rounded())
             if offset > 0 { cap() }
-        } else {
-            // The site lantern stands unlit on the post until the seal.
-            put(.siteLantern, 0, board.postLeft - 1, board.lanternTop + shift)
         }
         // The coins in the air (step 3, the director's call 1): thrown from the lord's hand up over the coins already
         // lying and down into their hollows (to 3 px over them; the settle does the rest), on whole pixels, turning
@@ -898,10 +953,6 @@ extension GameModel {
                 alpha = Float(min(1, max(0, (CountLantern.outSeconds - (now - out)) / CountLantern.fadeSeconds)))
             }
             guard alpha > 0.01 else { continue }
-            layer.actors += countPostActors(postLeft: lantern.postLeft, postTop: lantern.postTop, shift: 0,
-                                            alpha: alpha, framing: framing)
-            let lanternLeft = Double(lantern.postLeft - 1)
-            let lanternTop = lantern.postTop + 3 + Double(SpriteID.siteLantern.size.height)
             var frame = lit ? 1 : 0
             if lit && !reduceMotion {
                 if age < 0.06 {
@@ -910,10 +961,11 @@ extension GameModel {
                     frame = 3
                 }
             }
-            if let actor = countActor(.siteLantern, frame, x: lanternLeft, lift: lanternTop, alpha: alpha,
-                                      framing: framing) {
-                layer.actors.append(actor)
-            }
+            let crook = countCrookActors(postLeft: lantern.postLeft, toward: lantern.toward, shift: 0,
+                                         lanternFrame: frame, alpha: alpha, framing: framing)
+            layer.actors += crook.actors
+            let lanternLeft = crook.lanternLeft
+            let lanternTop = crook.lanternTop
             guard lit else { continue }
             let flare = reduceMotion ? 0 : max(0, 1 - age / 0.45)
             // The flame's middle: column 4, row 7 of the lantern (its 5 x 5 glass is columns 2 to 6, rows 5 to 9).

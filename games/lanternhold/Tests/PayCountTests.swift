@@ -1137,6 +1137,49 @@ final class PayCountTests: XCTestCase {
         XCTAssertTrue(game.touch.countLanterns.isEmpty, "out and gone when the work is done")
     }
 
+    /// Step 3 (the director's call 5): the site lantern hangs from a crook on its own short post beside the board,
+    /// toward the work, unlit before the seal and lit after it; no lantern ever stands on top of a pole. Drawn: the
+    /// lantern is clear of its post's column, under the crook's top, over the ground, and the post's crook reaches no
+    /// higher than the lord's head.
+    func testTheLanternHangsFromACrook() throws {
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        let board = try XCTUnwrap(game.touch.countBoard)
+        XCTAssertEqual(board.toward, gate.x > board.x ? 1 : -1, "the crook points at the work")
+        func check(_ frame: FrameDesc, lit: Bool, _ when: String) throws {
+            let framing = try XCTUnwrap(game.touch.framing)
+            let lantern = try XCTUnwrap(frame.actors.first { $0.sprite == .siteLantern && ($0.frame > 0) == lit },
+                                        "\(when): the lantern")
+            let postLeft = framing.deviceX(stageX: Double(board.lanternPostLeft + 1))
+            let postRight = framing.deviceX(stageX: Double(board.lanternPostLeft + 5))
+            let left = Double(lantern.rect.x)
+            let right = Double(lantern.rect.x + lantern.rect.z)
+            XCTAssertTrue(right <= postLeft + 1 || left >= postRight - 1,
+                          "\(when): beside its post, never on top of it")
+            let crookTop = framing.deviceY(lift: CountLantern.crookTop)
+            XCTAssertGreaterThan(Double(lantern.rect.y), crookTop, "\(when): it hangs under the crook")
+            XCTAssertLessThan(Double(lantern.rect.y + lantern.rect.w), framing.deviceY(lift: 0),
+                              "\(when): over the ground")
+            let crookTiles = [PayBoardLayout.crookRightPost, PayBoardLayout.crookRightArm, PayBoardLayout.crookLeftPost,
+                              PayBoardLayout.crookLeftArm]
+            XCTAssertTrue(frame.actors.contains { $0.sprite == .payBoard && crookTiles.contains($0.frame) },
+                          "\(when): its crook")
+            XCTAssertLessThanOrEqual(CountLantern.crookTop, Double(HUDKit.lordHead), "cut to about his shoulder")
+        }
+        try check(game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight), lit: false,
+                  "before the seal")
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        run(game, seconds: 3) { game.touch.countLast.hasPrefix("paid") }
+        run(game, seconds: 2.5)
+        XCTAssertNil(game.touch.count, "the board has gone")
+        try check(game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight), lit: true,
+                  "while the work runs")
+    }
+
     /// The review of step 2: a second recruit's board comes up on the post where the last recruit's lantern still
     /// burns; that lantern gives way, so an unlit lantern is never drawn over a lit one.
     func testANewBoardTakesThePostOfALitLantern() throws {
@@ -1147,11 +1190,11 @@ final class PayCountTests: XCTestCase {
         let layout = PayBoardLayout.make(PayCount.hollows(price: thing.price ?? 14))
         let place = game.countBoardPlace(thing, layout: layout)
         let post = CountBoard(x: place.x, stand: place.x, act: thing.act, layout: layout, side: place.side)
-        game.touch.countLanterns = [CountLantern(offer: .recruit(.guardsman), postLeft: post.postLeft,
-                                                 postTop: post.postTop, litAt: 0)]
+        game.touch.countLanterns = [CountLantern(offer: .recruit(.guardsman), postLeft: post.lanternPostLeft,
+                                                 toward: post.toward, litAt: 0)]
         game.touchThing(thing)
         let board = try XCTUnwrap(game.touch.countBoard, "the guard's board comes up")
-        XCTAssertEqual(board.postLeft, post.postLeft, "on the same post")
+        XCTAssertEqual(board.lanternPostLeft, post.lanternPostLeft, "on the same post")
         XCTAssertTrue(game.touch.countLanterns.isEmpty, "the lit lantern there gave way")
     }
 

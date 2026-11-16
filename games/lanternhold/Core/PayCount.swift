@@ -696,11 +696,15 @@ struct PayBoardLayout: Sendable, Equatable {
     // MARK: - The tiles (step 2, the critic's H1: the planks repeated every 12 px)
 
     /// The board's tiles in `payBoard` (tools/hudart.py): the plank's ends, its four middles, the cap's ends and its
-    /// three middles, the foot, the post, the hasp, the post's top, the lid's ends and two middles, the batten.
+    /// three middles, the foot, the post, the hasp, the post's top, the lid's ends and two middles, the batten, the
+    /// crook's four tiles.
     static let plankLeft = 0, plankRight = 3, capLeft = 4, capRight = 6
     static let footLeft = 7, footMiddle = 8, footRight = 9
     static let post = 10, postFoot = 11, hasp = 12, postTop = 13
     static let lidLeft = 18, lidRight = 21, batten = 22
+    /// Step 3 (the director's call 5): the site lantern's crook, pointing right (the post's iron-bound top, then the
+    /// arm's end with its hook and chain) and pointing left (the post's top; the arm's end goes a tile to its left).
+    static let crookRightPost = 23, crookRightArm = 24, crookLeftArm = 25, crookLeftPost = 26
     static let plankMiddles = [1, 2, 14, 15]
     static let capMiddles = [5, 16, 17]
     static let lidMiddles = [19, 20]

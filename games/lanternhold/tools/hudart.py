@@ -27,14 +27,16 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
                frames 0 to 2 its face (the glint and the stamp a pixel apart, so a board of bars is no row of copies),
                3 its end, a 3 px sliver, 4 half turned, as it turns in the air
   hudHollowBar 13x9, 4 frames: its hollow in the board, empty and holding the bar's faces 0 to 2 (no ink edge)
-  payBoard     6x12, 23 frames: the board's tiles, so a board fits any price (PayBoardLayout in Core/PayCount.swift):
+  payBoard     6x12, 27 frames: the board's tiles, so a board fits any price (PayBoardLayout in Core/PayCount.swift):
                0 plank's left end, 1 2 14 15 four plank middles (the count picks one per tile by a hash and shifts
                every second row by half a tile, so no streak lines up), 3 plank's right end, 4 5 6 the cap over the
                top plank (left, middle, right; in the cell's last 3 rows), 16 17 two more cap middles, 7 8 9 the foot
                under the last plank (in the cell's first 2 rows), 10 the post (every row alike, so tiles stack and
                overlap unseen), 11 the post's foot in the ground, 12 the hasp on the shut lid, 13 the post's top, the
                iron plate the lantern stands on (in the cell's last 3 rows); the lid: 18 its left end, 19 20 two
-               middles, 21 its right end (a wider seam than the board's planks), 22 a batten nailed across its planks
+               middles, 21 its right end (a wider seam than the board's planks), 22 a batten nailed across its planks;
+               step 3: the site lantern's crook, 23 24 pointing right (the post's iron-bound top bending over, then the
+               arm's end with its hook and 2 px chain), 25 26 pointing left (the arm's end, then the post's top)
   siteLantern  9x13, 4 frames: the site lantern on the post, unlit (dark glass), lit (a 5x5 flame in the fire ramp,
                white at its heart), and the two frames of its bloom as it catches (the stage lane adds its light, the
                glow of its glass and its halo)
@@ -759,6 +761,38 @@ BATTEN = [".LFDD.",
           ".LFDD.",
           ".LFDD."]
 
+# the site lantern's crook (step 3, the director's call 5: a builder's lantern on a crook, never a street lamp): the
+# lantern's own short post, cut to about the lord's shoulder, its top bound in iron that bends over toward the work and
+# ends in a hook with a 2 px chain; the lantern hangs from the chain (its ring under the chain's last link). Drawn 12
+# wide and cut into two tiles: the post's top with the bend (it stacks on the post tiles below) and the arm's end with
+# the hook and the chain. Pointing right, and pointing left with the post's own light kept on its left.
+CROOK_RIGHT = ["..iiiiiiiii.",
+               ".iiBBBBBBBii",
+               ".iBiiiiiiiBi",
+               ".iBbi....ibi",
+               ".iBbi....iii",
+               ".iLDi.....b.",
+               ".iLDi.....i.",
+               ".iLDi.......",
+               ".iLDi.......",
+               ".iLDi.......",
+               ".iLDi.......",
+               ".iLDi......."]
+CROOK_LEFT = [".iiiiiiiii..",
+              "iiBBBBBBBii.",
+              "iBiiiiiiiBi.",
+              "ibi....iBbi.",
+              "iii....iBbi.",
+              ".b.....iLDi.",
+              ".i.....iLDi.",
+              ".......iLDi.",
+              ".......iLDi.",
+              ".......iLDi.",
+              ".......iLDi.",
+              ".......iLDi."]
+# where the chain's last link hangs in the 12-wide crook (column, row): the lantern's ring (its column 4) hangs under it
+CROOK_CHAIN = {"right": (10, 6), "left": (1, 6)}
+
 # the site lantern (9x13, step 2's critic H2: the 7x10 one was a speck by day): a ring, a cap, a 5x5 glass in an iron
 # frame, a foot; unlit its glass is the night's dark glass (as the street lanterns' heads), lit a flame stands in the
 # fire ramp, white at its heart; as it catches, two frames of bloom: the glass burns white and the light spills
@@ -868,6 +902,11 @@ def board_tiles(pal):
     frames += [legend_image(t, pal, BOARD_LEGEND) for t in (PLANK_M3, PLANK_M4)]
     frames += [legend_image(t, pal, BOARD_LEGEND, cell, top=False) for t in (CAP_M2, CAP_M3)]
     frames += [legend_image(t, pal, BOARD_LEGEND) for t in (LID_L, LID_M1, LID_M2, LID_R, BATTEN)]
+    # step 3: 23 24 the crook pointing right (the post's top with the bend, then the arm's end, hook and chain), 25 26
+    # the crook pointing left (the arm's end, hook and chain, then the post's top with the bend)
+    for crook in (CROOK_RIGHT, CROOK_LEFT):
+        frames.append(legend_image([r[:6] for r in crook], pal, BOARD_LEGEND))
+        frames.append(legend_image([r[6:] for r in crook], pal, BOARD_LEGEND))
     return frames
 
 
