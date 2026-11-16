@@ -751,6 +751,13 @@ final class WeatherTests: XCTestCase {
                 XCTAssertEqual(frame.cropped(x: 2, y: foot, width: sprite.size.width, height: 1),
                                straight.cropped(x: 0, y: foot, width: sprite.size.width, height: 1),
                                "\(bent) frame \(index): the foot where it burns")
+                // Step 4 (the critic's M3): no loose pixel: each one stands on a lit pixel within a column below it.
+                for y in 0..<foot {
+                    for x in 0..<frame.width where frame[x: x, y: y].a > 0 {
+                        XCTAssertTrue((x - 1...x + 1).contains { frame[x: $0, y: y + 1].a > 0 },
+                                      "\(bent) frame \(index): the pixel at \(x), \(y) floats free")
+                    }
+                }
             }
         }
     }
@@ -967,6 +974,24 @@ final class WeatherTests: XCTestCase {
         for step in 0..<200 {
             XCTAssertNil(FrameBuilder.gustBurst(gusty, at: 2900, time: 5 + Double(step) * 0.5, width: width),
                          "a burst is a storm's")
+        }
+    }
+
+    /// Step 4 (the wind critic's low): the banner's dusk rim lies on the cloth. Where a swing holds the trailing edge a
+    /// pixel behind, the lit edge is two pixels wide, and the rim took both, a copper rod one pixel proud of the cloth;
+    /// now under the hem no row of any pose has two rim pixels.
+    func testTheBannersDuskRimLiesOnTheCloth() throws {
+        let art = AtlasBuilder.frames(for: .castleBannerRim, bundle: .main)
+        XCTAssertEqual(art.source, .png)
+        XCTAssertEqual(art.frames.count, Weather.bannerFrames)
+        for (index, frame) in art.frames.enumerated() {
+            for y in 3..<frame.height {
+                let rim = (0..<frame.width).filter {
+                    let p = frame[x: $0, y: y]
+                    return p.a > 0 && p.r > 235 && p.g > 115 && p.g < 160 && p.b < 80
+                }
+                XCTAssertLessThanOrEqual(rim.count, 1, "pose \(index), row \(y): one rim pixel, on the cloth")
+            }
         }
     }
 

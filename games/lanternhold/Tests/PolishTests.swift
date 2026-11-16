@@ -477,7 +477,14 @@ final class PolishTests: XCTestCase {
         XCTAssertFalse(noon.isEmpty)
         XCTAssertEqual(noon.count, night.count, "as much rain")
         XCTAssertTrue(noon.allSatisfy { $0.tint.x > 1 && $0.tint.z > $0.tint.x }, "pale and cool by day")
-        XCTAssertTrue(noon.filter { $0.sprite == .rainStreak }.allSatisfy { $0.tint.w < 0.5 }, "no streak is a ledge")
+        // Build 3 step 4 (the wind critic's M1): no streak on the ground is a ledge; in the sky band, above the treeline,
+        // the lane's streaks fall at `rainSkyDayAlpha` by day.
+        let treeline = Float(frame(GameFrameSupport.demoDay(hour: 12), focus: 2900).groundRow)
+            - Float(FrameBuilder.rainSkyRows)
+        XCTAssertTrue(noon.filter { $0.sprite == .rainStreak }.allSatisfy {
+            $0.tint.w < 0.5 || ($0.rect.y + $0.rect.w < treeline && $0.tint.w <= FrameBuilder.rainSkyDayAlpha + 1e-5)
+        }, "no streak is a ledge")
+        XCTAssertTrue(noon.contains { $0.sprite == .rainStreak && $0.tint.w > 0.5 }, "the sky band's water reads")
         XCTAssertTrue(noon.filter { $0.sprite == .rainSplash }.allSatisfy {
             $0.tint.w <= FrameBuilder.rainHeavySplashAlpha
         }, "a heavy rain's splash shows")

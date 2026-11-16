@@ -1550,6 +1550,11 @@ enum FrameBuilder {
     /// tinted up by this to read as pale as the lane's. The far layer (the near plane's) falls fainter by day.
     static let rainForegroundLift: Float = 1.5
     static let rainFarDayAlpha: Float = 0.7
+    /// Step 4 (the wind critic's M1): by day the lane's streaks wholly in the sky band, above the treeline (more than
+    /// `rainSkyRows` over the ground line), fall at `rainSkyDayAlpha`: the 0.49 cap keeps a streak from being a ledge on
+    /// the ground, and the sky needs none (at 0.43 the water over the band's sky drew 29 of 255 over it, a faint line).
+    static let rainSkyDayAlpha: Float = 0.65
+    static let rainSkyRows = 50.0
     /// How much of the day's shade the rain takes in this air (0 from dusk through the night ... 1 by day).
     static func rainShade(_ ambient: AmbientSample) -> Float {
         Float(AmbientRamp.smoothstep(Double((ambient.ambientIntensity - 0.26) / 0.34)))
@@ -1672,6 +1677,9 @@ enum FrameBuilder {
         let whole = geometry.whole(entry.plane)
         let lane = geometry.whole(.world)
         let tint = rainStreakTint(depth: depth, ambient: ambient)
+        // Step 4 (M1): the lane's streaks in the sky band a step denser by day.
+        let skyAlpha = depth == 1 ? tint.w + (max(tint.w, rainSkyDayAlpha) - tint.w) * rainShade(ambient) : tint.w
+        let treeline = Double(geometry.groundRow) - rainSkyRows
         let key = SeededRandom.hash(weather.gustSeed, Int64(depth + 1))
         var lifted = 0
         var list: [SpriteInstance] = []
@@ -1699,7 +1707,7 @@ enum FrameBuilder {
             x += lean * y
             let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
                                     Float(size.height))
-            var alpha = tint.w
+            var alpha = y + Double(size.height) < treeline ? skyAlpha : tint.w
             if reduceMotion {
                 alpha *= rainPulseAlpha(time: animTime, own: own)
             }

@@ -384,7 +384,9 @@ def banner_frame(base, swing, pal, exponent=1.6):
 def banner_rim(frames, pal):
     """castleBannerRim (step 3, the critic's M4): the dusk rim on the curtain's banner, an emissive overlay of each
     frame: fire orange down the cloth's lit edge (its roofLight column) and faintly along the hem under the bar; the
-    house's lantern in gold, so the mark stays gold at dusk instead of going flat grey."""
+    house's lantern in gold, so the mark stays gold at dusk instead of going flat grey. Step 4 (the wind critic's low:
+    "the rim stands 1 px proud of the cloth" below the mark): where a swing holds the trailing edge a pixel behind, the
+    lit edge is two pixels wide; the rim takes only the inner one, on the cloth, never the one outside it."""
     lit = pal.rgb[pal.index("roofLight")] + (255,)
     marks = {pal.rgb[pal.index(nm)] + (255,) for nm in ("gold", "fireGold")}
     out = []
@@ -397,7 +399,7 @@ def banner_rim(frames, pal):
                     continue
                 if p in marks:
                     im.set(x, y, FLAG_GOLD + (230,))
-                elif p == lit:
+                elif p == lit and (x + 1 >= f.w or f.get(x + 1, y) != lit):
                     im.set(x, y, FLAG_RIM + (int(0.62 * 255),))
                 elif y == 2:                           # the hem under the bar
                     im.set(x, y, FLAG_RIM + (int(0.3 * 255),))

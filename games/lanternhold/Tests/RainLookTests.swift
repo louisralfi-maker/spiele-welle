@@ -416,7 +416,9 @@ final class RainLookTests: XCTestCase {
             ("ash at night, the band", night, 520, .ashFlake, 1, 8),
             ("ash at night, the gorge", night, 300, .ashFlake, 1, 8),
             ("ash at noon, the band", noon, 480, .ashFlake, -1, 40),
-            ("water at noon, the town", noon, 2900, .rainStreak, 1, 24),
+            // Step 4 (the wind critic's M1): the lane's streaks in the sky band fall denser by day; the bar back to 40.
+            ("water at noon, the town", noon, 2900, .rainStreak, 1, 40),
+            ("water at noon, the band", noon, 640, .rainStreak, 1, 40),
         ]
         for item in cases {
             let frame = shot(item.state, focus: item.focus, weather: weather(item.state, rain)).desc

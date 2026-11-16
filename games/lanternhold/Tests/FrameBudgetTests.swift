@@ -76,6 +76,64 @@ final class FrameBudgetTests: XCTestCase {
         add(attachment)
     }
 
+    /// Build 3 step 4 (lane 3, the wind critic's M5): a storm's rain at 22:00 with the band in view: both rains in the
+    /// frame (water east of the outermost standing wall with its night lift near the lights, ash west of it with its warm
+    /// night copies and its embers), the Gloom's fog up and forty creatures on the front, in look 2. Every frame keeps
+    /// under the hard budget (DESIGN.md "Performance budget": 1,500 sprite instances, 64 visible lights); the counts and
+    /// the rains' share are attached.
+    func testAStormsRainAtNightWithTheBandInViewKeepsTheBudget() {
+        var s = crowdedNight()
+        s.hour = 22
+        let world = PlaceholderScene.world(look: .two)
+        let weather = Weather.sample(seed: s.seed, day: s.day, hour: s.hour, time: 1.5,
+                                     override: WeatherOverride(mode: .storm))
+        XCTAssertGreaterThan(weather.rain, 0.5, "a storm's rain")
+        let rains: Set<SpriteID> = [.rainStreak, .rainSplash, .ashFlake]
+        var report: [String] = []
+        var mostInstances = 0
+        var mostRain = 0
+        var mostAsh = 0
+        for screen in [(2622, 1206), (2868, 1320), (1792, 828), (2340, 1080)] {
+            for focus in [300.0, 430, 520, 560, 654, 760, 900, 1000] {
+                var options = FrameOptions(flickerTime: 1.5)
+                options.look = .two
+                options.weather = weather
+                options.gloom = GloomFog(night: s.day, fogNight: false)
+                let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
+                let camera = Camera(focusX: focus, pixelScale: pixelScale)
+                let scene = SceneFilter.gameScene(world, state: s)
+                let layer = EntityFrames.layer(state: s, balance: balance, scene: scene, camera: camera,
+                                               pixelScale: pixelScale, options: options, animTime: 1.5,
+                                               effects: BattleEffects())
+                var clock = DayClock(hour: s.hour, day: s.day)
+                clock.isFrozen = true
+                clock.advance(by: 1.5)
+                let desc = FrameBuilder.build(scene: scene, clock: clock, camera: camera, pixelScale: pixelScale,
+                                              options: options, entities: layer)
+                let sprites = Plane.allCases.flatMap { desc.layer($0).sprites.filter { rains.contains($0.sprite) } }
+                let glow = desc.emissives.filter { rains.contains($0.sprite) }
+                let rain = sprites.count + glow.count
+                let ash = sprites.filter { $0.sprite == .ashFlake }.count
+                report.append("\(screen.0)x\(screen.1) at \(Int(focus)): \(desc.counts.instances) instances (sprites "
+                              + "\(desc.counts.sprites), actors \(desc.counts.actors), emissives \(desc.counts.emissives)), "
+                              + "\(desc.counts.lights) lights; the rains \(rain) (ash \(ash))")
+                XCTAssertLessThan(desc.counts.instances, 1500, "instances at \(focus) on \(screen)")
+                XCTAssertLessThan(desc.counts.lights, 64, "lights at \(focus) on \(screen)")
+                mostInstances = max(mostInstances, desc.counts.instances)
+                mostRain = max(mostRain, rain)
+                mostAsh = max(mostAsh, ash)
+            }
+        }
+        XCTAssertGreaterThan(mostRain, 150, "the rains are in the frames")
+        XCTAssertGreaterThan(mostAsh, 30, "the ash is in the band's and the gorge's frames")
+        print("RAINBUDGET most \(mostInstances) instances, the rains up to \(mostRain)")
+        let attachment = XCTAttachment(string: report.joined(separator: "\n")
+                                       + "\nmost: \(mostInstances) instances, the rains up to \(mostRain)")
+        attachment.name = "frame-budget-rain"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     func testTheBudgetHoldsAcrossAWholeLiveNight() {
         // The demo realm's night 12 played at the app's step with the reference bot, a frame every 2 s at the king.
         var s = GameFrameSupport.demoNight(hour: 19.99)

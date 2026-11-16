@@ -96,7 +96,9 @@ enum PlaceholderWeather {
     /// A flame bent by the wind: its rows two pixels in from the cell's left, each sheared by
     /// `FrameBuilder.flameBend` for the frame's lean, the foot where it burns. Step 3 (the critic's M3): it bends whole;
     /// the rows moved two pixels or more lose their windward pixel (the wind tapers that side) and the top row reaches a
-    /// pixel further downwind (the leeward tip stretched), cut at the cell's edge.
+    /// pixel further downwind (the leeward tip stretched), cut at the cell's edge. Step 4 (the critic's M3: in the dry
+    /// storm a 2 x 1 and a 1 x 1 orange pixel floated free above the leeward side): a pixel with nothing lit within a
+    /// pixel below it is clipped, from the foot up, so the flame is one body.
     static func bentFlame(_ rows: [String], sprite: SpriteID, frame: Int) -> PixelImage {
         var p = Painter(sprite.size, salt: 0)
         let lean = bentFlameLeans[frame]
@@ -124,6 +126,17 @@ enum PlaceholderWeather {
                 }
             }
             p.stamp([String(cells)], PlaceholderSprites.firePalette, x: 2 + shift, y: index)
+        }
+        let size = sprite.size
+        if size.height > 1 {
+            for y in stride(from: size.height - 2, through: 0, by: -1) {
+                for x in 0..<size.width where p.image[x: x, y: y].a > 0 {
+                    let held = (x - 1...x + 1).contains { p.image[x: $0, y: y + 1].a > 0 }
+                    if !held {
+                        p.image[x: x, y: y] = .clear
+                    }
+                }
+            }
         }
         return p.image
     }
