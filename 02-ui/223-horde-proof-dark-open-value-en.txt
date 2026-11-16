@@ -1,0 +1,1 @@
+shot 223-horde-proof-dark-open: frame:210 ready day:12 hour:23.00 alive:42 seen:39 lit:0 shots:0 aim:0 kx:680 lord:lord stage:world lx:680 errand:none door:1830 gold:93 hud:none cam:462 tap:none hint:off0 lantern:ready

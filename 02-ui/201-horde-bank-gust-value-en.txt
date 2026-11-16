@@ -1,0 +1,1 @@
+shot 201-horde-bank-gust: frame:230 ready day:12 hour:23.85 alive:14 seen:7 lit:7 shots:0 aim:2 kx:520 lord:lord stage:world lx:520 errand:none door:1830 gold:93 hud:none cam:267 tap:none hint:off0 lantern:ready

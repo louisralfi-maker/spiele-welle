@@ -1,0 +1,7 @@
+Test Case '-[LanternholdUITests.HordeUITests testHorde]' passed (114.011 seconds).
+Test Case '-[LanternholdUITests.HordeUITests testHordeFilmstrip]' passed (21.985 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (255.937 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (14.040 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (46.321 seconds).
+exit=0
+screenshots: 37
