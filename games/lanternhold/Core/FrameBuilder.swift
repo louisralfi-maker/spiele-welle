@@ -2177,7 +2177,7 @@ enum FrameBuilder {
             let near = x0 + downwind * pace * along
             // A breeze's leaves ride its small gusts too (a lower threshold), so they are gone when it eases.
             let gust = gustShare(at: near + lane, weather, time: animTime)
-            var alpha: Double
+            let alpha: Double
             if level == 1 {
                 alpha = AmbientRamp.smoothstep((gust - 0.1) / 0.4)
             } else {

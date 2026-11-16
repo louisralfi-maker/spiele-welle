@@ -471,7 +471,14 @@ final class RainLookTests: XCTestCase {
                 }
             }
         }
-        // The grey flakes of the lane's depth, whole (not fading in the band, not an ember's), east of the bank's sheet.
+        // The grey flakes of the lane's depth, whole (not fading in the band, not an ember's), east of the bank's sheet,
+        // with nothing of the foreground (a water streak in the band) drawn over them.
+        let fronts = frame.layer(.foreground).sprites.map(\.rect)
+        func covered(_ r: SIMD4<Float>) -> Bool {
+            fronts.contains { f in
+                f.x < r.x + r.z + 1 && r.x - 1 < f.x + f.z && f.y < r.y + r.w + 1 && r.y - 1 < f.y + f.w
+            }
+        }
         var pixels = 0
         var blue = 0
         var white = 0
@@ -482,7 +489,7 @@ final class RainLookTests: XCTestCase {
             let left = Int(flake.rect.x)
             let top = Int(flake.rect.y)
             guard Float(left) > frame.bankEdge + Float(FrameBuilder.ashBankFace), left >= 4,
-                  left + 9 < frame.targetWidth, top >= 2, top + 5 < sky else { continue }
+                  left + 9 < frame.targetWidth, top >= 2, top + 5 < sky, !covered(flake.rect) else { continue }
             let beside = (luma(color(.world, left - 3, top + 2)) + luma(color(.world, left + 7, top + 2))) / 2
             for (dy, row) in PlaceholderWeather.ashClumps[flake.frame].enumerated() {
                 for (dx, cell) in row.enumerated() where cell != "." {
