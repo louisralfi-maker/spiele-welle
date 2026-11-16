@@ -103,7 +103,10 @@ final class CountUITests: XCTestCase {
         if let again = waitForThing(app, "touch-plot-0", timeout: 3) {
             again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 0.5)
         }
-        XCTAssertTrue(waitForField(app, ":letGo", timeout: 4), "let go: the coins go back")
+        // The count's own state (`<placed>/9:letGo`), never `last:letGo:` (round lh-b3c-11: the untouched board had
+        // already gone down 2 s after he stood beside it, and the shot caught the press's new board still open).
+        XCTAssertTrue(waitForField(app, "/9:letGo", timeout: 5), "let go: the coins go back")
+        XCTAssertFalse(waitForField(app, ":0/9:letGo", timeout: 0.3), "with coins on the board")
         pause(0.3)
         attach(XCUIScreen.main.screenshot(), "174-count-letgo-\(language)")
         XCTAssertEqual(sceneGold(app), 200, "nothing paid")
