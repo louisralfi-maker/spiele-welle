@@ -41,8 +41,10 @@ final class WindSoundTests: XCTestCase {
     func testTheGustsAreHeardRarely() {
         XCTAssertTrue(minute(WeatherOverride(mode: .clear, wind: 0.08), x: 1900, flag: true).isEmpty, "a calm: silent")
         XCTAssertTrue(minute(WeatherOverride(mode: .breeze), x: 1900, flag: true).isEmpty, "a breeze: silent")
-        let snaps = minute(WeatherOverride(mode: .gusty), x: 1900, flag: true)
-        XCTAssertFalse(snaps.isEmpty, "a gusty day snaps the flags in view")
+        XCTAssertFalse(minute(WeatherOverride(mode: .gusty), x: 1900, flag: true)
+            .contains { $0.cue.file == WindSound.bannerSnap }, "a gusty day's gusts do not snap the flags")
+        let snaps = minute(WeatherOverride(mode: .storm), x: 1900, flag: true)
+        XCTAssertFalse(snaps.isEmpty, "a storm's gusts snap the flags in view")
         XCTAssertTrue(snaps.allSatisfy { $0.cue.file == WindSound.bannerSnap })
         XCTAssertLessThanOrEqual(snaps.count, Int(60 / WindSound.snapGap) + 1, "rare")
         for (a, b) in zip(snaps, snaps.dropFirst()) {

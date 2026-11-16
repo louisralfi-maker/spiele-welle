@@ -40,17 +40,18 @@ enum WindSound {
     /// The town: east of the postern (`AmbienceMix.baileyEnd`).
     static let townFrom = AmbienceMix.baileyEnd
 
-    /// The cues of this moment at the listener's world x (at most one): a snap when a gust rises on a gusty day or in a
-    /// storm with a flag or banner in view (`flagInView`), else a rattle when it rises in the town; nothing in a calm or
-    /// a breeze, and nothing sooner than the sound's gap after its last.
+    /// The cues of this moment at the listener's world x (at most one): a snap when a storm's gust rises with a flag or
+    /// banner in view (`flagInView`), else a rattle when a gust rises in the town on a gusty day or in a storm; nothing
+    /// in a calm or a breeze, and nothing sooner than the sound's gap after its last.
     static func cues(_ ears: inout Ears, weather: WeatherSample, listenerX: Double, flagInView: Bool,
                      time: Double) -> [Cue] {
         let share = FrameBuilder.gustShare(at: listenerX, weather, time: time)
         let rising = ears.share < rise && share >= rise
         ears.share = share
-        guard rising, Weather.sailLevel(weather.mean) >= 2 else { return [] }
+        let level = Weather.sailLevel(weather.mean)
+        guard rising, level >= 2 else { return [] }
         let rate = 0.95 + 0.1 * (time * 7.31).truncatingRemainder(dividingBy: 1)
-        if flagInView && time - ears.lastSnap >= snapGap {
+        if level >= 3 && flagInView && time - ears.lastSnap >= snapGap {
             ears.lastSnap = time
             return [Cue(file: bannerSnap, volume: snapVolume * (0.8 + 0.2 * share), rate: rate)]
         }
