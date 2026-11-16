@@ -1210,3 +1210,12 @@ schneller geht."
   - For the build, whichever form: a 13 px face, a reading that survives phone size (three notches, no ticks),
     a colder blue-grey for grim, the touch slip with a 44 pt hit area; for C a check of the night scene under the strip.
   - Usage 98 %: no new agent or workflow before Louis' reset.
+
+- **The drill yard's step 1 is green (16.11.2026, 23:32).**
+  - `claude/lh-b3-yard` 3d134b6c, round lh-b3y-13 ALL PASSED (build, the whole unit suite), pushed. T16 a-e pass with
+    the director's reading: 28 % fewer soldiers lost, 37 % fewer creatures at the gatehouse, 96 % of the reference's
+    losses at the hardest budget, 54 against 0 at the gatehouse without walls.
+  - Next for the yard: the layout and look step, stage 2 put up by the builders, Brannock's lines, the dawn card's
+    lines, T6 and nights 15+. The walls question goes to wave 3.
+  - Wave 2 stands with two green lane steps on origin (yard 3d134b6c, lantern fb6e938a). At 98 % usage nothing new
+    starts before Louis' reset.
