@@ -1169,3 +1169,11 @@ schneller geht."
   - The town's mood stands at the map (HUD.md, "Decision of 16.11.2026"): the hood face and the people's count move from the lord's row to the realm strip's town end, bigger and in colour, with one slip that names the main reason on a touch. A design card comes first.
   - The smooth walk: he saw some things jitter while the lord walks. The planes already scroll in device pixels, so the suspects are things that snap on their own (figures on whole game px, SwiftUI things that follow the world, the wind's sway, the lead turning on a tap). Step 2 of the lane starts with a read-only diagnosis and proves the fix with a filmstrip of a walk.
   - Order for lane 5 after step 1: the smooth walk, then the mood at the map, then the vignette and the figures' fade.
+
+- **Wave 2, lane 5 step 1 is green (16.11.2026, 22:08).**
+  - `claude/lh-b3-lantern` 1425c76a, cut from ab29d2d4. Rounds lh-b3l-11 (on 711e1110: build, the whole unit suite, ui LookAround, Lord, Hall, Touch, Count) and lh-b3l-12 (on 1425c76a: build, unit CameraTests and LanternMomentTests, ui LookAroundUITests) are both ALL PASSED.
+  - No dead tap: with the lantern up, a touch on a thing lowers it and does the deed in the same touch.
+  - The look-around: with the lantern up a sideways drag pans the world 1:1, the strip's bracket moves along, and letting go glides home in 0.35 s (Reduce Motion jumps).
+  - Accepted by the director: in the hall a drag lowers the lantern and walks; in a long pan the lord's row rides off with the world.
+  - For the join: the tagged `b3-lantern` blocks in App/GameModel.swift and App/DebugArgs.swift; `TouchSupport.lowerLantern`'s comment and test; a small setter replaces the full `refreshHUD` during a pan.
+  - Next: step 2, the smooth walk, starts with a read-only diagnosis by one Opus agent (the desk's b3-lantern-s2-diagnosis.md). The yard's step 1 still runs. The week's quota stands at 96 % (stop at 99 %).
