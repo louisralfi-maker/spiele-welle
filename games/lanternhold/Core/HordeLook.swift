@@ -212,15 +212,16 @@ enum HordeLook {
         return (dx: Double(peak.x - 7), dy: Double(14 - peak.y))
     }
 
-    /// The thread strip's lengths (`tools/creatures/sootThread.py`): 10 ... 17 px.
-    static let threadLengths = 10...17
+    /// The thread strip's lengths (`tools/creatures/sootThread.py`): 6 ... 10 px (step 4, the director's call 5:
+    /// wisps, not poles, never taller than the body).
+    static let threadLengths = 6...10
     /// Its curls (the wisps' side and where they turn): 0 ... 2.
     static let threadCurls = 3
 
-    /// About every second small one carries a standing thread (call 7: threads are soot, and fewer), chosen by id, not
-    /// by body. Every fall still leaves its orphan thread: a snuffed wick smokes.
+    /// About every third small one carries a wisp (step 4, the director's call 5; step 3 every second), chosen by id,
+    /// not by body. Every fall still leaves its orphan wisp: a snuffed wick smokes.
     static func hasThread(id: Int) -> Bool {
-        SeededRandom.hash(0x5448_5244_4F4E, Int64(id)) % 2 == 0
+        SeededRandom.hash(0x5448_5244_4F4E, Int64(id)) % 3 == 0
     }
 
     /// A thread's curl by id, so a file of threads and a volley's orphans never curl alike.
@@ -228,10 +229,10 @@ enum HordeLook {
         Int(SeededRandom.hash(0x4355_524C, Int64(id)) % UInt64(threadCurls))
     }
 
-    /// A thread's length: its body's height and 0 ... 3 px more by id, so a file of them never stands ruled.
+    /// A wisp's length: 6 ... 10 px by id, never taller than its body, so a file of them never stands ruled.
     static func threadLength(id: Int) -> Int {
-        let extra = Int(SeededRandom.hash(0x5448_4C4E, Int64(id)) % 4)
-        return min(threadLengths.upperBound, height(body(id: id)) + extra)
+        let extra = Int(SeededRandom.hash(0x5448_4C4E, Int64(id)) % UInt64(threadLengths.count))
+        return min(height(body(id: id)), threadLengths.lowerBound + extra)
     }
 
     /// The tip's lean, -4 ... +4 px: four times the wind (+ toward the valley, the way the horde runs), and while it
@@ -250,7 +251,7 @@ enum HordeLook {
         return Int((max(0, time) * 2.2 + phase * 2).rounded(.down)) % 2
     }
 
-    /// The thread's frame over all its curls: ((curl × 8 + length index) × 9 + lean + 4) × 2 + sway. Each curl is a strip
+    /// The thread's frame over all its curls: ((curl × 5 + length index) × 9 + lean + 4) × 2 + sway. Each curl is a strip
     /// of its own (`threadSprites`, `threadFramesPerCurl` frames each: one strip of 432 frames, 6480 px wide, did not
     /// decode on the simulator); `threadSprite` and `threadCell` find where a frame is drawn from.
     static func threadFrame(length: Int, lean: Int, sway: Int, curl: Int = 0) -> Int {
@@ -261,8 +262,8 @@ enum HordeLook {
 
     /// The thread's strips, one per curl.
     static let threadSprites: [SpriteID] = [.sootThread, .sootThreadB, .sootThreadC]
-    /// Frames in each curl's strip: eight lengths, nine leans, two sways.
-    static let threadFramesPerCurl = 8 * 9 * 2
+    /// Frames in each curl's strip: five lengths, nine leans, two sways (90 frames, 1350 px).
+    static let threadFramesPerCurl = threadLengths.count * 9 * 2
 
     /// The strip a thread frame (`threadFrame`) is drawn from.
     static func threadSprite(_ frame: Int) -> SpriteID {
@@ -285,7 +286,8 @@ enum HordeLook {
     /// puff of smoke).
     static func threadTint(night: Float, share: Float, bright: Float = 1) -> SIMD4<Float> {
         let value = min(1.6, (1 - (1 - threadNightValue) * night) * bright)
-        return SIMD4<Float>(value, value, value, 0.9 * max(0, min(1, share)))
+        // step 4 (the director's call 5): 0.7 at most, the wisp fading out above its root in the strip itself
+        return SIMD4<Float>(value, value, value, 0.7 * max(0, min(1, share)))
     }
 
     // MARK: - The heap

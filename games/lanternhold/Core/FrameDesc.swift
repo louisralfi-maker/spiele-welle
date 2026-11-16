@@ -282,7 +282,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .lightlessKing, .lightlessKingGlow: return PixelSize(width: 64, height: 64)
         // b3-horde
         case .tumbler, .tumblerGlow, .sootFall, .sootFallGlow: return PixelSize(width: 14, height: 14)
-        case .sootThread, .sootThreadB, .sootThreadC: return PixelSize(width: 15, height: 18)
+        case .sootThread, .sootThreadB, .sootThreadC: return PixelSize(width: 15, height: 12)
         case .sootFlake: return PixelSize(width: 3, height: 3)
         case .bastion: return PixelSize(width: 44, height: 64)
         case .rubbleWood: return PixelSize(width: 24, height: 10)
@@ -534,11 +534,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
         case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
         // b3-horde: the tumbler rolls 0-3 and claws 4-6 (gather, claw, recover); the fall 0-2 crawler, 3-5 loper, 6-8
-        // tumbler; the thread (length index × 9 + lean + 4) × 2 + sway, eight lengths, one strip per curl (one strip of
-        // 432 frames, 6480 px wide, did not decode on the simulator; `HordeLook.threadFrame`); the flakes' three shapes
+        // tumbler; the thread (length index × 9 + lean + 4) × 2 + sway, five lengths (step 4), one strip per curl (one
+        // strip of 432 frames, 6480 px wide, did not decode on the simulator; `HordeLook.threadFrame`); the flakes'
+        // three shapes
         case .tumbler, .tumblerGlow: return 7
         case .sootFall, .sootFallGlow: return 9
-        case .sootThread, .sootThreadB, .sootThreadC: return 144
+        case .sootThread, .sootThreadB, .sootThreadC: return 90
         case .sootFlake: return 3
         case .citizen, .citizenB, .citizenC, .builder: return 6
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,

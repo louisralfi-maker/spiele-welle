@@ -423,7 +423,8 @@ final class EntityFramesTests: XCTestCase {
         for id in 0..<60 {
             let length = HordeLook.threadLength(id: id)
             let high = HordeLook.height(HordeLook.body(id: id))
-            XCTAssertTrue((high...(high + 3)).contains(length), "the thread of \(id) is its body's height and up to 3 px")
+            // step 4 (the director's call 5): a wisp, never taller than its body
+            XCTAssertLessThanOrEqual(length, min(10, high), "the wisp of \(id) is never taller than its body")
             XCTAssertTrue(HordeLook.threadLengths.contains(length))
         }
         for body in HordeLook.Body.allCases {
@@ -545,12 +546,13 @@ final class EntityFramesTests: XCTestCase {
     }
 
     func testEverySmallOneCarriesAThreadThatLeansWithTheWind() {
-        // step 3 (the director's call 7): about every second one carries a thread, chosen by id, not by body
+        // step 4 (the director's call 5): about every third one carries a wisp, chosen by id, not by body
         let carriers = (0..<90).filter { HordeLook.hasThread(id: $0) }
-        XCTAssertTrue((30...60).contains(carriers.count), "about every second one (\(carriers.count) of 90)")
+        XCTAssertTrue((18...42).contains(carriers.count), "about every third one (\(carriers.count) of 90)")
         for body in HordeLook.crowd {
             let ids = (0..<90).filter { HordeLook.body(id: $0) == body }
-            XCTAssertTrue((12...33).contains(ids.filter { HordeLook.hasThread(id: $0) }.count), "\(body)s: about half")
+            XCTAssertTrue((7...23).contains(ids.filter { HordeLook.hasThread(id: $0) }.count),
+                          "\(body)s: about a third")
         }
         XCTAssertGreaterThanOrEqual(Set(carriers.prefix(12).map { HordeLook.threadCurl(id: $0) }).count, 2,
                                     "their curls differ by id")
@@ -605,7 +607,7 @@ final class EntityFramesTests: XCTestCase {
             XCTAssertEqual(thread.rect.x + 7 * scale, bodyActor.rect.x + Float(7 + root.dx) * scale, accuracy: 1)
             XCTAssertGreaterThan(calm.actors.firstIndex(of: thread) ?? -1, calm.actors.firstIndex(of: bodyActor) ?? 0,
                                  "drawn over the body")
-            XCTAssertEqual((thread.frame / 18) % 8 + HordeLook.threadLengths.lowerBound,
+            XCTAssertEqual((thread.frame / 18) % HordeLook.threadLengths.count + HordeLook.threadLengths.lowerBound,
                            HordeLook.threadLength(id: c.id), "its own length")
             XCTAssertEqual(HordeLook.threadSprites.firstIndex(of: thread.sprite), HordeLook.threadCurl(id: c.id),
                            "its own curl")
@@ -842,7 +844,7 @@ final class EntityFramesTests: XCTestCase {
     func testTheThreadsAreSmokeThatNeverStandsRuled() {
         // A file of twelve: lengths of their own, and the wind's lean at the tip shows at a glance (H1).
         let lengths = (0..<12).map { HordeLook.threadLength(id: $0) }
-        XCTAssertGreaterThanOrEqual(Set(lengths).count, 5, "a file of threads never stands ruled")
+        XCTAssertGreaterThanOrEqual(Set(lengths).count, 4, "a file of wisps never stands ruled")
         XCTAssertEqual(HordeLook.threadLean(wind: 0, running: false), 0, "a calm: it stands")
         XCTAssertEqual(HordeLook.threadLean(wind: 0, running: true), -2, "running in a calm: streamed back")
         XCTAssertEqual(HordeLook.threadLean(wind: 1, running: false), 4, "a gust: four pixels at the tip")
@@ -854,7 +856,9 @@ final class EntityFramesTests: XCTestCase {
             $0.frameCount == HordeLook.threadFramesPerCurl && $0.size == SpriteID.sootThread.size
         })
         XCTAssertEqual(HordeLook.threadFramesPerCurl, HordeLook.threadLengths.count * 9 * 2)
-        let last = HordeLook.threadFrame(length: 17, lean: 4, sway: 1, curl: HordeLook.threadCurls - 1)
+        XCTAssertLessThanOrEqual(SpriteID.sootThread.size.width * HordeLook.threadFramesPerCurl, 2160,
+                                 "each curl's strip decodes on the simulator")
+        let last = HordeLook.threadFrame(length: 10, lean: 4, sway: 1, curl: HordeLook.threadCurls - 1)
         XCTAssertEqual(HordeLook.threadSprite(last), .sootThreadC)
         XCTAssertEqual(HordeLook.threadCell(last), HordeLook.threadFramesPerCurl - 1)
         // the strips: dense at the root (two pixels wide), broken into wisps in the top third
@@ -875,16 +879,25 @@ final class EntityFramesTests: XCTestCase {
             strips[min(strips.count - 1, frame / HordeLook.threadFramesPerCurl)][
                 HordeLook.threadCell(frame) * size.width + x, y]
         }
-        // step 3 (call 7): soot, never rain: the lower two thirds unbroken and darker than the wisps above them
+        // step 3 (call 7): soot, never rain: the lower two thirds unbroken and darker than the wisps above them;
+        // step 4 (call 5): wisps, not poles: never taller than ten rows, two pixels at the root and one above it, never
+        // plumb (its lower part drifts at least a pixel aside), its top broken into loose specks
         func luma(_ c: RGBA) -> Double { 0.299 * Double(c.r) + 0.587 * Double(c.g) + 0.114 * Double(c.b) }
         for curl in 0..<HordeLook.threadCurls {
-            for length in [10, 14, 17] {
+            for length in HordeLook.threadLengths {
                 let frame = HordeLook.threadFrame(length: length, lean: 0, sway: 0, curl: curl)
                 let row = { (y: Int) in (0..<size.width).filter { image(frame, $0, y).a > 0 }.count }
                 XCTAssertEqual(row(size.height - 1), 2, "\(length) px, curl \(curl): two pixels wide at the root")
+                XCTAssertEqual(row(size.height - 2), 1, "\(length) px, curl \(curl): one pixel above it")
                 let rows = (0..<size.height).map(row)
                 let top = rows.firstIndex { $0 > 0 } ?? 0
+                XCTAssertLessThanOrEqual(size.height - top, 10, "\(length) px, curl \(curl): never taller than ten rows")
                 let lowerFrom = size.height - length * 2 / 3
+                let columns = (lowerFrom..<size.height).compactMap { y in
+                    (0..<size.width).first { image(frame, $0, y).a > 0 }
+                }
+                XCTAssertGreaterThanOrEqual((columns.max() ?? 0) - (columns.min() ?? 0), 1,
+                                            "\(length) px, curl \(curl): never plumb")
                 let gaps = rows[top..<lowerFrom].filter { $0 == 0 }.count
                 XCTAssertGreaterThan(gaps, 0, "\(length) px, curl \(curl): its top third breaks into wisps")
                 XCTAssertTrue(rows[lowerFrom...].allSatisfy { $0 > 0 }, "\(length) px, curl \(curl): unbroken below")
@@ -918,7 +931,8 @@ final class EntityFramesTests: XCTestCase {
                             + tip(HordeLook.threadFrame(length: length, lean: 3, sway: 1, curl: curl))) / 2
                 XCTAssertGreaterThanOrEqual(gust - calm, 2, "\(length) px: a gust leans the tip at a glance")
                 XCTAssertGreaterThan(gust - calm, abs(swung - still), "\(length) px: the lean outweighs the sway")
-                XCTAssertLessThanOrEqual(abs(calm), 1, "\(length) px: a calm thread stands about its root")
+                // step 4: a calm wisp drifts toward its curl's side, never more than two and a half pixels
+                XCTAssertLessThanOrEqual(abs(calm), 2.5, "\(length) px: a calm wisp stands near its root")
             }
         }
     }
@@ -1011,8 +1025,8 @@ final class EntityFramesTests: XCTestCase {
             return
         }
         XCTAssertGreaterThan(early.tint.x, later.tint.x, "bright for its first 0.2 s")
-        XCTAssertEqual((early.frame / 18) % 8 + HordeLook.threadLengths.lowerBound, HordeLook.threadLength(id: 7),
-                       "its own thread")
+        XCTAssertEqual((early.frame / 18) % HordeLook.threadLengths.count + HordeLook.threadLengths.lowerBound,
+                       HordeLook.threadLength(id: 7), "its own thread")
         XCTAssertEqual(HordeLook.threadSprites.firstIndex(of: early.sprite), HordeLook.threadCurl(id: 7),
                        "its own curl")
     }
