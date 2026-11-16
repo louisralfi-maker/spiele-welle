@@ -1,0 +1,42 @@
+2026-11-16 20:56:21.967510+0000 Lanternhold[14072:53727] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-16 20:56:24.435900+0000 Lanternhold[14072:54632] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 20:56:24.436519+0000 Lanternhold[14072:54624] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 20:56:24.444211+0000 Lanternhold[14072:54619] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 20:56:24.839787+0000 Lanternhold[14072:54624] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 20:56:24.842000+0000 Lanternhold[14072:54624] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 20:56:24.843740+0000 Lanternhold[14072:54624] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.CameraTests testClampingToTheWorld]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.CameraTests testDeviceXPlacesActorsWithTheWorldPlane]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CameraTests testFollowSettlesOnAStandingKing]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CameraTests testKingOnScreenJitterAtMostOneDevicePixel]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.CameraTests testParallaxFactors]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CameraTests testPlaneOffsetRuleEverywhere]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.CameraTests testPlaneOffsetsAtTheFrontShot]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CameraTests testReduceMotionHasNoLag]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.CameraTests testSnappedActorsShowTheJitterSmoothRemoves]' passed (0.028 seconds).
+Test Case '-[LanternholdTests.CameraTests testTheFollowHoldsWhileTheViewIsSlidAndTheLordStands]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CameraTests testTheLookAroundMovesWithTheFingerAndGlidesHome]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CameraTests testThePanSlidesTheViewInsideTheWorld]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testALiftAfterTheSceneWentInactiveIsNoTap]' passed (0.119 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testAnUprightSwipeUnderTheLanternLowersIt]' passed (0.166 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testATapOnAThingWhileTheLanternIsUpLowersItAndStartsItsErrand]' passed (0.160 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testATapOnNothingWhileTheLanternIsUpOnlyLowersIt]' passed (0.233 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testATapOnTheLordStillsTheWorldAndAnyTouchRunsItOn]' passed (0.133 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testATouchOnTheLordStandingOnHisSiteRaisesTheLantern]' passed (0.636 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testAVoiceOverDeedUnderTheLanternLowersIt]' passed (0.128 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testLettingGoGlidesHomeAndReduceMotionJumps]' passed (0.283 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testLoweringTheLanternWhileSlidGlidesHome]' passed (0.238 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheChangeNotesComeAndGo]' passed (0.069 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheFaceTakesTheLedgersBands]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheGearOpensThePauseSheetAndTheBackgroundRaisesTheLantern]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheGoldStandsAboveTheLordWhileItChanges]' passed (0.311 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheLookAroundSlidesTheRealmOneToOneAndClampsAtBothEnds]' passed (0.117 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheLordBesideAPersonStillsTheWorld]' passed (0.028 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheLordIsAnElementThatRaisesTheLantern]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheLordWinsOnHisBodyUnlessTheFingerIsClearlyNearerTheThing]' passed (0.049 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheMomentsRowAndDayLineSitOnTheKitsGrid]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testThePurseTicksCoinByCoinAndGoes]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheRealmStripIsAMapOfPixels]' passed (0.031 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheStripComesForACallAndGoes]' passed (0.003 seconds).
+exit=0
+screenshots: 0

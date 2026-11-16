@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.LookAroundUITests testATapUnderTheLanternDoesTheDeed]' passed (47.150 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheGlideHomeFilmstrip]' passed (35.658 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheLookAround]' passed (34.272 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheTwoEnds]' passed (49.511 seconds).
+exit=0
+screenshots: 12
