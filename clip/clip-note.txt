@@ -1,0 +1,15 @@
+== 00:06:40 sim-clip: Lanternhold in /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold, simulator 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF
+home screen probe: 3156066 bytes
+== 00:06:50 launch call returned after 2 s
+last probe: 325231 bytes
+== 00:07:00 the world is on screen after 12 s; recording 10 s
+recorded 14897116 bytes
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+avconvert completed with error:0.
+
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+avconvert completed with error:0.
+
+avconvert Preset960x540: 6422412 bytes (the frame may stand on its side)
+clip: clip/horde-clip.mp4, 6422412 bytes
+== 00:07:27 done
