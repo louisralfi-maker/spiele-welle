@@ -1031,3 +1031,14 @@ schneller geht."
 - **The count lane's step 3 judged (16.11.2026, 09:34).**
   - Green at 280bf23c (round lh-b3c-33); the critic fails it at 6/10 with four small highs. The low board beside the gate and the crook lantern at night are good and stay.
   - The director's calls for step 4: the coin shows its face at the peak; a let go ends at the lord's belt; by day the light is solid embers, a gold rim and a warm pool; the small coin is gold, not a pebble; the hollows fill from the lord's side. Then the pictograms: a signpost at a plot with several offers, one hung shingle per offer (silhouette, coin, price, no words), a touch brings that offer's board.
+
+- **The wind lane's step 4 judged (16.11.2026, 11:07).**
+  - Green at c487cb8c (round lh-b3w-43 on 422d7e66; the head adds text only). The critic: fail, 6/10, no blocker, three highs.
+  - Works: the night ash no longer reads as snow; the noon water is crisp; the town rain at dusk, the flags and the banner hold.
+  - Fails: the embers are dull rust dots, the vane is a white dumbbell whose direction cannot be read, the leaves read as rain dashes.
+  - The director's calls:
+    - the smoke shows the wind (the lane takes the chimney smoke: it leans downwind, lies flat and torn in a storm);
+    - the ember's fading body is accepted; more and bigger embers with a hot core;
+    - the vane becomes a real arrow (a small filled head, a heavy notched tail) or it is cut;
+    - every leaf gets a shadow edge and none is thinner than 2 px; a burst leaves one crown together.
+  - Step 5 is one Opus agent with its own short rounds (no workflow, for the quota: 83 % of the week).
