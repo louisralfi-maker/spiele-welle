@@ -110,15 +110,31 @@ final class HordeProofTests: XCTestCase {
     func testTheStreamIsAHordeNotAFile() {
         XCTAssertTrue(HordeProof.streamGaps.allSatisfy { (0.3...1.4).contains($0) }, "gaps of 0.3 to 1.4 s")
         XCTAssertGreaterThanOrEqual(Set(HordeProof.streamGaps).count, 4, "gaps of their own")
-        let spawns = (0..<300).map { HordeProof.clump(id: $0) }
+        let spawns = (0..<300).map { HordeProof.clump(spawn: $0) }
         XCTAssertTrue(spawns.allSatisfy { (1...3).contains($0) })
         XCTAssertEqual(Double(spawns.filter { $0 > 1 }.count) / 300, 1.0 / 3, accuracy: 0.05, "about every third a clump")
         XCTAssertEqual(Set(spawns.filter { $0 > 1 }), [2, 3], "of two or three")
-        for id in 0..<30 {
-            XCTAssertEqual(HordeProof.clumpOffset(0, id: id), 0)
-            XCTAssertLessThan(HordeProof.clumpOffset(1, id: id), HordeProof.clumpOffset(2, id: id))
-            XCTAssertLessThan(HordeProof.clumpOffset(2, id: id), HordeProof.clumpSpread, "within 12 px")
+        let beats = Set(stride(from: 0, to: 297, by: 3).map { start in
+            (spawns[start..<(start + 3)].firstIndex { count in count > 1 } ?? start) - start
+        })
+        XCTAssertEqual(beats, [0, 1, 2], "the clump falls on any spawn of its three, never in a beat")
+        for spawn in 0..<30 {
+            XCTAssertEqual(HordeProof.clumpOffset(0, spawn: spawn), 0)
+            XCTAssertLessThan(HordeProof.clumpOffset(1, spawn: spawn), HordeProof.clumpOffset(2, spawn: spawn))
+            XCTAssertLessThan(HordeProof.clumpOffset(2, spawn: spawn), HordeProof.clumpSpread, "within 12 px")
         }
+        // the gate's review: the live stream itself (its ids handed out one by one, a clump's taking two or three),
+        // not the table alone: about one spawn in three a clump
+        var live = GameFrameSupport.demoNight(hour: 23.0)
+        live.creatures.removeAll()
+        HordeProof.streamSpawns = 0
+        var clumps = 0
+        for _ in 0..<300 {
+            let before = live.creatures.count
+            HordeProof.spawnStream(&live, balance: .standard, x: live.bankEdge + HordeProof.streamFrom)
+            if live.creatures.count - before > 1 { clumps += 1 }
+        }
+        XCTAssertEqual(Double(clumps) / 300, 1.0 / 3, accuracy: 0.06, "the live stream: about one spawn in three a clump")
         XCTAssertTrue((0..<70).allSatisfy { (0.85...1.2).contains(HordeProof.pace(id: $0)) }, "paces of 0.85 to 1.2")
         XCTAssertGreaterThanOrEqual(Set((0..<70).map { HordeProof.pace(id: $0) }).count, 5, "by id")
         XCTAssertEqual(Set((0..<60).map { HordeProof.ground(id: $0) }), [0, -1, -2], "ground lines 0, 1 or 2 px lower")

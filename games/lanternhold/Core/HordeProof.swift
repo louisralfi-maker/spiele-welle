@@ -24,9 +24,10 @@ import Foundation
 /// third one a clump of two or three within 12 px, each small one at its own pace by id (0.85 ... 1.2 of the walk, so
 /// they bunch and overtake) and on its own ground line by id (0, 1 or 2 px lower, the lower one drawn in front:
 /// `EntityFrames`), so the open fills with a crowd and its gaps; the heap at the outer wall holds `heapCap` at most (the
-/// oldest falls), so the stream keeps crossing the open while the heap still climbs; the probe notes `open:<n>`, the
-/// small ones crossing the open (`inTheOpen`). A stand-in for the horde's packs (lane 4 step B), never a rule: Battle and
-/// Balance are untouched.
+/// newest falls as it reaches it; the gate's review: with the oldest falling every climber stepped down a level about
+/// once a second, a conveyor, not a climb), so the stream keeps crossing the open while the heap still climbs; the
+/// probe notes `open:<n>`, the small ones crossing the open (`inTheOpen`). A stand-in for the horde's packs (lane 4
+/// step B), never a rule: Battle and Balance are untouched.
 enum HordeProof {
     static let openCount = 16
     static let wallCount = 12
@@ -40,22 +41,26 @@ enum HordeProof {
     static let streamFrom = -14.0
     static let streamCap = 48
     /// Step 5 (call 3): the gap after a spawn, by the id of its first small one (the short gaps make the crowd, the
-    /// long ones the breaks in it), and how long the stream has run when the world appears.
-    static let streamGaps: [Double] = [0.3, 0.4, 0.3, 1.4, 0.3, 0.5, 0.3, 0.4, 0.8, 0.3, 0.4]
+    /// long ones the breaks in it; weighted short, so the open holds eight or more at every second), and how long the
+    /// stream has run when the world appears.
+    static let streamGaps: [Double] = [0.3, 0.3, 0.4, 1.4, 0.3, 0.3, 0.5, 0.3, 0.3, 0.4, 0.3, 0.8, 0.3, 0.3, 0.4, 0.3]
     static let streamLeadSeconds = 5.0
-    /// About every `clumpEvery`th spawn (by id) is a clump of two or three, the others within `clumpSpread` px behind
-    /// the first.
+    /// One spawn in every `clumpEvery` is a clump of two or three, which one of the three by a hash, the others within
+    /// `clumpSpread` px behind the first (the gate's review: chosen by the first's id, the ids a clump used set the next
+    /// spawn's, and the stream fell into a fixed beat of three, two, one).
     static let clumpEvery = 3
     static let clumpSpread = 12.0
     /// Each small one's pace by id: 0.85 ... 1.2 of the walk.
     static let streamPaces: [Double] = [0.85, 1.2, 0.95, 1.1, 1.0, 0.9, 1.15]
-    /// At most this many small ones at the outer wall: the oldest falls.
+    /// At most this many small ones at the outer wall: the newest falls.
     static let heapCap = 14
     static let heldHour = 23.0
     static let lordX = Realm.wallX[2] + 40
     /// `drive`'s clock for the stream and the outer wall's strength to hold (set by `apply`).
     nonisolated(unsafe) static var nextStream = 0.0
     nonisolated(unsafe) static var wallHP = 0.0
+    /// The stream's spawns so far (`clump(spawn:)`; reset by `apply`).
+    nonisolated(unsafe) static var streamSpawns = 0
 
     static func apply(_ s: inout GameState, balance: Balance, seconds: Double, dark: Bool = false) {
         guard !s.defeated, DayClock.phase(at: s.hour) != .day else { return }
@@ -81,6 +86,7 @@ enum HordeProof {
             // spawns, clumps and paces, each walked on by its age; none past the wall)
             var age = 0.0
             var first = 0.0
+            streamSpawns = 0
             while age < streamLeadSeconds {
                 let gap = spawnStream(&s, balance: balance, x: s.bankEdge + streamFrom, age: age)
                 if age == 0 { first = gap }
@@ -112,9 +118,9 @@ enum HordeProof {
     }
 
     /// `dark` (the clip, step 4): after a live step, the night's clock held at `heldHour`, the outer wall kept at its
-    /// strength, the outer line's engine silent, the heap at `heapCap` at most (the oldest falls, a live fall at the
-    /// wall), and the stream's next spawn out of the bank's edge when its gap is up (step 5: `spawnStream`; none while
-    /// `streamCap` are alive), so the open and the heap hold the horde whenever the recording starts and for as long as
+    /// strength, the outer line's engine silent, the heap at `heapCap` at most (the newest falls, a live fall at the
+    /// heap's foot), and the stream's next spawn out of the bank's edge when its gap is up (step 5: `spawnStream`; none
+    /// while `streamCap` are alive), so the open and the heap hold the horde whenever the recording starts and for as long as
     /// it runs. By day, or once the realm has fallen, it does nothing.
     static func drive(_ s: inout GameState, balance: Balance) {
         guard !s.defeated, DayClock.phase(at: s.hour) != .day else { return }
@@ -124,15 +130,17 @@ enum HordeProof {
         // the outer line's catapult holds its fire: its firepot burns everything within 48 px of the heap for six
         // seconds and fell every six (step 3's clip: the heap was spent before the 4 s still)
         s.plots[line.engine].cooldown = max(s.plots[line.engine].cooldown, 1)
-        // step 5 (call 3): the heap holds `heapCap` at most, the oldest falls (the battle takes it away in the next
-        // step, a live fall at the wall), so the stream keeps crossing the open; at `streamCap` alive the stream waits
+        // step 5 (call 3): the heap holds `heapCap` at most, the newest falls as it reaches it (the battle takes it away
+        // in the next step, a live fall at the heap's foot), so the stream keeps crossing the open; the heap's ranks
+        // (`HordeLook.heapLifts`, by id) below it never move, so no climber steps down; at `streamCap` alive the
+        // stream waits
         let heap = s.creatures.indices.filter {
             s.creatures[$0].kind == .sootling && s.creatures[$0].hp > 0 && s.creatures[$0].action == .attackingWall
                 && s.creatures[$0].target == line.wall
         }
         if heap.count > heapCap {
-            let oldest = heap.sorted { s.creatures[$0].id < s.creatures[$1].id }
-            for index in oldest.prefix(heap.count - heapCap) { s.creatures[index].hp = 0 }
+            let newest = heap.sorted { s.creatures[$0].id > s.creatures[$1].id }
+            for index in newest.prefix(heap.count - heapCap) { s.creatures[index].hp = 0 }
         }
         guard s.simTime >= nextStream else { return }
         let alive = s.creatures.filter { $0.kind == .sootling && $0.hp > 0 }.count
@@ -147,18 +155,21 @@ enum HordeProof {
         streamGaps[(id % streamGaps.count + streamGaps.count) % streamGaps.count]
     }
 
-    /// How many step out together in the spawn whose first small one has `id`: about every third a clump of two or
-    /// three, else one.
-    static func clump(id: Int) -> Int {
-        let k = max(0, id)
-        return k % clumpEvery == 0 ? 2 + (k / clumpEvery) % 2 : 1
+    /// How many step out together in the stream's `spawn`th spawn: one in every three a clump (which one of the three
+    /// by a hash), of three two times in three, else of two; the others one.
+    static func clump(spawn: Int) -> Int {
+        let k = max(0, spawn)
+        let h = SeededRandom.hash(0x434C_554D, Int64(k / clumpEvery))
+        guard k % clumpEvery == Int(h % UInt64(clumpEvery)) else { return 1 }
+        return (h / 3) % 3 == 0 ? 2 : 3
     }
 
-    /// The `k`th of a clump's place behind its first (0, then 4 ... 6, then 9 ... 11 px, by the first's id): within
-    /// `clumpSpread`.
-    static func clumpOffset(_ k: Int, id: Int) -> Double {
+    /// The `k`th of a clump's place behind its first (0, then 4 ... 6, then 9 ... 11 px, by a hash of the spawn):
+    /// within `clumpSpread`.
+    static func clumpOffset(_ k: Int, spawn: Int) -> Double {
         guard k > 0 else { return 0 }
-        return min(clumpSpread - 1, Double(k * 5 - 1 + max(0, id) % 3))
+        let extra = Int(SeededRandom.hash(0x434C_554D, Int64(max(0, spawn))) % 3)
+        return min(clumpSpread - 1, Double(k * 5 - 1 + extra))
     }
 
     /// A small one's pace in the stream by id.
@@ -178,9 +189,11 @@ enum HordeProof {
     static func spawnStream(_ s: inout GameState, balance: Balance, x: Double, age: Double = 0) -> Double {
         Battle.spawn(&s, kind: .sootling, x: x, wave: 0, balance: balance, fromWave: false)
         let first = s.creatures[s.creatures.count - 1].id
-        let count = clump(id: first)
+        let spawn = streamSpawns
+        streamSpawns += 1
+        let count = clump(spawn: spawn)
         for k in 1..<max(1, count) {
-            Battle.spawn(&s, kind: .sootling, x: x - clumpOffset(k, id: first), wave: 0, balance: balance,
+            Battle.spawn(&s, kind: .sootling, x: x - clumpOffset(k, spawn: spawn), wave: 0, balance: balance,
                          fromWave: false)
         }
         let wallX = Realm.plots[Realm.lines[2].wall].x
