@@ -1161,6 +1161,57 @@ final class PayCountTests: XCTestCase {
         for actor in big { XCTAssertEqual(actor.rect.z, 11 * scale, accuracy: 0.5, "a big hollow is 11 px") }
     }
 
+    /// Step 4 (the director's call 4, the critic's H4): the small coin is money: on its painted faces (the ink edge left
+    /// out) its mean saturation is at least 0.45, under the big coin's, and its mean hue within 15 degrees of the big
+    /// coin's; it is still 7 px.
+    func testTheSmallCoinIsGold() throws {
+        func measure(_ sprite: SpriteID) throws -> (saturation: Double, hue: Double, value: Double) {
+            let art = AtlasBuilder.frames(for: sprite, bundle: .main)
+            XCTAssertEqual(art.source, .png, "\(sprite) is drawn from its painting")
+            var saturation = 0.0
+            var hue = 0.0
+            var value = 0.0
+            var n = 0.0
+            for frame in art.frames.prefix(3) {
+                for y in 0..<frame.height {
+                    for x in 0..<frame.width {
+                        let c = frame[x, y]
+                        guard c.a >= 128, c != RGBA(0x2A2230) else { continue }
+                        let r = Double(c.r) / 255
+                        let g = Double(c.g) / 255
+                        let b = Double(c.b) / 255
+                        let high = max(r, g, b)
+                        let low = min(r, g, b)
+                        var h = 0.0
+                        if high > low {
+                            if high == r {
+                                h = 60 * (g - b) / (high - low)
+                            } else if high == g {
+                                h = 60 * (2 + (b - r) / (high - low))
+                            } else {
+                                h = 60 * (4 + (r - g) / (high - low))
+                            }
+                            if h < 0 { h += 360 }
+                        }
+                        saturation += high > 0 ? (high - low) / high : 0
+                        hue += h
+                        value += 0.299 * r + 0.587 * g + 0.114 * b
+                        n += 1
+                    }
+                }
+            }
+            XCTAssertGreaterThan(n, 0, "\(sprite) has painted pixels")
+            return (saturation / max(1, n), hue / max(1, n), value / max(1, n))
+        }
+        let small = try measure(.payCoin)
+        let big = try measure(.hudCoinTen)
+        print("count coins: small \(small) big \(big)")
+        XCTAssertGreaterThanOrEqual(small.saturation, 0.45, "the small coin reads as gold, never a pebble")
+        XCTAssertLessThan(small.saturation, big.saturation, "less saturated than the big one")
+        XCTAssertEqual(small.hue, big.hue, accuracy: 15, "the same gold")
+        XCTAssertEqual(SpriteID.payCoin.size, PixelSize(width: 7, height: 7), "still 7 px")
+    }
+
     /// Step 3 (the director's call 8, M-a): let go, each coin flies home on the throw's high arc at its full size for
     /// the first 60 % of the way and shrinks over the last 40 %; drawn: early in its way a coin is whole, late it is
     /// smaller.

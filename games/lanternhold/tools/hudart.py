@@ -85,8 +85,11 @@ LEGEND = {
     "w": "fireWhite",   # one glint
     "s": "straw",       # a coin's shaded rim and struck ring
     "d": "woodLight",   # the deepest shade of gold
-    "q": "strawLight",  # the count's small coin: its pale face (step 3, the director's call 7)
+    "q": "strawLight",  # step 3's small coin face (kept for the record; step 4 made it gold again)
     "Q": "parchment",   # its lit rim
+    "e": "cloth4",      # the count's small coin (step 4, the director's call 4): its face, the big coin's gold a step
+                        # lighter and about a fifth less saturated (a fixed palette value: the portrait ramps' lightest
+                        # cloth, which no look moves)
     "k": "woodDark",    # a hollow's shadowed wall
     "K": "soilDark",    # a hollow's floor
     "l": "woodLight",   # a hollow's lit lower wall
@@ -267,30 +270,31 @@ COIN_C = ["..hhg..",
           ".gggsd.",
           "..sdd.."]
 
-# the count's small coin (step 3, the director's call 7: one look tells 1 from 10): 7 px with its edge, a paler straw
-# gold with a plain face, lit on its upper left; three faces (the glint a step along the rim, or none), its edge as it
-# turns, and half turned (the director's call 1: face, half, edge, half, so the turn never flickers between a disc and
-# a stick)
-PAY_SMALL = [".QQq.",
-             "Qwqqs",
-             "Qqqqs",
-             "qqqsd",
-             ".ssd."]
-PAY_SMALL_B = [".QwQ.",
-               "QQqqs",
-               "Qqqqs",
-               "qqqsd",
-               ".ssd."]
-PAY_SMALL_C = [".QQq.",
-               "QQqqs",
-               "Qqqqs",
-               "qqqsd",
-               ".ssd."]
-PAY_SMALL_EDGE = ["Q", "q", "q", "s", "d"]
-PAY_SMALL_HALF = [".Q.",
-                  "Qqs",
-                  "Qqs",
-                  "qsd",
+# the count's small coin (step 3, the director's call 7: one look tells 1 from 10): 7 px with its edge and a plain
+# face. Step 4 (call 4, the critic's H4: step 3's straw read as a pebble): money again, its ramp the big coin's a step
+# lighter and about a fifth less saturated (face cloth4 where the big one is gold; lit rim fireGold; shade straw), with
+# a 1 px darker rim (woodLight, the big coin's deepest gold) round its lower right so it reads as a disc; three faces
+# (the glint a step along the rim, or none), its edge, and half turned
+PAY_SMALL = [".hhe.",
+             "hweed",
+             "heeed",
+             "eeesd",
+             ".ddd."]
+PAY_SMALL_B = [".hwe.",
+               "hheed",
+               "heeed",
+               "eeesd",
+               ".ddd."]
+PAY_SMALL_C = [".hhe.",
+               "hheed",
+               "heeed",
+               "eeesd",
+               ".ddd."]
+PAY_SMALL_EDGE = ["h", "e", "e", "s", "d"]
+PAY_SMALL_HALF = [".h.",
+                  "hed",
+                  "hed",
+                  "esd",
                   ".d."]
 
 # the big coin (ten), 11 px with its edge, deep gold, struck with the house's lantern, the mark of the gate's banners:
