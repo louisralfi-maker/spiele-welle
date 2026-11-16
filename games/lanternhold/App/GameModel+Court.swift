@@ -81,10 +81,10 @@ extension GameModel {
             Double(view.deviceX(worldX: worldX, scale: scale, mode: options.actorMode)) / physicalWidth
         }
         let top = (ground - 31 * Double(scale)) / physicalHeight
-        if abs(top - figureTop) > 0.002 { figureTop = top }
+        if GameModel.followsOnScreen(top, figureTop, span: physicalHeight) { figureTop = top }
         if let session = court.audience {
             let anchor = screenX(session.walkerX)
-            if abs(anchor - stageAnchor) > 0.002 { stageAnchor = anchor }
+            if GameModel.followsOnScreen(anchor, stageAnchor, span: physicalWidth) { stageAnchor = anchor }
         }
         if var bubble = talkBubble {
             let x = court.drawn[bubble.who] ?? court.talkX ?? 0
@@ -94,7 +94,8 @@ extension GameModel {
             // The join: while the collector's slip waits, his bubble stands above it (`collectorBubbleHeadY`).
             if bubble.who == GameModel.collectorSpeaker { bubble.headY = collectorBubbleHeadY(bubble.headY) }
             let old = talkBubble
-            if abs(bubble.anchorX - (old?.anchorX ?? 0)) > 0.002 || abs(bubble.headY - (old?.headY ?? 0)) > 0.002 {
+            if GameModel.followsOnScreen(bubble.anchorX, old?.anchorX ?? 0, span: physicalWidth)
+                || GameModel.followsOnScreen(bubble.headY, old?.headY ?? 0, span: physicalHeight) {
                 talkBubble = bubble
             }
         }

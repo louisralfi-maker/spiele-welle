@@ -563,4 +563,26 @@ final class TouchWorldTests: XCTestCase {
             XCTAssertFalse(spot.label.isEmpty, spot.id)
         }
     }
+
+    /// Lane 5 step 2a (the smooth walk, suspect 5): the errand slip follows its thing in every frame of a walk, within
+    /// one device px; 0.002 of the screen's width held it back by up to 5 device px.
+    func testTheErrandSlipFollowsItsThingInEveryFrameOfAWalk() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" })
+        game.touchThing(door)
+        XCTAssertEqual(game.touch.errand?.id, door.id, "he sets off to the door")
+        var seen: Set<Double> = []
+        for _ in 0..<120 {
+            game.advance(by: 1.0 / 60)
+            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let framing = try XCTUnwrap(game.touch.framing)
+            let thing = try XCTUnwrap(game.touch.things.first { $0.id == door.id })
+            let slip = try XCTUnwrap(game.errandSlip, "the slip stands while he walks")
+            let thingX = framing.deviceX(stageX: thing.markX)
+            XCTAssertEqual(slip.x * framing.physicalWidth, thingX, accuracy: 1, "the slip stands over its thing")
+            seen.insert(thingX)
+        }
+        XCTAssertGreaterThan(seen.count, 20, "the door moved on the screen while he walked")
+    }
 }

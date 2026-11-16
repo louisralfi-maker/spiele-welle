@@ -412,11 +412,14 @@ extension GameModel {
     /// After each hall frame: the audience's speaker, the top of the figures, the bubble over its speaker, the horn's
     /// slip over the door.
     private func noteHallFrame(figures: [DrawnFigure]) {
+        // Lane 5 step 2a (suspect 5): each follows on any move of half a device px (`followsOnScreen`).
+        let wide = Double(max(1, lastPixelScale?.physicalWidth ?? 1))
+        let high = Double(max(1, lastPixelScale?.physicalHeight ?? 1))
         let top = hallScreenY(row: Double(HallLayout.floorRow) - 31)
-        if abs(top - figureTop) > 0.002 { figureTop = top }
+        if GameModel.followsOnScreen(top, figureTop, span: high) { figureTop = top }
         if let session = court.audience {
             let anchor = hallScreenFraction(session.walkerX)
-            if abs(anchor - stageAnchor) > 0.002 { stageAnchor = anchor }
+            if GameModel.followsOnScreen(anchor, stageAnchor, span: wide) { stageAnchor = anchor }
         }
         if var bubble = talkBubble {
             // Touch the world: a bench's first in line speaks from his seat too.
@@ -427,7 +430,8 @@ extension GameModel {
             let lift = figure?.y ?? 0
             bubble.anchorX = hallScreenFraction(x)
             bubble.headY = hallScreenY(row: Double(HallLayout.floorRow) - lift - height)
-            if let old = talkBubble, abs(bubble.anchorX - old.anchorX) > 0.002 || abs(bubble.headY - old.headY) > 0.002 {
+            if let old = talkBubble, GameModel.followsOnScreen(bubble.anchorX, old.anchorX, span: wide)
+                || GameModel.followsOnScreen(bubble.headY, old.headY, span: high) {
                 talkBubble = bubble
             }
         }
@@ -436,7 +440,10 @@ extension GameModel {
             slip = CGPoint(x: hallScreenFraction(HallLayout.doorX), y: hallScreenY(row: Double(HallLayout.doorTop)))
         }
         if let slip, let old = hornSlip {
-            if abs(slip.x - old.x) > 0.002 || abs(slip.y - old.y) > 0.002 { hornSlip = slip }
+            if GameModel.followsOnScreen(Double(slip.x), Double(old.x), span: wide)
+                || GameModel.followsOnScreen(Double(slip.y), Double(old.y), span: high) {
+                hornSlip = slip
+            }
         } else if slip != hornSlip {
             hornSlip = slip
         }

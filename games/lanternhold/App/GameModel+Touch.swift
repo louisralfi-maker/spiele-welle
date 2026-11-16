@@ -950,6 +950,15 @@ extension GameModel {
         }
     }
 
+    /// Whether a SwiftUI thing that follows the world, kept as a share of a screen side `span` device px long (the
+    /// errand slip, the talk bubble, the audience anchor and the figures' top, the hall's horn slip), has moved from
+    /// `old` to `next` by half a device px or more (lane 5 step 2a, the smooth walk, suspect 5). It follows its thing
+    /// in every frame of a walk (0.002 of the width held it back by up to 5 device px), and a place that has not moved
+    /// is still not published again, so nothing updates SwiftUI while nothing moves.
+    static func followsOnScreen(_ next: Double, _ old: Double, span: Double) -> Bool {
+        abs(next - old) * max(1, span) >= 0.5
+    }
+
     /// The slip over the errand's thing (nil without an errand).
     func refreshTouchSlip() {
         var next: ErrandSlip?
@@ -973,8 +982,9 @@ extension GameModel {
                               hint: true)
         }
         if let next, let old = errandSlip, next.text == old.text, next.price == old.price,
-           next.shortOfGold == old.shortOfGold, next.waiting == old.waiting,
-           abs(next.x - old.x) < 0.002, abs(next.y - old.y) < 0.002 {
+           next.shortOfGold == old.shortOfGold, next.waiting == old.waiting, let framing = touch.framing,
+           !GameModel.followsOnScreen(next.x, old.x, span: framing.physicalWidth),
+           !GameModel.followsOnScreen(next.y, old.y, span: framing.physicalHeight) {
             return
         }
         if next != errandSlip { errandSlip = next }
