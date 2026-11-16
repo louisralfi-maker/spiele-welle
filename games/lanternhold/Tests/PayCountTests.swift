@@ -53,6 +53,30 @@ final class PayCountTests: XCTestCase {
         }
     }
 
+    /// Step 6 (R2): at a plot with several offers a price under 200 is counted in coins only, never a bar, so the
+    /// dearer of two offers never has the fewer hollows nor the smaller board; 200 and over keeps its bars; the other
+    /// plots keep theirs.
+    func testAModelPlotCountsInCoinsOnlyUnderTwoHundred() {
+        XCTAssertEqual(PayCount.hollows(price: 110, coinsOnly: true), Array(repeating: .big, count: 11), "110: eleven")
+        XCTAssertEqual(PayCount.hollows(price: 70, coinsOnly: true), Array(repeating: .big, count: 7), "70: seven")
+        XCTAssertEqual(PayCount.hollows(price: 110), [.bar, .big], "elsewhere 110 keeps its bar")
+        XCTAssertEqual(PayCount.hollows(price: 45, coinsOnly: true), PayCount.hollows(price: 45))
+        XCTAssertEqual(PayCount.hollows(price: 230, coinsOnly: true).first, .bar, "200 and over: bars")
+        for price in 1..<PayCount.coinsOnlyBelow {
+            XCTAssertFalse(PayCount.hollows(price: price, coinsOnly: true).contains(.bar), "\(price): no bar")
+        }
+        let ballista = Balance.standard.price(.ballista)
+        let catapult = Balance.standard.price(.catapult)
+        let cheap = PayCount.hollows(price: min(ballista, catapult), coinsOnly: true)
+        let dear = PayCount.hollows(price: max(ballista, catapult), coinsOnly: true)
+        XCTAssertGreaterThan(dear.count, cheap.count, "the dearer engine has more hollows")
+        XCTAssertGreaterThanOrEqual(PayBoardLayout.make(dear).width, PayBoardLayout.make(cheap).width, "no smaller board")
+        XCTAssertGreaterThan(PayBoardLayout.make(dear).height, PayBoardLayout.make(cheap).height, "a plank higher")
+        let count = PayCount(thing: "t", offer: .build(plot: 4, item: .catapult), price: catapult, holding: false,
+                             coinsOnly: true)
+        XCTAssertEqual(count.coins, dear, "the count pays the coins its board shows")
+    }
+
     // MARK: - The schedule
 
     func testTheCountIsNeverLongerThanItsSecondAndAHalf() {
@@ -981,7 +1005,18 @@ final class PayCountTests: XCTestCase {
         XCTAssertTrue(board.allSatisfy { $0.isLit && !$0.isEmissive }, "a thing in the world, lit by it")
         XCTAssertEqual(frame.actors.filter { $0.sprite == .hudHollowTen }.count, 9, "nine hollows for 90")
         XCTAssertFalse(frame.actors.contains { $0.sprite == .siteLantern }, "no lantern on top of its post")
-        XCTAssertTrue(frame.actors.contains { $0.sprite == .hudCoinTen }, "the first coin rocks over its hollow")
+        // Step 6 (R4): a board with nothing paid holds no gold (the first coin rocking over its hollow read as gold
+        // already lying on the board); the rocking coin comes once a coin lies on it.
+        let gold: Set<SpriteID> = [.hudCoinTen, .payCoin, .hudCoinBar]
+        XCTAssertFalse(frame.actors.contains { gold.contains($0.sprite) }, "nothing paid: no gold on the board")
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.tap()
+        game.touch.count = count
+        run(game, seconds: 1.5)
+        XCTAssertEqual(game.touch.count?.placed, 1, "one coin laid")
+        let later = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertTrue(later.actors.contains { $0.sprite == .hudCoinTen }, "the next coin rocks over its hollow")
     }
 
     // MARK: - Step 2 through the game

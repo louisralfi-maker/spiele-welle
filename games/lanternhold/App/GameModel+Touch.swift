@@ -104,6 +104,11 @@ struct TouchState: Sendable {
     var modelShown: [Int: PayModelRow] = [:]
     var modelLastChosen: [Int: BuildItem] = [:]
     var modelFades: [PayModelFade] = []
+    /// Step 6: the model that hops first in each row's hop (R5: the touched one on the first touch), and the models'
+    /// foot at each plot as they ride onto a counter and off it (R1), with the clock's second of the last step.
+    var modelHopLead: [Int: Int] = [:]
+    var modelRide: [Int: Double] = [:]
+    var modelRideAt: Double?
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger

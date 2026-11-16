@@ -580,12 +580,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         // unlit, lit and two of bloom; the count's coins: three faces, the edge and the half turn (step 3); the halo by
         // night and the warm pool by day (step 4); the board's tiles and the signpost's bar (step 4: 31); the trestle,
         // the ballista's, the catapult's and any other building's model, their rims and four glint steps each (step 5);
-        // the row's second trestle (step 6: 20, the cell 24 x 17).
+        // the row's second trestle and each model's contact shadow on the counter (step 6: 23, the cell 24 x 17).
         case .hudHollow, .hudHollowTen, .hudHollowBar: return 4
         case .payBoard: return 31
         case .siteLantern: return 4
         case .siteHalo: return 2
-        case .paySign: return 20
+        case .paySign: return 23
         case .payCoin, .hudCoinTen, .hudCoinBar: return 5
         default: return 1
         }

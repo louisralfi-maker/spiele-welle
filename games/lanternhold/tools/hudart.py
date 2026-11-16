@@ -40,7 +40,7 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
                fifth plank middle with a knot (the grain as streaks of 3 to 6 px: one tile in five shows a knot);
                step 4: the signpost's iron bar, 28 its left end, 29 a middle, 30 its right end (in the cell's last 4
                rows, as the cap)
-  paySign      24x17, 20 frames (step 5, the builder's models at a plot with several offers: the models are the
+  paySign      24x17, 23 frames (step 5, the builder's models at a plot with several offers: the models are the
                offer, the pay board's hollows are the price): 0 the sawhorse trestle (24 x 10 in the cell's bottom
                rows), 1 the ballista (22 x 13: a great crossbow on a post with splayed feet, its bolt's iron point out
                in front), 2 the catapult (22 x 15, step 6: an A-frame, the arm 2 px thick at 45 degrees rising
@@ -49,7 +49,8 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
                three tones with an ink edge all round, standing on the trestle's beam; 4 5 6 the chosen model's warm
                rim (its ink edge fire gold along the top, gold down the right), laid over it; 7-10, 11-14, 15-18 the
                glint passing over the ballista, the catapult and the house in four steps; 19 the second trestle
-               of a row (a darker plank and a knot in its beam)
+               of a row (a darker plank and a knot in its beam); 20 21 22 each model's 1 px contact shadow on the
+               counter's cap (step 6)
   siteLantern  9x13, 4 frames: the site lantern on the post, unlit (dark glass), lit (a 5x5 flame in the fire ramp,
                white at its heart), and the two frames of its bloom as it catches (the stage lane adds its light, the
                glow of its glass and its halo)
@@ -1038,7 +1039,22 @@ def model_frames(pal):
         frames += model_glints(m, pal)
     # step 6 (R3): 19 the second trestle (appended, so every other frame keeps its number)
     frames.append(legend_image(TRESTLE_B, pal, TRESTLE_LEGEND, ch, top=False))
+    # step 6 (R1): 20 21 22 each model's contact shadow on the counter's cap, in the cell's bottom row
+    frames += [model_shadow(m, pal) for m in models]
     return frames
+
+
+def model_shadow(rows, pal):
+    """A model's 1 px contact shadow (step 6, R1): in the cell's bottom row, under every column whose foot rests on the
+    cell's last row, one pixel wider each side; drawn one row lower, on the counter's top cap."""
+    grid = model_grid(rows)
+    cw, ch = MODEL_CELL
+    img = Image(cw, ch)
+    feet = [x for x in range(cw) if model_solid(grid, x, ch - 2)]
+    for x in range(cw):
+        if any(abs(x - f) <= 1 for f in feet):
+            img.set(x, ch - 1, pal.color("ink") + (255,))
+    return img
 
 # the site lantern (9x13, step 2's critic H2: the 7x10 one was a speck by day): a ring, a cap, a 5x5 glass in an iron
 # frame, a foot; unlit its glass is the night's dark glass (as the street lanterns' heads), lit a flame stands in the

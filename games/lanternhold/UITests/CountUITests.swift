@@ -15,7 +15,9 @@ import XCTest
 /// builder's models at the line-1 engine's empty plot (190), a touch on the ballista's model bringing its board on the
 /// far side with the ballista chosen (191), the hold on the chosen model that pays it and starts the work (192), the
 /// catapult's board with a poor purse (193), the models at night, unlit and no touch thing (194), the arrival hop as a
-/// strip of three (195a to 195c), its Reduce Motion form (196), the ballista chosen with a coin at its peak (197).
+/// strip of three (195a to 195c), its Reduce Motion form (196), the ballista chosen with a coin at its peak (197). Step 6:
+/// the board is a counter in the models' slot with the models on its cap (191, 197), the lord at 1455; the catapult's
+/// counter (198) and the counter under Reduce Motion (199).
 /// English only (the director's notes of 15.11., item 4). Saves `<nn>-count-<what>-<lang>`.
 @MainActor
 final class CountUITests: XCTestCase {
@@ -286,7 +288,7 @@ final class CountUITests: XCTestCase {
     func testTheModels() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let base = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWSeed", "2",
-                    "-GWStage", "world", "-GWCameraX", "1440"]
+                    "-GWStage", "world", "-GWCameraX", "1455"]
         let day = base + ["-GWDay", "3", "-GWClock", "10"]
         let app = XCUIApplication()
         app.launchArguments = day + ["-GWGold", "200"]
@@ -367,7 +369,7 @@ final class CountUITests: XCTestCase {
     func testTheModelsPictures() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let base = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWSeed", "2",
-                    "-GWStage", "world", "-GWCameraX", "1440", "-GWDay", "3", "-GWClock", "10", "-GWGold", "200"]
+                    "-GWStage", "world", "-GWCameraX", "1455", "-GWDay", "3", "-GWClock", "10", "-GWGold", "200"]
         for (name, extra) in [("195a-count-models-hop-1", ["-GWCountFreeze", "hop:0.04"]),
                               ("195b-count-models-hop-2", ["-GWCountFreeze", "hop:0.075"]),
                               ("195c-count-models-hop-3", ["-GWCountFreeze", "hop:0.195"]),
@@ -405,6 +407,30 @@ final class CountUITests: XCTestCase {
         note("\(name)-state", sceneField(app, "count:") ?? "?")
         XCTAssertEqual(sceneGold(app), 200, "\(name): nothing paid in the air")
         app.terminate()
+
+        // Step 6 (R9): the catapult's counter, eleven big coins, a plank higher, nothing paid (198); the same touch on the
+        // ballista under Reduce Motion, the models on its cap with no ride (199).
+        for (shot, extra, model, hollows) in [("198-count-model-catapult-counter", [String](), "catapult", 11),
+                                              ("199-count-model-counter-reduce-motion", ["-GWReduceMotion", "YES"],
+                                               "ballista", 7)] {
+            let more = XCUIApplication()
+            more.launchArguments = base + extra
+            more.launch()
+            guard waitUntilReady(more, name: shot) else { continue }
+            pause(0.6)
+            if let thing = waitForThing(more, "touch-model-4-\(model)", timeout: 4) {
+                touchThing(thing)
+                XCTAssertTrue(waitForField(more, "count:touch-plot-4:0/\(hollows)", timeout: 3),
+                              "\(shot): \(hollows) hollows")
+                waitForStill(more)
+                XCTAssertTrue(waitForField(more, "=\(model)", timeout: 2), "\(shot): chosen")
+                pause(0.6)
+                attach(XCUIScreen.main.screenshot(), "\(shot)-\(language)")
+            } else {
+                XCTFail("\(shot): the model is no element")
+            }
+            more.terminate()
+        }
     }
 
     // MARK: - Helpers

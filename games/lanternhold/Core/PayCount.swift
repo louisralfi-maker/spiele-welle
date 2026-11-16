@@ -173,6 +173,8 @@ struct PayCount: Sendable, Equatable {
     static let queueGap = 0.05
     /// No board has more hollows than this.
     static let maxHollows = 20
+    /// Step 6 (R2): a price under this is counted in coins only where `coinsOnly` asks for it.
+    static let coinsOnlyBelow = 200
     /// The clink rises by at most an octave over the whole count, at most a semitone a coin.
     static let semitonesInAll = 12.0
 
@@ -180,12 +182,16 @@ struct PayCount: Sendable, Equatable {
 
     /// The coins of a price, the biggest first: bars of a hundred, big coins of ten, small coins of one (45 is four
     /// big and five small). Never more than `maxHollows`: should a price ever need more (none does), the last small
-    /// coins fold into the twentieth, which then stands for the rest. A price of 0 or less has none.
-    static func hollows(price: Int) -> [PayCoin] {
+    /// coins fold into the twentieth, which then stands for the rest. A price of 0 or less has none. Step 6 (R2):
+    /// `coinsOnly` (a plot with several offers, where the hollows are the only price) counts a price under
+    /// `coinsOnlyBelow` in big and small coins, never a bar, so the dearer offer never has the fewer hollows (110 is
+    /// eleven big coins, 70 seven).
+    static func hollows(price: Int, coinsOnly: Bool = false) -> [PayCoin] {
         guard price > 0 else { return [] }
         var coins: [PayCoin] = []
         var rest = price
-        for coin in [PayCoin.bar, .big, .small] {
+        let kinds: [PayCoin] = coinsOnly && price < coinsOnlyBelow ? [.big, .small] : [.bar, .big, .small]
+        for coin in kinds {
             while rest >= coin.value {
                 coins.append(coin)
                 rest -= coin.value
@@ -283,11 +289,14 @@ struct PayCount: Sendable, Equatable {
 
     /// A count for `thing`, made at `time` seconds after its touch (0 for a tap; `boardDelay` for a hold that brought
     /// it), the finger still down when `holding`; `flights` each hollow's planned flight (empty: `flight`).
-    init(thing: String, offer: PayOffer, price: Int, time: Double = 0, holding: Bool, flights: [Double] = []) {
+    /// Step 6: `coinsOnly` at a plot with several offers (R2: no bar under 200); a negative `time` holds the whole
+    /// count back that long (R5: the models' hop on the first touch of a row comes before the board rises).
+    init(thing: String, offer: PayOffer, price: Int, time: Double = 0, holding: Bool, flights: [Double] = [],
+         coinsOnly: Bool = false) {
         self.thing = thing
         self.offer = offer
         self.price = max(0, price)
-        coins = PayCount.hollows(price: price)
+        coins = PayCount.hollows(price: price, coinsOnly: coinsOnly)
         self.flights = flights
         self.time = time
         lastTouch = time

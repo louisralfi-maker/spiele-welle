@@ -2,12 +2,14 @@ import CoreGraphics
 import Foundation
 
 /// The builder's models at a plot with several offers (build 3, lane 1, step 5; the director's notes of 16.11., 12:44,
-/// P1 to P7): things of the world, not interface. One small wooden model per offer stands on a sawhorse trestle on the
-/// side of the lord's spot away from his pay board; no figure, no coin, no sign: the models are the offer, the board's
-/// hollows are the price. They replace the site's mark, its pool, rim and footing at that plot. A glint passes over each
-/// about every 4 s, out of phase; as the lord reaches the spot with no offer chosen each model hops 2 px in turn (Reduce
+/// P1 to P7): things of the world, not interface. One small wooden model per offer stands on a sawhorse trestle beside
+/// the lord's spot; no figure, no coin, no sign: the models are the offer, the board's hollows are the price. Step 6
+/// (16.11., 15:48, R1, form A): the board is a counter that rises on the ground in the trestles' own slot; the trestles
+/// go and the models ride up onto its top cap (Reduce Motion: a cross-fade), the dearer offer's counter a plank higher.
+/// They replace the site's mark, its pool, rim and footing at that plot. A glint passes over each 3.4 to 4.8 s apart,
+/// out of phase (R6); as the lord reaches the spot with no offer chosen each model hops 2 px in turn (Reduce
 /// Motion: a still warm rim for 0.6 s). By day a touch on a model (from anywhere) walks him to the spot and raises that
-/// offer's board on the far side; the chosen model lifts 2 px and takes a warm rim, the other falls to 60 % of its value;
+/// offer's counter in the slot; the chosen model lifts 2 px and takes a warm rim, the other falls to 75 % of its value;
 /// a touch on the other model changes the board (the rule of step 4: the old board's coins go home at once). At night
 /// they stand unlit (only the lord's lantern falls on them) and take no touch. When the plot is built they go in a 0.3 s
 /// fade. They are drawn behind every figure; a person standing inside a model's catch area wins the touch there.
@@ -72,10 +74,10 @@ extension GameModel {
     }
 
     /// The row of `plot` for the realm as it stands (`key`), worked out again only when that changes: the lord at the
-    /// plot's standing place, the boards of its offers on one side and the models on the other, moved at most 14 px
-    /// to keep the doors free (`PayModelRow.place`); the other things' spans (as they stand by day, people left out)
-    /// decide between two sides that both fit. The boards also keep off Marek's cart (on his days) and the barracks'
-    /// recruit halves (the review of step 5: step 2's H3); where they cannot, the row says so (`fits` false).
+    /// plot's standing place, the slot as wide as the widest board of its offers (coins only, R2) on one side of him,
+    /// moved at most 15 px to keep the doors free and the slot off Marek's cart (on his days) and the barracks' recruit
+    /// halves (`PayModelRow.place`); the other things' spans (as they stand by day, people left out) decide between
+    /// two sides that both fit; where none fits, the row says so (`fits` false).
     func modelRow(_ plot: Int, offers: [BuildOption], state: GameState, balance: Balance, minimum: Double,
                   key: String) -> PayModelRow {
         if let known = touch.modelChoices[plot], known.key == key { return known.row }
@@ -91,10 +93,10 @@ extension GameModel {
         if CourtLayout.props(day, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
             blocks.append(CourtLayout.marekCartX...(CourtLayout.marekCartX + Double(SpriteID.marekCart.size.width)))
         }
-        let widths = offers.map { Double(PayBoardLayout.make(PayCount.hollows(price: $0.price)).width) }
         let row = PayModelRow.place(plot: plot, base: KingTargets.spotX(plot: plot, layouts: layouts), offers: offers,
-                                    minimum: minimum, doors: modelDoors(state), others: others, boardWidths: widths,
-                                    standGap: GameModel.countStandGap, bounds: 0...Realm.walkEnd, blocks: blocks)
+                                    minimum: minimum, doors: modelDoors(state), others: others,
+                                    boardWidths: PayModelRow.boardWidths(offers), bounds: 0...Realm.walkEnd,
+                                    blocks: blocks)
         touch.modelChoices[plot] = PayModelChoice(key: key, row: row)
         return row
     }
@@ -110,14 +112,27 @@ extension GameModel {
         touch.things.contains { $0.id == "touch-plot-\(plot)" }
     }
 
+    /// Where a finger catches `model` now: its trestle and model at rest; step 6 (R1): while the models stand on a
+    /// counter, the area rides up with them and starts at the counter's cap (the board's face below it is the board's).
+    func modelArea(_ model: PayModel) -> TouchArea {
+        let rest = PayModelRow.modelLift
+        let ride = touch.modelRide[model.plot] ?? rest
+        guard ride > rest + 0.5 else { return model.area }
+        let tall = max(Double(PayModelRow.cellHeight) + PayModelRow.chosenLift, model.area.height)
+        return TouchArea(left: model.area.left, right: model.area.right, bottom: ride, top: ride + tall)
+    }
+
     /// The model a touch at `place` lands on, nil for none: inside a model's catch area while its plot is a thing to
     /// touch, unless a person stands inside that area (the person wins), the touch is on the lord's own body nearer his
     /// middle, or another building's, wall's or door's middle is nearer the finger than the model's.
     func modelAt(_ place: (x: Double, lift: Double, minimum: Double)) -> PayModel? {
         guard stage == .world else { return nil }
         for row in touch.models where modelTouchable(row.plot) {
-            guard let model = row.model(x: place.x, lift: place.lift) else { continue }
-            let people = touch.things.filter { $0.isPerson && model.area.left <= $0.x && $0.x <= model.area.right }
+            guard let model = row.models.first(where: { modelArea($0).contains(x: place.x, lift: place.lift) }) else {
+                continue
+            }
+            let area = modelArea(model)
+            let people = touch.things.filter { $0.isPerson && area.left <= $0.x && $0.x <= area.right }
             if !people.isEmpty,
                TouchRules.pick(x: place.x, lift: place.lift, things: people, minimum: place.minimum) != nil {
                 return nil
@@ -137,7 +152,7 @@ extension GameModel {
     }
 
     /// A touch on a model (a finger down with `holding`, a tap, or VoiceOver's double tap `atOnce`): the lord goes to
-    /// the row's spot and that offer's board comes up on the far side, the model chosen; the price is the offer's as it
+    /// the row's spot and that offer's counter comes up in the row's slot (step 6, R1), the model chosen; the price is the offer's as it
     /// stands. On the chosen model while its board stands, the touch counts on that board (a hold, a coin, the whole
     /// price in one step), as a touch on the board itself does.
     func touchModel(_ model: PayModel, holding: Bool, atOnce: Bool = false) {
@@ -180,9 +195,40 @@ extension GameModel {
 
     // MARK: - The picture
 
+    /// The counter standing at `plot` now (step 6, R1): the board of a count there that is not gone, its cap's top (game
+    /// px over the walk line, a landing's dip in it), its rise (0 ... 1) and its fade (1 standing ... 0 gone).
+    func modelCounter(_ plot: Int) -> (top: Double, rise: Double, fade: Double)? {
+        let id = "touch-plot-\(plot)"
+        for (count, board) in [(touch.count, touch.countBoard), (touch.countOld, touch.countOldBoard)] {
+            guard let count, let board, board.counter, !count.isGone, count.thing == id else { continue }
+            return (board.top - countDipNow(count, board), count.riseShare, count.fadeShare)
+        }
+        return nil
+    }
+
+    /// Step 6 (R1): the models' foot at `plot` this frame: on the trestles (`modelLift`) at rest; on the counter's cap
+    /// while it stands, riding up as it rises (and down as it goes) at `rideSpeed`; a counter changed for the other
+    /// offer's (a swap) carries them a plank up or down. Under Reduce Motion, and in a held picture, it is where it ends.
+    func modelRideStep(_ plot: Int, dt: Double) {
+        let rest = PayModelRow.modelLift
+        var ride = touch.modelRide[plot] ?? rest
+        var target = rest
+        if let counter = modelCounter(plot), counter.fade >= 1, counter.rise > 0 || ride > rest + 1e-9 {
+            target = counter.top
+        }
+        if reduceMotion || countFreezeNow != nil {
+            ride = target
+        } else {
+            let most = PayModelRow.rideSpeed * dt
+            ride += max(-most, min(most, target - ride))
+        }
+        touch.modelRide[plot] = ride
+    }
+
     /// The rows as things of the world (`countWorld`): worked out for this frame (`touch.models`, which the touch and
     /// the accessibility elements read), each trestle and model lit by the hour and drawn behind every figure; the
-    /// arrival hop, the glint, the chosen and the dimmed model; a row whose plot was built fades out.
+    /// arrival hop (step 6: also on the first touch of a row), the glint, the chosen and the dimmed model, the ride
+    /// onto the counter; a row whose plot was built fades out.
     func modelWorld(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming, night: Double) {
         let rows = modelRows(state, balance: driver?.balance ?? .standard, framing: framing)
         touch.models = rows
@@ -191,7 +237,10 @@ extension GameModel {
         var here: Set<Int> = []
         for row in rows where abs(state.king.x - row.spot) <= TouchRules.arrival && state.king.velocity == 0 {
             here.insert(row.plot)
-            if !touch.modelHere.contains(row.plot) && modelChosen(row.plot) == nil { touch.modelHop[row.plot] = now }
+            if !touch.modelHere.contains(row.plot) && modelChosen(row.plot) == nil {
+                touch.modelHop[row.plot] = now
+                touch.modelHopLead[row.plot] = 0
+            }
         }
         touch.modelHere = here
         // A row whose plot was built (a job or a building there now) goes in a short fade.
@@ -209,6 +258,12 @@ extension GameModel {
         }
         touch.modelShown = shown
         touch.modelLastChosen = chosenNow
+        // The ride onto the counter (R1), stepped by the time since the last frame.
+        let dt = max(0, min(0.1, now - (touch.modelRideAt ?? now)))
+        touch.modelRideAt = now
+        let riding = Set(rows.map(\.plot) + touch.modelFades.map(\.row.plot))
+        for plot in riding { modelRideStep(plot, dt: dt) }
+        touch.modelRide = touch.modelRide.filter { riding.contains($0.key) }
         var actors: [ActorInstance] = []
         for row in rows {
             var hopAge: Double?
@@ -227,46 +282,75 @@ extension GameModel {
         layer.actors.insert(contentsOf: actors, at: 0)
     }
 
-    /// One row's trestles and models: each model on its trestle's beam; the chosen one lifted 2 px with its warm rim,
-    /// the others at 60 % of their value; the arrival hop (or, under Reduce Motion, a still rim for 0.6 s); the glint
-    /// by day.
+    /// One row's trestles and models: each model on its trestle's beam at rest, or (step 6, R1) on the counter's cap
+    /// while a board stands there, its feet on the cap with 1 px of dark contact shadow under each, the trestles gone;
+    /// the chosen one lifted 2 px with its warm rim, the others at `dimmed` of their value; the hop (on arrival, and on
+    /// the first touch of a row with the touched model first) or, under Reduce Motion, a still rim for 0.6 s; the glint
+    /// by day. Under Reduce Motion there is no ride: the models at rest and on the cap change place in a cross-fade.
     func modelActors(_ row: PayModelRow, chosen: BuildItem?, hopAge: Double?, now: Double, night: Double, alpha: Float,
                      framing: TouchFraming) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let cellTop = Double(PayModelRow.cellHeight)
+        let rest = PayModelRow.modelLift
+        let ride = touch.modelRide[row.plot] ?? rest
+        let counter = modelCounter(row.plot)
+        let stands = Float(counter.map { $0.rise * $0.fade } ?? 0)
+        // Where the models are drawn: their foot, their alpha, and whether they stand on the cap (its shadow).
+        var places: [(foot: Double, alpha: Float, onCap: Bool)] = []
+        let trestleAlpha: Float
+        if reduceMotion, let counter {
+            places = [(rest, alpha * (1 - stands), false), (counter.top, alpha * stands, true)]
+            trestleAlpha = alpha * (1 - stands)
+        } else {
+            let onCap = counter.map { abs(ride - $0.top) < 0.5 } ?? false
+            places = [(ride, alpha, onCap)]
+            trestleAlpha = ride > rest + 0.5 ? 0 : alpha * (1 - stands)
+        }
+        let lead = touch.modelHopLead[row.plot] ?? 0
         for (index, model) in row.models.enumerated() {
-            if let actor = countActor(.paySign, PayModelRow.trestleFrame(index: index), x: model.left, lift: cellTop,
-                                      alpha: alpha, framing: framing) {
+            if trestleAlpha > 0.01,
+               let actor = countActor(.paySign, PayModelRow.trestleFrame(index: index), x: model.left, lift: cellTop,
+                                      alpha: trestleAlpha, framing: framing) {
                 list.append(actor)
             }
-            var lift = PayModelRow.modelLift + cellTop
+            var raise = 0.0
             var rim = false
             var tint: Float = 1
             if let chosen {
                 if model.item == chosen {
-                    lift += PayModelRow.chosenLift
+                    raise += PayModelRow.chosenLift
                     rim = true
                 } else {
                     tint = PayModelRow.dimmed
                 }
-            } else if let age = hopAge {
-                lift += PayModelRow.hop(age: age, index: index, reduceMotion: reduceMotion)
-                if reduceMotion && age >= 0 && age < PayModelRow.rimSeconds { rim = true }
             }
-            if var actor = countActor(.paySign, PayModelRow.frame(for: model.item), x: model.left, lift: lift,
-                                      alpha: alpha, framing: framing) {
-                actor.tint = SIMD4<Float>(tint, tint, tint, alpha)
-                list.append(actor)
+            if let age = hopAge {
+                raise += PayModelRow.hop(age: age, index: index, reduceMotion: reduceMotion, lead: lead,
+                                         count: row.models.count)
+                if chosen == nil && reduceMotion && age >= 0 && age < PayModelRow.rimSeconds { rim = true }
             }
-            if rim, let actor = countActor(.paySign, PayModelRow.rimFrame(for: model.item), x: model.left, lift: lift,
-                                           alpha: alpha, framing: framing) {
-                list.append(actor)
-            }
-            if chosen == nil, night < 0.5,
-               let step = PayModelRow.glint(time: now, plot: row.plot, index: index, reduceMotion: reduceMotion),
-               let actor = countActor(.paySign, PayModelRow.glintFrame(for: model.item, step: step), x: model.left,
-                                      lift: lift, alpha: alpha, framing: framing) {
-                list.append(actor)
+            for place in places where place.alpha > 0.01 {
+                let lift = place.foot + cellTop + raise
+                if place.onCap,
+                   let actor = countActor(.paySign, PayModelRow.shadowFrame(for: model.item), x: model.left,
+                                          lift: place.foot + cellTop - 1, alpha: place.alpha, framing: framing) {
+                    list.append(actor)
+                }
+                if var actor = countActor(.paySign, PayModelRow.frame(for: model.item), x: model.left, lift: lift,
+                                          alpha: place.alpha, framing: framing) {
+                    actor.tint = SIMD4<Float>(tint, tint, tint, place.alpha)
+                    list.append(actor)
+                }
+                if rim, let actor = countActor(.paySign, PayModelRow.rimFrame(for: model.item), x: model.left,
+                                               lift: lift, alpha: place.alpha, framing: framing) {
+                    list.append(actor)
+                }
+                if chosen == nil, night < 0.5,
+                   let step = PayModelRow.glint(time: now, plot: row.plot, index: index, reduceMotion: reduceMotion),
+                   let actor = countActor(.paySign, PayModelRow.glintFrame(for: model.item, step: step), x: model.left,
+                                          lift: lift, alpha: place.alpha, framing: framing) {
+                    list.append(actor)
+                }
             }
         }
         return list
@@ -278,11 +362,12 @@ extension GameModel {
         var spots: [TouchSpot] = []
         for row in touch.models where modelTouchable(row.plot) {
             for model in row.models {
-                let left = framing.deviceX(stageX: model.area.left)
-                let right = framing.deviceX(stageX: model.area.right)
+                let area = modelArea(model)
+                let left = framing.deviceX(stageX: area.left)
+                let right = framing.deviceX(stageX: area.right)
                 guard right > 0, left < framing.physicalWidth else { continue }
-                let top = framing.deviceY(lift: model.area.top)
-                let bottom = framing.deviceY(lift: model.area.bottom)
+                let top = framing.deviceY(lift: area.top)
+                let bottom = framing.deviceY(lift: area.bottom)
                 let rect = CGRect(x: left / framing.physicalWidth, y: top / framing.physicalHeight,
                                   width: (right - left) / framing.physicalWidth,
                                   height: (bottom - top) / framing.physicalHeight)

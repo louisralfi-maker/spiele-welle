@@ -2,8 +2,9 @@ import Foundation
 
 // The count's step 5 (build 3, lane 1; the director's notes of 16.11., 12:44, P1 to P7; b3-wave1.md question 1): at a
 // plot with more than one offer nothing but the things themselves stands: one wooden model per offer on a sawhorse
-// trestle, on the side of the lord's spot away from his pay board. No figure, no coin, no sign: the models are the offer,
-// the board's hollows are the price. A touch on a model brings that offer's board (`GameModel+Sign.swift`). This file is
+// trestle beside the lord's spot. No figure, no coin, no sign: the models are the offer, the board's hollows are the
+// price. Step 6 (16.11., 15:48, R1, form A): the board is a counter that rises in the trestles' own slot, the models
+// riding up onto its top cap. A touch on a model brings that offer's board (`GameModel+Sign.swift`). This file is
 // the pure part: which plots carry models, where the row stands (and where the lord stands to pay there), and where a
 // finger catches each model. (The file keeps its step 4 name, so the join's lists stay short.)
 
@@ -53,19 +54,27 @@ struct PayModelChoice: Sendable, Equatable {
 }
 
 /// A plot's row of models, and where the lord stands to pay there.
+///
+/// Step 6 (the director's notes of 16.11., 15:48, R1; form A, the counter): the row stands in a slot as wide as the
+/// widest board of the plot's offers, the trestles centred in it, on one side of the lord's spot, 4 px from his rect.
+/// When an offer's board comes up it rises on the ground in that same slot, the trestles go and the models ride up and
+/// stand on its top cap (`GameModel+Sign.swift`). One law for every plot with models.
 struct PayModelRow: Sendable, Equatable {
     var plot: Int
     /// Where the lord stands to pay at this plot (game px of the world strip): the plot's standing place, moved `shift`
-    /// px toward the board's side when the row did not fit there (P3: 14 px at most).
+    /// px away from the slot when the slot did not fit there (15 px at most at a plot with models).
     var spot: Double
-    /// The side of his spot the board stands on (1 right, -1 left); the models stand on the other side.
+    /// The side of his spot the slot stands on (1 right, -1 left): the models at rest and the counter that rises.
     var side: Double
     var shift: Double
     var models: [PayModel]
-    /// False when no place within the shift kept the row off every door's opening, the boards off every door and off
-    /// every block (Marek's cart, the barracks' recruit halves): the row then stands at the first place that keeps the
-    /// doors free, else unforced at the plot's own place (the report says so). At the main gate the board on the right
-    /// meets the barracks' archer half (and Marek's cart on his days), so it does not fit there; a test pins it.
+    /// The slot's left edge and width (game px): the widest board of the plot's offers, at least the row's width.
+    var slotLeft: Double = 0
+    var slotWidth: Double = 0
+    /// False when no place within the shift kept the slot off every door's opening (a frame or a leaf covered by 6 px
+    /// at most) and off every block (Marek's cart, the barracks' recruit halves): the slot then stands at the first
+    /// place that keeps the doors free, else unforced at the plot's own place (the report says so). At the main gate
+    /// it fits on every day (a test pins it).
     var fits = true
 
     /// A cell of `paySign` (tools/hudart.py): 24 wide, 17 high (step 6, R3: the catapult's arm rises over the
@@ -73,55 +82,84 @@ struct PayModelRow: Sendable, Equatable {
     static let cell = 24
     static let cellHeight = 17
     static let trestleHeight = 10
-    /// The wood between two trestles, and the row's distance from the lord's rect (his 16 px frame, 8 each side).
+    /// The wood between two trestles, and the slot's distance from the lord's rect (his 16 px frame, 8 each side).
     static let gap = 3
     static let lordGap = 4.0
     static let lordHalf = 8.0
-    /// The model's foot over the walk line (on the trestle's beam), and its rise as it is chosen (P4). At rest a
-    /// model's top stands at most at the lord's shoulder (the top of his shoulders: row 22 of his frame, so this edge).
+    /// The model's foot over the walk line on its trestle (on the trestle's beam), and its rise as it is chosen (P4).
+    /// At rest a model's top stands at most at the lord's shoulder (the top of his shoulders: row 22 of his frame, so
+    /// this edge); the catapult's cup 4 px over it (R3).
     static let modelLift = 10.0
     static let chosenLift = 2.0
     static let shoulder = 23.0
-    /// P3: the most the lord's spot moves toward the board's side to make room, and the most of a door's frame or leaf
-    /// the row may cover.
-    static let maxShift = 14
+    /// The most the lord's spot moves away from the slot to make room (step 6, the director's call 1: 15 at a plot with
+    /// models; P3 had 14), and the most of a door's frame or leaf the slot may cover.
+    static let maxShift = 15
     static let doorCover = 6.0
     /// P5: a catch area at least this tall (24 px is 48 pt on a 3x phone), from `TouchRules.footRoom` under the walk line.
     static let catchHeight = 24.0
+    /// Step 6 (R1): the models ride up onto the counter's cap (and down again as it goes) at this speed, game px a
+    /// second, so the ride lasts about as long as the board's rise.
+    static let rideSpeed = 300.0
 
-    /// P4: the other models while one is chosen fall to this share of their value; the arrival hop (each model 2 px for
-    /// 0.15 s, 0.12 s after the one before), Reduce Motion's still rim instead (0.6 s); the glint over each model about
-    /// every 4 s (each step 0.06 s; the models of a row 2 s apart, the rows by their plot); the fade as the plot is built.
-    static let dimmed: Float = 0.6
+    /// P4: the other models while one is chosen fall to this share of their value (step 6, the director's call 5: 60 %
+    /// sank the ballista into the wall and the banner; 75 % is the darkest that still reads); the arrival hop (each
+    /// model 2 px for 0.15 s, 0.12 s after the one before), Reduce Motion's still rim instead (0.6 s); the glint over
+    /// each model (R6: 3.4 to 4.8 s apart, about one cycle in five left out); the fade as the plot is built.
+    static let dimmed: Float = 0.75
     static let hopRise = 2.0
     static let hopSeconds = 0.15
     static let hopStagger = 0.12
     static let rimSeconds = 0.6
-    static let glintEvery = 4.0
+    static let glintEvery = 4.1
+    static let glintJitter = 0.7
+    static let glintSkip = 5
     static let glintStepSeconds = 0.06
     static let fadeSeconds = 0.3
 
+    /// The hop's whole length for a row of `count` models (the last one down again): R5's board rises after it.
+    static func hopLength(_ count: Int) -> Double {
+        hopSeconds + hopStagger * Double(max(0, count - 1))
+    }
+
     /// The arrival hop's rise of model `index`, `age` seconds after the lord reached the spot: up and down by
     /// `hopRise` in whole pixels over `hopSeconds`, each model `hopStagger` after the one before; none under Reduce
-    /// Motion.
-    static func hop(age: Double, index: Int, reduceMotion: Bool) -> Double {
+    /// Motion. Step 6 (R5): on the first touch of a row the touched model hops first (`lead`), the others in turn.
+    static func hop(age: Double, index: Int, reduceMotion: Bool, lead: Int = 0, count: Int = 0) -> Double {
         guard !reduceMotion else { return 0 }
-        let t = age - Double(index) * hopStagger
+        let order = count > 0 ? ((index - lead) % count + count) % count : index
+        let t = age - Double(order) * hopStagger
         guard t >= 0, t < hopSeconds else { return 0 }
         return (hopRise * sin(Double.pi * t / hopSeconds)).rounded()
     }
 
-    /// The glint's step on model `index` of `plot`'s row at the clock's second `time` (nil: no glint now): it passes
-    /// in `glintSteps` steps once every `glintEvery` seconds, each model in its own phase; none under Reduce Motion (a
-    /// still step every 4 s would still blink: the review of step 5).
+    /// The glint's step on model `index` of `plot`'s row at the clock's second `time` (nil: no glint now). Step 6 (R6):
+    /// the clock is cut into slots of `glintEvery` s per model (each model in its own phase); in each slot the glint
+    /// starts at a hashed moment within its first `glintJitter` s, so two glints stand 3.4 to 4.8 s apart, and about one
+    /// slot in `glintSkip` (by the same hash) has none. It passes in `glintSteps` steps; none under Reduce Motion (a
+    /// still step would still blink: the review of step 5).
     static func glint(time: Double, plot: Int, index: Int, reduceMotion: Bool) -> Int? {
         guard time.isFinite, !reduceMotion else { return nil }
         let phase = Double(plot) * 0.7 + Double(index) * glintEvery / 2
-        var cycle = (time + phase).truncatingRemainder(dividingBy: glintEvery)
-        if cycle < 0 { cycle += glintEvery }
+        let local = time + phase
+        let slot = (local / glintEvery).rounded(.down)
+        let hash = glintHash(plot: plot, index: index, slot: Int(slot))
+        guard hash % UInt64(glintSkip) != 0 else { return nil }
+        let start = slot * glintEvery + glintJitter * Double((hash >> 8) % 1000) / 1000
+        let into = local - start
         let span = glintStepSeconds * Double(glintSteps)
-        guard cycle < span else { return nil }
-        return min(glintSteps - 1, Int(cycle / glintStepSeconds))
+        guard into >= 0, into < span else { return nil }
+        return min(glintSteps - 1, Int(into / glintStepSeconds))
+    }
+
+    /// A stable hash of a plot, a model and a glint slot (FNV-1a over the three, mixed).
+    static func glintHash(plot: Int, index: Int, slot: Int) -> UInt64 {
+        var hash: UInt64 = 0xCBF2_9CE4_8422_2325
+        for value in [plot &+ 11, index &+ 5, slot &+ 3] {
+            hash = (hash ^ UInt64(bitPattern: Int64(value))) &* 0x0000_0100_0000_01B3
+            hash ^= hash >> 31
+        }
+        return hash
     }
 
     /// Each model's drawn height in its cell, its ink edge included (tools/hudart.py): the ballista and the house 13,
@@ -131,11 +169,12 @@ struct PayModelRow: Sendable, Equatable {
     }
 
     /// The frames of `paySign`: the trestle, each model, its warm rim, and its glint's steps; step 6: the row's second
-    /// trestle (frame 19), so two trestles side by side are not one copy.
+    /// trestle (frame 19), so two trestles side by side are not one copy, and each model's contact shadow on the
+    /// counter's cap (20 to 22).
     static let trestleFrame = 0
     static let secondTrestleFrame = 19
-    static func trestleFrame(index: Int) -> Int { index % 2 == 1 ? secondTrestleFrame : trestleFrame }
     static let glintSteps = 4
+    static func trestleFrame(index: Int) -> Int { index % 2 == 1 ? secondTrestleFrame : trestleFrame }
     static func frame(for item: BuildItem) -> Int {
         switch item {
         case .ballista: return 1
@@ -147,23 +186,27 @@ struct PayModelRow: Sendable, Equatable {
     static func glintFrame(for item: BuildItem, step: Int) -> Int {
         7 + (frame(for: item) - 1) * glintSteps + min(max(0, step), glintSteps - 1)
     }
+    static func shadowFrame(for item: BuildItem) -> Int { 19 + frame(for: item) }
 
     /// The row's width for `count` models.
     static func width(_ count: Int) -> Double {
         Double(count * cell + max(0, count - 1) * gap)
     }
 
-    /// The row's left and right edges (game px of the world strip).
+    /// The row's left and right edges (game px of the world strip): its trestles.
     var left: Double { models.first?.left ?? spot }
     var right: Double { (models.last?.left ?? spot) + Double(PayModelRow.cell) }
+    /// The slot's edges: where the counter rises (and the trestles stand inside it).
+    var slotRight: Double { slotLeft + slotWidth }
+    var slot: ClosedRange<Double> { min(slotLeft, left)...max(slotRight, right) }
 
     /// The lord's rect at his spot (left and right edges).
     var lordSpan: ClosedRange<Double> { (spot - PayModelRow.lordHalf)...(spot + PayModelRow.lordHalf) }
 
-    /// Where the board for a layout `width` px wide stands when he pays here, `standGap` px from his spot
-    /// (`GameModel.countStandGap`): its left and right edges.
-    func boardSpan(width: Double, standGap: Double) -> ClosedRange<Double> {
-        side > 0 ? (spot + standGap)...(spot + standGap + width) : (spot - standGap - width)...(spot - standGap)
+    /// Where a board `width` px wide stands when he pays here (R1): on the ground in the slot, centred on whole pixels.
+    func boardSpan(width: Double) -> ClosedRange<Double> {
+        let left = slotLeft + ((slotWidth - width) / 2).rounded(.down)
+        return left...(left + width)
     }
 
     /// The model whose catch area holds (`x`, `lift`), nil for none.
@@ -183,56 +226,65 @@ struct PayModelRow: Sendable, Equatable {
         return list
     }
 
-    /// The row of `offers` at `plot` for the lord standing at `spot` with his board on `side`: the trestles `gap` apart,
-    /// the nearest `lordGap` from his rect; each catch area its trestle and model, at least `minimum` wide and the
-    /// taller of `catchHeight` and `minimum`, cut at the middle of the gap where two would overlap.
+    /// The board widths of `offers` at a plot with models (R2: coins only under 200).
+    static func boardWidths(_ offers: [BuildOption]) -> [Double] {
+        offers.map { Double(PayBoardLayout.make(PayCount.hollows(price: $0.price, coinsOnly: true)).width) }
+    }
+
+    /// The row of `offers` at `plot` for the lord standing at `spot` with the slot on `side`: the slot `slotWidth` wide
+    /// (at least the row's width), its near edge `lordGap` from his rect; the trestles `gap` apart, centred in it on
+    /// whole pixels; each catch area its trestle and model, at least `minimum` wide and the taller of `catchHeight` and
+    /// `minimum`, cut at the middle of the gap where two would overlap.
     static func make(plot: Int, spot: Double, side: Double, shift: Double = 0, offers: [BuildOption],
-                     minimum: Double) -> PayModelRow {
+                     minimum: Double, slotWidth: Double = 0) -> PayModelRow {
         let way: Double = side < 0 ? -1 : 1
-        let near = spot - way * (lordHalf + lordGap)
-        let rowLeft = way > 0 ? near - width(offers.count) : near
+        let wide = max(slotWidth, width(offers.count))
+        let near = spot + way * (lordHalf + lordGap)
+        let slotLeft = way > 0 ? near : near - wide
+        let rowLeft = slotLeft + ((wide - width(offers.count)) / 2).rounded(.down)
         let pitch = Double(cell + gap)
-        let wide = max(Double(cell), minimum)
+        let catchWide = max(Double(cell), minimum)
         let bottom = -TouchRules.footRoom
         let top = max(modelLift + Double(cellHeight) + chosenLift, bottom + max(catchHeight, minimum))
         var models: [PayModel] = []
         for (index, offer) in offers.enumerated() {
             let left = rowLeft + pitch * Double(index)
             let middle = left + Double(cell) / 2
-            var areaLeft = middle - wide / 2
-            var areaRight = middle + wide / 2
+            var areaLeft = middle - catchWide / 2
+            var areaRight = middle + catchWide / 2
             if index > 0 { areaLeft = max(areaLeft, left - Double(gap) / 2) }
             if index < offers.count - 1 { areaRight = min(areaRight, left + Double(cell) + Double(gap) / 2) }
             models.append(PayModel(plot: plot, item: offer.item, price: offer.price, left: left,
                                    area: TouchArea(left: areaLeft, right: areaRight, bottom: bottom, top: top)))
         }
-        return PayModelRow(plot: plot, spot: spot, side: way, shift: shift, models: models)
+        return PayModelRow(plot: plot, spot: spot, side: way, shift: shift, models: models, slotLeft: slotLeft,
+                           slotWidth: wide)
     }
 
-    /// True when the row keeps off every door's opening and covers at most `doorCover` px of its frame or leaves.
+    /// True when the slot (the trestles and the counter) keeps off every door's opening and covers at most `doorCover`
+    /// px of its frame or leaves.
     func clear(of doors: [PayDoor]) -> Bool {
-        let left = self.left
-        let right = self.right
+        let span = slot
         for door in doors {
-            if left < door.opening.upperBound && right > door.opening.lowerBound { return false }
-            let cover = min(right, door.span.upperBound) - max(left, door.span.lowerBound)
+            if span.lowerBound < door.opening.upperBound && span.upperBound > door.opening.lowerBound { return false }
+            let cover = min(span.upperBound, door.span.upperBound) - max(span.lowerBound, door.span.lowerBound)
             if cover > PayModelRow.doorCover + 1e-9 { return false }
         }
         return true
     }
 
-    /// The row's place at `plot` (P3): the lord at the plot's standing place `base`, his board for every offer on one
-    /// side (`boardWidths`, `standGap` from him) and the models on the other; when that does not fit, his spot moved
-    /// toward the board's side a pixel at a time, 14 px at most. A place fits when the row keeps off every door's
-    /// opening (a frame or a leaf covered by 6 px at most), every board stands clear of every door's whole span (H1),
-    /// and everything stays inside `bounds`; a board also keeps off every one of `blocks` (Marek's cart, the barracks'
-    /// recruit halves: the review of step 5). Of the sides that fit (each at its smallest move), the one whose row and
-    /// boards cover least of `others` (the other things' spans) wins; a tie keeps the board on the right. When no place
-    /// fits, the first place that keeps the doors free (blocks ignored) stands, else the row stands unforced at `base`
-    /// with its board on the right; either way `fits` is false.
+    /// The row's place at `plot` (R1): the lord at the plot's standing place `base`, the slot (as wide as the widest of
+    /// `boardWidths`) on one side of him; when that does not fit, his spot moved away from the slot a pixel at a time,
+    /// 15 px at most. A place fits when the slot keeps off every door's opening (a frame or a leaf covered by 6 px at
+    /// most), off every one of `blocks` (Marek's cart, the barracks' recruit halves), and the slot and the lord stay
+    /// inside `bounds`. Of the sides that fit (each at its smallest move), the one whose slot covers least of `others`
+    /// (the other things' spans) wins; a tie keeps the slot on the left. When no place fits, the first place that keeps
+    /// the doors free (blocks ignored) stands, else the row stands unforced at `base` with its slot on the left;
+    /// either way `fits` is false.
     static func place(plot: Int, base: Double, offers: [BuildOption], minimum: Double, doors: [PayDoor],
-                      others: [ClosedRange<Double>], boardWidths: [Double], standGap: Double,
-                      bounds: ClosedRange<Double>, blocks: [ClosedRange<Double>] = []) -> PayModelRow {
+                      others: [ClosedRange<Double>], boardWidths: [Double], bounds: ClosedRange<Double>,
+                      blocks: [ClosedRange<Double>] = []) -> PayModelRow {
+        let wide = max(boardWidths.max() ?? 0, width(offers.count))
         func cover(_ span: ClosedRange<Double>) -> Double {
             var total = 0.0
             for other in others {
@@ -240,26 +292,19 @@ struct PayModelRow: Sendable, Equatable {
             }
             return total
         }
-        func boardFits(_ board: ClosedRange<Double>, _ blocked: [ClosedRange<Double>]) -> Bool {
-            guard board.lowerBound >= bounds.lowerBound, board.upperBound <= bounds.upperBound else { return false }
-            if doors.contains(where: { board.lowerBound < $0.span.upperBound && board.upperBound > $0.span.lowerBound }) {
-                return false
-            }
-            return !blocked.contains { board.lowerBound < $0.upperBound && board.upperBound > $0.lowerBound }
-        }
         func search(_ blocked: [ClosedRange<Double>]) -> PayModelRow? {
             var best: (row: PayModelRow, cost: Double)?
-            for side in [1.0, -1.0] {
+            for side in [-1.0, 1.0] {
                 for step in 0...maxShift {
-                    let row = make(plot: plot, spot: base + side * Double(step), side: side, shift: Double(step),
-                                   offers: offers, minimum: minimum)
-                    guard row.left >= bounds.lowerBound, row.right <= bounds.upperBound, row.clear(of: doors) else {
-                        continue
-                    }
-                    let boards = boardWidths.map { row.boardSpan(width: $0, standGap: standGap) }
-                    guard boards.allSatisfy({ boardFits($0, blocked) }) else { continue }
-                    var cost = cover(row.left...row.right)
-                    for board in boards { cost += cover(board) }
+                    let row = make(plot: plot, spot: base - side * Double(step), side: side, shift: Double(step),
+                                   offers: offers, minimum: minimum, slotWidth: wide)
+                    let span = row.slot
+                    guard span.lowerBound >= bounds.lowerBound, span.upperBound <= bounds.upperBound,
+                          row.lordSpan.lowerBound >= bounds.lowerBound, row.lordSpan.upperBound <= bounds.upperBound,
+                          row.clear(of: doors),
+                          !blocked.contains(where: { span.lowerBound < $0.upperBound && $0.lowerBound < span.upperBound })
+                    else { continue }
+                    let cost = cover(span)
                     if best == nil || cost < (best?.cost ?? 0) - 1e-9 { best = (row: row, cost: cost) }
                     break
                 }
@@ -271,7 +316,7 @@ struct PayModelRow: Sendable, Equatable {
             row.fits = false
             return row
         }
-        var unforced = make(plot: plot, spot: base, side: 1, offers: offers, minimum: minimum)
+        var unforced = make(plot: plot, spot: base, side: -1, offers: offers, minimum: minimum, slotWidth: wide)
         unforced.fits = false
         return unforced
     }

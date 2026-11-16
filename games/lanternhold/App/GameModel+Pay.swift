@@ -13,6 +13,11 @@ struct CountBoard: Sendable, Equatable {
     var side: Double = -1
     /// Step 5: the model chosen at a plot with several offers (its board's offer; nil: any other board).
     var model: BuildItem? = nil
+    /// Step 6 (R1): at a plot with several offers the board is a counter: it stands on the ground in the row's slot, on
+    /// no post, and the models stand on its top cap; `modelsTop` is the tallest model's top over the cap (the chosen one
+    /// lifted), which a thrown coin's peak clears by 2 px (the director's call 2).
+    var counter = false
+    var modelsTop = 0.0
 
     /// A board of one plank stands its bottom this high over the walk line, on its post; a board of two or three
     /// planks hangs lower (step 3, the director's call 4: its lowest row about 3 px over the ground line's things, its
@@ -20,8 +25,8 @@ struct CountBoard: Sendable, Equatable {
     static let lift = 8
     static let lowLift = 3
 
-    /// This board's bottom over the walk line.
-    var bottom: Int { layout.rows >= 2 ? CountBoard.lowLift : CountBoard.lift }
+    /// This board's bottom over the walk line (a counter's foot is on the ground).
+    var bottom: Int { counter ? 0 : layout.rows >= 2 ? CountBoard.lowLift : CountBoard.lift }
 
     /// The board's left edge and its top (game px over the walk line), and its post's left edge and top (the iron
     /// plate over the board).
@@ -220,6 +225,29 @@ extension GameModel {
         boardTop + 4 + coinHeight
     }
 
+    /// Step 6 (the director's call 2): over a counter, the lowest a thrown coin's top may stand at its peak: its whole
+    /// rect 2 px over the taller model standing on the cap (`modelsTop` over the board's top), so it never passes
+    /// through a model on its way up.
+    nonisolated static func countModelsClear(boardTop: Double, modelsTop: Double, coinHeight: Double) -> Double {
+        boardTop + modelsTop + 2 + coinHeight
+    }
+
+    /// A picture's freeze (Debug) that holds a share or the full board shows it at rest, the last coin settled and no
+    /// dip; a flight's freeze keeps both (the bar's dip and the landed coin are pictured so).
+    var countAtRest: Bool {
+        if let freeze = countFreezeNow, countFrozen, !freeze.keepsMotion { return true }
+        return false
+    }
+
+    /// Step 3 (the director's call 2): the board (not its post) takes the weight of the coin that just landed; its dip
+    /// now in game px (step 6: the models on a counter's cap dip with it).
+    func countDipNow(_ count: PayCount, _ board: CountBoard) -> Double {
+        let layout = board.layout
+        guard !countAtRest, count.isOpen, count.placed > 0, count.placed <= layout.hollows.count,
+              let since = count.sinceLanding(count.placed - 1) else { return 0 }
+        return GameModel.countDip(layout.hollows[count.placed - 1].coin, since: since, reduceMotion: reduceMotion)
+    }
+
     /// A coin going home after a let go (step 3, the director's call 8, M-a): its full size for the first 60 % of the
     /// way, shrinking to nothing over the last 40 % (at `share` 0 ... 1 of its way).
     nonisolated static func countHomeScale(_ share: Double) -> Double {
@@ -354,7 +382,8 @@ extension GameModel {
     func countBoardThing(_ place: (x: Double, lift: Double, minimum: Double)) -> TouchThing? {
         guard let count = touch.count, count.isOpen, let board = touch.countBoard else { return nil }
         let half = max(Double(board.layout.width) / 2, place.minimum / 2)
-        let top = board.top + 14
+        // Step 6 (R1): over a counter's cap the models stand (a touch there is theirs: the swap, `modelArea`).
+        let top = board.counter ? board.top : board.top + 14
         guard abs(place.x - board.x) <= half, place.lift >= -TouchRules.footRoom, place.lift <= top else { return nil }
         return touch.things.first { $0.id == count.thing }
     }
@@ -426,8 +455,8 @@ extension GameModel {
 
     /// The board comes up beside `thing`. Refused at once (the repair cooling down, nobody left to recruit):
     /// `decline`, no board. Another thing's board lets its coins go home and goes down in its own time. `model`: the
-    /// model that brought it (step 5), chosen while the board stands; at a plot with several offers the board stands on
-    /// the far side of the row's spot (`PayModelRow`), the lord at the spot.
+    /// model that brought it (step 5), chosen while the board stands; at a plot with several offers the board is a
+    /// counter in the row's slot (step 6, R1: `PayModelRow`), counted in coins only (R2), the lord at the row's spot.
     func startCount(_ thing: TouchThing, _ found: (offer: PayOffer, price: Int), holding: Bool,
                     model: BuildItem? = nil) {
         guard kind == .world, stage == .world, overlay == nil, stageChange == nil, lanternMoment == nil,
@@ -436,6 +465,12 @@ extension GameModel {
             feedback.play(.refused)
             return
         }
+        // Step 6: at a plot with several offers, a counter changed for the other offer's stands at once (R2: it grows or
+        // sinks by a plank under the models); the first touch of a row plays the hop first (R5).
+        let row = modelRow(for: thing)
+        let swapping = row != nil && touch.count?.isOpen == true && touch.count?.thing == thing.id
+            && touch.countBoard?.counter == true
+        let standing = touch.count.map { !$0.isGone && $0.thing == thing.id } ?? false
         if var old = touch.count, let oldBoard = touch.countBoard, !old.isGone {
             if old.isOpen {
                 old.letGo()
@@ -460,17 +495,32 @@ extension GameModel {
         feedback.countWarm()
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
-        var layout = PayBoardLayout.make(PayCount.hollows(price: found.price))
+        var layout = PayBoardLayout.make(PayCount.hollows(price: found.price, coinsOnly: row != nil))
         let reach = Double(layout.width) / 2 + GameModel.countStandGap
         let side: Double
         var boardX: Double
         var stand: Double
-        if let row = modelRow(for: thing) {
-            // Step 5 (P3, P4): at a plot with several offers the lord stands at the row's spot and the board rises on
-            // its far side, away from the models, whichever model brought it.
+        var modelsTop = 0.0
+        var startTime = 0.0
+        if let row {
+            // Step 6 (R1): at a plot with several offers the lord stands at the row's spot and the board rises as a
+            // counter on the ground in the row's slot, whichever model brought it; the models ride up onto its cap.
             side = row.side
             stand = groundX(row.spot)
-            boardX = row.spot + side * reach
+            let span = row.boardSpan(width: Double(layout.width))
+            boardX = span.lowerBound + Double(layout.width) / 2
+            modelsTop = row.models.map {
+                PayModelRow.height($0.item) + ($0.item == model ? PayModelRow.chosenLift : 0)
+            }.max() ?? 0
+            if swapping {
+                startTime = PayCount.boardDelay
+            } else if !standing, !reduceMotion {
+                // R5: the touched model hops first, the other 0.12 s later, then the board rises.
+                touch.modelHop[row.plot] = clock.elapsed
+                touch.modelHopLead[row.plot] = row.models.firstIndex { $0.item == model } ?? 0
+                startTime = -(PayModelRow.hopLength(row.models.count)
+                              - (PayCount.boardDelay - PayCount.riseSeconds))
+            }
         } else {
             let place = countBoardPlace(thing, layout: layout)
             side = place.side
@@ -489,14 +539,15 @@ extension GameModel {
                 stand = groundX(boardX + side * reach)
             }
         }
-        let board = CountBoard(x: boardX, stand: stand, act: thing.act, layout: layout, side: side, model: model)
+        let board = CountBoard(x: boardX, stand: stand, act: thing.act, layout: layout, side: side, model: model,
+                               counter: row != nil, modelsTop: modelsTop)
         // A lantern still lit on this post (the last recruit's, 3 s) gives way to the new board and its own unlit
         // lantern (the review of step 2: an unlit lantern was drawn over a lit one whose heart still glowed).
         touch.countLanterns.removeAll {
             abs($0.postLeft - board.lanternPostLeft) < SpriteID.siteLantern.size.width
         }
-        touch.count = PayCount(thing: thing.id, offer: found.offer, price: found.price, holding: holding,
-                               flights: GameModel.countFlights(board))
+        touch.count = PayCount(thing: thing.id, offer: found.offer, price: found.price, time: startTime,
+                               holding: holding, flights: GameModel.countFlights(board), coinsOnly: row != nil)
         touch.countBoard = board
         touch.countSent = false
         touch.countFirst = holding
@@ -558,7 +609,7 @@ extension GameModel {
             if case .build(_) = other.act { add(other.x - other.halfWidth, other.x + other.halfWidth) }
         }
         for row in touch.models where "touch-plot-\(row.plot)" != thing.id {
-            add(row.left, row.right)
+            add(row.slot.lowerBound, row.slot.upperBound)
         }
         guard let state = driver?.state else { return boxes }
         for figure in CourtFrames.figures(state: state, catalog: .standard, scene: court, animTime: animationTime)
@@ -624,6 +675,10 @@ extension GameModel {
         touch.modelShown = [:]
         touch.modelLastChosen = [:]
         touch.modelFades = []
+        // Step 6: nor rides on a counter of the realm before it.
+        touch.modelHopLead = [:]
+        touch.modelRide = [:]
+        touch.modelRideAt = nil
     }
 
     /// The `-GWCountFreeze` moment in force now (Debug, the pictures): a one-hold strip's current share (step 4, M-a),
@@ -945,22 +1000,17 @@ extension GameModel {
             if rise < 0.5 { return [] }
         } else {
             alpha *= Float(rise)
-            shift = -((1 - rise) * 4).rounded()
-            // Going down without a seal it sinks as it came up (step 2's small edges: never a pop).
-            if count.result != nil && count.result != .paid { shift -= ((1 - count.fadeShare) * 4).rounded() }
+            // Step 6 (R1): a counter stands on the ground and comes and goes in its alpha, the models riding with it.
+            if !board.counter {
+                shift = -((1 - rise) * 4).rounded()
+                // Going down without a seal it sinks as it came up (step 2's small edges: never a pop).
+                if count.result != nil && count.result != .paid { shift -= ((1 - count.fadeShare) * 4).rounded() }
+            }
         }
         guard alpha > 0.01 else { return [] }
         let left = board.left
-        // Step 3 (the director's call 2): the board (not its post) takes the weight of the coin that just landed.
-        var dip = 0.0
-        // A picture's freeze (Debug) that holds a share or the full board shows it at rest, the last coin settled and
-        // no dip; a flight's freeze keeps both (the bar's dip and the landed coin are pictured so).
-        var atRest = false
-        if let freeze = countFreezeNow, countFrozen, !freeze.keepsMotion { atRest = true }
-        if !atRest, count.isOpen, count.placed > 0, count.placed <= layout.hollows.count,
-           let since = count.sinceLanding(count.placed - 1) {
-            dip = GameModel.countDip(layout.hollows[count.placed - 1].coin, since: since, reduceMotion: reduceMotion)
-        }
+        let atRest = countAtRest
+        let dip = countDipNow(count, board)
         let top = board.top + shift - dip
         let sealed = count.sinceSeal
         var actors: [ActorInstance] = []
@@ -975,8 +1025,11 @@ extension GameModel {
         // crook of this same post behind the shut board, and catches as the board has gone: `countLanternsWorld`).
         // Step 5 (M-b of step 4's critic): no stub over the board, where a coin at its peak read as a gold knob on it;
         // the post's iron plate sits under the cap.
-        actors += countPostActors(postLeft: board.postLeft, postTop: board.top + shift - Double(PayBoardLayout.cap),
-                                  shift: shift, alpha: alpha, framing: framing)
+        // Step 6 (R1): a counter stands on the ground, on no post.
+        if !board.counter {
+            actors += countPostActors(postLeft: board.postLeft, postTop: board.top + shift - Double(PayBoardLayout.cap),
+                                      shift: shift, alpha: alpha, framing: framing)
+        }
         // The planks (or the lid's), the cap over them and the foot under them.
         func planks(lid: Bool, offset: Double) {
             for row in 0..<layout.rows {
@@ -1080,7 +1133,9 @@ extension GameModel {
         let next = count.launched.count
         let settling = count.placed > 0
             && (count.sinceLanding(count.placed - 1) ?? 1) < settle + PayCount.squashSeconds
-        if count.isOpen, sealed == nil, count.sealAt == nil, rise >= 1, next < layout.hollows.count,
+        // Step 6 (R4): never on a board with nothing paid (the first coin rocking over its hollow read as gold already
+        // lying on the board's top edge: raw shot 193): the lesson starts with the first coin laid.
+        if count.isOpen, sealed == nil, count.sealAt == nil, rise >= 1, count.placed > 0, next < layout.hollows.count,
            count.inFlight == 0, !count.pendingShort, reduceMotion || !settling {
             let hollow = layout.hollows[next]
             let coin = hollow.coin.sprite.size
@@ -1132,11 +1187,16 @@ extension GameModel {
         let handX = lordX + GameModel.countHandReach * (board.x >= lordX ? 1 : -1)
         for coin in flying {
             let size = coin.coin.sprite.size
+            var clear = GameModel.countPeakClear(boardTop: board.top + shift, coinHeight: Double(size.height))
+            // Step 6 (the director's call 2): over a counter the whole coin clears the taller model's top by 2 px.
+            if board.counter {
+                clear = max(clear, GameModel.countModelsClear(boardTop: board.top + shift, modelsTop: board.modelsTop,
+                                                              coinHeight: Double(size.height)))
+            }
             let at = GameModel.countThrow(coin.share, fromX: handX - Double(size.width) / 2,
                                           fromLift: GameModel.countHandLift + Double(size.height) / 2,
                                           toX: Double(coin.x), toLift: coin.lift + 3, coinHeight: Double(size.height),
-                                          clear: GameModel.countPeakClear(boardTop: board.top + shift,
-                                                                          coinHeight: Double(size.height)))
+                                          clear: clear)
             let frame = GameModel.countSpin(coin.share, index: coin.index, face: coin.face)
             if let actor = countActor(coin.coin.sprite, frame, x: at.x.rounded(), lift: at.lift.rounded(), alpha: alpha,
                                       framing: framing) {
