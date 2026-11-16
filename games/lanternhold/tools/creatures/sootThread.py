@@ -3,7 +3,8 @@ torn edge at its nape rises a thread of smoke. It is smoke, not a stick: dense a
 palest value), thinning as it rises, curling, and its top third broken into wisps of one or two pixels with gaps
 between. Each thread has a length of its own (the body's height and up to three pixels more, by the creature's id), so a
 file of them never stands ruled. It is its own strip so the engine can lean it: its tip leans up to four pixels with
-the wind (Weather.wind), back against the wind while it runs, and it sways (the middle one pixel, the tip two). No
+the wind (Weather.wind), back against the wind while it runs, and it sways about a pixel either side of that lean,
+less than the lean, so a calm and a gust differ at a glance; its wisps curl the same in both sway frames. No
 outline: smoke. Albedo only, no glow strip; the engine draws it as a pale emissive at a low value, so the horde reads
 as a field of threads at night before its bodies are seen.
 
@@ -33,16 +34,19 @@ def frame(k):
     x_prev = ROOT
     for i in range(length):
         t = i / (length - 1)
-        bend = lean * t ** 1.7                                # the wind bends it most toward the tip
-        sway = side * (0.9 * math.sin(math.pi * t) + 1.6 * t * t) * 0.85
+        bend = lean * t ** 1.3                                # the wind bends it most toward the tip
+        sway = side * (0.5 * math.sin(math.pi * t) + 0.6 * t * t)  # about one pixel either side of the lean
         wobble = 0.6 * math.sin(t * math.pi * 2.3 + curl) * t
         x = ROOT + bend + sway + wobble
         y = h - 1 - i
         if i >= broken:
             if i == gap_at or (i > gap_at + 2 and hsh(i, li, 37) < 0.45):
                 continue                                      # the gaps between the wisps
-            if hsh(i, li + side, 41) < 0.5:
-                x += side                                     # a wisp curls aside
+            curl_at = hsh(i, li, 41)                          # a wisp curls aside, the same in both sway frames
+            if curl_at < 0.25:
+                x += 1
+            elif curl_at < 0.5:
+                x -= 1
             c = "mistDark" if i < length - 2 else "nightHaze"
         elif i < 2:
             c = "mistLight" if i == 0 else "mist"

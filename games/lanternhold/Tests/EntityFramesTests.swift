@@ -796,6 +796,26 @@ final class EntityFramesTests: XCTestCase {
             let gaps = rows[top..<(size.height - length * 2 / 3)].filter { $0 == 0 }.count
             XCTAssertGreaterThan(gaps, 0, "\(length) px: its top third breaks into wisps")
         }
+        // The wind's lean outweighs the sway (the review of step 2): the mean tip (the top three drawn rows) of both
+        // sway frames at lean 3 stands at least 2 px right of the calm, farther than one sway swing, and a calm
+        // thread stands about its root (column 7), so the calm and the gust shot differ at a glance.
+        let tip: (Int) -> Double = { frame in
+            let rows = (0..<size.height).filter { y in
+                (0..<size.width).contains { image[frame * size.width + $0, y].a > 0 }
+            }.prefix(3)
+            let xs: [Int] = rows.flatMap { y in (0..<size.width).filter { image[frame * size.width + $0, y].a > 0 } }
+            return Double(xs.reduce(0, +)) / Double(max(1, xs.count)) - 7
+        }
+        for length in HordeLook.threadLengths {
+            let still = tip(HordeLook.threadFrame(length: length, lean: 0, sway: 0))
+            let swung = tip(HordeLook.threadFrame(length: length, lean: 0, sway: 1))
+            let calm = (still + swung) / 2
+            let gust = (tip(HordeLook.threadFrame(length: length, lean: 3, sway: 0))
+                        + tip(HordeLook.threadFrame(length: length, lean: 3, sway: 1))) / 2
+            XCTAssertGreaterThanOrEqual(gust - calm, 2, "\(length) px: a gust leans the tip at a glance")
+            XCTAssertGreaterThan(gust - calm, abs(swung - still), "\(length) px: the lean outweighs the sway")
+            XCTAssertLessThanOrEqual(abs(calm), 1, "\(length) px: a calm thread stands about its root")
+        }
     }
 
     func testTheHeapRisesWithThePressureOnTheWall() {
