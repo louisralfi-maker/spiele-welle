@@ -439,6 +439,10 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertLessThanOrEqual(atlas.height, AtlasLayout.maxHeight, "the atlas fits its pages")
         XCTAssertEqual(atlas.cells[.sootling]?.count, 8)
         XCTAssertEqual(atlas.cells[.sootlingBGlow]?.count, 8)
+        // (the texture is cut at its pages: a cell the packer placed beyond them would fall off it)
+        XCTAssertTrue(atlas.cells.values.joined().allSatisfy {
+            $0.y + $0.height <= atlas.height && $0.x + $0.width <= atlas.width
+        }, "every cell inside the atlas")
         let note = XCTAttachment(string: "b3-horde step 7 atlas: \(atlas.width) x \(atlas.height) of \(AtlasLayout.maxHeight)")
         note.name = "horde-atlas-size"
         note.lifetime = .keepAlways

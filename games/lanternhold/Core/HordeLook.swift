@@ -501,9 +501,7 @@ enum HordeLook {
     static let flakeScatter = 16.0
 
     /// The crowd's top: the tallest body of the crowd, in game pixels over its ground line.
-    static var crowdTop: Double {
-        Double(crowd.map { height($0) }.max() ?? 13)
-    }
+    static let crowdTop: Double = Double(HordeLook.crowd.map { HordeLook.height($0) }.max() ?? 13)
 
     /// A flake's height at `puff` (0 ... 1 of its drift): from `start` toward `clear` px over the crowd's top standing
     /// on `ground`, eased out.
