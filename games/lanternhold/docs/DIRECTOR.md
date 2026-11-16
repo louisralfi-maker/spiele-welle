@@ -1081,3 +1081,8 @@ schneller geht."
   - The card (hung signs; a bench with models and figures; a bench with coin pips) has no winner: every number at idle reads as a price list, the 14 x 9 px models are crumbs, the pips read as gold for sale.
   - The decision: at a plot with more than one offer only the things themselves stand: one wooden model per offer, about 22 px wide. A touch on a model raises the pay board; the board's hollows are the price, as at every other site.
   - Step 5B is a second card: the models on trestles on the lord's near side (plain, and with a coin stack as a test), and chalk drawings on the wall.
+
+- **The count's second card judged: the builder's models are the offer (16.11.2026, 12:44).**
+  - Picked: D. Two pale wooden engines on sawhorses stand on the lord's near side; the chosen one lifts and takes the lantern's gold, the other dims; the pay board rises on the far side and its hollows are the price.
+  - Out: the coin stacks (gold lying in the street) and the chalk on the wall (the brightest thing in the panel, decoration).
+  - Step 5 builds it: the signpost's drawing goes, its logic stays; a glint and an arrival hop invite the touch; no model stands in a door's opening; the standing calls of 12:17 ride along.
