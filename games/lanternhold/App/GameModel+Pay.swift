@@ -314,6 +314,7 @@ extension GameModel {
         if abs(stageLordX - board.stand) <= TouchRules.arrival {
             stopWalking()
             touch.errand = nil
+            countFaceBoard()
             touch.count?.arrive()
             return
         }
@@ -323,7 +324,18 @@ extension GameModel {
 
     /// He stands beside the board (`arrive`): the coins may come.
     func countArrived() {
+        countFaceBoard()
         touch.count?.arrive()
+    }
+
+    /// He turns to the board he pays at, so the coins leave the hand on its side (the review of step 2: he stands on
+    /// the board's outer side, so he often walked past it and stopped with his back to it; the simulation turns him
+    /// only while he walks). The king's facing exists and is written from here as the audience does; nothing new saved.
+    private func countFaceBoard() {
+        guard stage == .world, let board = touch.countBoard else { return }
+        withDriver { game in
+            game.state.king.facing = board.x >= game.state.king.x ? 1 : -1
+        }
     }
 
     /// A card, the horn, the background, the lantern moment, a change of stage: the count ends and pays nothing.

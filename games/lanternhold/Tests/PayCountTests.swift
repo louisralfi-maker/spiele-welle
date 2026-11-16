@@ -857,6 +857,20 @@ final class PayCountTests: XCTestCase {
             XCTAssertFalse(place.x - w < wallRight && place.x + w > wallLeft, "\(id): beside the barracks")
             XCTAssertEqual(place.side, id.hasSuffix("archer") ? -1 : 1, "\(id): at its own wall")
         }
+        // The review of step 2: standing on the board's outer side he turns to it, so the coins never leave a hand
+        // behind his back (he walks past the archer's board from the right and would stop facing left).
+        for id in ["touch-recruit-archer", "touch-recruit-guard"] {
+            let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1580",
+                              "GWGold": "60"])
+            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let thing = try XCTUnwrap(game.touch.things.first { $0.id == id })
+            game.touchThing(thing)
+            run(game, seconds: 12) { game.touch.count?.ready == true }
+            let board = try XCTUnwrap(game.touch.countBoard, id)
+            XCTAssertEqual(game.touch.count?.ready, true, "\(id): he reached the board")
+            let king = try XCTUnwrap(game.driver?.state.king)
+            XCTAssertEqual(king.facing, board.x >= king.x ? 1 : -1, "\(id): he faces the board")
+        }
     }
 
     /// The critic's M2: the purse's figure never touches a board that stands by the lord.
