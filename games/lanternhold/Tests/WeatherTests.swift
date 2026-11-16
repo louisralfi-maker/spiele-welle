@@ -706,12 +706,12 @@ final class WeatherTests: XCTestCase {
 
     func testTheFlamesBendByTheLeanAndTheEnclosedFiresStand() {
         XCTAssertTrue(FrameBuilder.flameBend(lean: 0.1, rows: 5).isEmpty, "a calm: it stands")
-        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.5, rows: 5).map(\.shift), [1])
-        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.5, rows: 7).map(\.shift), [-1], "toward the shadow land")
-        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 5).map(\.shift), [2, 1])
-        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 5).map(\.rows).reduce(0, +), 3, "the foot stays")
-        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.9, rows: 7).map(\.shift), [-2, -1])
-        XCTAssertLessThan(FrameBuilder.flameBend(lean: 0.9, rows: 7).map(\.rows).reduce(0, +), 7)
+        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.5, rows: 5).map { $0.shift }, [1])
+        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.5, rows: 7).map { $0.shift }, [-1], "toward the shadow land")
+        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 5).map { $0.shift }, [2, 1])
+        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 5).map { $0.rows }.reduce(0, +), 3, "the foot stays")
+        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.9, rows: 7).map { $0.shift }, [-2, -1])
+        XCTAssertLessThan(FrameBuilder.flameBend(lean: 0.9, rows: 7).map { $0.rows }.reduce(0, +), 7)
         // The oven behind its hatch and the forge in the smithy burn out of the wind; a torch does not.
         let hatch = SceneLayout.castleBakeHatchLight
         XCTAssertTrue(FrameBuilder.windproof(LightSource(kind: .torch, x: SceneLayout.castleBakehouseX + hatch.dx,

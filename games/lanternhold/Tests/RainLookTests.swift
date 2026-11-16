@@ -94,7 +94,7 @@ final class RainLookTests: XCTestCase {
         let gorge = shot(s, focus: 300, weather: storm)
         let ash = sprites(gorge, .ashFlake)
         XCTAssertGreaterThan(ash.count, 30, "ash falls in the gorge")
-        XCTAssertLessThan(ash.count, FrameBuilder.ashDepths.map(\.count).reduce(0, +) + 1, "few")
+        XCTAssertLessThan(ash.count, FrameBuilder.ashDepths.map { $0.count }.reduce(0, +) + 1, "few")
         for flake in ash {
             XCTAssertLessThan(Double(flake.rect.x) + gorge.lane, gorge.seam, "never east of the wall")
             XCTAssertLessThan(flake.tint.w, 0.5, "no flake is a ledge")
@@ -112,8 +112,8 @@ final class RainLookTests: XCTestCase {
             XCTAssertFalse(flakes.isEmpty, "depth \(depth)")
             XCTAssertTrue(flakes.allSatisfy { $0.frame / 4 == entry.size }, "depth \(depth)")
         }
-        XCTAssertLessThan(FrameBuilder.ashDepths.map(\.speed).max() ?? 0,
-                          (FrameBuilder.rainDepths.map(\.speed).min() ?? 0) / 4, "ash falls far slower than rain")
+        XCTAssertLessThan(FrameBuilder.ashDepths.map { $0.speed }.max() ?? 0,
+                          (FrameBuilder.rainDepths.map { $0.speed }.min() ?? 0) / 4, "ash falls far slower than rain")
     }
 
     func testTheBandHoldsBothAndMovesWithTheOutermostWall() {
@@ -213,7 +213,7 @@ final class RainLookTests: XCTestCase {
         // the steam over the fires) plus a splash or two a roof.
         XCTAssertEqual(wet.desc.actors, dry.desc.actors)
         let added = wet.desc.counts.instances - dry.desc.counts.instances
-        let old = FrameBuilder.rainDepths.map(\.count).reduce(0, +) + FrameBuilder.rainSplashCount
+        let old = FrameBuilder.rainDepths.map { $0.count }.reduce(0, +) + FrameBuilder.rainSplashCount
         XCTAssertGreaterThan(sprites(wet, .rainSplash).count, FrameBuilder.rainSplashCount, "splashes on the ridges")
         XCTAssertLessThanOrEqual(added, old + 8 + 12, "at most the old rain, its steam and the ridges' splashes")
     }

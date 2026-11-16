@@ -44,7 +44,7 @@ extension SceneLayout {
         }
     }
 
-    /// The tier-3 postern's pole (tools/keepart.py `POSTERN_POLE_X`, `POSTERN_POLE`): its column in the sprite and its
+    /// The tier-3 postern's pole (tools/keepfix.py `POSTERN_POLE_X`, `POSTERN_POLE`): its column in the sprite and its
     /// top above the ground line; the flag (`keepFlag`) hangs from it like the keep's (step 2, the critic's M6: the
     /// painted flag always streamed east, against the keep's on a west-wind day).
     static let castlePosternPole = (dx: 142.0, top: 122.0)
