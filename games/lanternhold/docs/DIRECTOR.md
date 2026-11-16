@@ -1027,3 +1027,7 @@ schneller geht."
 - **The horde lane's step 4 judged (16.11.2026, 08:52).**
   - Green at 00bac28f (round lh-b3h-44); the critic passes it at 6/10 with four highs. The dark open works for the first time: black shapes with an ochre drape in front of the mist.
   - The director's calls for step 5: the wisps go (share 0); by the fires the rim is an edge on the top pixel only; the stream is a horde, not a file (gaps by id, clumps, speeds by id, a heap of 14 at most, eight or more in the open at each probe); a kill that reads at phone size (grey flakes, a slump that holds, the cold point goes out last).
+
+- **The count lane's step 3 judged (16.11.2026, 09:34).**
+  - Green at 280bf23c (round lh-b3c-33); the critic fails it at 6/10 with four small highs. The low board beside the gate and the crook lantern at night are good and stay.
+  - The director's calls for step 4: the coin shows its face at the peak; a let go ends at the lord's belt; by day the light is solid embers, a gold rim and a warm pool; the small coin is gold, not a pebble; the hollows fill from the lord's side. Then the pictograms: a signpost at a plot with several offers, one hung shingle per offer (silhouette, coin, price, no words), a touch brings that offer's board.
