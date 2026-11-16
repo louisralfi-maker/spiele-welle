@@ -1638,9 +1638,15 @@ final class PayCountTests: XCTestCase {
         XCTAssertNil(game.touch.count, "the board has gone")
         let after = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         try check(after, lit: true, "while the work runs")
-        let cut = try XCTUnwrap(game.touch.framing).deviceY(lift: CountLantern.crookTop) - 0.5
-        XCTAssertTrue(after.actors.filter { $0.sprite == .payBoard }.allSatisfy { Double($0.rect.y) >= cut },
-                      "the post stands cut to the crook, no higher")
+        let framing = try XCTUnwrap(game.touch.framing)
+        let cut = framing.deviceY(lift: CountLantern.crookTop) - 0.5
+        // Only the lantern's own post and crook: the line-1 engine's signpost (its plot empty in this scene) stands
+        // taller, further along the wall.
+        let near = framing.deviceX(stageX: Double(board.lanternPostLeft) - 12)...framing.deviceX(
+            stageX: Double(board.lanternPostLeft) + 18)
+        let own = after.actors.filter { $0.sprite == .payBoard && near.contains(Double($0.rect.x)) }
+        XCTAssertFalse(own.isEmpty, "the lantern's post")
+        XCTAssertTrue(own.allSatisfy { Double($0.rect.y) >= cut }, "the post stands cut to the crook, no higher")
     }
 
     /// Step 3 (the director's call 6), step 4 (call 3), on the drawn pixels: the same scene rendered with the site lantern
