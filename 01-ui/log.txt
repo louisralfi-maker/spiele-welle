@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.CountUITests testLetGoSlidesTheCoinsBack]' passed (63.942 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (23.103 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (129.028 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (17.595 seconds).
+exit=0
+screenshots: 11
