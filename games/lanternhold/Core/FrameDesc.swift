@@ -79,6 +79,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // (top rows one pixel downwind, the strong bend, then the same toward the west), two pixels wider on each side
     // than the flame; painted from the flame's own rows (`PlaceholderWeather`)
     case flameBent, brazierFlameBent
+    // build 3 step 3 (lane 3, the critic's M4): the curtain banner's dusk rim and gold lantern, one frame per pose
+    case castleBannerRim
     // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer (world-2: one castle, the
     // far castle in its slots, the patch and the slots' lights are gone)
     case weltmauer
@@ -428,7 +430,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .curtainTower: return PixelSize(width: 44, height: 104)
         case .curtainHoard: return PixelSize(width: 64, height: 22)
         // Build 3, POLISH pass 1 (lane 3): 18 wide (the painting's 12 and room for its foot to swing 3 either way).
-        case .castleBanner: return PixelSize(width: 18, height: 30)
+        case .castleBanner, .castleBannerRim: return PixelSize(width: 20, height: 30)
         case .forebuilding: return PixelSize(width: 120, height: 96)
         case .hallDoorGlow: return PixelSize(width: 20, height: 32)
         case .hallDoorWedge: return PixelSize(width: 60, height: 19)
@@ -574,7 +576,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .keepFlagRim: return 2 * Weather.flagFrames
         case .ashFlake: return 14   // build 3 step 3: three sizes by four tumbles, then the ember's two points
         case .flameBent, .brazierFlameBent: return 4
-        case .castleBanner: return 7   // build 3: hanging, swung 1 to 3 toward the valley, 1 to 3 toward the west
+        // build 3 step 3: hanging, out 1 to 4 and back 3 to 1 toward the valley, the same toward the west
+        case .castleBanner, .castleBannerRim: return Weather.bannerFrames
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
         // The hall stage (stage lane): the great fire's six frames, idle and pressed marks, eight plaster patches.
         case .hallFire: return 6

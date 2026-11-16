@@ -58,7 +58,8 @@ W3F3="beaconTower beaconTowerRim beaconRuinRim beaconBaseRim greatBeaconRim gate
 # sprites and rims (keepfix.py, CASTLE above) hold only the flags' poles since. The curtain's banner (tier 3) in seven
 # frames of its foot swinging (bannerart.py from keepart.py's painting; it left CASTLE). Step 2: the flag's dusk rim,
 # the ash flake of the two rains (tools/weatherart.py).
-WIND="windmillTower keepFlag keepFlagRim castleBanner ashFlake"
+# Step 3: the banner's dusk rim and gold mark (castleBannerRim).
+WIND="windmillTower keepFlag keepFlagRim castleBanner castleBannerRim ashFlake"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -90,8 +91,9 @@ build() { # name: one sprite (or one group of small ones)
         wa mill $A ;;
     ashFlake)   # build 3, POLISH pass 1 step 2: the ash west of the outermost wall (three sizes, a tumble)
         python3 -I -B games/lanternhold/tools/weatherart.py ash --out $A ;;
-    keepFlag|keepFlagRim|castleBanner)   # build 3, POLISH pass 1: the keep's flag (step 2: ten frames) and its dusk
-                                         # rim (twenty), the curtain's banner (seven)
+    keepFlag|keepFlagRim|castleBanner|castleBannerRim)   # build 3, POLISH pass 1: the keep's flag (step 2: ten
+                                         # frames) and its dusk rim (twenty), the curtain's banner and its rim (step 3:
+                                         # fifteen poses each)
         python3 -I -B games/lanternhold/tools/bannerart.py wind $1 --out $A ;;
     beaconTower|beaconTowerRim|beaconRuinRim|beaconBaseRim|greatBeaconRim|gateRockL|gateRockR|oldWall1|castleFront3|castleFront3Build|bakehouse)
         # world-3 fix round 3 (15.11.2026): the critic's look 3 (tools/w3f3art.py)

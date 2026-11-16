@@ -10,6 +10,7 @@ enum PlaceholderWeather {
         case .windmillSails: return (0..<Weather.sailFrames).map { millSails($0) }
         case .keepFlag: return (0..<Weather.flagFrames).map { flag($0) }
         case .keepFlagRim: return (0..<(2 * Weather.flagFrames)).map { flagRim($0) }
+        case .castleBannerRim: return (0..<Weather.bannerFrames).map { _ in bannerRim() }
         case .ashFlake: return (0..<SpriteID.ashFlake.frameCount).map { ashFlake($0) }
         case .flameBent: return (0..<4).map { bentFlame(PlaceholderSprites.flameRows, sprite: .flameBent, frame: $0) }
         case .brazierFlameBent: return (0..<4).map { bentFlame(PlaceholderSprites.brazierFlameRows, sprite: .brazierFlameBent, frame: $0) }
@@ -87,18 +88,46 @@ enum PlaceholderWeather {
     /// toward the west (`FrameBuilder.bentFlameFrame`).
     static let bentFlameLeans = [0.5, 0.9, -0.5, -0.9]
 
-    /// A flame bent by the wind: its rows two pixels in from the cell's left, the top rows shifted by
-    /// `FrameBuilder.flameBend` for the frame's lean, the foot where it burns.
+    /// A flame bent by the wind: its rows two pixels in from the cell's left, each sheared by
+    /// `FrameBuilder.flameBend` for the frame's lean, the foot where it burns. Step 3 (the critic's M3): it bends whole;
+    /// the rows moved two pixels or more lose their windward pixel (the wind tapers that side) and the top row reaches a
+    /// pixel further downwind (the leeward tip stretched), cut at the cell's edge.
     static func bentFlame(_ rows: [String], sprite: SpriteID, frame: Int) -> PixelImage {
         var p = Painter(sprite.size, salt: 0)
+        let lean = bentFlameLeans[frame]
+        let sign = lean < 0 ? -1 : 1
         var shifts: [Int] = []
-        for band in FrameBuilder.flameBend(lean: bentFlameLeans[frame], rows: rows.count) {
+        for band in FrameBuilder.flameBend(lean: lean, rows: rows.count) {
             shifts += Array(repeating: band.shift, count: band.rows)
         }
         for (index, row) in rows.enumerated() {
             let shift = index < shifts.count ? shifts[index] : 0
-            p.stamp([row], PlaceholderSprites.firePalette, x: 2 + shift, y: index)
+            var cells = Array(row)
+            let lit = cells.indices.filter { cells[$0] != "." && cells[$0] != " " }
+            if abs(shift) >= 2 && lit.count > 2, let windward = sign > 0 ? lit.first : lit.last {
+                cells[windward] = "."
+            }
+            if index == 0, abs(shift) > 0, let tip = sign > 0 ? lit.last : lit.first {
+                let reach = tip + sign
+                if reach >= 0 && reach < cells.count {
+                    cells[reach] = cells[tip]
+                } else {
+                    cells = sign > 0 ? cells + [cells[tip]] : [cells[tip]] + cells
+                    p.stamp([String(cells)], PlaceholderSprites.firePalette, x: 2 + shift - (sign > 0 ? 0 : 1),
+                            y: index)
+                    continue
+                }
+            }
+            p.stamp([String(cells)], PlaceholderSprites.firePalette, x: 2 + shift, y: index)
         }
+        return p.image
+    }
+
+    /// The banner's dusk rim (step 3; tools/bannerart.py's strip replaces it): its lit edge's column and its lantern.
+    static func bannerRim() -> PixelImage {
+        var p = Painter(SpriteID.castleBannerRim.size, salt: 0)
+        p.rect(5, 2, 1, 26, RGBA(0xFF8A2A))
+        p.rect(9, 13, 2, 3, RGBA(0xE0AE48))
         return p.image
     }
 

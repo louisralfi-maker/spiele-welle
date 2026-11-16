@@ -886,7 +886,8 @@ enum FrameBuilder {
         if part.fadesByDay {
             strength *= ambient.torchStrength
         }
-        if SceneLayout.castleKeepRims.contains(part.sprite) || part.sprite == .keepFlagRim {
+        if SceneLayout.castleKeepRims.contains(part.sprite) || part.sprite == .keepFlagRim
+            || part.sprite == .castleBannerRim {
             // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm (build 3
             // step 2, lane 3: on the flags' cloth too).
             strength *= keepRimShare(ambient)
@@ -935,6 +936,10 @@ enum FrameBuilder {
             rgb = SceneLayout.posternFarColor(ambient) * strength
         }
         let color = SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)
+        if part.sprite == .castleBannerRim {
+            // Build 3 step 3 (lane 3, the critic's M4): the banner's rim follows its pose (it is never mirrored).
+            return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color, frame: prop.frame)
+        }
         if part.sprite == .keepFlagRim {
             // Build 3 step 2 (lane 3): the flag's rim follows its frame; a flag mirrored to stream west takes the rim
             // drawn on its other edges (frames from `Weather.flagFrames`), so mirrored it still faces the low sun.
@@ -965,22 +970,33 @@ enum FrameBuilder {
         return source.kind == .brazier && source.y == 16 && source.radius == 26 && forge.contains(source.x)
     }
 
-    /// The rows of an open flame's top that lean with the wind, by how far: a lean of a third or more moves its top
-    /// rows a pixel downwind, a lean of three quarters or more its top row two and the rows under it one (a torch's
-    /// flame of 5 rows, a brazier's of 7). None in a calm, none with Reduce Motion beyond the steady wind's.
+    /// The rows of an open flame that lean with the wind, from its top down, by how far. Step 3 (the critic's M3, the
+    /// director: "the bent flame bends whole"): every row is sheared by its height over the foot, so the outline stays
+    /// joined and no tip ever stands loose above the body: the top row `reach` pixels downwind (3 at a whole lean, 2 or
+    /// 1.5 at a lean from `flameBendFrom`), the rows under it less (by the height to the 1.3), the foot where it burns.
+    /// A torch's flame of 5 rows at a whole lean: 3, 2, 1; a brazier's of 7: 3, 2, 2, 1, 1. None in a calm, none with
+    /// Reduce Motion beyond the steady wind's.
     static func flameBend(lean: Double, rows: Int) -> [(rows: Int, shift: Int)] {
         let force = abs(lean)
+        guard force >= flameBendFrom, rows > 1 else { return [] }
         let sign = lean < 0 ? -1 : 1
-        let upper = max(1, (rows * 2 + 2) / 5)
-        if force >= 0.75 {
-            let top = max(1, upper / 2)
-            return [(top, 2 * sign), (upper - top + 1, sign)]
+        let reach = force >= 0.75 ? 3.0 : (rows >= 7 ? 2.0 : 1.5)
+        var bands: [(rows: Int, shift: Int)] = []
+        for row in 0..<rows {
+            let height = Double(rows - 1 - row) / Double(rows - 1)
+            let shift = Int((reach * pow(height, 1.3)).rounded()) * sign
+            if shift == 0 { break }
+            if let last = bands.last, last.shift == shift {
+                bands[bands.count - 1].rows += 1
+            } else {
+                bands.append((rows: 1, shift: shift))
+            }
         }
-        if force >= 0.33 {
-            return [(upper, sign)]
-        }
-        return []
+        return bands
     }
+
+    /// The lean from which an open flame bends (step 3, the critic's M3: from a quarter, so a gusty day shows it).
+    static let flameBendFrom = 0.25
 
     /// The frame of `flameBent` / `brazierFlameBent` for a lean as the flame is drawn (its own mirroring undone): 0 and
     /// 1 bend toward the valley (a third, a whole lean), 2 and 3 toward the west; nil while it stands
@@ -988,7 +1004,7 @@ enum FrameBuilder {
     static func bentFlameFrame(lean: Double, flipped: Bool) -> Int? {
         let drawn = flipped ? -lean : lean
         let force = abs(drawn)
-        guard force >= 0.33 else { return nil }
+        guard force >= flameBendFrom else { return nil }
         return (force >= 0.75 ? 1 : 0) + (drawn < 0 ? 2 : 0)
     }
 

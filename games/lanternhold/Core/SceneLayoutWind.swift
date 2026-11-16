@@ -57,7 +57,9 @@ extension SceneLayout {
 
     /// The columns of room either side of the curtain's banner (tier 3) for its foot to swing in
     /// (tools/bannerart.py `BANNER_SWING`): the painting stands this far right of the sprite's left edge.
-    static let castleBannerSwing = 3.0
+    static let castleBannerSwing = 4.0
+    /// Step 3 (the critic's M4): the banner's dusk rim and its gold lantern, an emissive overlay of its own frame.
+    static let castleBannerRimEmitter = Emitter.sprite(.castleBannerRim, dx: 0, dy: 0, glow: .window, fades: false)
 
     /// The tower, then its sails over it (the sails turn in front of the tower and its cap).
     static let look2Wind: [(plane: Plane, entry: Entry)] = [

@@ -224,8 +224,10 @@ extension SceneLayout {
         }
         if built >= 3 {
             for x in [1500.0, 1906, 2084] {
-                // build 3 (lane 3): the sprite has 3 px of room either side for its foot to swing in the wind
-                list.append((.world, Entry(sprite: .castleBanner, x: x - castleBannerSwing, y: 28, z: -4)))
+                // build 3 (lane 3): the sprite has 4 px of room either side for its foot to swing in the wind; step 3:
+                // its dusk rim and gold mark (`castleBannerRimEmitter`)
+                list.append((.world, Entry(sprite: .castleBanner, x: x - castleBannerSwing, y: 28, z: -4,
+                                           emitters: [castleBannerRimEmitter])))
             }
         }
 

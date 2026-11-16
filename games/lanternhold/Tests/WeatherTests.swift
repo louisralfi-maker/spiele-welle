@@ -374,20 +374,22 @@ final class WeatherTests: XCTestCase {
                 XCTAssertNotEqual(flagFrames(x: a, sample), flagFrames(x: b, sample), "\(a) and \(b) in step")
             }
         }
-        // Step 2 (the critic's H2): the keep's two flags at tier 2 are never in one pose and never change together,
-        // in a breeze and in a storm.
+        // Step 2 (the critic's H2): the keep's two flags at tier 2 rarely share a pose. Step 3 (the critic's low: at
+        // one rate a fixed phase apart they marched in step for ever): each runs at its own pace, so the gap between
+        // their poses changes over twenty seconds, in a breeze and in a storm.
         let keep = SceneLayout.castleKeepPoles(CastleStage(tier: 2)).map { SceneLayout.castleKeepX + $0.dx }
         XCTAssertEqual(keep.count, 2)
+        XCTAssertGreaterThan(abs(Weather.flagRate(x: keep[0]) - Weather.flagRate(x: keep[1])), 0.03)
+        for x in [1218.0, 1088, 2373, 1506, 1912, 2090] {
+            XCTAssertEqual(Weather.flagRate(x: x), 1, accuracy: Weather.flagRateSpread + 1e-9)
+        }
         for sample in [fixed(WeatherOverride(mode: .breeze)), storm, fixed(WeatherOverride(mode: .storm, rain: 0))] {
             let great = flagFrames(x: keep[0], sample, seconds: 20)
             let turret = flagFrames(x: keep[1], sample, seconds: 20)
-            for index in great.indices {
-                XCTAssertNotEqual(great[index], turret[index], "one pose at sample \(index)")
-                if index > 0 {
-                    XCTAssertFalse(great[index] != great[index - 1] && turret[index] != turret[index - 1],
-                                   "they change together at sample \(index)")
-                }
-            }
+            let shared = zip(great, turret).filter { $0 == $1 }.count
+            XCTAssertLessThan(Double(shared), Double(great.count) * 0.45, "mostly in poses of their own")
+            let gaps = Set(zip(great, turret).map { ($0 - $1 + 2 * Weather.flagCycle) % Weather.flagCycle })
+            XCTAssertGreaterThanOrEqual(gaps.count, 3, "never in step for ever")
         }
         XCTAssertNotEqual(Weather.flagPhase(x: keep[0]), Weather.flagPhase(x: keep[1]))
     }
@@ -638,7 +640,8 @@ final class WeatherTests: XCTestCase {
         XCTAssertEqual(banners.map(\.x), [1500, 1906, 2084].map { $0 - SceneLayout.castleBannerSwing },
                        "the painting where it hung, with room for its foot")
         XCTAssertEqual(SpriteID.castleBanner.size.width, 12 + 2 * Int(SceneLayout.castleBannerSwing))
-        XCTAssertEqual(AtlasLayout.shared.cells[.castleBanner]?.count, 7)
+        XCTAssertEqual(AtlasLayout.shared.cells[.castleBanner]?.count, Weather.bannerFrames)
+        XCTAssertEqual(AtlasLayout.shared.cells[.castleBannerRim]?.count, Weather.bannerFrames)
         func frames(_ override: WeatherOverride, time: Double, reduceMotion: Bool = false) -> [Int] {
             let weather = Weather.sample(seed: 3, day: 12, hour: 12, time: time, override: override,
                                          reduceMotion: reduceMotion)
@@ -648,13 +651,34 @@ final class WeatherTests: XCTestCase {
         let still = frames(WeatherOverride(mode: .clear), time: 4)
         XCTAssertFalse(still.isEmpty, "a banner in view")
         XCTAssertTrue(still.allSatisfy { $0 == 0 }, "still air: it hangs")
-        for index in 0..<12 {
-            let time = 4 + Double(index) * 0.1
-            XCTAssertTrue(frames(WeatherOverride(mode: .storm), time: time).allSatisfy { (2...3).contains($0) },
-                          "a storm toward the valley swings it right")
+        // Step 3 (the critic's M2): a storm swings it out 1, 3, 4 px and back 3, 1 to rest (frames 0 to 7, the whole
+        // swing seen within a second and a half); a breeze from the valley sways it the other way (8 to 14).
+        var swung = Set<Int>()
+        for index in 0..<18 {
+            let time = 4 + Double(index) * 0.083
+            let storm = frames(WeatherOverride(mode: .storm), time: time)
+            XCTAssertTrue(storm.allSatisfy { (0...7).contains($0) }, "a storm toward the valley swings it right")
+            swung.formUnion(storm)
             let west = frames(WeatherOverride(mode: .clear, wind: -0.5), time: time)
-            XCTAssertTrue(west.allSatisfy { (4...5).contains($0) }, "a wind from the valley sways it left")
+            XCTAssertTrue(west.allSatisfy { (8...14).contains($0) }, "a wind from the valley sways it left")
         }
+        XCTAssertTrue(swung.contains(4) && swung.contains(5), "the whole swing: out to 4 px and back")
+        XCTAssertEqual(Weather.bannerFrame(pose: 4, west: false), 4)
+        XCTAssertEqual(Weather.bannerFrame(pose: -3, west: false), 5)
+        XCTAssertEqual(Weather.bannerFrame(pose: -1, west: true), 14)
+        XCTAssertEqual(Weather.bannerFrame(pose: 0, west: true), 0)
+        XCTAssertEqual(Weather.bannerSways[1], [1, 3, 4, -3, -1, 0])
+        XCTAssertEqual(Weather.bannerRates[1], 6)
+        // Step 3 (the critic's M4): at dusk each banner's rim and gold lantern follow its pose.
+        let duskStorm = Weather.sample(seed: 3, day: 12, hour: 19.2, time: 4.2, override: WeatherOverride(mode: .clear, wind: 0.9))
+        let dusk = windFrame(world, focus: 1960, weather: duskStorm, time: 4.2, timeOfDay: 19.2 / 24)
+        let poses = dusk.layer(.world).sprites.filter { $0.sprite == .castleBanner }.map(\.frame)
+        let rims = dusk.emissives.filter { $0.sprite == .castleBannerRim }
+        XCTAssertEqual(AtlasLayout.shared.sources[.castleBannerRim], .png)
+        XCTAssertFalse(rims.isEmpty, "the banners' rims at dusk")
+        XCTAssertEqual(Set(rims.map(\.frame)), Set(poses), "a rim on its own pose")
+        XCTAssertTrue(windFrame(world, focus: 1960, weather: duskStorm, time: 4.2).emissives
+            .allSatisfy { $0.sprite != .castleBannerRim }, "none at noon")
         XCTAssertEqual(Set((0..<10).flatMap { frames(WeatherOverride(mode: .storm), time: 4 + Double($0) * 0.2,
                                                      reduceMotion: true) }), [3], "Reduce Motion: it stands")
     }
@@ -733,12 +757,21 @@ final class WeatherTests: XCTestCase {
 
     func testTheFlamesBendByTheLeanAndTheEnclosedFiresStand() {
         XCTAssertTrue(FrameBuilder.flameBend(lean: 0.1, rows: 5).isEmpty, "a calm: it stands")
-        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.5, rows: 5).map { $0.shift }, [1])
-        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.5, rows: 7).map { $0.shift }, [-1], "toward the shadow land")
-        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 5).map { $0.shift }, [2, 1])
+        // Step 3 (the critic's M3): it bends whole, every row by its height, from a lean of a quarter.
+        XCTAssertFalse(FrameBuilder.flameBend(lean: 0.3, rows: 5).isEmpty, "a gusty day bends it")
+        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.5, rows: 5).map { $0.shift }, [2, 1])
+        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.5, rows: 7).map { $0.shift }, [-2, -1], "toward the shadow land")
+        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 5).map { $0.shift }, [3, 2, 1])
         XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 5).map { $0.rows }.reduce(0, +), 3, "the foot stays")
-        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.9, rows: 7).map { $0.shift }, [-2, -1])
+        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 7).map { $0.rows }, [1, 2, 2], "3, 2, 2, 1, 1")
+        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.9, rows: 7).map { $0.shift }, [-3, -2, -1])
         XCTAssertLessThan(FrameBuilder.flameBend(lean: 0.9, rows: 7).map { $0.rows }.reduce(0, +), 7)
+        for lean in [0.3, 0.5, 0.9, -0.9] {
+            let shifts = FrameBuilder.flameBend(lean: lean, rows: 7).map { $0.shift }
+            for (a, b) in zip(shifts, shifts.dropFirst()) {
+                XCTAssertEqual(abs(a - b), 1, "no row stands loose from the one under it (\(lean))")
+            }
+        }
         // The oven behind its hatch and the forge in the smithy burn out of the wind; a torch does not.
         let hatch = SceneLayout.castleBakeHatchLight
         XCTAssertTrue(FrameBuilder.windproof(LightSource(kind: .torch, x: SceneLayout.castleBakehouseX + hatch.dx,

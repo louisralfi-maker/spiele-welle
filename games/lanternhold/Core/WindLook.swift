@@ -18,8 +18,8 @@ enum WindLook {
     ///   flying or the snapping cycle) and streams downwind: in a wind toward the shadow land it is mirrored and moves
     ///   to the pole's left side.
     /// - A banner hung against the curtain (`castleBanner`, tier 3) swings its foot downwind by `Weather.bannerSwing`
-    ///   at its middle: frames 1 to 3 toward the valley, 4 to 6 toward the shadow land, both drawn with the light on
-    ///   the left.
+    ///   at its middle (`Weather.bannerFrame`: out and back toward the valley, 1 to 7, the same toward the shadow land,
+    ///   8 to 14), both drawn with the light on the left.
     static func pose(of prop: Prop, weather: WeatherSample, time: Double, reduceMotion: Bool) -> Pose? {
         switch prop.sprite {
         case .windmillSails:
@@ -34,7 +34,7 @@ enum WindLook {
             let middle = prop.x + Double(prop.width) / 2
             let swing = Weather.bannerSwing(x: middle, weather, time: time, reduceMotion: reduceMotion)
             let west = Weather.blowsWest(at: middle, weather, time: time, reduceMotion: reduceMotion)
-            return Pose(frame: swing == 0 ? 0 : (west ? swing + 3 : swing), flipped: false, dx: 0)
+            return Pose(frame: Weather.bannerFrame(pose: swing, west: west), flipped: false, dx: 0)
         default:
             return nil
         }

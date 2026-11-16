@@ -406,6 +406,14 @@ enum Weather {
         unit(SeededRandom.hash(flagSalt, Int64(x.rounded()))) * Double(flagCycle)
     }
 
+    /// Step 3 (the critic's low): each flag's and banner's own pace, 0.92 ... 1.08 of the cycle's rate by its x, so
+    /// two flags never march in step for ever (at one rate with a fixed phase apart they did); the keep's two run at
+    /// 0.97 and 0.93.
+    static let flagRateSpread = 0.08
+    static func flagRate(x: Double) -> Double {
+        1 - flagRateSpread + 2 * flagRateSpread * unit(SeededRandom.hash(flagSalt ^ 0x5241_5445, Int64(x.rounded())))
+    }
+
     /// True while a flag at world x stirs on a calm day: once in every slot of 8 s, half a second long, at a moment
     /// of its own (by its x and the slot).
     static func calmStir(x: Double, time: Double) -> Bool {
@@ -443,21 +451,24 @@ enum Weather {
             let beats = max(0, time) * flagBeats[1] + phase * 7 / Double(flagCycle)
             return Int(min(1.0e15, beats).rounded(.down)) % 3 == 2 ? 0 : 1
         case 2:
-            return flagFlying + cycleStep(time: time, rate: flagBeats[2], phase: phase)
+            return flagFlying + cycleStep(time: time, rate: flagBeats[2] * flagRate(x: x), phase: phase)
         default:
-            return flagSnapping + cycleStep(time: time, rate: flagBeats[3], phase: phase)
+            return flagSnapping + cycleStep(time: time, rate: flagBeats[3] * flagRate(x: x), phase: phase)
         }
     }
 
-    /// A banner's sway in a breeze and in a storm (pixels its foot swings, a cycle each) and the cycles' steps a
-    /// second.
-    static let bannerSways: [[Int]] = [[1, 2, 2, 1], [2, 3, 3, 2]]
-    static let bannerRates = [4.0, 8.0]
+    /// A banner's sway in a breeze and in a storm, a cycle each, as signed poses (+ its foot swung out that many
+    /// pixels, − swinging back, 0 hanging), and the cycles' steps a second. Step 3 (the critic's M2: in a storm it
+    /// jittered between 2 and 3 px at 8 steps a second): weight comes from amplitude and slowness, so a storm swings it
+    /// out 1, 3, 4, back 3, 1 and to rest at about six steps a second, the belly moving up the cloth on the way back.
+    static let bannerSways: [[Int]] = [[1, 2, -2, -1], [1, 3, 4, -3, -1, 0]]
+    static let bannerRates = [4.0, 6.0]
 
-    /// A banner hung against a wall (`castleBanner`, tier 3) swings its foot instead: 0 hanging, 1 to 3 pixels
-    /// downwind. Calm: it hangs, and swings a pixel at its own moment while any air moves; stirring, it swings a
-    /// pixel and back; in a breeze it sways between one and two pixels (four steps a second), in a storm between two
-    /// and three at twice that. With Reduce Motion it holds the steady wind's swing.
+    /// A banner hung against a wall (`castleBanner`, tier 3) swings its foot instead: a signed pose (`bannerSways`).
+    /// Calm: it hangs, and swings a pixel at its own moment while any air moves; stirring, it swings a pixel and back;
+    /// in a breeze it sways out one and two pixels and back (four steps a second), in a storm its whole swing (six).
+    /// Each banner from its own phase and at its own pace (`flagRate`). With Reduce Motion it holds the steady wind's
+    /// swing out (`flagLevel`'s pixels).
     static func bannerSwing(x: Double, _ sample: WeatherSample, time: Double, reduceMotion: Bool = false) -> Int {
         let blow = Weather.force(at: x, sample, time: time, reduceMotion: reduceMotion)
         let level = flagLevel(blow)
@@ -471,8 +482,19 @@ enum Weather {
             return Int(min(1.0e15, beats).rounded(.down)) % 3 == 2 ? 0 : 1
         default:
             let sway = bannerSways[level - 2]
-            return sway[cycleStep(time: time, rate: bannerRates[level - 2], phase: phase)]
+            let steps = max(0, time) * bannerRates[level - 2] * flagRate(x: x)
+                + phase / Double(flagCycle) * Double(sway.count)
+            return sway[Int(min(1.0e15, steps).rounded(.down)) % sway.count]
         }
+    }
+
+    /// The `castleBanner` frame of a signed pose (tools/bannerart.py `BANNER_POSES`): 0 hanging, 1 to 4 swung out,
+    /// 5 to 7 swinging back from 3, 2, 1 toward the valley; 8 to 14 the same toward the shadow land.
+    static let bannerFrames = 15
+    static func bannerFrame(pose: Int, west: Bool) -> Int {
+        guard pose != 0 else { return 0 }
+        let east = pose > 0 ? min(4, pose) : 8 - min(3, -pose)
+        return east + (west ? 7 : 0)
     }
 
     /// The frames of the windmill's sails (`windmillSails`): a quarter turn of its four sails, 7.5 degrees a frame
