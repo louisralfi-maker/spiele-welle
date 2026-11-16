@@ -1001,6 +1001,96 @@ final class PayCountTests: XCTestCase {
         }
     }
 
+    /// Step 3 (the director's call 3): after the last coin lands it settles, then 0.12 s of stillness, then the lid.
+    func testTheLastCoinGetsItsBeat() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: true)
+        count.arrive()
+        while count.result == nil && count.time < 4 { _ = count.step(step, gold: 100) }
+        XCTAssertEqual(count.result, .paid)
+        let last = count.landed.last ?? 0
+        XCTAssertEqual(count.resultAt - last, PayCount.sealDelay, accuracy: 1e-6, "the seal a beat after the last coin")
+        XCTAssertGreaterThanOrEqual(PayCount.sealDelay - PayCount.settleSeconds - PayCount.squashSeconds,
+                                    0.12 - 1e-9, "0.12 s of stillness once it sat down")
+    }
+
+    /// Step 3 (the director's call 2): the board takes the weight: a ten dips it a pixel, a bar two, back in two
+    /// frames; a small coin does not move it; never under Reduce Motion.
+    func testTheBoardTakesTheWeight() {
+        let frame = 1.0 / 60
+        XCTAssertEqual(GameModel.countDip(.small, since: 0, reduceMotion: false), 0)
+        XCTAssertEqual(GameModel.countDip(.big, since: 0, reduceMotion: false), 1)
+        XCTAssertEqual(GameModel.countDip(.big, since: 1.5 * frame, reduceMotion: false), 1)
+        XCTAssertEqual(GameModel.countDip(.big, since: 2.5 * frame, reduceMotion: false), 0)
+        XCTAssertEqual(GameModel.countDip(.bar, since: 0, reduceMotion: false), 2)
+        XCTAssertEqual(GameModel.countDip(.bar, since: 1.5 * frame, reduceMotion: false), 1)
+        XCTAssertEqual(GameModel.countDip(.bar, since: 2.5 * frame, reduceMotion: false), 0)
+        XCTAssertEqual(GameModel.countDip(.bar, since: 0, reduceMotion: true), 0)
+    }
+
+    #if DEBUG
+    /// Step 3 (the director's call 2), on the drawn frame: the great gate's bar lands and the board's cap is drawn two
+    /// pixels under its rest; under Reduce Motion it stays.
+    func testTheBoardDipsUnderABar() throws {
+        for still in [false, true] {
+            var values = ["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+                          "GWCastle": "2", "GWGold": "500", "GWCountFreeze": "fly:0:1.0"]
+            if still { values["GWReduceMotion"] = "YES" }
+            let game = model(values)
+            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+            game.touchThing(gate)
+            run(game, seconds: 10) { game.touch.count?.ready == true }
+            XCTAssertEqual(game.touch.count?.coins.first, .bar, "the great gate's board starts with its bar")
+            var count = try XCTUnwrap(game.touch.count)
+            count.press()
+            game.touch.count = count
+            run(game, seconds: 3) { (game.touch.count?.placed ?? 0) >= 1 }
+            run(game, seconds: 2.0 / 60)
+            XCTAssertEqual(game.touch.count?.placed, 1, "frozen as the bar lands")
+            let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let board = try XCTUnwrap(game.touch.countBoard)
+            let framing = try XCTUnwrap(game.touch.framing)
+            let cap = try XCTUnwrap(frame.actors.first { $0.sprite == .payBoard && $0.frame == PayBoardLayout.capLeft })
+            let rest = framing.deviceY(lift: board.top + Double(PayBoardLayout.plank - PayBoardLayout.cap))
+            XCTAssertEqual(Double(cap.rect.y) - Double(rest), (still ? 0 : 2) * Double(framing.scale), accuracy: 1.01,
+                           still ? "Reduce Motion: no dip" : "the board dips two pixels under the bar")
+        }
+    }
+    #endif
+
+    /// Step 3 (the director's call 2): a coin that has sat down glints once, one white pixel for one frame; never
+    /// under Reduce Motion.
+    func testALaidCoinGlintsOnce() throws {
+        for still in [false, true] {
+            var values = ["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+                          "GWGold": "200"]
+            if still { values["GWReduceMotion"] = "YES" }
+            let game = model(values)
+            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+            game.touchThing(gate)
+            run(game, seconds: 10) { game.touch.count?.ready == true }
+            var count = try XCTUnwrap(game.touch.count)
+            count.tap()
+            game.touch.count = count
+            let state = try XCTUnwrap(game.driver?.state)
+            let framing = try XCTUnwrap(game.touch.framing)
+            var glintFrames = 0
+            for _ in 0..<40 {
+                game.advance(by: 1.0 / 60)
+                var layer = EntityLayer()
+                game.countWorld(&layer, state: state, framing: framing)
+                if layer.glows.contains(where: { $0.sprite == .hallMote }) { glintFrames += 1 }
+            }
+            XCTAssertEqual(game.touch.count?.placed, 1, "the coin landed")
+            if still {
+                XCTAssertEqual(glintFrames, 0, "Reduce Motion: no glint")
+            } else {
+                XCTAssertTrue((1...2).contains(glintFrames), "one glint as it sits down, not \(glintFrames) frames")
+            }
+        }
+    }
+
     /// The critic's M2: the purse's figure never touches a board that stands by the lord.
     func testThePurseFigureStandsClearOfTheBoard() throws {
         let game = gateGame(gold: 200)

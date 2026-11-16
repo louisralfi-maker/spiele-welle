@@ -151,8 +151,10 @@ struct PayCount: Sendable, Equatable {
     static let longest = 1.6
     /// The last coin comes this much later than its gap.
     static let lastBeat = 0.12
-    /// The seal falls this long after the last coin lands.
-    static let sealDelay = 0.05
+    /// The seal falls this long after the last coin lands (step 3, the director's call 3: the last coin gets its beat;
+    /// it settles and squashes, then `lastStill` of stillness, then the lid).
+    static let lastStill = 0.12
+    static let sealDelay = settleSeconds + squashSeconds + lastStill
     /// After this long without a touch the coins go back (PAY.md 1.4); an empty board waits `emptyWait` (step 2, the
     /// critic's H5: the rocking coin is the whole lesson, and 2 s were too short to read it and reach).
     static let slideAfter = 2.0

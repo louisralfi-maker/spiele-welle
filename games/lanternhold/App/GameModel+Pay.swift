@@ -91,6 +91,26 @@ extension GameModel {
     /// `PayCount.flightFar`, the ones between by their distance.
     static let countFlightNear = 14.0
     static let countFlightFar = 70.0
+    /// Step 3 (the director's call 2): the board takes the weight; a landing ten dips it a pixel, a bar two, back in
+    /// two frames of this long; a small coin does not move it. One frame of a white glint on a coin as it sits down.
+    static let countDipFrame = 1.0 / 60
+    static let countGlintFrame = 1.0 / 60
+
+    /// How far the board dips `since` seconds after a `coin` landed (0 under Reduce Motion).
+    nonisolated static func countDip(_ coin: PayCoin, since: Double, reduceMotion: Bool) -> Double {
+        guard !reduceMotion, since >= 0 else { return 0 }
+        let full: Double
+        switch coin {
+        case .small: full = 0
+        case .big: full = 1
+        case .bar: full = 2
+        }
+        let frame = 1.0 / 60  // countDipFrame (a literal here: this function is nonisolated)
+        if since < frame { return full }
+        if since < 2 * frame { return (full / 2).rounded(.up) }
+        return 0
+    }
+
     /// Step 2 (H5): a coin home in the purse ticks this softly.
     static let countHomeTick = 0.3
     /// Step 2 (H2): the halo's light, by night (half of it by day).
@@ -593,12 +613,14 @@ extension GameModel {
         guard stage == .world else { return }
         let night = Double(AmbientRamp.sample(at: state.hour, look: args.look).torchStrength)
         countLanternsWorld(&layer, framing: framing, night: night)
+        var glows: [EntityGlow] = []
         if let old = touch.countOld, let board = touch.countOldBoard {
-            layer.actors += countBoardActors(old, board, framing: framing)
+            layer.actors += countBoardActors(old, board, framing: framing, glows: &glows)
         }
         if let count = touch.count, let board = touch.countBoard {
-            layer.actors += countBoardActors(count, board, framing: framing)
+            layer.actors += countBoardActors(count, board, framing: framing, glows: &glows)
         }
+        layer.glows += glows
     }
 
     /// One actor of the count at `x`, `lift` (its top-left in game px of the world strip, lift over the walk line), at
@@ -642,7 +664,8 @@ extension GameModel {
     /// them, a coin settling and squashing as it lands, the next coin swaying over its hollow while nothing is in the
     /// air, the coins flying from the lord's hand, the lid with its battens and hasp snapping shut, the coins flying
     /// home, and the unlit lantern on the post.
-    private func countBoardActors(_ count: PayCount, _ board: CountBoard, framing: TouchFraming) -> [ActorInstance] {
+    private func countBoardActors(_ count: PayCount, _ board: CountBoard, framing: TouchFraming,
+                                  glows: inout [EntityGlow]) -> [ActorInstance] {
         let rise = count.riseShare
         guard rise > 0 else { return [] }
         let layout = board.layout
@@ -658,7 +681,13 @@ extension GameModel {
         }
         guard alpha > 0.01 else { return [] }
         let left = board.left
-        let top = board.top + shift
+        // Step 3 (the director's call 2): the board (not its post) takes the weight of the coin that just landed.
+        var dip = 0.0
+        if count.isOpen, count.placed > 0, count.placed <= layout.hollows.count,
+           let since = count.sinceLanding(count.placed - 1) {
+            dip = GameModel.countDip(layout.hollows[count.placed - 1].coin, since: since, reduceMotion: reduceMotion)
+        }
+        let top = board.top + shift - dip
         let sealed = count.sinceSeal
         var actors: [ActorInstance] = []
         func put(_ sprite: SpriteID, _ frame: Int, _ x: Int, _ lift: Double) {
@@ -753,6 +782,16 @@ extension GameModel {
                 }
             } else {
                 put(hollow.coin.hollow, 1 + face, x, lift)
+                // Step 3 (the director's call 2): one frame of a white glint on its lit rim as it has sat down.
+                let glint = settle + PayCount.squashSeconds
+                if !reduceMotion, count.isOpen || count.result == .paid, let since = count.sinceLanding(index),
+                   since >= glint, since < glint + GameModel.countGlintFrame {
+                    let warm = GamePalette.fireWhite
+                    let column = (hollowSize.width - (coinSize.width - 2)) / 2 + 2
+                    let row = (hollowSize.height - (coinSize.height - 2)) / 2 + 1
+                    glows.append(EntityGlow(.hallMote, x: Double(x + column), y: lift - Double(row) - 1,
+                                            color: SIMD4<Float>(warm.x, warm.y, warm.z, 1)))
+                }
             }
         }
         // The next coin sways over its hollow while the board waits for the finger (the whole lesson, PAY.md 1.1):

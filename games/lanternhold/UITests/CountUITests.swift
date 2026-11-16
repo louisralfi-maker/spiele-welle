@@ -199,6 +199,29 @@ final class CountUITests: XCTestCase {
         app.terminate()
     }
 
+    /// Step 3 on the great gate's board of three planks (1 bar and 8 big coins, hung low): the board dips under the
+    /// bar as it lands (just before, then the landing frame: the director's call 2), and the far coin of the middle
+    /// plank's right end (coin 6, the longest throw) at three points of its flight (call 1).
+    func testTheBarsBoardTakesTheWeightAndTheFarThrow() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        var base = CountUITests.gate
+        if let at = base.firstIndex(of: "-GWGold") { base.removeSubrange(at...at + 1) }
+        for (name, freeze) in [("180a-count-bar-before-dip", "fly:0:0.85"), ("180b-count-bar-dip", "fly:0:1.0"),
+                               ("181a-count-far-fly-25", "fly:5:0.25"), ("181b-count-far-fly-55", "fly:5:0.55"),
+                               ("181c-count-far-fly-85", "fly:5:0.85")] {
+            let args = base + ["-GWCastle", "2", "-GWGold", "500", "-GWCountFreeze", freeze]
+            guard let app = launchAtTheBoard(args, name: name, hollows: "/9") else { continue }
+            if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
+                gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 1.6)
+            }
+            pause(0.3)
+            attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+            note("\(name)-state", sceneField(app, "count:") ?? "?")
+            XCTAssertEqual(sceneGold(app), 500, "\(name): nothing paid before the seal")
+            app.terminate()
+        }
+    }
+
     /// The night (H2): the gate's repair paid by its count; the board goes and the lit site lantern stays on its post
     /// with its halo while the repair runs.
     func testTheLanternAtNight() {
