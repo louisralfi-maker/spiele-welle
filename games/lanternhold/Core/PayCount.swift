@@ -695,6 +695,17 @@ struct PayBoardLayout: Sendable, Equatable {
                               hollows: hollows)
     }
 
+    /// Step 4 (the director's call 5, M-c): the same board with each row's hollows in the other order, for a lord who
+    /// stands on its right: the hollows fill from his side, the nearest first, so the shortest throw comes first and
+    /// the clink rises from near to far. Hollow `i` still holds coin `i` (a row holds one kind of coin).
+    func mirrored() -> PayBoardLayout {
+        var flipped = self
+        flipped.hollows = hollows.map { hollow in
+            Hollow(coin: hollow.coin, x: width - hollow.x - hollow.coin.hollow.size.width, y: hollow.y)
+        }
+        return flipped
+    }
+
     private static func rowWidth(_ row: [PayCoin]) -> Int {
         guard !row.isEmpty else { return 0 }
         return row.reduce(0) { $0 + $1.hollow.size.width } + spacing * (row.count - 1)

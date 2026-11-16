@@ -423,8 +423,10 @@ extension GameModel {
         feedback.countWarm()
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
-        let layout = PayBoardLayout.make(PayCount.hollows(price: found.price))
+        var layout = PayBoardLayout.make(PayCount.hollows(price: found.price))
         let place = countBoardPlace(thing, layout: layout)
+        // Step 4 (the director's call 5): the hollows fill from the lord's side, the nearest first.
+        if place.side > 0 { layout = layout.mirrored() }
         let reach = Double(layout.width) / 2 + GameModel.countStandGap
         var boardX = place.x
         var stand = groundX(boardX + place.side * reach)

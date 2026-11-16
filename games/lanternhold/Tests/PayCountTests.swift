@@ -587,6 +587,37 @@ final class PayCountTests: XCTestCase {
         }
     }
 
+    /// Step 4 (the director's call 5, M-c): the hollows fill from the lord's side, the nearest first, whichever side of
+    /// the board he stands on: the gate's board (he stands on its left) fills left to right, the guard's (he stands on
+    /// its right) right to left; mirrored, each hollow keeps its coin and the board its places.
+    func testTheHollowsFillFromTheLordsSide() throws {
+        let base = PayBoardLayout.make(PayCount.hollows(price: 47))
+        let flipped = base.mirrored()
+        XCTAssertEqual(flipped.width, base.width)
+        XCTAssertEqual(flipped.hollows.map(\.coin), base.hollows.map(\.coin), "each hollow keeps its coin")
+        XCTAssertEqual(Set(flipped.hollows.map { "\($0.x),\($0.y)" }), Set(base.hollows.map { "\($0.x),\($0.y)" }),
+                       "the same places")
+        func check(_ id: String, camera: String) throws {
+            let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": camera,
+                              "GWGold": "200"])
+            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let thing = try XCTUnwrap(game.touch.things.first { $0.id == id }, id)
+            game.touchThing(thing)
+            let board = try XCTUnwrap(game.touch.countBoard, id)
+            let toward: Double = board.stand > board.x ? 1 : -1
+            for row in Set(board.layout.hollows.map(\.y)) {
+                let xs = board.layout.hollows.filter { $0.y == row }.map { Double($0.x) * toward }
+                XCTAssertEqual(xs, xs.sorted(by: >), "\(id): row \(row) fills from the lord's side, the nearest first")
+            }
+            let flights = try XCTUnwrap(game.touch.count?.flights)
+            let topRow = board.layout.hollows.filter { $0.y == board.layout.hollows.first?.y }.count
+            XCTAssertEqual(flights.first ?? 0, flights.prefix(topRow).min() ?? 0, accuracy: 1e-9,
+                           "\(id): the first throw is the shortest of its row")
+        }
+        try check("touch-plot-0", camera: "1240")
+        try check("touch-recruit-guard", camera: "1580")
+    }
+
     // MARK: - What is bought
 
     func testWhatACountIsFor() throws {
