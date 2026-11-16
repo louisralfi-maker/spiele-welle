@@ -1134,3 +1134,8 @@ schneller geht."
   - Step 6 built form A: at a plot with models the board rises in the trestles' slot and both models ride up on its cap. Coins only: 7 hollows for the ballista, 11 for the catapult. The model not chosen is dimmed to 75 % and keeps its ink edge.
   - Round lh-b3c-62 failed on two tests: a unit test whose street was not empty (fixed in the test, a737493d) and the UI test of the night repair, whose second touch did not pay. The director sent lh-b3c-63 himself. A second failure of the night repair would be a real fault of step 6, not a flake.
   - GitHub cancelled two rounds in its queue today after 15 minutes without a Mac (lh-b3c-61, lh-b3j-1). Lesson: watch a round's state for the first minutes and resend at once; the director's sender script does that now.
+
+- **The join of wave 1, stage A is green: the wind and the horde are one game (16.11.2026, 18:20).**
+  - `claude/lh-b3join` 80eebd2c is pushed. Rounds lh-b3j-3 (build, the whole unit suite with the build 2 save tests) and lh-b3j-2 (build; ui Wind, Horde, FirstDay) are both ALL PASSED on it.
+  - A night frame of the joined game (26 small creatures in a gust at the watch post) was viewed: it draws whole.
+  - Stage B joins the count last, as soon as its round lh-b3c-63 is green.
