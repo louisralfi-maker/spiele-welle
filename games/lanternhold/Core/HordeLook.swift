@@ -68,9 +68,11 @@ enum HordeLook {
     }
 
     /// Its own start frame: neighbours of one body (ids `crowd.count` apart) start a quarter cycle apart, so a file of
-    /// the same body never walks in step.
+    /// the same body never walks in step. Every fifth of one body (the same stride again, `strideScales`) moves on a
+    /// further quarter, so two of one stride ten ids apart do not come round into step either.
     static func startFrame(id: Int) -> Int {
-        ((id / crowd.count) % 4 + 4) % 4
+        let k = max(0, id) / crowd.count
+        return (k + k / strideScales.count) % 4
     }
 
     // MARK: - Neighbours (step 3, the director's call 4)
