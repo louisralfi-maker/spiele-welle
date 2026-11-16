@@ -1,0 +1,3 @@
+navy by the fires: r 0.135 g 0.146 b 0.187 (1377 px)
+warm edge: r 0.444 g 0.312 b 0.209 (84 px of 1530 on the top contour; 0.06 x the navy's)
+climbers' lower edge: 0.0079, without the mark 0.0143 (594 px)
