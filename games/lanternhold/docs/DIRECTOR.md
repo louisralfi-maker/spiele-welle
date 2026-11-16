@@ -1063,3 +1063,10 @@ schneller geht."
   - The two bodies: the walker (13 px tall, the sootling strip) and the runt (10 px, the sootlingB strip), 8 frames each (a six-frame hauling walk, a climb, a strike).
   - Step 7 builds them into the lane as a lane step from c93cd45f: the strips, the frame logic, the law as pixel tests, more of the giant's cloth, the crowd opened a little, the warm rim out, a heap that moves, a kill that reads, no ladder of eyes.
   - The look is proved in python from the lane's final strips before any round is sent.
+
+- **The count's step 4 judged: the throw is kept, the signpost fails as a design (16.11.2026, 12:17).**
+  - Round lh-b3c-42 ALL PASSED on a363faee (pushed). The critic gives 6/10 with one blocker and two highs, all on the signpost.
+  - Kept and closed: the coin's face at the peak, the coins going home, the day light, the small gold coin, nearest hollow first.
+  - The signpost at a plot with several offers is two brown price boards on the lord's spot; he vanishes behind them. The director's verdict: a price list in the street stays one at any size, so the design changes before another lane step.
+  - Step 5A is a python design card with three candidates at phone size: small hung signs on a high arm; a builder's bench with small wooden models of the engines and price figures on its apron; the same bench with coin pips instead of figures (gold as far as the purse reaches).
+  - Step 5 then builds the picked one with the critic's remaining calls (the board never stands in a doorway; the small look fixes).
