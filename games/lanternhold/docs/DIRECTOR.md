@@ -1139,3 +1139,9 @@ schneller geht."
   - `claude/lh-b3join` 80eebd2c is pushed. Rounds lh-b3j-3 (build, the whole unit suite with the build 2 save tests) and lh-b3j-2 (build; ui Wind, Horde, FirstDay) are both ALL PASSED on it.
   - A night frame of the joined game (26 small creatures in a gust at the watch post) was viewed: it draws whole.
   - Stage B joins the count last, as soon as its round lh-b3c-63 is green.
+
+- **The count's counter stands; the count lane is closed for wave 1 (16.11.2026, 18:28).**
+  - Round lh-b3c-63 is ALL PASSED on a737493d and the lane is pushed. The night repair's failure in round 62 was a flake of the test's second touch, not a fault of the counter.
+  - What the player gets: at a plot with two offers the models stand beside the lord with no price in the street; a touch on a model makes the wooden counter rise there with both models on its cap; coins only, 7 hollows for the ballista against 11 for the catapult, so the dearer thing has the bigger board.
+  - Four small follow-ups go to wave 2's polish (the falling coin crosses a model, the purse figure meets a speech bubble, the site lantern's crook after a seal, the chosen ballista's silhouette).
+  - All three lanes of wave 1 are now closed. The join's last stage runs: `claude/lh-b3join` ab29d2d4 (local) with rounds lh-b3j-4, -5, -6.
