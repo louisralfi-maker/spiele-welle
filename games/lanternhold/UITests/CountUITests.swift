@@ -149,7 +149,9 @@ final class CountUITests: XCTestCase {
             return
         }
         if let again = waitForThing(app, "touch-plot-0", timeout: 3) {
-            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 0.75)
+            // Step 3 (round lh-b3c-31): every coin leaves his hand a flight (up to 0.16 s) before its moment, so a hold
+            // of 0.75 s already throws the ninth coin and the gate is paid; 0.4 s sets two or three.
+            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 0.4)
         }
         // The count's own state (`<placed>/9:letGo`), never `last:letGo:`.
         XCTAssertTrue(waitForField(app, "/9:letGo", timeout: 6), "let go: the coins go home")

@@ -804,8 +804,8 @@ extension GameModel {
         let left = board.left
         // Step 3 (the director's call 2): the board (not its post) takes the weight of the coin that just landed.
         var dip = 0.0
-        // A picture's freeze (Debug) that holds a share or the full board shows it at rest; a flight's freeze keeps the
-        // dip (the bar's dip is pictured so).
+        // A picture's freeze (Debug) that holds a share or the full board shows it at rest, the last coin settled and
+        // no dip; a flight's freeze keeps both (the bar's dip and the landed coin are pictured so).
         var atRest = false
         if let freeze = args.countFreeze, countFrozen {
             if case .flight = freeze {} else { atRest = true }
@@ -895,7 +895,8 @@ extension GameModel {
                         homing.append((coin: hollow.coin, face: face, share: home, x: coinX, lift: coinLift))
                     }
                 }
-            } else if !reduceMotion, let since = count.sinceLanding(index), since < settle + PayCount.squashSeconds {
+            } else if !reduceMotion, !atRest, let since = count.sinceLanding(index),
+                      since < settle + PayCount.squashSeconds {
                 put(hollow.coin.hollow, 0, x, lift)
                 if since < settle {
                     // The last 3 px of its fall into the hollow.
