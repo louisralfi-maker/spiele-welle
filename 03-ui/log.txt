@@ -1,0 +1,9 @@
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (85.837 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (14.229 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (41.806 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (100.105 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (39.881 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (178.219 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (36.793 seconds).
+exit=0
+screenshots: 24
