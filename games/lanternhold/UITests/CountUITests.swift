@@ -1,14 +1,16 @@
 import UIKit
 import XCTest
 
-/// The count (build 3, lane 1, step 1; docs/PAY.md sections 1 and 2): day 3 (seed 2) at 10:00 before the gatehouse with
-/// 200 gold. A touch on the gate brings its tally board up on its post (nine hollows for the iron gate's 90) and the
-/// lord steps beside it; a hold counts the coins onto the board, the seal falls and the site lantern is lit; the
-/// treasury pays once (170 to 172). Then the count's pictures, each its own launch with the Debug-only
-/// `-GWCountFreeze` holding the count still: the filmstrip of one count at fixed shares (173a to 173f: the empty board,
-/// a quarter, half, three quarters, full, sealed with the lit lantern), the coins sliding back after a let go (174),
-/// and the guard's board of mixed coins at the barracks (175). English only (the director's notes of 15.11., item 4).
-/// Saves `<nn>-count-<what>-<lang>`.
+/// The count (build 3, lane 1; docs/PAY.md sections 1 and 2): day 3 (seed 2) at 10:00 before the gatehouse with 200
+/// gold. A touch on the gate brings its tally board up on its post beside the gate (nine hollows for the iron gate's
+/// 90) and the lord steps to its outer side; a hold counts the coins onto the board, each flying from his hand, the seal
+/// falls and the site lantern is lit, and it burns on its post while the work runs; the treasury pays once (170 to
+/// 172b). Then the count's pictures, each its own launch with the Debug-only `-GWCountFreeze` holding the count still
+/// on an exact moment: the board at fixed shares (173a, 173c, 173e, 173f: empty, half, full, sealed), one coin of a
+/// hold in the air at three points of its arc and landed (176a to 176d), the same for a tap (177a to 177d), the coins
+/// going home after a let go with the purse mid-count (174), the guard's board of mixed coins beside the barracks
+/// (175), a board of bars for the great gate (178), and the lit lantern at night with its halo (179). English only
+/// (the director's notes of 15.11., item 4). Saves `<nn>-count-<what>-<lang>`.
 @MainActor
 final class CountUITests: XCTestCase {
     override func setUp() async throws {
@@ -51,23 +53,24 @@ final class CountUITests: XCTestCase {
         XCTAssertTrue(waitForField(app, "last:paid:touch-plot-0", timeout: 4), "the hold paid the gate")
         attach(XCUIScreen.main.screenshot(), "172-count-paid-\(language)")
         XCTAssertTrue(waitForSceneGold(app, 110, timeout: 4), "90 gold, once")
+        // Step 2 (H2): the board goes, the lit lantern stays on its post while the work runs.
+        XCTAssertTrue(waitForField(app, "count:none", timeout: 4), "the board has gone")
+        XCTAssertEqual(sceneField(app, "lanterns:"), "1", "the site lantern burns on")
+        pause(0.5)
+        attach(XCUIScreen.main.screenshot(), "172b-count-lantern-day-\(language)")
         app.terminate()
     }
 
-    /// The filmstrip of one count (the director's notes of 15.11., item 10): the same hold, frozen at fixed shares.
+    /// The board at fixed shares of one hold (the director's notes of 15.11., item 10): empty, half, full, sealed. The
+    /// touch brings the board, he steps beside it, then a hold counts from the press until the freeze.
     func testTheCountsFilmstrip() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        for (name, freeze) in [("173a-count-empty", "0"), ("173b-count-quarter", "0.25"), ("173c-count-half", "0.5"),
-                               ("173d-count-three-quarters", "0.75"), ("173e-count-full", "full"),
+        for (name, freeze) in [("173a-count-empty", "0"), ("173c-count-half", "0.5"), ("173e-count-full", "full"),
                                ("173f-count-sealed", "sealed")] {
-            let app = XCUIApplication()
-            app.launchArguments = CountUITests.gate + ["-GWCountFreeze", freeze]
-            app.launch()
-            guard waitUntilReady(app, name: name) else { continue }
-            pause(0.6)
-            if let gate = waitForThing(app, "touch-plot-0", timeout: 4) {
-                // The hold from the touch: the board comes up, he steps beside it, the coins come until the freeze.
-                gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 3.2)
+            let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", freeze], name: name)
+            guard let app else { continue }
+            if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
+                gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 2.6)
                 XCTAssertTrue(waitForField(app, "count:touch-plot-0", timeout: 3), "\(name): the board stands")
                 pause(0.3)
                 attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
@@ -84,28 +87,61 @@ final class CountUITests: XCTestCase {
         }
     }
 
-    /// Let go: a short hold sets a few coins, the finger lifts, two seconds later the coins slide back into the purse
-    /// (frozen half way); nothing was paid.
-    func testLetGoSlidesTheCoinsBack() {
+    /// Step 2 (the critic's blocker): one coin of a hold (the second, so the first lies in its hollow) frozen at three
+    /// points of its flight from the lord's hand and just after it landed and settled.
+    func testAHeldCoinFlies() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        let app = XCUIApplication()
-        app.launchArguments = CountUITests.gate + ["-GWCountFreeze", "back"]
-        app.launch()
-        guard waitUntilReady(app, name: "count-back") else { return }
-        pause(0.6)
-        guard let gate = waitForThing(app, "touch-plot-0", timeout: 4) else {
-            XCTFail("the gate offers nothing")
+        for (name, share) in [("176a-count-hold-fly-20", "0.2"), ("176b-count-hold-fly-50", "0.5"),
+                              ("176c-count-hold-fly-80", "0.8"), ("176d-count-hold-landed", "1.95")] {
+            let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", "fly:1:\(share)"], name: name)
+            guard let app else { continue }
+            if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
+                gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 1.2)
+                XCTAssertTrue(waitForField(app, "count:touch-plot-0:", timeout: 3), "\(name): the board stands")
+                pause(0.3)
+                attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+                note("\(name)-state", sceneField(app, "count:") ?? "?")
+                XCTAssertEqual(sceneGold(app), 200, "\(name): nothing paid in the air")
+            } else {
+                XCTFail("\(name): the gate offers nothing")
+            }
+            app.terminate()
+        }
+    }
+
+    /// Step 2: one tapped coin (it leaves his hand at once and lands a flight later), frozen at three points of its
+    /// flight and just after it landed.
+    func testATappedCoinFlies() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        for (name, share) in [("177a-count-tap-fly-20", "0.2"), ("177b-count-tap-fly-50", "0.5"),
+                              ("177c-count-tap-fly-80", "0.8"), ("177d-count-tap-landed", "1.95")] {
+            let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", "fly:0:\(share)"], name: name)
+            guard let app else { continue }
+            if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
+                touchThing(gate)
+                XCTAssertTrue(waitForField(app, "count:touch-plot-0:", timeout: 3), "\(name): the board stands")
+                pause(0.3)
+                attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+                note("\(name)-state", sceneField(app, "count:") ?? "?")
+            } else {
+                XCTFail("\(name): the gate offers nothing")
+            }
+            app.terminate()
+        }
+    }
+
+    /// Let go: a short hold sets a few coins, the finger lifts, two seconds later the coins come home one by one, the
+    /// last laid first, each shrinking to his hand (frozen half way, the purse mid-count); nothing was paid.
+    func testLetGoSendsTheCoinsHome() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        guard let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", "back"], name: "count-back") else {
             return
         }
-        touchThing(gate)
-        waitForStill(app)
-        _ = waitForField(app, ":there", timeout: 4)
         if let again = waitForThing(app, "touch-plot-0", timeout: 3) {
-            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 0.5)
+            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 0.75)
         }
-        // The count's own state (`<placed>/9:letGo`), never `last:letGo:` (round lh-b3c-11: the untouched board had
-        // already gone down 2 s after he stood beside it, and the shot caught the press's new board still open).
-        XCTAssertTrue(waitForField(app, "/9:letGo", timeout: 5), "let go: the coins go back")
+        // The count's own state (`<placed>/9:letGo`), never `last:letGo:`.
+        XCTAssertTrue(waitForField(app, "/9:letGo", timeout: 6), "let go: the coins go home")
         XCTAssertFalse(waitForField(app, ":0/9:letGo", timeout: 0.3), "with coins on the board")
         pause(0.3)
         attach(XCUIScreen.main.screenshot(), "174-count-letgo-\(language)")
@@ -113,7 +149,8 @@ final class CountUITests: XCTestCase {
         app.terminate()
     }
 
-    /// The guard's board at the barracks: one big coin and four small (14), frozen with half of them laid.
+    /// The guard's board beside the barracks, clear of Marek's cart: one big coin and four small (14), frozen with
+    /// half of them laid.
     func testTheGuardsBoard() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
@@ -128,14 +165,88 @@ final class CountUITests: XCTestCase {
             return
         }
         checkTarget(guardsman, "the guard's half")
-        guardsman.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).press(forDuration: 3)
+        // High on the barracks, over Marek's cart (a touch on the cart opens his card while his offer is open).
+        guardsman.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).tap()
         XCTAssertTrue(waitForField(app, "count:touch-recruit-guard", timeout: 3), "the guard's board stands")
+        waitForStill(app)
+        _ = waitForField(app, ":there", timeout: 4)
+        if let again = waitForThing(app, "touch-recruit-guard", timeout: 3) {
+            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).press(forDuration: 1.5)
+        }
         pause(0.3)
         attach(XCUIScreen.main.screenshot(), "175-count-guard-\(language)")
+        note("175-count-guard-state", sceneField(app, "count:") ?? "?")
+        app.terminate()
+    }
+
+    /// Bars stay greedy from a price of 100 up (the director's call): the great gate's 180 is one bar and eight big
+    /// coins on three planks, frozen half laid.
+    func testABoardOfBars() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let args = CountUITests.gate + ["-GWCastle", "2", "-GWGold", "500", "-GWCountFreeze", "0.5"]
+        guard let app = launchAtTheBoard(args, name: "count-bars", hollows: "/9") else { return }
+        if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
+            gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 1.5)
+        }
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "178-count-bars-\(language)")
+        note("178-count-bars-state", sceneField(app, "count:") ?? "?")
+        XCTAssertEqual(sceneGold(app), 500, "nothing paid before the seal")
+        app.terminate()
+    }
+
+    /// The night (H2): the gate's repair paid by its count; the board goes and the lit site lantern stays on its post
+    /// with its halo while the repair runs.
+    func testTheLanternAtNight() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWNight", "3",
+                               "-GWSeed", "2", "-GWHour", "21.5", "-GWStage", "world", "-GWDamage", "0",
+                               "-GWCameraX", "1200", "-GWGold", "60"]
+        app.launch()
+        guard waitUntilReady(app, name: "count-night") else { return }
+        pause(0.8)
+        guard let wall = waitForThing(app, "touch-wall-0", timeout: 3) else {
+            XCTFail("the damaged gate offers nothing")
+            return
+        }
+        touchThing(wall)
+        XCTAssertTrue(waitForField(app, "count:touch-wall-0", timeout: 3), "the gate's board comes up")
+        waitForStill(app)
+        XCTAssertTrue(waitForField(app, ":there", timeout: 4), "he stands beside it")
+        if let again = waitForThing(app, "touch-wall-0", timeout: 2) {
+            touchThing(again)
+        }
+        XCTAssertTrue(waitForField(app, "last:paid:touch-wall-0", timeout: 3), "the coin paid the repair")
+        XCTAssertTrue(waitForField(app, "count:none", timeout: 3), "the board has gone")
+        XCTAssertEqual(sceneField(app, "lanterns:"), "1", "the lantern burns while the repair runs")
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "179-count-lantern-night-\(language)")
         app.terminate()
     }
 
     // MARK: - Helpers
+
+    /// Launches with `args`, touches the gate (its board comes up with `hollows` hollows) and waits until the lord
+    /// stands beside the board; nil when any of it fails.
+    private func launchAtTheBoard(_ args: [String], name: String, hollows: String = "/9") -> XCUIApplication? {
+        let app = XCUIApplication()
+        app.launchArguments = args
+        app.launch()
+        guard waitUntilReady(app, name: name) else { return nil }
+        pause(0.6)
+        guard let gate = waitForThing(app, "touch-plot-0", timeout: 4) else {
+            XCTFail("\(name): the gate offers nothing")
+            app.terminate()
+            return nil
+        }
+        touchThing(gate)
+        XCTAssertTrue(waitForField(app, "count:touch-plot-0:0\(hollows)", timeout: 3), "\(name): the board comes up")
+        waitForStill(app)
+        XCTAssertTrue(waitForField(app, ":there", timeout: 4), "\(name): he stands beside the board")
+        pause(0.2)
+        return app
+    }
 
     private func waitUntilReady(_ app: XCUIApplication, name: String) -> Bool {
         let scene = element(app, "world-scene")
