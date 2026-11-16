@@ -180,7 +180,8 @@ extension GameModel {
     }
 
     /// The coin's frame at `share` of its flight: face, half turned, edge, half turned (`face`, 4, 3, 4), the even coins
-    /// starting on the face and the odd ones on the half turn, so two in the air never spin in step; each lands face up.
+    /// starting on the face and the odd ones on the half turn, so two in the air never spin in step; the last stretch of
+    /// each flight is the half turn, and the face shows once the coin lies in its hollow.
     nonisolated static func countSpin(_ share: Double, index: Int, face: Int) -> Int {
         let start = index % 2
         let segments = 4 - start
@@ -803,7 +804,13 @@ extension GameModel {
         let left = board.left
         // Step 3 (the director's call 2): the board (not its post) takes the weight of the coin that just landed.
         var dip = 0.0
-        if count.isOpen, count.placed > 0, count.placed <= layout.hollows.count,
+        // A picture's freeze (Debug) that holds a share or the full board shows it at rest; a flight's freeze keeps the
+        // dip (the bar's dip is pictured so).
+        var atRest = false
+        if let freeze = args.countFreeze, countFrozen {
+            if case .flight = freeze {} else { atRest = true }
+        }
+        if !atRest, count.isOpen, count.placed > 0, count.placed <= layout.hollows.count,
            let since = count.sinceLanding(count.placed - 1) {
             dip = GameModel.countDip(layout.hollows[count.placed - 1].coin, since: since, reduceMotion: reduceMotion)
         }
