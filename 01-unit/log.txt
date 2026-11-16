@@ -1,0 +1,126 @@
+2026-11-16 04:16:17.211994+0000 Lanternhold[15712:57687] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-16 04:16:19.126587+0000 Lanternhold[15712:58049] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 04:16:19.126713+0000 Lanternhold[15712:58056] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 04:16:19.155080+0000 Lanternhold[15712:58056] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 04:16:19.158806+0000 Lanternhold[15712:58443] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 04:16:19.249834+0000 Lanternhold[15712:58443] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 04:16:19.290484+0000 Lanternhold[15712:58443] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.AtlasTests testBundledArtReplacesThePlaceholder]' passed (3.884 seconds).
+Test Case '-[LanternholdTests.AtlasTests testCellsKeepTheirPaddingClear]' passed (0.499 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlacedSpriteIsPainted]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlaceholderDrawsSomethingAtItsSize]' passed (11.696 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEverySpriteGetsCellsOfItsSize]' passed (0.022 seconds).
+Test Case '-[LanternholdTests.AtlasTests testLook2ArtIsBundled]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPackerKeepsInsideTheWidth]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPlaceholdersAreDeterministic]' passed (0.329 seconds).
+Test Case '-[LanternholdTests.AtlasTests testStripsSplitIntoFrames]' passed (0.002 seconds).
+2026-11-16 04:16:36.537963+0000 Lanternhold[15712:57687] [Lanternhold] createImageAtIndex:2185: *** ERROR: createImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+2026-11-16 04:16:36.538069+0000 Lanternhold[15712:57687] [Lanternhold] CGImageSourceCreateImageAtIndex:5179: *** ERROR: CGImageSourceCreateImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+Test Case '-[LanternholdTests.AtlasTests testTinyPNGDecodesExactly]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testATapOnTheLordStillsTheWorldAndAnyTouchRunsItOn]' passed (0.163 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testATouchOnTheLordStandingOnHisSiteRaisesTheLantern]' passed (0.435 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheChangeNotesComeAndGo]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheFaceTakesTheLedgersBands]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheGearOpensThePauseSheetAndTheBackgroundRaisesTheLantern]' passed (0.026 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheGoldStandsAboveTheLordWhileItChanges]' passed (0.254 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheLordBesideAPersonStillsTheWorld]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheLordIsAnElementThatRaisesTheLantern]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheLordWinsOnHisBodyUnlessTheFingerIsClearlyNearerTheThing]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheMomentsRowAndDayLineSitOnTheKitsGrid]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testThePurseTicksCoinByCoinAndGoes]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheRealmStripIsAMapOfPixels]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheStripComesForACallAndGoes]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PayCountTests testACardTheHornAndTheBackgroundCutACountOff]' passed (0.549 seconds).
+Test Case '-[LanternholdTests.PayCountTests testACoinFliesFromTheHandAndLandsOnItsMoment]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.PayCountTests testACountCutOffPaysNothing]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PayCountTests testADragBeforeTheBoardIsUpIsAWalk]' passed (0.344 seconds).
+Test Case '-[LanternholdTests.PayCountTests testAFingerHeldPastTheBoardOpensNothingWhenItLifts]' passed (0.902 seconds).
+Test Case '-[LanternholdTests.PayCountTests testAFullCountPaysOnceAndOnlyOnce]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.PayCountTests testAHoldOnTheGatePaysItsUpgradeCoinByCoin]' passed (0.595 seconds).
+Test Case '-[LanternholdTests.PayCountTests testAnEmptyBoardWaitsFiveSecondsAndALaidCoinTwo]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PayCountTests testANewBoardTakesThePostOfALitLantern]' passed (0.185 seconds).
+Test Case '-[LanternholdTests.PayCountTests testANewCountLetsTheOldBoardsCoinsComeHome]' passed (0.409 seconds).
+Test Case '-[LanternholdTests.PayCountTests testAPriceAboveTheGoldNeverPays]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.PayCountTests testAPriceBecomesHollowsTheBiggestFirst]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.PayCountTests testARecruitIsCountedAtHisHalfOfTheBarracks]' passed (0.131 seconds).
+Test Case '-[LanternholdTests.PayCountTests testATapLeavesAtOnceAndLandsAFlightLater]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PayCountTests testATapSetsOneCoinAndTapsAndHoldsMix]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.PayCountTests testATouchOnATownDoorKnocksAndBringsNoBoard]' passed (0.132 seconds).
+Test Case '-[LanternholdTests.PayCountTests testLettingGoBeforeTheBoardIsFullPaysNothing]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheBoardIsDrawnInTheWorld]' passed (0.225 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheBoardRisesAndTheCoinsSlideInTheirTime]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheBoardsLayoutFitsItsHollows]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheBoardStandsBesideItsThing]' passed (1.180 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheClinkRisesAtMostAnOctaveAndTheTickGrows]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheCoinIsDrawnFlyingFromTheLordsHand]' passed (0.385 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheCoinsComeHomeOneByOneTheLastFirst]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheCoinsWaitForTheLord]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheCountIsNeverLongerThanItsSecondAndAHalf]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheFreezeHoldsTheCountForItsPictures]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheHornCutsACountOff]' passed (0.430 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheLitLanternBurnsWhileTheJobRuns]' passed (0.743 seconds).
+Test Case '-[LanternholdTests.PayCountTests testThePurseFigureStandsClearOfTheBoard]' passed (0.237 seconds).
+Test Case '-[LanternholdTests.PayCountTests testThePurseRunsDownWithTheCoinsAndBackWhenLetGo]' passed (0.611 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheRepairIsPaidByItsCount]' passed (0.074 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheRisingClinkIsThirteenFilesThatRise]' passed (0.030 seconds).
+Test Case '-[LanternholdTests.PayCountTests testTheTilesAndFacesVary]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.PayCountTests testWhatACountIsFor]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testEveryFileIsInTheAppAndSmall]' passed (0.034 seconds).
+Test Case '-[LanternholdTests.SoundTests testFireIsHeardNearBraziersAndTheBeacon]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testSoundIsOffInTestsUnlessAskedFor]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheAmbienceFollowsDayNightRainAndPlace]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGameFeedsTheHubWithoutTouchingTheSimulation]' passed (0.444 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGateShutsAtNightfall]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheHaptics]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheLordsStepsFollowHisWalk]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheMomentsHaveTheirSounds]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.SoundTests testThePlacesHaveTheirBedsAndCrossOver120Px]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThinnerTakesTheWatchsCues]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThrottleKeepsItsGapPerKey]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheWatchHearsGoldWallsAndCreatures]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testAHiddenMarkIsNotDrawnAndTheCartCarriesNoRim]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testAWallCarriesNoMarkWhileItsRepairCoolsDown]' passed (0.030 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testByDayThreeMarksAndBuildingsKeepTheirDistance]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testNoMarkAtTheScreensEdges]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testOneMarkForSitesSideBySide]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheBarracksCarryTheirMarkOnlyWhileARecruitCanBePaid]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheErrandsThingTakesItsGroupsPlace]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheFootingIsTwoStakesACordAndAChalkLine]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheHallDoorStandsOnThePaintedDoor]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheLiftThrowsSparksNotARing]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheMarksKeepToOneBand]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheNightsPicturesCanBeForced]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheRaisedLanternLiftsThePoleAndFlares]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheRimIsOnTheMarkedThing]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheRimIsQuieterByDay]' passed (0.054 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheRimsQuadReachesAPixelPastTheSprite]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheSiteNamesItsCheapestPriceAndShowsItsFooting]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchCraftTests testTheTestsCanStandAtTheDoor]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testABenchIsOneTarget]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testACancelledHoldOnTheLordAtNightRaisesNothing]' passed (0.088 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testACancelledTouchLeavesNoStaleFinger]' passed (0.046 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testAHoldOnTheLordAtNightRaisesTheLantern]' passed (0.099 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testALongPressOnTheLordByDayOpensTheLanternMoment]' passed (0.035 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testAPersonBeforeAWallWins]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testASecondTapMakesHimRun]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testATapOnASiteWalksHimThereAndOpensItsCard]' passed (0.161 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testATapOnTheGroundWalksHimThereAndADragCallsHimOff]' passed (0.314 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testAtMostFourMarksTheNearestFirstTwoSitesAndOneWall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testATouchOnMareksCartOpensHisCardWhileTheOfferIsOpen]' passed (0.256 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testClosingMareksCardKeepsTheWorldUnderALanternMoment]' passed (0.266 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testEveryTouchAreaIsAtLeast44PointsAtEveryScale]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTenPointsOrLessIsATap]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheAtlasStillFitsOnePage]' passed (3.955 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheGermanSlipsFit]' passed (0.037 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheHallDoorChangesTheStage]' passed (0.281 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheMarksAreDrawnAndTheSpotsPlaced]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheMarksAtNightAreDarkerAndWarm]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheNearerCentreWins]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheNightOffersColdBraziersAndDamagedWalls]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testThePace]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testThePetitionerHasTheFloorAlone]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheSceneValueCarriesTheLordAndTheErrand]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheThroneHoldsTheAudienceAndABenchSpeaks]' passed (0.308 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheWorldOffersSitesTheBarracksAndTheDoorByDay]' passed (0.001 seconds).
+exit=0
+screenshots: 0
