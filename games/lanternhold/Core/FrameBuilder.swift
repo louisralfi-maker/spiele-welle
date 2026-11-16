@@ -1986,7 +1986,7 @@ enum FrameBuilder {
     /// Leaves in the air by the steady wind's step (`Weather.sailLevel`: calm, breeze, gusty, storm): none in a calm, a
     /// few in a breeze (while its small gusts are up), more on a gusty day and in a storm (while a gust is up where
     /// they fly; a storm keeps some aloft between its gusts). Puffs of the lane's dust only in a gusty day's or a storm's gusts.
-    static let gustLeafCounts = [0, 3, 7, 10]
+    static let gustLeafCounts = [0, 3, 8, 14]
     static let gustDustCounts = [0, 0, 4, 5]
     /// A leaf crosses the screen at this speed plus `gustLeafDrive` × the steady wind (target px/s), sinking
     /// `gustLeafSink` px/s and bobbing `gustLeafBob` px; a slot waits a share of its flight between flights.
@@ -2007,7 +2007,7 @@ enum FrameBuilder {
 
     /// The leaves and dust a gust carries across the lane's plane, each a pure function of its slot and the time: a leaf
     /// sets off from the crown of a tree on the screen (else from the upwind edge), tumbles downwind with a bob and a
-    /// slow sink, in the trees' own greens or (one in four) an autumn straw; it shows while the gust is up where it
+    /// slow sink, in the trees' own greens or (one in three) an autumn straw; it shows while the gust is up where it
     /// flies and fades as the gust eases. Never west of the outermost standing wall (the ash is the weather there),
     /// never with Reduce Motion, none in a calm.
     private static func gustLeaves(props: [Prop], animTime: Double, seam: Double,
@@ -2034,7 +2034,9 @@ enum FrameBuilder {
         var list: [SpriteInstance] = []
         for slot in 0..<gustLeafCounts[level] {
             let own = unit(SeededRandom.hash(key, Int64(slot)))
-            let cycle = flight * (1.3 + 0.7 * own)
+            // A short wait between flights (round lh-b3w-31: a leaf from a crown leaves the screen early, so a storm's
+            // still showed one or two leaves).
+            let cycle = flight * (1.05 + 0.35 * own)
             let clock = max(0, animTime) + own * cycle
             let turn = (clock / cycle).rounded(.down)
             let along = clock - turn * cycle
@@ -2063,7 +2065,7 @@ enum FrameBuilder {
             // Fade in as it leaves the crown, out at the end of its flight.
             alpha *= min(1, along / 0.25) * min(1, (flight - along) / 0.4)
             guard alpha > 0.03 else { continue }
-            let tone = unit(SeededRandom.hash(pick, 5)) < 0.25 ? 2 : Int(unit(SeededRandom.hash(pick, 6)) * 2)
+            let tone = unit(SeededRandom.hash(pick, 5)) < 0.35 ? 2 : Int(unit(SeededRandom.hash(pick, 6)) * 2)
             let tumble = Int(min(1.0e15, along * (6 + 4 * abs(weather.mean)) + phase).rounded(.down)) % 4
             list.append(SpriteInstance(sprite: .gustLeaf, frame: tone * 4 + tumble,
                                        rect: SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)),

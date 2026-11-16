@@ -4607,12 +4607,12 @@ docs/POLISH.md section 2. Everything here is look 2's picture: no rule, no saved
 - **Flames** (M3): every row sheared by its height (3, 2, 1 for a torch, 3, 2, 2, 1, 1 for a brazier at a whole
   lean), the windward side tapered, the leeward tip stretched, from a lean of 0.25 (`flameBendFrom`).
 - **The gust** (`FrameBuilder.gustLeaves`, `gustLeaf`): leaves from the crowns of the trees on screen (3 in a breeze,
-  7 on a gusty day, 10 in a storm) and the lane's dust in the gusts, east of the outermost standing wall, none with
-  Reduce Motion.
+  8 on a gusty day, 14 in a storm, each aloft while a gust is up where it flies; one in three an autumn straw) and the
+  lane's dust in the gusts, east of the outermost standing wall, none with Reduce Motion.
 - **The vane** (`weatherVane`, `Weather.vaneFrame`): on the keep's east tower, its head into the wind, a swing in a
   breeze, a shiver in a storm, standing in a calm.
-- **The sounds** (`WindSound`, tools/windsound.py): `banner_snap` at a gust's rise with a flag in view (gusty, storm;
-  every 7 s at most), `shutter_rattle` at a gust's rise in the town (every 11 s), the day's bed × 0.75 to 1.3 by the
+- **The sounds** (`WindSound`, tools/windsound.py): `banner_snap` at a storm's gust's rise with a flag in view
+  (every 7 s at most), `shutter_rattle` at a gust's rise in the town (every 11 s), the day's bed × 0.75 to 1.3 by the
   wind. Their hookup into `SoundID`, MANIFEST and `GameModel` is the join's (wave 1: the count lane's files).
 
 ## Risks
