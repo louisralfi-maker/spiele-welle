@@ -1,0 +1,20 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (33.896 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (74.352 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (70.706 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:155: error: -[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome] : XCTAssertTrue failed - let go: the coins go home
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:159: error: -[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome] : XCTAssertEqual failed: ("110") is not equal to ("200") - nothing paid
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' failed (27.327 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (106.406 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (25.871 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (138.373 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (22.647 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (21.897 seconds).
+Test Suite 'CountUITests' failed at 2026-11-16 06:40:55.293.
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (190.621 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (74.191 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (105.545 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (189.851 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-16 06:50:15.520.
+Test Suite 'Selected tests' failed at 2026-11-16 06:50:15.522.
+exit=65
+screenshots: 65
