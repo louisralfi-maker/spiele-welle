@@ -1961,7 +1961,7 @@ enum FrameBuilder {
                 let heat = emberColor * (emberGlow * (1 - life) * fade)
                 list.append(SpriteInstance(sprite: .ashFlake, frame: point, rect: rect,
                                            tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z,
-                                                              (1 - life) * fade), flipped: false))
+                                                              min(ashAlphaCap, 1 - life) * fade), flipped: false))
                 glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
                                              color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), frame: point))
                 grey = life
