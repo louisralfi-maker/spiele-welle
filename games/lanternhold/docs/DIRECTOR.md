@@ -1195,3 +1195,10 @@ schneller geht."
   - Open, the walls' own question for wave 3: without walls no soldier dies at the budgets 1 to 2. Outer walls may cost their soldiers for too little.
   - The director's patch is 3d134b6c (the tuning run and its tests); round lh-b3y-13 (build, the whole unit suite) runs; the branch is pushed on ALL PASSED.
   - Next for the yard: the layout and look step (the count board covers the barracks), the dawn card's lines, T6 and the nights from 15 on.
+
+- **Lane 5 step 2a is green: the first jitter fixes (16.11.2026, 23:13).**
+  - `claude/lh-b3-lantern` fb6e938a, round lh-b3l-21 ALL PASSED (build, the whole unit suite, ui Lord, Touch, Hall), pushed; report on the desk: b3-lantern-s2a.md.
+  - Fixed: the coin and notes row above the walking lord, the raise flame over his lantern, and the slips and speech bubbles that followed the world in steps.
+  - Left for step 2b (after the quota reset): the back planes' glows and the moon, the keep's plane, the rain's lean, the hint glint and flare sparks, the collector's slip.
+  - Not judged by eye: it shows on a phone with the next TestFlight build (after wave 2's join).
+  - The week's quota stands at 97 % (stop at 99 %); nothing new is started beyond about 98 %.
