@@ -4543,6 +4543,43 @@ The critic's look 2 (7.5/10, no blocker, five highs a player meets in the first 
   as a boy, but he is still younger than the lady and softer; portrait finesse for both goes to pass 4. The new
   barracks keys have English and German only.
 
+### Build 3, POLISH pass 1: the wind seen and the two rains (lane 3, 15. and 16.11.2026)
+
+docs/POLISH.md section 2. Everything here is look 2's picture: no rule, no saved field, no light added or taken.
+
+- **One value per prop, from the wind where it stands** (`Weather.force(at:)`, `blowsWest`; `WindLook.pose`): the
+  windmill's sails, the keep's and the postern's flags, the curtain's banners. Deterministic by x and time; Reduce
+  Motion reads the steady wind (`sample.mean`) and holds one frame.
+- **Flags** (`Weather.flagFrame`): limp under a force of 0.15, stirring to 0.3, flying to 0.7, snapping above.
+  Flying runs a cycle of four frames at 6 frames/s, snapping one at 12; each flag starts from its own phase
+  (`flagPhase`, salted so the keep's two poles are always a frame and a bit apart: never one pose, never changing
+  together), and a gust's arrival changes the cycle, not the phase. A calm flag stirs for half a second at its own
+  moment every 6 to 10 s while any air moves (`calmStir`); still air leaves it as drawn. Reduce Motion: limp,
+  stirring, the first flying or the first snapping frame. A west wind mirrors it to the pole's other side. At dusk
+  the keep's rim lights the cloth (`keepFlagRim`).
+- **Banners** (`Weather.bannerSwing`): hanging, a pixel at the calm's stir, a sway between 1 and 2 px in a breeze
+  (4 steps/s) and between 2 and 3 in a storm (8 steps/s), from their own phase.
+- **Sails** (`Weather.sailFrame`): twelve frames a quarter turn; 0.1, 0.18, 0.26 turns/s by the steady wind's step
+  (about 5 to 12.5 frames/s), a gust carries them ahead; still on a calm day and with Reduce Motion.
+- **Fires**: open fires lean and gutter as one value (`Weather.fireLean`: the pool moves 2 px downwind and 1 down and
+  dims 14 %), and the flame bends: its top rows drawn a px downwind from a lean of a third, the top row two from three
+  quarters (`FrameBuilder.flameBend`, `bentFlame`). Out of the wind: lanterns, hearths, windows, candles, the oven
+  behind the bakehouse's hatch and the forge (`FrameBuilder.windproof`, `enclosedFires`).
+- **The two rains** (`RainLook`, `FrameBuilder.rainStreaks`, `ashFlakes`, `rainSplashes`): east of the outermost
+  standing wall (the least x of a standing palisade, stone wall or bastion; the castle front's when none stands) the
+  rain is water, as before, now leaning by the wind where each streak falls (straight in a calm, the strong slant
+  where a gust has reached), with splashes on the lane and on the cottages' ridges (`rainRidges`). West of it ash
+  falls: `ashFlake` on the near plane (34 at full rain, 13 px/s, small), the lane's (24, 19 px/s, middling) and the
+  foreground (9, 28 px/s, big), drifting downwind by 30 px/s per unit of wind over a calm's 0.12 and swaying as it
+  tumbles; tinted dark by day and pale by night (`ashTint`, by `rainShade` like the rain), alpha under 0.5. Over
+  160 px west of the wall the water thins out and the ash thins in (`waterShare`, a smoothstep); a fallen or rebuilt
+  wall moves the band. The counts: water where it falls is the old rain's, ash replaces it on the shadow's side, so a
+  rain frame holds at most the old rain (208 streaks, 24 splashes, the steam) plus a splash or two on each roof in
+  view. The sky's grey, the wet sheen and the fires' warmth are as before: the rain is a plane sprite and never
+  greys a window, a torch or the lantern (emissives are drawn after it).
+- **Reduce Motion** (replaces the port's "no streaks, no splashes"): the rain's and the ash's forms stay, held still
+  at one moment, so the one still reads as rain and the other as ash; nothing sways.
+
 ## Risks
 
 | Risk | What we do |
