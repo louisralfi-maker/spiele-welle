@@ -1343,10 +1343,10 @@ enum EntityFrames {
                         tint: SIMD4<Float>(shade, shade, shade, fall.alpha * seen), lit: effect.lit,
                         lightCap: fallCap, moonRim: effect.lit ? 0 : unlitRim * night * seen)
                 }
-                if fall.frame % 3 != 1 {
-                    // the socket's last flare (frame 0), then it is out; the last spark falling (frame 2)
-                    let flaring = fall.frame % 3 == 0 && seconds < HordeLook.flareSeconds
-                    let flare = (flaring ? HordeLook.flareGlow : 1) * fall.alpha
+                if let point = HordeLook.fallPoint(seconds: seconds, reduceMotion: reduceMotion) {
+                    // step 5 (the director's call 4): the socket's last flare (frame 0), then the cold point sinks with
+                    // the slump (frame 1) and goes out over the low heap (frame 2), the last of it, by 0.45 s
+                    let flare = point * (reduceMotion ? fall.alpha : 1)
                     add(.sootFallGlow, frame: fall.frame, x: effect.x, y: fallY,
                         tint: SIMD4<Float>(flare, flare, flare, 1), emissive: true, lightCap: flareCap)
                 }
@@ -1625,12 +1625,12 @@ enum EntityFrames {
                 // round or ragged (`SpriteID.sootFlake`), lift off the body's middle from the second fall frame, drift
                 // apart and thin to nothing by 0.8 s after the kill. No ember: the small ones are cold. Under Reduce
                 // Motion they hang where they lift off and only thin.
-                let puff = (animTime - effect.start - HordeLook.fallFrameSeconds) / HordeLook.puffSeconds
+                let puff = (animTime - effect.start - HordeLook.puffFrom) / HordeLook.puffSeconds
                 guard puff >= 0, puff < 1 else { continue }
                 let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
                 let stand = effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0
                 let middle = effect.y + stand + Double(HordeLook.height(body)) * 0.4
-                let thin = Float(1 - puff)
+                let thin = HordeLook.puffAlpha(puff)
                 let drift = reduceMotion ? 0 : puff
                 for k in 0..<HordeLook.puffFlakes {
                     guard spend() else { return }

@@ -598,12 +598,21 @@ final class EntityFramesTests: XCTestCase {
         func at(_ time: Double, wind: Double = 0, reduceMotion: Bool = false) -> [ActorInstance] {
             hordeLayer(s, focus: 640, time: time, wind: wind, reduceMotion: reduceMotion, effects: effects).actors
         }
-        for (time, k) in [(1.05, 0), (1.15, 1), (1.25, 2)] {
+        // step 5 (the director's call 4): frames of 0.15 s; the cold point flares, sinks with the slump and goes out
+        // last, over the third frame, by 0.45 s
+        for (time, k) in [(1.05, 0), (1.2, 1), (1.35, 2), (1.5, 2)] {
             XCTAssertEqual(at(time).filter { $0.sprite == .sootFall }.map(\.frame), [body.rawValue * 3 + k],
                            "fall frame \(k) at \(time) s")
         }
-        XCTAssertEqual(at(1.05).filter { $0.sprite == .sootFallGlow }.count, 1, "the socket flares as it falls")
-        XCTAssertEqual(at(1.15).filter { $0.sprite == .sootFallGlow }.count, 0, "and goes out")
+        XCTAssertEqual(at(1.05).filter { $0.sprite == .sootFallGlow }.first?.tint.x, HordeLook.flareGlow,
+                       "the socket flares as it falls")
+        XCTAssertEqual(at(1.2).filter { $0.sprite == .sootFallGlow }.map(\.frame), [body.rawValue * 3 + 1],
+                       "the cold point sinks with the slump")
+        let fading = at(1.4).filter { $0.sprite == .sootFallGlow }
+        XCTAssertEqual(fading.map(\.frame), [body.rawValue * 3 + 2], "and lies in the heap")
+        XCTAssertLessThan(fading.first?.tint.x ?? 1, 0.5, "going out")
+        XCTAssertTrue(at(1.46).allSatisfy { $0.sprite != .sootFallGlow }, "out by 0.45 s, the heap still there")
+        XCTAssertEqual(at(1.46).filter { $0.sprite == .sootFall }.count, 1)
         XCTAssertEqual(at(1.05, reduceMotion: true).first { $0.sprite == .sootFall }?.frame, body.rawValue * 3 + 2,
                        "Reduce Motion: the heap at once")
         let standing = at(1.7)
@@ -635,6 +644,75 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertLessThan(held.alpha, stood.alpha, "and fades")
         XCTAssertNil(HordeLook.orphanThread(body, length: length, seconds: 1.45, wind: 0, sway: 0, reduceMotion: false),
                      "gone after 1.4 s")
+    }
+
+    func testAKillSlumpsAndItsColdPointGoesOutLast() {
+        // Step 5 (the director's call 4 of 16.11.2026 08:52, a kill reads at phone size), on the strips: at 0.15 s
+        // (frames 0 and 1) the body is a slump at least half its height, never a smear one row high; its cold point
+        // (the glow strip's brightest pixel) sinks frame by frame and lies in the heap near the ground on frame 2, never
+        // at head height; the flakes are grey with one darker pixel, at most two pixels wide and high.
+        XCTAssertEqual(HordeLook.fallFrameSeconds, 0.15, accuracy: 1e-9)
+        guard let fallURL = AtlasBuilder.artURL(for: .sootFall, bundle: .main),
+              let glowURL = AtlasBuilder.artURL(for: .sootFallGlow, bundle: .main),
+              let flakeURL = AtlasBuilder.artURL(for: .sootFlake, bundle: .main),
+              let fall = PNGDecoder.load(url: fallURL), let glow = PNGDecoder.load(url: glowURL),
+              let flakes = PNGDecoder.load(url: flakeURL) else {
+            XCTFail("sootFall.png, sootFallGlow.png and sootFlake.png are in the bundle and decode")
+            return
+        }
+        let cell = SpriteID.sootFall.size
+        func luma(_ c: RGBA) -> Int { Int(c.r) * 3 + Int(c.g) * 6 + Int(c.b) }
+        for body in HordeLook.crowd {
+            let half = (HordeLook.height(body) + 1) / 2
+            var lastRow = -1
+            for k in 0..<3 {
+                let frame = body.rawValue * 3 + k
+                var top = cell.height
+                var point: (row: Int, value: Int)?
+                for y in 0..<cell.height {
+                    for x in 0..<cell.width {
+                        if fall[frame * cell.width + x, y].a > 0 { top = min(top, y) }
+                        let g = glow[frame * cell.width + x, y]
+                        if g.a > 0, luma(g) > (point?.value ?? -1) { point = (row: y, value: luma(g)) }
+                    }
+                }
+                guard let point else {
+                    XCTFail("\(body) fall frame \(k): the cold point is there")
+                    continue
+                }
+                if k < 2 {
+                    XCTAssertGreaterThanOrEqual(cell.height - top, half,
+                                                "\(body) fall frame \(k): a slump of at least half its height")
+                } else {
+                    XCTAssertGreaterThanOrEqual(cell.height - top, 2, "\(body): the heap is more than a smear")
+                    XCTAssertLessThanOrEqual(cell.height - point.row, 3, "\(body): the last point lies near the ground")
+                }
+                XCTAssertGreaterThanOrEqual(point.row, lastRow, "\(body) fall frame \(k): the cold point sinks")
+                XCTAssertGreaterThanOrEqual(point.row, top, "\(body) fall frame \(k): inside the body, never above it")
+                lastRow = point.row
+            }
+        }
+        let flakeCell = SpriteID.sootFlake.size
+        for k in 0..<HordeLook.flakeShapes {
+            var px: [RGBA] = []
+            var xs = Set<Int>()
+            var ys = Set<Int>()
+            for y in 0..<flakeCell.height {
+                for x in 0..<flakeCell.width {
+                    let c = flakes[k * flakeCell.width + x, y]
+                    guard c.a > 0 else { continue }
+                    px.append(c)
+                    xs.insert(x)
+                    ys.insert(y)
+                }
+            }
+            XCTAssertLessThanOrEqual(xs.count, 2, "flake \(k): at most two pixels wide")
+            XCTAssertLessThanOrEqual(ys.count, 2, "flake \(k): at most two pixels high")
+            XCTAssertGreaterThanOrEqual(px.count, 2, "flake \(k): an edge and a core")
+            XCTAssertTrue(px.allSatisfy { Int($0.b) >= Int($0.r) && abs(Int($0.r) - Int($0.g)) < 12 }, "flake \(k): grey")
+            let values: [Int] = px.map { luma($0) }
+            XCTAssertLessThan(values.min() ?? 0, values.max() ?? 0, "flake \(k): one pixel a step darker at its core")
+        }
     }
 
     func testTheSocketsAreColdPointsOfLight() {

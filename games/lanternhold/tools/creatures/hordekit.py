@@ -253,6 +253,83 @@ def fall(src, k, seed):
     return f
 
 
+# --- Step 5 (the director's call 4 of 16.11.2026 08:52: a kill reads at phone size) ----------------------------------
+SLUMP = (0.8, 0.55)          # frames 0 and 1: the slump's height as a share of the body's own height (never under half
+                             # at 0.15 s, when frame 1 starts)
+HEAP = (0.36, 0.56)           # frame 2: each column of the heap keeps this share of its pixels, uneven by column
+
+
+def slump(src, k, seed):
+    """Fall frame k (0 ... 2) of a finished body frame (its walk frame 0), 0.15 s each: it slumps into soot and its cold
+    point sinks with it and goes out last; never a smear at once, never a point alone at head height.
+    0: the slump begins: each column stacked onto the ground (its pixels sampled evenly, so the rag stays on top), the
+       tallest at 0.8 of the body's height; the socket flares (its core white, a ring of glow round it);
+    1: slumped to 0.55 of its height (at least half: the body still reads as a body at 0.15 s), the socket sunk with it
+       and dimmer (its core in the second glow, no ring);
+    2: a low heap of soot in uneven lumps, the thin limbs gone, the rag's strips still on it and ash on its top, the
+       cold point last of all, faint, inside the heap near the ground (the engine fades it out by 0.45 s).
+    The grains that lift off are the engine's flakes (`sootFlake.py`), never part of the strip. The height is the walk
+    frame's own (its top row to the ground), and no column stands more than a pixel over both its neighbours: a mound,
+    never a spike."""
+    f = Frame(CELL, CELL, seed)
+    cols = {}
+    for x in range(CELL):
+        col = [(src.b[y][x], src.g[y][x]) for y in range(CELL) if src.b[y][x] is not None]
+        if col:
+            cols[x] = col
+    height = CELL - min(y for y in range(CELL) if any(src.b[y][x] is not None for x in range(CELL)))
+    tallest = max(len(c) for c in cols.values())
+    eye_col = next((x for x, c in cols.items() if any(g == "wraithWhite" for _, g in c)), None)
+    counts = {}
+    for x, col in cols.items():
+        if k < 2:
+            counts[x] = max(1, int(round(len(col) * height * SLUMP[k] / tallest)))
+        elif len(col) >= 3 or x == eye_col:                  # the thin limbs and the loose ends are gone
+            keep = HEAP[0] + (HEAP[1] - HEAP[0]) * hsh(x // 2, 9, seed)
+            counts[x] = max(1, int(round(len(col) * keep)))
+    for x in sorted(counts):                                 # a mound: no column a spike over both its neighbours
+        side = max(counts.get(x - 1, 0), counts.get(x + 1, 0))
+        counts[x] = min(counts[x], side + 1)
+    if k < 2:                                                # and the slump keeps its height
+        top = max(counts.values())
+        want = -(-height * SLUMP[k] // 1)
+        if top < want:
+            peak = max(counts, key=lambda x: (counts[x], x))
+            for x in (peak - 1, peak, peak + 1):
+                if x in counts:
+                    counts[x] = max(counts[x], int(want) - (x != peak))
+    for x, col in cols.items():
+        if x not in counts:
+            continue
+        n = min(counts[x], len(col)) if k == 2 else counts[x]
+        picked = [col[min(len(col) - 1, int(i * len(col) / n))] for i in range(n)]
+        eye = [j for j, (_, g) in enumerate(col) if g == "wraithWhite"]
+        if eye and not any(g == "wraithWhite" for _, g in picked):      # the sampling skipped the socket: keep it
+            j = min(n - 1, int(eye[0] * n / len(col)))
+            picked[j] = col[eye[0]]
+        for i, (body, glow) in enumerate(picked):
+            y = CELL - n + i
+            if glow == "wraithWhite":
+                if k == 0:
+                    f.put(x, y, "stoneLight", "wraithWhite")
+                elif k == 1:
+                    f.put(x, y, "stoneMid", "wraithGlow")
+                else:
+                    f.put(x, y, "stoneDark", "wraithDim")
+            elif k == 2 and i == 0 and body in ("nightBlue", "nightSlate", "nightHaze", "night0"):
+                f.put(x, y, ("stoneDark", "stoneMid", "night0")[(x + seed) % 3])     # ash on the heap's top
+            else:
+                f.put(x, y, body)
+    if k == 0:
+        for y in range(CELL):
+            for x in range(CELL):
+                if f.g[y][x] == "wraithWhite":
+                    for dx, dy in ((-1, 0), (1, 0), (0, -1)):
+                        if f.has(x + dx, y + dy) and f.g[y + dy][x + dx] is None:
+                            f.g[y + dy][x + dx] = "wraithGlow"
+    return f.finish(rim=None)
+
+
 # --- Step 3 (the director, 16.11.2026 04:10): the body is the shadow, the rag is the accent ---------------------------
 # A body is hand-set pixel by pixel, flat tones and no dither: the navy and soot ramp for head, flank, belly and limbs; a
 # short mantle on the shoulders and two or three strips trailing behind it in the giant's cloak tones as they are in

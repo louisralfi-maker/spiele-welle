@@ -76,6 +76,28 @@ final class HordeRenderTests: XCTestCase {
             }
             XCTAssertGreaterThan(sum / Float(rect.w * rect.h), 0.005, "the crop at \(after) s is not black")
             crops.append(crop)
+            if after == 0.15 {
+                // step 5 (the director's call 4): on panel 2 the flakes are grey soot by the fire, the fire's hue out
+                // of them: their drawn pixels' mean b >= r
+                let flakes = desc.actors.filter { $0.sprite == .sootFlake }
+                XCTAssertFalse(flakes.isEmpty, "the flakes are up at 0.15 s")
+                var mean = SIMD3<Float>(0, 0, 0)
+                var count = 0
+                for flake in flakes {
+                    for p in HordeRenderTests.drawnPixels(flake, of: shot) {
+                        mean += shot.color(x: p.x, y: p.y)
+                        count += 1
+                    }
+                }
+                mean /= Float(max(1, count))
+                XCTAssertGreaterThan(count, 0, "the flakes' pixels are found")
+                XCTAssertGreaterThanOrEqual(mean.z, mean.x, "the flakes are grey, never the fire's orange (\(mean))")
+                let note = XCTAttachment(string: String(format: "flakes at 0.15 s: r %.3f g %.3f b %.3f (%ld px)",
+                                                        mean.x, mean.y, mean.z, count))
+                note.name = "horde-fall-flakes-values"
+                note.lifetime = .keepAlways
+                add(note)
+            }
         }
         if let rect = cropRect {
             attachStrip(crops, width: rect.w, height: rect.h, name: "horde-fall-filmstrip", zoom: 4)

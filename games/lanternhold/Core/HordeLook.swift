@@ -404,9 +404,12 @@ enum HordeLook {
 
     // MARK: - The fall
 
-    /// Three fall frames of 0.1 s; the heap of soot holds and fades until 0.6 s; the thread stands alone until 0.8 s
-    /// (bright for its first 0.2 s) and drifts off with the wind until 1.4 s.
-    static let fallFrameSeconds = 0.1
+    /// Three fall frames of 0.15 s (step 5, the director's call 4 of 16.11.2026 08:52: at 0.1 s a kill was a blink at
+    /// phone size): it slumps, sags to just over half its height with the cold point sunk in it (at 0.15 s), and lies
+    /// as a low heap; the cold point goes out last, by 0.45 s (`fallPoint`); the heap of soot holds and fades until
+    /// 0.6 s. (A wisp, while there were wisps, stood alone until 0.8 s, bright for its first 0.2 s, and drifted off with
+    /// the wind until 1.4 s.)
+    static let fallFrameSeconds = 0.15
     static let heapGone = 0.6
     static let threadStands = 0.8
     static let fallLifetime = 1.4
@@ -422,16 +425,38 @@ enum HordeLook {
     static let puffFlakes = 4
     static let puffSeconds = 0.7
     static let flakeShapes = 3
+    /// The flakes lift off this long after the kill (step 5: no longer at the second fall frame, which comes at 0.15 s
+    /// now), whole for the first quarter of their drift, then thinning (`puffAlpha`).
+    static let puffFrom = 0.1
+
+    /// A flake's alpha at `puff` (0 ... 1) of its drift: whole for the first quarter, so by the fires it stands as grey
+    /// soot and never as the ground's colour through it, then thinning to nothing.
+    static func puffAlpha(_ puff: Double) -> Float {
+        Float(puff < 0.25 ? 1 : max(0, 1 - (puff - 0.25) / 0.75))
+    }
+
+    /// The cold point of a falling small one (`SpriteID.sootFallGlow`) at `seconds` after the kill, as the glow's
+    /// strength, nil once it is out: it flares (`flareGlow`) for `flareSeconds`, sinks with the slump, and fades out
+    /// over the third fall frame, out by 0.45 s, the last of the body to go. Under Reduce Motion the heap at once, its
+    /// faint point fading with it (step 4's form, unchanged).
+    static func fallPoint(seconds: Double, reduceMotion: Bool) -> Float? {
+        guard seconds >= 0 else { return nil }
+        if reduceMotion { return seconds < heapGone ? 1 : nil }
+        if seconds < flareSeconds { return flareGlow }
+        if seconds < 2 * fallFrameSeconds { return 1 }
+        guard seconds < 3 * fallFrameSeconds else { return nil }
+        return Float(max(0, 1 - (seconds - 2 * fallFrameSeconds) / fallFrameSeconds))
+    }
     /// At most this many falls are drawn in one frame (up to three instances each: the heap, its socket, the thread),
     /// the newest first.
     static let maxFallsDrawn = 12
 
-    /// The socket on fall frame 0 (the flare), from the anchor: `tools/creatures/hordekit.py` `fall`.
+    /// The socket on fall frame 0 (the flare), from the anchor: `tools/creatures/hordekit.py` `slump` (step 5).
     static func fallSocket(_ body: Body) -> (dx: Double, dy: Double) {
         switch body {
-        case .crawler: return (dx: 5.5, dy: 1.5)
-        case .loper: return (dx: 3.5, dy: 1.5)
-        case .tumbler: return (dx: 2.5, dy: 2.5)
+        case .crawler: return (dx: 5.5, dy: 3.5)
+        case .loper: return (dx: 3.5, dy: 2.5)
+        case .tumbler: return (dx: 2.5, dy: 4.5)
         }
     }
 
