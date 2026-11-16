@@ -1,0 +1,13 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 831a8b7c
+source: claude/lh-b3-wind
+05:16:55 build starts (Lanternhold)
+simulator: 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF (iPhone 17 Pro, iOS 26.5)
+05:19:27 simulator up
+05:19:51 project generated
+05:24:00 PASS build
+05:25:51 PASS unit LanternholdTests/WeatherTests LanternholdTests/RainLookTests LanternholdTests/Look2FrameTests LanternholdTests/PolishTests LanternholdTests/FrameBudgetTests LanternholdTests/FrameBuilderTests LanternholdTests/AtlasTests LanternholdTests/WindSoundTests
+05:46:37 PASS ui LanternholdUITests/WindUITests
+ALL PASSED
