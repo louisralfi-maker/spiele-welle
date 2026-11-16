@@ -46,8 +46,10 @@ POSE = [
          leg=[(6, 10), (5, 12), (4, 13)]),
     # (step 5, the critic's M2: thrown over the head the hand bent down read as a crook, the staff Louis rejected: the
     # throw goes forward at shoulder height, the wrist no higher than the mantle's peak, the hand pointing down)
+    # (the gate's round lh-b3h-51: with the short throw the rag stood over a third of the body; the folded leg's foot
+    # lies along the ground)
     dict(at=(1, 4), torso=TORSO, elbow=(9, 5), wrist=(12, 4), hand=[(12, 4), (13, 5)],
-         leg=[(5, 11), (4, 13)]),
+         leg=[(5, 11), (4, 13), (3, 13)]),
     # attack 4: the gather before the lunge, the body drawn back and low, the arm reaching ahead at shoulder height
     # (also its climb on a heap; step 5, the gate's review: reaching up over the mantle with a hooked hand it held up a
     # stick on every heap, so the climb reads from the body's lift and the claw of frame 5), the hand pointing down,
