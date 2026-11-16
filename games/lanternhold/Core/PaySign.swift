@@ -23,9 +23,9 @@ struct PayModel: Sendable, Equatable {
     /// Its middle (game px of the world strip).
     var middle: Double { left + Double(PayModelRow.cell) / 2 }
     /// What is drawn there, the trestle and the model on it (`lift`: the model raised as it is chosen): its left and
-    /// right edges and its top over the walk line (its foot is the walk line).
+    /// right edges and its top over the walk line (its foot is the walk line), the model's own ink edge included.
     func drawn(lift: Double = 0) -> (left: Double, right: Double, top: Double) {
-        (left, left + Double(PayModelRow.cell), PayModelRow.modelLift + Double(PayModelRow.cellHeight) + lift)
+        (left, left + Double(PayModelRow.cell), PayModelRow.modelLift + PayModelRow.height(item) + lift)
     }
 }
 
@@ -68,9 +68,10 @@ struct PayModelRow: Sendable, Equatable {
     /// meets the barracks' archer half (and Marek's cart on his days), so it does not fit there; a test pins it.
     var fits = true
 
-    /// A cell of `paySign` (tools/hudart.py): 24 wide, 13 high; the trestle fills its width and its bottom 10 rows.
+    /// A cell of `paySign` (tools/hudart.py): 24 wide, 17 high (step 6, R3: the catapult's arm rises over the
+    /// ballista); the trestle fills its width and its bottom 10 rows; the models stand on the cell's bottom row.
     static let cell = 24
-    static let cellHeight = 13
+    static let cellHeight = 17
     static let trestleHeight = 10
     /// The wood between two trestles, and the row's distance from the lord's rect (his 16 px frame, 8 each side).
     static let gap = 3
@@ -123,8 +124,17 @@ struct PayModelRow: Sendable, Equatable {
         return min(glintSteps - 1, Int(cycle / glintStepSeconds))
     }
 
-    /// The frames of `paySign`: the trestle, each model, its warm rim, and its glint's steps.
+    /// Each model's drawn height in its cell, its ink edge included (tools/hudart.py): the ballista and the house 13,
+    /// the catapult 17 (step 6, R3: its cup 4 px over the ballista's top, so over the lord's shoulder at rest).
+    static func height(_ item: BuildItem) -> Double {
+        item == .catapult ? 17 : 13
+    }
+
+    /// The frames of `paySign`: the trestle, each model, its warm rim, and its glint's steps; step 6: the row's second
+    /// trestle (frame 19), so two trestles side by side are not one copy.
     static let trestleFrame = 0
+    static let secondTrestleFrame = 19
+    static func trestleFrame(index: Int) -> Int { index % 2 == 1 ? secondTrestleFrame : trestleFrame }
     static let glintSteps = 4
     static func frame(for item: BuildItem) -> Int {
         switch item {

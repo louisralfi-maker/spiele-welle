@@ -110,7 +110,9 @@ final class PaySignTests: XCTestCase {
                     }
                     for model in row.models {
                         let drawn = model.drawn()
-                        XCTAssertLessThanOrEqual(drawn.top, PayModelRow.shoulder, what + ": at most at his shoulder")
+                        // Step 6 (R3): the catapult's cup rises 4 px over the ballista's top, so over his shoulder.
+                        let rise = model.item == .catapult ? 4.0 : 0
+                        XCTAssertLessThanOrEqual(drawn.top, PayModelRow.shoulder + rise, what + ": at most at his shoulder")
                         XCTAssertGreaterThanOrEqual(model.area.width, minimum - 1e-9, what + ": 44 pt wide")
                         XCTAssertGreaterThanOrEqual(model.area.height, max(PayModelRow.catchHeight, minimum) - 1e-9,
                                                     what + ": 48 pt tall")
@@ -243,11 +245,15 @@ final class PaySignTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(edge.left, 0, "at the world's left end the row stands inside it")
     }
 
-    /// The strip's frames: the trestle, three models, their rims and four glint steps each, in the 24 x 13 cell.
+    /// The strip's frames: the trestle, three models, their rims and four glint steps each, and the row's second
+    /// trestle (step 6), in the 24 x 17 cell.
     func testTheModelsFrames() {
+        XCTAssertEqual(SpriteID.paySign.size, PixelSize(width: 24, height: 17))
         XCTAssertEqual(SpriteID.paySign.size, PixelSize(width: PayModelRow.cell, height: PayModelRow.cellHeight))
-        XCTAssertEqual(SpriteID.paySign.frameCount, 19)
+        XCTAssertEqual(SpriteID.paySign.frameCount, 20)
         XCTAssertEqual(PayModelRow.trestleFrame, 0)
+        XCTAssertEqual(PayModelRow.trestleFrame(index: 0), 0)
+        XCTAssertEqual(PayModelRow.trestleFrame(index: 1), 19, "the second trestle is its own")
         XCTAssertEqual(PayModelRow.frame(for: .ballista), 1)
         XCTAssertEqual(PayModelRow.frame(for: .catapult), 2)
         XCTAssertEqual(PayModelRow.frame(for: .smithy), 3)
@@ -305,7 +311,8 @@ final class PaySignTests: XCTestCase {
         let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let framing = try XCTUnwrap(game.touch.framing)
         let models = frame.actors.filter { $0.sprite == .paySign }
-        XCTAssertEqual(models.filter { $0.frame == PayModelRow.trestleFrame }.count, 2, "two trestles")
+        XCTAssertEqual(models.filter { $0.frame == PayModelRow.trestleFrame }.count, 1, "two trestles")
+        XCTAssertEqual(models.filter { $0.frame == PayModelRow.secondTrestleFrame }.count, 1, "the second its own")
         XCTAssertTrue(models.contains { $0.frame == 1 } && models.contains { $0.frame == 2 }, "the two models")
         XCTAssertFalse(models.contains { $0.frame == 4 || $0.frame == 5 }, "no rim at rest")
         XCTAssertTrue(models.allSatisfy { $0.isLit && !$0.isEmissive }, "things of the world, lit by the hour")
@@ -475,7 +482,7 @@ final class PaySignTests: XCTestCase {
         let models = frame.actors.filter { $0.sprite == .paySign }
         XCTAssertFalse(models.isEmpty)
         XCTAssertTrue(models.allSatisfy { $0.isLit && !$0.isEmissive }, "unlit by anything of their own")
-        XCTAssertFalse(models.contains { $0.frame >= 7 }, "no glint at night")
+        XCTAssertFalse(models.contains { (7...18).contains($0.frame) }, "no glint at night")
         let minimum = game.touchMinimum(framing: framing)
         for model in row.models {
             XCTAssertNil(game.modelAt((x: model.middle, lift: 12, minimum: minimum)), "no catch at night")

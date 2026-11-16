@@ -235,8 +235,8 @@ extension GameModel {
         var list: [ActorInstance] = []
         let cellTop = Double(PayModelRow.cellHeight)
         for (index, model) in row.models.enumerated() {
-            if let actor = countActor(.paySign, PayModelRow.trestleFrame, x: model.left, lift: cellTop, alpha: alpha,
-                                      framing: framing) {
+            if let actor = countActor(.paySign, PayModelRow.trestleFrame(index: index), x: model.left, lift: cellTop,
+                                      alpha: alpha, framing: framing) {
                 list.append(actor)
             }
             var lift = PayModelRow.modelLift + cellTop

@@ -501,7 +501,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .siteLantern: return PixelSize(width: 9, height: 13)
         case .payCoin: return PixelSize(width: 7, height: 7)
         case .siteHalo: return PixelSize(width: 25, height: 25)
-        case .paySign: return PixelSize(width: 24, height: 13)
+        case .paySign: return PixelSize(width: 24, height: 17)
         case .hudDawn: return PixelSize(width: 11, height: 9)
         }
     }
@@ -579,12 +579,13 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         // b3-count: empty and holding one of three faces; the board's 28 tiles (step 3: the crook's four, a knot);
         // unlit, lit and two of bloom; the count's coins: three faces, the edge and the half turn (step 3); the halo by
         // night and the warm pool by day (step 4); the board's tiles and the signpost's bar (step 4: 31); the trestle,
-        // the ballista's, the catapult's and any other building's model, their rims and four glint steps each (step 5).
+        // the ballista's, the catapult's and any other building's model, their rims and four glint steps each (step 5);
+        // the row's second trestle (step 6: 20, the cell 24 x 17).
         case .hudHollow, .hudHollowTen, .hudHollowBar: return 4
         case .payBoard: return 31
         case .siteLantern: return 4
         case .siteHalo: return 2
-        case .paySign: return 19
+        case .paySign: return 20
         case .payCoin, .hudCoinTen, .hudCoinBar: return 5
         default: return 1
         }
