@@ -1023,3 +1023,7 @@ schneller geht."
   - The fixture is a real save that build 2's own code (309ebb46) wrote on the runner: day 9, every part of the state filled. Nine tests load it field by field, round-trip it byte for byte and launch the game on it.
   - The join takes the three files first and runs Build2SaveTests in every round. A saved value a lane adds or changes fails the test; a new saved field is the director's decision by name, never a lane's.
   - Louis raised the week's stop to 99 % at 07:37; the week stands at 78 %.
+
+- **The horde lane's step 4 judged (16.11.2026, 08:52).**
+  - Green at 00bac28f (round lh-b3h-44); the critic passes it at 6/10 with four highs. The dark open works for the first time: black shapes with an ochre drape in front of the mist.
+  - The director's calls for step 5: the wisps go (share 0); by the fires the rim is an edge on the top pixel only; the stream is a horde, not a file (gaps by id, clumps, speeds by id, a heap of 14 at most, eight or more in the open at each probe); a kill that reads at phone size (grey flakes, a slump that holds, the cold point goes out last).
