@@ -1468,14 +1468,16 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
             lit = mix(lit, lh2_capped(info.light) * kHordeRim2, saturate(peak * 1.5f) * kHordeRimShare2);
         }
     }
-    if (hordeLifted && in.flags.x < 0.5f && atlas.read(uint2(t.x, t.y + 1u)).a < 0.5f) {
-        // b3-horde: a climber's lower edge a step darker, so the rows of a heap part
-        lit *= kHordeContact2;
-    }
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
     color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover, hordeVeil,
                     in.flags.x > 0.5f ? kHordeEyeBloom2 : kHordeBloom2);
+    if (hordeLifted && in.flags.x < 0.5f && atlas.read(uint2(t.x, t.y + 1u)).a < 0.5f) {
+        // b3-horde: a climber's lower edge a step darker, so the rows of a heap part (step 5, round lh-b3h-51: after
+        // the fog, its bloom and the grade, as it is seen; laid on the body's light before them, the fog's veil over
+        // it left the edge at 0.74 of the unmarked one instead of 0.6)
+        color = mix(color, color * kHordeContact2, saturate(in.tint.a));
+    }
     if (unlit && in.flags.x < 0.5f) {
         // Inside the bank the body takes the bank's whole fog and stands one value step lighter than it, a dark mass
         // the eye can read; its top edge catches the moon in a cool blue-grey line (none where firelight outshines).
