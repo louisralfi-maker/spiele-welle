@@ -1176,8 +1176,8 @@ final class PayCountTests: XCTestCase {
         var layer = EntityLayer()
         game.countWorld(&layer, state: state, framing: framing)
         let white = GamePalette.fireWhite
-        XCTAssertTrue(layer.glows.contains { $0.sprite == .hallMote && $0.color.x == white.x && $0.color.z == white.z },
-                      "the glint's white pixel on the coin")
+        let glint = layer.glows.filter { $0.sprite == .hallMote && $0.color.x == white.x && $0.color.z == white.z }
+        XCTAssertEqual(glint.count, 2, "step 5 (M-d): the glint's two white pixels on the coin's upper right rim")
     }
 
     /// Step 4 (M-a): `-GWCountFreeze fly:2:0.2,0.5,0.8` holds coin 3 of one hold at each share in turn, a dwell at
@@ -1245,8 +1245,33 @@ final class PayCountTests: XCTestCase {
         XCTAssertTrue(after.actors.contains { $0.sprite == .siteLantern && $0.frame > 0 }, "and the lit lantern")
     }
 
-    /// Step 3 (the director's call 2): a coin that has sat down glints once, one white pixel for one frame; never
-    /// under Reduce Motion.
+    /// Step 5 (M-b of step 4's critic): no post stub stands over the board (a coin at its peak read as a gold knob on
+    /// it): the post and its iron plate stay under the board's cap.
+    func testNoPostStubOverTheBoard() throws {
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        let board = try XCTUnwrap(game.touch.countBoard)
+        let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let scale = Float(framing.scale)
+        let topY = Float(framing.deviceY(lift: board.top))
+        let postX = Float(framing.deviceX(stageX: Double(board.postLeft)))
+        let post = frame.actors.filter {
+            $0.sprite == .payBoard && abs($0.rect.x - postX) < 0.5
+                && ($0.frame == PayBoardLayout.post || $0.frame == PayBoardLayout.postTop)
+        }
+        XCTAssertFalse(post.isEmpty, "the post stands")
+        for tile in post {
+            // A post tile fills its cell; the plate fills only the cell's last 3 rows.
+            let firstRow: Float = tile.frame == PayBoardLayout.postTop ? Float(PayBoardLayout.plank - 3) : 0
+            XCTAssertGreaterThanOrEqual(tile.rect.y + firstRow * scale, topY - 0.5, "nothing of the post over the board")
+        }
+    }
+
+    /// Step 3 (the director's call 2): a coin that has sat down glints once; step 5 (M-d): two white pixels for three
+    /// frames (one frame went unseen); never under Reduce Motion.
     func testALaidCoinGlintsOnce() throws {
         for still in [false, true] {
             var values = ["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
@@ -1273,7 +1298,7 @@ final class PayCountTests: XCTestCase {
             if still {
                 XCTAssertEqual(glintFrames, 0, "Reduce Motion: no glint")
             } else {
-                XCTAssertTrue((1...2).contains(glintFrames), "one glint as it sits down, not \(glintFrames) frames")
+                XCTAssertTrue((2...4).contains(glintFrames), "one glint of three frames, not \(glintFrames)")
             }
         }
     }
@@ -1397,6 +1422,17 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(end.lift, 25, accuracy: 1e-9, "the way ends where it is sent")
         let mid = GameModel.countHome(0.5, fromX: 0, fromLift: 40, toX: 30, toLift: 25)
         XCTAssertLessThanOrEqual(mid.lift, 40 + GameModel.countHomeHop, "a low hop, never the throw's high arc")
+        // Step 5 (M-a): with the board's clearance the coin rises out of its hollow, stands over the board for the
+        // first 40 % of its way, and comes down to the plain way by 60 %.
+        let start = GameModel.countHome(0, fromX: 0, fromLift: 30, toX: 30, toLift: 25, clear: 44)
+        XCTAssertEqual(start.lift, 30, accuracy: 1e-9, "it leaves from its hollow")
+        for share in [0.2, 0.3, 0.39] {
+            let over = GameModel.countHome(share, fromX: 0, fromLift: 30, toX: 30, toLift: 25, clear: 44)
+            XCTAssertGreaterThanOrEqual(over.lift, 44 - 1e-9, "over the board at \(share)")
+        }
+        let late = GameModel.countHome(0.7, fromX: 0, fromLift: 30, toX: 30, toLift: 25, clear: 44)
+        let plain = GameModel.countHome(0.7, fromX: 0, fromLift: 30, toX: 30, toLift: 25)
+        XCTAssertEqual(late.lift, plain.lift, accuracy: 1e-9, "then the plain way to the belt")
         let game = gateGame(gold: 200)
         let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
         game.touchThing(gate)
@@ -1742,6 +1778,7 @@ final class PayCountTests: XCTestCase {
                 let pool = try XCTUnwrap(layer.actors.first { $0.sprite == .siteHalo && $0.frame == 1 }, "day: the pool")
                 XCTAssertEqual(pool.tint.w, GameModel.countPoolAlpha, accuracy: 0.01, "blended about 0.4 over the wall")
                 XCTAssertFalse(pool.isLit && !pool.isEmissive, "its colour is the fire's, not the light's")
+                XCTAssertEqual(pool.flipped, board.toward < 0, "step 5 (M-e): cut at the post (mirrored to the left)")
                 // The inner ring on the side away from the post, beside the lantern's body: 5 to 7 px from its middle.
                 var sum = SIMD3<Float>(0, 0, 0)
                 var n: Float = 0

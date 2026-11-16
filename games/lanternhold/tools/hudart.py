@@ -53,8 +53,10 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
                glow of its glass and its halo)
   siteHalo     25x25, 2 frames: 0 the lit lantern's halo by night, light falling off in whole pixels, ordered-dithered
                (white; the stage lane tints it with the fire's gold and adds it as light); 1 (step 4) the warm pool by
-               day, an opaque disc 8 px round with a dithered edge to 10 px (white; the stage lane draws it blended
-               over the wall toward fire gold at about 0.4, never added as light on a lit wall)
+               day, an opaque disc 8 px round with an edge to 10 px kept by an ordered mask jittered per pixel (step
+               5, M-e: no ring), cut past the post for a crook pointing right (the stage lane mirrors it for one
+               pointing left) (white; the stage lane draws it blended over the wall toward fire gold at about 0.4,
+               never added as light on a lit wall)
 
 The count's coins in flight (build 3, the count's step 2: each coin flies from the lord's hand to its hollow, turning):
 
@@ -1097,21 +1099,29 @@ def halo(radius=12):
     return img
 
 
+POOL_BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]
+# step 5 (M-e of step 4's critic): the pool stops at the post: for a crook pointing right the post's far edge stands
+# at the cell's column 3 (the pool's left is 2 px left of the post's tile), so columns 0 to 2 stay empty; the stage
+# lane mirrors the pool for a crook pointing left
+POOL_CUT = 3
+
+
 def pool(radius=12, inner=8.0, edge=10.5):
     """The warm pool by day (step 4, the director's call 3): an opaque disc `inner` px round about the cell's middle,
-    then a ring thinned on a checkerboard out to `edge`, and its last pixels on every second checker cell, so the
-    pool's rim melts into the wall and never shows as a circle. White: the stage lane blends it toward fire gold."""
+    then out to `edge` a falling share of pixels kept by an ordered 4 x 4 mask jittered by a hash per pixel (step 5,
+    M-e: the checkerboard drew a clean ring), so the pool's rim melts into the wall and never shows as a circle; cut at
+    the post (`POOL_CUT`). White: the stage lane blends it toward fire gold."""
     size = 2 * radius + 1
     img = Image(size, size)
     for y in range(size):
-        for x in range(size):
+        for x in range(POOL_CUT, size):
             d = ((x - radius) ** 2 + (y - radius) ** 2) ** 0.5
             if d <= inner:
                 on = True
-            elif d <= edge - 1.0:
-                on = (x + y) % 2 == 0
-            elif d <= edge:
-                on = x % 2 == 0 and y % 2 == 0
+            elif d <= edge + 0.5:
+                share = (edge + 0.5 - d) / (edge + 0.5 - inner)
+                jitter = (((x * 73856093) ^ (y * 19349663)) % 7 - 3) / 24.0
+                on = share > (POOL_BAYER[y % 4][x % 4] + 0.5) / 16.0 + jitter
             else:
                 on = False
             if on:

@@ -28,7 +28,7 @@ struct CountBoard: Sendable, Equatable {
     var left: Int { Int(x.rounded(.down)) - layout.width / 2 }
     var top: Double { Double(bottom + layout.height) }
     var postLeft: Int { left + layout.width / 2 - 3 }
-    var postTop: Double { top + 3 }
+    var postTop: Double { top + 3 }  // step 5 (M-b): no longer drawn over the board; the post stops under the cap
 
     /// Step 3 (the director's call 5: a builder's lantern on a crook, never a street lamp): once the board has gone,
     /// its own post stands cut to about the lord's shoulder, a crook at its top pointing at the work (`toward`: 1
@@ -130,7 +130,9 @@ extension GameModel {
     /// Step 3 (the director's call 2): the board takes the weight; a landing ten dips it a pixel, a bar two, back in
     /// two frames of this long; a small coin does not move it. One frame of a white glint on a coin as it sits down.
     static let countDipFrame = 1.0 / 60
-    static let countGlintFrame = 1.0 / 60
+    /// Step 5 (M-d of step 4's critic): the glint lasts three frames (one went unseen at 60 Hz), two pixels of fire
+    /// white on the coin's upper right rim, where no highlight sits.
+    static let countGlintFrame = 3.0 / 60
 
     /// How far the board dips `since` seconds after a `coin` landed (0 under Reduce Motion).
     nonisolated static func countDip(_ coin: PayCoin, since: Double, reduceMotion: Bool) -> Double {
@@ -232,13 +234,32 @@ extension GameModel {
 
     /// Where a coin going home is at `share` (0 ... 1) of its way from (`fromX`, `fromLift`) in its hollow to
     /// (`toX`, `toLift`) at the lord's belt (its top-left, game px): eased across, a low hop over the straight line.
+    /// Step 5 (M-a of step 4's critic): with `clear` (the lift its top must reach so the coin stands 3 px over the
+    /// board's top) it rises out of its hollow over the first 20 % of the way, stays over the board until 40 % and
+    /// comes down to the plain way by 60 %, so a coin going home never reads as one still lying on the board.
     nonisolated static func countHome(_ share: Double, fromX: Double, fromLift: Double, toX: Double,
-                                      toLift: Double) -> (x: Double, lift: Double) {
+                                      toLift: Double, clear: Double? = nil) -> (x: Double, lift: Double) {
         let p = min(1, max(0, share))
         let across = 1 - (1 - p) * (1 - p)
         let hop = 3.0 * 4 * p * (1 - p)  // countHomeHop (a literal here: this function is nonisolated)
-        return (fromX + (toX - fromX) * across, fromLift + (toLift - fromLift) * p + hop)
+        var lift = fromLift + (toLift - fromLift) * p + hop
+        if let clear, clear > fromLift {
+            let rise: Double
+            if p < 0.2 {
+                let up = p / 0.2
+                rise = 1 - (1 - up) * (1 - up)
+            } else if p < 0.4 {
+                rise = 1
+            } else {
+                rise = max(0, 1 - (p - 0.4) / 0.2)
+            }
+            lift = max(lift, fromLift + (clear - fromLift) * rise)
+        }
+        return (fromX + (toX - fromX) * across, lift)
     }
+
+    /// Step 5 (M-a): a coin going home stands this far over the board's top for the first 40 % of its way.
+    static let countHomeClear = 3.0
 
     /// The purse figure above the lord as `lanternWorld` draws it (game px of the world strip: its left and right
     /// edges, its bottom and top over the walk line), nil while it does not show.
@@ -950,8 +971,10 @@ extension GameModel {
         let middles = max(0, (layout.width - 2 * tile) / tile)
         // The board's post (no lantern on it while the board stands: from the seal the site lantern hangs from the
         // crook of this same post behind the shut board, and catches as the board has gone: `countLanternsWorld`).
-        actors += countPostActors(postLeft: board.postLeft, postTop: board.postTop + shift, shift: shift,
-                                  alpha: alpha, framing: framing)
+        // Step 5 (M-b of step 4's critic): no stub over the board, where a coin at its peak read as a gold knob on it;
+        // the post's iron plate sits under the cap.
+        actors += countPostActors(postLeft: board.postLeft, postTop: board.top + shift - Double(PayBoardLayout.cap),
+                                  shift: shift, alpha: alpha, framing: framing)
         // The planks (or the lid's), the cap over them and the foot under them.
         func planks(lid: Bool, offset: Double) {
             for row in 0..<layout.rows {
@@ -1033,15 +1056,20 @@ extension GameModel {
                 }
             } else {
                 put(hollow.coin.hollow, 1 + face, x, lift)
-                // Step 3 (the director's call 2): one frame of a white glint on its lit rim as it has sat down.
+                // Step 3 (the director's call 2): a white glint on its rim as it has sat down; step 5 (M-d): two pixels
+                // on the upper right rim for three frames.
                 let glint = settle + PayCount.squashSeconds
                 if !reduceMotion, count.isOpen || count.result == .paid, let since = count.sinceLanding(index),
                    since >= glint, since < glint + GameModel.countGlintFrame {
                     let warm = GamePalette.fireWhite
-                    let column = (hollowSize.width - (coinSize.width - 2)) / 2 + 2
-                    let row = (hollowSize.height - (coinSize.height - 2)) / 2 + 1
-                    glows.append(EntityGlow(.hallMote, x: Double(x + column), y: lift - Double(row) - 1,
-                                            color: SIMD4<Float>(warm.x, warm.y, warm.z, 1)))
+                    let coinLeft = (hollowSize.width - coinSize.width) / 2
+                    let coinTop = (hollowSize.height - coinSize.height) / 2
+                    let inset = coinSize.width >= 11 ? 3 : 2
+                    for (dx, dy) in [(coinSize.width - inset, 1), (coinSize.width - inset + 1, 2)] {
+                        glows.append(EntityGlow(.hallMote, x: Double(x + coinLeft + dx),
+                                                y: lift - Double(coinTop + dy) - 1,
+                                                color: SIMD4<Float>(warm.x, warm.y, warm.z, 1)))
+                    }
                 }
             }
         }
@@ -1126,7 +1154,8 @@ extension GameModel {
             let at = GameModel.countHome(coin.share, fromX: Double(coin.x), fromLift: coin.lift,
                                          toX: handX - Double(size.width) / 2,
                                          toLift: GameModel.countHandLift - GameModel.countBeltDrop
-                                             + Double(size.height) / 2)
+                                             + Double(size.height) / 2,
+                                         clear: board.top + shift + GameModel.countHomeClear + Double(size.height))
             let centreX = at.x + Double(size.width) / 2
             let centreY = at.lift - Double(size.height) / 2
             let left = (centreX - w / 2).rounded()
@@ -1190,6 +1219,9 @@ extension GameModel {
                 var warmPool = pool
                 warmPool.tint = SIMD4<Float>(gold.x, gold.y, gold.z, warmPool.tint.w)
                 warmPool.isEmissive = true
+                // Step 5 (M-e of step 4's critic): the pool stops at the post (its art is cut past the post's far edge
+                // for a crook pointing right; mirrored for one pointing left).
+                warmPool.flipped = lantern.toward < 0
                 // The review of step 4: behind every figure (as the plot's footing), so the builders and the lord
                 // who walk through it are never washed gold; still over the wall.
                 layer.actors.insert(warmPool, at: 0)
