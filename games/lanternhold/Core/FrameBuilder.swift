@@ -1966,7 +1966,8 @@ enum FrameBuilder {
                                              color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), frame: point))
                 grey = life
             }
-            guard grey > 0.02 else { continue }
+            // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks into
+            // the list: the same flakes stand in the list from one moment to the next.
             list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
                                        tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
                                        flipped: flipped))

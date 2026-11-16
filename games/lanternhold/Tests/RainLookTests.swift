@@ -189,9 +189,11 @@ final class RainLookTests: XCTestCase {
         // keep their order from one moment to the next).
         func drift(_ wind: Double) -> [Double] {
             let override = WeatherOverride(mode: .clear, wind: wind, rain: 1)
+            // The flakes alone: an ember's glowing point (frames 12, 13) comes and goes over its life.
             let a = sprites(shot(s, focus: 200, weather: weather(s, override, time: 3), time: 3), .ashFlake, .world)
+                .filter { $0.frame < 12 }
             let b = sprites(shot(s, focus: 200, weather: weather(s, override, time: 3.5), time: 3.5), .ashFlake,
-                            .world)
+                            .world).filter { $0.frame < 12 }
             XCTAssertEqual(a.count, b.count)
             return zip(a, b).map { Double($1.rect.x - $0.rect.x) }.filter { abs($0) < 40 }
         }
