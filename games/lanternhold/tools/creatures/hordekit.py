@@ -1,27 +1,43 @@
-"""The small ones as a horde (POLISH.md section 7, build 3 lane 4 step A): the shared kit of the three bodies
-(sootling.py the crawler, sootlingB.py the loper, tumbler.py the tumbler), their fall (sootFall.py) and the smoke
-thread (sootThread.py). Each body is a hand-set grid of 14 x 14, one character per pixel, drawn by rig.Frame with the
-creatures' 1 px outline and no warm rim: the small ones are smoke and soot, and their only light is the socket's cold
-point (two pixels with a faint halo, so it reads at phone size). Warm light is the castle's.
+"""The small ones as a horde (POLISH.md section 7, build 3 lane 4): the shared kit of the three bodies (sootling.py the
+crawler, sootlingB.py the loper, tumbler.py the tumbler), their fall (sootFall.py) and the smoke thread (sootThread.py).
 
-Legend:
-  .  empty            n  nightDeep (hollows, the hood's mouth)   k  night0 (shade)
-  h  nightBlue (mid)  H  nightSlate (the light from above)       P  nightSlate: the hood's torn peak, where the
-  r  moorDark rag     R  moor rag (lit edge)                        thread rises (exactly one per frame)
-  a  stoneDark ash    s  stoneMid ash                            w  smoke: nightBlue, no outline
-  W  smoke: nightSlate, no outline
-  l  a thin limb in shade: night0, no outline   L  a thin limb: nightBlue, no outline (an outline would fill the gaps
-                                                   between limbs one pixel apart and blur the gait into a blob)
-  E  the socket's core (stoneLight, glow wraithWhite)            e  its second pixel (stoneMid, glow wraithGlow)
-  g  a body pixel round the socket that glows faintly (nightSlate, glow wraithDim)
+The art direction (the director, 16.11.2026): the small ones are scraps shed from the Ash Giant's cloak that learned
+to walk. Every one wears a rag over its back in the giant's cloak tones (olive moor and ochre soilDark strips with
+moorDark between, ashGiant.py's RAG), a third or more of its upper outline, in strips with loose ends, never a flat
+patch; limbs and underside in the giant's navy (HUSK); a 1 px moon rim on the upper outline; one cold point (the
+socket), never two, never a face. The rag is what lets a body read at night, as the giant's cloak does.
+
+A body is a hand-set silhouette of 14 x 14, one character per pixel, shaded here: the navy by its depth in its column
+(the topmost pixel takes the moon rim), the rag by strips that run down and back over it; the creatures' 1 px outline,
+and no warm rim: the small ones are cold.
+
+Silhouette legend:
+  .  empty
+  B  navy body, shaded by depth (top: the moon rim nightHaze, then nightSlate, nightBlue, the lowest night0)
+  b  navy in shade (night0, the lowest nightDeep)
+  R  rag, in strips (moor, soilDark, moorDark), its top pixel the moon rim
+  n  nightDeep (a hollow: the hood's mouth)          k  night0          h  nightBlue          H  nightSlate
+  P  the thread's root on navy (nightSlate)          Q  the thread's root on the rag (moorDark): exactly one P or Q
+  E  the socket's core (stoneLight, glow wraithWhite)    e  its second pixel (stoneMid, glow wraithGlow)
+  g  a body pixel by the socket that glows faintly (nightSlate, glow wraithDim)
+  l  a thin limb in shade (night0, no outline)       L  a thin limb (nightBlue, no outline)
+  1  a loose rag end (moorDark, no outline)          2  a loose end catching the moon (moor, no outline)
+  3  a loose end in ochre (soilDark, no outline)
+  w  smoke (nightBlue, no outline)                   W  smoke (nightSlate, no outline)
 """
 from rig import Frame, hsh
 
-LEGEND = {"n": "nightDeep", "k": "night0", "h": "nightBlue", "H": "nightSlate", "P": "nightSlate",
-          "r": "moorDark", "R": "moor", "a": "stoneDark", "s": "stoneMid",
-          "E": ("stoneLight", "wraithWhite"), "e": ("stoneMid", "wraithGlow"), "g": ("nightSlate", "wraithDim")}
-SMOKE = {"w": "nightBlue", "W": "nightSlate", "l": "night0", "L": "nightBlue"}
 CELL = 14
+FIXED = {"n": "nightDeep", "k": "night0", "h": "nightBlue", "H": "nightSlate", "P": "nightSlate", "Q": "moorDark"}
+GLOWING = {"E": ("stoneLight", "wraithWhite"), "e": ("stoneMid", "wraithGlow"), "g": ("nightSlate", "wraithDim")}
+BARE = {"l": "night0", "L": "nightBlue", "1": "moorDark", "2": "moor", "3": "soilDark", "w": "nightBlue",
+        "W": "nightSlate"}
+# the rag's strips: two pixels of the light cloak tone, one of the dark, shifting one pixel back every `rise` rows, so
+# they hang down and back over the body like the giant's cloak
+STRIP_PERIOD = 3
+MOON = "nightHaze"          # the moon rim on navy
+MOON_RAG = "stone"          # and on the rag: a cool grey edge where the moon catches the cloth
+BODY = set("BbRnkhHPQEeg")
 
 
 def check(rows):
@@ -29,9 +45,9 @@ def check(rows):
 
 
 def peak(rows):
-    """The hood's peak (column, row) of a grid: where the smoke thread rises."""
+    """The thread's root (column, row) of a grid: exactly one P or Q."""
     check(rows)
-    found = [(x, y) for y, r in enumerate(rows) for x, ch in enumerate(r) if ch == "P"]
+    found = [(x, y) for y, r in enumerate(rows) for x, ch in enumerate(r) if ch in "PQ"]
     assert len(found) == 1, found
     return found[0]
 
@@ -41,79 +57,66 @@ def socket(rows):
     return found[0] if found else None
 
 
-def paint(rows, seed=0):
-    """A body grid as a finished frame: the 1 px outline, no rim."""
-    check(rows)
-    f = Frame(CELL, CELL, seed)
-    for y, r in enumerate(rows):
-        for x, ch in enumerate(r):
-            if ch == ".":
-                continue
-            if ch in SMOKE:
-                f.put(x, y, SMOKE[ch], None, True)
-                continue
-            v = LEGEND[ch]
-            if isinstance(v, tuple):
-                f.put(x, y, v[0], v[1])
-            else:
-                f.put(x, y, v)
-    return f.finish(rim=None)
-
-
 def top(rows):
     """The first row with a body pixel (the outline sits one row above it)."""
     check(rows)
-    return min(y for y, r in enumerate(rows) if r.strip("."))
+    return min(y for y, r in enumerate(rows) if any(ch in BODY for ch in r))
 
 
-GRAIN = ["stoneDark", "stoneMid", "nightSlate"]
-ASHEN = ["stoneDark", "night0", "nightBlue"]
+def strip(x, y, phase=0, rise=2):
+    """True where (x, y) lies on a light strip of the rag (moor), False on a dark one (soilDark)."""
+    return (x + y // rise + phase) % STRIP_PERIOD != STRIP_PERIOD - 1
 
 
-def fall(src, k, seed):
-    """Fall frame k (0 ... 2) of a finished body frame (its walk frame 0): it sags into soot. Each column is squashed
-    toward the ground to 60, 32 and 14 % of its height (its pixels sampled evenly, so the shape folds down rather
-    than sinks); the socket dims on 0 and is out from 1; the top of the heap turns to ash; grains lift off it."""
-    keep = (0.6, 0.32, 0.14)[k]
+def paint(rows, seed=0, phase=0, rise=2, finish=True):
+    """A silhouette grid as a finished frame: the navy shaded by depth, the rag in strips (lit near its top, shaded
+    toward its torn ends), the moon rim on the upper outline, the 1 px outline, no warm rim."""
+    check(rows)
     f = Frame(CELL, CELL, seed)
     for x in range(CELL):
-        col = [(src.b[y][x], src.g[y][x]) for y in range(CELL) if src.b[y][x] is not None]
-        if not col:
-            continue
-        if k >= 1 and len(col) < 4:
-            continue                                         # the thin limbs and the rim go first
-        n = max(1, int(round(len(col) * keep)))
-        if k == 2:                                           # a smear of soot with a ragged top
-            if hsh(x, 3, seed) < 0.18:
+        col = [y for y in range(CELL) if rows[y][x] in BODY]
+        first = col[0] if col else None
+        last = col[-1] if col else None
+        rag = [y for y in range(CELL) if rows[y][x] in "RQ"]
+        for y in range(CELL):
+            ch = rows[y][x]
+            if ch == ".":
                 continue
-            n = 1 + (hsh(x, 5, seed) > 0.55)
-        for i in range(n):
-            body, glow = col[min(len(col) - 1, int(i * len(col) / n))]
-            y = CELL - n + i
-            if glow is not None:
-                if glow in ("wraithWhite", "wraithGlow") and k == 0:
-                    f.put(x, y, "stoneMid", "wraithDim" if glow == "wraithWhite" else None)
+            if ch in BARE:
+                f.put(x, y, BARE[ch], None, True)
+            elif ch in GLOWING:
+                f.put(x, y, *GLOWING[ch])
+            elif ch in FIXED:
+                f.put(x, y, FIXED[ch])
+            elif ch == "R":
+                depth = y - rag[0]
+                tip = y + 1 >= CELL or rows[y + 1][x] not in "RQ"
+                light = strip(x, y, phase, rise)
+                if y == first:
+                    c = MOON_RAG if light else "moor"              # the moon on its top edge, broken by the strips
+                elif light:
+                    c = "moorDark" if tip or depth > 3 else "moor"
                 else:
-                    f.put(x, y, "stoneDark" if glow in ("wraithWhite", "wraithGlow") else body)
-                continue
-            if k >= 1 and i == 0 and body != "nightDeep":
-                body = ASHEN[(x + k) % 3]                    # the top of the heap turns to ash
-            if k == 2:
-                body = ("stoneDark", "night0", "nightDeep")[(x * 7 + y * 3) % 3]
-            f.put(x, y, body)
-        eye = [j for j, (_, glow) in enumerate(col) if glow == "wraithWhite"]
-        if k == 0 and eye:                                   # the socket, dimmed, wherever the squash put its row
-            f.put(x, CELL - n + min(n - 1, int(eye[0] * n / len(col))), "stoneMid", "wraithDim")
-    for i in range((2, 4, 5)[k]):                            # grains of ash lifting off, no outline
-        gx = int(2 + hsh(i, k, seed) * 10)
-        gy = int(CELL - 3 - (k + 1) * 2 - hsh(i, k + 7, seed) * 3)
-        if 0 <= gy < CELL and not f.has(gx, gy):
-            f.put(gx, gy, GRAIN[(i + k) % 3], None, True)
-    return f
+                    c = "nightDeep" if tip and depth > 1 else "soilDark"
+                f.put(x, y, c)
+            elif ch in "Bb":
+                depth = col.index(y)
+                if ch == "b":
+                    c = "nightDeep" if y == last else "night0"
+                elif y == first:
+                    c = MOON
+                elif y == last:
+                    c = "night0"
+                elif depth == 1:
+                    c = "nightSlate"
+                else:
+                    c = "nightBlue" if hsh(x, y, seed) > 0.18 else "nightSlate"
+                f.put(x, y, c)
+    return f.finish(rim=None) if finish else f
 
 
 def place(block, dx, dy):
-    """A body block (rows of characters) set into an empty 14 x 14 grid with its top-left at (dx, dy), clipped."""
+    """A block (rows of characters) set into an empty 14 x 14 grid with its top-left at (dx, dy), clipped."""
     grid = [["."] * CELL for _ in range(CELL)]
     for j, row in enumerate(block):
         for i, ch in enumerate(row):
@@ -123,18 +126,128 @@ def place(block, dx, dy):
     return ["".join(r) for r in grid]
 
 
-LIMB = {"l": "night0", "L": "nightBlue", "H": "nightSlate", "a": "stoneDark", "s": "stoneMid", "r": "moorDark"}
+LIMB = {"l": "night0", "L": "nightBlue", "H": "nightSlate", "a": "stoneDark", "s": "stoneMid", "r": "moorDark",
+        "o": "moor", "c": "soilDark", "k": "night0", "m": MOON}
 
 
-def limbs(f, segs):
-    """Thin limbs over a finished frame, one pixel wide and without outline: [(points, char), ...], each a polyline
-    in pixel coordinates."""
+def limbs(f, segs, over=False):
+    """Thin limbs (or loose rag ends) over a finished frame, one pixel wide and without outline: [(points, char), ...],
+    each a polyline in pixel coordinates. Never over the socket; over the body only with `over`."""
     for pts, ch in segs:
         for a, b in zip(pts, pts[1:]):
             n = int(max(abs(b[0] - a[0]), abs(b[1] - a[1])) + 0.5)
             for i in range(n + 1):
                 t = i / n if n else 0
                 x, y = round(a[0] + (b[0] - a[0]) * t), round(a[1] + (b[1] - a[1]) * t)
-                if 0 <= x < CELL and 0 <= y < CELL and f.g[y][x] is None:   # never over the socket
+                if 0 <= x < CELL and 0 <= y < CELL and f.g[y][x] is None and (over or f.b[y][x] is None
+                                                                              or (x, y) in f.bare):
                     f.put(x, y, LIMB[ch], None, True)
+    return f
+
+
+def moon(f):
+    """The moon rim over a finished frame: the topmost pixel of each column that is not outline, smoke or a loose end
+    turns one step lighter (nightHaze on navy; the rag's dark strips take moor). Used after limbs are drawn."""
+    for x in range(CELL):
+        for y in range(CELL):
+            c = f.b[y][x]
+            if c is None or (x, y) in f.bare:
+                continue
+            if c == "nightDeep" and (y + 1 < CELL and f.b[y + 1][x] is not None and (x, y + 1) not in f.bare):
+                continue                                    # the outline above the body
+            if f.g[y][x] is None:
+                if c in ("nightBlue", "nightSlate", "night0"):
+                    f.b[y][x] = MOON
+                elif c in ("moorDark", "soilDark"):
+                    f.b[y][x] = MOON_RAG
+            break
+    return f
+
+
+GRAIN = ["stoneDark", "stoneMid", "nightSlate"]
+
+
+def fall(src, k, seed):
+    """Fall frame k (0 ... 2) of a finished body frame (its walk frame 0): it sags into soot.
+    0: each column squashed toward the ground to 60 % of its height (its pixels sampled evenly, so the shape folds
+       down), the socket flaring: its core keeps the white glow (the engine doubles it for this frame, the wick's last
+       spark), its rim lights up around it;
+    1: squashed to 30 % in uneven columns, the socket out, the top of the heap ash, the rag's strips still on it, grains
+       lifting off;
+    2: two or three clumps of soot and rag on the ground, uneven (never a ruled row), and one spark that falls."""
+    f = Frame(CELL, CELL, seed)
+    cols = {}
+    for x in range(CELL):
+        col = [(src.b[y][x], src.g[y][x]) for y in range(CELL) if src.b[y][x] is not None]
+        if col:
+            cols[x] = col
+    if k == 0:
+        for x, col in cols.items():
+            n = max(1, int(round(len(col) * 0.6)))
+            for i in range(n):
+                body, glow = col[min(len(col) - 1, int(i * len(col) / n))]
+                y = CELL - n + i
+                if glow == "wraithWhite":
+                    f.put(x, y, "stoneLight", "wraithWhite")
+                    for dx, dy in ((-1, 0), (1, 0), (0, -1)):
+                        if f.has(x + dx, y + dy) and f.g[y + dy][x + dx] is None:
+                            f.g[y + dy][x + dx] = "wraithGlow"
+                elif glow is not None:
+                    f.put(x, y, body, "wraithGlow")
+                else:
+                    f.put(x, y, body)
+            eye = [j for j, (_, glow) in enumerate(col) if glow == "wraithWhite"]
+            if eye and not any(f.g[yy][x] == "wraithWhite" for yy in range(CELL)):   # the sampling skipped it
+                y = CELL - n + min(n - 1, int(eye[0] * n / len(col)))
+                f.put(x, y, "stoneLight", "wraithWhite")
+                for dx, dy in ((-1, 0), (1, 0), (0, -1)):
+                    if f.has(x + dx, y + dy) and f.g[y + dy][x + dx] is None:
+                        f.g[y + dy][x + dx] = "wraithGlow"
+        return f.finish(rim=None)
+    if k == 1:
+        for x, col in cols.items():
+            if len(col) < 3:
+                continue                                      # the thin limbs and the loose ends go first
+            keep = 0.22 + 0.2 * hsh(x // 2, 9, seed)          # uneven: the heap slumps in lumps
+            n = max(1, int(round(len(col) * keep)))
+            for i in range(n):
+                body, glow = col[min(len(col) - 1, int(i * len(col) / n))]
+                y = CELL - n + i
+                if glow is not None:
+                    body = "stoneDark"
+                elif i == 0 and body in ("nightBlue", "nightSlate", "nightHaze", "night0"):
+                    body = ("stoneDark", "stoneMid", "night0")[(x + seed) % 3]
+                f.put(x, y, body)
+        f.finish(rim=None)
+        for i in range(4):                                    # grains lifting off, no outline
+            gx = int(2 + hsh(i, 1, seed) * 10)
+            gy = int(CELL - 6 - hsh(i, 8, seed) * 4)
+            if 0 <= gy < CELL and not f.has(gx, gy):
+                f.put(gx, gy, GRAIN[(i + seed) % 3], None, True)
+        return f
+    # k == 2: two or three clumps, each one or two pixels wide and high, at uneven gaps; one is a scrap of rag
+    xs = sorted(cols)
+    lo, hi = (xs[0], xs[-1]) if xs else (3, 10)
+    count = 2 + (hsh(1, 2, seed) > 0.45)
+    at = lo + 1 + int(hsh(3, 4, seed) * 2)
+    for j in range(count):
+        w = 1 + (hsh(j, 5, seed) > 0.4)
+        h = 1 + (hsh(j, 6, seed) > 0.55)
+        for dx in range(w):
+            for dy in range(h):
+                x, y = at + dx, CELL - 1 - dy
+                if x <= hi + 1:
+                    c = ("night0", "stoneDark", "nightDeep")[(j + dx + dy) % 3]
+                    if j == 1 and dy == h - 1:
+                        c = "moorDark" if dx else "moor"      # a scrap of the rag
+                    f.put(x, y, c)
+        at += w + 2 + int(hsh(j, 7, seed) * 3)
+    f.finish(rim=None)
+    sx = int(lo + 2 + hsh(8, 9, seed) * max(1, hi - lo - 3))  # the last spark, falling
+    f.put(sx, CELL - 5, "stoneMid", "wraithGlow", True)
+    for i in range(2):
+        gx = int(lo + hsh(i, 11, seed) * max(1, hi - lo))
+        gy = int(CELL - 7 - hsh(i, 12, seed) * 4)
+        if 0 <= gy < CELL and not f.has(gx, gy):
+            f.put(gx, gy, GRAIN[(i + seed + 1) % 3], None, True)
     return f

@@ -129,10 +129,105 @@ final class HordeRenderTests: XCTestCase {
         attachStrip(crops, width: w, height: h, name: "horde-volley-orphans")
     }
 
+    /// Step 2 (the director's art direction, 16.11.2026; the critic's B1): an unlit small one in the open at 23:00
+    /// reads against the ground behind it. The outer line's fires are out, so nothing lights it but the night; each of
+    /// the three bodies is rendered once with and once without it (its thread and its socket's glow left out, so the
+    /// body alone is judged), and over the body's own pixels (its strip's alpha) the mean relative luminance of the
+    /// two must differ by 1.6 : 1 or more, either way. The crops are attached side by side, four times enlarged, as
+    /// `horde-night-contrast`, with the numbers as `horde-night-contrast-values`.
+    func testAnUnlitSmallOneReadsAgainstTheNightInTheOpen() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var s = GameFrameSupport.demoNight(hour: 23.0)
+        for plot in Realm.lines[2].braziers { s.plots[plot].snuffed = true }
+        let open = GameFrameSupport.demoNight(hour: 23.0).bankEdge + 50
+        s.creatures = (0..<3).map { k in
+            GameFrameSupport.creature(.sootling, x: open + Double(k) * 26, id: 3 + k, lit: false)
+        }
+        var empty = s
+        empty.creatures = []
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let dropped: Set<SpriteID> = [.sootThread, .sootlingGlow, .sootlingBGlow, .tumblerGlow]
+        let bodyOnly: (ActorInstance) -> Bool = { !dropped.contains($0.sprite) }
+        let withBodies = frame(s, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly)
+        let withoutBodies = frame(empty, focus: open + 26, time: 1.5, wind: 0, effects: BattleEffects(), keep: bodyOnly)
+        let shotWith = try renderer.renderOffscreen(withBodies, settings: settings)
+        let shotWithout = try renderer.renderOffscreen(withoutBodies, settings: settings)
+        func luminance(_ c: SIMD3<Float>) -> Float {
+            func linear(_ v: Float) -> Float { v <= 0.04045 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4) }
+            return 0.2126 * linear(c.x) + 0.7152 * linear(c.y) + 0.0722 * linear(c.z)
+        }
+        var notes: [String] = []
+        var crops: [[SIMD3<Float>]] = []
+        let bodies = withBodies.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+        XCTAssertEqual(bodies.count, 3, "the three bodies are drawn, unlit")
+        for actor in bodies {
+            XCTAssertFalse(actor.isLit)
+            guard let url = AtlasBuilder.artURL(for: actor.sprite, bundle: .main),
+                  let strip = PNGDecoder.load(url: url) else {
+                XCTFail("\(actor.sprite).png is in the bundle")
+                continue
+            }
+            let size = actor.sprite.size
+            let texel = actor.rect.z / Float(size.width)
+            var body: Float = 0
+            var ground: Float = 0
+            var count = 0
+            let x0 = Int(actor.rect.x.rounded(.down))
+            let y0 = Int(actor.rect.y.rounded(.down))
+            let x1 = Int((actor.rect.x + actor.rect.z).rounded(.up))
+            let y1 = Int((actor.rect.y + actor.rect.w).rounded(.up))
+            for y in max(0, y0)..<min(shotWith.height, y1) {
+                for x in max(0, x0)..<min(shotWith.width, x1) {
+                    let tx = Int((Float(x) + 0.5 - actor.rect.x) / texel)
+                    let ty = Int((Float(y) + 0.5 - actor.rect.y) / texel)
+                    guard tx >= 0, tx < size.width, ty >= 0, ty < size.height,
+                          strip[actor.frame * size.width + tx, ty].a > 0 else { continue }
+                    body += luminance(shotWith.color(x: x, y: y))
+                    ground += luminance(shotWithout.color(x: x, y: y))
+                    count += 1
+                }
+            }
+            XCTAssertGreaterThan(count, 40, "\(actor.sprite): its pixels are found")
+            guard count > 0 else { continue }
+            body /= Float(count)
+            ground /= Float(count)
+            let ratio = max(body, ground) / max(1e-5, min(body, ground))
+            notes.append(String(format: "%@ frame %ld: body %.4f, ground %.4f, %.2f : 1 (%ld px)",
+                                actor.sprite.rawValue, actor.frame, body, ground, ratio, count))
+            XCTAssertGreaterThanOrEqual(ratio, 1.6, "\(actor.sprite) stands \(ratio) : 1 against the night ground")
+            // the crop: without and with, side by side
+            let w = 60
+            let h = 50
+            let cx = Int(actor.rect.x + actor.rect.z / 2) - w / 2
+            let cy = Int(actor.rect.y + actor.rect.w) - h + 6
+            for shot in [shotWithout, shotWith] {
+                var crop: [SIMD3<Float>] = []
+                for y in cy..<(cy + h) {
+                    for x in cx..<(cx + w) {
+                        let inside = x >= 0 && y >= 0 && x < shot.width && y < shot.height
+                        crop.append(inside ? shot.color(x: x, y: y) : SIMD3<Float>(0, 0, 0))
+                    }
+                }
+                crops.append(crop)
+            }
+        }
+        if !crops.isEmpty {
+            attachStrip(crops, width: 60, height: 50, name: "horde-night-contrast", zoom: 4)
+        }
+        let attachment = XCTAttachment(string: notes.joined(separator: "\n"))
+        attachment.name = "horde-night-contrast-values"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     // MARK: - Helpers
 
-    /// A game frame as `GameModel` builds it, in look 2, with the effects and a steady wind.
-    private func frame(_ s: GameState, focus: Double, time: Double, wind: Double, effects: BattleEffects) -> FrameDesc {
+    /// A game frame as `GameModel` builds it, in look 2, with the effects and a steady wind; `keep` may leave actors
+    /// out.
+    private func frame(_ s: GameState, focus: Double, time: Double, wind: Double, effects: BattleEffects,
+                       keep: ((ActorInstance) -> Bool)? = nil) -> FrameDesc {
         var options = FrameOptions(flickerTime: time)
         options.look = .two
         options.weather.mean = wind
@@ -141,8 +236,9 @@ final class HordeRenderTests: XCTestCase {
         let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
         let camera = Camera(focusX: focus, pixelScale: pixelScale)
         let scene = SceneFilter.gameScene(HordeRenderTests.world, state: s)
-        let layer = EntityFrames.layer(state: s, balance: .standard, scene: scene, camera: camera,
+        var layer = EntityFrames.layer(state: s, balance: .standard, scene: scene, camera: camera,
                                        pixelScale: pixelScale, options: options, animTime: time, effects: effects)
+        if let keep { layer.actors = layer.actors.filter(keep) }
         var clock = DayClock(hour: s.hour, day: s.day)
         clock.isFrozen = true
         clock.advance(by: time)
@@ -150,10 +246,9 @@ final class HordeRenderTests: XCTestCase {
                                   options: options, entities: layer)
     }
 
-    /// The crops side by side with a dark gap, each pixel doubled.
-    private func attachStrip(_ crops: [[SIMD3<Float>]], width: Int, height: Int, name: String) {
+    /// The crops side by side with a dark gap, each pixel doubled (or `zoom` times).
+    private func attachStrip(_ crops: [[SIMD3<Float>]], width: Int, height: Int, name: String, zoom: Int = 2) {
         let gap = 8
-        let zoom = 2
         let cell = width * zoom + gap
         let outW = crops.count * cell - gap
         let outH = height * zoom

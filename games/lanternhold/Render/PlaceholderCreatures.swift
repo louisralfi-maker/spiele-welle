@@ -26,11 +26,11 @@ enum PlaceholderCreatures {
         case .lightlessKingGlow: return strip(7) { lightlessKing($0).glow }
         // b3-horde: stand-ins until the PNGs load (tools/creatures): the old sootling for the tumbler and the fall,
         // a pale line for the thread
-        case .tumbler: return strip(6) { sootling($0).body }
-        case .tumblerGlow: return strip(6) { sootling($0).glow }
+        case .tumbler: return strip(7) { sootling($0 % 6).body }
+        case .tumblerGlow: return strip(7) { sootling($0 % 6).glow }
         case .sootFall: return strip(9) { sootling($0 % 6).body }
         case .sootFallGlow: return strip(9) { sootling($0 % 6).glow }
-        case .sootThread: return strip(30) { _ in thread() }
+        case .sootThread: return strip(144) { _ in thread() }
         default: return []
         }
     }

@@ -1,43 +1,59 @@
-"""The smoke thread of the small ones (POLISH.md section 7, build 3): a sootling is a snuffed wick, and from the torn
-peak of its hood rises a thread of smoke one pixel wide and as long as the body is high. It is its own strip so the
-engine can lean it: with the wind (Weather.wind), back when the body runs, straight when it waits. Its root is soot,
-it pales as it rises and frays at the top. No outline: smoke. Albedo only, no glow strip; the engine draws it as a
-pale emissive at a low value, so the horde reads as a field of threads at night before its bodies are seen.
+"""The smoke thread of the small ones (POLISH.md section 7, build 3): a sootling is a snuffed wick, and from the rag's
+torn edge at its nape rises a thread of smoke. It is smoke, not a stick: dense at the root (two pixels wide, its
+palest value), thinning as it rises, curling, and its top third broken into wisps of one or two pixels with gaps
+between. Each thread has a length of its own (the body's height and up to three pixels more, by the creature's id), so a
+file of them never stands ruled. It is its own strip so the engine can lean it: its tip leans up to four pixels with
+the wind (Weather.wind), back against the wind while it runs, and it sways (the middle one pixel, the tip two). No
+outline: smoke. Albedo only, no glow strip; the engine draws it as a pale emissive at a low value, so the horde reads
+as a field of threads at night before its bodies are seen.
 
-Frames: (length * 5 + lean) * 2 + sway, with length 0, 1, 2 for 10, 12 and 14 px (the crawler, the tumbler, the
-loper), lean 0 ... 4 for a tip at -2 ... +2 px, and sway 0 or 1 (the thread's middle bends one way, then the other).
-The root is column 3 of the bottom row."""
+Frames: (length index × 9 + lean + 4) × 2 + sway, with length index 0 ... 7 for 10 ... 17 px, lean -4 ... +4 px at the
+tip and sway 0 or 1 (the bend to one side, then the other). The root is column 7 of the bottom row."""
 import math
 from rig import Frame, hsh
 
-SIZE = (7, 14, 30)
+LENGTHS = tuple(range(10, 18))
+LEANS = 9
+SIZE = (15, 18, len(LENGTHS) * LEANS * 2)
 GLOW = False
 FLOATS = True
-LENGTHS = (10, 12, 14)
-ROOT = 3
+ROOT = 7
 
 
 def frame(k):
-    length = LENGTHS[k // 10]
-    lean = (k // 2) % 5 - 2
-    sway = k % 2
-    f = Frame(7, 14, seed=13)
+    li = k // (LEANS * 2)
+    length = LENGTHS[li]
+    lean = (k // 2) % LEANS - 4
+    side = 1 if k % 2 else -1
+    w, h = SIZE[0], SIZE[1]
+    f = Frame(w, h, seed=13)
+    curl = hsh(li, 3, 29) * math.pi * 2                       # each length its own curl
+    broken = int(length * 0.64)                              # the top third breaks into wisps
+    gap_at = broken + 1 + int(hsh(li, 5, 31) * 2)
+    x_prev = ROOT
     for i in range(length):
         t = i / (length - 1)
-        bend = 0.8 * math.sin(t * math.pi * 1.5 + sway * math.pi) * (0.3 + 0.7 * t)
-        x = ROOT + lean * t ** 1.6 + bend
-        y = 13 - i
-        if t > 0.72 and hsh(i, sway, k // 10 + 21) < 0.38 + 0.6 * (t - 0.72):
-            continue                                            # it frays at the top
-        if i < 2:
-            c = "nightSlate"
-        elif t < 0.3:
-            c = "mistDark"
-        elif t < 0.62:
-            c = "mistLight" if i % 3 == 1 else "mist"
-        elif t < 0.85:
+        bend = lean * t ** 1.7                                # the wind bends it most toward the tip
+        sway = side * (0.9 * math.sin(math.pi * t) + 1.6 * t * t) * 0.85
+        wobble = 0.6 * math.sin(t * math.pi * 2.3 + curl) * t
+        x = ROOT + bend + sway + wobble
+        y = h - 1 - i
+        if i >= broken:
+            if i == gap_at or (i > gap_at + 2 and hsh(i, li, 37) < 0.45):
+                continue                                      # the gaps between the wisps
+            if hsh(i, li + side, 41) < 0.5:
+                x += side                                     # a wisp curls aside
+            c = "mistDark" if i < length - 2 else "nightHaze"
+        elif i < 2:
+            c = "mistLight" if i == 0 else "mist"
+        elif t < 0.34:
             c = "mist"
         else:
-            c = "mistDark"
+            c = "mistDark" if hsh(i, li, 43) < 0.7 else "mist"
         f.put(x, y, c, None, True)
+        if i < 2:                                             # dense at the root: two pixels wide
+            f.put(x + (1 if lean >= 0 else -1), y, "mistDark", None, True)
+        elif i < broken and abs(x - x_prev) >= 1.5:          # no holes where it bends hard
+            f.put((x + x_prev) / 2, y, "mistDark", None, True)
+        x_prev = x
     return f

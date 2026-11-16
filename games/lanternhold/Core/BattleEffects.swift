@@ -17,6 +17,10 @@ struct VisualEffect: Sendable, Equatable {
     var seed: UInt64
     /// b3-horde: which of the three small bodies falls (`HordeLook.Body`), for `fall`.
     var body: Int = 0
+    /// b3-horde: the small one's id (-1: not known; its thread's length, `HordeLook.threadLength`) and whether it
+    /// stood in light when it fell (an unlit one falls at the night's value, so a sweep never flashes), for `fall`.
+    var id: Int = -1
+    var lit: Bool = true
 
     /// Seconds it lasts.
     var lifetime: Double {
@@ -54,6 +58,7 @@ struct BattleEffects: Sendable, Equatable {
         var id: Int
         var x: Double
         var lift: Double
+        var lit: Bool
         var at: Double
         var stale: Bool
     }
@@ -82,7 +87,8 @@ struct BattleEffects: Sendable, Equatable {
                     // b3-horde: a small one falls to soot and leaves its thread (`HordeLook`), from the heap if it
                     // climbed one.
                     let claimed = claimBody(x: x, time: time, from: &gone)
-                    add(.fall, x: x, y: claimed.lift, time: time, body: claimed.body)
+                    add(.fall, x: x, y: claimed.lift, time: time, body: claimed.body, id: claimed.id,
+                        lit: claimed.lit)
                 } else {
                     add(.dissolve, x: x, y: balance.creature(kind).height * 0.4, time: time)
                 }
@@ -108,10 +114,11 @@ struct BattleEffects: Sendable, Equatable {
         return seenSmall.filter { !alive.contains($0.id) }.sorted { $0.id < $1.id }
     }
 
-    /// The body and heap lift of the small one that fell at `x` at `time`: the nearest gone one within reach of where it
-    /// was last seen (`matchReach`, wider the older the sighting; then no longer gone), else a body by the effect
-    /// counter on the ground.
-    private func claimBody(x: Double, time: Double, from gone: inout [SmallSeen]) -> (body: Int, lift: Double) {
+    /// The body, heap lift, id and light of the small one that fell at `x` at `time`: the nearest gone one within reach
+    /// of where it was last seen (`matchReach`, wider the older the sighting; then no longer gone), else a body by the
+    /// effect counter on the ground, lit (a kill happens mostly in light).
+    private func claimBody(x: Double, time: Double,
+                           from gone: inout [SmallSeen]) -> (body: Int, lift: Double, id: Int, lit: Bool) {
         var best: Int?
         for (index, seen) in gone.enumerated() {
             let reach = BattleEffects.matchReach + BattleEffects.matchReachPerSecond * max(0, time - seen.at)
@@ -122,16 +129,16 @@ struct BattleEffects: Sendable, Equatable {
         if let best {
             let found = gone[best]
             gone.remove(at: best)
-            return (body: HordeLook.body(id: found.id).rawValue, lift: found.lift)
+            return (body: HordeLook.body(id: found.id).rawValue, lift: found.lift, id: found.id, lit: found.lit)
         }
-        return (body: Int((counter &+ 1) % 3), lift: 0)
+        return (body: Int((counter &+ 1) % 3), lift: 0, id: -1, lit: true)
     }
 
     private mutating func remember(_ state: GameState, unclaimed: [SmallSeen], time: Double) {
         let lifts = HordeLook.heapLifts(state.creatures)
         seenSmall.removeAll(keepingCapacity: true)
         for c in state.creatures where c.kind == .sootling && c.hp > 0 {
-            seenSmall.append(SmallSeen(id: c.id, x: c.x, lift: lifts[c.id] ?? 0, at: time, stale: false))
+            seenSmall.append(SmallSeen(id: c.id, x: c.x, lift: lifts[c.id] ?? 0, lit: c.isLit, at: time, stale: false))
         }
         for old in unclaimed where !old.stale {
             var kept = old
@@ -145,10 +152,12 @@ struct BattleEffects: Sendable, Equatable {
         items.removeAll { time - $0.start > $0.lifetime || $0.start > time + 1 }
     }
 
-    private mutating func add(_ kind: VisualEffect.Kind, x: Double, y: Double, time: Double, body: Int = 0) {
+    private mutating func add(_ kind: VisualEffect.Kind, x: Double, y: Double, time: Double, body: Int = 0,
+                              id: Int = -1, lit: Bool = true) {
         counter &+= 1
         items.append(VisualEffect(kind: kind, x: x, y: y, start: time,
-                                  seed: SeededRandom.mix(counter &* 0x9E37_79B9_7F4A_7C15), body: body))
+                                  seed: SeededRandom.mix(counter &* 0x9E37_79B9_7F4A_7C15), body: body, id: id,
+                                  lit: lit))
         if items.count > BattleEffects.maxEffects {
             items.removeFirst(items.count - BattleEffects.maxEffects)
         }

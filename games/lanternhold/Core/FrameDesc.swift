@@ -281,7 +281,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .lightlessKing, .lightlessKingGlow: return PixelSize(width: 64, height: 64)
         // b3-horde
         case .tumbler, .tumblerGlow, .sootFall, .sootFallGlow: return PixelSize(width: 14, height: 14)
-        case .sootThread: return PixelSize(width: 7, height: 14)
+        case .sootThread: return PixelSize(width: 15, height: 18)
         case .bastion: return PixelSize(width: 44, height: 64)
         case .rubbleWood: return PixelSize(width: 24, height: 10)
         case .rubbleStone: return PixelSize(width: 40, height: 14)
@@ -531,11 +531,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .guardsman: return 9
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
         case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
-        // b3-horde: the tumbler walks 0-3 and strikes 4-5; the fall 0-2 crawler, 3-5 loper, 6-8 tumbler; the thread
-        // (length × 5 + lean) × 2 + sway (`HordeLook.threadFrame`)
-        case .tumbler, .tumblerGlow: return 6
+        // b3-horde: the tumbler rolls 0-3 and claws 4-6 (gather, claw, recover); the fall 0-2 crawler, 3-5 loper, 6-8
+        // tumbler; the thread (length index × 9 + lean + 4) × 2 + sway, eight lengths (`HordeLook.threadFrame`)
+        case .tumbler, .tumblerGlow: return 7
         case .sootFall, .sootFallGlow: return 9
-        case .sootThread: return 30
+        case .sootThread: return 144
         case .citizen, .citizenB, .citizenC, .builder: return 6
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
              .nobleLady, .footman:
