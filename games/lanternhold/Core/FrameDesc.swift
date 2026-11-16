@@ -573,11 +573,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hudArrow: return 2
         case .hudFace: return 4
         // b3-count: empty and holding one of three faces; the board's 23 tiles; unlit, lit and two of bloom; the
-        // count's coins: three faces and the edge.
+        // count's coins: three faces, the edge and the half turn (step 3).
         case .hudHollow, .hudHollowTen, .hudHollowBar: return 4
         case .payBoard: return 23
         case .siteLantern: return 4
-        case .payCoin, .hudCoinTen, .hudCoinBar: return 4
+        case .payCoin, .hudCoinTen, .hudCoinBar: return 5
         default: return 1
         }
     }

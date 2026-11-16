@@ -79,15 +79,69 @@ extension GameModel {
     /// either side of its middle.
     static let countBoardSearch = 40
     static let countDoorHalf = 6.0
-    /// Step 2 (B1): a coin leaves the lord's hand this high over the walk line, this far toward the board from his
-    /// middle, and flies on an arc this high.
-    static let countHandLift = 22.0
+    /// Step 2 (B1): a coin leaves the lord's hand this high over the walk line (step 3: his shoulder, clear of the
+    /// lantern he carries) and this far toward the board from his middle.
+    static let countHandLift = 26.0
     static let countHandReach = 5.0
-    static let countArc = 8.0
+    /// Step 3 (the director's call 1): a hollow this near the hand is thrown in `PayCount.flight`, one this far in
+    /// `PayCount.flightFar`, the ones between by their distance.
+    static let countFlightNear = 14.0
+    static let countFlightFar = 70.0
     /// Step 2 (H5): a coin home in the purse ticks this softly.
     static let countHomeTick = 0.3
     /// Step 2 (H2): the halo's light, by night (half of it by day).
     static let countHaloStrength: Float = 1.0
+
+    // MARK: - The throw (step 3, the director's call 1)
+
+    /// Where a thrown coin is at `share` (0 ... 1) of its flight from (`fromX`, `fromLift`) to (`toX`, `toLift`) (its
+    /// top-left, game px): it goes up and falls in. The peak stands `coinHeight` + 3 px over the higher end, so it
+    /// clears the coins already lying in its row; it rises eased out to the peak by 45 % of the way and falls eased in;
+    /// across, it is over its hollow by 70 % of the way, so the last 30 % is a drop into the hollow.
+    nonisolated static func countThrow(_ share: Double, fromX: Double, fromLift: Double, toX: Double, toLift: Double,
+                                       coinHeight: Double) -> (x: Double, lift: Double) {
+        let p = min(1, max(0, share))
+        let peak = max(fromLift, toLift) + coinHeight + 3
+        let across = min(1, p / 0.7)
+        let x = fromX + (toX - fromX) * (1 - (1 - across) * (1 - across))
+        let lift: Double
+        if p < 0.45 {
+            let up = p / 0.45
+            lift = fromLift + (peak - fromLift) * (1 - (1 - up) * (1 - up))
+        } else {
+            let down = (p - 0.45) / 0.55
+            lift = peak + (toLift - peak) * down * down
+        }
+        return (x, lift)
+    }
+
+    /// The coin's frame at `share` of its flight: face, half turned, edge, half turned (`face`, 4, 3, 4), the even coins
+    /// starting on the face and the odd ones on the half turn, so two in the air never spin in step; each lands face up.
+    nonisolated static func countSpin(_ share: Double, index: Int, face: Int) -> Int {
+        let start = index % 2
+        let segments = 4 - start
+        let state = (start + min(segments - 1, max(0, Int(share * Double(segments))))) % 4
+        switch state {
+        case 0: return face
+        case 2: return 3
+        default: return 4
+        }
+    }
+
+    /// Each hollow's flight on `board` (step 3: by its distance from the hand of the lord standing at `board.stand`):
+    /// `PayCount.flight` for the near one up to `PayCount.flightFar` for the far one.
+    static func countFlights(_ board: CountBoard) -> [Double] {
+        let toward: Double = board.x >= board.stand ? 1 : -1
+        let handX = board.stand + countHandReach * toward
+        return board.layout.hollows.map { hollow in
+            let size = hollow.coin.hollow.size
+            let dx = Double(board.left + hollow.x) + Double(size.width) / 2 - handX
+            let dy = board.top - Double(hollow.y) - Double(size.height) / 2 - countHandLift
+            let share = min(1, max(0, ((dx * dx + dy * dy).squareRoot() - countFlightNear)
+                / (countFlightFar - countFlightNear)))
+            return PayCount.flight + (PayCount.flightFar - PayCount.flight) * share
+        }
+    }
 
     // MARK: - What is bought
 
@@ -254,7 +308,8 @@ extension GameModel {
         // A lantern still lit on this post (the last recruit's, 3 s) gives way to the new board and its own unlit
         // lantern (the review of step 2: an unlit lantern was drawn over a lit one whose heart still glowed).
         touch.countLanterns.removeAll { abs($0.postLeft - board.postLeft) < SpriteID.siteLantern.size.width }
-        touch.count = PayCount(thing: thing.id, offer: found.offer, price: found.price, holding: holding)
+        touch.count = PayCount(thing: thing.id, offer: found.offer, price: found.price, holding: holding,
+                               flights: GameModel.countFlights(board))
         touch.countBoard = board
         touch.countSent = false
         touch.countFirst = holding
@@ -651,7 +706,7 @@ extension GameModel {
         for m in 0..<middles { put(.payBoard, PayBoardLayout.footMiddle, left + tile + m * tile, footLift) }
         put(.payBoard, PayBoardLayout.footRight, left + layout.width - tile, footLift)
         // The hollows and the coins in them. Coins in the air or going home are drawn after the board's face.
-        var flying: [(coin: PayCoin, face: Int, share: Double, x: Int, lift: Double)] = []
+        var flying: [(coin: PayCoin, index: Int, face: Int, share: Double, x: Int, lift: Double)] = []
         var homing: [(coin: PayCoin, face: Int, share: Double, x: Int, lift: Double)] = []
         let settle = PayCount.settleSeconds
         for (index, hollow) in layout.hollows.enumerated() {
@@ -666,7 +721,8 @@ extension GameModel {
                 if count.blinking { continue }
                 put(hollow.coin.hollow, 0, x, lift)
                 if !reduceMotion, let share = count.flightShare(index) {
-                    flying.append((coin: hollow.coin, face: face, share: share, x: coinX, lift: coinLift))
+                    flying.append((coin: hollow.coin, index: index, face: face, share: share, x: coinX,
+                                   lift: coinLift))
                 }
                 continue
             }
@@ -747,21 +803,18 @@ extension GameModel {
             // The site lantern stands unlit on the post until the seal.
             put(.siteLantern, 0, board.postLeft - 1, board.lanternTop + shift)
         }
-        // The coins in the air: from the lord's hand to 3 px over their hollows on an arc, the drop at the end
-        // (ease-in), on whole pixels, turning face and edge (B1).
+        // The coins in the air (step 3, the director's call 1): thrown from the lord's hand up over the coins already
+        // lying and down into their hollows (to 3 px over them; the settle does the rest), on whole pixels, turning
+        // face, half, edge, half, each coin in its own phase.
         let lordX = stageLordX
         let handX = lordX + GameModel.countHandReach * (board.x >= lordX ? 1 : -1)
         for coin in flying {
-            let p = coin.share
             let size = coin.coin.sprite.size
-            let startX = handX - Double(size.width) / 2
-            let startLift = GameModel.countHandLift + Double(size.height) / 2
-            let endX = Double(coin.x)
-            let endLift = coin.lift + 3
-            let x = (startX + (endX - startX) * p).rounded()
-            let lift = (startLift + (endLift - startLift) * p * p + GameModel.countArc * 4 * p * (1 - p)).rounded()
-            let edge = Int(p * 5) % 2 == 1
-            if let actor = countActor(coin.coin.sprite, edge ? 3 : coin.face, x: x, lift: lift, alpha: alpha,
+            let at = GameModel.countThrow(coin.share, fromX: handX - Double(size.width) / 2,
+                                          fromLift: GameModel.countHandLift + Double(size.height) / 2,
+                                          toX: Double(coin.x), toLift: coin.lift + 3, coinHeight: Double(size.height))
+            let frame = GameModel.countSpin(coin.share, index: coin.index, face: coin.face)
+            if let actor = countActor(coin.coin.sprite, frame, x: at.x.rounded(), lift: at.lift.rounded(), alpha: alpha,
                                       framing: framing) {
                 actors.append(actor)
             }

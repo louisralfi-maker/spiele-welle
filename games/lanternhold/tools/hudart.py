@@ -23,9 +23,9 @@ Sprites (each a horizontal strip of equal frames, AtlasBuilder.splitFrames cuts 
 The count (PAY.md, build 3 lane 1): the tally board on its post, a thing in the world (HUD.md: drawn lit by the world,
 never on a plate), its bar coin and the site lantern the one who was paid lights.
 
-  hudCoinBar   13x8, 4 frames: the bar (a hundred), a small cast ingot with a struck C, lit from the upper left;
+  hudCoinBar   13x8, 5 frames: the bar (a hundred), a small cast ingot with a struck C, lit from the upper left;
                frames 0 to 2 its face (the glint and the stamp a pixel apart, so a board of bars is no row of copies),
-               3 its end, a 3 px sliver, as it turns in the air
+               3 its end, a 3 px sliver, 4 half turned, as it turns in the air
   hudHollowBar 13x9, 4 frames: its hollow in the board, empty and holding the bar's faces 0 to 2 (no ink edge)
   payBoard     6x12, 23 frames: the board's tiles, so a board fits any price (PayBoardLayout in Core/PayCount.swift):
                0 plank's left end, 1 2 14 15 four plank middles (the count picks one per tile by a hash and shifts
@@ -43,10 +43,11 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
 
 The count's coins in flight (build 3, the count's step 2: each coin flies from the lord's hand to its hollow, turning):
 
-  payCoin      9x9, 4 frames: the small coin of the count: 0 the kit's coin (hudCoin), 1 and 2 the same coin with its
-               glint and its struck I a pixel apart, 3 its edge, a 3 px sliver
-  hudCoinTen   11x11, 4 frames: the big coin struck with the house's lantern (as on the gate's banners; the Roman X
-               could read as "no"), 0 to 2 its faces, 3 its edge
+  payCoin      9x9, 5 frames: the small coin of the count: 0 the kit's coin (hudCoin), 1 and 2 the same coin with its
+               glint and its struck I a pixel apart, 3 its edge, a 3 px sliver, 4 half turned (step 3: face, half,
+               edge, half as it turns)
+  hudCoinTen   11x11, 5 frames: the big coin struck with the house's lantern (as on the gate's banners; the Roman X
+               could read as "no"), 0 to 2 its faces, 3 its edge, 4 half turned
   hudHollow    9x9, hudHollowTen 11x11: 4 frames each, the hollow empty and holding the coin's faces 0 to 2
 
 The row of the lantern moment is 9 game pixels high (figures, coin, face, people); the big coin and its hollow are
@@ -261,6 +262,15 @@ COIN_C = ["..hhg..",
 
 # a coin on edge as it turns in the air: one column, lit at the top (with its ink edge a 3 px sliver)
 COIN_EDGE = ["h", "h", "g", "g", "g", "s", "d"]
+# half turned (step 3, the director's call 1: face, half, edge, half, so the turn never flickers between a disc and a
+# stick): the face narrowed to an upright oval, its rim in shade on the far side
+COIN_HALF = [".hg.",
+             "hwgs",
+             "hggs",
+             "hgsd",
+             "ggsd",
+             "gssd",
+             ".sd."]
 
 # the big coin (ten) is struck with the house's lantern, the mark of the gate's banners: a ring, the cap, the frame
 # round one pane of lit glass, the foot; three faces (the glint along the rim, a glint on the glass)
@@ -295,6 +305,15 @@ COIN_TEN_C = ["..hhhgg..",
               "..sdddd.."]
 
 COIN_TEN_EDGE = ["h", "h", "g", "g", "g", "g", "s", "s", "d"]
+COIN_TEN_HALF = [".hhg.",
+                 "hwhgs",
+                 "hgdgs",
+                 "hhdgs",
+                 "hhdgd",
+                 "ggdgd",
+                 "ggggd",
+                 "gsssd",
+                 ".sdd."]
 
 # the rivals kept for the director: the kit's Roman X (it can read as "cancel" at phone size, step 1's critic) and a
 # long plus cross, the fallback should the lantern muddy
@@ -526,6 +545,13 @@ COIN_BAR_C = ["..whhhhgg..",
               ".ssddddddd."]
 
 COIN_BAR_EDGE = ["h", "g", "g", "s", "d", "d"]
+# the bar half turned: its front shortened, its end coming round into the light
+COIN_BAR_HALF = ["..hwhg.",
+                 ".hhgggs",
+                 "hggssgd",
+                 "gggsggd",
+                 "sggssdd",
+                 ".sdddd."]
 
 HOLLOW_BAR = [".kkkkkkkkkkk.",
               "kKKKKKKKKKKKk",
@@ -845,10 +871,12 @@ def board_tiles(pal):
     return frames
 
 
-def coin_frames(faces, edge, pal, w, h):
-    """A coin of the count: its faces, each with its ink edge, then its edge as it turns, centred in the same cell."""
+def coin_frames(faces, edge, half, pal, w, h):
+    """A coin of the count: its faces, each with its ink edge, then its edge and its half turn as it turns, centred in
+    the same cell."""
     frames = [edged(grid_image(face, pal), pal) for face in faces]
     frames.append(edged(grid_image(edge, pal), pal, w, h))
+    frames.append(edged(grid_image(half, pal), pal, w, h))
     return frames
 
 
@@ -961,9 +989,9 @@ def frames_for(sprite, pal, style="hand", face=None):
     if sprite == "hudCoin":
         return [edged(grid_image(COIN, pal), pal)]
     if sprite == "payCoin":
-        return coin_frames([COIN, COIN_B, COIN_C], COIN_EDGE, pal, 9, 9)
+        return coin_frames([COIN, COIN_B, COIN_C], COIN_EDGE, COIN_HALF, pal, 9, 9)
     if sprite == "hudCoinTen":
-        return coin_frames([COIN_TEN, COIN_TEN_B, COIN_TEN_C], COIN_TEN_EDGE, pal, 11, 11)
+        return coin_frames([COIN_TEN, COIN_TEN_B, COIN_TEN_C], COIN_TEN_EDGE, COIN_TEN_HALF, pal, 11, 11)
     if sprite == "hudHollow":
         return [grid_image(HOLLOW, pal)] + [hollow_with_coin(HOLLOW, c, pal) for c in (COIN, COIN_B, COIN_C)]
     if sprite == "hudHollowTen":
@@ -979,7 +1007,7 @@ def frames_for(sprite, pal, style="hand", face=None):
     if sprite == "hudGear":
         return [edged(grid_image(GEAR, pal), pal)]
     if sprite == "hudCoinBar":
-        return coin_frames([COIN_BAR, COIN_BAR_B, COIN_BAR_C], COIN_BAR_EDGE, pal, 13, 8)
+        return coin_frames([COIN_BAR, COIN_BAR_B, COIN_BAR_C], COIN_BAR_EDGE, COIN_BAR_HALF, pal, 13, 8)
     if sprite == "hudHollowBar":
         return [bar_hollow(False, pal)] + [bar_hollow(True, pal, c) for c in (COIN_BAR, COIN_BAR_B, COIN_BAR_C)]
     if sprite == "payBoard":

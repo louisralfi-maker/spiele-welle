@@ -286,9 +286,11 @@ final class PayCountTests: XCTestCase {
 
     /// The critic's blocker: every coin leaves the lord's hand a flight before its moment and lands on it, so the
     /// schedule of PAY.md section 2 stands; never more than two coins in the air, even on the longest board.
-    func testACoinFliesFromTheHandAndLandsOnItsMoment() {
-        for price in [90, 199] {
-            var count = PayCount(thing: "t", offer: .patch(plot: 0), price: price, holding: true)
+    func testACoinFliesFromTheHandAndLandsOnItsMoment() throws {
+        // Step 3 (the director's call 1): the far hollows fly up to 0.16 s; the flights are cut so the landings stay.
+        for (price, flights) in [(90, [Double]()), (199, []), (90, Array(repeating: PayCount.flightFar, count: 20)),
+                                 (199, Array(repeating: PayCount.flightFar, count: 20))] {
+            var count = PayCount(thing: "t", offer: .patch(plot: 0), price: price, holding: true, flights: flights)
             count.arrive()
             let n = count.coins.count
             let landings = PayCount.landings(count: n)
@@ -304,17 +306,116 @@ final class PayCountTests: XCTestCase {
             XCTAssertEqual(count.launched.count, n)
             XCTAssertEqual(count.landed.count, n)
             for index in 0..<min(n, count.landed.count) {
-                XCTAssertEqual(count.launched[index], landings[index] - PayCount.flight, accuracy: 1e-6,
+                let flight = try XCTUnwrap(count.flightSeconds(index))
+                XCTAssertEqual(count.launched[index] + flight, landings[index], accuracy: 1e-6,
                                "\(price): coin \(index) leaves his hand a flight before its moment")
+                XCTAssertLessThanOrEqual(flight, count.plannedFlight(index) + 1e-9, "never longer than planned")
+                XCTAssertGreaterThanOrEqual(flight, PayCount.flightShortest - 1e-9)
                 XCTAssertEqual(count.landed[index], landings[index], accuracy: 1e-6, "\(price): and lands on it")
+            }
+            if !flights.isEmpty {
+                XCTAssertEqual(count.flightSeconds(0) ?? 0, PayCount.flightFar, accuracy: 1e-6,
+                               "the first far coin flies its whole flight")
             }
             XCTAssertLessThanOrEqual(most, 2, "\(price): at most two coins in the air")
             XCTAssertEqual(coins(beats), n, "a clink for every landing")
             XCTAssertEqual(count.result, .paid)
         }
-        XCTAssertGreaterThanOrEqual(PayCount.flight, 0.1)
-        XCTAssertLessThanOrEqual(PayCount.flight, 0.14)
+        XCTAssertGreaterThanOrEqual(PayCount.flight, 0.11, "the near one")
+        XCTAssertLessThanOrEqual(PayCount.flightFar, 0.16, "the far one")
     }
+
+    /// Step 3 (the director's call 1): quick taps never put a third coin in the air, and a tapped coin never lands
+    /// before the one ahead of it.
+    func testTapsKeepTwoCoinsInTheAirAtMost() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 90, holding: false,
+                             flights: [0.16, 0.11, 0.16, 0.11, 0.16, 0.11, 0.16, 0.11, 0.16])
+        count.arrive()
+        _ = run(&count, seconds: 0.4, gold: 500)
+        for _ in 0..<9 { count.tap() }
+        var most = 0
+        while count.result == nil && count.time < 4 {
+            _ = count.step(step, gold: 500)
+            most = max(most, count.inFlight)
+        }
+        XCTAssertLessThanOrEqual(most, 2, "at most two in the air")
+        XCTAssertEqual(count.result, .paid)
+        XCTAssertEqual(count.landed, count.landed.sorted(), "each lands after the one ahead of it")
+    }
+
+    /// Step 3 (the director's call 1): the throw goes up and falls in. At mid-flight the coin is over both the hand and
+    /// the hollow; by 70 % of the way it is over its hollow and still high, so the rest is a drop; it turns face, half,
+    /// edge, half, the odd coins a quarter turn on; the far hollow flies longer than the near one.
+    func testTheThrowGoesUpAndFallsIn() throws {
+        let mid = GameModel.countThrow(0.5, fromX: 0, fromLift: 31, toX: 40, toLift: 22, coinHeight: 11)
+        XCTAssertGreaterThan(mid.lift, 31 + 8, "at mid-flight over the hand")
+        XCTAssertGreaterThan(mid.lift, 22 + 8, "and over the hollow")
+        let late = GameModel.countThrow(0.7, fromX: 0, fromLift: 31, toX: 40, toLift: 22, coinHeight: 11)
+        XCTAssertEqual(late.x, 40, accuracy: 1e-9, "over its hollow by 70 % of the way")
+        XCTAssertGreaterThan(late.lift, 22 + 8, "still high over it: the last 30 % is the drop")
+        let end = GameModel.countThrow(1, fromX: 0, fromLift: 31, toX: 40, toLift: 22, coinHeight: 11)
+        XCTAssertEqual(end.lift, 22, accuracy: 1e-9)
+        XCTAssertEqual(end.x, 40, accuracy: 1e-9)
+        let even = stride(from: 0.0, to: 1.0, by: 0.05).map { GameModel.countSpin($0, index: 0, face: 1) }
+        let odd = stride(from: 0.0, to: 1.0, by: 0.05).map { GameModel.countSpin($0, index: 1, face: 1) }
+        XCTAssertEqual(even.first, 1, "an even coin leaves face on")
+        XCTAssertEqual(odd.first, 4, "an odd coin leaves half turned")
+        XCTAssertTrue(even.contains(4) && even.contains(3), "face, half, edge, half")
+        XCTAssertNotEqual(even, odd, "two in the air never spin in step")
+
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        let board = try XCTUnwrap(game.touch.countBoard)
+        let flights = try XCTUnwrap(game.touch.count?.flights)
+        XCTAssertEqual(flights.count, board.layout.hollows.count)
+        XCTAssertTrue(flights.allSatisfy { $0 >= PayCount.flight - 1e-9 && $0 <= PayCount.flightFar + 1e-9 })
+        let toward: Double = board.x >= board.stand ? 1 : -1
+        let near = flights.indices.min { toward * Double(board.layout.hollows[$0].x)
+            < toward * Double(board.layout.hollows[$1].x) } ?? 0
+        let far = flights.indices.max { toward * Double(board.layout.hollows[$0].x)
+            < toward * Double(board.layout.hollows[$1].x) } ?? 0
+        XCTAssertGreaterThan(flights[far], flights[near], "the far hollow flies longer")
+    }
+
+    #if DEBUG
+    /// Step 3 (the director's call 1), on the drawn frame: coin 3 thrown to hollow 3 passes over coins 1 and 2 lying in
+    /// their hollows, never along the board's face.
+    func testTheThirdCoinPassesOverTheFirstTwo() throws {
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+                          "GWGold": "200", "GWCountFreeze": "fly:2:0.4"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        let freeze = PayFreeze.flight(coin: 2, share: 0.4)
+        run(game, seconds: 3) { game.touch.count.map { freeze.holds($0) } == true }
+        let live = try XCTUnwrap(game.touch.count)
+        XCTAssertTrue(freeze.holds(live), "frozen with coin 3 in the air")
+        XCTAssertGreaterThanOrEqual(live.placed, 2, "coins 1 and 2 lie in their hollows")
+        let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let board = try XCTUnwrap(game.touch.countBoard)
+        XCTAssertLessThan(board.side, 0, "the gate's board stands left of it, the lord on its outer side: the hollows "
+                          + "fill from his side, so each coin flies over the ones already laid")
+        let framing = try XCTUnwrap(game.touch.framing)
+        let laid = board.layout.hollows.prefix(2)
+        let laidTop = laid.map { framing.deviceY(lift: board.top - Double($0.y)) }.min() ?? 0
+        let spanA = laid.map { framing.deviceX(stageX: Double(board.left + $0.x)) }.min() ?? 0
+        let spanB = laid.map { framing.deviceX(stageX: Double(board.left + $0.x + $0.coin.hollow.size.width)) }
+            .max() ?? 0
+        let over = frame.actors.filter { actor in
+            guard actor.sprite == .hudCoinTen else { return false }
+            let bottom = Double(actor.rect.y + actor.rect.w)
+            let left = Double(actor.rect.x)
+            let right = Double(actor.rect.x + actor.rect.z)
+            return bottom <= laidTop + 1 && right > spanA && left < spanB
+        }
+        XCTAssertFalse(over.isEmpty, "coin 3 is drawn over coins 1 and 2, clear of them")
+    }
+    #endif
 
     /// A tap: the coin leaves his hand at once and lands a flight later; the clink comes at the landing.
     func testATapLeavesAtOnceAndLandsAFlightLater() {

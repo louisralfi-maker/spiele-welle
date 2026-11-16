@@ -128,10 +128,16 @@ struct PayCount: Sendable, Equatable {
     static let riseSeconds = 0.1
     /// The first coin, while holding, lands this long after the touch.
     static let firstCoin = 0.3
-    /// Step 2 (the critic's blocker): every coin flies from the lord's hand to its hollow in this long, so a held coin
-    /// leaves his hand a flight before its moment and lands on it, and a tapped coin leaves at once and lands a flight
-    /// later; the clink and the tick come at the landing. With the gaps down to 0.05 s at most two are in the air.
-    static let flight = 0.1
+    /// Step 2 (the critic's blocker): every coin flies from the lord's hand to its hollow, so a held coin leaves his
+    /// hand a flight before its moment and lands on it, and a tapped coin leaves at once and lands a flight later; the
+    /// clink and the tick come at the landing. Step 3 (the director's call 1): the flight goes by the hollow's distance
+    /// (`flights`, from the model), from `flight` for the near hollow up to `flightFar` for the far one, and a held
+    /// coin's flight is cut so that it leaves no sooner than the coin two before it lands: at most two in the air at the
+    /// fastest rate, and every landing on its moment. `flight` is also the flight of a count made without distances.
+    static let flight = 0.11
+    static let flightFar = 0.16
+    /// The shortest a cut flight gets (the hold's gaps never fall under 0.05 s, so two gaps leave at least 0.1 s).
+    static let flightShortest = 0.05
     /// After its landing a coin settles its last 3 px over this long, then squashes by a pixel for this long.
     static let settleSeconds = 0.06
     static let squashSeconds = 0.03
@@ -234,10 +240,14 @@ struct PayCount: Sendable, Equatable {
     let offer: PayOffer
     let price: Int
     let coins: [PayCoin]
+    /// Each hollow's planned flight from the lord's hand (step 3: by its distance; empty: `flight` for all).
+    let flights: [Double]
     /// Seconds since the touch that brought the board.
     private(set) var time: Double
-    /// Coins that left the lord's hand, and the second each left (`launched.count - placed` are in the air).
+    /// Coins that left the lord's hand, and the second each left (`launched.count - placed` are in the air), and the
+    /// second each lands.
     private(set) var launched: [Double] = []
+    private(set) var arrivals: [Double] = []
     /// Coins on the board, and the second each landed.
     private(set) var placed = 0
     private(set) var landed: [Double] = []
@@ -266,12 +276,13 @@ struct PayCount: Sendable, Equatable {
     private(set) var over = false
 
     /// A count for `thing`, made at `time` seconds after its touch (0 for a tap; `boardDelay` for a hold that brought
-    /// it), the finger still down when `holding`.
-    init(thing: String, offer: PayOffer, price: Int, time: Double = 0, holding: Bool) {
+    /// it), the finger still down when `holding`; `flights` each hollow's planned flight (empty: `flight`).
+    init(thing: String, offer: PayOffer, price: Int, time: Double = 0, holding: Bool, flights: [Double] = []) {
         self.thing = thing
         self.offer = offer
         self.price = max(0, price)
         coins = PayCount.hollows(price: price)
+        self.flights = flights
         self.time = time
         lastTouch = time
         self.holding = holding
@@ -332,8 +343,28 @@ struct PayCount: Sendable, Equatable {
 
     /// Coin `index` in the air from the lord's hand: 0 just left ... 1 landing (nil when it is not in the air).
     func flightShare(_ index: Int) -> Double? {
-        guard index >= placed, index < launched.count else { return nil }
-        return min(1, max(0, (time - launched[index]) / PayCount.flight))
+        guard index >= placed, index < launched.count, index < arrivals.count else { return nil }
+        let span = arrivals[index] - launched[index]
+        guard span > 1e-9 else { return 1 }
+        return min(1, max(0, (time - launched[index]) / span))
+    }
+
+    /// The flight planned for hollow `index` (by its distance from the lord's hand).
+    func plannedFlight(_ index: Int) -> Double {
+        index >= 0 && index < flights.count ? flights[index] : PayCount.flight
+    }
+
+    /// The flight of coin `index` when it is to land at `landing`: its planned flight, cut so that it leaves no sooner
+    /// than the coin two before it lands (at most two in the air), never under `flightShortest`.
+    func launchFlight(_ index: Int, landing: Double) -> Double {
+        var flight = plannedFlight(index)
+        if index >= 2, index - 2 < arrivals.count { flight = min(flight, landing - arrivals[index - 2]) }
+        return max(PayCount.flightShortest, flight)
+    }
+
+    /// How long coin `index` flies (nil before it left).
+    func flightSeconds(_ index: Int) -> Double? {
+        index >= 0 && index < launched.count && index < arrivals.count ? arrivals[index] - launched[index] : nil
     }
 
     /// Coins in the air now.
@@ -445,25 +476,28 @@ struct PayCount: Sendable, Equatable {
                 if atOnce {
                     // VoiceOver's double tap: every coin at once, each landing now (no flight).
                     while launched.count < coins.count && result == nil && !pendingShort {
-                        launch(gold: gold, at: time - PayCount.flight, beats: &beats)
+                        launch(gold: gold, at: time, arrival: time, beats: &beats)
                         land(&beats)
                     }
                 } else {
-                    // Queued taps first, a coin leaving his hand at most every `queueGap`.
-                    if queued > 0 && launched.count < coins.count {
+                    // Queued taps first, a coin leaving his hand at most every `queueGap` and only while fewer than two
+                    // are in the air; it lands its flight later, never before the coin ahead of it.
+                    if queued > 0 && launched.count < coins.count && inFlight < 2 {
                         let last = launched.last ?? -1
                         if time - last >= PayCount.queueGap {
                             queued -= 1
-                            launch(gold: gold, at: time, beats: &beats)
+                            let arrival = max(time + plannedFlight(launched.count), (arrivals.last ?? -1) + 0.02)
+                            launch(gold: gold, at: time, arrival: arrival, beats: &beats)
                             if holding, result == nil, !pendingShort, launched.count < coins.count {
-                                due = time + PayCount.flight + nextDelay(fresh: false)
+                                due = (arrivals.last ?? time) + nextDelay(fresh: false)
                             }
                         }
                     }
                     // A hold: each coin leaves a flight before its moment, so it lands on it.
                     while result == nil, !pendingShort, holding, launched.count < coins.count, let next = due,
-                          time >= next - PayCount.flight {
-                        launch(gold: gold, at: next - PayCount.flight, beats: &beats)
+                          time >= next - launchFlight(launched.count, landing: next) {
+                        let flight = launchFlight(launched.count, landing: next)
+                        launch(gold: gold, at: next - flight, arrival: next, beats: &beats)
                         guard result == nil, !pendingShort else { break }
                         pressPlaced += 1
                         due = launched.count < coins.count
@@ -521,9 +555,9 @@ struct PayCount: Sendable, Equatable {
             : PayCount.gap(before: next, count: coins.count)
     }
 
-    /// The next coin leaves the lord's hand at `moment`, if the purse holds it; else no coin leaves, and the count is
-    /// short (once the coins still in the air have landed).
-    private mutating func launch(gold: Int, at moment: Double, beats: inout [PayBeat]) {
+    /// The next coin leaves the lord's hand at `moment` and lands at `arrival`, if the purse holds it; else no coin
+    /// leaves, and the count is short (once the coins still in the air have landed).
+    private mutating func launch(gold: Int, at moment: Double, arrival: Double, beats: inout [PayBeat]) {
         let next = launched.count
         guard next < coins.count else { return }
         let value = coins.prefix(next + 1).reduce(0) { $0 + $1.value }
@@ -539,6 +573,7 @@ struct PayCount: Sendable, Equatable {
             return
         }
         launched.append(moment)
+        arrivals.append(max(moment, arrival))
         lastTouch = time
         if launched.count == coins.count {
             holding = false
@@ -549,8 +584,8 @@ struct PayCount: Sendable, Equatable {
 
     /// The coins whose flight is over land in their hollows, each on its own moment; the last one brings the seal.
     private mutating func land(_ beats: inout [PayBeat]) {
-        while placed < launched.count, time >= launched[placed] + PayCount.flight - 1e-9 {
-            let moment = min(time, launched[placed] + PayCount.flight)
+        while placed < launched.count, placed < arrivals.count, time >= arrivals[placed] - 1e-9 {
+            let moment = min(time, arrivals[placed])
             landed.append(moment)
             placed += 1
             lastTouch = time
@@ -741,8 +776,8 @@ enum PayFreeze: Sendable, Equatable {
         case .back:
             return (count.slideShare ?? 0) >= 0.5
         case .flight(let coin, let share):
-            guard coin < count.launched.count else { return false }
-            return count.time >= count.launched[coin] + share * PayCount.flight - 1e-9
+            guard coin < count.launched.count, let span = count.flightSeconds(coin) else { return false }
+            return count.time >= count.launched[coin] + share * span - 1e-9
         }
     }
 
@@ -751,11 +786,12 @@ enum PayFreeze: Sendable, Equatable {
     func room(_ count: PayCount) -> Double? {
         switch self {
         case .flight(let coin, let share):
-            if coin < count.launched.count {
-                return max(0, count.launched[coin] + share * PayCount.flight - count.time)
+            if coin < count.launched.count, let span = count.flightSeconds(coin) {
+                return max(0, count.launched[coin] + share * span - count.time)
             }
             if coin == count.launched.count, count.holding, count.ready, let due = count.due {
-                return max(0, due - PayCount.flight + share * PayCount.flight - count.time)
+                let span = count.launchFlight(coin, landing: due)
+                return max(0, due - span + share * span - count.time)
             }
             return nil
         case .sealed:

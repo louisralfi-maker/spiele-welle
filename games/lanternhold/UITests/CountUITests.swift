@@ -87,13 +87,14 @@ final class CountUITests: XCTestCase {
         }
     }
 
-    /// Step 2 (the critic's blocker): one coin of a hold (the second, so the first lies in its hollow) frozen at three
-    /// points of its flight from the lord's hand and just after it landed and settled.
+    /// Step 2 (the critic's blocker), step 3 (the director's call 1): one coin of a hold (the third, so coins 1 and 2 lie
+    /// in their hollows and it is seen passing over them) frozen at three points of its throw from the lord's hand and
+    /// just after it landed and settled.
     func testAHeldCoinFlies() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        for (name, share) in [("176a-count-hold-fly-20", "0.2"), ("176b-count-hold-fly-50", "0.5"),
-                              ("176c-count-hold-fly-80", "0.8"), ("176d-count-hold-landed", "1.95")] {
-            let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", "fly:1:\(share)"], name: name)
+        for (name, share) in [("176a-count-hold-coin3-fly-20", "0.2"), ("176b-count-hold-coin3-fly-50", "0.5"),
+                              ("176c-count-hold-coin3-fly-80", "0.8"), ("176d-count-hold-coin3-landed", "1.95")] {
+            let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", "fly:2:\(share)"], name: name)
             guard let app else { continue }
             if let gate = waitForThing(app, "touch-plot-0", timeout: 3) {
                 gate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 1.2)
