@@ -1883,10 +1883,21 @@ enum FrameBuilder {
     static let emberShare = (day: 0.25, night: 1.0 / 3)
     static let emberLife = (day: 1.0 / 3, night: 0.45)
     static let emberBig = (day: 0.15, night: 0.30)
-    static let emberGold = SIMD3<Float>(1.0, 0.70, 0.22)
-    static let emberColor = SIMD3<Float>(1.0, 0.54, 0.165)
+    /// Gate fix (round lh-b3w-42: ten embers in the night sky, three fire pixels): the night's grade in rain keeps
+    /// about 0.57 of a colour's saturation (pulling blue up toward the luma, which green rules) and tints it cold, so the
+    /// fire is low in green and has almost no blue, a little stronger, and its body (under the point, on the near and
+    /// the lane's planes) fades as the light does (1 - life², `emberBodyAlpha`): it hides the blue sky behind the
+    /// point while the point burns, and the light always outweighs what the body takes from the sky, so the pixel is
+    /// never darker than the sky around it.
+    static let emberGold = SIMD3<Float>(1.0, 0.48, 0.02)
+    static let emberColor = SIMD3<Float>(1.0, 0.34, 0.02)
     static let emberRed = SIMD3<Float>(0.62, 0.09, 0.03)
-    static let emberGlow: Float = 0.9
+    static let emberGlow: Float = 1.3
+    /// The ember body's alpha at `life` (0 born ... 1 out), under the ash's cap: it fades as the light does.
+    static func emberBodyAlpha(life: Float) -> Float {
+        let t = max(0, min(1, life))
+        return min(ashAlphaCap, 1 - t * t)
+    }
     static let emberBody = SIMD3<Float>(0.85, 0.28, 0.12)
     /// The ember's frames: its body by day (one pixel, two by two), its glass point (one pixel, two by two).
     static let emberFrames = (body: 12, bigBody: 13, point: 14, bigPoint: 15)
@@ -2007,7 +2018,7 @@ enum FrameBuilder {
                 let age = Float(share / life)
                 let large = Double(age) < big
                 let heat = emberHeat(life: age) * (emberGlow * fade)
-                let shown = min(ashAlphaCap, 1 - age) * fade * (entry.plane == .foreground ? day : 1)
+                let shown = emberBodyAlpha(life: age) * fade * (entry.plane == .foreground ? day : 1)
                 if shown > 0.01 {
                     list.append(SpriteInstance(sprite: .ashFlake,
                                                frame: large ? emberFrames.bigBody : emberFrames.body, rect: rect,

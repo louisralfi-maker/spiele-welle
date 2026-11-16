@@ -472,6 +472,10 @@ final class RainLookTests: XCTestCase {
                 if c.x >= 2 * c.z && luma(c) > beside + 0.02 {
                     fire += 1
                 }
+                // In thousandths: the point's colour, the drawn pixel, its luma and the sky's beside it.
+                let heat = [point.color.x, point.color.y, point.color.z].map { Int($0 * 1000) }
+                let drawn = [c.x, c.y, c.z, luma(c), beside].map { Int($0 * 1000) }
+                print("NIGHTEMBER \(point.plane) frame \(point.frame) heat \(heat) drawn rgb, luma, beside \(drawn)")
             }
         }
         // The grey flakes of the lane's depth, whole (not fading in the band, not an ember's), east of the bank's sheet,
