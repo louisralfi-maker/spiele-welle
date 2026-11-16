@@ -174,11 +174,15 @@ GUST_TONES = [  # lit edge, body, vein, shadow side
     ((120, 144, 78, 255), (79, 106, 60, 255), (34, 52, 40, 255), (53, 78, 48, 255)),      # leafLight, meadow, leafDark, leaf
     ((166, 138, 84, 255), (138, 99, 64, 255), (102, 66, 47, 255), (102, 66, 47, 255)),    # straw, woodLight, wood, wood
 ]
-GUST_LEAF = [  # an almond leaf on the diagonal, its vein through it to the stem, its lower edge in shadow
-    ["...LL.", "..LBBL", ".LBVBD", ".BVBD.", "VDD..."],
-    ["......", "...LL.", "..LVBD", ".BVDD.", "V....."],
-    ["......", "......", ".LLLL.", ".BBBD.", "......"],
-    [".LL...", "LBBLL.", ".BVBBV", "..DDD.", "......"],
+# Step 6 (b3-wind, the director's call S3 of 16.11. 12:25: "a leaf is 2 x 2 or 3 x 2 px in the two lightest tones of
+# the crown it leaves, with a 1 px darker underside, and flips between two frames"; proven over the live town frame in
+# ci-out/director/b3/wind/s6/00-smoke-leaves-python.png): frames 0 and 1 a 3 x 2 leaf and its flip, 2 and 3 a 2 x 2 leaf
+# and its flip; the top row in the lit edge and the body, the lower row the shadow side. The vein is no longer drawn.
+GUST_LEAF = [
+    ["......", "......", ".LLB..", ".BDD..", "......"],
+    ["......", "......", ".BLL..", ".DDB..", "......"],
+    ["......", "......", ".LB...", ".DD...", "......"],
+    ["......", "......", ".BL...", ".DB...", "......"],
 ]
 GUST_DUST = [
     ["......", "......", "......", ".p.s..", "s.p.s."],

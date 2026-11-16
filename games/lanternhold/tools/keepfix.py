@@ -24,7 +24,7 @@ reproduces its files byte for byte):
         flagstones receding to a lit far wall, a pillar, the hearth's glow the brightest point high in the middle
   hallDoorWedge     60x19    emissive: the door's wedge of light over the steps and the cobbles, the door's width at
         the threshold to 2.5 times it 12 rows out, smooth alpha so the stones show through
-  smokePuff         8x8 (5 frames)  a puff of chimney smoke at five sizes, 3 to 7 px (high 3; fix round 2)
+  smokePuff         8x8 (5 frames)  a puff of chimney smoke at four sizes, 2 to 5 px, and the mouth's pixel (b3-wind)
   curtainB          64x74    the curtain's blocked arch as a recess in shadow (high 6)
   posternT1..T3     176x112 (T3 176x124 since build 3: its flag's pole)  the postern's passage with depth (high 4): jamb shadow, the vault, a lit far end and
         cobbles that recede
@@ -960,33 +960,35 @@ def hall_door_wedge():
 
 
 PUFF = 8                                             # a puff frame's side
-PUFF_SIZES = (3, 4, 5, 6, 7)                         # fix round 2 (high 4): puffs grow from 3 to 7 px as they rise
+# b3-wind: build 3 step 6 (the director's call S1 of 16.11. 12:25: "round puffs, not a line"; proven over the live
+# frames in ci-out/director/b3/wind/s6/00-smoke-leaves-python.png): four opaque puffs of 2, 3, 4 and 5 px, each in two
+# values (a white body and a one-pixel darker, cooler underside), so a puff reads on the rock and on the sky; the
+# engine's tint gives the hour's colour and the alpha fades it in steps. Frame 4 is one white pixel: the chimney mouth's
+# warm pixel at night (a glow quad, column 3). Every puff stands on the cell's bottom row, centred in it (an odd size
+# half a pixel left).
+PUFF_SHAPES = [
+    ["LL", "DD"],
+    [".LL", "LLL", ".DD"],
+    [".LL.", "LLLL", "DLLL", ".DD."],
+    [".LLL.", "LLLLL", "LLLLL", "DLLLD", ".DDD."],
+    ["L"],
+]
+PUFF_BODY = (255, 255, 255, 255)
+PUFF_UNDER = (182, 186, 205, 255)
 
 
 def smoke_puff():
-    """A puff of chimney smoke at five sizes (frames 8 px square, 3 to 7 px across): a soft lumpy blob, denser in its
-    heart and toward its upper left, its rim broken in half alpha; white, so the engine's tint gives it the hour's
-    value. Overlapping as they rise, the growing puffs merge into one plume."""
-    out = PA.Image(PUFF * len(PUFF_SIZES), PUFF)
-    for f, size in enumerate(PUFF_SIZES):
-        rad = size / 2.0
-        cx = (PUFF - 1) / 2.0
-        cy = (PUFF - 1) / 2.0 + 0.3
-        for y in range(PUFF):
-            for x in range(PUFF):
-                ang = math.atan2(y - cy, x - cx)
-                lump = 0.35 * math.sin(3 * ang + f * 1.3) + 0.2 * math.sin(5 * ang + 0.7 * f)
-                d = math.hypot(x - cx, y - cy) - lump * min(1.0, rad / 2.5)
-                if d <= rad - 1.0:
-                    heart = 1.0 - 0.18 * max(0.0, (x - cx) + (y - cy)) / max(1.0, rad)
-                    a = int(255 * max(0.7, heart))
-                elif d <= rad - 0.2:
-                    a = 150
-                elif d <= rad + 0.4 and (x + y + f) % 2 == 0:
-                    a = 80
-                else:
-                    continue
-                out.set(f * PUFF + x, y, (255, 255, 255, a))
+    """A puff of chimney smoke at four sizes (frames 8 px square, 2 to 5 px across) and the mouth's pixel (b3-wind,
+    step 6): hard pixel puffs with a light body and a darker underside, no soft alpha rim."""
+    out = PA.Image(PUFF * len(PUFF_SHAPES), PUFF)
+    for f, rows in enumerate(PUFF_SHAPES):
+        n = len(rows[0])
+        x0 = (PUFF - n) // 2
+        y0 = PUFF - len(rows)
+        for y, row in enumerate(rows):
+            for x, ch in enumerate(row):
+                if ch != ".":
+                    out.set(f * PUFF + x0 + x, y0 + y, PUFF_BODY if ch == "L" else PUFF_UNDER)
     return out
 
 
