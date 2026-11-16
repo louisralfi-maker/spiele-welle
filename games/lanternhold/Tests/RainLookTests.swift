@@ -1,3 +1,4 @@
+import Metal
 import XCTest
 @testable import Lanternhold
 
@@ -97,7 +98,7 @@ final class RainLookTests: XCTestCase {
         XCTAssertLessThan(ash.count, FrameBuilder.ashDepths.map { $0.count }.reduce(0, +) + 1, "few")
         for flake in ash {
             XCTAssertLessThan(Double(flake.rect.x) + gorge.lane, gorge.seam, "never east of the wall")
-            XCTAssertLessThan(flake.tint.w, 0.5, "no flake is a ledge")
+            XCTAssertLessThanOrEqual(flake.tint.w, FrameBuilder.ashAlphaCap + 1e-6, "under the ash's own cap")
         }
         for streak in sprites(gorge, .rainStreak) {
             XCTAssertGreaterThan(Double(streak.rect.x) + gorge.lane, gorge.seam - RainLook.band - 1,
@@ -106,11 +107,18 @@ final class RainLookTests: XCTestCase {
         for splash in sprites(gorge, .rainSplash) {
             XCTAssertGreaterThan(Double(splash.rect.x) + gorge.lane, gorge.seam - RainLook.band - 1, "ash never splashes")
         }
-        // Each depth its own size of flake.
+        // Each depth its own size of flake (by day: at night the near depth stays out of the bank, which stands at 500
+        // on night 12); an ember's point is frame 12 or 13.
+        let noon = GameFrameSupport.demoDay(hour: 12)
+        let dayGorge = shot(noon, focus: 300, weather: weather(noon, WeatherOverride(mode: .storm)))
         for (depth, entry) in FrameBuilder.ashDepths.enumerated() {
-            let flakes = sprites(gorge, .ashFlake, entry.plane)
+            let flakes = sprites(dayGorge, .ashFlake, entry.plane)
             XCTAssertFalse(flakes.isEmpty, "depth \(depth)")
-            XCTAssertTrue(flakes.allSatisfy { $0.frame / 4 == entry.size }, "depth \(depth)")
+            XCTAssertTrue(flakes.allSatisfy { $0.frame >= 12 || $0.frame / 4 == entry.size }, "depth \(depth)")
+        }
+        // Step 3 (the critic's H1 (c)): no flake of the near depth is drawn dark into the bank.
+        for flake in sprites(gorge, .ashFlake, .near) {
+            XCTAssertGreaterThanOrEqual(flake.rect.x, gorge.desc.bankEdge + Float(FrameBuilder.ashBankFace) - 1)
         }
         XCTAssertLessThan(FrameBuilder.ashDepths.map { $0.speed }.max() ?? 0,
                           (FrameBuilder.rainDepths.map { $0.speed }.min() ?? 0) / 4, "ash falls far slower than rain")
@@ -217,32 +225,66 @@ final class RainLookTests: XCTestCase {
     }
 
     func testReduceMotionHoldsTheirForms() {
-        let s = GameFrameSupport.demoNight(hour: 23.2)
+        // Step 3 (the director's call 5): neither rain hangs frozen in the air. A third of the streaks, flakes and
+        // splashes stand where they are (no travel: the same places at every moment) and each fades in and out in place.
+        let s = GameFrameSupport.demoDay(hour: 12)
         func held(_ focus: Double, _ time: Double) -> Shot {
             shot(s, focus: focus, weather: weather(s, WeatherOverride(mode: .storm), time: time, reduceMotion: true),
                  time: time, reduceMotion: true)
         }
+        func places(_ shot: Shot, _ sprite: SpriteID) -> [SIMD4<Float>] {
+            sprites(shot, sprite).map(\.rect)
+        }
         for focus in [300.0, 1000] {
             let a = held(focus, 1.5)
-            let b = held(focus, 4.25)
+            let b = held(focus, 2.25)
             for sprite in [SpriteID.rainStreak, .rainSplash, .ashFlake] {
-                XCTAssertEqual(sprites(a, sprite), sprites(b, sprite), "\(sprite) at \(focus) stands")
+                XCTAssertEqual(places(a, sprite), places(b, sprite), "\(sprite) at \(focus) stays in place")
             }
+            let fading = zip(sprites(a, .rainStreak) + sprites(a, .ashFlake), sprites(b, .rainStreak) + sprites(b, .ashFlake))
+            XCTAssertTrue(fading.contains { abs($0.0.tint.w - $0.1.tint.w) > 0.05 }, "they fade in and out at \(focus)")
         }
-        XCTAssertGreaterThan(sprites(held(300, 1.5), .ashFlake).count, 30, "the ash's forms stay")
-        XCTAssertGreaterThan(sprites(held(1000, 1.5), .rainStreak).count, 100, "the rain's forms stay")
+        let town = held(1000, 1.5)
+        let all = FrameBuilder.rainDepths.map { $0.count }.reduce(0, +)
+        XCTAssertEqual(Double(sprites(town, .rainStreak).count), Double(all) / 3, accuracy: 4, "a third of the rain")
+        XCTAssertGreaterThan(sprites(held(300, 1.5), .ashFlake).count, 12, "the ash's forms stay")
     }
 
-    func testAshReadsByDayAndByNightAndLightsKeepTheirWarmth() {
-        let noon = GameFrameSupport.demoDay(hour: 12)
+    func testTheLightsKeepTheirWarmthAndTheEmbersDieEarly() {
         let night = GameFrameSupport.demoNight(hour: 23.2)
-        let dayAsh = sprites(shot(noon, focus: 300, weather: weather(noon, WeatherOverride(mode: .storm))), .ashFlake)
-        let nightAsh = sprites(shot(night, focus: 300, weather: weather(night, WeatherOverride(mode: .storm))),
-                               .ashFlake)
-        XCTAssertFalse(dayAsh.isEmpty)
-        XCTAssertFalse(nightAsh.isEmpty)
-        XCTAssertTrue(dayAsh.allSatisfy { $0.tint.x < 0.4 }, "dark against a pale day")
-        XCTAssertTrue(nightAsh.allSatisfy { $0.tint.x > 0.8 }, "pale against the night")
+        // Step 3 (the director's idea): about one flake in six is born an ember, an orange point in the emissive pass
+        // for the first third of its fall, and never one lower down.
+        let storm = weather(night, WeatherOverride(mode: .storm))
+        var embers = 0
+        var flakes = 0
+        for index in 0..<8 {
+            let time = 2 + Double(index) * 3.1
+            let gorge = shot(night, focus: 300, weather: weather(night, WeatherOverride(mode: .storm), time: time),
+                             time: time)
+            let points = gorge.desc.emissives.filter { $0.sprite == .ashFlake && $0.frame >= 12 }
+            embers += points.count
+            flakes += sprites(gorge, .ashFlake).filter { $0.frame < 12 }.count
+            for point in points {
+                XCTAssertGreaterThan(point.color.x, point.color.z * 3, "orange, not grey")
+                let entry = FrameBuilder.ashDepths.first { $0.plane == point.plane }
+                let floor = point.plane == .foreground ? Float(gorge.desc.targetHeight)
+                                                       : Float(gorge.desc.groundRow)
+                XCTAssertNotNil(entry)
+                XCTAssertLessThan(point.rect.y, floor * 0.4, "an ember dies in the first third of its fall")
+            }
+        }
+        XCTAssertGreaterThan(embers, 0, "embers fall")
+        XCTAssertLessThan(Double(embers), Double(flakes) / 6 + 8, "a few")
+        XCTAssertEqual((0..<6000).filter { FrameBuilder.isEmber(key: 77, index: $0) }.count, 1000, accuracy: 90)
+        // At night each flake has its faint pale copy in the emissive pass; by day none.
+        let nightGorge = shot(night, focus: 300, weather: storm)
+        let copies = nightGorge.desc.emissives.filter { $0.sprite == .ashFlake && $0.frame < 12 }
+        XCTAssertFalse(copies.isEmpty)
+        XCTAssertTrue(copies.allSatisfy { $0.color.x <= FrameBuilder.ashNightGlow + 1e-4 }, "never a glow")
+        let noon = GameFrameSupport.demoDay(hour: 12)
+        let dayGorge = shot(noon, focus: 300, weather: weather(noon, WeatherOverride(mode: .storm)))
+        XCTAssertTrue(dayGorge.desc.emissives.filter { $0.sprite == .ashFlake }.allSatisfy { $0.frame >= 12 },
+                      "by day only the embers glow")
         // The rain never greys a window: the glass glows as in dry air.
         let dry = shot(night, focus: 2900, weather: .clear)
         let wet = shot(night, focus: 2900, weather: weather(night, WeatherOverride(mode: .clear, rain: 1)))
@@ -257,6 +299,74 @@ final class RainLookTests: XCTestCase {
         let added = wet.desc.counts.instances - dry.desc.counts.instances
         let old = FrameBuilder.rainDepths.map { $0.count }.reduce(0, +) + FrameBuilder.rainSplashCount
         XCTAssertGreaterThan(sprites(wet, .rainSplash).count, FrameBuilder.rainSplashCount, "splashes on the ridges")
-        XCTAssertLessThanOrEqual(added, old + 8 + 12, "at most the old rain, its steam and the ridges' splashes")
+        XCTAssertLessThanOrEqual(added, old + 8 + 16 + 2 * FrameBuilder.rainLiftCap,
+                                 "at most the old rain, its steam, the ridges' splashes and the night's lift near lights")
+        // Step 3 (the director's call 2): at night the rain near a light has its faint cool copy.
+        XCTAssertGreaterThan(wet.desc.emissives.filter { $0.sprite == .rainStreak }.count, 0, "the rain is seen at night")
+    }
+
+    /// Step 3 (the director's call 6): a look is tested on the drawn pixel, never on the tint that goes in. Rendered
+    /// offscreen like `Look2FrameTests.testLookTwoRenders`: at a flake of the lane's depth in the upper sky its drawn
+    /// luma against the pixel three game pixels beside its cell differs by at least 40 (of 255): pale at night, dark at
+    /// noon; at noon a lane streak is lighter than the sky beside it.
+    func testTheTwoRainsReadOnTheDrawnPixel() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let night = GameFrameSupport.demoNight(hour: 22)
+        let noon = GameFrameSupport.demoDay(hour: 12)
+        let rain = WeatherOverride(mode: .clear, wind: 0.35, rain: 1)
+        let cases: [(name: String, state: GameState, focus: Double, sprite: SpriteID, sign: Float, least: Float)] = [
+            ("ash at night, the band", night, 520, .ashFlake, 1, 40),
+            ("ash at night, the gorge", night, 300, .ashFlake, 1, 40),
+            ("ash at noon, the band", noon, 480, .ashFlake, -1, 40),
+            ("water at noon, the town", noon, 2900, .rainStreak, 1, 24),
+        ]
+        for item in cases {
+            let frame = shot(item.state, focus: item.focus, weather: weather(item.state, rain)).desc
+            let picture = try renderer.renderOffscreen(frame, settings: settings)
+            let found = RainLookTests.contrasts(frame, picture, sprite: item.sprite, sign: item.sign)
+            print("RAINLOOK \(item.name): \(found.count) in the sky, contrasts \(found.map { Int($0) })")
+            XCTAssertGreaterThanOrEqual(found.count, 5, "\(item.name): enough in the upper sky")
+            guard !found.isEmpty else { continue }
+            let median = found.sorted()[found.count / 2]
+            XCTAssertGreaterThanOrEqual(median, item.least, "\(item.name): the drawn contrast (median of \(found.count))")
+        }
+    }
+
+    /// The drawn contrasts of the lane plane's `sprite`s whose cells lie wholly in the upper sky (above the ground's
+    /// last 50 rows), embers and faded flakes left out: `sign` × (the cell's extreme luma − the mean of the pixels
+    /// three game pixels left of it and right of it at its middle row), × 255.
+    private static func contrasts(_ frame: FrameDesc, _ picture: Renderer.Snapshot, sprite: SpriteID,
+                                  sign: Float) -> [Float] {
+        let s = frame.scale
+        let shift = frame.layer(.world).offset.deviceShift
+        func luma(_ column: Int, _ row: Int) -> Float {
+            let x = column * s - shift + s / 2
+            let y = picture.height - (frame.targetHeight - row) * s + s / 2
+            let c = picture.color(x: x, y: y)
+            return 0.2126 * c.x + 0.7152 * c.y + 0.0722 * c.z
+        }
+        var found: [Float] = []
+        for item in frame.layer(.world).sprites where item.sprite == sprite && item.frame < 12 && item.tint.w > 0.4 {
+            let left = Int(item.rect.x)
+            let top = Int(item.rect.y)
+            let width = Int(item.rect.z)
+            let height = Int(item.rect.w)
+            guard left >= 4, left + width + 4 < frame.targetWidth, top >= 2,
+                  top + height < frame.groundRow - 50 else { continue }
+            var extreme = sign > 0 ? -Float.infinity : Float.infinity
+            for row in top..<(top + height) {
+                for column in left..<(left + width) {
+                    let value = luma(column, row)
+                    extreme = sign > 0 ? max(extreme, value) : min(extreme, value)
+                }
+            }
+            let middle = top + height / 2
+            let beside = (luma(left - 3, middle) + luma(left + width + 2, middle)) / 2
+            found.append(sign * (extreme - beside) * 255)
+        }
+        return found
     }
 }

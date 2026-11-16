@@ -133,7 +133,8 @@ enum PlaceholderWeather {
         return p.image
     }
 
-    /// The splash where a drop meets the lane: a drop, a small crown, the crown thrown wide.
+    /// The splash where a drop meets the lane: a drop, then (build 3 step 3, the critic's M5) two pale pixels flying up
+    /// and out of a small crown (a "v"), then the two falling back wide.
     static func rainSplash(_ frame: Int) -> PixelImage {
         var p = Painter(SpriteID.rainSplash.size, salt: 0)
         switch frame {
@@ -141,14 +142,13 @@ enum PlaceholderWeather {
             p.put(2, 1, drop)
             p.put(2, 2, drop)
         case 1:
-            p.put(1, 1, drop)
-            p.put(3, 1, drop)
-            p.put(2, 2, tail)
+            p.put(0, 0, drop)
+            p.put(4, 0, drop)
+            p.put(1, 1, tail)
+            p.put(3, 1, tail)
         default:
             p.put(0, 1, tail)
             p.put(4, 1, tail)
-            p.put(1, 0, tail)
-            p.put(3, 0, tail)
         }
         return p.image
     }
