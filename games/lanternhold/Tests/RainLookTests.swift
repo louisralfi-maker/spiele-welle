@@ -433,19 +433,22 @@ final class RainLookTests: XCTestCase {
     }
 
     /// Step 4 (the director's call 1 of 07:27, the critic's H1): ash is never snow and the embers carry the night. On
-    /// the drawn pixel of the live night picture (23:00, rain over the band, the Gloom's fog on): at least six pixels of
-    /// the band's sky are fire (r >= 2 b) and brighter than the sky beside them; no pixel of a whole flake of the lane's
-    /// depth in the upper sky (clear of the fog's low strips) has b >= r, and none stands more than a small step over
-    /// the sky (60 of 255: never white).
+    /// the drawn pixel of the live night picture (23:00, rain, the Gloom's fog on): at least six pixels of the ash's sky
+    /// are fire (r >= 2 b) and brighter than the sky beside them; no pixel of a whole flake of the lane's depth in the
+    /// upper sky (clear of the fog's low strips) has b >= r, and none stands more than a small step over the sky (60 of
+    /// 255: never white). The outer wall has fallen (the band at the middle line's wall, world 780-940): with it
+    /// standing, the night's bank (world 500) and the band (world 480-640) leave no whole flake in open air (round
+    /// lh-b3w-41: none, and only four embers in view); this way the open ash between the bank and the band is in view.
     func testTheNightAshIsWarmAndTheEmbersGlowOnTheDrawnPixel() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)
         var settings = RenderSettings()
         settings.time = 1.5
-        let night = GameFrameSupport.demoNight(hour: 23)
+        var night = GameFrameSupport.demoNight(hour: 23)
+        night.plots[Realm.lines[2].wall].isRubble = true
         let rain = WeatherOverride(mode: .clear, wind: 0.35, rain: 1)
         let gloom = GloomFog(night: night.day, fogNight: false)
-        let frame = shot(night, focus: 480, weather: weather(night, rain), gloom: gloom).desc
+        let frame = shot(night, focus: 640, weather: weather(night, rain), gloom: gloom).desc
         let picture = try renderer.renderOffscreen(frame, settings: settings)
         let s = frame.scale
         func color(_ plane: Plane, _ column: Int, _ row: Int) -> SIMD3<Float> {
