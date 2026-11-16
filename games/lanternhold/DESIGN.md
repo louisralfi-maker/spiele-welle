@@ -4615,6 +4615,34 @@ docs/POLISH.md section 2. Everything here is look 2's picture: no rule, no saved
   (every 7 s at most), `shutter_rattle` at a gust's rise in the town (every 11 s), the day's bed × 0.75 to 1.3 by the
   wind. Their hookup into `SoundID`, MANIFEST and `GameModel` is the join's (wave 1: the count lane's files).
 
+Step 4 (16.11.2026, the director's calls of 07:27, a fix round on the step 3 critic): where it differs, it replaces the
+lines above.
+
+- **Ash is never snow** (call 1): at night the flake's sprite is near black (`ashNightShade` 0.04, 0.035, 0.03) and
+  hides the blue sky behind it; its emissive copy, `ashNightWarm` (1, 0.5, 0) × 0.28 × the night's share (1.2 on the
+  near depth, under the haze), comes out of the glow quad about 1 : 0.8 : 0.6, a warm ash grey a small step over the
+  sky. The foreground's flakes fade out with the day (it is drawn over the emissive pass) and have no copy.
+- **The embers carry the night**: one flake in four by day, one in three at night (`emberShare`, by its index); a life
+  of a third of the fall by day and 0.45 at night; a 2 x 2 point for its first 15 % by day and 30 % at night, then one
+  pixel; fire gold (a deep one), the torch's orange, a deep red, then nothing, its strength 1 − life² (`emberHeat`).
+  The point is a glass quad (`ashFlake` frames 15 and 14 in the glass ink; source the whole 5 x 5 cell), so its colour
+  arrives as it is. Its body (frames 13 and 12) lies under the point on the near and the lane's planes (it hides the
+  blue sky behind those pixels and fades faster than the light) and takes the day's share on the foreground. None
+  under Reduce Motion. Proof on the drawn pixel at 23:00 with the Gloom's fog on (`RainLookTests`).
+- **The vane** (H2): a 13 x 11 arrow (a triangular head, a notched swallowtail fin, no crossbar, a ball on the rod, a
+  pale lit top edge) on the great roof's west slope (col 136 of the keep's sprite), where the sky stands behind it from
+  the keep's set piece camera, clear of the great flag flying west.
+- **The gust** (H3): a lift of 20 to 40 px over the first 0.6 s, then a sink of 3 px/s; each slot its own pace (0.7 to
+  1.3) and bob (3 to 6 px at its own rate); half straw; a 6 x 5 almond leaf with a pale lit edge; 10 on a gusty day, 18
+  in a storm (two in three aloft between its gusts); a storm's hard rise of the gust (`Weather.sinceGustRose`) lets 4
+  to 6 leaves of one crown go within 0.3 s (`FrameBuilder.gustBurst`).
+- **Small ones**: by day the lane's streaks wholly above the treeline fall at 0.65 (`rainSkyDayAlpha`; the 0.49 cap
+  stays on the ground); a bent flame's pixels each stand on one below them; the banner's dusk rim takes only the
+  inner of a two-pixel lit edge; `FrameBudgetTests` has a storm's rain at 22:00 with the band in view, in look 2,
+  against the hard budget (1,500 instances, 64 lights).
+- **For the join**: the pale wisps with a bright foot over the town are build 2's back-row chimney smoke (world-3 M4:
+  `CastleSmoke.puffs` and `glow`, `FrameBuilder.castleSmoke`, `SceneLayout.castleChimney` with `townRowChimney`).
+
 ## Risks
 
 | Risk | What we do |
