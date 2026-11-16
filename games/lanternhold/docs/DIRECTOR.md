@@ -1113,3 +1113,8 @@ schneller geht."
   - Step 9 is green (claude/lh-b3-horde 3b932dc6, round lh-b3h-91, first round).
   - The body is placed by the step count that picks the walk frame, so a planted hand stands; whole strides, a phase by hash between neighbours, an ease over the last stride before a stop.
   - Carried to wave 3: the climber's sideways jump, a kill in mid-walk, no ease when guards stop holding.
+
+- **The count's sketch judged: the counter is picked (16.11.2026, 16:09).**
+  - Two forms were drawn in python from the lane's art before any Swift: A, the counter (the tally board rises on the ground where the trestles stood, both models stand on its cap), and B, the stall (the board hangs on posts over the trestles).
+  - A is picked. It is compact, the redrawn catapult can be named, and seven hollows against eleven read as cheaper against dearer. B reaches into the banner and its three-row board dominates the wall.
+  - Calls for the build: the lord's spot may shift 15 px at a model plot (14 elsewhere); the coin's peak clears the models by 2 px; the catapult's counter may stand taller than the lord; the model not chosen keeps its ink edge so it can still be named.
