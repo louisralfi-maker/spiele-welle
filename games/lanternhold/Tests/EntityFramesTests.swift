@@ -785,18 +785,27 @@ final class EntityFramesTests: XCTestCase {
                 }
                 // step 7 (the director's call 4): the fall is drawn from the ash giant's children, the shroud folding
                 // down over the arms with the giant's cloth on top: in two or more columns the first pixel under the
-                // outline is the cloth (warmer than blue)
+                // outline (and under the pale edge) is the cloth (warmer than blue); (his call 8, H4) on the first two
+                // frames the slump's upper edge is pale, the moon's grey (stone), in three columns or more
                 var clothTop = 0
+                var paleTop = 0
                 for x in 0..<cell.width {
+                    if let y = (0..<cell.height).first(where: { fall[frame * cell.width + x, $0].a > 0 }),
+                       fall[frame * cell.width + x, y] == RGBA(0x5E6170) {
+                        paleTop += 1
+                    }
                     let first = (0..<cell.height).first { y in
                         let c = fall[frame * cell.width + x, y]
-                        return c.a > 0 && c != RGBA(0x0A1124)
+                        return c.a > 0 && c != RGBA(0x0A1124) && c != RGBA(0x5E6170)
                     }
                     if let y = first, Int(fall[frame * cell.width + x, y].r) > Int(fall[frame * cell.width + x, y].b) {
                         clothTop += 1
                     }
                 }
                 XCTAssertGreaterThanOrEqual(clothTop, 2, "\(body) fall frame \(k): the cloth folds down on top")
+                if k < 2 {
+                    XCTAssertGreaterThanOrEqual(paleTop, 3, "\(body) fall frame \(k): the slump's edge is pale")
+                }
                 if k < 2 {
                     XCTAssertGreaterThanOrEqual(cell.height - top, half,
                                                 "\(body) fall frame \(k): a slump of at least half its height")
@@ -830,6 +839,48 @@ final class EntityFramesTests: XCTestCase {
             let values: [Int] = px.map { luma($0) }
             XCTAssertLessThan(values.min() ?? 0, values.max() ?? 0, "flake \(k): one pixel a step darker at its core")
         }
+    }
+
+    func testAKillReadsInTheLiveCrowd() {
+        // Step 7 (the director's call 8 of 16.11.2026 12:02, the critic's H4): in a crowd the fall is drawn in front of
+        // every small one, six grey flakes scatter and rise 6 to 10 px over the crowd's top (the tallest body), eased
+        // out, so they clear the backs early; under Reduce Motion they hang where they lift off.
+        XCTAssertEqual(HordeLook.puffFlakes, 6)
+        XCTAssertEqual(HordeLook.crowdTop, Double(HordeLook.height(.crawler)), "the walker is the crowd's top")
+        for clear in [HordeLook.flakeClear, HordeLook.flakeClear + HordeLook.flakeClearSpread] {
+            let end = HordeLook.flakeHeight(start: 5, ground: 0, puff: 1, clear: clear)
+            XCTAssertTrue((6.0...10.0).contains(end - HordeLook.crowdTop), "they end 6 to 10 px over the crowd")
+            XCTAssertGreaterThan(HordeLook.flakeHeight(start: 5, ground: 0, puff: 0.6, clear: clear),
+                                 HordeLook.crowdTop + 2, "over the backs by the time they thin")
+        }
+        let ids = (10..<400).filter { HordeLook.stand(id: $0) == 0 }
+        var s = GameFrameSupport.demoNight()
+        s.creatures = (0..<13).map { GameFrameSupport.creature(.sootling, x: 604 + Double($0) * 6, id: ids[$0], lit: true) }
+        var effects = BattleEffects()
+        effects.note([], state: s, balance: balance, time: 0.9)
+        let felled = s.creatures.remove(at: 6)
+        effects.note([.creatureKilled(kind: .sootling, x: felled.x)], state: s, balance: balance, time: 1.0)
+        XCTAssertEqual(effects.items.first?.id, felled.id, "the fall knows who fell")
+        let actors = hordeLayer(s, focus: 640, time: 1.2, effects: effects).actors
+        let bodies = actors.indices.filter { EntityFramesTests.smallSprites.contains(actors[$0].sprite) }
+        XCTAssertEqual(bodies.count, 12)
+        guard let fall = actors.firstIndex(where: { $0.sprite == .sootFall }), let lastBody = bodies.max(),
+              let ground = bodies.first.map({ actors[$0].rect.y + actors[$0].rect.w }) else {
+            XCTFail("the crowd and the fall are drawn")
+            return
+        }
+        XCTAssertGreaterThan(fall, lastBody, "the fall is drawn in front of the crowd")
+        let scale = actors[lastBody].rect.z / 14
+        let late = hordeLayer(s, focus: 640, time: 1.6, effects: effects).actors.filter { $0.sprite == .sootFlake }
+        XCTAssertEqual(late.count, 6, "six flakes")
+        let top = ground - Float(HordeLook.crowdTop) * scale
+        XCTAssertTrue(late.allSatisfy { $0.rect.y + $0.rect.w <= top - 2 * scale },
+                      "at 0.6 s every flake stands over the crowd's top")
+        let xs = late.map(\.rect.x)
+        XCTAssertGreaterThanOrEqual((xs.max() ?? 0) - (xs.min() ?? 0), 6 * scale, "they scatter")
+        let still = hordeLayer(s, focus: 640, time: 1.6, reduceMotion: true, effects: effects).actors
+            .filter { $0.sprite == .sootFlake }
+        XCTAssertTrue(still.allSatisfy { $0.rect.y + $0.rect.w > top }, "Reduce Motion: they hang at the body")
     }
 
     func testTheSocketsAreColdPointsOfLight() {

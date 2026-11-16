@@ -327,7 +327,24 @@ def slump(src, k, seed):
                     for dx, dy in ((-1, 0), (1, 0), (0, -1)):
                         if f.has(x + dx, y + dy) and f.g[y + dy][x + dx] is None:
                             f.g[y + dy][x + dx] = "wraithGlow"
-    return f.finish(rim=None)
+    f.finish(rim=None)
+    if k < 2:
+        pale(f)
+    return f
+
+
+def pale(f):
+    """Step 7 (the director's call 8 of 16.11.2026 12:02, H4: a kill reads in the live crowd): the slump's upper
+    edge pale, the outline over each column's topmost pixel in the moon's grey (stone), so a falling one stands out
+    of the dark crowd behind it for its first two frames; the heap (frame 2) has its ash on top."""
+    for x in range(CELL):
+        for y in range(CELL - 1):
+            if f.b[y][x] is None:
+                continue
+            if f.b[y][x] == "nightDeep" and f.b[y + 1][x] is not None and f.g[y][x] is None:
+                f.b[y][x] = "stone"
+            break
+    return f
 
 
 # --- Step 3 (the director, 16.11.2026 04:10): the body is the shadow, the rag is the accent ---------------------------

@@ -451,12 +451,32 @@ enum HordeLook {
     static let orphanBright: Float = 1.6
     /// The fall's puff (step 3, call 6: never a V): four grey flakes of one or two pixels (`SpriteID.sootFlake`, three
     /// shapes), from the second fall frame; they drift apart and thin to nothing by 0.8 s after the kill.
-    static let puffFlakes = 4
+    /// Step 7 (the director's call 8 of 16.11.2026 12:02, H4: a kill reads in the live crowd): six.
+    static let puffFlakes = 6
     static let puffSeconds = 0.7
     static let flakeShapes = 3
     /// The flakes lift off this long after the kill (step 5: no longer at the second fall frame, which comes at 0.15 s
     /// now), whole for the first quarter of their drift, then thinning (`puffAlpha`).
     static let puffFrom = 0.1
+
+    /// Step 7 (call 8, H4): the flakes scatter up to `flakeScatter` / 2 px either way and rise from the body's middle to
+    /// `flakeClear` ... `flakeClear` + `flakeClearSpread` px over the crowd's top (the tallest body of the crowd), eased
+    /// out, so over a dense crowd they clear the backs early and a kill reads from afar.
+    static let flakeClear = 6.0
+    static let flakeClearSpread = 4.0
+    static let flakeScatter = 16.0
+
+    /// The crowd's top: the tallest body of the crowd, in game pixels over its ground line.
+    static var crowdTop: Double {
+        Double(crowd.map { height($0) }.max() ?? 13)
+    }
+
+    /// A flake's height at `puff` (0 ... 1 of its drift): from `start` toward `clear` px over the crowd's top standing
+    /// on `ground`, eased out.
+    static func flakeHeight(start: Double, ground: Double, puff: Double, clear: Double) -> Double {
+        let left = 1 - max(0, min(1, puff))
+        return start + (ground + crowdTop + clear - start) * (1 - left * left)
+    }
 
     /// A flake's alpha at `puff` (0 ... 1) of its drift: whole for the first quarter, so by the fires it stands as grey
     /// soot and never as the ground's colour through it, then thinning to nothing.

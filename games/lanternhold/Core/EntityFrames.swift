@@ -1651,10 +1651,15 @@ enum EntityFrames {
                 // (the gate's review: under Reduce Motion the flakes thin as before step 5, the still form unchanged)
                 let thin = reduceMotion ? Float(1 - puff) : HordeLook.puffAlpha(puff)
                 let drift = reduceMotion ? 0 : puff
+                // step 7 (the director's call 8, H4): six flakes scatter and rise 6 to 10 px over the crowd's top,
+                // eased out (`HordeLook.flakeHeight`), so a kill reads in the live crowd
+                let eased = 1 - (1 - drift) * (1 - drift)
                 for k in 0..<HordeLook.puffFlakes {
                     guard spend() else { return }
-                    let x = effect.x + (unit(k, 2) - 0.5) * 9 + (unit(k, 3) - 0.5) * 10 * drift
-                    let y = middle + (unit(k, 5) - 0.5) * 4 + drift * (3 + 8 * unit(k, 4))
+                    let x = effect.x + (unit(k, 2) - 0.5) * 9 + (unit(k, 3) - 0.5) * HordeLook.flakeScatter * eased
+                    let start = middle + (unit(k, 5) - 0.5) * 4
+                    let clear = HordeLook.flakeClear + HordeLook.flakeClearSpread * unit(k, 4)
+                    let y = HordeLook.flakeHeight(start: start, ground: effect.y + stand, puff: drift, clear: clear)
                     add(.sootFlake, Int(unit(k, 6) * Double(HordeLook.flakeShapes)) % HordeLook.flakeShapes,
                         x.rounded(), y.rounded(), false, SIMD4<Float>(1, 1, 1, thin), false, effect.lit)
                 }
