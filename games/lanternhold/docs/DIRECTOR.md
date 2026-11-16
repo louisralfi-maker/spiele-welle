@@ -1004,3 +1004,9 @@ schneller geht."
   - The picture is close (critic 7/10, no blocker, 3 highs): the coins leave the lord's hand but hop along the board's face; by day the light at the end is not seen; the lantern on its lone post reads as a street lamp.
   - The director's calls: the throw goes up and falls in, the far coin flies longer; the board dips under a ten and a bar and the coin glints; the last coin gets a beat before the lid; the board hangs lower, at the lord's reach; the light is a builder's lantern hung from a crook; by day the lighting is an event (bloom, embers, a warm rim); the small coin is 7 px, pale and plain, the big one embossed.
   - Step 3 is the fix round; the pictograms over a plot move to step 4 (wooden shingles on an iron bar). The join raises the sound cap to 5 MB.
+
+- **The horde lane's step 3 judged (16.11.2026, 06:15).**
+  - Green: `claude/lh-b3-horde` 3dddaad3, round `lh-b3h-33` ALL PASSED; the rule files are untouched.
+  - The picture fails a third time (critic 5/10, 2 blockers, 5 highs). In a line by the fires they now read as small creatures on legs. In the dark open they are pale ghosts under black sticks, by the fires the heap is a brown mound, and the clip shows no horde.
+  - The director's reading: drawn right, lit wrong. Two laws: shadow swallows light (a low light cap, the fire only as a warm rim), and the mist is their backdrop, never their veil (a fog floor, black shapes in front of the pale mist, the eye point never dimmed).
+  - Also: the cloth as a fringe, wisps shorter than their body on every third one, a night look is proved with the fog on, the clip's camera stands in the stream. Step 4 is briefed.
