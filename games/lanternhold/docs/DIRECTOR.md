@@ -1070,3 +1070,9 @@ schneller geht."
   - The signpost at a plot with several offers is two brown price boards on the lord's spot; he vanishes behind them. The director's verdict: a price list in the street stays one at any size, so the design changes before another lane step.
   - Step 5A is a python design card with three candidates at phone size: small hung signs on a high arm; a builder's bench with small wooden models of the engines and price figures on its apron; the same bench with coin pips instead of figures (gold as far as the purse reaches).
   - Step 5 then builds the picked one with the critic's remaining calls (the board never stands in a doorway; the small look fixes).
+
+- **The wind's step 5 judged: the flags and the vane tell the wind, the smoke and the leaves do not (16.11.2026, 12:25).**
+  - Green at a63ec94e (round lh-b3w-51 build and unit; the UI step passed in lh-b3w-44, and only two test files changed after it).
+  - Kept and closed: the banners, the vane (head 9 px, fin 18 px), the night ash, the embers at 13 fire pixels, the rain's budget.
+  - Fails at phone size: the keep's smoke is a pale line 1 to 2 px wide and vanishes in a storm; the town's chimneys show no smoke; the leaves are scattered specks that read as confetti.
+  - Step 6 (one agent): smoke as round puffs in two values with a column of five to seven; the town's chimneys smoke, three of four at the evening meal; the leaves leave one crown's lee edge as a ribbon of 7 to 9 along one arc. A python proof over the live frames comes before any Swift.
