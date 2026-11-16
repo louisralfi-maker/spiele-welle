@@ -8,8 +8,9 @@ import XCTest
 /// Day 1 at 9:00 before the great hall (the camera on the hall's door, 1830). Shots `<nn>-look-<what>-<lang>`: 250 the
 /// moment at home; 251 the view slid 400 px east by the Debug-only `-GWLookAround 400` (the strip's bracket moved);
 /// 252 home again after a real drag's release, the lantern still up; 253a to 253f the glide home after a real drag,
-/// slowed twenty times by `-GWLookAround 0:20`, about a second apart, each with the camera's x in a note; 254 a tap on
-/// the hall's door under the lantern: lowered in the same touch, he sets off to the door.
+/// slowed forty times by `-GWLookAround 0:40`, as fast as the shots come, each with the camera's x in a note; 254 a tap
+/// on the hall's door under the lantern: lowered in the same touch, he sets off to the door; 255 and 256 the view at
+/// the east and the west end of the world (`-GWLookAround e99999` and `w99999`), the strip's bracket at its ends.
 /// English only (the director's notes of 15.11., item 4).
 @MainActor
 final class LookAroundUITests: XCTestCase {
@@ -62,7 +63,7 @@ final class LookAroundUITests: XCTestCase {
     func testTheGlideHomeFilmstrip() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = LookAroundUITests.base + ["-GWCameraX", "1830", "-GWLookAround", "0:20"]
+        app.launchArguments = LookAroundUITests.base + ["-GWCameraX", "1830", "-GWLookAround", "0:40"]
         app.launch()
         guard waitUntilReady(app, name: "look-glide") else { return }
         waitForStill(app, timeout: 4)
@@ -88,9 +89,9 @@ final class LookAroundUITests: XCTestCase {
             note("\(name)-look-glide", "home cam \(home), now \(now)")
             XCTAssertLessThanOrEqual(now, last + 1, "the glide only goes home")
             last = now
-            pause(0.9)
+            pause(0.3)
         }
-        XCTAssertTrue(waitForCamera(app, near: home, timeout: 6), "home at the end of the glide")
+        XCTAssertTrue(waitForCamera(app, near: home, timeout: 20), "home at the end of the glide")
         XCTAssertTrue(element(app, "lantern-moment").exists, "the lantern is still up")
         app.terminate()
     }
@@ -115,6 +116,37 @@ final class LookAroundUITests: XCTestCase {
         attach(XCUIScreen.main.screenshot(), "254-look-tap-deed-\(language)")
         note("254-look-tap-deed", "scene: \(sceneValue(app))")
         app.terminate()
+    }
+
+    /// The two ends of the world (255 east, 256 west): the view slid as far as it goes by the Debug key, the strip's
+    /// bracket at that end, the lantern up; the west end is the world's left edge.
+    func testTheTwoEnds() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        for (name, key) in [("255-look-end-east", "e99999"), ("256-look-end-west", "w99999")] {
+            let app = XCUIApplication()
+            app.launchArguments = LookAroundUITests.base + ["-GWCameraX", "1830", "-GWLookAround", key]
+            app.launch()
+            guard waitUntilReady(app, name: name) else { return }
+            waitForStill(app, timeout: 4)
+            waitForCamera(app, timeout: 4)
+            guard let home = camera(app) else {
+                XCTFail("no camera in the scene's value")
+                return
+            }
+            XCTAssertTrue(openLantern(app), "a touch on the lord raises the lantern")
+            waitForCamera(app, timeout: 4)
+            let end = camera(app) ?? home
+            if key.hasPrefix("w") {
+                XCTAssertLessThanOrEqual(end, 1, "the view stops at the world's west edge (\(end))")
+            } else {
+                XCTAssertGreaterThan(end, home + 400, "the view slid far east (\(home) to \(end))")
+            }
+            XCTAssertTrue(element(app, "lantern-moment").exists, "the lantern is up")
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+            note(name, "home cam \(home), end cam \(end); scene: \(sceneValue(app))")
+            app.terminate()
+        }
     }
 
     // MARK: - Helpers

@@ -227,6 +227,8 @@ final class CameraTests: XCTestCase {
         XCTAssertEqual(LookAroundDebug.parse("400"), LookAroundDebug(pan: 400, slow: 1))
         XCTAssertEqual(LookAroundDebug.parse("0:20"), LookAroundDebug(pan: 0, slow: 20))
         XCTAssertEqual(LookAroundDebug.parse("150:99")?.slow, 40)
+        XCTAssertEqual(LookAroundDebug.parse("w2000"), LookAroundDebug(pan: -2000, slow: 1))
+        XCTAssertEqual(LookAroundDebug.parse("e500:4"), LookAroundDebug(pan: 500, slow: 4))
         XCTAssertNil(LookAroundDebug.parse("east"))
         XCTAssertNil(LookAroundDebug.parse(""))
         XCTAssertNil(LookAroundDebug.parse(nil))

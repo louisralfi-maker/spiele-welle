@@ -380,7 +380,8 @@ struct LookAround: Sendable, Equatable {
 
 /// `-GWLookAround <dx>[:<slow>]` (build 3, lane 5; the look-around's pictures, read only in a Debug build): each time
 /// the lantern moment opens on the world the view stands slid `dx` game px east (0: not slid), and the glide home takes
-/// `slow` times its length (1 ... 40), so a strip of frames can follow it.
+/// `slow` times its length (1 ... 40), so a strip of frames can follow it. `dx` may start with `e` (east) or `w` (west):
+/// a launch argument that starts with a minus could be read as a key, so `w2000` slides 2000 px west.
 struct LookAroundDebug: Sendable, Equatable {
     var pan: Double
     var slow: Double
@@ -389,12 +390,20 @@ struct LookAroundDebug: Sendable, Equatable {
         guard let trimmed = text?.trimmingCharacters(in: .whitespaces), !trimmed.isEmpty else { return nil }
         let parts = trimmed.split(separator: ":", omittingEmptySubsequences: false)
             .map { $0.trimmingCharacters(in: .whitespaces) }
-        guard let pan = Double(parts[0]), pan.isFinite else { return nil }
+        var head = parts[0]
+        var sign = 1.0
+        if head.hasPrefix("w") {
+            sign = -1
+            head = String(head.dropFirst())
+        } else if head.hasPrefix("e") {
+            head = String(head.dropFirst())
+        }
+        guard let pan = Double(head), pan.isFinite else { return nil }
         var slow = 1.0
         if parts.count > 1 {
             guard let value = Double(parts[1]), value.isFinite else { return nil }
             slow = min(40, max(1, value))
         }
-        return LookAroundDebug(pan: pan, slow: slow)
+        return LookAroundDebug(pan: sign * pan, slow: slow)
     }
 }
