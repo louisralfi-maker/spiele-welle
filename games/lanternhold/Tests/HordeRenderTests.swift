@@ -556,6 +556,49 @@ final class HordeRenderTests: XCTestCase {
         add(attachment)
     }
 
+    /// Step 4 (the director's frame 01; the critic's M2: the day look had no runner proof): the same crowd of ten
+    /// small ones (both bodies, ids 20 ... 29) by day at noon, by the outer line's fires at 23:00 (lit), and unlit at
+    /// 23:00 in the dark open with the Gloom's fog on, each crop twice enlarged, side by side as
+    /// `horde-crowd-day-fire-night`. On every crop the bodies' drawn pixels are found.
+    func testTheCrowdByDayByTheFiresAndUnlitAtNight() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let w = 300
+        let h = 80
+        var crops: [[SIMD3<Float>]] = []
+        for scene in 0..<3 {
+            var s = scene == 0 ? GameFrameSupport.demoDay(hour: 12) : GameFrameSupport.demoNight(hour: 23.0)
+            let lit = scene == 1
+            let from = scene == 1 ? 560.0 : (scene == 0 ? 560.0 : s.bankEdge + 30)
+            if scene == 2 {
+                for plot in Realm.lines[2].braziers { s.plots[plot].snuffed = true }
+            }
+            s.creatures = (0..<10).map { k in
+                GameFrameSupport.creature(.sootling, x: from + Double(k) * 7.5, id: 20 + k, lit: lit)
+            }
+            let desc = frame(s, focus: from + 40, time: 1.5, wind: 0.3, effects: BattleEffects(),
+                             gloom: scene == 2 ? GloomFog(night: 12, fogNight: false) : nil)
+            let shot = try renderer.renderOffscreen(desc, settings: settings)
+            let bodies = desc.actors.filter { EntityFramesTests.smallSprites.contains($0.sprite) }
+            XCTAssertEqual(bodies.count, 10, "scene \(scene): the crowd is drawn")
+            XCTAssertGreaterThan(bodies.map { HordeRenderTests.drawnPixels($0, of: shot).count }.reduce(0, +), 300,
+                                 "scene \(scene): its pixels are found")
+            let left = Int(bodies.map(\.rect.x).min() ?? 0) - 30
+            let bottom = Int(bodies.map { $0.rect.y + $0.rect.w }.max() ?? 0) + 12
+            var crop: [SIMD3<Float>] = []
+            for y in (bottom - h)..<bottom {
+                for x in left..<(left + w) {
+                    let inside = x >= 0 && y >= 0 && x < shot.width && y < shot.height
+                    crop.append(inside ? shot.color(x: x, y: y) : SIMD3<Float>(0, 0, 0))
+                }
+            }
+            crops.append(crop)
+        }
+        attachStrip(crops, width: w, height: h, name: "horde-crowd-day-fire-night", zoom: 2)
+    }
+
     // MARK: - Helpers
 
     /// Relative luminance of an sRGB colour.
