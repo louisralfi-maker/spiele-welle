@@ -946,6 +946,9 @@ extension GameModel {
             return String(localized: "Light the brazier")
         case .patch:
             return String(localized: "Repair the wall")
+        // b3-yard (build 3, wave 2, lane 2; a registration block for the join): what the yard's site buys.
+        case .yard(let offer):
+            return YardText.label(offer)
         }
     }
 

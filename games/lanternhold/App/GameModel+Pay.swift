@@ -103,6 +103,9 @@ struct CountLantern: Sendable, Equatable {
             return state.king.patchCooldown > 0
         case .recruit:
             return now - litAt < CountLantern.recruitSeconds
+        // b3-yard (build 3, wave 2, lane 2; a registration block for the join): until its dawn brings it.
+        case .yard(let offer):
+            return Yard.isPending(offer, state: state)
         }
     }
 }

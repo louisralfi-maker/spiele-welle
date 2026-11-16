@@ -676,6 +676,9 @@ final class GameModel {
         case .collector:
             // The join: the second touch at Saul Tolliver's post (`CollectorTouch`).
             collectorAnswers()
+        case .yard:
+            // Build 3, the drill yard: bought by its count (docs/PAY.md); arriving there opens nothing.
+            break
         case .talk(let who):
             talk(to: who)
         case .bench(let index):
@@ -806,6 +809,9 @@ final class GameModel {
             done = Build.recruit(&game.state, kind: soldier, balance: game.balance, events: &orderEvents)
         case .patch(let plot):
             done = game.perform(.patch(plot: plot), events: &orderEvents)
+        case .yard(let yardOffer):
+            // Build 3, the drill yard (docs/YARD.md): the stage stands and Bram brings the kettle at the next dawn.
+            done = Yard.order(&game.state, yardOffer, balance: game.balance)
         }
         driver = game
         revision += 1
@@ -818,7 +824,9 @@ final class GameModel {
         }
         // The purse is heard as the count already played it: the watch takes the new treasury without a cue.
         _ = watch.cues(TownShow.heard(game.state, balance: game.balance), balance: game.balance, moving: false)
-        let later = orderEvents.compactMap { FeedbackThinner.cue(for: $0)?.cue }.filter { $0 != .recruited }
+        var later = orderEvents.compactMap { FeedbackThinner.cue(for: $0)?.cue }.filter { $0 != .recruited }
+        // The drill yard's work begins with the work's own sound (the builders and Bram set to it).
+        if case .yard = offer { later.append(.buildOrdered) }
         refreshHUD()
         return (true, later)
     }
@@ -1360,6 +1368,8 @@ final class GameModel {
         text += " hint:\(touch.lordHintOn ? "on" : "off")\(touch.lordHintShown)"
         // Build 3, the count: the board up (its thing, coins on it of all, its state) and the last count's end.
         text += " count:\(countWord) models:\(modelWord)"
+        // Build 3, the drill yard: its stage, the kettle, the trained, the days drilled (`Yard.word`).
+        text += " yard:\(Yard.word(state, balance: game.balance))"
         #endif
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {

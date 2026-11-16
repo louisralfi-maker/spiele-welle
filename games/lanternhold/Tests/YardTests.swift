@@ -370,6 +370,68 @@ final class YardTests: XCTestCase {
         XCTAssertEqual(try JSONDecoder().decode(YardDawnReport.self, from: Data("{}".utf8)), YardDawnReport())
     }
 
+    // MARK: - Bought by the count (docs/PAY.md)
+
+    func testTheYardsSiteIsAThingOfTheWorldBoughtByItsCount() throws {
+        var s = GameState.newRealm(seed: 2, balance: balance)
+        s.hour = 10
+        s.gold = 200
+        s.day = 3
+        XCTAssertFalse(TouchThings.world(s, balance: balance, figures: [], talked: []).contains { $0.id == "touch-yard" },
+                       "nothing at the yard before day 4")
+        s.day = 4
+        let things = TouchThings.world(s, balance: balance, figures: [], talked: [])
+        let site = try XCTUnwrap(things.first { $0.id == "touch-yard" }, "day 4: the drill yard's site")
+        XCTAssertEqual(site.act, .yard(.stage(2)))
+        XCTAssertEqual(site.kind, .plot, "a site like every other")
+        XCTAssertEqual(site.x, Yard.plotX)
+        XCTAssertEqual(site.price, 70)
+        XCTAssertTrue(site.marked, "marked while the purse can pay it")
+        XCTAssertEqual(KingTargets.anchorX(site.act, state: s, balance: balance), Yard.plotX)
+        XCTAssertNil(KingTargets.hold(site.act, state: s, balance: balance))
+        let offer = try XCTUnwrap(PayOffers.offer(site, state: s, balance: balance), "bought by a count, no card")
+        XCTAssertEqual(offer.offer, .yard(.stage(2)))
+        XCTAssertEqual(offer.price, 70)
+        XCTAssertEqual(PayCount.hollows(price: offer.price), Array(repeating: PayCoin.big, count: 7), "seven hollows")
+        XCTAssertFalse(PayOffers.refused(offer.offer, state: s, balance: balance))
+        // The area is at least the smallest touch target and holds no other thing's middle.
+        let area = TouchRules.area(site, minimum: 22)
+        XCTAssertGreaterThanOrEqual(area.width, 22)
+        XCTAssertGreaterThanOrEqual(area.height, 22)
+        for other in things where other.id != site.id {
+            XCTAssertFalse(area.contains(x: other.x, lift: 1), "\(other.id) stands in the yard's area")
+        }
+        // A poor purse: no mark, the site still answers (its board shows what is missing).
+        s.gold = 20
+        let poor = try XCTUnwrap(TouchThings.world(s, balance: balance, figures: [], talked: []).first {
+            $0.id == "touch-yard"
+        })
+        XCTAssertFalse(poor.marked)
+        XCTAssertNotNil(PayOffers.offer(poor, state: s, balance: balance))
+        // Ordered: the site goes; the count's seal can no longer pay it twice.
+        s.gold = 200
+        XCTAssertTrue(Yard.order(&s, .stage(2), balance: balance))
+        XCTAssertTrue(PayOffers.refused(.yard(.stage(2)), state: s, balance: balance), "ordered: refused")
+        XCTAssertNil(PayOffers.offer(site, state: s, balance: balance))
+        XCTAssertFalse(TouchThings.world(s, balance: balance, figures: [], talked: []).contains {
+            $0.id.hasPrefix("touch-yard")
+        })
+        // Standing: the kettle's place.
+        s.yard?.stage = 2
+        s.yard?.orderedStage = nil
+        let kettle = try XCTUnwrap(TouchThings.world(s, balance: balance, figures: [], talked: []).first {
+            $0.id == "touch-yard-kettle"
+        })
+        XCTAssertEqual(kettle.act, .yard(.kettle))
+        XCTAssertEqual(PayOffers.offer(kettle, state: s, balance: balance)?.price, 40)
+        // At night the yard is no touch thing.
+        s.hour = 22
+        XCTAssertFalse(TouchThings.world(s, balance: balance, figures: [], talked: []).contains {
+            $0.id.hasPrefix("touch-yard")
+        })
+        XCTAssertTrue(PayOffers.refused(.yard(.kettle), state: s, balance: balance), "not at night")
+    }
+
     // MARK: - Words
 
     func testTheYardsWordsAreInTheCatalog() {
@@ -378,5 +440,64 @@ final class YardTests: XCTestCase {
         }
         let line = YardText.text(YardLine(key: YardLine.trained, names: ["Wat", "Ilse"]))
         XCTAssertEqual(line, "Trained: Wat, Ilse.")
+        XCTAssertEqual(YardText.label(.stage(2)), "Build the drill yard")
+        XCTAssertEqual(YardText.label(.kettle), "Order the pitch kettle")
+    }
+}
+
+/// The drill yard bought through the game's model, as a finger buys it (docs/PAY.md): a touch on the yard's site brings
+/// its board, a hold counts the coins, the seal orders the yard and the site lantern burns until its dawn.
+@MainActor
+final class YardCountTests: XCTestCase {
+    private var directory: URL!
+    private let pro = PixelScale(physicalWidth: 2622, physicalHeight: 1206)
+
+    override func setUp() async throws {
+        directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("lanternhold-yard-\(UUID().uuidString)", isDirectory: true)
+    }
+
+    override func tearDown() async throws {
+        if let directory { try? FileManager.default.removeItem(at: directory) }
+    }
+
+    private func run(_ game: GameModel, seconds: Double, until done: () -> Bool = { false }) {
+        var left = seconds
+        var frames = 0
+        while left > 1e-9 {
+            game.advance(by: 1.0 / 60)
+            frames += 1
+            if frames % 4 == 0 { _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight) }
+            left -= 1.0 / 60
+            if done() { return }
+        }
+    }
+
+    func testAHoldAtTheYardsSitePaysTheDrillYard() throws {
+        let values = ["GWReset": "YES", "GWSkipOnboarding": "YES", "GWStage": "world", "GWSeed": "2", "GWDay": "4",
+                      "GWClock": "10", "GWCameraX": "\(Int(Yard.plotX) + 40)", "GWGold": "200"]
+        let game = GameModel(args: DebugArgs(values: values), kind: .world, store: SaveStore(directory: directory))
+        game.feedback = SilentFeedback()
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        run(game, seconds: 0.3)
+        let site = try XCTUnwrap(game.touch.things.first { $0.id == "touch-yard" }, "the yard's site on day 4")
+        game.touchThing(site)
+        XCTAssertEqual(game.touch.count?.thing, site.id, "its board comes up")
+        XCTAssertEqual(game.touch.count?.coins.count, 7, "seven hollows for 70")
+        XCTAssertNil(game.overlay, "no card")
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        XCTAssertEqual(game.touch.count?.ready, true, "he stands beside the board")
+        XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid yet")
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        run(game, seconds: 3) { game.touch.countLast.hasPrefix("paid") }
+        XCTAssertEqual(game.touch.countLast, "paid:\(site.id)", "the hold paid it")
+        XCTAssertEqual(game.driver?.state.gold, 130, "70 gold, once")
+        XCTAssertEqual(game.driver?.state.yard?.orderedStage, 2, "the drill yard is ordered")
+        run(game, seconds: 3)
+        XCTAssertEqual(game.driver?.state.gold, 130, "and only once")
+        XCTAssertEqual(game.touch.countLanterns.filter { $0.outAt == nil }.count, 1, "the site lantern burns on")
+        XCTAssertFalse(game.touch.things.contains { $0.id.hasPrefix("touch-yard") }, "nothing more until its dawn")
     }
 }
