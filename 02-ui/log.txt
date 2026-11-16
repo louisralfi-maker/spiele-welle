@@ -1,0 +1,5 @@
+Test Case '-[LanternholdUITests.WindUITests testFilmstrips]' passed (1012.822 seconds).
+Test Case '-[LanternholdUITests.WindUITests testRain]' passed (145.456 seconds).
+Test Case '-[LanternholdUITests.WindUITests testWind]' passed (231.068 seconds).
+exit=0
+screenshots: 92
