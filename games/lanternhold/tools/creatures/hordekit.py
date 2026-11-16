@@ -493,6 +493,8 @@ def kin(body, k):
     if p.get("hook"):                                 # the hands hooked over the wall's top
         limbs(f, [([near[-1], (near[-1][0] - 1, near[-1][1])], "k"), ([far[-1], (far[-1][0] - 1, far[-1][1])], "k")],
               over=True)
-    loose = [q for q in loose if 0 <= q[0] < CELL and 0 <= q[1] < CELL and f.b[q[1]][q[0]] is None]
+    # loose soot stands apart: never on a pixel of the body or beside one (it would read as a foot)
+    loose = [q for q in loose if 0 <= q[0] < CELL and 0 <= q[1] < CELL and f.b[q[1]][q[0]] is None
+             and not any(f.has(q[0] + dx, q[1] + dy) for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)))]
     limbs(f, [([q, q], "k") for q in loose])
     return f
