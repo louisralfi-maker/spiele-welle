@@ -530,7 +530,7 @@ final class WeatherTests: XCTestCase {
         for (stage, count) in stages {
             let world = PlaceholderScene.world(look: .two, castle: stage)
             let keep = try XCTUnwrap(world.props.first { SceneLayout.keepTops.contains($0.sprite) }, "\(stage)")
-            let flags = world.props.filter { $0.sprite == .keepFlag }
+            let flags = world.props.filter { $0.sprite == .keepFlag && $0.plane == .near }
             XCTAssertEqual(flags.count, count, "\(stage): a flag on every pole")
             let poles = SceneLayout.castleKeepPoles(stage)
             XCTAssertEqual(poles.count, count)
@@ -561,6 +561,36 @@ final class WeatherTests: XCTestCase {
         XCTAssertEqual(layout.sources[.windmillTower], .png)
         XCTAssertEqual(layout.sources[.windmillSails], .png)
         XCTAssertEqual(layout.cells[.windmillSails]?.count, Weather.sailFrames)
+    }
+
+    func testTheTierThreePosternsFlagFliesFromItsPaintedPole() throws {
+        // Step 2 (the critic's M6): the flag the postern's tier 3 painted streaming east flies as a prop of its own.
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let flag = try XCTUnwrap(world.props.first { $0.sprite == .keepFlag && $0.plane == .world })
+        let postern = try XCTUnwrap(world.props.first { $0.sprite == .posternT3 })
+        XCTAssertEqual(flag.x, postern.x + SceneLayout.castlePosternPole.dx + 1, "its hoist beside the pole")
+        XCTAssertEqual(flag.y + Double(SpriteID.keepFlag.size.height), SceneLayout.castlePosternPole.top)
+        XCTAssertGreaterThan(flag.id, postern.id, "drawn after the postern")
+        XCTAssertFalse(flag.emissive.isEmpty, "the dusk rim on its cloth")
+        let layout = AtlasLayout.shared
+        let cell = layout.cell(.posternT3, frame: 0)
+        XCTAssertEqual(cell.height, SpriteID.posternT3.size.height)
+        let row = cell.height - 1 - Int(SceneLayout.castlePosternPole.top)
+        let column = Int(SceneLayout.castlePosternPole.dx)
+        XCTAssertGreaterThan(layout.image[cell.x + column, cell.y + row].a, 0, "the pole")
+        XCTAssertGreaterThan(layout.image[cell.x + column, cell.y + row - 1].a, 0, "its gold point")
+        for dy in 1...14 {
+            for dx in 1...13 {
+                XCTAssertEqual(layout.image[cell.x + column + dx, cell.y + row + dy].a, 0,
+                               "no painted cloth at \(dx), \(dy)")
+            }
+        }
+        // A west wind streams it west like the keep's; under way at tier 3 the postern is tier 2's, no flag.
+        XCTAssertNil(PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3, building: true)).props
+            .first { $0.sprite == .keepFlag && $0.plane == .world })
+        let west = Weather.sample(seed: 3, day: 12, hour: 12, time: 4,
+                                  override: WeatherOverride(mode: .clear, wind: -0.5))
+        XCTAssertEqual(WindLook.pose(of: flag, weather: west, time: 4, reduceMotion: false)?.flipped, true)
     }
 
     func testTheKeepsFlagStreamsDownwindAndStandsInStillAir() throws {
@@ -652,10 +682,79 @@ final class WeatherTests: XCTestCase {
         XCTAssertGreaterThan(leaned, 0, "torches and braziers in view")
         // Their flames gutter with them; the windows' glass does not.
         func strength(_ desc: FrameDesc, _ sprite: SpriteID) -> Float {
-            desc.emissives.filter { $0.sprite == sprite }.map { $0.color.x + $0.color.y + $0.color.z }.reduce(0, +)
+            desc.emissives.filter { $0.sprite == sprite }.map { $0.color.x + $0.color.y + $0.color.z }.max() ?? 0
         }
         XCTAssertGreaterThan(strength(calm, .flame), 0)
         XCTAssertLessThan(strength(blown, .flame), strength(calm, .flame))
+        // Step 2 (the critic's M1): and bend. In a whole wind toward the valley each flame is drawn as bands of its
+        // rows, the top row two pixels downwind, the rows under it one, the foot where it burns; in still air whole.
+        for sprite in [SpriteID.flame, .brazierFlame] {
+            let whole = calm.emissives.filter { $0.sprite == sprite }
+            let bent = blown.emissives.filter { $0.sprite == sprite }
+            guard !whole.isEmpty else { continue }
+            XCTAssertTrue(whole.allSatisfy { Int($0.rect.w) == sprite.size.height }, "\(sprite): whole in still air")
+            XCTAssertGreaterThan(bent.count, whole.count, "\(sprite): drawn in bands")
+            XCTAssertTrue(bent.allSatisfy { $0.source.w == $0.rect.w }, "\(sprite): each band its own rows")
+            let tops = bent.filter { $0.source.y == 0 }
+            let feet = bent.filter { $0.source.y + $0.source.w == Float(sprite.size.height) }
+            XCTAssertEqual(tops.count, feet.count)
+            for (top, foot) in zip(tops, feet) {
+                XCTAssertEqual(top.rect.x - foot.rect.x, 2, "\(sprite): its top leans two pixels toward the valley")
+            }
+        }
+    }
+
+    func testTheFlamesBendByTheLeanAndTheEnclosedFiresStand() {
+        XCTAssertTrue(FrameBuilder.flameBend(lean: 0.1, rows: 5).isEmpty, "a calm: it stands")
+        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.5, rows: 5).map(\.shift), [1])
+        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.5, rows: 7).map(\.shift), [-1], "toward the shadow land")
+        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 5).map(\.shift), [2, 1])
+        XCTAssertEqual(FrameBuilder.flameBend(lean: 0.9, rows: 5).map(\.rows).reduce(0, +), 3, "the foot stays")
+        XCTAssertEqual(FrameBuilder.flameBend(lean: -0.9, rows: 7).map(\.shift), [-2, -1])
+        XCTAssertLessThan(FrameBuilder.flameBend(lean: 0.9, rows: 7).map(\.rows).reduce(0, +), 7)
+        // The oven behind its hatch and the forge in the smithy burn out of the wind; a torch does not.
+        let hatch = SceneLayout.castleBakeHatchLight
+        XCTAssertTrue(FrameBuilder.windproof(LightSource(kind: .torch, x: SceneLayout.castleBakehouseX + hatch.dx,
+                                                         y: hatch.y, radius: hatch.radius)))
+        XCTAssertTrue(FrameBuilder.windproof(LightSource(kind: .brazier, x: EntityFrames.smithyLeft + 19, y: 16,
+                                                         radius: 26)))
+        XCTAssertTrue(FrameBuilder.windproof(LightSource(kind: .brazier, x: EntityFrames.smithyLeft + 21, y: 16,
+                                                         radius: 26)))
+        XCTAssertFalse(FrameBuilder.windproof(LightSource(kind: .torch, x: 1500, y: 20, radius: 40)))
+        XCTAssertTrue(FrameBuilder.enclosedFires.contains(.smithy))
+        XCTAssertTrue(FrameBuilder.enclosedFires.contains(.masterSmithy))
+        // In a whole wind at night in the demo realm the bakehouse's pool stands where it burns in still air, while
+        // the open fires' pools lean.
+        let s = GameFrameSupport.demoNight(hour: 23)
+        func pools(_ weather: WeatherSample) -> (lights: [FrameLight], lane: Double) {
+            var options = FrameOptions(flickerTime: 4)
+            options.look = .two
+            options.weather = weather
+            let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+            let camera = Camera(focusX: 2140, pixelScale: pixelScale)
+            let world = PlaceholderScene.world(look: .two)
+            let scene = SceneFilter.gameScene(world, state: s)
+            let layer = EntityFrames.layer(state: s, balance: .standard, scene: scene, camera: camera,
+                                           pixelScale: pixelScale, options: options, animTime: 4,
+                                           effects: BattleEffects())
+            var clock = DayClock(hour: s.hour, day: s.day)
+            clock.isFrozen = true
+            let desc = FrameBuilder.build(scene: scene, clock: clock, camera: camera, pixelScale: pixelScale,
+                                          options: options, entities: layer)
+            return (desc.lights, Double(camera.offsets(scale: pixelScale.scale)[Plane.world.rawValue].whole))
+        }
+        let still = pools(.clear)
+        let blown = pools(Weather.sample(seed: s.seed, day: s.day, hour: s.hour, time: 4,
+                                         override: WeatherOverride(mode: .clear, wind: 0.9)))
+        XCTAssertEqual(still.lights.count, blown.lights.count)
+        let oven = Float(SceneLayout.castleBakehouseX + hatch.dx - still.lane)
+        let index = still.lights.firstIndex { $0.kind == .torch && abs($0.circle.x - oven) < 0.01 }
+        XCTAssertNotNil(index, "the oven's pool in view")
+        if let index, index < blown.lights.count {
+            XCTAssertEqual(blown.lights[index].circle, still.lights[index].circle, "the oven burns out of the wind")
+        }
+        XCTAssertTrue(zip(still.lights, blown.lights).contains { abs($0.0.circle.x - $0.1.circle.x) > 0.5 },
+                      "the open fires lean")
     }
 
     func testTheFiresLeanAndGutterWithTheWind() {

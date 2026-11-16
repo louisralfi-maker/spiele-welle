@@ -429,7 +429,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .chapelTower: return PixelSize(width: 110, height: 132)
         case .bakehouse: return PixelSize(width: 100, height: 62)
         case .bakeHatchGlow: return PixelSize(width: 6, height: 6)
-        case .posternT1, .posternT2, .posternT3: return PixelSize(width: 176, height: 112)
+        case .posternT1, .posternT2: return PixelSize(width: 176, height: 112)
+        // Build 3 step 2 (lane 3): twelve rows taller for the pole its flag (`keepFlag`) flies from.
+        case .posternT3: return PixelSize(width: 176, height: 124)
         case .gateArchFg: return PixelSize(width: 16, height: 116)
         // World-2 fix round 1 (tools/keepfix.py).
         case .keepMist: return PixelSize(width: 320, height: 32)      // fix round 2: rises over the merlons

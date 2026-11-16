@@ -1325,8 +1325,9 @@ def postern(tier):
         TA.roof(c.im, top, bot, lambda y: int(round(mid - 2 - (mid - 2 - (t0 - 4)) * (y - top) / float(bot - top))),
                 lambda y: int(round(mid + 2 + ((t1 + 4) - mid - 2) * (y - top) / float(bot - top))), SLATE, "slate",
                 seed, moss=False, mid=0.5, shade=12)
+        # build 3, POLISH pass 1 step 2 (lane 3, the critic's M6): its flag flies as a prop of its own (`keepFlag`);
+        # keepfix.py raises the pole over the canvas's top (`postern_pole`)
         pole(c, int(mid), c.r(111), c.r(ttop + 27))
-        flag(c, int(mid), c.r(111), 11, h=4)
         lantern_bracket(c, 99, c.r(46))
     outline(c)
     return c.im

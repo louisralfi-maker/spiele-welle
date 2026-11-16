@@ -301,6 +301,10 @@ extension SceneLayout {
         }
         list.append((.world, Entry(sprite: castlePosternSprite(stage), x: post, y: 0, z: 0,
                                    emitters: posternEmitters, lights: posternLights)))
+        // Build 3 step 2 (lane 3, the critic's M6): the tier-3 postern's flag flies in the wind from its painted pole.
+        if castlePosternSprite(stage) == .posternT3 {
+            list.append((.world, castlePosternFlag))
+        }
         // World-3 fix round 2 (the critic's high 4): the far view at night over the painted day's view.
         list.append((.world, Entry(sprite: .posternNightView, x: post + posternNightViewAt.dx,
                                    y: posternNightViewAt.dy, z: 1)))

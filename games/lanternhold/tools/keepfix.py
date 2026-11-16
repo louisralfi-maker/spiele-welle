@@ -26,7 +26,7 @@ reproduces its files byte for byte):
         the threshold to 2.5 times it 12 rows out, smooth alpha so the stones show through
   smokePuff         8x8 (5 frames)  a puff of chimney smoke at five sizes, 3 to 7 px (high 3; fix round 2)
   curtainB          64x74    the curtain's blocked arch as a recess in shadow (high 6)
-  posternT1..T3     176x112  the postern's passage with depth (high 4): jamb shadow, the vault, a lit far end and
+  posternT1..T3     176x112 (T3 176x124 since build 3: its flag's pole)  the postern's passage with depth (high 4): jamb shadow, the vault, a lit far end and
         cobbles that recede
   posternFarGlow    10x16    emissive: the lantern-warm far end of the postern's passage at night
   gateArchFg        16x116 (2 frames)  foreground: the near jamb of either gate (high 7), dark stone, a warm lit edge
@@ -1071,7 +1071,30 @@ def postern(tier):
                 c.set(x, c.r(hh), "stoneMid" if side < 2.2 and hh < far_top else "stoneDark")
             else:
                 c.set(x, c.r(hh), "stoneDark" if side < 2.2 and hh < far_top else "night1")
+    if tier == 3:
+        return postern_pole(c.im)
     return c.im
+
+
+# Build 3, POLISH pass 1 step 2 (lane 3, the critic's M6): the tier-3 postern's flag flies as a prop of its own
+# (`keepFlag`, `SceneLayout.castlePosternFlag`) from a pole raised to POSTERN_POLE, so the cloth clears the roof's point
+# when it hangs limp. The painting stays as it was (its rows keep their noise): the canvas grows POSTERN_RISE rows on
+# top, the pole runs up through them, its gold point over it.
+POSTERN_RISE = 12
+POSTERN_POLE = 122
+POSTERN_POLE_X = 142     # keepart.py: the squat tower's middle, (114 + 170) / 2
+
+
+def postern_pole(im):
+    out = PA.Image(im.w, im.h + POSTERN_RISE)
+    for y in range(im.h):
+        for x in range(im.w):
+            out.set(x, y + POSTERN_RISE, im.get(x, y))
+    top = out.h - 1 - POSTERN_POLE
+    for y in range(top, POSTERN_RISE + 1):
+        out.set(POSTERN_POLE_X, y, col("woodDark"))
+    out.set(POSTERN_POLE_X, top - 1, col("gold"))
+    return out
 
 
 def postern_far_glow():

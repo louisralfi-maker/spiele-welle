@@ -831,7 +831,10 @@ enum FrameBuilder {
             if let emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
                                                animTime: animTime, options: options, geometry: geometry,
                                                fade: options.look == .two ? alpha : 1) {
-                glow.add(emissive)
+                for piece in bentFlame(emissive, part: part, prop: prop, animTime: animTime, options: options,
+                                       geometry: geometry) {
+                    glow.add(piece)
+                }
             }
         }
         let torch = ambient.torchStrength
@@ -883,7 +886,7 @@ enum FrameBuilder {
             // torches (the critic: "dusk looks the same as night: the same full moon in the same place").
             strength *= wedgeMoonShare(ambient)
         }
-        if options.look == .two && (part.sprite == .flame || part.sprite == .brazierFlame) {
+        if options.look == .two && (part.sprite == .flame || part.sprite == .brazierFlame) && !enclosed(prop) {
             // Build 3, POLISH pass 1 (lane 3): a torch's or a brazier's flame gutters with its light in the wind.
             let lean = Weather.fireLean(x: prop.x + part.dx, geometry.weather, time: animTime,
                                         reduceMotion: options.reduceMotion)
@@ -927,6 +930,69 @@ enum FrameBuilder {
         }
         return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color,
                                 flipped: part.mirrors && prop.flipped)
+    }
+
+    /// Build 3 step 2 (lane 3, the critic's M1): the props whose fire burns behind a wall, out of the wind: the forge
+    /// in the smithy (its flame neither gutters nor bends; `EntityFrames.smithyLeft`).
+    static let enclosedFires: Set<SpriteID> = [.smithy, .masterSmithy]
+
+    private static func enclosed(_ prop: Prop) -> Bool {
+        enclosedFires.contains(prop.sprite)
+    }
+
+    /// A light that burns out of the wind: the bakehouse's oven through its hatch (`SceneLayout.castleBakeHatchLight`)
+    /// and the forge (`EntityFrames` lights it at the smithy's hearth); their pools neither lean nor gutter.
+    static func windproof(_ source: LightSource) -> Bool {
+        let hatch = SceneLayout.castleBakeHatchLight
+        if source.kind == .torch && source.x == SceneLayout.castleBakehouseX + hatch.dx && source.y == hatch.y {
+            return true
+        }
+        let forge = [EntityFrames.smithyLeft + 19, EntityFrames.smithyLeft + 21]
+        return source.kind == .brazier && source.y == 16 && source.radius == 26 && forge.contains(source.x)
+    }
+
+    /// The rows of an open flame's top that lean with the wind, by how far: a lean of a third or more moves its top
+    /// rows a pixel downwind, a lean of three quarters or more its top row two and the rows under it one (a torch's
+    /// flame of 5 rows, a brazier's of 7). None in a calm, none with Reduce Motion beyond the steady wind's.
+    static func flameBend(lean: Double, rows: Int) -> [(rows: Int, shift: Int)] {
+        let force = abs(lean)
+        let sign = lean < 0 ? -1 : 1
+        let upper = max(1, (rows * 2 + 2) / 5)
+        if force >= 0.75 {
+            let top = max(1, upper / 2)
+            return [(top, 2 * sign), (upper - top + 1, sign)]
+        }
+        if force >= 0.33 {
+            return [(upper, sign)]
+        }
+        return []
+    }
+
+    /// Build 3 step 2 (lane 3, the critic's M1: at phone size the lean of the light alone was not seen): a torch's or a
+    /// brazier's flame bends with the wind, its top rows drawn shifted downwind by `flameBend` (the flame as bands of
+    /// its rows, the foot where it burns). The forge's does not (`enclosedFires`).
+    private static func bentFlame(_ flame: EmissiveInstance, part: EmissivePart, prop: Prop, animTime: Double,
+                                  options: FrameOptions, geometry: Geometry) -> [EmissiveInstance] {
+        guard options.look == .two, part.sprite == .flame || part.sprite == .brazierFlame, !enclosed(prop),
+              geometry.weather != .clear else { return [flame] }
+        let lean = Weather.fireLean(x: prop.x + part.dx, geometry.weather, time: animTime,
+                                    reduceMotion: options.reduceMotion)
+        let rows = part.sprite.size.height
+        let bands = flameBend(lean: lean, rows: rows)
+        guard !bands.isEmpty else { return [flame] }
+        let shifted = bands.reduce(0) { $0 + $1.rows }
+        let all = bands + [(rows: rows - shifted, shift: 0)]
+        var list: [EmissiveInstance] = []
+        var row = 0
+        for band in all where band.rows > 0 {
+            var piece = flame
+            piece.rect = SIMD4<Float>(flame.rect.x + Float(band.shift), flame.rect.y + Float(row), flame.rect.z,
+                                      Float(band.rows))
+            piece.source = SIMD4<Float>(flame.source.x, flame.source.y + Float(row), flame.source.z, Float(band.rows))
+            list.append(piece)
+            row += band.rows
+        }
+        return list
     }
 
     /// World-3 fix round 1 (the critic's high 8): the far shore's lantern (near plane) laid on the water as a broken
@@ -1759,7 +1825,7 @@ enum FrameBuilder {
             // (`Weather.fireLean`): its pool moves downwind and down and dims; none in still air. After the culling,
             // so the wind never adds or takes a light.
             var lean = 0.0
-            if options.look == .two && Weather.leans(source.kind) {
+            if options.look == .two && Weather.leans(source.kind) && !windproof(source) {
                 lean = Weather.fireLean(x: source.x, geometry.weather, time: animTime,
                                         reduceMotion: options.reduceMotion)
                 intensity *= 1 - Weather.fireGutter * abs(lean)
