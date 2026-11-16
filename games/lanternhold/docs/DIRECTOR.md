@@ -1042,3 +1042,11 @@ schneller geht."
     - the vane becomes a real arrow (a small filled head, a heavy notched tail) or it is cut;
     - every leaf gets a shadow edge and none is thinner than 2 px; a burst leaves one crown together.
   - Step 5 is one Opus agent with its own short rounds (no workflow, for the quota: 83 % of the week).
+
+- **The horde lane's step 5 judged; the small ones are redrawn (16.11.2026, 11:26).**
+  - Green at c93cd45f (round lh-b3h-54). The critic: fail, 6/10, no blocker, five highs. The fifth 6 in a row.
+  - Works: no threads, a stream in clumps, grey flakes, the dark open in front of the mist.
+  - The director's verdict: the fault is the design. The sootling is a level body on four thin legs, so at phone size it is a small black pony. The ash giant is a hunched shroud with a low head and arms to the ground. The small ones are not his kin.
+  - The call: the small ones become the giant's children. Step 6 is a design card (python only, one agent): three candidates (the knuckle-walker, the dragger, the hood) beside the giant and today's bodies. The director picks, then the strips are rebuilt under the same sprite ids.
+  - Also decided: the warm rim goes, the body carries no bloom, the proof stage's heap gets a knock-off, the kill's fall is drawn in front of the crowd.
+  - The join can take the lane at c93cd45f; the new strips follow in the lane's own files.
