@@ -992,3 +992,9 @@ schneller geht."
   - The director's calls: water is the light thing that falls and ash the dark one; at night the ash is pale through an emissive copy; one flake in six is a dying ember (orange, grey after a third of its fall); the counts double within the budget; Reduce Motion fades a third of them in place; look tests measure the drawn pixel.
   - Step 3 = the ash and the water's look, the mediums (a breeze flag that sags, banners that swing in a storm, a flame that bends whole, gold that lives at dusk, a splash that shows), then gust leaves and dust, the sounds and the weather vane.
   - Louis got two pictures of the rain over the town (noon storm with the mill, dusk with warm windows).
+
+- **The horde lane's step 2 judged (16.11.2026, 04:10).**
+  - Green: `claude/lh-b3-horde` b713cfb9, round `lh-b3h-22` ALL PASSED; the rule files are untouched.
+  - The picture fails again (critic 6/10, 1 blocker, 5 highs): lit, the small ones are brown mounds; unlit, black lumps; a kill throws up a V; the tumbler is a ball with a fuse; the clip showed no horde.
+  - The director's calls: the body is the shadow and the rag only the accent (a shoulder mantle and trailing strips, at most a third of the sprite, no dither); the silhouette decides and is judged first; neighbours separate by value and height; the rag reads unlit, tested on the drawn pixel; the puff is grey flakes; threads are soot on every second one; the tumbler gets one last try or its share goes to zero; the clip is watched through three stills.
+  - Step 3 is the fix round. Wave 3 idea: a tall thin fourth body for a varied skyline.
