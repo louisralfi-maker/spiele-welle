@@ -387,7 +387,8 @@ struct PayCount: Sendable, Equatable {
         pressPlaced = 0
     }
 
-    /// One coin (a quick touch on the board or its thing): it lands at once, or as soon as the lord stands there.
+    /// One coin (a quick touch on the board or its thing): it leaves the lord's hand at once, or as soon as he stands
+    /// there, and lands a flight later.
     mutating func tap() {
         guard result == nil, sealAt == nil, !pendingShort, launched.count + queued < coins.count else { return }
         queued += 1
