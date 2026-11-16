@@ -985,3 +985,10 @@ schneller geht."
   - The director's calls: the coins fly; the board stands beside the door; bars stay greedy from 100 up; an empty board waits 5 s; the big coin bears the house's lantern; the site lantern burns while the job runs; the clink's steps are rendered wavs.
   - Step 2 is the fix round; the pictograms over a plot move to a step 3.
   - Wave 1 now: all three lanes are in their second step (horde, wind, count).
+
+- **Build 3, the wind lane: step 2 is green, the wind and the town's rain pass, the ash does not read; step 3 is briefed (16.11.2026, 04:04).**
+  - `claude/lh-b3-wind` 2c6c5b01, round `lh-b3w-21` ALL PASSED. Part A holds: the limp flag is cloth, the flags fly and snap in their own phases, the sails turn in even steps, the mill sits in its haze. Part B's mechanics hold: water east of the outermost standing wall, ash west of it, a soft band, the lean born with the streak, ash never upwind.
+  - The critic gave 6/10 (2 highs) and the director confirms: by day ash and water are the same dark grey and the ash reads as dirt on the glass; at night the ash cannot be seen.
+  - The director's calls: water is the light thing that falls and ash the dark one; at night the ash is pale through an emissive copy; one flake in six is a dying ember (orange, grey after a third of its fall); the counts double within the budget; Reduce Motion fades a third of them in place; look tests measure the drawn pixel.
+  - Step 3 = the ash and the water's look, the mediums (a breeze flag that sags, banners that swing in a storm, a flame that bends whole, gold that lives at dusk, a splash that shows), then gust leaves and dust, the sounds and the weather vane.
+  - Louis got two pictures of the rain over the town (noon storm with the mill, dusk with warm windows).
