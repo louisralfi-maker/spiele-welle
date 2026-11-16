@@ -215,12 +215,12 @@ enum FrameBuilder {
                 // plane's water so it lies on it.
                 glow.add(streak)
             }
-            if (plane == .near || plane == .world) && options.look == .two {
+            if (plane == .near || plane == .world) && options.look == .two && options.drawsSmoke {
                 // World rebuild, step world-2: the castle's chimneys smoke, the keep's in the near plane's picture
                 // (moving with the mist band), the bakehouse's on the world plane.
                 planeSprites[plane.rawValue] += castleSmoke(props: ordered, plane: plane, animTime: animTime,
                                                             reduceMotion: options.reduceMotion, geometry: geometry,
-                                                            ambient: ambient, glow: &glow)
+                                                            ambient: ambient, hour: hour, glow: &glow)
             }
             if plane == .mid && options.look == .two {
                 // Fix round 1: the threads of water falling down the cleft wall, in front of it.
@@ -250,8 +250,12 @@ enum FrameBuilder {
                 // and embers after it, so the ash is pale against the bank and never drawn dark into it.
                 var ashGlow: [EmissiveInstance] = []
                 if options.look == .two {
-                    planeSprites[plane.rawValue] += smoke(props: ordered, animTime: animTime,
-                                                          reduceMotion: options.reduceMotion, geometry: geometry)
+                    if options.drawsSmoke {
+                        // b3-wind (step 6, call S2): the town's houses smoke in puffs, about half of them.
+                        planeSprites[plane.rawValue] += smoke(props: ordered, animTime: animTime,
+                                                              reduceMotion: options.reduceMotion, geometry: geometry,
+                                                              ambient: ambient, hour: hour, glow: &glow)
+                    }
                     planeSprites[plane.rawValue] += steam(sources: sources, geometry: geometry)
                 }
                 if rains {
@@ -558,28 +562,59 @@ enum FrameBuilder {
     /// Look 2: chimney smoke over the town's cottages that stand (`SceneLayout.look2Smoke`), a translucent veil on
     /// the world plane that hides no glow.
     /// The wind leans it (`smokeLean`; with Reduce Motion by the steady wind, without the gusts).
-    private static func smoke(props: [Prop], animTime: Double, reduceMotion: Bool,
-                              geometry: Geometry) -> [SpriteInstance] {
+    /// b3-wind: build 3 step 6 (the director's call S2 of 16.11. 12:25: "the town's chimneys show no smoke at phone
+    /// size"): every chimney of the town's houses that stand (`SceneLayout.townChimneys`: the cottages, the big house's
+    /// two, the tavern's) smokes in the town's puffs (`CastleSmoke.puffs(town:)`) with the keep's lean rule, about half
+    /// of them by a hash of the chimney's place and three of four from 17 h to 21 h (`CastleSmoke.smokes`); the d2Smoke
+    /// veil is no longer drawn. Reduce Motion: the puffs stand, leaned by the steady wind.
+    private static func smoke(props: [Prop], animTime: Double, reduceMotion: Bool, geometry: Geometry,
+                              ambient: AmbientSample, hour: Double, glow: inout EmissiveList) -> [SpriteInstance] {
         let weather = geometry.weather
-        let cottages: Set<SpriteID> = [.house, .houseB, .houseC]
-        let size = SpriteID.d2Smoke.size
+        let whole = geometry.whole(.world)
+        let time = reduceMotion ? 0 : animTime
         var list: [SpriteInstance] = []
-        for chimney in SceneLayout.look2Smoke {
-            let stands = props.contains {
-                $0.plane == .world && cottages.contains($0.sprite) && abs($0.x - chimney.x) < 0.5
+        for prop in props where prop.plane == .world {
+            for chimney in SceneLayout.townChimneys(prop) where CastleSmoke.smokes(x: chimney.x, hour: hour) {
+                let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
+                chimneyPuffs(at: chimney, whole: whole, plane: .world, town: true, fire: false, hearth: true,
+                             wind: wind, time: time, ambient: ambient, geometry: geometry, list: &list, glow: &glow)
             }
-            guard stands else { continue }
-            let centre = chimney.x + (chimney.flipped ? look2ChimneyX.flipped : look2ChimneyX.plain)
-            let left = centre - Double(size.width / 2) - geometry.whole(.world)
-            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
-            let top = geometry.top(y: look2SmokeY, height: Double(size.height))
-            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-            let column = SpriteInstance(sprite: .d2Smoke, frame: 0, rect: rect, tint: look2SmokeTint,
-                                        flipped: false)
-            let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
-            list += sheared(column, offset: Int((wind * smokeLean).rounded()), bands: 10, bend: false)
         }
         return list
+    }
+
+    // b3-wind: build 3 step 6 (the director's calls S1 and S2 of 16.11. 12:25): one chimney's puffs, the oldest first
+    // and the mouth's puff last (so the newer stand in front), each white × `CastleSmoke.tint` with its light of the
+    // hour (`CastleSmoke.glow`: day, dusk sky, moon, the fire under the lowest); at night one warm pixel at the mouth
+    // (`CastleSmoke.mouthFrame` as a glow quad), not over the back row, which has no fire under its smoke.
+    private static func chimneyPuffs(at chimney: (x: Double, y: Double), whole: Double, plane: Plane, town: Bool,
+                                     fire: Bool, hearth: Bool, wind: Double, time: Double, ambient: AmbientSample,
+                                     geometry: Geometry, list: inout [SpriteInstance], glow: inout EmissiveList) {
+        let size = SpriteID.smokePuff.size
+        let tint = CastleSmoke.tint
+        let puffs = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
+            .filter { $0.alpha > 0.02 }
+            .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
+        for puff in puffs + [CastleSmoke.mouth(town: town)] {
+            let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let top = geometry.top(y: (chimney.y + puff.rise).rounded(), height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
+                                       tint: SIMD4<Float>(tint.x, tint.y, tint.z, puff.alpha), flipped: false))
+            let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire, hearth: hearth)
+            glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane, rect: rect,
+                                      color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, puff.alpha), frame: puff.frame))
+        }
+        let night = min(1, max(0, ambient.torchStrength))
+        guard hearth || fire, night > 0.05 else { return }
+        let left = (chimney.x - Double(size.width) / 2 - whole).rounded()
+        guard geometry.isVisible(left: left, width: Double(size.width)) else { return }
+        let top = geometry.top(y: chimney.y.rounded(), height: Double(size.height))
+        let warm = GamePalette.fireOrange * (CastleSmoke.mouthGlow * night)
+        glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane,
+                                  rect: SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height)),
+                                  color: SIMD4<Float>(warm.x, warm.y, warm.z, 1), frame: CastleSmoke.mouthFrame))
     }
 
     // MARK: World rebuild, step world-2 (SceneLayoutCastle.swift)
@@ -591,35 +626,23 @@ enum FrameBuilder {
     /// b3-wind: build 3 step 5 (lane 3, the director's call 1 of 11:07): the plume leans with the wind at the chimney
     /// (`CastleSmoke.angle`), torn in a storm; under Reduce Motion it stands leaned by the steady wind; the back row's
     /// chimneys smoke dimmer, slow to show and with no fire under them (`CastleSmoke.puffs(back:)`).
+    /// b3-wind (step 6, calls S1 and S2): the puffs with body (`chimneyPuffs`); the back row smokes as the town's
+    /// chimneys do, about half of them (`CastleSmoke.smokes`).
     private static func castleSmoke(props: [Prop], plane: Plane, animTime: Double, reduceMotion: Bool,
-                                    geometry: Geometry, ambient: AmbientSample,
+                                    geometry: Geometry, ambient: AmbientSample, hour: Double,
                                     glow: inout EmissiveList) -> [SpriteInstance] {
         let weather = geometry.weather
-        let size = SpriteID.smokePuff.size
-        let value = CastleSmoke.value
         var list: [SpriteInstance] = []
         for prop in props where prop.plane == plane {
             guard let chimney = SceneLayout.castleChimney(prop) else { continue }
+            // b3-wind (step 5): the back row's smoke has no fire under it; step 6: it is the town's.
+            let back = SceneLayout.townRowSprites.contains(prop.sprite)
+            if back && !CastleSmoke.smokes(x: chimney.x, hour: hour) { continue }
             let whole = geometry.whole(prop.movesWith ?? prop.plane)
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
-            let time = reduceMotion ? 0 : animTime
-            let fire = prop.sprite == .bakehouse
-            // b3-wind (step 5): the back row's soft puffs.
-            let back = SceneLayout.townRowSprites.contains(prop.sprite)
-            for puff in CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), back: back)
-                where puff.alpha > 0.02 {
-                let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
-                guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
-                let top = geometry.top(y: (chimney.y + puff.rise).rounded(), height: Double(size.height))
-                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-                list.append(SpriteInstance(sprite: .smokePuff, frame: puff.frame, rect: rect,
-                                           tint: SIMD4<Float>(value, value, value * 1.02, puff.alpha), flipped: false))
-                // Round lh-w2f1-2: lit only as albedo, the puffs sank into the night's rock. World-3: a light of
-                // their own at every hour (`CastleSmoke.glow`: day, dusk sky, moon, the chimney's fire from below).
-                let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire, hearth: !back)
-                glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane, rect: rect,
-                                          color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, puff.alpha), frame: puff.frame))
-            }
+            chimneyPuffs(at: chimney, whole: whole, plane: plane, town: back, fire: prop.sprite == .bakehouse,
+                         hearth: !back, wind: wind, time: reduceMotion ? 0 : animTime, ambient: ambient,
+                         geometry: geometry, list: &list, glow: &glow)
         }
         return list
     }
@@ -2081,70 +2104,109 @@ enum FrameBuilder {
 
     // MARK: Build 3 step 3, part B: the gust's leaves and dust (docs/POLISH.md 2 item 5; lane 3)
 
-    /// Leaves in the air by the steady wind's step (`Weather.sailLevel`: calm, breeze, gusty, storm): none in a calm, a
-    /// few in a breeze (while its small gusts are up), more on a gusty day and in a storm (while a gust is up where
-    /// they fly; a storm keeps some aloft between its gusts). Puffs of the lane's dust only in a gusty day's or a storm's gusts.
-    static let gustLeafCounts = [0, 3, 10, 18]
+    /// Puffs of the lane's dust by the steady wind's step (`Weather.sailLevel`: calm, breeze, gusty, storm): only in a
+    /// gusty day's or a storm's gusts.
     static let gustDustCounts = [0, 0, 4, 5]
-    /// A leaf crosses the screen at this speed plus `gustLeafDrive` × the steady wind (target px/s); a slot waits a
-    /// share of its flight between flights. Step 4 (the critic's H3, Louis: "Baeume zum Wackeln, also Wind"; over the
-    /// town the leaves were lost in front of roofs and crowns of their own value):
-    /// - (a) a gust lifts them: each rises `gustLeafRise` (20 to 40 px, by its flight) over its first `gustLeafRiseTime`
-    ///   seconds, easing out, then sinks `gustLeafSink` px/s, so most of its path runs over the roofs in the sky band;
-    /// - (c) each slot its own speed (× `gustLeafPace`, 0.7 to 1.3 by its hash) and its own bob (3 to 6 px at 2.5 to
-    ///   5.5 rad/s), so they never move as a conveyor;
-    /// - (b) half are an autumn straw (`gustLeafAutumn`), lighter than every roof (the sprite: 6 x 5, a pale lit edge);
-    /// - (d) in a storm each hard rise of the gust (`Weather.sinceGustRose`) lets 4 to 6 leaves of one crown go within
-    ///   `gustBurstSpread` s, beside the slots (`gustBurstMost` at most).
+    /// A leaf flies at this speed plus `gustLeafDrive` × the steady wind (target px/s).
     static let gustLeafSpeed = 50.0
     static let gustLeafDrive = 90.0
-    static let gustLeafRise = (low: 20.0, high: 40.0)
-    static let gustLeafRiseTime = 0.6
-    static let gustLeafSink = 3.0
-    static let gustLeafPace = (low: 0.7, high: 1.3)
-    static let gustLeafBob = (low: 3.0, high: 6.0)
-    static let gustLeafBobRate = (low: 2.5, high: 5.5)
-    static let gustLeafAutumn = 0.5
-    static let gustBurstLeast = 4
-    static let gustBurstMost = 6
-    static let gustBurstSpread = 0.3
-    /// b3-wind: build 3 step 5 (the director's call 5 of 11:07, H3 (c): no shot showed a burst): the burst's leaves
-    /// leave their crown together as the gust rises, within its first `gustBurstLead` s (they are off at
-    /// `Weather.sinceGustRose` 0), and show at once (`gustBurstFadeIn`); `gustBurstSpread` is no longer used.
-    static let gustBurstLead = 0.08
-    static let gustBurstFadeIn = 0.05
     /// b3-wind (step 5, call 5): the leaves leave every crown in view. The town's trees stand on the near plane (the
-    /// lane plane has none there, so step 4's leaves only ever set off from the upwind edge and no burst could start);
-    /// their crowns count too, at their column on the screen.
+    /// lane plane has none there); their crowns count too, at their column on the screen.
     static let gustCrownPlanes: Set<Plane> = [.world, .near]
     /// A puff of dust lives this long (s), drifting `gustDustReach` px downwind.
     static let gustDustLife = 1.2
     static let gustDustReach = 22.0
 
-    /// Step 4 (the critic's H3 (d)): the leaves of a storm's burst in the air at this moment, for the gust at world x
-    /// (the screen's middle): after each hard rise of the gust (`Weather.sinceGustRose`) 4 to 6 leaves, each starting
-    /// within `gustBurstSpread` s of it, at its own pace, until it has crossed the screen's width. The key picks the
-    /// crown they leave. Nil but in a storm (`Weather.sailLevel` 3) and without such a rise in the last three cells.
-    static func gustBurst(_ weather: WeatherSample, at x: Double, time: Double, width: Double)
-        -> (key: UInt64, leaves: [(mark: UInt64, along: Double, pace: Double, flight: Double)])? {
-        guard Weather.sailLevel(weather.mean) == 3,
-              let rose = Weather.sinceGustRose(at: x, weather, time: max(0, time)) else { return nil }
-        let key = SeededRandom.hash(weather.gustSeed ^ 0x4255_5253, rose.cell)
-        let count = gustBurstLeast
-            + Int(unit(SeededRandom.hash(key, 2)) * Double(gustBurstMost - gustBurstLeast + 1))
+    // b3-wind: build 3 step 6 (the director's call S3 of 16.11. 12:25: "the leaves read as confetti or small birds; a
+    // still frame shows neither where they come from nor where they go"; proven over the live town frame in
+    // ci-out/director/b3/wind/s6/00-smoke-leaves-python.png): the leaves fly as a ribbon. Every `ribbonEvery` s (a burst
+    // starts up to `ribbonJitter` s into its cell, so two are 6 to 10 s apart) 7 to 9 leaves leave the lee edge of one
+    // crown in view within `ribbonLeave` s, the late ones the most (so the ribbon is dense near the tree and sparse far
+    // from it) and the first the fastest, and travel along one shared arc: rising `ribbonRise` px by `ribbonPeak` px
+    // downwind, then sinking `ribbonSink` px a pixel, fading over their last `ribbonFade` px of `ribbonReach`. Each
+    // leaf is 3 x 2 or 2 x 2 in the two lightest tones of its crown over a darker underside (`gustLeaf`'s frames), and
+    // flips between two frames; the autumn tone only from the fruit trees. No leaf is born inside a crown and none is
+    // drawn at rest; the scattered single leaves of steps 3 to 5 are gone. None in a calm, none with Reduce Motion.
+    static let ribbonLeast = 7
+    static let ribbonMost = 9
+    static let ribbonLeave = 0.4
+    static let ribbonEvery = 8.0
+    static let ribbonJitter = 2.0
+    static let ribbonRise = (low: 6.0, high: 10.0)
+    static let ribbonPeak = 36.0
+    static let ribbonSink = 0.12
+    static let ribbonReach = 150.0
+    static let ribbonFade = 30.0
+    /// The first leaf's pace and the last's (× the leaf speed), so the ribbon stretches as it goes.
+    static let ribbonPace = (first: 1.25, last: 0.8)
+    /// How often a leaf flips between its two frames (per second).
+    static let ribbonFlip = 7.0
+    /// The crown a ribbon leaves: the upper `ribbonCrownShare` of its tree's rect; the leaves set off at the row
+    /// `ribbonCrownRow` of the tree's height under its top, and only from a crown whose lee edge lies in the upwind
+    /// `ribbonRoom` of the screen (else from any crown in view), so the ribbon has room to fly.
+    static let ribbonCrownShare = 0.65
+    static let ribbonCrownRow = 0.3
+    static let ribbonRoom = 0.6
+    private static let ribbonSalt: UInt64 = 0x5249_4242_4F4E
+
+    /// When the ribbon of cell `cell` sets off (s of the frame's clock).
+    static func ribbonStart(cell: Int64) -> Double {
+        Double(cell) * ribbonEvery + ribbonJitter * unit(SeededRandom.hash(ribbonSalt, cell))
+    }
+
+    /// The ribbon in the air at `time` (its cell and the seconds since it set off), nil in a calm and between two.
+    static func ribbon(_ weather: WeatherSample, time: Double) -> (cell: Int64, since: Double)? {
+        guard Weather.sailLevel(weather.mean) > 0 else { return nil }
         let speed = gustLeafSpeed + gustLeafDrive * abs(weather.mean)
-        var leaves: [(mark: UInt64, along: Double, pace: Double, flight: Double)] = []
-        for place in 0..<min(gustBurstMost, count) {
-            let mark = SeededRandom.hash(key, Int64(16 + place))
-            // b3-wind (step 5): all of them off as the gust rises.
-            let along = rose.since + gustBurstLead * unit(SeededRandom.hash(mark, 11))
-            let pace = speed * (gustLeafPace.low + (gustLeafPace.high - gustLeafPace.low)
-                                * unit(SeededRandom.hash(mark, 10)))
-            let flight = (width + 40) / pace
-            guard along >= 0, along < flight else { continue }
-            leaves.append((mark: mark, along: along, pace: pace, flight: flight))
+        let life = ribbonLeave + ribbonReach / (ribbonPace.last * 0.95 * speed)
+        let now = min(1.0e12, max(0, time))
+        let cell = Int64((now / ribbonEvery).rounded(.down))
+        for index in [cell, cell - 1] {
+            let since = now - ribbonStart(cell: index)
+            if since >= 0 && since < life {
+                return (index, since)
+            }
         }
-        return leaves.isEmpty ? nil : (key: key, leaves: leaves)
+        return nil
+    }
+
+    /// The leaves of the ribbon of cell `cell`, `since` s after it set off, at the leaf speed `speed`: each one's way
+    /// along the arc (px downwind of the crown's lee edge, never 0 or less: a leaf not yet off is not drawn), its height
+    /// over the arc's foot (px up), its shape (0: 3 x 2, 1: 2 x 2), its flip (0, 1) and its alpha.
+    static func ribbonLeaves(cell: Int64, since: Double, speed: Double)
+        -> [(along: Double, up: Double, shape: Int, flip: Int, alpha: Double)] {
+        let key = SeededRandom.hash(ribbonSalt ^ 0x4C45_4146, cell)
+        let count = min(ribbonMost, ribbonLeast + Int(unit(SeededRandom.hash(key, 1))
+                                                      * Double(ribbonMost - ribbonLeast + 1)))
+        let rise = ribbonRise.low + (ribbonRise.high - ribbonRise.low) * unit(SeededRandom.hash(key, 2))
+        var leaves: [(along: Double, up: Double, shape: Int, flip: Int, alpha: Double)] = []
+        for place in 0..<count {
+            let share = Double(place) / Double(count - 1)
+            let mark = SeededRandom.hash(key, Int64(16 + place))
+            let off = ribbonLeave * share.squareRoot()
+            let pace = speed * (ribbonPace.first + (ribbonPace.last - ribbonPace.first) * share)
+                * (0.95 + 0.1 * unit(SeededRandom.hash(mark, 3)))
+            let along = pace * (since - off)
+            guard along > 0, along < ribbonReach else { continue }
+            let arc = along < ribbonPeak ? rise * sin(along / ribbonPeak * Double.pi / 2)
+                                         : rise - (along - ribbonPeak) * ribbonSink
+            let up = arc + (unit(SeededRandom.hash(mark, 4)) - 0.5) * 2
+            let shape = unit(SeededRandom.hash(mark, 5)) < 0.4 ? 0 : 1
+            let flip = Int((since * ribbonFlip + 2 * unit(SeededRandom.hash(mark, 6))).rounded(.down)) % 2
+            leaves.append((along: along, up: up, shape: shape, flip: flip,
+                           alpha: min(1, (ribbonReach - along) / ribbonFade)))
+        }
+        return leaves
+    }
+
+    /// The leaf tone of a crown (`gustLeaf`'s rows of four frames): the pale greens of the lindens, willows and firs,
+    /// the poplars' darker greens, the autumn tone only from the fruit trees.
+    static func ribbonTone(_ sprite: SpriteID) -> Int {
+        switch sprite {
+        case .appleTree, .appleTreeB, .appleTreeC: return 2
+        case .poplar, .poplarB, .poplarC: return 1
+        default: return 0
+        }
     }
 
     /// How far the gust is up at world x, 0 ... 1: the wind there over the steady wind, against the day's whole gust.
@@ -2154,12 +2216,9 @@ enum FrameBuilder {
         return min(1, max(0, over / max(0.05, abs(weather.gust))))
     }
 
-    /// The leaves and dust a gust carries across the lane's plane, each a pure function of its slot and the time: a leaf
-    /// sets off from the crown of a tree on the screen (else from the upwind edge, over the roofs), rises as the gust
-    /// lifts it and tumbles downwind with a bob and a slow sink, in the trees' own greens or (step 4: one in two) an
-    /// autumn straw; it shows while the gust is up where it flies and fades as the gust eases; a storm's hard rise lets a
-    /// crown's leaves go in a burst. Never west of the outermost standing wall (the ash is the weather there), never
-    /// with Reduce Motion, none in a calm.
+    /// The leaves and dust a gust carries across the lane's plane, each a pure function of the time: a ribbon of leaves
+    /// from one crown on the screen (b3-wind step 6), and the lane's dust in the gusts. Never west of the outermost
+    /// standing wall (the ash is the weather there), never with Reduce Motion, none in a calm.
     private static func gustLeaves(props: [Prop], animTime: Double, seam: Double,
                                    geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
@@ -2171,94 +2230,38 @@ enum FrameBuilder {
         let ground = Double(geometry.groundRow)
         let downwind: Double = weather.mean < 0 ? -1 : 1
         let speed = gustLeafSpeed + gustLeafDrive * abs(weather.mean)
-        // The crowns of the lane plane's trees on the screen, as screen x and the row of their upper third.
-        var crowns: [(x: Double, y: Double)] = []
-        // b3-wind (step 5): the near plane's trees too, by the plane they move with.
+        var list: [SpriteInstance] = []
+        // b3-wind (step 6, call S3): the crowns in view (world and near planes, by the plane they move with): their lee
+        // edge on the screen, the row the leaves set off from, their tone.
+        var crowns: [(lee: Double, row: Double, tone: Int)] = []
         for prop in props where gustCrownPlanes.contains(prop.plane) && swaying.contains(prop.sprite) {
             let left = prop.x - geometry.whole(prop.movesWith ?? prop.plane)
             guard geometry.isVisible(left: left, width: Double(prop.width)) else { continue }
-            crowns.append((x: left + Double(prop.width) / 2,
-                           y: geometry.top(y: prop.y, height: Double(prop.height)) + Double(prop.height) * 0.3))
+            let top = geometry.top(y: prop.y, height: Double(prop.height))
+            crowns.append((lee: downwind > 0 ? left + Double(prop.width) : left,
+                           row: top + Double(prop.height) * ribbonCrownRow, tone: ribbonTone(prop.sprite)))
         }
-        let key = SeededRandom.hash(weather.gustSeed ^ 0x4C45_4146, 11)
-        var list: [SpriteInstance] = []
-        // One leaf `along` seconds into a flight that set off at (x0, y0), at its own pace and bob (`own` is its slot's or
-        // its burst place's hash), with a share of the gust's alpha; nil when it is off the screen or west of the wall.
-        func leaf(x0: Double, y0: Double, pick: UInt64, own: UInt64, along: Double, flight: Double,
-                  pace: Double, alpha base: Double, fadeIn: Double = 0.25) -> SpriteInstance? {
-            let rise = gustLeafRise.low + (gustLeafRise.high - gustLeafRise.low) * unit(SeededRandom.hash(pick, 7))
-            let up = min(1, along / gustLeafRiseTime)
-            let lift = rise * (1 - (1 - up) * (1 - up))
-            let bob = gustLeafBob.low + (gustLeafBob.high - gustLeafBob.low) * unit(SeededRandom.hash(own, 8))
-            let rate = gustLeafBobRate.low
-                + (gustLeafBobRate.high - gustLeafBobRate.low) * unit(SeededRandom.hash(own, 9))
-            let phase = unit(SeededRandom.hash(pick, 4)) * 2 * Double.pi
-            let x = x0 + downwind * pace * along
-            let sink = gustLeafSink * max(0, along - gustLeafRiseTime)
-            let y = min(ground - 4, y0 - lift + sink + bob * sin(along * rate + phase))
-            guard x > -Double(size.width), x < width, x + lane > seam else { return nil }
-            // Fade in as it leaves the crown, out at the end of its flight.
-            let alpha = base * min(1, along / fadeIn) * min(1, (flight - along) / 0.4)
-            guard alpha > 0.03 else { return nil }
-            let tone = unit(SeededRandom.hash(pick, 5)) < gustLeafAutumn ? 2 : Int(unit(SeededRandom.hash(pick, 6)) * 2)
-            let tumble = Int(min(1.0e15, along * (6 + 4 * abs(weather.mean)) + phase).rounded(.down)) % 4
-            return SpriteInstance(sprite: .gustLeaf, frame: tone * 4 + tumble,
-                                  rect: SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)),
-                                                     Float(size.width), Float(size.height)),
-                                  tint: SIMD4<Float>(1, 1, 1, Float(alpha)), flipped: downwind < 0)
-        }
-        for slot in 0..<gustLeafCounts[level] {
-            let mark = SeededRandom.hash(key, Int64(slot))
-            let own = unit(mark)
-            let pace = speed * (gustLeafPace.low + (gustLeafPace.high - gustLeafPace.low)
-                                * unit(SeededRandom.hash(mark, 10)))
-            let flight = (width + 40) / pace
-            // A short wait between flights (round lh-b3w-31: a leaf from a crown leaves the screen early, so a storm's
-            // still showed one or two leaves).
-            let cycle = flight * (1.05 + 0.35 * own)
-            let clock = max(0, animTime) + own * cycle
-            let turn = (clock / cycle).rounded(.down)
-            let along = clock - turn * cycle
-            guard along < flight else { continue }
-            let pick = SeededRandom.hash(SeededRandom.hash(key, Int64(max(-1.0e15, min(1.0e15, turn)))), Int64(slot))
-            // From the upwind edge it starts over the roofs (step 4); from a crown, where the gust takes it.
-            var x0 = downwind > 0 ? -8 : width + 8
-            var y0 = ground - 40 - 40 * unit(SeededRandom.hash(pick, 1))
-            if !crowns.isEmpty && unit(SeededRandom.hash(pick, 2)) < 0.7 {
-                let crown = crowns[Int(unit(SeededRandom.hash(pick, 3)) * Double(crowns.count)) % crowns.count]
-                x0 = crown.x
-                y0 = crown.y
+        if !crowns.isEmpty, let ribbon = ribbon(weather, time: animTime) {
+            let room = crowns.filter {
+                downwind > 0 ? $0.lee >= 0 && $0.lee <= width * ribbonRoom
+                             : $0.lee <= width && $0.lee >= width * (1 - ribbonRoom)
             }
-            let near = x0 + downwind * pace * along
-            // A breeze's leaves ride its small gusts too (a lower threshold), so they are gone when it eases.
-            let gust = gustShare(at: near + lane, weather, time: animTime)
-            let alpha: Double
-            if level == 1 {
-                alpha = AmbientRamp.smoothstep((gust - 0.1) / 0.4)
-            } else {
-                let share = AmbientRamp.smoothstep((gust - 0.2) / 0.35)
-                // A storm keeps two leaves in three aloft between its gusts (step 4: one in two read too few).
-                alpha = max(level == 3 && slot % 3 != 2 ? 0.8 : 0, share)
-            }
-            if let item = leaf(x0: x0, y0: y0, pick: pick, own: mark, along: along, flight: flight, pace: pace,
-                               alpha: alpha) {
-                list.append(item)
-            }
-        }
-        // Step 4 (the critic's H3 (d)): a storm's hard rise lets 4 to 6 leaves of one crown on the screen go at once.
-        if !crowns.isEmpty, let burst = gustBurst(weather, at: lane + width / 2, time: animTime, width: width) {
-            let crown = crowns[Int(unit(SeededRandom.hash(burst.key, 1)) * Double(crowns.count)) % crowns.count]
-            for item in burst.leaves {
-                // Each leaf a few pixels apart where it leaves the crown.
-                let spread = (unit(SeededRandom.hash(item.mark, 12)) - 0.5) * 12
-                if let found = leaf(x0: crown.x + spread, y0: crown.y + spread / 3, pick: item.mark, own: item.mark,
-                                    along: item.along, flight: item.flight, pace: item.pace, alpha: 1,
-                                    fadeIn: gustBurstFadeIn) {
-                    list.append(found)
-                }
+            let pool = room.isEmpty ? crowns : room
+            let crown = pool[Int(unit(SeededRandom.hash(ribbonSalt, ribbon.cell &+ 7)) * Double(pool.count)) % pool.count]
+            for leaf in ribbonLeaves(cell: ribbon.cell, since: ribbon.since, speed: speed) {
+                // The leaf's pixels are the cell's columns 1 to 3 (mirrored: 2 to 4) and rows 2 and 3.
+                let edge = (crown.lee + downwind * leaf.along).rounded(.down)
+                let x = downwind > 0 ? edge - 1 : edge - Double(size.width) + 1
+                let y = min(ground - 4, (crown.row - leaf.up).rounded(.down) - 2)
+                guard x > -Double(size.width), x < width, x + lane > seam, leaf.alpha > 0.03 else { continue }
+                list.append(SpriteInstance(sprite: .gustLeaf, frame: crown.tone * 4 + leaf.shape * 2 + leaf.flip,
+                                           rect: SIMD4<Float>(Float(x), Float(y), Float(size.width),
+                                                              Float(size.height)),
+                                           tint: SIMD4<Float>(1, 1, 1, Float(leaf.alpha)), flipped: downwind < 0))
             }
         }
         // The lane's dust: puffs low over the cobbles, only while a gust is up there.
+        let key = SeededRandom.hash(weather.gustSeed ^ 0x4C45_4146, 11)
         let dustKey = SeededRandom.hash(key, 0x4455)
         for slot in 0..<gustDustCounts[level] {
             let own = unit(SeededRandom.hash(dustKey, Int64(slot)))

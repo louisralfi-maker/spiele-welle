@@ -637,6 +637,9 @@ struct FrameOptions: Sendable, Equatable {
     /// Look 2: tonight's fog out of the Gloom (`GloomFog`, "Polish after round 2"); look 1 never reads it. None by
     /// default, so a frame built without the game's night is the frame it was.
     var gloom: GloomFog? = nil
+    /// b3-wind: build 3 step 6 (the director's call S5): false leaves the chimney smoke out of the frame, so a test can
+    /// render the backdrop behind each puff. The game never sets it.
+    var drawsSmoke = true
 
     /// The pixel scale these options give on a screen.
     func pixelScale(physicalWidth: Int, physicalHeight: Int) -> PixelScale {

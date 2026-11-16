@@ -88,6 +88,30 @@ extension SceneLayout {
     /// Step 3 (the critic's M4): the banner's dusk rim and its gold lantern, an emissive overlay of its own frame.
     static let castleBannerRimEmitter = Emitter.sprite(.castleBannerRim, dx: 0, dy: 0, glow: .window, fades: false)
 
+    // MARK: The town's chimneys (b3-wind: build 3 step 6, the director's call S2 of 16.11. 12:25)
+
+    /// The middle column of each chimney's cap in a town house's sprite (from its left edge; its mouth is the sprite's
+    /// top row): the cottages' one (`house`, `houseB`, `houseC`: cap cols 44 to 51), the big house's two (15 to 22 and 47
+    /// to 54), the tavern's (27 to 35).
+    static func townChimneyColumns(_ sprite: SpriteID) -> [Double] {
+        switch sprite {
+        case .house, .houseB, .houseC: return [48]
+        case .bigHouse: return [19, 51]
+        case .tavern: return [31.5]
+        default: return []
+        }
+    }
+
+    /// The chimneys of a town house that stands on the world plane: their world x (a mirrored house mirrors them) and
+    /// their mouth above the ground line (`FrameBuilder.smoke` puffs over them).
+    static func townChimneys(_ prop: Prop) -> [(x: Double, y: Double)] {
+        guard prop.anchor == .ground else { return [] }
+        let width = Double(prop.width)
+        return townChimneyColumns(prop.sprite).map { column in
+            (x: prop.x + (prop.flipped ? width - column : column), y: prop.y + Double(prop.height))
+        }
+    }
+
     /// The tower, then its sails over it (the sails turn in front of the tower and its cap).
     static let look2Wind: [(plane: Plane, entry: Entry)] = [
         (.mid, Entry(sprite: .windmillTower, x: look2WindmillX, y: look2WindmillY, z: 1, region: .valley)),
