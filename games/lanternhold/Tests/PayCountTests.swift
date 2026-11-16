@@ -693,6 +693,15 @@ final class PayCountTests: XCTestCase {
         let hp = try XCTUnwrap(game.driver?.state.plots[wall].hp)
         game.touchThing(repair)
         XCTAssertEqual(game.touch.count?.coins, [.big], "one big coin for the repair")
+        // Step 2 (M7): the one-hollow board catches a finger at least 44 pt wide.
+        let board = try XCTUnwrap(game.touch.countBoard)
+        let probe = try XCTUnwrap(game.stagePoint(CGPoint(x: 400, y: 200), in: proPoints))
+        let reach = max(Double(board.layout.width), probe.minimum) / 2 - 0.5
+        XCTAssertGreaterThanOrEqual(2 * reach + 1, probe.minimum)
+        for dx in [-reach, reach] {
+            XCTAssertEqual(game.countBoardThing((x: board.x + dx, lift: 10, minimum: probe.minimum))?.id, repair.id,
+                           "the board catches the touch \(dx) px from its middle")
+        }
         run(game, seconds: 8) { game.touch.count?.ready == true }
         XCTAssertEqual(game.driver?.state.gold, 50, "the touch that brings the board pays nothing")
         // A second touch on the wall sets the coin: the board is full, the seal falls.
