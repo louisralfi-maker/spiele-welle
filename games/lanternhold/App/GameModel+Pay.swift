@@ -253,7 +253,9 @@ extension GameModel {
             } else {
                 rise = max(0, 1 - (p - 0.4) / 0.2)
             }
-            lift = max(lift, fromLift + (clear - fromLift) * rise)
+            // Toward the clearance by `rise` from the plain way (round lh-b3c-51: a floor at the hollow's lift held
+            // the coin over the plain way after 60 %).
+            lift += max(0, clear - lift) * rise
         }
         return (fromX + (toX - fromX) * across, lift)
     }

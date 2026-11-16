@@ -287,7 +287,9 @@ final class TouchWorldTests: XCTestCase {
     /// Build 3, the count's step 4: a tap on an empty site with one offer brings its tally board and walks the lord
     /// beside it; no card opens from a plot any more.
     func testATapOnASiteBringsItsBoardAndNoCard() throws {
-        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1180"])
+        // Step 5 (H1): the board keeps off the trap's site beside brazier A, so it stands further out, its stand
+        // near 1175; the lord starts well away from it (round lh-b3c-51: at 1180 he already stood there).
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1110"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let plot = Realm.lines[0].braziers[0]
         let site = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-\(plot)" }, "the site offers")
