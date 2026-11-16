@@ -1057,3 +1057,9 @@ schneller geht."
   - The knuckle-walker is picked, but as drawn it is a hump with a short arm. The giant's mark is missing: two long thin stilt arms with open air under the belly.
   - Step 6B is a second cheap design pass (python only, one agent): stilt arms and no hind legs, the opening kept at 1x, taller than wide, a hauling gait whose hump bobs so the crowd's skyline rolls, a smaller runt as the second body, a climb and a strike frame.
   - Its second card is a family scene at phone size: the giant in a stream of 24 of his kin. If it reads, the strips are built in the lane.
+
+- **The horde's second design pass judged: the family scene reads (16.11.2026, 12:02).**
+  - ci-out/director/b3/horde/s6b/01-kin-family-phone-size.png: the giant in a stream of 24 small ones at phone size. They are hunched shadows on two stilt arms with a cold eye point and air under the belly: his children at a glance.
+  - The two bodies: the walker (13 px tall, the sootling strip) and the runt (10 px, the sootlingB strip), 8 frames each (a six-frame hauling walk, a climb, a strike).
+  - Step 7 builds them into the lane as a lane step from c93cd45f: the strips, the frame logic, the law as pixel tests, more of the giant's cloth, the crowd opened a little, the warm rim out, a heap that moves, a kill that reads, no ladder of eyes.
+  - The look is proved in python from the lane's final strips before any round is sent.
