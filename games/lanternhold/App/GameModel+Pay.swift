@@ -160,6 +160,9 @@ extension GameModel {
     /// Step 4 (call 3): by day the wall under the lantern is blended toward fire gold, this much in the inner 8 px
     /// (`siteHalo` frame 1, plain alpha blend, never additive), less as the night comes.
     static let countPoolAlpha: Float = 0.4
+    /// The torches' strength (`AmbientSample.torchStrength`) up to which the hour counts as day for the halo and the
+    /// pool (the golden hour's 0.2; the morning's ramp is under it).
+    static let countDayTorch = 0.2
     /// Step 3 (call 6): while the job runs, a small strong light on the wall behind it. Step 4 (call 3): the rim on the
     /// post's lantern-facing edge and the crook's top row is solid fire gold pixels, by day and by night.
     static let countRimRadius = 20.0
@@ -1072,7 +1075,8 @@ extension GameModel {
         }
         // The coins in the air (step 3, the director's call 1): thrown from the lord's hand up over the coins already
         // lying and down into their hollows (to 3 px over them; the settle does the rest), on whole pixels. Step 4:
-        // at the peak the coin shows its face and its whole rect stands 4 px over the board's top.
+        // at the peak the coin shows its face and its whole rect stands 4 px over the board's top (its top at rest:
+        // round lh-b3c-41, measured from the dipped top the coin stood 2 px short while the last coin's dip ran).
         let lordX = stageLordX
         let handX = lordX + GameModel.countHandReach * (board.x >= lordX ? 1 : -1)
         for coin in flying {
@@ -1080,7 +1084,7 @@ extension GameModel {
             let at = GameModel.countThrow(coin.share, fromX: handX - Double(size.width) / 2,
                                           fromLift: GameModel.countHandLift + Double(size.height) / 2,
                                           toX: Double(coin.x), toLift: coin.lift + 3, coinHeight: Double(size.height),
-                                          clear: GameModel.countPeakClear(boardTop: top,
+                                          clear: GameModel.countPeakClear(boardTop: board.top + shift,
                                                                           coinHeight: Double(size.height)))
             let frame = GameModel.countSpin(coin.share, index: coin.index, face: coin.face)
             if let actor = countActor(coin.coin.sprite, frame, x: at.x.rounded(), lift: at.lift.rounded(), alpha: alpha,
@@ -1127,7 +1131,9 @@ extension GameModel {
         let now = clock.elapsed
         let gold = GamePalette.fireGold
         let warm = GamePalette.fireWhite
-        let dark = min(1, max(0, night))
+        // The night's share for the halo and the pool: none by day (round lh-b3c-41: the torches' ramp still stands at
+        // about 0.05 at ten in the morning, so a faint halo was added on the lit wall), whole from the night's start.
+        let dark = min(1, max(0, (night - GameModel.countDayTorch) / (1 - GameModel.countDayTorch)))
         for lantern in touch.countLanterns {
             var age = max(0, now - lantern.litAt)
             // `-GWCountFreeze lit:<s>` (Debug, the pictures): the lantern held at that age.
