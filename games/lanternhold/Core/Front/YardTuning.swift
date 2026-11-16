@@ -30,7 +30,8 @@ struct YardTuning: Sendable, Equatable {
 
     /// The lord standing still within this many px of the fence's middle for this many seconds while they drill makes
     /// the day count this many times for everyone on the roll, once a day.
-    var fenceReach = 24.0
+    /// The fence's own span (the review of step 1: 24 px reached the main gate's counter spot and Brannock's talk).
+    var fenceReach = 8.0
     var fenceSeconds = 3.0
     var doubleDay = 2
     /// He counts as standing still below this speed (px per second).

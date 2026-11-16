@@ -198,6 +198,26 @@ final class YardTests: XCTestCase {
         for id in ids { XCTAssertEqual(drilled(s, id), 3) }
     }
 
+    /// The review of step 1: the main gate's counter spot (1455), the engine's place (1440), the yard's own site and an
+    /// arm's length before Brannock at his day stops are no watch at the fence.
+    func testTheLordCountingElsewhereInTheCourtyardIsNoWatchAtTheFence() throws {
+        let brannock = try XCTUnwrap(CourtLayout.routines["brannock"])
+        var spots = [1455.0, Realm.courtyardX, Yard.plotX]
+        for stop in brannock.stops {
+            spots.append(stop - TouchRules.armsLength)
+            spots.append(stop + TouchRules.armsLength)
+        }
+        for spot in spots where abs(spot - Yard.fenceX) > tuning.fenceReach {
+            var s = yardRealm(day: 5, hour: 10)
+            s.king.x = spot
+            stand(&s, seconds: 6)
+            XCTAssertFalse(Yard.doubledToday(s), "the lord standing at \(spot) for 6 s")
+        }
+        for spot in [1455.0, Realm.courtyardX, Yard.plotX] {
+            XCTAssertGreaterThan(abs(spot - Yard.fenceX), tuning.fenceReach, "\(spot) lies beyond the fence")
+        }
+    }
+
     func testTheFenceCountsOnlyWhileTheyDrillAndWhileHeStands() {
         var s = yardRealm(day: 5, hour: 8)
         s.king.x = Yard.fenceX
@@ -389,6 +409,7 @@ final class YardTests: XCTestCase {
         let site = try XCTUnwrap(things.first { $0.id == "touch-yard" }, "day 4: the drill yard's site")
         XCTAssertEqual(site.act, .yard(.stage(2)))
         XCTAssertEqual(site.kind, .plot, "a site like every other")
+        XCTAssertEqual(site.footing, Yard.plotHalf, "its stakes and cord show where it will stand")
         XCTAssertEqual(site.x, Yard.plotX)
         XCTAssertEqual(site.price, 70)
         XCTAssertTrue(site.marked, "marked while the purse can pay it")
@@ -428,6 +449,7 @@ final class YardTests: XCTestCase {
             $0.id == "touch-yard-kettle"
         })
         XCTAssertEqual(kettle.act, .yard(.kettle))
+        XCTAssertNil(kettle.footing, "the kettle's place stands in the yard, no stakes")
         XCTAssertEqual(PayOffers.offer(kettle, state: s, balance: balance)?.price, 40)
         // At night the yard is no touch thing.
         s.hour = 22
@@ -435,6 +457,30 @@ final class YardTests: XCTestCase {
             $0.id.hasPrefix("touch-yard")
         })
         XCTAssertTrue(PayOffers.refused(.yard(.kettle), state: s, balance: balance), "not at night")
+    }
+
+    /// The review of step 1: Brannock's day round passed over the site and a person takes the touch from a site; at
+    /// each of his day stops a touch on the site's middle still finds the site.
+    func testBrannockAtHisDayStopsLeavesTheSitesMiddleFree() throws {
+        var s = GameState.newRealm(seed: 2, balance: balance)
+        s.hour = 10
+        s.gold = 200
+        s.day = 4
+        let site = try XCTUnwrap(TouchThings.world(s, balance: balance, figures: [], talked: []).first {
+            $0.id == "touch-yard"
+        })
+        let routine = try XCTUnwrap(CourtLayout.routines["brannock"])
+        let body = try XCTUnwrap(Speakers.speaker("brannock")).body
+        for stop in routine.stops {
+            let figure = DrawnFigure(who: "brannock", key: "brannock", body: body, x: stop, y: 0, facing: 1, frame: 0,
+                                     alpha: 1, look: nil, petition: nil, talking: false)
+            let person = TouchThings.person(figure, act: .talk(who: "brannock"), lordX: Realm.throneX, court: true,
+                                            marked: true)
+            let picked = TouchRules.pick(x: site.x, lift: 4, things: [site, person], minimum: 22)
+            XCTAssertEqual(picked?.id, site.id, "Brannock at \(stop): the site's middle is still the site")
+            let him = TouchRules.pick(x: stop, lift: 4, things: [site, person], minimum: 22)
+            XCTAssertEqual(him?.id, person.id, "and a touch on him still finds him")
+        }
     }
 
     // MARK: - Words

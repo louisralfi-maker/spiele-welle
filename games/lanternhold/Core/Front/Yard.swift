@@ -13,11 +13,15 @@ enum Yard {
     /// barracks stands, against the inner face of the wall).
     static let groundLeft = 1446.0
     static let groundRight = 1480.0
-    /// Where the yard's thing stands (the drill yard's site, then the kettle's tripod) and half its width.
-    static let plotX = 1464.0
+    /// Where the yard's thing stands (the drill yard's site, then the kettle's tripod) and half its width. Its middle
+    /// keeps clear of Brannock's two day stops (`CourtLayout.routines`, 1428 and 1470): a person standing over a site
+    /// takes the touch (`TouchRules.pick`), so at 1464 he held the site about half the day (the review of step 1).
+    /// With the smallest touch area (22 px) only his walk between the stops crosses its middle.
+    static let plotX = 1456.0
     static let plotHalf = 9.0
-    /// The fence's middle (the lord at the fence: `YardTuning.fenceReach`).
-    static let fenceX = 1464.0
+    /// The fence's middle (the lord at the fence: `YardTuning.fenceReach`), where the soldiers drill (the stake row and
+    /// the drillers), clear of the main gate's counter spot (1455), the yard's own site and the engine's place (1440).
+    static let fenceX = 1468.0
 
     // MARK: - What is bought
 
@@ -219,6 +223,8 @@ enum Yard {
             s.yard = yard
         }
         if trained {
+            // A trained man who falls is named through the yard's roster (`horn`), so the trained need a yard.
+            if s.yard == nil { s.yard = YardState(stage: 1) }
             for index in s.soldiers.indices where s.soldiers[index].trained != true {
                 s.soldiers[index].drilled = max(s.soldiers[index].drilled ?? 0, balance.yard.trainDays)
                 train(&s.soldiers[index], balance: balance)

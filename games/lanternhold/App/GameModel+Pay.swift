@@ -610,6 +610,8 @@ extension GameModel {
         }
         for other in touch.things where other.id != thing.id && !other.isPerson {
             if case .build(_) = other.act { add(other.x - other.halfWidth, other.x + other.halfWidth) }
+            // b3-yard (build 3, wave 2, lane 2; a registration block for the join): no board over the yard's site.
+            if case .yard = other.act { add(other.x - other.halfWidth, other.x + other.halfWidth) }
         }
         for row in touch.models where "touch-plot-\(row.plot)" != thing.id {
             add(row.slot.lowerBound, row.slot.upperBound)

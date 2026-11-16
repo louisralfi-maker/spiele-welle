@@ -40,6 +40,11 @@ final class YardUITests: XCTestCase {
         checkTarget(site, "the yard's site")
         XCTAssertTrue(site.value.map { "\($0)" }?.contains("70") == true, "its element says the price")
         touchThing(site)
+        // Brannock's walk between his day stops crosses the site's middle now and then (a person takes the touch from
+        // a site): once more when the board did not come.
+        if !waitForField(app, "count:touch-yard:0/7", timeout: 3), let again = waitForThing(app, "touch-yard", timeout: 2) {
+            touchThing(again)
+        }
         XCTAssertTrue(waitForField(app, "count:touch-yard:0/7", timeout: 3), "the board comes up, seven hollows")
         XCTAssertFalse(element(app, "build-card").exists, "no card")
         waitForStill(app)
@@ -48,6 +53,10 @@ final class YardUITests: XCTestCase {
         attach(XCUIScreen.main.screenshot(), "301-yard-counter-\(language)")
         XCTAssertEqual(sceneGold(app), 200, "nothing paid for the touch that brought the board")
         if let again = waitForThing(app, "touch-yard", timeout: 3) {
+            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 2.2)
+        }
+        if !waitForField(app, "last:paid:touch-yard", timeout: 2), waitForField(app, "count:touch-yard", timeout: 1),
+           let again = waitForThing(app, "touch-yard", timeout: 2) {
             again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 2.2)
         }
         XCTAssertTrue(waitForField(app, "last:paid:touch-yard", timeout: 4), "the hold paid the yard")

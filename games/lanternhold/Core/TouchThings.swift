@@ -135,9 +135,12 @@ enum TouchThings {
         case .kettle:
             id = "touch-yard-kettle"
         }
+        // The empty site shows its stakes and cord like every other (`TouchFooting`); the kettle's place stands in
+        // the yard.
         return TouchThing(id: id, kind: .plot, act: .yard(offer), x: Yard.plotX, standX: Yard.plotX,
                           halfWidth: Yard.plotHalf, top: Double(TouchFooting.stakeHeight),
-                          rank: TouchRules.rank(.plot), price: price, marked: price <= s.gold)
+                          rank: TouchRules.rank(.plot), price: price, marked: price <= s.gold,
+                          footing: offer == .stage(2) ? Yard.plotHalf : nil)
     }
 
     /// Build 3, the count: each recruit's half of the barracks, its middle this far from the barracks' middle, and
