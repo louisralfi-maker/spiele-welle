@@ -10,7 +10,8 @@ import XCTest
 /// is filled only by the live loop). Here a kill is noted into `BattleEffects` the way `GameModel` notes it, and the
 /// frame is rendered offscreen through the game's renderer at six moments after it, in look 2 at night in a breeze.
 /// The six crops round the kill are attached side by side, twice enlarged, as `horde-fall-filmstrip`; the first whole
-/// frame as `horde-fall-frame`.
+/// frame as `horde-fall-frame`. A volley (four killed at once) is rendered at 0.7 and 1.0 s, when only the orphan
+/// threads stand and then drift (`horde-volley-orphans`).
 @MainActor
 final class HordeRenderTests: XCTestCase {
     /// Half a Pro's screen (s = 3), as `Look2FrameTests`.
@@ -23,14 +24,14 @@ final class HordeRenderTests: XCTestCase {
         let renderer = try Renderer(context: context)
         let balance = Balance.standard
         var s = GameFrameSupport.demoNight(hour: 23.2)
-        // A file of small ones in the open before the outer wall; id 9 (a crawler) falls at x 614.
+        // A file of small ones in the open before the outer wall; id 6 (a crawler) falls at x 587, left of the brazier.
         s.creatures = (0..<9).map { k in
             GameFrameSupport.creature(.sootling, x: 560 + Double(k) * 9, id: 3 + k, lit: true)
         }
         var effects = BattleEffects()
         effects.note([], state: s, balance: balance, time: 0.9)
-        s.creatures.removeAll { $0.id == 9 }
-        effects.note([.creatureKilled(kind: .sootling, x: 614)], state: s, balance: balance, time: 1.0)
+        s.creatures.removeAll { $0.id == 6 }
+        effects.note([.creatureKilled(kind: .sootling, x: 587)], state: s, balance: balance, time: 1.0)
         XCTAssertEqual(effects.items.map(\.kind), [.fall])
         XCTAssertEqual(effects.items.first?.body, HordeLook.Body.crawler.rawValue)
 
@@ -41,7 +42,7 @@ final class HordeRenderTests: XCTestCase {
             let time = 1.0 + after
             s.simTime = time
             settings.time = time
-            let desc = frame(s, focus: 614, time: time, wind: 0.6, effects: effects)
+            let desc = frame(s, focus: 600, time: time, wind: 0.6, effects: effects)
             let falls = desc.actors.filter { $0.sprite == .sootFall }
             let threads = desc.actors.filter { $0.sprite == .sootThread }
             XCTAssertEqual(falls.count, after < HordeLook.heapGone ? 1 : 0, "the heap at \(after) s")
@@ -76,6 +77,56 @@ final class HordeRenderTests: XCTestCase {
         if let rect = cropRect {
             attachStrip(crops, width: rect.w, height: rect.h, name: "horde-fall-filmstrip")
         }
+    }
+
+    func testAVolleyLeavesOrphanThreads() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        let balance = Balance.standard
+        var s = GameFrameSupport.demoNight(hour: 23.2)
+        s.creatures = (0..<9).map { k in
+            GameFrameSupport.creature(.sootling, x: 560 + Double(k) * 9, id: 3 + k, lit: true)
+        }
+        var effects = BattleEffects()
+        effects.note([], state: s, balance: balance, time: 0.9)
+        let felled = s.creatures.filter { [4, 5, 7, 8].contains($0.id) }
+        s.creatures.removeAll { [4, 5, 7, 8].contains($0.id) }
+        effects.note(felled.map { .creatureKilled(kind: .sootling, x: $0.x) }, state: s, balance: balance, time: 1.0)
+        XCTAssertEqual(effects.items.filter { $0.kind == .fall }.map(\.body),
+                       felled.map { HordeLook.body(id: $0.id).rawValue }, "each falls as its own body")
+        var settings = RenderSettings()
+        var crops: [[SIMD3<Float>]] = []
+        let w = 300
+        let h = 150
+        var rect: (x: Int, y: Int)?
+        for after in [0.7, 1.0] {
+            let time = 1.0 + after
+            s.simTime = time
+            settings.time = time
+            let desc = frame(s, focus: 600, time: time, wind: 0.6, effects: effects)
+            XCTAssertTrue(desc.actors.allSatisfy { $0.sprite != .sootFall }, "the heaps are gone at \(after) s")
+            XCTAssertEqual(desc.actors.filter { $0.sprite == .sootThread }.count, s.creatures.count + felled.count,
+                           "four orphan threads beside the living ones at \(after) s")
+            if rect == nil, let first = desc.actors.first(where: { EntityFramesTests.smallSprites.contains($0.sprite) }) {
+                let bottom = Int(first.rect.y + first.rect.w)
+                rect = (x: max(0, min(HordeRenderTests.screen.0 - w, Int(first.rect.x) - 30)),
+                        y: max(0, min(HordeRenderTests.screen.1 - h, bottom - h + 20)))
+            }
+            guard let at = rect else {
+                XCTFail("the small ones are drawn")
+                return
+            }
+            let shot = try renderer.renderOffscreen(desc, settings: settings)
+            var crop: [SIMD3<Float>] = []
+            crop.reserveCapacity(w * h)
+            for y in at.y..<(at.y + h) {
+                for x in at.x..<(at.x + w) {
+                    crop.append(shot.color(x: x, y: y))
+                }
+            }
+            crops.append(crop)
+        }
+        attachStrip(crops, width: w, height: h, name: "horde-volley-orphans")
     }
 
     // MARK: - Helpers
