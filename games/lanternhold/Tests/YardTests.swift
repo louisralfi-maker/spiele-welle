@@ -237,8 +237,8 @@ final class YardTests: XCTestCase {
     func testThreeDaysTrainARecruitAtTheNextDawn() {
         var s = yardRealm(day: 5, hour: 7)
         let ids = Set(s.soldiers.map(\.id))
-        let archer = s.soldiers.first { $0.kind == .archer }!
-        let guardsman = s.soldiers.first { $0.kind == .guardsman }!
+        let archer = s.soldiers.first(where: { $0.kind == .archer })!
+        let guardsman = s.soldiers.first(where: { $0.kind == .guardsman })!
         XCTAssertEqual(Yard.archerPeriod(archer, balance: balance), 1.4, "a recruit looses as today")
         XCTAssertEqual(guardsman.maxHP, 30)
         for day in 5...7 {
@@ -250,8 +250,8 @@ final class YardTests: XCTestCase {
         XCTAssertEqual(s.day, 8)
         let names = s.soldiers.filter { ids.contains($0.id) }.map(\.name)
         XCTAssertEqual(s.lastReport?.yard?.trained, names, "the dawn names them: Trained: ...")
-        let a = s.soldiers.first { $0.id == archer.id }!
-        let g = s.soldiers.first { $0.id == guardsman.id }!
+        let a = s.soldiers.first(where: { $0.id == archer.id })!
+        let g = s.soldiers.first(where: { $0.id == guardsman.id })!
         XCTAssertEqual(a.trained, true)
         XCTAssertEqual(g.trained, true)
         XCTAssertEqual(Yard.archerPeriod(a, balance: balance), 1.25, "a trained archer looses every 1.25 s")
