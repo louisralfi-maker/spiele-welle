@@ -32,8 +32,12 @@ enum HordeLook {
     /// with one bad.
     static let crowd: [Body] = [.crawler, .loper]
 
+    /// Step 7 (the director's call 5 of 16.11.2026 12:02): walkers and runts five to three, by a hash of the id, so a
+    /// crowd mixes them in clumps of its own and never in turns.
+    static let walkerEighths: UInt64 = 5
+
     static func body(id: Int) -> Body {
-        crowd[((id % crowd.count) + crowd.count) % crowd.count]
+        SeededRandom.hash(0x4B49_4E5F, Int64(id)) % 8 < walkerEighths ? crowd[0] : crowd[crowd.count - 1]
     }
 
     static func sprite(_ body: Body) -> SpriteID {
@@ -72,20 +76,20 @@ enum HordeLook {
     static let strikePose = 7
 
     /// The stride of one small one: its body's, 0.9 ... 1.1 of it by id (M6, picture only: the simulation's pace is
-    /// untouched), each of five neighbours of one body (ids `crowd.count` apart) at another, so a file of one body
-    /// never walks to one beat: walking on together, their frames drift apart.
+    /// untouched), each of five neighbouring ids at another, so a file never walks to one beat: walking on together,
+    /// their frames drift apart. (Step 7: by the id itself; the bodies are mixed by a hash now, not in turns.)
     static let strideScales = [0.9, 1.0, 1.1, 0.95, 1.05]
 
     static func stride(id: Int) -> Double {
         let count = strideScales.count
-        return stride(body(id: id)) * strideScales[((id / crowd.count) % count + count) % count]
+        return stride(body(id: id)) * strideScales[(id % count + count) % count]
     }
 
-    /// Its own start frame: neighbours of one body (ids `crowd.count` apart) start a frame of the walk apart, so a file
-    /// of the same body never walks in step. Every fifth of one body (the same stride again, `strideScales`) moves on
-    /// two frames more, so two of one stride ten ids apart do not come round into step either.
+    /// Its own start frame: neighbouring ids start a frame of the walk apart, so a file never walks in step. Every
+    /// fifth id (the same stride again, `strideScales`) moves on two frames more, so two of one stride five or ten ids
+    /// apart do not come round into step either.
     static func startFrame(id: Int) -> Int {
-        let k = max(0, id) / crowd.count
+        let k = max(0, id)
         return (k + 2 * (k / strideScales.count)) % walkFrames
     }
 

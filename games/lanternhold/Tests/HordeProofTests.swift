@@ -150,5 +150,109 @@ final class HordeProofTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(HordeProof.inTheOpen(dark), 8, "a crowd in the open as the world appears")
         XCTAssertTrue(dark.creatures.allSatisfy { $0.x < wallX }, "none past the outer wall")
     }
+
+    /// Step 7 (the director's call 5 of 16.11.2026 12:02): the crowd opens so the giant's children show the air under
+    /// their bellies. Twenty seeded crowds of 24 from the live stream's rules (its spawns, gaps, clumps with followers
+    /// 6 and 11 px behind the first, paces and ground lines; `HordeProof`), each small one walked on from its spawn,
+    /// drawn from the strips in the order the layer draws them (the lower ground line in front; walkers and runts by
+    /// the hash, the walk frame, the pixel of height by id; `HordeLook`): a body shows its opening when a block of
+    /// 2 x 3 px inside it, standing on its own open columns, is covered by no other body. The median over the twenty is
+    /// 12 or more (step 5's 4 ... 6 and 9 ... 11 px offsets buried about half).
+    func testTheCrowdShowsTheAirUnderTheBellies() {
+        XCTAssertEqual(HordeProof.clumpOffset(1, spawn: 0), 6)
+        XCTAssertEqual(HordeProof.clumpOffset(2, spawn: 0), 11)
+        var strips: [SpriteID: PixelImage] = [:]
+        for sprite in [SpriteID.sootling, .sootlingB] {
+            guard let url = AtlasBuilder.artURL(for: sprite, bundle: .main), let image = PNGDecoder.load(url: url) else {
+                XCTFail("\(sprite).png is in the bundle")
+                return
+            }
+            strips[sprite] = image
+        }
+        func filled(_ sprite: SpriteID, _ frame: Int, _ x: Int, _ y: Int) -> Bool {
+            guard let image = strips[sprite], x >= 0, y >= 0, x < 14, y < 14 else { return false }
+            return image[frame * 14 + x, y].a > 0
+        }
+        let walk = Balance.standard.creature(.sootling).unlitSpeed
+        struct Drawn {
+            let id: Int
+            let sprite: SpriteID
+            let frame: Int
+            let column: Int
+            let row: Int
+            let line: Int
+            let x: Double
+        }
+        var counts: [Int] = []
+        for seed in 0..<20 {
+            // the stream's spawns, as `spawnStream` hands them out: a clump's others behind its first
+            var crowd: [(id: Int, born: Double, behind: Double)] = []
+            var spawn = seed * 8
+            var id = 100 + seed * 37
+            var time = 0.0
+            while crowd.count < 24 {
+                let first = id
+                for k in 0..<HordeProof.clump(spawn: spawn) where crowd.count < 24 {
+                    crowd.append((id: id, born: time, behind: HordeProof.clumpOffset(k, spawn: spawn)))
+                    id += 1
+                }
+                time += HordeProof.streamGap(id: first)
+                spawn += 1
+            }
+            // walked on from its spawn at its pace; drawn as the layer draws them
+            var drawn: [Drawn] = crowd.map { c in
+                let x = 400 + walk * HordeProof.pace(id: c.id) * (time - c.born) - c.behind
+                let line = Int(-HordeProof.ground(id: c.id))
+                return Drawn(id: c.id, sprite: HordeLook.sprite(HordeLook.body(id: c.id)),
+                             frame: HordeLook.walkFrame(id: c.id, x: x), column: Int(x.rounded()) - 7,
+                             row: line + (HordeLook.stand(id: c.id) < 0 ? 1 : 0), line: line, x: x)
+            }
+            drawn.sort { ($0.line, $0.x, $0.id) < ($1.line, $1.x, $1.id) }
+            var owner: [Int: Int] = [:]                    // (row * 4096 + column) -> id of the body drawn there last
+            for d in drawn {
+                for y in 0..<14 {
+                    for x in 0..<14 where filled(d.sprite, d.frame, x, y) {
+                        owner[(d.row + y) * 4096 + d.column + x + 2048] = d.id
+                    }
+                }
+            }
+            var shown = 0
+            for d in drawn {
+                var empty: [Int] = []
+                for x in 0..<14 {
+                    var n = 0
+                    var y = 13
+                    while y >= 0 && !filled(d.sprite, d.frame, x, y) {
+                        n += 1
+                        y -= 1
+                    }
+                    empty.append(n)
+                }
+                let ground = (0..<14).filter { empty[$0] == 0 }
+                guard let left = ground.min(), let right = ground.max() else { continue }
+                var open = false
+                for c in (left + 1)..<max(left + 1, right - 1) where empty[c] >= 3 && empty[c + 1] >= 3 && !open {
+                    let high = min(empty[c], empty[c + 1])
+                    for top in (14 - high)..<12 where !open {
+                        var free = true
+                        for dy in 0..<3 {
+                            for dx in 0..<2 where owner[(d.row + top + dy) * 4096 + d.column + c + dx + 2048] != nil {
+                                free = false
+                            }
+                        }
+                        open = free
+                    }
+                }
+                if open { shown += 1 }
+            }
+            counts.append(shown)
+        }
+        let median = counts.sorted()[counts.count / 2]
+        let attachment = XCTAttachment(string: "openings shown per crowd of 24: \(counts), median \(median)")
+        attachment.name = "horde-crowd-openings"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        XCTAssertGreaterThanOrEqual(median, 12, "the air under the bellies shows (\(counts))")
+    }
 }
 #endif

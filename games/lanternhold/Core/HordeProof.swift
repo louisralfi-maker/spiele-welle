@@ -32,7 +32,9 @@ enum HordeProof {
     static let openCount = 16
     static let wallCount = 12
     /// The open: from `openFrom` px out of the bank toward the outer wall, this many px apart (with a jitter by id), so
-    /// the camera behind the outer wall (the lord at x 660) holds them clear of the Dynamic Island.
+    /// the camera behind the outer wall (the lord at x 660) holds them clear of the Dynamic Island. (Step 7: the calm
+    /// proof's file stays: at night 12 the open between the bank's edge and the outer wall is 140 px, and the check
+    /// wants ten or more in it a second on; the live stream, `dark`, is where the crowd opens.)
     static let openFrom = 16.0
     static let openSpacing = 6.0
     /// `dark` (step 4; step 3 queued sixty through the battle's spawn queue from the realm's spawn point, 14 s from the
@@ -164,12 +166,12 @@ enum HordeProof {
         return (h / 3) % 3 == 0 ? 2 : 3
     }
 
-    /// The `k`th of a clump's place behind its first (0, then 4 ... 6, then 9 ... 11 px, by a hash of the spawn):
-    /// within `clumpSpread`.
+    /// The `k`th of a clump's place behind its first: 0, 6, 11 px (step 7, the director's call 5: a clump's followers
+    /// stand about 6 and 11 px behind its first, so the air under each belly shows; step 5's 4 ... 6 and 9 ... 11 px by a
+    /// hash of the spawn buried the openings), within `clumpSpread`.
     static func clumpOffset(_ k: Int, spawn: Int) -> Double {
         guard k > 0 else { return 0 }
-        let extra = Int(SeededRandom.hash(0x434C_554D, Int64(max(0, spawn))) % 3)
-        return min(clumpSpread - 1, Double(k * 5 - 1 + extra))
+        return min(clumpSpread - 1, Double(k * 5 + 1))
     }
 
     /// A small one's pace in the stream by id.
