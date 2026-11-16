@@ -383,7 +383,7 @@ final class PayCountTests: XCTestCase {
         }
         XCTAssertEqual(homes, [3, 2, 1, 0], "the last laid first")
         XCTAssertEqual(values, [40, 30, 20, 10, 0], "the purse takes each coin as it arrives")
-        for index in 1..<moments.count {
+        for index in moments.indices.dropFirst() {
             XCTAssertEqual(moments[index] - moments[index - 1], PayCount.homeGap, accuracy: step + 1e-9)
         }
         XCTAssertEqual(count.homeShare(0), 1)
