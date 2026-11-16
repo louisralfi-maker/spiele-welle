@@ -503,6 +503,7 @@ final class HordeRenderTests: XCTestCase {
         var navyCount = 0
         var rim = SIMD3<Float>(0, 0, 0)
         var rimCount = 0
+        var topCount = 0
         var edge: Float = 0
         var edgePlain: Float = 0
         var edgeCount = 0
@@ -521,8 +522,13 @@ final class HordeRenderTests: XCTestCase {
                 let texel = strip[actor.frame * size.width + p.tx, p.ty]
                 let drawn = shot.color(x: p.x, y: p.y)
                 if !opaque(p.tx, p.ty - 1) {
-                    rim += drawn
-                    rimCount += 1
+                    // step 5 (the director's call 2): the warm edge is counted where it is drawn: a top-contour pixel
+                    // of the body (blue in the strip) that the fire turned warm on the live picture
+                    topCount += 1
+                    if Int(texel.b) > Int(texel.r) && drawn.x > drawn.z * 1.15 {
+                        rim += drawn
+                        rimCount += 1
+                    }
                 } else if lifted && !opaque(p.tx, p.ty + 1) {
                     edge += HordeRenderTests.luminance(drawn)
                     edgePlain += HordeRenderTests.luminance(shotPlain.color(x: p.x, y: p.y))
@@ -534,18 +540,22 @@ final class HordeRenderTests: XCTestCase {
             }
         }
         XCTAssertGreaterThan(navyCount, 60, "the navy is found")
-        XCTAssertGreaterThan(rimCount, 20, "the top contour is found")
+        XCTAssertGreaterThan(topCount, 20, "the top contour is found")
+        XCTAssertGreaterThanOrEqual(rimCount, 18, "the fire shows as a warm edge (two game pixels' worth or more)")
         XCTAssertGreaterThan(edgeCount, 10, "the climbers' lower edges are found")
         navy /= Float(max(1, navyCount))
         rim /= Float(max(1, rimCount))
         let notes = [
             String(format: "navy by the fires: r %.3f g %.3f b %.3f (%ld px)", navy.x, navy.y, navy.z, navyCount),
-            String(format: "top contour: r %.3f g %.3f b %.3f (%ld px)", rim.x, rim.y, rim.z, rimCount),
+            String(format: "warm edge: r %.3f g %.3f b %.3f (%ld px of %ld on the top contour; %.2f x the navy's)",
+                   rim.x, rim.y, rim.z, rimCount, topCount, Double(rimCount) / Double(max(1, navyCount))),
             String(format: "climbers' lower edge: %.4f, without the mark %.4f (%ld px)", edge / Float(max(1, edgeCount)),
                    edgePlain / Float(max(1, edgeCount)), edgeCount),
         ]
-        XCTAssertGreaterThanOrEqual(navy.z, navy.x, "by the fires the navy stays navy (\(navy)), never brown")
-        XCTAssertGreaterThan(rim.x, rim.z * 1.15, "the fire shows as a warm rim on the top contour (\(rim))")
+        // step 5 (the director's call 2): the navy keeps a margin of blue, and the rim is an edge, not an outline
+        XCTAssertGreaterThanOrEqual(navy.z, navy.x + 0.01, "by the fires the navy stays navy (\(navy)), never brown")
+        XCTAssertLessThanOrEqual(Float(rimCount), 0.35 * Float(navyCount),
+                                 "the warm edge (\(rimCount) px) is at most 0.35 of the navy (\(navyCount) px)")
         XCTAssertLessThanOrEqual(edge, edgePlain * 0.6, "a climber's lower edge is drawn darker, the rows part")
         // the heap, twice enlarged
         let left = Int(bodies.map(\.rect.x).min() ?? 0) - 40

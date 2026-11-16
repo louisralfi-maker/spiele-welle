@@ -919,9 +919,14 @@ constant float kLitCap2 = 1.0f;
 // rim's share of the fire's light, and how dark a climber's lower edge is drawn. (Round lh-b3h-42: at 0.7 the heap's
 // navy by the braziers measured r 0.176 over b 0.147 after the fires' bloom and the warm grade: 0.9 of the hue goes, and
 // a small one outside the bank takes the fires' bloom at `kHordeBloom2`.)
-constant float kHordeGrey2 = 0.9f;
-constant float kHordeBloom2 = 0.4f;
+// Step 5 (the director's call 2 of 16.11.2026 08:52: by the fires the rim is an edge, not an outline; round lh-b3h-44
+// measured the navy at r 0.156 over b 0.157 and more rim pixels than navy): the fire's hue leaves the body fully (1.0),
+// the fires' bloom leaves it outside the bank (0: only the fog's share of it is left), and the warm rim lies at 0.6 of
+// step 4's strength (`kHordeRimShare2`, was 0.85) on the fire-facing upper corner of each column only.
+constant float kHordeGrey2 = 1.0f;
+constant float kHordeBloom2 = 0.0f;
 constant float kHordeRim2 = 0.75f;
+constant float kHordeRimShare2 = 0.51f;
 constant float kHordeContact2 = 0.45f;
 // b3-horde (the director's call 3 of 16.11.2026 06:15): unlit at night a small one's top contour catches the moon
 // harder than the other creatures' (at least 0.035 linear): the rag's pixels in the giant's cloak night tone, the navy's
@@ -1438,8 +1443,11 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         }
     }
     if (horde && in.flags.x < 0.5f && !unlit && peak > 0.01f) {
-        // b3-horde: the fire shows on a small one only as a 1 px warm rim on its fire-facing upper outline: its top
-        // contour, and the side toward the brighter light (`lightTex` 3 px either way) within two rows of the top.
+        // b3-horde: the fire shows on a small one only as a 1 px warm edge, never an outline (step 5, the director's
+        // call 2): on the topmost body pixel of a column (nothing over it) whose neighbour toward the brighter light
+        // (`lightTex` 3 px either way) is empty, so only the fire-facing upper corner of each step of the contour;
+        // never on the cloth (the drape and its tails are warmer than blue in the strip), never on a thin limb, a claw,
+        // a tail's end or a flake (two body pixels under it).
         uint wx = c.world.x;
         uint lastX = lightTex.get_width() - 1u;
         float3 west = lightTex.read(uint2(wx > 3u ? wx - 3u : 0u, c.world.y)).rgb;
@@ -1448,12 +1456,11 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         int toward = east * (across < 0.0f ? -1 : 1);
         bool above = t.y == 0u || atlas.read(uint2(t.x, t.y - 1u)).a < 0.5f;
         int2 side = int2(t) + int2(toward, 0);
-        bool clear = atlas.read(uint2(max(side, int2(0)))).a < 0.5f;
-        bool upper = t.y < 2u || atlas.read(uint2(t.x, t.y - 2u)).a < 0.5f;
-        // (gate review: a top-contour pixel under a rise toward the fire stands in its own shadow and stays dark)
-        bool facing = t.y == 0u || atlas.read(uint2(max(int2(t) + int2(toward, -1), int2(0)))).a < 0.5f;
-        if ((above && facing) || (clear && upper)) {
-            lit = mix(lit, lh2_capped(info.light) * kHordeRim2, saturate(peak * 1.5f) * 0.85f);
+        bool facing = atlas.read(uint2(max(side, int2(0)))).a < 0.5f;
+        bool navy = texel.b > texel.r;
+        bool thick = atlas.read(uint2(t.x, t.y + 1u)).a >= 0.5f && atlas.read(uint2(t.x, t.y + 2u)).a >= 0.5f;
+        if (above && facing && navy && thick) {
+            lit = mix(lit, lh2_capped(info.light) * kHordeRim2, saturate(peak * 1.5f) * kHordeRimShare2);
         }
     }
     if (hordeLifted && in.flags.x < 0.5f && atlas.read(uint2(t.x, t.y + 1u)).a < 0.5f) {

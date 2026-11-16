@@ -186,8 +186,9 @@ enum HordeLook {
     // MARK: - The light (step 4, the director's first law of 16.11.2026 06:15)
 
     /// Shadow swallows light: a lit small one reflects at most this much of a fire (every other figure 1.0 in look
-    /// 2), and the shader takes most of the fire's hue out of it, so the navy stays navy by the fires and never turns
-    /// a brown mound; the fire shows only as a 1 px warm rim on its fire-facing upper outline. A climber's lower edge
+    /// 2), and the shader takes the fire's hue out of it (step 5: all of it, and the fires' bloom outside the bank), so
+    /// the navy stays navy by the fires and never turns a brown mound; the fire shows only as a 1 px warm edge on the
+    /// fire-facing upper corner of each column (step 5, the director's call 2: an edge, never an outline). A climber's lower edge
     /// is drawn a step darker, so the rows of a heap part. The fall and its flakes take the same cap: grey soot,
     /// never cream sparks.
     static let litCap: Float = 0.5
