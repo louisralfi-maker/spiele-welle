@@ -1281,8 +1281,9 @@ enum EntityFrames {
                     let sway = HordeLook.threadSway(id: c.id, time: time, reduceMotion: reduceMotion)
                     let root = HordeLook.threadRoot(body, frame: frame)
                     let length = HordeLook.threadLength(id: c.id)
-                    add(.sootThread, frame: HordeLook.threadFrame(length: length, lean: lean, sway: sway,
-                                                                   curl: HordeLook.threadCurl(id: c.id)),
+                    let strand = HordeLook.threadFrame(length: length, lean: lean, sway: sway,
+                                                       curl: HordeLook.threadCurl(id: c.id))
+                    add(HordeLook.threadSprite(strand), frame: HordeLook.threadCell(strand),
                         x: c.x + root.dx,
                         y: y + root.dy, tint: HordeLook.threadTint(night: night, share: share), emissive: true,
                         lit: c.isLit)
@@ -1329,8 +1330,8 @@ enum EntityFrames {
                                                    reduceMotion: reduceMotion, curl: curl) {
                 var tint = HordeLook.threadTint(night: night, share: 1, bright: thread.bright)
                 tint.w *= thread.alpha
-                add(.sootThread, frame: thread.frame, x: effect.x + thread.dx, y: fallY + thread.dy, tint: tint,
-                    emissive: true)
+                add(HordeLook.threadSprite(thread.frame), frame: HordeLook.threadCell(thread.frame),
+                    x: effect.x + thread.dx, y: fallY + thread.dy, tint: tint, emissive: true)
             }
         }
 

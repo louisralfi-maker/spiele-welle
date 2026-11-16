@@ -563,10 +563,11 @@ final class EntityFramesTests: XCTestCase {
                                                  action: .attackingWall)]
         var without = s
         without.creatures = [GameFrameSupport.creature(.sootling, x: 640, id: bare, lit: true)]
-        XCTAssertTrue(hordeLayer(without, focus: 640).actors.allSatisfy { $0.sprite != .sootThread },
+        XCTAssertTrue(hordeLayer(without, focus: 640).actors
+                        .allSatisfy { !HordeLook.threadSprites.contains($0.sprite) },
                       "one without a thread draws none")
         let calm = hordeLayer(s, focus: 640)
-        let threads = calm.actors.filter { $0.sprite == .sootThread }
+        let threads = calm.actors.filter { HordeLook.threadSprites.contains($0.sprite) }
         XCTAssertEqual(threads.count, 3, "a thread over each that carries one")
         XCTAssertTrue(threads.allSatisfy { $0.isEmissive && $0.tint.w > 0.5 }, "a pale wisp that reads at night")
         let windy = hordeLayer(s, focus: 640, wind: 0.8)
@@ -585,7 +586,7 @@ final class EntityFramesTests: XCTestCase {
             let bodyActor = drawn[index]
             // its thread: the one nearest over it (the bodies stand 40 px apart)
             let near = { (layer: EntityLayer) -> ActorInstance? in
-                layer.actors.filter { $0.sprite == .sootThread }.min {
+                layer.actors.filter { HordeLook.threadSprites.contains($0.sprite) }.min {
                     abs($0.rect.x - bodyActor.rect.x) < abs($1.rect.x - bodyActor.rect.x)
                 }
             }
@@ -601,7 +602,8 @@ final class EntityFramesTests: XCTestCase {
                                  "drawn over the body")
             XCTAssertEqual((thread.frame / 18) % 8 + HordeLook.threadLengths.lowerBound,
                            HordeLook.threadLength(id: c.id), "its own length")
-            XCTAssertEqual(thread.frame / (18 * 8), HordeLook.threadCurl(id: c.id), "its own curl")
+            XCTAssertEqual(HordeLook.threadSprites.firstIndex(of: thread.sprite), HordeLook.threadCurl(id: c.id),
+                           "its own curl")
             let running = c.action == .walking
             XCTAssertEqual((thread.frame / 2) % 9 - 4, running ? -2 : 0, "calm: streamed back while it runs, straight as it waits")
             XCTAssertEqual((blown.frame / 2) % 9 - 4, running ? 2 : 3, "the wind leans it toward the valley")
@@ -634,12 +636,13 @@ final class EntityFramesTests: XCTestCase {
                        "Reduce Motion: the heap at once")
         let standing = at(1.7)
         XCTAssertTrue(standing.allSatisfy { $0.sprite != .sootFall }, "the heap is gone after 0.6 s")
-        let alone = standing.filter { $0.sprite == .sootThread }
+        let alone = standing.filter { HordeLook.threadSprites.contains($0.sprite) }
         XCTAssertEqual(alone.count, 1, "the thread stands alone")
         guard let stood = alone.first,
-              let calm = at(2.2).first(where: { $0.sprite == .sootThread }),
-              let blown = at(2.2, wind: 0.8).first(where: { $0.sprite == .sootThread }),
-              let held = at(2.2, wind: 0.8, reduceMotion: true).first(where: { $0.sprite == .sootThread }) else {
+              let calm = at(2.2).first(where: { HordeLook.threadSprites.contains($0.sprite) }),
+              let blown = at(2.2, wind: 0.8).first(where: { HordeLook.threadSprites.contains($0.sprite) }),
+              let held = at(2.2, wind: 0.8, reduceMotion: true)
+                .first(where: { HordeLook.threadSprites.contains($0.sprite) }) else {
             XCTFail("the orphan thread is drawn until it is gone")
             return
         }
@@ -650,7 +653,7 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertLessThan(blown.tint.w, stood.tint.w, "fading")
         XCTAssertEqual(held.rect.x, stood.rect.x, "Reduce Motion: it stands")
         XCTAssertLessThan(held.tint.w, stood.tint.w, "and fades")
-        XCTAssertTrue(at(2.45).allSatisfy { $0.sprite != .sootThread }, "gone after 1.4 s")
+        XCTAssertTrue(at(2.45).allSatisfy { !HordeLook.threadSprites.contains($0.sprite) }, "gone after 1.4 s")
     }
 
     func testTheSocketsAreColdPointsOfLight() {
@@ -722,7 +725,8 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(effects.items.filter { $0.kind == .fall }.count, BattleEffects.maxEffects)
         let actors = hordeLayer(s, focus: 640, time: 1.05, effects: effects).actors
         XCTAssertEqual(actors.filter { $0.sprite == .sootFall }.count, HordeLook.maxFallsDrawn, "the newest only")
-        XCTAssertLessThanOrEqual(actors.filter { $0.sprite == .sootThread }.count, HordeLook.maxFallsDrawn)
+        XCTAssertLessThanOrEqual(actors.filter { HordeLook.threadSprites.contains($0.sprite) }.count,
+                                 HordeLook.maxFallsDrawn)
         XCTAssertLessThanOrEqual(actors.filter { $0.sprite == .sootFallGlow }.count, HordeLook.maxFallsDrawn)
     }
 
@@ -839,22 +843,39 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(HordeLook.threadLean(wind: 1, running: false), 4, "a gust: four pixels at the tip")
         XCTAssertEqual(HordeLook.threadLean(wind: 0.8, running: true), 2, "a tail wind straightens a runner's thread")
         XCTAssertEqual(HordeLook.threadLean(wind: -1, running: true), -4)
-        XCTAssertEqual(SpriteID.sootThread.frameCount, HordeLook.threadCurls * HordeLook.threadLengths.count * 9 * 2)
-        XCTAssertEqual(HordeLook.threadFrame(length: 17, lean: 4, sway: 1, curl: HordeLook.threadCurls - 1),
-                       SpriteID.sootThread.frameCount - 1)
-        // the strip: dense at the root (two pixels wide), broken into wisps in its top third
-        guard let url = AtlasBuilder.artURL(for: .sootThread, bundle: .main), let image = PNGDecoder.load(url: url) else {
-            XCTFail("sootThread.png is in the bundle")
+        // one strip per curl (one of 432 frames, 6480 px wide, did not decode on the simulator: round lh-b3h-32)
+        XCTAssertEqual(HordeLook.threadSprites.count, HordeLook.threadCurls)
+        XCTAssertTrue(HordeLook.threadSprites.allSatisfy {
+            $0.frameCount == HordeLook.threadFramesPerCurl && $0.size == SpriteID.sootThread.size
+        })
+        XCTAssertEqual(HordeLook.threadFramesPerCurl, HordeLook.threadLengths.count * 9 * 2)
+        let last = HordeLook.threadFrame(length: 17, lean: 4, sway: 1, curl: HordeLook.threadCurls - 1)
+        XCTAssertEqual(HordeLook.threadSprite(last), .sootThreadC)
+        XCTAssertEqual(HordeLook.threadCell(last), HordeLook.threadFramesPerCurl - 1)
+        // the strips: dense at the root (two pixels wide), broken into wisps in the top third
+        let strips = HordeLook.threadSprites.compactMap { sprite in
+            AtlasBuilder.artURL(for: sprite, bundle: .main).flatMap { PNGDecoder.load(url: $0) }
+        }
+        guard strips.count == HordeLook.threadSprites.count else {
+            XCTFail("sootThread.png, sootThreadB.png and sootThreadC.png are in the bundle and decode")
             return
         }
         let size = SpriteID.sootThread.size
-        XCTAssertEqual(image.width, size.width * SpriteID.sootThread.frameCount)
+        for strip in strips {
+            XCTAssertEqual(strip.width, size.width * HordeLook.threadFramesPerCurl)
+            XCTAssertEqual(strip.height, size.height)
+        }
+        // a texel of a thread frame (`threadFrame`, over all curls)
+        let image = { (frame: Int, x: Int, y: Int) -> RGBA in
+            strips[min(strips.count - 1, frame / HordeLook.threadFramesPerCurl)][
+                HordeLook.threadCell(frame) * size.width + x, y]
+        }
         // step 3 (call 7): soot, never rain: the lower two thirds unbroken and darker than the wisps above them
         func luma(_ c: RGBA) -> Double { 0.299 * Double(c.r) + 0.587 * Double(c.g) + 0.114 * Double(c.b) }
         for curl in 0..<HordeLook.threadCurls {
             for length in [10, 14, 17] {
                 let frame = HordeLook.threadFrame(length: length, lean: 0, sway: 0, curl: curl)
-                let row = { (y: Int) in (0..<size.width).filter { image[frame * size.width + $0, y].a > 0 }.count }
+                let row = { (y: Int) in (0..<size.width).filter { image(frame, $0, y).a > 0 }.count }
                 XCTAssertEqual(row(size.height - 1), 2, "\(length) px, curl \(curl): two pixels wide at the root")
                 let rows = (0..<size.height).map(row)
                 let top = rows.firstIndex { $0 > 0 } ?? 0
@@ -863,7 +884,7 @@ final class EntityFramesTests: XCTestCase {
                 XCTAssertGreaterThan(gaps, 0, "\(length) px, curl \(curl): its top third breaks into wisps")
                 XCTAssertTrue(rows[lowerFrom...].allSatisfy { $0 > 0 }, "\(length) px, curl \(curl): unbroken below")
                 let pixels = { (ys: Range<Int>) -> [RGBA] in
-                    ys.flatMap { y in (0..<size.width).map { image[frame * size.width + $0, y] }.filter { $0.a > 0 } }
+                    ys.flatMap { y in (0..<size.width).map { image(frame, $0, y) }.filter { $0.a > 0 } }
                 }
                 let low = pixels(lowerFrom..<size.height).map(luma)
                 let high = pixels(top..<lowerFrom).map(luma)
@@ -878,9 +899,9 @@ final class EntityFramesTests: XCTestCase {
         // thread stands about its root (column 7), so the calm and the gust shot differ at a glance.
         let tip: (Int) -> Double = { frame in
             let rows = (0..<size.height).filter { y in
-                (0..<size.width).contains { image[frame * size.width + $0, y].a > 0 }
+                (0..<size.width).contains { image(frame, $0, y).a > 0 }
             }.prefix(3)
-            let xs: [Int] = rows.flatMap { y in (0..<size.width).filter { image[frame * size.width + $0, y].a > 0 } }
+            let xs: [Int] = rows.flatMap { y in (0..<size.width).filter { image(frame, $0, y).a > 0 } }
             return Double(xs.reduce(0, +)) / Double(max(1, xs.count)) - 7
         }
         for curl in 0..<HordeLook.threadCurls {
@@ -978,16 +999,17 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(stillAt(1.3).count, HordeLook.puffFlakes, "under Reduce Motion the flakes are there")
         XCTAssertEqual(stillAt(1.3), stillAt(1.6), "and hang still while they thin")
         guard let early = hordeLayer(s, focus: 640, time: 1.1, effects: effects).actors
-                .first(where: { $0.sprite == .sootThread }),
+                .first(where: { HordeLook.threadSprites.contains($0.sprite) }),
               let later = hordeLayer(s, focus: 640, time: 1.4, effects: effects).actors
-                .first(where: { $0.sprite == .sootThread }) else {
+                .first(where: { HordeLook.threadSprites.contains($0.sprite) }) else {
             XCTFail("the orphan thread stands")
             return
         }
         XCTAssertGreaterThan(early.tint.x, later.tint.x, "bright for its first 0.2 s")
         XCTAssertEqual((early.frame / 18) % 8 + HordeLook.threadLengths.lowerBound, HordeLook.threadLength(id: 7),
                        "its own thread")
-        XCTAssertEqual(early.frame / (18 * 8), HordeLook.threadCurl(id: 7), "its own curl")
+        XCTAssertEqual(HordeLook.threadSprites.firstIndex(of: early.sprite), HordeLook.threadCurl(id: 7),
+                       "its own curl")
     }
 
     func testAnUnlitOneFallsAtTheNightsValue() {

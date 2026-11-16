@@ -113,7 +113,7 @@ final class WorldThreeFix3Tests: XCTestCase {
         let desc = frame(night, hour: 23.2, focus: edge - 20)
         // b3-horde: the small ones take their bodies by id and may carry a thread of soot; none of it shows.
         let small: Set<SpriteID> = [.sootling, .sootlingB, .tumbler, .sootlingGlow, .sootlingBGlow, .tumblerGlow,
-                                    .sootThread]
+                                    .sootThread, .sootThreadB, .sootThreadC]
         XCTAssertTrue(desc.actors.filter { small.contains($0.sprite) }.isEmpty,
                       "deep in the bank: no body, no glow strip, no thread")
         let hound = desc.actors.filter { $0.sprite == .shadehound }

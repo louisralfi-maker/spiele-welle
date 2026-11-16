@@ -20,7 +20,8 @@ GAME = os.path.dirname(HERE)
 ART = os.path.join(GAME, "Resources", "Art")
 RIGGED = ["sootling", "sootlingB", "shadehound", "sootCrow", "ashBrute", "gloomweaver", "ashGiant", "lightlessKing",
           "tumbler", "sootFall", "sootThread",   # b3-horde: the third small body, the fall, the smoke thread
-          "sootFlake"]                            # b3-horde step 3: the fall's grey flakes
+          "sootFlake",                            # b3-horde step 3: the fall's grey flakes
+          "sootThreadB", "sootThreadC"]           # b3-horde step 3: the thread's second and third curls
 
 
 def build(name, out, pal):

@@ -12,14 +12,17 @@ firelight and in the moon.
 
 Frames: ((curl × 8 + length index) × 9 + lean + 4) × 2 + sway, with curl 0 ... 2, length index 0 ... 7 for 10 ... 17 px,
 lean -4 ... +4 px at the tip and sway 0 or 1 (the bend to one side, then the other). The root is column 7 of the
-bottom row."""
+bottom row. Each curl is a strip of its own, 144 frames (2160 px) wide: this one curl 0, sootThreadB.py curl 1 and
+sootThreadC.py curl 2 (round lh-b3h-32: the simulator's image decoder refused the one strip of 432 frames, 6480 px wide,
+so the thread fell back to its stand-in)."""
 import math
 from rig import Frame, hsh
 
 LENGTHS = tuple(range(10, 18))
 LEANS = 9
 CURLS = 3
-SIZE = (15, 18, CURLS * len(LENGTHS) * LEANS * 2)
+PER_CURL = len(LENGTHS) * LEANS * 2
+SIZE = (15, 18, PER_CURL)   # curl 0; `frame(k)` takes the index over all three curls
 GLOW = False
 FLOATS = True
 ROOT = 7

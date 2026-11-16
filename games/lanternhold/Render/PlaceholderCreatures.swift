@@ -30,7 +30,7 @@ enum PlaceholderCreatures {
         case .tumblerGlow: return strip(7) { sootling($0 % 6).glow }
         case .sootFall: return strip(9) { sootling($0 % 6).body }
         case .sootFallGlow: return strip(9) { sootling($0 % 6).glow }
-        case .sootThread: return strip(432) { _ in thread() }
+        case .sootThread, .sootThreadB, .sootThreadC: return strip(144) { _ in thread() }
         case .sootFlake: return strip(3) { _ in flake() }
         default: return []
         }

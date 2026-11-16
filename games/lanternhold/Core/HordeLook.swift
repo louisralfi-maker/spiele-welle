@@ -186,11 +186,28 @@ enum HordeLook {
         return Int((max(0, time) * 2.2 + phase * 2).rounded(.down)) % 2
     }
 
-    /// The strip's frame: ((curl × 8 + length index) × 9 + lean + 4) × 2 + sway.
+    /// The thread's frame over all its curls: ((curl × 8 + length index) × 9 + lean + 4) × 2 + sway. Each curl is a strip
+    /// of its own (`threadSprites`, `threadFramesPerCurl` frames each: one strip of 432 frames, 6480 px wide, did not
+    /// decode on the simulator); `threadSprite` and `threadCell` find where a frame is drawn from.
     static func threadFrame(length: Int, lean: Int, sway: Int, curl: Int = 0) -> Int {
         let index = max(0, min(threadLengths.count - 1, length - threadLengths.lowerBound))
         let turn = max(0, min(threadCurls - 1, curl))
         return ((turn * threadLengths.count + index) * 9 + (max(-4, min(4, lean)) + 4)) * 2 + (sway == 0 ? 0 : 1)
+    }
+
+    /// The thread's strips, one per curl.
+    static let threadSprites: [SpriteID] = [.sootThread, .sootThreadB, .sootThreadC]
+    /// Frames in each curl's strip: eight lengths, nine leans, two sways.
+    static let threadFramesPerCurl = 8 * 9 * 2
+
+    /// The strip a thread frame (`threadFrame`) is drawn from.
+    static func threadSprite(_ frame: Int) -> SpriteID {
+        threadSprites[max(0, min(threadSprites.count - 1, frame / threadFramesPerCurl))]
+    }
+
+    /// The frame within its strip.
+    static func threadCell(_ frame: Int) -> Int {
+        max(0, frame) % threadFramesPerCurl
     }
 
     /// The thread's value at full night: an unlit body's in look 2 (`EntityFrames.unlitValueLook2`), so the soot over
