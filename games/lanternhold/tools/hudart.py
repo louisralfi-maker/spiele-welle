@@ -45,12 +45,12 @@ never on a plate), its bar coin and the site lantern the one who was paid lights
 
 The count's coins in flight (build 3, the count's step 2: each coin flies from the lord's hand to its hollow, turning):
 
-  payCoin      9x9, 5 frames: the small coin of the count: 0 the kit's coin (hudCoin), 1 and 2 the same coin with its
-               glint and its struck I a pixel apart, 3 its edge, a 3 px sliver, 4 half turned (step 3: face, half,
-               edge, half as it turns)
-  hudCoinTen   11x11, 5 frames: the big coin struck with the house's lantern (as on the gate's banners; the Roman X
-               could read as "no"), 0 to 2 its faces, 3 its edge, 4 half turned
-  hudHollow    9x9, hudHollowTen 11x11: 4 frames each, the hollow empty and holding the coin's faces 0 to 2
+  payCoin      7x7, 5 frames: the small coin of the count (step 3: 7 px, a paler straw gold, a plain face, so one
+               look tells it from the big one): 0 to 2 its faces (the glint a step along the rim, or none), 3 its edge,
+               4 half turned (step 3: face, half, edge, half as it turns)
+  hudCoinTen   11x11, 5 frames: the big coin, deep gold, struck with the house's lantern (as on the gate's banners)
+               embossed one step lighter with a darker lower edge, 0 to 2 its faces, 3 its edge, 4 half turned
+  hudHollow    7x7, hudHollowTen 11x11: 4 frames each, the hollow empty and holding the coin's faces 0 to 2
 
 The row of the lantern moment is 9 game pixels high (figures, coin, face, people); the big coin and its hollow are
 board and flight pieces only.
@@ -82,6 +82,8 @@ LEGEND = {
     "w": "fireWhite",   # one glint
     "s": "straw",       # a coin's shaded rim and struck ring
     "d": "woodLight",   # the deepest shade of gold
+    "q": "strawLight",  # the count's small coin: its pale face (step 3, the director's call 7)
+    "Q": "parchment",   # its lit rim
     "k": "woodDark",    # a hollow's shadowed wall
     "K": "soilDark",    # a hollow's floor
     "l": "woodLight",   # a hollow's lit lower wall
@@ -262,59 +264,75 @@ COIN_C = ["..hhg..",
           ".gggsd.",
           "..sdd.."]
 
-# a coin on edge as it turns in the air: one column, lit at the top (with its ink edge a 3 px sliver)
-COIN_EDGE = ["h", "h", "g", "g", "g", "s", "d"]
-# half turned (step 3, the director's call 1: face, half, edge, half, so the turn never flickers between a disc and a
-# stick): the face narrowed to an upright oval, its rim in shade on the far side
-COIN_HALF = [".hg.",
-             "hwgs",
-             "hggs",
-             "hgsd",
-             "ggsd",
-             "gssd",
-             ".sd."]
+# the count's small coin (step 3, the director's call 7: one look tells 1 from 10): 7 px with its edge, a paler straw
+# gold with a plain face, lit on its upper left; three faces (the glint a step along the rim, or none), its edge as it
+# turns, and half turned (the director's call 1: face, half, edge, half, so the turn never flickers between a disc and
+# a stick)
+PAY_SMALL = [".QQq.",
+             "Qwqqs",
+             "Qqqqs",
+             "qqqsd",
+             ".ssd."]
+PAY_SMALL_B = [".QwQ.",
+               "QQqqs",
+               "Qqqqs",
+               "qqqsd",
+               ".ssd."]
+PAY_SMALL_C = [".QQq.",
+               "QQqqs",
+               "Qqqqs",
+               "qqqsd",
+               ".ssd."]
+PAY_SMALL_EDGE = ["Q", "q", "q", "s", "d"]
+PAY_SMALL_HALF = [".Q.",
+                  "Qqs",
+                  "Qqs",
+                  "qsd",
+                  ".d."]
 
-# the big coin (ten) is struck with the house's lantern, the mark of the gate's banners: a ring, the cap, the frame
-# round one pane of lit glass, the foot; three faces (the glint along the rim, a glint on the glass)
+# the big coin (ten), 11 px with its edge, deep gold, struck with the house's lantern, the mark of the gate's banners:
+# a ring, the cap, the frame round one pane, the foot. Embossed (step 3, the director's call 7: step 2's dark-filled
+# stamp read as a blot, even a padlock): the mark stands one step lighter than the face with a 1 px darker edge under
+# it, no dark fill; three faces (the glint along the rim, on the ring, or none)
 COIN_TEN = ["..hhhgg..",
-            ".hwhdggs.",
-            "hhgdddggs",
-            "hgdhhhdgs",
-            "hgdhhhdgd",
-            "ggdddddgd",
-            "gggdddggd",
-            ".ggggssd.",
+            ".hwghggs.",
+            "hhghhhgss",
+            "hgghghgsd",
+            "ggghghgsd",
+            "ggghhhgsd",
+            "gggsssgsd",
+            ".gggggsd.",
             "..sdddd.."]
 
 COIN_TEN_B = ["..hwhgg..",
-              ".hhhdggs.",
-              "hhgdddggs",
-              "hgdwhhdgs",
-              "hgdhhhdgd",
-              "ggdddddgd",
-              "gggdddggd",
-              ".ggggssd.",
+              ".hhghggs.",
+              "hhghhhgss",
+              "hgghghgsd",
+              "ggghghgsd",
+              "ggghhhgsd",
+              "gggsssgsd",
+              ".gggggsd.",
               "..sdddd.."]
 
 COIN_TEN_C = ["..hhhgg..",
-              ".hhhdggs.",
-              "hwgdddggs",
-              "hgdhhhdgs",
-              "hgdhhwdgd",
-              "ggdddddgd",
-              "gggdddggd",
-              ".ggggssd.",
+              ".hhgwggs.",
+              "hhghhhgss",
+              "hgghghgsd",
+              "ggghghgsd",
+              "ggghhhgsd",
+              "gggsssgsd",
+              ".gggggsd.",
               "..sdddd.."]
 
 COIN_TEN_EDGE = ["h", "h", "g", "g", "g", "g", "s", "s", "d"]
 COIN_TEN_HALF = [".hhg.",
                  "hwhgs",
-                 "hgdgs",
-                 "hhdgs",
-                 "hhdgd",
-                 "ggdgd",
-                 "ggggd",
+                 "hhhgs",
+                 "hghgs",
+                 "hghgd",
+                 "hhhgd",
                  "gsssd",
+                 "gggsd",
                  ".sdd."]
 
 # the rivals kept for the director: the kit's Roman X (it can read as "cancel" at phone size, step 1's critic) and a
@@ -497,6 +515,15 @@ GEARS = {
           "..X..X.."],
 }
 GEAR = GEARS["c"]
+
+# the small coin's hollow (step 3: 7x7 for the 7 px coin), drawn without an ink edge (cut into the board)
+HOLLOW_SMALL = ["..kkk..",
+                ".kKKKk.",
+                "kKKKKKk",
+                "kKKKKKl",
+                "kkKKKll",
+                ".kkKll.",
+                "..lll.."]
 
 # hollows: drawn without an ink edge (cut into the board); 9x9 and 11x11
 HOLLOW = ["..kkkkk..",
@@ -1030,11 +1057,12 @@ def frames_for(sprite, pal, style="hand", face=None):
     if sprite == "hudCoin":
         return [edged(grid_image(COIN, pal), pal)]
     if sprite == "payCoin":
-        return coin_frames([COIN, COIN_B, COIN_C], COIN_EDGE, COIN_HALF, pal, 9, 9)
+        return coin_frames([PAY_SMALL, PAY_SMALL_B, PAY_SMALL_C], PAY_SMALL_EDGE, PAY_SMALL_HALF, pal, 7, 7)
     if sprite == "hudCoinTen":
         return coin_frames([COIN_TEN, COIN_TEN_B, COIN_TEN_C], COIN_TEN_EDGE, COIN_TEN_HALF, pal, 11, 11)
     if sprite == "hudHollow":
-        return [grid_image(HOLLOW, pal)] + [hollow_with_coin(HOLLOW, c, pal) for c in (COIN, COIN_B, COIN_C)]
+        return [grid_image(HOLLOW_SMALL, pal)] + [hollow_with_coin(HOLLOW_SMALL, c, pal)
+                                                  for c in (PAY_SMALL, PAY_SMALL_B, PAY_SMALL_C)]
     if sprite == "hudHollowTen":
         return [grid_image(HOLLOW_TEN, pal)] + [hollow_with_coin(HOLLOW_TEN, c, pal)
                                                 for c in (COIN_TEN, COIN_TEN_B, COIN_TEN_C)]

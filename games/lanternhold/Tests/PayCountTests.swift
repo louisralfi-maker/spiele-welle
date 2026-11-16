@@ -515,7 +515,7 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(Set(faces), [0, 1, 2], "three faces")
         XCTAssertNotEqual(faces, [0, 1, 2, 0, 1, 2, 0, 1, 2], "not a plain cycle")
         XCTAssertEqual(SpriteID.hudHollowTen.frameCount, 4, "empty and three faces")
-        XCTAssertEqual(SpriteID.payCoin.frameCount, 4, "three faces and the edge")
+        XCTAssertEqual(SpriteID.payCoin.frameCount, 5, "three faces, the edge and the half turn")
         XCTAssertEqual(SpriteID.siteLantern.size, PixelSize(width: 9, height: 13), "the lantern is no speck")
     }
 
@@ -1092,6 +1092,29 @@ final class PayCountTests: XCTestCase {
                 XCTAssertTrue((1...2).contains(glintFrames), "one glint as it sits down, not \(glintFrames) frames")
             }
         }
+    }
+
+    /// Step 3 (the director's call 7, M-b): one look tells 1 from 10. The small coin and its hollow are 7 px, the big
+    /// ones 11 px, in the art and as drawn on the guard's mixed board (one big coin, four small).
+    func testOneLookTellsOneFromTen() throws {
+        XCTAssertEqual(SpriteID.payCoin.size, PixelSize(width: 7, height: 7))
+        XCTAssertEqual(SpriteID.hudHollow.size, PixelSize(width: 7, height: 7))
+        XCTAssertEqual(SpriteID.hudCoinTen.size, PixelSize(width: 11, height: 11))
+        XCTAssertEqual(SpriteID.hudHollowTen.size, PixelSize(width: 11, height: 11))
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1580",
+                          "GWGold": "60"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let guardsman = try XCTUnwrap(game.touch.things.first { $0.id == "touch-recruit-guard" })
+        game.touchThing(guardsman)
+        run(game, seconds: 0.4)
+        let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let scale = Float(try XCTUnwrap(game.touch.framing).scale)
+        let small = frame.actors.filter { $0.sprite == .hudHollow }
+        let big = frame.actors.filter { $0.sprite == .hudHollowTen }
+        XCTAssertFalse(small.isEmpty, "small hollows on the guard's board")
+        XCTAssertFalse(big.isEmpty, "and a big one")
+        for actor in small { XCTAssertEqual(actor.rect.z, 7 * scale, accuracy: 0.5, "a small hollow is 7 px") }
+        for actor in big { XCTAssertEqual(actor.rect.z, 11 * scale, accuracy: 0.5, "a big hollow is 11 px") }
     }
 
     /// The critic's M2: the purse's figure never touches a board that stands by the lord.

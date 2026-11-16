@@ -188,7 +188,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case hudFigures, hudArrow, hudCoin, hudFace, hudPeople, hudGear, hudDawn
     // b3-count (build 3, lane 1: the count, PAY.md; tools/hudart.py): the big coin and the two hollows the kit already
     // drew, the bar and its hollow, the tally board's tiles with its post, the site lantern unlit and lit; step 2: the
-    // small coin of the count (its faces and its edge in flight) and the lit lantern's halo
+    // small coin of the count (its faces and its edge in flight) and the lit lantern's halo; step 3: the small coin and
+    // its hollow 7 px, the big one 11 px (one look tells 1 from 10)
     case hudCoinTen, hudHollow, hudHollowTen, hudCoinBar, hudHollowBar, payBoard, siteLantern, payCoin, siteHalo
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
@@ -490,13 +491,13 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hudGear: return PixelSize(width: 10, height: 10)
         // b3-count
         case .hudCoinTen: return PixelSize(width: 11, height: 11)
-        case .hudHollow: return PixelSize(width: 9, height: 9)
+        case .hudHollow: return PixelSize(width: 7, height: 7)
         case .hudHollowTen: return PixelSize(width: 11, height: 11)
         case .hudCoinBar: return PixelSize(width: 13, height: 8)
         case .hudHollowBar: return PixelSize(width: 13, height: 9)
         case .payBoard: return PixelSize(width: 6, height: 12)
         case .siteLantern: return PixelSize(width: 9, height: 13)
-        case .payCoin: return PixelSize(width: 9, height: 9)
+        case .payCoin: return PixelSize(width: 7, height: 7)
         case .siteHalo: return PixelSize(width: 25, height: 25)
         case .hudDawn: return PixelSize(width: 11, height: 9)
         }
