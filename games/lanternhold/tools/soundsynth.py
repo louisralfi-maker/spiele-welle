@@ -648,8 +648,10 @@ def coins_back():
 def coin_step(k):
     """The count's rising clink (PAY.md section 2; step 2's critic H4): the coin resampled k semitones up (k 0 to 12, an
     octave at most), so the pitch truly rises and the clink grows a little shorter with it, as a smaller coin rings.
-    An AVAudioPlayer's rate only stretches time and keeps the pitch, so the steps are files: coin_p00 is the coin
-    itself, coin_p12 an octave over it. One sound at a rising pitch, never a tune."""
+    An AVAudioPlayer's rate only stretches time and keeps the pitch, so the steps are files: step 0 is coin.wav itself
+    (no copy of it), coin_p12 an octave over it. One sound at a rising pitch, never a tune. The low steps ring past
+    `COIN_STEP_SECONDS` and are cut there with a short fade: a count's coins come 0.05 to 0.1 s apart, so nobody
+    hears that tail, and the 4 MB sound budget keeps its room."""
     x = coin()
     ratio = 2.0 ** (k / 12.0)
     n = int((len(x) - 1) / ratio)
@@ -659,7 +661,12 @@ def coin_step(k):
         j = int(t)
         f = t - j
         out.append(x[j] * (1.0 - f) + x[j + 1] * f)
+    if len(out) > secs(COIN_STEP_SECONDS):
+        out = fade(out[:secs(COIN_STEP_SECONDS)], 0.0, 0.08)
     return out
+
+
+COIN_STEP_SECONDS = 0.26
 
 
 def hammer_tap(rng, g=1.0):
@@ -1025,8 +1032,9 @@ SOUNDS = [
     ("door_creak", door_creak), ("door_latch", door_latch),
     ("amb_throat", amb_throat), ("amb_bailey", amb_bailey), ("amb_valley", amb_valley), ("amb_river", amb_river),
 ]
-# build 3, the count's step 2: the clink a semitone higher for every coin, thirteen steps (coin_p00 ... coin_p12)
-SOUNDS += [("coin_p%02d" % k, (lambda k=k: coin_step(k))) for k in range(13)]
+# build 3, the count's step 2: the clink a semitone higher for every coin, thirteen steps (coin.wav, then coin_p01 ...
+# coin_p12; step 0 is the coin itself and has no file of its own)
+SOUNDS += [("coin_p%02d" % k, (lambda k=k: coin_step(k))) for k in range(1, 13)]
 
 
 # ----------------------------------------------------------------------------------------------------------------

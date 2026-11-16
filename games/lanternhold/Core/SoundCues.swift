@@ -18,8 +18,9 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     // The count (build 3, PAY.md; tools/soundsynth.py): the coins sliding back into the purse, a soft rustle
     case coinsBack = "coins_back"
     // The count's step 2 (tools/soundsynth.py `coin_step`): the coin resampled a semitone higher for every step, so the
-    // clink truly rises (a player's rate only stretches time); played by `FeedbackHub.countCoin`, not by a cue
-    case coinP00 = "coin_p00", coinP01 = "coin_p01", coinP02 = "coin_p02", coinP03 = "coin_p03", coinP04 = "coin_p04"
+    // clink truly rises (a player's rate only stretches time); played by `FeedbackHub.countCoin`, not by a cue. Step 0
+    // is `coin` itself (no copy of it: the 4 MB sound budget)
+    case coinP01 = "coin_p01", coinP02 = "coin_p02", coinP03 = "coin_p03", coinP04 = "coin_p04"
     case coinP05 = "coin_p05", coinP06 = "coin_p06", coinP07 = "coin_p07", coinP08 = "coin_p08", coinP09 = "coin_p09"
     case coinP10 = "coin_p10", coinP11 = "coin_p11", coinP12 = "coin_p12"
 
@@ -28,8 +29,8 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
 
     var isLoop: Bool { SoundID.loops.contains(self) }
 
-    /// The count's clink, one step a semitone (`coin_p00`, the coin itself, to `coin_p12`, an octave over it).
-    static let coinSteps: [SoundID] = [.coinP00, .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07,
+    /// The count's clink, one step a semitone (`coin` itself, then `coin_p01` to `coin_p12`, an octave over it).
+    static let coinSteps: [SoundID] = [.coin, .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07,
                                        .coinP08, .coinP09, .coinP10, .coinP11, .coinP12]
 
     /// The step that sounds a playback rate's pitch: round(12 × log2(rate)) semitones, kept to 0 ... 12.
@@ -54,7 +55,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .bow, .arrowHit: return 0.1
         case .coin, .coins, .seal, .decline, .knock: return 0.08
         case .coinsBack: return 0.2
-        case .coinP00, .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07, .coinP08, .coinP09,
+        case .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07, .coinP08, .coinP09,
              .coinP10, .coinP11, .coinP12:
             return 0.04
         case .tap: return 0.06

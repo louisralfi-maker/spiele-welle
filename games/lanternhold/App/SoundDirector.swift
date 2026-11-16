@@ -89,8 +89,8 @@ final class SoundDirector: FeedbackHub {
         if hapticsOn {
             softImpact.impactOccurred(intensity: CGFloat(max(0.2, min(1, strength))))
         }
-        // Step 2 (the critic's H4): the rate picks a file rendered at that pitch (`coin_p00` ... `coin_p12`), played as
-        // made; a player's rate would only stretch the clink in time. The plain coin at the rate if a step is missing.
+        // Step 2 (the critic's H4): the rate picks a file rendered at that pitch (`coin`, `coin_p01` ... `coin_p12`),
+        // played as made; a player's rate would only stretch the clink in time. The plain coin at the rate if a step is missing.
         guard soundOn, let sound = FeedbackCue.countCoin.sound else { return }
         let step = voice(SoundID.coinStep(rate: rate))
         guard let player = step ?? voice(sound.id) else { return }

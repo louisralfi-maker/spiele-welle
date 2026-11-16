@@ -95,13 +95,13 @@ final class PayCountTests: XCTestCase {
     }
 
     /// Step 2 (the critic's H4): the rising clink is thirteen files, each a semitone over the last (a player's rate
-    /// only stretches time), all in the app; their zero-crossing rate rises from step to step, and the count's rates
-    /// pick them in order.
+    /// only stretches time), all in the app (step 0 is the coin itself, `coin.wav`); their zero-crossing rate rises
+    /// from step to step, and the count's rates pick them in order.
     func testTheRisingClinkIsThirteenFilesThatRise() throws {
         XCTAssertEqual(SoundID.coinSteps.count, 13)
         var last = 0.0
         for (k, id) in SoundID.coinSteps.enumerated() {
-            XCTAssertEqual(id.rawValue, String(format: "coin_p%02d", k))
+            XCTAssertEqual(id.rawValue, k == 0 ? "coin" : String(format: "coin_p%02d", k))
             let url = Bundle.main.url(forResource: id.rawValue, withExtension: "wav", subdirectory: "Sound")
                 ?? Bundle.main.url(forResource: id.rawValue, withExtension: "wav")
             let data = try Data(contentsOf: try XCTUnwrap(url, "\(id.rawValue).wav is in the app"))
@@ -114,14 +114,14 @@ final class PayCountTests: XCTestCase {
             XCTAssertGreaterThan(rate, last, "\(id.rawValue) rings higher than the step before")
             last = rate
         }
-        XCTAssertEqual(SoundID.coinStep(rate: 1), .coinP00)
+        XCTAssertEqual(SoundID.coinStep(rate: 1), .coin)
         XCTAssertEqual(SoundID.coinStep(rate: 2), .coinP12)
         XCTAssertEqual(SoundID.coinStep(rate: pow(2, 5.0 / 12)), .coinP05)
         XCTAssertEqual(SoundID.coinStep(rate: 4), .coinP12, "never past the octave")
-        XCTAssertEqual(SoundID.coinStep(rate: 0.5), .coinP00)
+        XCTAssertEqual(SoundID.coinStep(rate: 0.5), .coin)
         let steps = (0..<9).map { SoundID.coinStep(rate: PayCount.rate(index: $0, count: 9)) }
         XCTAssertEqual(Set(steps).count, 9, "nine coins, nine steps up")
-        XCTAssertEqual(steps.first, .coinP00)
+        XCTAssertEqual(steps.first, .coin)
     }
 
     /// The 16-bit mono samples of a WAV file's data chunk.
