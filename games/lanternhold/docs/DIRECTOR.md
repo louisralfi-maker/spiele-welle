@@ -1086,3 +1086,8 @@ schneller geht."
   - Picked: D. Two pale wooden engines on sawhorses stand on the lord's near side; the chosen one lifts and takes the lantern's gold, the other dims; the pay board rises on the far side and its hollows are the price.
   - Out: the coin stacks (gold lying in the street) and the chalk on the wall (the brightest thing in the panel, decoration).
   - Step 5 builds it: the signpost's drawing goes, its logic stays; a glint and an arrival hop invite the touch; no model stands in a door's opening; the standing calls of 12:17 ride along.
+
+- **The horde's new bodies are in the game (16.11.2026, 13:38).**
+  - Step 7 is green at 9a0d46c1 (round lh-b3h-71), the critic passes it at 7/10: the small ones read as the ash giant's children, hunched shrouds on stilt arms with air under the belly; the pony is gone; the heap on the wall moves.
+  - Still weak: the walk skates, the runt alone is a box, the cloth is lost at night.
+  - Step 8 is one agent and the lane's last look step before the join: a gait whose planted hand stands still (three frames planted, three in the swing, the arms half a cycle apart), the runt's ramped back, the cloth as dull stripes down the flank.
