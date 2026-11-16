@@ -1,0 +1,2 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/EntityFramesTests.swift:975:13: error: call to method 'hordeLayer' in closure requires explicit use of 'self' to make capture semantics explicit
