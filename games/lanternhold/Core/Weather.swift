@@ -193,6 +193,34 @@ enum Weather {
         return a + (b - a) * (f * f * (3 - 2 * f))
     }
 
+    /// Build 3 step 4 (lane 3, the critic's H3 (d): a storm's gust lets a crown's leaves go in a burst): how long ago (s)
+    /// the gust at world x last rose hard, and the lattice cell it rose in; nil if it did not within the last `cells`
+    /// cells. A hard rise is one from a lattice value of the gust noise to the next by `gustRiseStep` or more, to
+    /// `gustRiseTop` or more; it is taken at the middle of its cell, where the smooth noise climbs steepest, in the
+    /// gust's own time at x (the gusts travel with the wind, as in `wind(at:)`). About one cell in four rises so.
+    static let gustRiseStep = 0.25
+    static let gustRiseTop = 0.5
+    static func sinceGustRose(at x: Double, _ sample: WeatherSample, time: Double,
+                              cells: Int = 3) -> (since: Double, cell: Int64)? {
+        guard sample.gust != 0 else { return nil }
+        let lead = max(-1, min(1, sample.mean * 12))
+        let local = time - lead * x / gustTravel
+        let current = (local / gustPeriod).rounded(.down)
+        guard current.isFinite else { return nil }
+        let now = Int64(max(-1.0e15, min(1.0e15, current)))
+        for back in 0..<Int64(max(1, cells)) {
+            let cell = now - back
+            let a = unit(SeededRandom.hash(sample.gustSeed, cell))
+            let b = unit(SeededRandom.hash(sample.gustSeed, cell + 1))
+            guard b - a >= gustRiseStep, b >= gustRiseTop else { continue }
+            let rose = (Double(cell) + 0.5) * gustPeriod
+            if rose <= local {
+                return (since: local - rose, cell: cell)
+            }
+        }
+        return nil
+    }
+
     /// The wind at world x: the steady wind plus the gusts, which travel with it.
     static func wind(at x: Double, _ sample: WeatherSample, time: Double) -> Double {
         guard sample.gust != 0 else { return sample.mean }

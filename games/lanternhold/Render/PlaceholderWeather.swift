@@ -140,13 +140,13 @@ enum PlaceholderWeather {
         return p.image
     }
 
-    /// A gust's leaf (frames 0-11) or puff of dust (12-14), a stand-in for tools/weatherart.py's strip.
+    /// A gust's leaf (frames 0-11) or puff of dust (12-14), a stand-in for tools/weatherart.py's strip (step 4: 6 x 5).
     static func gustLeaf(_ frame: Int) -> PixelImage {
         var p = Painter(SpriteID.gustLeaf.size, salt: 0)
         if frame < 12 {
-            p.rect(1, 1, 2, 2, RGBA(frame / 4 == 2 ? 0xA68A54 : 0x354E30))
+            p.rect(1, 2, 3, 2, RGBA(frame / 4 == 2 ? 0xC4A872 : 0x78904E))
         } else {
-            p.put(1 + frame % 3, 3, RGBA(0x64513F))
+            p.put(1 + frame % 3, 4, RGBA(0x64513F))
         }
         return p.image
     }

@@ -345,19 +345,35 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThan(wet.desc.emissives.filter { $0.sprite == .rainStreak }.count, 0, "the rain is seen at night")
     }
 
-    /// Step 3 gate (round lh-b3w-33): the shots 391 and 400-407 (a dry storm over the town at 2900, demo realm) show
-    /// no leaf, though `testTheGustCarriesLeavesAndDust` finds them in the scene's frame. A measurement, not a verdict:
-    /// it prints what the game-mode frame (scene, entities, as `GameModel` builds it) holds and what the renderer draws
-    /// at each leaf, so the next step knows on which side of the frame the leaves are lost.
+    /// Step 3 gate (round lh-b3w-33): the shots 391 and 400-407 (a dry storm over the town at 2900, demo realm) showed
+    /// no leaf, though `testTheGustCarriesLeavesAndDust` found them in the scene's frame. It prints what the game-mode
+    /// frame (scene, entities, as `GameModel` builds it) holds and what the renderer draws at each leaf. Step 4 (the
+    /// critic's H3): a verdict too. Over the strip's eight moments (30.4 s on, 1/12 s apart) four or more leaves in the
+    /// air on average and never fewer than three, each well seen (alpha 0.5 or more); over twelve moments of the storm
+    /// more than half of them over the roofs (the leaf's foot above the house's ridge, 46 rows over the ground).
     func testTheGustsLeavesInTheGameFrameMeasured() throws {
         let s = GameFrameSupport.demoDay(hour: 12)
         let override = WeatherOverride(mode: .storm, rain: 0)
+        func seen(_ time: Double) -> [SpriteInstance] {
+            sprites(shot(s, focus: 2900, weather: weather(s, override, time: time), time: time), .gustLeaf, .world)
+                .filter { $0.frame < 12 && $0.tint.w >= 0.5 }
+        }
+        let strip = (0..<8).map { seen(30.4 + Double($0) / 12).count }
         var counts: [Int] = []
+        var over = 0
+        var all = 0
         for index in 0..<12 {
             let time = 30.4 + Double(index) * 0.9
-            counts.append(sprites(shot(s, focus: 2900, weather: weather(s, override, time: time), time: time),
-                                  .gustLeaf, .world).count)
+            let found = seen(time)
+            counts.append(found.count)
+            all += found.count
+            let ground = Float(shot(s, focus: 2900, weather: weather(s, override, time: time), time: time).desc.groundRow)
+            over += found.filter { $0.rect.y + $0.rect.w <= ground - 46 }.count
         }
+        print("GUSTLEAVES strip at 30.4 by 1/12 s: \(strip); 12 moments: \(counts), \(over) of \(all) over the roofs")
+        XCTAssertGreaterThanOrEqual(Double(strip.reduce(0, +)) / 8, 4, "four leaves or more in the strip's cells")
+        XCTAssertGreaterThanOrEqual(strip.min() ?? 0, 3, "never a cell with fewer than three")
+        XCTAssertGreaterThan(Double(over), Double(all) * 0.5, "most of their path runs over the roofs")
         let at = shot(s, focus: 2900, weather: weather(s, override, time: 30.4), time: 30.4)
         let leaves = sprites(at, .gustLeaf, .world)
         print("GUSTLEAVES game frame at 2900, 12 moments: \(counts); at 30.4: \(leaves.count), seam \(Int(at.seam)), "

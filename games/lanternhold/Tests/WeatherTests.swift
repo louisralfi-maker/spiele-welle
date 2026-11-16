@@ -924,7 +924,8 @@ final class WeatherTests: XCTestCase {
         XCTAssertEqual(breeze.dust, 0, "no dust in a breeze")
         let storm = most(WeatherOverride(mode: .storm, rain: 0))
         XCTAssertGreaterThan(storm.total, breeze.total, "more in a storm")
-        XCTAssertLessThanOrEqual(storm.most, FrameBuilder.gustLeafCounts[3] + FrameBuilder.gustDustCounts[3])
+        XCTAssertLessThanOrEqual(storm.most, FrameBuilder.gustLeafCounts[3] + FrameBuilder.gustDustCounts[3]
+                                 + FrameBuilder.gustBurstMost)
         XCTAssertGreaterThan(most(WeatherOverride(mode: .gusty)).dust + storm.dust, 0, "the lane's dust in the gusts")
         XCTAssertEqual(most(WeatherOverride(mode: .storm, rain: 0), focus: 300).total, 0,
                        "never on the shadow side of the outermost wall")
@@ -936,6 +937,36 @@ final class WeatherTests: XCTestCase {
                                               time: 5 + Double($0) * 0.5) }) {
             XCTAssertFalse(leaf.flipped, "a storm toward the valley carries them east")
             XCTAssertLessThan(leaf.frame, 15)
+        }
+    }
+
+    /// Step 4 (the critic's H3 (c), (d)): each slot flies at its own pace (no conveyor), and a storm's hard gust lets 4 to
+    /// 6 leaves of one crown go within 0.3 s of its rise; none such on a gusty day.
+    func testAStormsGustLetsTheLeavesGoInABurst() throws {
+        let storm = Weather.sample(seed: 3, day: 12, hour: 12, time: 0, override: WeatherOverride(mode: .storm, rain: 0))
+        XCTAssertEqual(Weather.sailLevel(storm.mean), 3)
+        let width = 437.0
+        var found: Double?
+        for step in 0..<800 {
+            let time = 5 + Double(step) * 0.25
+            if let rose = Weather.sinceGustRose(at: 2900, storm, time: time), rose.since < 0.25 {
+                found = time - rose.since
+                break
+            }
+        }
+        let rise = try XCTUnwrap(found, "a storm's gust rises hard within 200 s")
+        let early = FrameBuilder.gustBurst(storm, at: 2900, time: rise + 0.02, width: width)?.leaves.count ?? 0
+        let all = try XCTUnwrap(FrameBuilder.gustBurst(storm, at: 2900, time: rise + FrameBuilder.gustBurstSpread + 0.05,
+                                                       width: width))
+        XCTAssertLessThan(early, all.leaves.count, "they go one by one within the spread")
+        XCTAssertGreaterThanOrEqual(all.leaves.count, FrameBuilder.gustBurstLeast, "four or more at once")
+        XCTAssertLessThanOrEqual(all.leaves.count, FrameBuilder.gustBurstMost)
+        XCTAssertTrue(all.leaves.allSatisfy { $0.along <= FrameBuilder.gustBurstSpread + 0.05 }, "within 0.3 s")
+        XCTAssertGreaterThan(Set(all.leaves.map { Int($0.pace) }).count, 1, "each at its own pace")
+        let gusty = Weather.sample(seed: 3, day: 12, hour: 12, time: 0, override: WeatherOverride(mode: .gusty, rain: 0))
+        for step in 0..<200 {
+            XCTAssertNil(FrameBuilder.gustBurst(gusty, at: 2900, time: 5 + Double(step) * 0.5, width: width),
+                         "a burst is a storm's")
         }
     }
 

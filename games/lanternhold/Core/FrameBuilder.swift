@@ -2032,17 +2032,58 @@ enum FrameBuilder {
     /// Leaves in the air by the steady wind's step (`Weather.sailLevel`: calm, breeze, gusty, storm): none in a calm, a
     /// few in a breeze (while its small gusts are up), more on a gusty day and in a storm (while a gust is up where
     /// they fly; a storm keeps some aloft between its gusts). Puffs of the lane's dust only in a gusty day's or a storm's gusts.
-    static let gustLeafCounts = [0, 3, 8, 14]
+    static let gustLeafCounts = [0, 3, 10, 18]
     static let gustDustCounts = [0, 0, 4, 5]
-    /// A leaf crosses the screen at this speed plus `gustLeafDrive` × the steady wind (target px/s), sinking
-    /// `gustLeafSink` px/s and bobbing `gustLeafBob` px; a slot waits a share of its flight between flights.
+    /// A leaf crosses the screen at this speed plus `gustLeafDrive` × the steady wind (target px/s); a slot waits a
+    /// share of its flight between flights. Step 4 (the critic's H3, Louis: "Baeume zum Wackeln, also Wind"; over the
+    /// town the leaves were lost in front of roofs and crowns of their own value):
+    /// - (a) a gust lifts them: each rises `gustLeafRise` (20 to 40 px, by its flight) over its first `gustLeafRiseTime`
+    ///   seconds, easing out, then sinks `gustLeafSink` px/s, so most of its path runs over the roofs in the sky band;
+    /// - (c) each slot its own speed (× `gustLeafPace`, 0.7 to 1.3 by its hash) and its own bob (3 to 6 px at 2.5 to
+    ///   5.5 rad/s), so they never move as a conveyor;
+    /// - (b) half are an autumn straw (`gustLeafAutumn`), lighter than every roof (the sprite: 6 x 5, a pale lit edge);
+    /// - (d) in a storm each hard rise of the gust (`Weather.sinceGustRose`) lets 4 to 6 leaves of one crown go within
+    ///   `gustBurstSpread` s, beside the slots (`gustBurstMost` at most).
     static let gustLeafSpeed = 50.0
     static let gustLeafDrive = 90.0
-    static let gustLeafSink = 6.0
-    static let gustLeafBob = 3.0
+    static let gustLeafRise = (low: 20.0, high: 40.0)
+    static let gustLeafRiseTime = 0.6
+    static let gustLeafSink = 3.0
+    static let gustLeafPace = (low: 0.7, high: 1.3)
+    static let gustLeafBob = (low: 3.0, high: 6.0)
+    static let gustLeafBobRate = (low: 2.5, high: 5.5)
+    static let gustLeafAutumn = 0.5
+    static let gustBurstLeast = 4
+    static let gustBurstMost = 6
+    static let gustBurstSpread = 0.3
     /// A puff of dust lives this long (s), drifting `gustDustReach` px downwind.
     static let gustDustLife = 1.2
     static let gustDustReach = 22.0
+
+    /// Step 4 (the critic's H3 (d)): the leaves of a storm's burst in the air at this moment, for the gust at world x
+    /// (the screen's middle): after each hard rise of the gust (`Weather.sinceGustRose`) 4 to 6 leaves, each starting
+    /// within `gustBurstSpread` s of it, at its own pace, until it has crossed the screen's width. The key picks the
+    /// crown they leave. Nil but in a storm (`Weather.sailLevel` 3) and without such a rise in the last three cells.
+    static func gustBurst(_ weather: WeatherSample, at x: Double, time: Double, width: Double)
+        -> (key: UInt64, leaves: [(mark: UInt64, along: Double, pace: Double, flight: Double)])? {
+        guard Weather.sailLevel(weather.mean) == 3,
+              let rose = Weather.sinceGustRose(at: x, weather, time: max(0, time)) else { return nil }
+        let key = SeededRandom.hash(weather.gustSeed ^ 0x4255_5253, rose.cell)
+        let count = gustBurstLeast
+            + Int(unit(SeededRandom.hash(key, 2)) * Double(gustBurstMost - gustBurstLeast + 1))
+        let speed = gustLeafSpeed + gustLeafDrive * abs(weather.mean)
+        var leaves: [(mark: UInt64, along: Double, pace: Double, flight: Double)] = []
+        for place in 0..<min(gustBurstMost, count) {
+            let mark = SeededRandom.hash(key, Int64(16 + place))
+            let along = rose.since - gustBurstSpread * unit(SeededRandom.hash(mark, 11))
+            let pace = speed * (gustLeafPace.low + (gustLeafPace.high - gustLeafPace.low)
+                                * unit(SeededRandom.hash(mark, 10)))
+            let flight = (width + 40) / pace
+            guard along >= 0, along < flight else { continue }
+            leaves.append((mark: mark, along: along, pace: pace, flight: flight))
+        }
+        return leaves.isEmpty ? nil : (key: key, leaves: leaves)
+    }
 
     /// How far the gust is up at world x, 0 ... 1: the wind there over the steady wind, against the day's whole gust.
     static func gustShare(at x: Double, _ weather: WeatherSample, time: Double) -> Double {
@@ -2052,10 +2093,11 @@ enum FrameBuilder {
     }
 
     /// The leaves and dust a gust carries across the lane's plane, each a pure function of its slot and the time: a leaf
-    /// sets off from the crown of a tree on the screen (else from the upwind edge), tumbles downwind with a bob and a
-    /// slow sink, in the trees' own greens or (one in three) an autumn straw; it shows while the gust is up where it
-    /// flies and fades as the gust eases. Never west of the outermost standing wall (the ash is the weather there),
-    /// never with Reduce Motion, none in a calm.
+    /// sets off from the crown of a tree on the screen (else from the upwind edge, over the roofs), rises as the gust
+    /// lifts it and tumbles downwind with a bob and a slow sink, in the trees' own greens or (step 4: one in two) an
+    /// autumn straw; it shows while the gust is up where it flies and fades as the gust eases; a storm's hard rise lets a
+    /// crown's leaves go in a burst. Never west of the outermost standing wall (the ash is the weather there), never
+    /// with Reduce Motion, none in a calm.
     private static func gustLeaves(props: [Prop], animTime: Double, seam: Double,
                                    geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
@@ -2067,7 +2109,6 @@ enum FrameBuilder {
         let ground = Double(geometry.groundRow)
         let downwind: Double = weather.mean < 0 ? -1 : 1
         let speed = gustLeafSpeed + gustLeafDrive * abs(weather.mean)
-        let flight = (width + 40) / speed
         // The crowns of the lane plane's trees on the screen, as screen x and the row of their upper third.
         var crowns: [(x: Double, y: Double)] = []
         for prop in props where prop.plane == .world && swaying.contains(prop.sprite) {
@@ -2078,8 +2119,37 @@ enum FrameBuilder {
         }
         let key = SeededRandom.hash(weather.gustSeed ^ 0x4C45_4146, 11)
         var list: [SpriteInstance] = []
+        // One leaf `along` seconds into a flight that set off at (x0, y0), at its own pace and bob (`own` is its slot's or
+        // its burst place's hash), with a share of the gust's alpha; nil when it is off the screen or west of the wall.
+        func leaf(x0: Double, y0: Double, pick: UInt64, own: UInt64, along: Double, flight: Double,
+                  pace: Double, alpha base: Double) -> SpriteInstance? {
+            let rise = gustLeafRise.low + (gustLeafRise.high - gustLeafRise.low) * unit(SeededRandom.hash(pick, 7))
+            let up = min(1, along / gustLeafRiseTime)
+            let lift = rise * (1 - (1 - up) * (1 - up))
+            let bob = gustLeafBob.low + (gustLeafBob.high - gustLeafBob.low) * unit(SeededRandom.hash(own, 8))
+            let rate = gustLeafBobRate.low
+                + (gustLeafBobRate.high - gustLeafBobRate.low) * unit(SeededRandom.hash(own, 9))
+            let phase = unit(SeededRandom.hash(pick, 4)) * 2 * Double.pi
+            let x = x0 + downwind * pace * along
+            let sink = gustLeafSink * max(0, along - gustLeafRiseTime)
+            let y = min(ground - 4, y0 - lift + sink + bob * sin(along * rate + phase))
+            guard x > -Double(size.width), x < width, x + lane > seam else { return nil }
+            // Fade in as it leaves the crown, out at the end of its flight.
+            let alpha = base * min(1, along / 0.25) * min(1, (flight - along) / 0.4)
+            guard alpha > 0.03 else { return nil }
+            let tone = unit(SeededRandom.hash(pick, 5)) < gustLeafAutumn ? 2 : Int(unit(SeededRandom.hash(pick, 6)) * 2)
+            let tumble = Int(min(1.0e15, along * (6 + 4 * abs(weather.mean)) + phase).rounded(.down)) % 4
+            return SpriteInstance(sprite: .gustLeaf, frame: tone * 4 + tumble,
+                                  rect: SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)),
+                                                     Float(size.width), Float(size.height)),
+                                  tint: SIMD4<Float>(1, 1, 1, Float(alpha)), flipped: downwind < 0)
+        }
         for slot in 0..<gustLeafCounts[level] {
-            let own = unit(SeededRandom.hash(key, Int64(slot)))
+            let mark = SeededRandom.hash(key, Int64(slot))
+            let own = unit(mark)
+            let pace = speed * (gustLeafPace.low + (gustLeafPace.high - gustLeafPace.low)
+                                * unit(SeededRandom.hash(mark, 10)))
+            let flight = (width + 40) / pace
             // A short wait between flights (round lh-b3w-31: a leaf from a crown leaves the screen early, so a storm's
             // still showed one or two leaves).
             let cycle = flight * (1.05 + 0.35 * own)
@@ -2088,35 +2158,41 @@ enum FrameBuilder {
             let along = clock - turn * cycle
             guard along < flight else { continue }
             let pick = SeededRandom.hash(SeededRandom.hash(key, Int64(max(-1.0e15, min(1.0e15, turn)))), Int64(slot))
+            // From the upwind edge it starts over the roofs (step 4); from a crown, where the gust takes it.
             var x0 = downwind > 0 ? -8 : width + 8
-            var y0 = ground - 24 - 70 * unit(SeededRandom.hash(pick, 1))
+            var y0 = ground - 40 - 40 * unit(SeededRandom.hash(pick, 1))
             if !crowns.isEmpty && unit(SeededRandom.hash(pick, 2)) < 0.7 {
                 let crown = crowns[Int(unit(SeededRandom.hash(pick, 3)) * Double(crowns.count)) % crowns.count]
                 x0 = crown.x
                 y0 = crown.y
             }
-            let phase = unit(SeededRandom.hash(pick, 4)) * 2 * Double.pi
-            let x = x0 + downwind * speed * along
-            let y = min(ground - 4, y0 + gustLeafSink * along + gustLeafBob * sin(along * 3.7 + phase))
-            guard x > -Double(size.width), x < width, x + lane > seam else { continue }
+            let near = x0 + downwind * pace * along
             // A breeze's leaves ride its small gusts too (a lower threshold), so they are gone when it eases.
-            let gust = gustShare(at: x + lane, weather, time: animTime)
+            let gust = gustShare(at: near + lane, weather, time: animTime)
             var alpha: Double
             if level == 1 {
                 alpha = AmbientRamp.smoothstep((gust - 0.1) / 0.4)
             } else {
                 let share = AmbientRamp.smoothstep((gust - 0.2) / 0.35)
-                alpha = max(level == 3 && slot % 2 == 0 ? 0.8 : 0, share)
+                // A storm keeps two leaves in three aloft between its gusts (step 4: one in two read too few).
+                alpha = max(level == 3 && slot % 3 != 2 ? 0.8 : 0, share)
             }
-            // Fade in as it leaves the crown, out at the end of its flight.
-            alpha *= min(1, along / 0.25) * min(1, (flight - along) / 0.4)
-            guard alpha > 0.03 else { continue }
-            let tone = unit(SeededRandom.hash(pick, 5)) < 0.35 ? 2 : Int(unit(SeededRandom.hash(pick, 6)) * 2)
-            let tumble = Int(min(1.0e15, along * (6 + 4 * abs(weather.mean)) + phase).rounded(.down)) % 4
-            list.append(SpriteInstance(sprite: .gustLeaf, frame: tone * 4 + tumble,
-                                       rect: SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)),
-                                                          Float(size.width), Float(size.height)),
-                                       tint: SIMD4<Float>(1, 1, 1, Float(alpha)), flipped: downwind < 0))
+            if let item = leaf(x0: x0, y0: y0, pick: pick, own: mark, along: along, flight: flight, pace: pace,
+                               alpha: alpha) {
+                list.append(item)
+            }
+        }
+        // Step 4 (the critic's H3 (d)): a storm's hard rise lets 4 to 6 leaves of one crown on the screen go at once.
+        if !crowns.isEmpty, let burst = gustBurst(weather, at: lane + width / 2, time: animTime, width: width) {
+            let crown = crowns[Int(unit(SeededRandom.hash(burst.key, 1)) * Double(crowns.count)) % crowns.count]
+            for item in burst.leaves {
+                // Each leaf a few pixels apart where it leaves the crown.
+                let spread = (unit(SeededRandom.hash(item.mark, 12)) - 0.5) * 12
+                if let found = leaf(x0: crown.x + spread, y0: crown.y + spread / 3, pick: item.mark, own: item.mark,
+                                    along: item.along, flight: item.flight, pace: item.pace, alpha: 1) {
+                    list.append(found)
+                }
+            }
         }
         // The lane's dust: puffs low over the cobbles, only while a gust is up there.
         let dustKey = SeededRandom.hash(key, 0x4455)

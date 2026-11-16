@@ -351,7 +351,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .rainSplash: return PixelSize(width: 5, height: 3)
         case .ashFlake: return PixelSize(width: 5, height: 5)
         case .weatherVane: return PixelSize(width: 13, height: 11)
-        case .gustLeaf: return PixelSize(width: 5, height: 4)
+        case .gustLeaf: return PixelSize(width: 6, height: 5)
         case .flameBent: return PixelSize(width: 8, height: 5)
         case .brazierFlameBent: return PixelSize(width: 12, height: 7)
         case .windmillTower: return PixelSize(width: 26, height: 44)
