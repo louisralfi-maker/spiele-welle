@@ -296,11 +296,17 @@ final class RainLookTests: XCTestCase {
         // The weather moves no one, and a rain frame stays inside the rain's old count (its streaks, its splashes and
         // the steam over the fires) plus a splash or two a roof.
         XCTAssertEqual(wet.desc.actors, dry.desc.actors)
-        let added = wet.desc.counts.instances - dry.desc.counts.instances
+        // The occluders the night's lift brings (a later sprite over a lift hides it) are counted apart: they follow
+        // the scene, not the rain's own count.
+        func occluders(_ shot: Shot) -> Int { shot.desc.emissives.filter { $0.kind == .occluder }.count }
+        let shadowed = max(0, occluders(wet) - occluders(dry))
+        let added = wet.desc.counts.instances - dry.desc.counts.instances - shadowed
         let old = FrameBuilder.rainDepths.map { $0.count }.reduce(0, +) + FrameBuilder.rainSplashCount
+        print("RAINCOUNT town at night: \(added) added, \(shadowed) occluders, \(wet.desc.counts.instances) in all")
         XCTAssertGreaterThan(sprites(wet, .rainSplash).count, FrameBuilder.rainSplashCount, "splashes on the ridges")
         XCTAssertLessThanOrEqual(added, old + 8 + 16 + 2 * FrameBuilder.rainLiftCap,
                                  "at most the old rain, its steam, the ridges' splashes and the night's lift near lights")
+        XCTAssertLessThanOrEqual(shadowed, 2 * FrameBuilder.rainLiftCap, "the lift's occluders stay few")
         // Step 3 (the director's call 2): at night the rain near a light has its faint cool copy.
         XCTAssertGreaterThan(wet.desc.emissives.filter { $0.sprite == .rainStreak }.count, 0, "the rain is seen at night")
     }
