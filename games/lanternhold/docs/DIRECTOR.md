@@ -1118,3 +1118,8 @@ schneller geht."
   - Two forms were drawn in python from the lane's art before any Swift: A, the counter (the tally board rises on the ground where the trestles stood, both models stand on its cap), and B, the stall (the board hangs on posts over the trestles).
   - A is picked. It is compact, the redrawn catapult can be named, and seven hollows against eleven read as cheaper against dearer. B reaches into the banner and its three-row board dominates the wall.
   - Calls for the build: the lord's spot may shift 15 px at a model plot (14 elsewhere); the coin's peak clears the models by 2 px; the catapult's counter may stand taller than the lord; the model not chosen keeps its ink edge so it can still be named.
+
+- **The town's smoke shows by day; the wind lane is closed for wave 1 (16.11.2026, 17:18).**
+  - Round lh-b3w-73 passed on 14523711 (build, the whole unit suite, the wind's UI tests). The first check round had failed one test of the drawn pixel: at noon the town's puffs were cream-white over brown, not grey.
+  - The fix is a cool day tint for the town's puffs and a darker body in the art. On the live frame five thin grey columns with pale caps stand over the roofs at noon.
+  - Wave 1 of the wind lane holds: the wind engine on trees, banners and shutters, rain on the town side and ash on the shadow side, the keep's smoke, the town's smoke. The gust's leaf ribbon is off and moves to wave 2 with its own design.
