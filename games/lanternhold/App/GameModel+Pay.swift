@@ -160,12 +160,14 @@ extension GameModel {
 
     /// Where a thrown coin is at `share` (0 ... 1) of its flight from (`fromX`, `fromLift`) to (`toX`, `toLift`) (its
     /// top-left, game px): it goes up and falls in. The peak stands `coinHeight` + 3 px over the higher end, so it
-    /// clears the coins already lying in its row; it rises eased out to the peak by 45 % of the way and falls eased in;
-    /// across, it is over its hollow by 70 % of the way, so the last 30 % is a drop into the hollow.
+    /// clears the coins already lying in its row, and never lower than `clear` (step 4, the director's call 1: the
+    /// coin's top at its peak when its whole rect stands 4 px over the board's top, so no coin in the air covers a
+    /// landed coin or the bar plank); it rises eased out to the peak by 45 % of the way and falls eased in; across, it
+    /// is over its hollow by 70 % of the way, so the last 30 % is a drop into the hollow.
     nonisolated static func countThrow(_ share: Double, fromX: Double, fromLift: Double, toX: Double, toLift: Double,
-                                       coinHeight: Double) -> (x: Double, lift: Double) {
+                                       coinHeight: Double, clear: Double = 0) -> (x: Double, lift: Double) {
         let p = min(1, max(0, share))
-        let peak = max(fromLift, toLift) + coinHeight + 3
+        let peak = max(max(fromLift, toLift) + coinHeight + 3, clear)
         let across = min(1, p / 0.7)
         let x = fromX + (toX - fromX) * (1 - (1 - across) * (1 - across))
         let lift: Double
@@ -179,18 +181,21 @@ extension GameModel {
         return (x, lift)
     }
 
-    /// The coin's frame at `share` of its flight: face, half turned, edge, half turned (`face`, 4, 3, 4), the even coins
-    /// starting on the face and the odd ones on the half turn, so two in the air never spin in step; the last stretch of
-    /// each flight is the half turn, and the face shows once the coin lies in its hollow.
+    /// The coin's frame at `share` of its flight (step 4, the director's call 1: the face at the peak): half turned,
+    /// face, half turned (4, `face`, 4), never the edge, so the most seen moment of every throw is the whole coin and
+    /// the narrowest frame is the half turn. The face spans the peak (45 %) for every coin: an even coin shows it from
+    /// 30 % to 60 % of the way, an odd one from 20 % to 70 %, so two in the air never turn in step.
     nonisolated static func countSpin(_ share: Double, index: Int, face: Int) -> Int {
-        let start = index % 2
-        let segments = 4 - start
-        let state = (start + min(segments - 1, max(0, Int(share * Double(segments))))) % 4
-        switch state {
-        case 0: return face
-        case 2: return 3
-        default: return 4
-        }
+        let odd = index % 2 == 1
+        let faceFrom = odd ? 0.2 : 0.3
+        let faceTo = odd ? 0.7 : 0.6
+        return share >= faceFrom && share < faceTo ? face : 4
+    }
+
+    /// Step 4 (the director's call 1): the lowest a thrown coin's top may stand at its peak, for a board whose top is
+    /// at `boardTop` (lift): its whole rect 4 px over the board.
+    nonisolated static func countPeakClear(boardTop: Double, coinHeight: Double) -> Double {
+        boardTop + 4 + coinHeight
     }
 
     /// A coin going home after a let go (step 3, the director's call 8, M-a): its full size for the first 60 % of the
@@ -971,15 +976,17 @@ extension GameModel {
             if offset > 0 { cap() }
         }
         // The coins in the air (step 3, the director's call 1): thrown from the lord's hand up over the coins already
-        // lying and down into their hollows (to 3 px over them; the settle does the rest), on whole pixels, turning
-        // face, half, edge, half, each coin in its own phase.
+        // lying and down into their hollows (to 3 px over them; the settle does the rest), on whole pixels. Step 4:
+        // at the peak the coin shows its face and its whole rect stands 4 px over the board's top.
         let lordX = stageLordX
         let handX = lordX + GameModel.countHandReach * (board.x >= lordX ? 1 : -1)
         for coin in flying {
             let size = coin.coin.sprite.size
             let at = GameModel.countThrow(coin.share, fromX: handX - Double(size.width) / 2,
                                           fromLift: GameModel.countHandLift + Double(size.height) / 2,
-                                          toX: Double(coin.x), toLift: coin.lift + 3, coinHeight: Double(size.height))
+                                          toX: Double(coin.x), toLift: coin.lift + 3, coinHeight: Double(size.height),
+                                          clear: GameModel.countPeakClear(boardTop: top,
+                                                                          coinHeight: Double(size.height)))
             let frame = GameModel.countSpin(coin.share, index: coin.index, face: coin.face)
             if let actor = countActor(coin.coin.sprite, frame, x: at.x.rounded(), lift: at.lift.rounded(), alpha: alpha,
                                       framing: framing) {

@@ -347,8 +347,9 @@ final class PayCountTests: XCTestCase {
     }
 
     /// Step 3 (the director's call 1): the throw goes up and falls in. At mid-flight the coin is over both the hand and
-    /// the hollow; by 70 % of the way it is over its hollow and still high, so the rest is a drop; it turns face, half,
-    /// edge, half, the odd coins a quarter turn on; the far hollow flies longer than the near one.
+    /// the hollow; by 70 % of the way it is over its hollow and still high, so the rest is a drop; the far hollow flies
+    /// longer than the near one. Step 4 (call 1): it turns half, face, half with the face at the peak, never the edge,
+    /// the odd coins in their own phase; the peak never stands lower than its clearance over the board.
     func testTheThrowGoesUpAndFallsIn() throws {
         let mid = GameModel.countThrow(0.5, fromX: 0, fromLift: 31, toX: 40, toLift: 22, coinHeight: 11)
         XCTAssertGreaterThan(mid.lift, 31 + 8, "at mid-flight over the hand")
@@ -361,10 +362,17 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(end.x, 40, accuracy: 1e-9)
         let even = stride(from: 0.0, to: 1.0, by: 0.05).map { GameModel.countSpin($0, index: 0, face: 1) }
         let odd = stride(from: 0.0, to: 1.0, by: 0.05).map { GameModel.countSpin($0, index: 1, face: 1) }
-        XCTAssertEqual(even.first, 1, "an even coin leaves face on")
-        XCTAssertEqual(odd.first, 4, "an odd coin leaves half turned")
-        XCTAssertTrue(even.contains(4) && even.contains(3), "face, half, edge, half")
+        XCTAssertEqual(even.first, 4, "a coin leaves half turned")
+        XCTAssertEqual(even.last, 4, "and comes down half turned")
+        XCTAssertFalse(even.contains(3) || odd.contains(3), "never the edge: the half turn is the narrowest frame")
+        XCTAssertTrue(even.contains(1) && odd.contains(1), "half, face, half")
         XCTAssertNotEqual(even, odd, "two in the air never spin in step")
+        for index in 0..<6 {
+            XCTAssertEqual(GameModel.countSpin(0.45, index: index, face: 2), 2, "coin \(index): the face at the peak")
+        }
+        let high = GameModel.countThrow(0.45, fromX: 0, fromLift: 31, toX: 40, toLift: 22, coinHeight: 11, clear: 60)
+        XCTAssertEqual(high.lift, 60, accuracy: 1e-9, "the peak never under its clearance over the board")
+        XCTAssertEqual(GameModel.countPeakClear(boardTop: 32, coinHeight: 11), 47, "its whole rect 4 px over the top")
 
         let game = gateGame(gold: 200)
         let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
@@ -417,6 +425,35 @@ final class PayCountTests: XCTestCase {
             return bottom <= laidTop + 1 && right > spanA && left < spanB
         }
         XCTAssertFalse(over.isEmpty, "coin 3 is drawn over coins 1 and 2, clear of them")
+    }
+    #endif
+
+    #if DEBUG
+    /// Step 4 (the director's call 1), on the drawn frame: coin 3 of a hold frozen at 45 % of its throw shows its face,
+    /// and its whole rect stands at least 4 px over the board's top, so it covers neither a landed coin nor a plank.
+    func testTheCoinShowsItsFaceAtThePeakAboveTheBoard() throws {
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+                          "GWGold": "200", "GWCountFreeze": "fly:2:0.45"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        count.press()
+        game.touch.count = count
+        let freeze = PayFreeze.flight(coin: 2, share: 0.45)
+        run(game, seconds: 3) { game.touch.count.map { freeze.holds($0) } == true }
+        let live = try XCTUnwrap(game.touch.count)
+        XCTAssertTrue(freeze.holds(live), "frozen with coin 3 at its peak")
+        let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let board = try XCTUnwrap(game.touch.countBoard)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let clearLine = framing.deviceY(lift: board.top + 4) + 0.5
+        let peak = frame.actors.filter { actor in
+            actor.sprite == .hudCoinTen && Double(actor.rect.y + actor.rect.w) <= clearLine
+        }
+        XCTAssertFalse(peak.isEmpty, "coin 3 stands with its whole rect 4 px over the board's top")
+        XCTAssertTrue(peak.allSatisfy { $0.frame < 3 }, "showing its face, never the edge or the half turn")
     }
     #endif
 
@@ -899,7 +936,7 @@ final class PayCountTests: XCTestCase {
     // MARK: - Step 2 through the game
 
     /// The critic's blocker: on a hold the coin is drawn in the air between the lord's hand and its hollow, turning
-    /// (its edge frame on the way), and lands in the hollow.
+    /// (step 4: half turned, then its face, never the edge), and lands in the hollow.
     func testTheCoinIsDrawnFlyingFromTheLordsHand() throws {
         let game = gateGame(gold: 200)
         let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
@@ -910,7 +947,8 @@ final class PayCountTests: XCTestCase {
         game.touch.count = count
         let board = try XCTUnwrap(game.touch.countBoard)
         var sawOff = false
-        var sawEdge = false
+        var sawHalf = false
+        var sawFace = false
         for _ in 0..<40 {
             game.advance(by: 1.0 / 60)
             let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
@@ -924,11 +962,13 @@ final class PayCountTests: XCTestCase {
                 // Off the board: between his hand and the board's near edge, or over the board's top on its arc.
                 let beside = (middle - lordX) * (nearEdge - lordX) >= 0 && abs(middle - lordX) <= abs(nearEdge - lordX)
                 if beside || Double(actor.rect.y) < boardTop { sawOff = true }
-                if actor.frame == 3 { sawEdge = true }
+                XCTAssertNotEqual(actor.frame, 3, "never the edge in the air")
+                if actor.frame == 4 { sawHalf = true }
+                if actor.frame < 3 { sawFace = true }
             }
         }
         XCTAssertTrue(sawOff, "a coin in the air off the board, on its way from his hand")
-        XCTAssertTrue(sawEdge, "turning in the air")
+        XCTAssertTrue(sawHalf && sawFace, "turning in the air")
         XCTAssertGreaterThan(game.touch.count?.placed ?? 0, 0, "and they land")
     }
 
