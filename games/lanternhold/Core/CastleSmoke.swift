@@ -9,6 +9,12 @@ import simd
 /// on a diagonal (the cleft's draught, more with the wind), and their spacing and alpha vary puff by puff.
 /// `FrameBuilder.castleSmoke` draws them on the plane of the chimney's building; with Reduce Motion the clock stands at
 /// 0, so they hang where the steady wind leaves them.
+/// b3-wind: build 3 step 5 (lane 3, the director's call 1 of 16.11. 11:07, "the smoke shows the wind"): the plume leans
+/// with `Weather.wind` at the chimney (its sign and its strength, so smoke, flags and leaves agree): upright in still
+/// air, build 2's lean in a calm, about 30 degrees downwind in a breeze, nearly flat in a storm (74 degrees from the
+/// vertical, its path half again as long), where it is torn into two or three separate puffs that thin as they go. The
+/// back row's chimneys (`back`) smoke dimmer and fade in slowly, with no fire under them: no bright hard head and no
+/// comet tail.
 enum CastleSmoke {
     struct Puff: Sendable, Equatable {
         /// Columns from the chimney's middle, rows over its mouth.
@@ -24,7 +30,7 @@ enum CastleSmoke {
     static let rise = 38.0
     static let period = 9.0
     /// The cleft's draught: how far a puff leans east by the top of its rise in still air; a wind of 1 carries it
-    /// `drift` further.
+    /// `drift` further. b3-wind (step 5): retired, `angle(wind:)` leans the plume with the wind.
     static let lean = 9.0
     static let drift = 12.0
     /// The puffs' albedo (white, × the hour's light): a value step over the rock behind them at dusk and night.
@@ -44,15 +50,51 @@ enum CastleSmoke {
     static let duskGlow: Float = 0.34
     static let hearthGlow: Float = 0.3
 
+    // b3-wind: build 3 step 5 (the director's call 1 of 11:07): the lean with the wind.
+    /// Degrees from the vertical: build 2's lean on a calm day (and below), the storm's; the wind's force where the lean
+    /// starts to grow past the calm's and where it lies at the storm's angle (eased in by `leanEase`, so a breeze's
+    /// 0.35 leans about 28 degrees); under `stillWind` the calm's lean fades to upright (still air).
+    static let calmAngle = 13.0
+    static let stormAngle = 74.0
+    static let leanFrom = 0.1
+    static let leanTo = 0.85
+    static let leanEase = 1.3
+    static let stillWind = 0.06
+    /// How much longer the path grows at the storm's angle (it lies flat, so it runs further).
+    static let stormStretch = 0.5
+    /// From this force to `leanTo` the plume is torn into `tornPuffs` groups along its path (they travel with it).
+    static let tornFrom = 0.55
+    static let tornPuffs = 3.0
+    /// How far the plume has fallen into a puff's life before it is at its full alpha (still air and wind), and the
+    /// back row's: dimmer and slow to show, so its smoke has no bright head.
+    static let fadeIn = 0.06
+    static let backFadeIn = 0.25
+    static let backAlpha = 0.55
+
+    /// The plume's angle from the vertical (degrees, unsigned) in a wind of `wind`.
+    static func angle(wind: Double) -> Double {
+        let force = abs(wind)
+        let share = pow(min(1, max(0, (force - leanFrom) / (leanTo - leanFrom))), leanEase)
+        return (calmAngle + (stormAngle - calmAngle) * share) * min(1, force / stillWind)
+    }
+
+    /// How torn the plume is in a wind of `wind`, 0 ... 1.
+    static func torn(wind: Double) -> Double {
+        min(1, max(0, (abs(wind) - tornFrom) / (leanTo - tornFrom)))
+    }
+
     /// The emissive colour of a puff `rise` rows over its chimney's mouth (`fire`: the bakehouse's oven under it) at
     /// this hour: day light, dusk sky, moonlight, and the chimney's fire under the lowest puffs.
-    static func glow(_ ambient: AmbientSample, rise: Double, fire: Bool) -> SIMD3<Float> {
+    /// b3-wind (step 5): `hearth` false for the back row's chimneys, which have no fire lit under their smoke.
+    static func glow(_ ambient: AmbientSample, rise: Double, fire: Bool, hearth: Bool = true) -> SIMD3<Float> {
         let night = min(1, max(0, ambient.torchStrength))
         let warm = min(1, max(0, ambient.warmth / 0.25))
         var rgb = dayColor * (dayGlow * (1 - night))
         rgb += (ambient.skyBottom * (duskGlow * warm) + GamePalette.moon * (moonGlow * (1 - warm))) * night
         let low = Float(max(0, 1 - rise / warmRise))
-        rgb += GamePalette.fireOrange * ((fire ? fireGlow : hearthGlow) * night * low * low)
+        if hearth || fire {
+            rgb += GamePalette.fireOrange * ((fire ? fireGlow : hearthGlow) * night * low * low)
+        }
         return rgb
     }
 
@@ -64,18 +106,41 @@ enum CastleSmoke {
         return Double(h % 1000) / 1000
     }
 
-    /// The puffs of one chimney at `time` in a wind of `wind`; `seed` staggers chimneys against each other.
-    static func puffs(time: Double, wind: Double, seed: Int) -> [Puff] {
-        (0..<count).map { index in
+    /// The puffs of one chimney at `time` in a wind of `wind`; `seed` staggers chimneys against each other; `back` for
+    /// the back row's chimneys (dimmer, slow to show).
+    /// b3-wind (step 5): the path leans by `angle(wind:)` toward the wind's side and is torn in a storm (`torn(wind:)`):
+    /// each puff keeps the moment it left the chimney, and the puffs that left between the gusts of smoke fade out, so
+    /// the groups travel with the plume.
+    static func puffs(time: Double, wind: Double, seed: Int, back: Bool = false) -> [Puff] {
+        let theta = angle(wind: wind) * Double.pi / 180
+        let side: Double = wind < 0 ? -1 : 1
+        let share = pow(min(1, max(0, (abs(wind) - leanFrom) / (leanTo - leanFrom))), leanEase)
+        let tear = torn(wind: wind)
+        let path = rise * (1 + stormStretch * share)
+        let run = path * sin(theta) * side
+        let up = path * cos(theta)
+        let curve = 1.4 - 0.4 * share
+        let base = time / period + Double(abs(seed) % 13) * 0.071
+        return (0..<count).map { index in
             let spacing = (Double(index) + 0.55 * jitter(index, 1)) / Double(count)
-            var phase = time / period + spacing + Double(abs(seed) % 13) * 0.071
+            var phase = base + spacing
             phase -= phase.rounded(.down)
             let sway = sin(phase * 4.4 + Double(index) * 1.7) * 0.9 * phase
-            let dx = (lean + wind * drift) * pow(phase, 1.4) + sway
+            let dx = run * pow(phase, curve) + sway
             let frame = min(frames - 1, Int(phase * Double(frames) * 0.95))
             let body = 0.7 + 0.3 * jitter(index, 2)
-            let alpha = alphaMax * body * min(1, phase / 0.06) * pow(1 - phase, 1.2)
-            return Puff(dx: dx, rise: phase * rise, frame: frame, alpha: Float(alpha))
+            var alpha = alphaMax * body * min(1, phase / (back ? backFadeIn : fadeIn)) * pow(1 - phase, 1.2)
+            if tear > 0 {
+                // The moment it left the chimney (in periods), the same all its life: groups of it stay together.
+                let left = base - phase
+                let gust = 0.5 + 0.5 * cos(2 * Double.pi * tornPuffs * left)
+                let t = min(1, max(0, (gust - 0.45) / 0.35))
+                alpha *= 1 - tear * (1 - t * t * (3 - 2 * t))
+            }
+            if back {
+                alpha *= backAlpha
+            }
+            return Puff(dx: dx, rise: phase * up, frame: frame, alpha: Float(alpha))
         }
     }
 }

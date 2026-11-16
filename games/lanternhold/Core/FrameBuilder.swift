@@ -588,6 +588,9 @@ enum FrameBuilder {
     /// moves with (the keep's moves with the mist band). Fix round 1 (the critic's high 3): puffs that rise and drift
     /// (`CastleSmoke`), white × a pale value, so the hour's light gives them a value over the rock behind; the
     /// bakehouse's take the warm glow of its chimney's mouth from below. Reduce Motion: they stand still.
+    /// b3-wind: build 3 step 5 (lane 3, the director's call 1 of 11:07): the plume leans with the wind at the chimney
+    /// (`CastleSmoke.angle`), torn in a storm; under Reduce Motion it stands leaned by the steady wind; the back row's
+    /// chimneys smoke dimmer, slow to show and with no fire under them (`CastleSmoke.puffs(back:)`).
     private static func castleSmoke(props: [Prop], plane: Plane, animTime: Double, reduceMotion: Bool,
                                     geometry: Geometry, ambient: AmbientSample,
                                     glow: inout EmissiveList) -> [SpriteInstance] {
@@ -601,7 +604,10 @@ enum FrameBuilder {
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
             let time = reduceMotion ? 0 : animTime
             let fire = prop.sprite == .bakehouse
-            for puff in CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x)) where puff.alpha > 0.02 {
+            // b3-wind (step 5): the back row's soft puffs.
+            let back = SceneLayout.townRowSprites.contains(prop.sprite)
+            for puff in CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), back: back)
+                where puff.alpha > 0.02 {
                 let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
                 guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
                 let top = geometry.top(y: (chimney.y + puff.rise).rounded(), height: Double(size.height))
@@ -610,7 +616,7 @@ enum FrameBuilder {
                                            tint: SIMD4<Float>(value, value, value * 1.02, puff.alpha), flipped: false))
                 // Round lh-w2f1-2: lit only as albedo, the puffs sank into the night's rock. World-3: a light of
                 // their own at every hour (`CastleSmoke.glow`: day, dusk sky, moon, the chimney's fire from below).
-                let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire)
+                let rgb = CastleSmoke.glow(ambient, rise: puff.rise, fire: fire, hearth: !back)
                 glow.add(EmissiveInstance(sprite: .smokePuff, plane: plane, rect: rect,
                                           color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, puff.alpha), frame: puff.frame))
             }

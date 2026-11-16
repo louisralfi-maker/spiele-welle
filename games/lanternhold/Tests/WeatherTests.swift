@@ -977,6 +977,82 @@ final class WeatherTests: XCTestCase {
         }
     }
 
+    /// b3-wind: build 3 step 5 (lane 3, the director's call 1 of 16.11. 11:07, "the smoke shows the wind"): the chimney
+    /// smoke leans with the wind at the chimney, its sign and its strength: upright in still air, build 2's lean on a
+    /// calm day, about 30 degrees in a breeze, nearly flat in a storm (its downwind run three times its rise or more)
+    /// and torn into two or three groups; the back row's smoke is dimmer and has no fire under it; under Reduce Motion
+    /// it stands leaned by the steady wind.
+    func testTheChimneySmokeShowsTheWind() {
+        func top(_ wind: Double, time: Double = 3) -> CastleSmoke.Puff {
+            CastleSmoke.puffs(time: time, wind: wind, seed: 1245).max { $0.rise < $1.rise }!
+        }
+        // Still air: upright (the sway only); a calm day: build 2's lean (13 degrees).
+        XCTAssertTrue(CastleSmoke.puffs(time: 3, wind: 0, seed: 1245).allSatisfy { abs($0.dx) < 1 }, "still air: upright")
+        let calm = top(0.08)
+        XCTAssertEqual(calm.dx / calm.rise, tan(13 * Double.pi / 180), accuracy: 0.08, "a calm: build 2's lean")
+        // The puff's x offset has the wind's sign.
+        for wind in [0.2, 0.35, 0.6, 0.9] {
+            for time in [1.0, 4.5, 7.7] {
+                for puff in CastleSmoke.puffs(time: time, wind: wind, seed: 1245) where puff.rise > 4 {
+                    XCTAssertGreaterThan(puff.dx, 0, "toward the valley in \(wind)")
+                }
+                for puff in CastleSmoke.puffs(time: time, wind: -wind, seed: 1245) where puff.rise > 4 {
+                    XCTAssertLessThan(puff.dx, 0, "toward the shadow land in -\(wind)")
+                }
+            }
+        }
+        // A breeze leans it about 30 degrees.
+        let breeze = top(WindClass.breeze.base)
+        let degrees = atan(breeze.dx / breeze.rise) * 180 / Double.pi
+        XCTAssertEqual(degrees, 30, accuracy: 6, "a breeze: about 30 degrees")
+        // A storm lays it nearly flat: the downwind run three times the rise or more, and tears it into groups.
+        var groups: [Int] = []
+        for time in [0.0, 1, 2, 3, 4.5, 6, 7.7, 9.1, 13] {
+            let storm = CastleSmoke.puffs(time: time, wind: 0.9, seed: 1245)
+            for puff in storm where puff.rise > 3 && puff.alpha > 0.05 {
+                XCTAssertGreaterThanOrEqual(puff.dx, 3 * puff.rise, "a storm: nearly flat, at \(time)")
+            }
+            let seen = storm.filter { $0.alpha > 0.05 }.map(\.rise).sorted()
+            var count = seen.isEmpty ? 0 : 1
+            for (a, b) in zip(seen, seen.dropFirst()) where b - a > 0.12 * CastleSmoke.rise * cos(74 * Double.pi / 180) * 1.5 {
+                count += 1
+            }
+            groups.append(count)
+        }
+        print("SMOKE calm \(Int(calm.dx)) over \(Int(calm.rise)); breeze \(Int(degrees)) degrees; storm groups \(groups)")
+        XCTAssertTrue(groups.allSatisfy { (2...3).contains($0) }, "a storm tears it into two or three puffs: \(groups)")
+        XCTAssertGreaterThan(CastleSmoke.puffs(time: 3, wind: 0.9, seed: 1245).filter { $0.alpha < 0.02 }.count, 3,
+                             "torn: the puffs between the groups are gone")
+        // The back row: dimmer, slow to show (no bright head), no fire under it at night.
+        let front = CastleSmoke.puffs(time: 3, wind: 0.35, seed: 1245)
+        let back = CastleSmoke.puffs(time: 3, wind: 0.35, seed: 1245, back: true)
+        for (f, b) in zip(front, back) {
+            XCTAssertLessThanOrEqual(b.alpha, f.alpha * Float(CastleSmoke.backAlpha) + 1e-4, "dimmer")
+            XCTAssertEqual(b.dx, f.dx, "the same lean")
+        }
+        XCTAssertTrue(back.filter { $0.rise < 3 }.allSatisfy { $0.alpha < 0.13 }, "no bright head at the chimney")
+        let night = AmbientRamp.sample(at: 23, look: .two)
+        XCTAssertGreaterThan(night.torchStrength, 0.5)
+        XCTAssertEqual(CastleSmoke.glow(night, rise: 1, fire: false, hearth: false),
+                       CastleSmoke.glow(night, rise: 30, fire: false, hearth: false), "no fire under the back row")
+        // In the frame: the keep's smoke leans with a storm, and under Reduce Motion it stands, leaned.
+        let world = PlaceholderScene.world(look: .two)
+        func puffs(_ override: WeatherOverride, time: Double, reduce: Bool) -> [SIMD4<Float>] {
+            let sample = Weather.sample(seed: 3, day: 12, hour: 12, time: time, override: override,
+                                        reduceMotion: reduce)
+            return windFrame(world, focus: SceneLayout.castleHallDoorX, weather: sample, time: time,
+                             reduceMotion: reduce).layer(.near).sprites.filter { $0.sprite == .smokePuff }.map(\.rect)
+        }
+        let held = puffs(WeatherOverride(mode: .storm), time: 2, reduce: true)
+        XCTAssertFalse(held.isEmpty, "the keep smokes in a storm")
+        XCTAssertEqual(held, puffs(WeatherOverride(mode: .storm), time: 5, reduce: true), "Reduce Motion: it stands")
+        let still = puffs(WeatherOverride(mode: .clear, wind: 0.08), time: 2, reduce: true)
+        func middle(_ rects: [SIMD4<Float>]) -> Float { rects.map(\.x).reduce(0, +) / Float(max(1, rects.count)) }
+        XCTAssertGreaterThan(middle(held), middle(still) + 10, "Reduce Motion: it stands leaned downwind")
+        let west = puffs(WeatherOverride(mode: .clear, wind: -0.6), time: 2, reduce: false)
+        XCTAssertLessThan(middle(west), middle(still), "a wind from the valley leans it west")
+    }
+
     /// Step 4 (the wind critic's low): the banner's dusk rim lies on the cloth. Where a swing holds the trailing edge a
     /// pixel behind, the lit edge is two pixels wide, and the rim took both, a copper rod one pixel proud of the cloth;
     /// now under the hem no row of any pose has two rim pixels.

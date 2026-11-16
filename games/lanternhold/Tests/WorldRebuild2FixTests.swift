@@ -100,8 +100,9 @@ final class WorldRebuild2FixTests: XCTestCase {
         XCTAssertNotEqual(a, b, "the puffs rise")
         XCTAssertTrue(a.allSatisfy { $0.rise >= 0 && $0.rise <= CastleSmoke.rise && (0..<CastleSmoke.frames).contains($0.frame) })
         // Fix round 2 (the critic's high 4): the puffs grow from the smallest to the largest size as they rise, and
-        // lean on a diagonal even in still air.
-        let still = CastleSmoke.puffs(time: 3, wind: 0, seed: 1245).sorted { $0.rise < $1.rise }
+        // lean on a diagonal on a calm day (b3-wind, build 3 step 5: in still air, wind 0, they rise upright;
+        // `WeatherTests.testTheChimneySmokeShowsTheWind`).
+        let still = CastleSmoke.puffs(time: 3, wind: 0.08, seed: 1245).sorted { $0.rise < $1.rise }
         XCTAssertEqual(still.first?.frame, 0)
         XCTAssertEqual(still.last?.frame, CastleSmoke.frames - 1)
         XCTAssertGreaterThan(still.last?.dx ?? 0, 5, "a diagonal plume, not a vertical chain")
