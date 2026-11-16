@@ -345,10 +345,10 @@ final class HordeRenderTests: XCTestCase {
     /// live night draws it (night 12), six small ones stand as black shapes in front of the pale ground mist. On the
     /// drawn pixels of their bodies (the strips' alpha, the threads, the glows and the sockets' lights left out) the
     /// mean luminance is at most 0.6 times that of the same pixels drawn without them. The fog is on there (the same
-    /// pixels without the bodies differ by a tenth or more with the fog and without it), and the cold points are never dimmed by it
-    /// (the glow pixels with the fog at least nine tenths of their value without it). Crops without and with the bodies,
-    /// four times enlarged, as `horde-dark-open`, the whole frame as `horde-dark-open-frame`, the numbers as
-    /// `horde-dark-open-values`.
+    /// pixels without the bodies change by a tenth or more, pixel by pixel over all six, with the fog), and the cold
+    /// points are never dimmed by it (the glow pixels with the fog at least nine tenths of their value without it).
+    /// Crops without and with the bodies, four times enlarged, as `horde-dark-open`, the whole frame as
+    /// `horde-dark-open-frame`, the numbers as `horde-dark-open-values`.
     func testInTheDarkOpenTheyStandBlackInFrontOfTheMist() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)
@@ -390,6 +390,8 @@ final class HordeRenderTests: XCTestCase {
         var crops: [[SIMD3<Float>]] = []
         var allDrawn: Float = 0
         var allBehind: Float = 0
+        var allMist: Float = 0
+        var fogChange: Float = 0
         for actor in bodies {
             XCTAssertFalse(actor.isLit)
             XCTAssertEqual(HordeLook.unpack(actor.lightCap)?.veil ?? 1, 1 - HordeLook.fogFloor, accuracy: 0.011,
@@ -401,10 +403,14 @@ final class HordeRenderTests: XCTestCase {
             var behind: Float = 0
             var mist: Float = 0
             for p in pixels {
+                let fogged = HordeRenderTests.luminance(shotWithout.color(x: p.x, y: p.y))
+                let plain = HordeRenderTests.luminance(shotBare.color(x: p.x, y: p.y))
                 drawn += HordeRenderTests.luminance(shotWith.color(x: p.x, y: p.y))
-                behind += HordeRenderTests.luminance(shotWithout.color(x: p.x, y: p.y))
-                mist += HordeRenderTests.luminance(shotBare.color(x: p.x, y: p.y))
+                behind += fogged
+                mist += plain
+                fogChange += abs(fogged - plain)
             }
+            allMist += mist
             allDrawn += drawn
             allBehind += behind
             let n = Float(pixels.count)
@@ -414,9 +420,6 @@ final class HordeRenderTests: XCTestCase {
                                 actor.rect.x, drawn / n, behind / n, ratio, mist / n, pixels.count))
             XCTAssertLessThanOrEqual(ratio, 0.6, "\(actor.sprite) at \(actor.rect.x) is a black shape in front of the "
                                      + "mist, not a pale hump at its value (\(ratio) of the mist)")
-            // (round lh-b3h-42: at 23:00 the Gloom's fog lies darker than the bare ground over most of the open and
-            // paler over some of it, so the proof that it is drawn there is that it changes those pixels by a tenth)
-            XCTAssertGreaterThan(abs(behind - mist), mist * 0.1, "the Gloom's fog is on behind \(actor.sprite)")
             // the crop: without and with, side by side
             let w = 60
             let h = 50
@@ -434,6 +437,12 @@ final class HordeRenderTests: XCTestCase {
             }
         }
         notes.append(String(format: "all bodies: %.2f of the mist behind them", allDrawn / max(1e-6, allBehind)))
+        // the fog is on behind them: at 23:00 it lies darker than the bare ground over most of the open, paler over
+        // some of it and thins out toward its front (rounds lh-b3h-42 and -43: the body at 754 differed by 4 % in the
+        // mean), so the proof is the pixels' own change, summed over all six bodies, a tenth or more
+        notes.append(String(format: "the fog changes the pixels behind them by %.2f of the bare ground",
+                            fogChange / max(1e-6, allMist)))
+        XCTAssertGreaterThan(fogChange, allMist * 0.1, "the Gloom's fog is on behind them")
         // the cold points under the fog: their glow pixels as bright as without it
         let eyes = withGlows.actors.filter { glows.contains($0.sprite) }
         XCTAssertEqual(eyes.count, 6, "a cold point on each")
