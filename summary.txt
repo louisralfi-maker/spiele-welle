@@ -1,0 +1,12 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: b3f964e4
+source: claude/lh-b3-yard
+21:30:09 build starts (Lanternhold)
+simulator: 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF (iPhone 17 Pro, iOS 26.5)
+21:35:08 simulator up
+21:35:44 project generated
+21:41:17 PASS build
+21:44:31 FAIL unit LanternholdTests/YardTests LanternholdTests/YardCountTests LanternholdTests/YardTuningTests LanternholdTests/Build2SaveTests LanternholdTests/Build86SaveTests (exit 65), see 01-unit/log.txt
+FAILED: 1

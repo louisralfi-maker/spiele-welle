@@ -1,0 +1,52 @@
+2026-11-16 21:42:15.248025+0000 Lanternhold[19366:67279] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-16 21:42:22.167135+0000 Lanternhold[19366:69797] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 21:42:22.169574+0000 Lanternhold[19366:69793] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 21:42:22.185065+0000 Lanternhold[19366:69797] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 21:42:22.185096+0000 Lanternhold[19366:69793] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 21:42:22.605024+0000 Lanternhold[19366:69797] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-16 21:42:22.731302+0000 Lanternhold[19366:69797] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.Build2SaveTests testLoadSaveLoadIsTheSameSaveAndTheSameBytes]' passed (0.512 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheCourtAndTheCraft]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheFrontTheHearthAndTheGorge]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheFrozenBytesAreBuild2s]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheGameResumesBuild2sSave]' passed (0.072 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testThePeopleAndThePlots]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheRealmsNumbers]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheSaveAndItsSettingsAndPacing]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.Build2SaveTests testTheTownAndTheTable]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.Build86SaveTests testABuild86SaveStartsANewRealmAndKeepsTheRest]' passed (0.017 seconds).
+Test Case '-[LanternholdTests.Build86SaveTests testTheGameKeepsItsSaveWhereBuild86KeptIt]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.Build86SaveTests testTheSecondLaunchResumesTheNewRealmAndMovesNothing]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.Build86SaveTests testTodaysDecoderReadsBuild86sBytes]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.YardCountTests testAHoldAtTheYardsSitePaysTheDrillYard]' passed (1.014 seconds).
+Test Case '-[LanternholdTests.YardTests testADayCountsOnlyBetweenNineAndFour]' passed (0.102 seconds).
+Test Case '-[LanternholdTests.YardTests testAFallenTrainedManIsNamedAtDawn]' passed (0.032 seconds).
+Test Case '-[LanternholdTests.YardTests testAManSwornInAfterNoonStartsTheNextDay]' passed (0.068 seconds).
+Test Case '-[LanternholdTests.YardTests testANewRealmHasNoYardAndTheYardOpensOnDayFour]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.YardTests testATrainedArcherLoosesFasterInTheBattle]' passed (0.042 seconds).
+Test Case '-[LanternholdTests.YardTests testAYardRaisedAfterNoonCountsFromTheNextDay]' passed (0.073 seconds).
+Test Case '-[LanternholdTests.YardTests testBrannockAtHisDayStopsLeavesTheSitesMiddleFree]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.YardTests testTheFenceCountsOnlyWhileTheyDrillAndWhileHeStands]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.YardTests testTheKettleComesAtDawnAndMakesEveryThirdArrowAFireArrow]' passed (0.115 seconds).
+Test Case '-[LanternholdTests.YardTests testTheLordAtTheFenceMakesTheDayCountDoubleOnce]' passed (0.074 seconds).
+Test Case '-[LanternholdTests.YardTests testTheLordCountingElsewhereInTheCourtyardIsNoWatchAtTheFence]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.YardTests testTheSaveTakesTheYardAndARealmWithoutOneWritesNothingNew]' passed (0.028 seconds).
+Test Case '-[LanternholdTests.YardTests testTheSpecsNumbers]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.YardTests testTheYardIsPaidAndStandsAtTheNextDawn]' passed (0.051 seconds).
+Test Case '-[LanternholdTests.YardTests testTheYardIsRefusedShortAtNightAndEarly]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.YardTests testTheYardsSiteIsAThingOfTheWorldBoughtByItsCount]' passed (0.034 seconds).
+Test Case '-[LanternholdTests.YardTests testTheYardsWordsAreInTheCatalog]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.YardTests testThreeDaysTrainARecruitAtTheNextDawn]' passed (0.298 seconds).
+Test Case '-[LanternholdTests.YardTuningTests testTarget16aTheYardBotLosesFewerSoldiers]' passed (79.022 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/YardTuningTests.swift:35: error: -[LanternholdTests.YardTuningTests testTarget16bFewerCreaturesReachTheGatehouse] : XCTAssertTrue failed - T16 FAIL: nights 8-14, 4 seeds, budgets ["1.0", "1.5", "2.0"]: soldiers lost reference 81, yard 58 (28 % fewer, band 20-35 %); at the gatehouse reference 477, yard 301 (37 % fewer, band 15-25 %); clear losses held 0; in place of walls: lost 0, at the gatehouse 383 (worse: false)
+Test Case '-[LanternholdTests.YardTuningTests testTarget16bFewerCreaturesReachTheGatehouse]' failed (0.105 seconds).
+Test Case '-[LanternholdTests.YardTuningTests testTarget16cTheYardNeverWinsANightTheReferenceLosesClearly]' passed (0.001 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/YardTuningTests.swift:47: error: -[LanternholdTests.YardTuningTests testTarget16dTheYardInPlaceOfWallsDoesWorse] : XCTAssertTrue failed - T16 FAIL: nights 8-14, 4 seeds, budgets ["1.0", "1.5", "2.0"]: soldiers lost reference 81, yard 58 (28 % fewer, band 20-35 %); at the gatehouse reference 477, yard 301 (37 % fewer, band 15-25 %); clear losses held 0; in place of walls: lost 0, at the gatehouse 383 (worse: false)
+Test Case '-[LanternholdTests.YardTuningTests testTarget16dTheYardInPlaceOfWallsDoesWorse]' failed (0.168 seconds).
+Test Case '-[LanternholdTests.YardTuningTests testTheT16ReportIsAttached]' passed (0.169 seconds).
+Test Case '-[LanternholdTests.YardTuningTests testTheYardBotBuysTheYardAndTheReferenceNever]' passed (1.225 seconds).
+Test Suite 'YardTuningTests' failed at 2026-11-16 21:43:47.982.
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-16 21:43:47.982.
+Test Suite 'Selected tests' failed at 2026-11-16 21:43:47.982.
+exit=65
+screenshots: 0
