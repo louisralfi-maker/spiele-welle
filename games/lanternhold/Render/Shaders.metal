@@ -914,6 +914,33 @@ constant float3 kMoonLight2 = float3(0.55f, 0.60f, 0.92f);
 constant float kFogGlow2 = 0.35f;
 constant float kFireCold2 = 0.7f;
 constant float kLitCap2 = 1.0f;
+// b3-horde (build 3, lane 4 step A; the director's first law of 16.11.2026 06:15, shadow swallows light; one block for
+// the join): how much of a fire's hue a lit small one loses (its own cap comes with it, `HordeLook.litCap`), its warm
+// rim's share of the fire's light, and how dark a climber's lower edge is drawn. (Round lh-b3h-42: at 0.7 the heap's
+// navy by the braziers measured r 0.176 over b 0.147 after the fires' bloom and the warm grade: 0.9 of the hue goes, and
+// a small one outside the bank takes the fires' bloom at `kHordeBloom2`.)
+// Step 5 (the director's call 2 of 16.11.2026 08:52: by the fires the rim is an edge, not an outline; round lh-b3h-44
+// measured the navy at r 0.156 over b 0.157 and more rim pixels than navy): the fire's hue leaves the body fully (1.0),
+// the fires' bloom leaves it outside the bank (0: only the fog's share of it is left), and the warm rim lies at 0.6 of
+// step 4's strength (`kHordeRimShare2`, was 0.85) on the fire-facing upper corner of each column only.
+// (The gate's review: the cold point and the fall's glow, the emissive strips, keep step 4's share of the bloom,
+// `kHordeEyeBloom2`, so the undimmed cold point keeps its brightness; only the body loses it.)
+constant float kHordeGrey2 = 1.0f;
+constant float kHordeBloom2 = 0.0f;
+constant float kHordeEyeBloom2 = 0.4f;
+// b3-horde step 7 (the director's call 6 of 16.11.2026 12:02: the warm rim goes; 84 single tan pixels were noise on
+// the giant's children): its share is 0 and its block in lh_actor2_fragment is out; the constants stay for the join.
+constant float kHordeRim2 = 0.75f;
+constant float kHordeRimShare2 = 0.0f;
+// (Round lh-b3h-53: laid on after the fog, the edge measured 0.62 of the unmarked one at 0.45, about a third of the
+// climbers' lower-edge pixels being covered by the bodies in front of them: 0.3, so the rows part as step 4 asked.)
+constant float kHordeContact2 = 0.3f;
+// b3-horde (the director's call 3 of 16.11.2026 06:15): unlit at night a small one's top contour catches the moon
+// harder than the other creatures' (at least 0.035 linear): the rag's pixels in the giant's cloak night tone, the navy's
+// in the cool rim, each at its own share of the night.
+constant float3 kHordeRagNight2 = float3(0.34f, 0.31f, 0.24f);
+constant float kHordeRagMoon2 = 0.75f;
+constant float kHordeRimMoon2 = 0.6f;
 
 // A light pool of look 2: a negative squash (color.w) marks a fire, whose colour falls off to ember toward its rim.
 vertex LightPoolOut lh_pool2_vertex(uint vid [[vertex_id]],
@@ -1208,7 +1235,8 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
 // Fog B, the foreground, bloom and the grade of look 2.
 static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant CompositeUniforms &u,
                       constant Look2Uniforms &v, texture2d<float> fogBTex, texture2d<float> fgTex,
-                      texture2d<float> bloomTex, float midVisible, float fogCover, float fogShare = 1.0f) {
+                      texture2d<float> bloomTex, float midVisible, float fogCover, float fogShare = 1.0f,
+                      float bloomFloor = 0.0f) {
     // World-3 fix round 1: an unlit creature takes fog B at half (`fogShare`), so it reads as a dark mass with its
     // cool rim in the bank, never as its red glow strip alone.
     float4 fb = fogBTex.read(c.fogB) * (lh2_fog_region(c, u) * fogShare);
@@ -1271,7 +1299,11 @@ static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant Com
     }
     if (u.bloom.y > 0.5f) {
         constexpr sampler linear_clamp(coord::normalized, filter::linear, address::clamp_to_edge);
-        color += bloomTex.sample(linear_clamp, c.bloomUV).rgb * u.bloom.x;
+        // b3-horde (shadow swallows light): only a small one passes a fog share under 1; outside the bank it takes the
+        // fires' bloom at `bloomFloor` (its body `kHordeBloom2`, its cold point `kHordeEyeBloom2`), so their glow does
+        // not wash its navy brown
+        float bloomShare = fogShare < 1.0f ? mix(bloomFloor, 1.0f, fogShare) : 1.0f;
+        color += bloomTex.sample(linear_clamp, c.bloomUV).rgb * (u.bloom.x * bloomShare);
     }
     // Warm light keeps its saturation (not in dense fog: it turned the glow pink), the cold grade pushes blue, the
     // darks lift toward navy, never to grey or black.
@@ -1374,6 +1406,16 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         fogCover = max(mistTex.read(mist).a, fogATex.read(c.fogA).a) * lh2_fog_region(c, u);
     }
     float3 albedo = texel.rgb * in.tint.rgb;
+    // b3-horde (build 3, lane 4 step A; the director's laws of 16.11.2026 06:15; one block for the join): a small one
+    // hands its veil, its own light cap and its climb through flags.w (`HordeLook.pack`: 1000, 200 more for a climber,
+    // the veil in hundredths, the cap as the fraction; under 1000 it is no small one). The mist is its backdrop, never
+    // its veil: fog B lies over its body, its wisp and its rim at the veil only (its cold point at none), and the
+    // bank's lift with it.
+    bool horde = in.flags.w >= 1000.0f;
+    float hordeWhole = floor(in.flags.w);
+    bool hordeLifted = hordeWhole >= 1200.0f;
+    float hordeVeil = horde ? (hordeWhole - (hordeLifted ? 1200.0f : 1000.0f)) * 0.01f : 1.0f;
+    float hordeCap = horde ? in.flags.w - hordeWhole : 0.0f;
     // Lit as the world: firelight displaces the cold, inside a cut-away room the figure takes its warm fill.
     float shade = lh_shade(albedo);
     float peak = max(info.light.r, max(info.light.g, info.light.b));
@@ -1382,6 +1424,14 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         * lh2_interior_ramp(c.row, v);
     float3 cold = lh2_cold(albedo, ambient, 1.0f - shade, 1.0f - room * v.inter.w, v);
     float3 light = lh2_capped(info.light);
+    if (horde) {
+        // b3-horde, shadow swallows light: most of a fire's hue goes, and what is left is capped low (`hordeCap`), so
+        // by the fires a small one stays a navy creature, never a brown mound.
+        float3 grey = float3(dot(info.light, float3(0.299f, 0.587f, 0.114f)));
+        float3 swallowed = mix(info.light, grey, kHordeGrey2);
+        float top = max(swallowed.r, max(swallowed.g, swallowed.b));
+        light = swallowed * (min(top, hordeCap) / max(top, 0.0001f));
+    }
     float3 lit = in.flags.x > 0.5f ? albedo : cold + lh_reflectance(albedo) * light + light * 0.06f;
     // Every figure keeps a rim on its screen-right edge pixels: the sky's for the king, the creatures in light and
     // the people, the moon's for an unlit creature. Firelight outshines it.
@@ -1401,15 +1451,33 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
             lit = mix(lit, v.rim.rgb, rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
     }
+    // b3-horde step 7 (the director's call 6 of 16.11.2026 12:02): the warm rim's block is out. Step 5 laid a 1 px warm
+    // edge on the fire-facing upper corner of each column (`kHordeRimShare2`, now 0); the fire shows on a small one
+    // no more: shadow swallows light.
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
-    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
+    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover, hordeVeil,
+                    in.flags.x > 0.5f ? kHordeEyeBloom2 : kHordeBloom2);
+    if (hordeLifted && in.flags.x < 0.5f && atlas.read(uint2(t.x, t.y + 1u)).a < 0.5f) {
+        // b3-horde: a climber's lower edge a step darker, so the rows of a heap part (step 5, round lh-b3h-51: after
+        // the fog, its bloom and the grade, as it is seen; laid on the body's light before them, the fog's veil over
+        // it left the edge at 0.74 of the unmarked one instead of 0.6)
+        color = mix(color, color * kHordeContact2, saturate(in.tint.a));
+    }
     if (unlit && in.flags.x < 0.5f) {
         // Inside the bank the body takes the bank's whole fog and stands one value step lighter than it, a dark mass
         // the eye can read; its top edge catches the moon in a cool blue-grey line (none where firelight outshines).
-        float bankA = fogBTex.read(c.fogB).a * lh2_fog_region(c, u);
+        // (b3-horde: a small one takes the lift at its veil, so in the open it stays a black shape.)
+        float bankA = fogBTex.read(c.fogB).a * lh2_fog_region(c, u) * hordeVeil;
         color = color * (1.0f + kCreatureLift2 * bankA) + kCreatureFill2 * bankA;
-        if (topEdge) {
+        if (topEdge && horde) {
+            // b3-horde: the moon on a small one's top contour, the rag's in the cloak's night tone
+            bool rag = albedo.r > albedo.b;
+            float3 tone = rag ? float3(kHordeRagNight2) : float3(kCreatureRim2);
+            float share = (rag ? kHordeRagMoon2 : kHordeRimMoon2) * saturate(v.cloudC.w * 1.5f)
+                * (1.0f - saturate(peak * 1.5f));
+            color = mix(color, tone, share);
+        } else if (topEdge) {
             color = mix(color, kCreatureRim2, 0.6f * rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
     }

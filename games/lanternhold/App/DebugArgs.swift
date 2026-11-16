@@ -388,3 +388,20 @@ struct DebugArgs: Sendable, Equatable {
         return false
     }
 }
+
+// b3-horde (build 3, lane 4 step A; the director's seam of 16.11.2026, one block for the joiner): `-GWHorde
+// <seconds>|YES|dark[:<seconds>]`, the horde's proof (`HordeProof`: no archers, one wave of small ones in the open and at
+// the outer wall, the simulation run that many seconds, YES 1 s; `dark`: the outer line's fires out too, for the
+// runner's clip). Debug builds only, read here outside `keys`, so a Release build never sees it.
+#if DEBUG
+extension DebugArgs {
+    static var horde: (seconds: Double, dark: Bool)? {
+        guard let text = UserDefaults.standard.string(forKey: "GWHorde")?.trimmingCharacters(in: .whitespaces)
+            .lowercased(), !text.isEmpty else { return nil }
+        let dark = text.hasPrefix("dark")
+        let number = dark ? String(text.dropFirst(4).drop(while: { $0 == ":" || $0 == " " })) : text
+        if let seconds = Double(number), seconds.isFinite { return (seconds: min(30, max(0, seconds)), dark: dark) }
+        return dark || number == "yes" || number == "true" ? (seconds: 1, dark: dark) : nil
+    }
+}
+#endif

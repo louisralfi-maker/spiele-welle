@@ -199,8 +199,11 @@ enum EntityFrames {
             }
             lights.append((source: light, plane: .world))
         }
+        // b3-horde: the heap's lifts once a frame, for the sockets' lights and the bodies.
+        let lifts = HordeLook.heapLifts(s.creatures)
         if options.look == .two {
-            for light in creatureLights(s, time: s.simTime) {
+            for light in creatureLights(s, time: s.simTime, lifts: lifts, effects: effects, animTime: animTime,
+                                        reduceMotion: options.reduceMotion) {
                 lights.append((source: light, plane: .world))
             }
         }
@@ -211,7 +214,11 @@ enum EntityFrames {
         let gloom = options.look == .two && options.effects.fog ? options.gloom : nil
         layer.actors = actors(s, balance: balance, layouts: layouts, origins: origins, view: view, ambient: ambient,
                               isDay: isDay, animTime: animTime, effects: effects, look: options.look,
-                              reduceMotion: options.reduceMotion, gloom: gloom)
+                              reduceMotion: options.reduceMotion, gloom: gloom, weather: options.weather, lifts: lifts)
+        #if DEBUG
+        // b3-horde: the runner's clip waits until the horde is on screen (`HordeProof.probe`, a `dark` proof only).
+        if HordeProof.probing { HordeProof.probe(layer.actors, state: s) }
+        #endif
         return layer
     }
 
@@ -933,6 +940,7 @@ enum EntityFrames {
         case .lady: return .ladyGlow
         case .sootling: return .sootlingGlow
         case .sootlingB: return .sootlingBGlow
+        case .tumbler: return .tumblerGlow
         case .shadehound: return .shadehoundGlow
         case .sootCrow: return .sootCrowGlow
         case .ashBrute: return .ashBruteGlow
@@ -964,7 +972,13 @@ enum EntityFrames {
     /// heart, brightest on its stomp frame 5. Render lights only: they are added to the picture's lights and never
     /// to the battle's (`Battle.lightSources`), so no creature is lit or unlit by them. At most
     /// `maxCreatureLights`, the most advanced creatures first.
-    static func creatureLights(_ s: GameState, time: Double) -> [LightSource] {
+    ///
+    /// b3-horde: then the small ones' cold sockets (`HordeLook`): first a falling one's last flare, then a faint point
+    /// for each one out of the bank, where its frame puts it, none beside another lit one. `lifts` are the heap's
+    /// (computed here when not given), `effects` and `animTime` the falls'.
+    static func creatureLights(_ s: GameState, time: Double, lifts: [Int: Double]? = nil,
+                               effects: BattleEffects? = nil, animTime: Double = 0,
+                               reduceMotion: Bool = false) -> [LightSource] {
         var list: [LightSource] = []
         let creatures = s.creatures.filter { $0.hp > 0 && ($0.kind == .gloomweaver || $0.kind == .ashGiant) }
             .sorted { ($0.x, $0.id) > ($1.x, $1.id) }
@@ -980,13 +994,71 @@ enum EntityFrames {
                                         color: GamePalette.ember, intensity: stomp ? 1.1 : 0.6, flickerSeed: seed))
             }
         }
+        // b3-horde: a falling small one's socket flares before it snuffs (its first fall frame), the newest first;
+        // under Reduce Motion the fall shows its last frame at once and nothing flares.
+        if let effects, !reduceMotion {
+            for effect in effects.items.reversed() where effect.kind == .fall && list.count < maxCreatureLights {
+                let seconds = animTime - effect.start
+                guard seconds >= 0, seconds < HordeLook.flareSeconds else { continue }
+                let eye = HordeLook.fallSocket(HordeLook.Body(rawValue: effect.body) ?? .crawler)
+                let stand = effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0
+                // step 7 (call 9): a climber's flare where its fall is drawn, aside, mirrored and risen by its id
+                let climbed = effect.id >= 0 && effect.y > 0
+                let eyeX = effect.x + (climbed ? HordeLook.heapJitter(id: effect.id) : 0)
+                    + (climbed && HordeLook.facesAway(id: effect.id) ? -eye.dx : eye.dx)
+                let rise = climbed ? HordeLook.heapRise(id: effect.id) : 0
+                list.append(LightSource(kind: .moon, x: eyeX, y: effect.y + stand + rise + eye.dy,
+                                        radius: HordeLook.socketRadius * 2, color: HordeLook.socketCold,
+                                        intensity: HordeLook.socketIntensity * Double(HordeLook.flareGlow),
+                                        flickerSeed: effect.seed))
+            }
+        }
+        // b3-horde: the small ones' sockets, a faint cold point each where its frame puts it, in the slots the big ones
+        // leave, the most advanced first; none deep in the bank, where no body is drawn, and none beside another lit
+        // one (two pools side by side read as a pair of eyes; `HordeLook.litSockets`).
+        let free = maxCreatureLights - list.count
+        guard free > 0 else { return list }
+        let small = s.creatures.filter {
+            $0.kind == .sootling && $0.hp > 0
+                && ($0.isLit || CreatureLook.bodyShare(x: $0.x, bankEdge: s.bankEdge) > 0.02)
+        }
+        .sorted { ($0.x, $0.id) > ($1.x, $1.id) }
+        guard !small.isEmpty else { return list }
+        let lifts = lifts ?? HordeLook.heapLifts(s.creatures)
+        // The rule of `HordeLook.litSockets`, walked by hand so it stops as soon as the free slots are filled.
+        var kept: [(x: Double, y: Double)] = []
+        for c in small {
+            if kept.count >= free { break }
+            // step 3: where it is drawn (a pixel of height by id, the climbers' pose)
+            let lift = lifts[c.id]
+            // (step 7, the director's call 10: under Reduce Motion the strike and the climb hold the still pose)
+            let frame = HordeLook.drawnFrame(id: c.id, x: c.x, striking: isStriking(c), lifted: lift != nil, time: time,
+                                             reduceMotion: reduceMotion)
+            let eye = HordeLook.socket(HordeLook.body(id: c.id), frame: frame)
+            // step 5 (M3): a climber's point where its body is drawn (aside by id; mirrored when it faces away)
+            let aside = lift != nil ? HordeLook.heapJitter(id: c.id) : 0
+            let eyeDX = lift != nil && HordeLook.facesAway(id: c.id) ? -eye.dx : eye.dx
+            // step 7 (the director's call 9, no ladder): a climber 0 ... 5 px higher on its level by id
+            let rise = lift != nil ? HordeLook.heapRise(id: c.id) : 0
+            // b3-horde step 9 (Q1): a walking one's point where its step-locked body is drawn (`HordeLook.drawnX`)
+            let p = (x: HordeLook.drawnX(c, in: s) + aside + eyeDX,
+                     y: c.y + (lift ?? 0) + HordeLook.stand(id: c.id) + rise + eye.dy)
+            if kept.contains(where: {
+                abs($0.x - p.x) < HordeLook.socketApartX && abs($0.y - p.y) <= HordeLook.socketApartY
+            }) { continue }
+            kept.append(p)
+            let seed = SeededRandom.mix(UInt64(c.id) &* 0x9E37_79B9 &+ 0x534F_434B)
+            list.append(LightSource(kind: .moon, x: p.x, y: p.y,
+                                    radius: HordeLook.socketRadius, color: HordeLook.socketCold,
+                                    intensity: HordeLook.socketIntensity, flickerSeed: seed))
+        }
         return list
     }
 
-    /// A creature's sprite (the two sootlings alternate by creature id).
+    /// A creature's sprite (b3-horde: the small ones take one of three bodies by their id, `HordeLook`).
     static func creatureSprite(_ c: Creature) -> SpriteID {
         switch c.kind {
-        case .sootling: return c.id % 2 == 0 ? .sootling : .sootlingB
+        case .sootling: return HordeLook.sprite(HordeLook.body(id: c.id))
         case .shadehound: return .shadehound
         case .sootCrow: return .sootCrow
         case .ashBrute: return .ashBrute
@@ -1023,6 +1095,11 @@ enum EntityFrames {
         case .gloomweaver:
             return Int(((time + phase) * 5).rounded(.down)) % 4
         default:
+            // b3-horde: each small one walks from its own start frame and strikes at its own beat (`HordeLook`).
+            if c.kind == .sootling {
+                return isStriking(c) ? HordeLook.attackFrame(id: c.id, time: time)
+                    : HordeLook.walkFrame(id: c.id, x: c.x)
+            }
             switch c.action {
             case .attackingWall, .attackingGuards, .atHearth:
                 let count = c.kind == .ashBrute || c.kind == .ashGiant || c.kind == .lightlessKing ? 3 : 2
@@ -1072,7 +1149,8 @@ enum EntityFrames {
                                origins: [OriginKey: (dx: Double, dy: Double)], view: ActorView,
                                ambient: AmbientSample, isDay: Bool, animTime: Double,
                                effects: BattleEffects, look: LookVersion = .one,
-                               reduceMotion: Bool = false, gloom: GloomFog? = nil) -> [ActorInstance] {
+                               reduceMotion: Bool = false, gloom: GloomFog? = nil,
+                               weather: WeatherSample = .clear, lifts: [Int: Double]? = nil) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let time = s.simTime
         func add(_ sprite: SpriteID, frame: Int, x: Double, y: Double, flipped: Bool = false,
@@ -1145,18 +1223,63 @@ enum EntityFrames {
             if s.creatures[index].action == .attackingGuards { attacked = true }
             order.append(index)
         }
-        order.sort { (s.creatures[$0].x, s.creatures[$0].id) < (s.creatures[$1].x, s.creatures[$1].id) }
+        // b3-horde: past four small ones at one wall the later ones climb the backs in front (`HordeLook.heapLifts`),
+        // drawn right after the foremost small one on the ground at their wall; everyone else keeps the x order, so a
+        // giant in front of a heap stays in front of it.
+        let lifts = lifts ?? HordeLook.heapLifts(s.creatures)
+        var heapFront: [Int: Double] = [:]
+        if !lifts.isEmpty {
+            for c in s.creatures where c.kind == .sootling && c.hp > 0 && c.action == .attackingWall
+                && lifts[c.id] == nil {
+                heapFront[c.target] = max(heapFront[c.target] ?? c.x, c.x)
+            }
+        }
+        // b3-horde step 5 (the director's call 3): a small one walking on a lower ground line (the `-GWHorde` stream's,
+        // 1 or 2 px nearer in the lane by id) is drawn in front of the ones on the line above it. (The gate's review:
+        // the band comes first, so it would draw a small one over the giant and the king too; only the stream sets a
+        // lower line today. Step B, if ground lines reach the real waves, orders by an x band first or keys the small
+        // ones only.)
+        func drawKey(_ index: Int) -> (Int, Double, Int, Double, Int) {
+            let c = s.creatures[index]
+            let near = c.kind == .sootling && c.action == .walking && c.y < 0 ? Int((-c.y).rounded()) : 0
+            guard lifts[c.id] != nil else { return (near, c.x, 0, c.x, c.id) }
+            return (0, max(c.x, heapFront[c.target] ?? c.x), 1, c.x, c.id)
+        }
+        order.sort { drawKey($0) < drawKey($1) }
         for index in order {
             let c = s.creatures[index]
             let sprite = creatureSprite(c)
-            let frame = creatureFrame(c, time: time)
-            var y = c.y
-            if c.kind == .gloomweaver { y += weaverBob(c, time: time) }
+            var frame = creatureFrame(c, time: time)
+            var y = c.y + (lifts[c.id] ?? 0)
+            var drawX = c.x
             var flipped = false
+            if c.kind == .sootling {
+                // b3-horde step 3 (the director's call 4): a pixel of height by id, and the climbers' pose on a heap.
+                y += HordeLook.stand(id: c.id)
+                // b3-horde step 9 (the director's calls Q1 to Q3): walking, it is drawn step-locked, so a planted hand
+                // stands on its ground pixel through its plant (eased into its stop); striking or climbing, at its x.
+                drawX = HordeLook.drawnX(c, in: s)
+                // step 7 (the director's call 10): under Reduce Motion the strike and the climb hold the still pose
+                frame = HordeLook.drawnFrame(id: c.id, x: c.x, striking: isStriking(c), lifted: lifts[c.id] != nil,
+                                             time: time, reduceMotion: reduceMotion)
+                if lifts[c.id] != nil {
+                    // step 5 (M3): a climber up to 2 px aside by id, about every fifth facing away, so the cold points
+                    // never stand on the wall's face as a ladder
+                    drawX += HordeLook.heapJitter(id: c.id)
+                    flipped = HordeLook.facesAway(id: c.id)
+                    // step 7 (the director's call 9, M-c): 0 ... 5 px higher on its level by id, so the cold points
+                    // on the wall's face never stand evenly spaced in a column
+                    y += HordeLook.heapRise(id: c.id)
+                }
+            }
+            if c.kind == .gloomweaver { y += weaverBob(c, time: time) }
             if c.kind == .sootCrow && c.target >= 0 && c.target < Realm.plots.count {
                 flipped = Realm.plots[c.target].x < c.x
             }
-            let shade = c.kind.isBoss ? 1 : creatureShade(c.id, look: look)
+            // b3-horde step 3 (call 4): the small ones take a navy value step by id, so neighbours separate (step 4:
+            // wider when lit, the director's first law).
+            let shade = c.kind.isBoss ? 1
+                : (c.kind == .sootling ? HordeLook.shade(id: c.id, lit: c.isLit) : creatureShade(c.id, look: look))
             let body = (c.isLit ? 1 : value) * shade
             // The Gloom's fog (look 2): an unlit body forms inside the dark and steps out of the fog whole; its
             // glow is there before it. The picture only: the simulation knows where it is all along.
@@ -1168,18 +1291,117 @@ enum EntityFrames {
                 // World-3 fix round 4: deep in the bank no body, only the bank's eyes (`CreatureLook.bodyShare`).
                 seen *= CreatureLook.bodyShare(x: c.x, bankEdge: s.bankEdge)
             }
+            // b3-horde step 4 (the director's second law: the mist is their backdrop, never their veil): outside the
+            // bank a small one is seen at least `HordeLook.fogFloor`, and fog B lies over it, its wisp and its rim at
+            // its veil only; its cold point under no fog at all (`HordeLook.pack`, read by the look-2 shader). His
+            // first law, shadow swallows light: its own light cap (`HordeLook.litCap`), and a climber's lower edge a
+            // step darker.
+            var cap = creatureLightCap
+            var eyeCap: Float = 0
+            var veil: Float = 1
+            if c.kind == .sootling {
+                seen = HordeLook.seen(seen, x: c.x, bankEdge: s.bankEdge)
+                veil = HordeLook.veil(x: c.x, bankEdge: s.bankEdge)
+                cap = HordeLook.litCap
+                if look == .two {
+                    cap = HordeLook.pack(cap: HordeLook.litCap, veil: veil, lifted: lifts[c.id] != nil)
+                    eyeCap = HordeLook.pack(cap: HordeLook.litCap, veil: HordeLook.eyeVeil)
+                }
+            }
             if seen > 0.02 {
-                add(sprite, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, seen),
-                    lit: c.isLit, lightCap: creatureLightCap, moonRim: c.isLit ? 0 : unlitRim * night * seen)
+                add(sprite, frame: frame, x: drawX, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, seen),
+                    lit: c.isLit, lightCap: cap, moonRim: c.isLit ? 0 : unlitRim * night * seen)
             }
             if let glow = glowStrip(sprite) {
                 // World-3 fix round 2 (the critic's L2): inside the bank an unlit creature's red line at 30 %.
                 let share: Float = look == .two && !c.isLit ? CreatureLook.glowShare(x: c.x, bankEdge: s.bankEdge) : 1
                 // (world-3 fix round 4: none at all deep in the bank)
                 if share > 0.02 {
-                add(glow, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(share, share, share, 1),
-                    emissive: true, lit: c.isLit)
+                add(glow, frame: frame, x: drawX, y: y, flipped: flipped, tint: SIMD4<Float>(share, share, share, 1),
+                    emissive: true, lit: c.isLit, lightCap: eyeCap)
                 }
+            }
+            if c.kind == .sootling && HordeLook.hasThread(id: c.id) {
+                // b3-horde: the smoke thread from the hood's peak, leaning with the wind, back while it runs; it fades
+                // with the glow (none deep in the bank). Step 3 (call 7): soot, on about every second one, its curl by
+                // id.
+                let share: Float = look == .two && !c.isLit ? CreatureLook.glowShare(x: c.x, bankEdge: s.bankEdge) : 1
+                if share > 0.02 {
+                    let body = HordeLook.body(id: c.id)
+                    let wind = reduceMotion ? weather.mean : Weather.wind(at: c.x, weather, time: animTime)
+                    let lean = HordeLook.threadLean(wind: wind, running: c.action == .walking)
+                    let sway = HordeLook.threadSway(id: c.id, time: time, reduceMotion: reduceMotion)
+                    let root = HordeLook.threadRoot(body, frame: frame)
+                    let length = HordeLook.threadLength(id: c.id)
+                    let strand = HordeLook.threadFrame(length: length, lean: lean, sway: sway,
+                                                       curl: HordeLook.threadCurl(id: c.id))
+                    // step 4 (the director's second law): the wisp takes its body's seen and its veil
+                    var tint = HordeLook.threadTint(night: night, share: share)
+                    tint.w *= min(1, seen)
+                    add(HordeLook.threadSprite(strand), frame: HordeLook.threadCell(strand),
+                        x: drawX + root.dx,
+                        y: y + root.dy, tint: tint, emissive: true,
+                        lit: c.isLit, lightCap: look == .two ? HordeLook.pack(cap: HordeLook.litCap, veil: veil) : 0)
+                }
+            }
+        }
+
+        // b3-horde: the small ones' falls (three frames, then the heap of soot fades) and their orphan threads, which
+        // stand alone for half a second and go with the wind (`HordeLook.fallFrame`, `orphanThread`); the newest
+        // `HordeLook.maxFallsDrawn` only, so a mass kill (the dawn sweep, the King's fall) keeps the frame budget.
+        var fallsDrawn = 0
+        for effect in effects.items.reversed() where effect.kind == .fall {
+            guard fallsDrawn < HordeLook.maxFallsDrawn else { break }
+            let seconds = animTime - effect.start
+            guard seconds >= 0, seconds < HordeLook.fallLifetime else { continue }
+            fallsDrawn += 1
+            let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
+            // step 3: it falls where it stood (its pixel of height by id), so it never jumps as it dies
+            // step 5 (the gate's review): a climber falls where it was drawn, aside by its id and facing as it faced
+            // (step 7: and risen by its id, `HordeLook.heapRise`)
+            let climbed = effect.id >= 0 && effect.y > 0
+            let fallY = effect.y + (effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0)
+                + (climbed ? HordeLook.heapRise(id: effect.id) : 0)
+            let fallX = effect.x + (climbed ? HordeLook.heapJitter(id: effect.id) : 0)
+            let fallFlipped = climbed && HordeLook.facesAway(id: effect.id)
+            // step 4 (the director's second law): the fall, its flare and its orphan under fog B at its veil, as it
+            // walked; the flare under none
+            let fallVeil = HordeLook.veil(x: effect.x, bankEdge: s.bankEdge)
+            let fallCap = look == .two ? HordeLook.pack(cap: HordeLook.litCap, veil: fallVeil) : HordeLook.litCap
+            let flareCap = look == .two ? HordeLook.pack(cap: HordeLook.litCap, veil: HordeLook.eyeVeil) : 0
+            if let fall = HordeLook.fallFrame(body, seconds: seconds, reduceMotion: reduceMotion) {
+                // An unlit one falls at the night's value with its moon rim, as it walked (a sweep never flashes),
+                // and deep in the bank, where no body was drawn, no heap either (`CreatureLook.bodyShare`).
+                let shade: Float = effect.lit ? 1 : value
+                let seen: Float = look == .two && !effect.lit
+                    ? CreatureLook.bodyShare(x: effect.x, bankEdge: s.bankEdge) : 1
+                if seen > 0.02 {
+                    add(.sootFall, frame: fall.frame, x: fallX, y: fallY, flipped: fallFlipped,
+                        tint: SIMD4<Float>(shade, shade, shade, fall.alpha * seen), lit: effect.lit,
+                        lightCap: fallCap, moonRim: effect.lit ? 0 : unlitRim * night * seen)
+                }
+                if let point = HordeLook.fallPoint(seconds: seconds, reduceMotion: reduceMotion) {
+                    // step 5 (the director's call 4): the socket's last flare (frame 0), then the cold point sinks with
+                    // the slump (frame 1) and goes out over the low heap (frame 2), the last of it, by 0.45 s
+                    let flare = point * (reduceMotion ? fall.alpha : 1)
+                    add(.sootFallGlow, frame: fall.frame, x: fallX, y: fallY, flipped: fallFlipped,
+                        tint: SIMD4<Float>(flare, flare, flare, 1), emissive: true, lightCap: flareCap)
+                }
+            }
+            // step 5 (the director's call 1): the wisps go, and with them the orphans (`HordeLook.threadsShown`; before
+            // step 5 every fall left one, carrier or not)
+            guard HordeLook.threadsShown else { continue }
+            let wind = reduceMotion ? weather.mean : Weather.wind(at: effect.x, weather, time: animTime)
+            let sway = HordeLook.threadSway(id: Int(effect.seed % 997), time: animTime, reduceMotion: reduceMotion)
+            let length = effect.id >= 0 ? HordeLook.threadLength(id: effect.id) : HordeLook.height(body)
+            let curl = effect.id >= 0 ? HordeLook.threadCurl(id: effect.id) : Int(effect.seed % 3)
+            if let thread = HordeLook.orphanThread(body, length: length, seconds: seconds, wind: wind, sway: sway,
+                                                   reduceMotion: reduceMotion, curl: curl) {
+                var tint = HordeLook.threadTint(night: night, share: 1, bright: thread.bright)
+                tint.w *= thread.alpha
+                add(HordeLook.threadSprite(thread.frame), frame: HordeLook.threadCell(thread.frame),
+                    x: effect.x + thread.dx, y: fallY + thread.dy, tint: tint, emissive: true,
+                    lightCap: look == .two ? HordeLook.pack(cap: HordeLook.litCap, veil: fallVeil) : 0)
             }
         }
 
@@ -1283,9 +1505,17 @@ enum EntityFrames {
         }
 
         // Effect particles: sparks and shards.
-        effectParticles(effects, animTime: animTime, budget: maxEffectParticles - shed) { sprite, frame, x, y, flipped,
-                                                                                           tint, emissive, lit in
-            add(sprite, frame: frame, x: x, y: y, flipped: flipped, tint: tint, emissive: emissive, lit: lit)
+        effectParticles(effects, animTime: animTime, budget: maxEffectParticles - shed,
+                        reduceMotion: reduceMotion) { sprite, frame, x, y, flipped, tint, emissive, lit in
+            // b3-horde step 4 (the director's first law): the fall's flakes take the small ones' cap and veil, grey
+            // soot by the fires, never cream sparks
+            var cap: Float = 0
+            if sprite == .sootFlake {
+                let veil = HordeLook.veil(x: x, bankEdge: s.bankEdge)
+                cap = look == .two ? HordeLook.pack(cap: HordeLook.litCap, veil: veil) : HordeLook.litCap
+            }
+            add(sprite, frame: frame, x: x, y: y, flipped: flipped, tint: tint, emissive: emissive, lit: lit,
+                lightCap: cap)
         }
 
         // Projectiles in flight: arrows and bolts pale as moonlit shafts, fire arrows and firepots burning.
@@ -1369,6 +1599,7 @@ enum EntityFrames {
 
     /// The particles of the running effects, at most `maxEffectParticles`.
     private static func effectParticles(_ effects: BattleEffects, animTime: Double, budget: Int = maxEffectParticles,
+                                        reduceMotion: Bool = false,
                                         add: (SpriteID, Int, Double, Double, Bool, SIMD4<Float>, Bool, Bool) -> Void) {
         var budget = budget
         let teal = SIMD4<Float>(0.75, 1.0, 1.0, 1)
@@ -1425,6 +1656,32 @@ enum EntityFrames {
                     let x = effect.x + side * (20 + 30 * age)
                     let y = max(0, effect.y + 18 * age * (0.6 + unit(k, 6)) - 26 * age * age)
                     add(.shard, k % 2, x, y, side < 0, SIMD4<Float>(0.8, 0.76, 0.72, 1), false, true)
+                }
+            case .fall:
+                // b3-horde: the fall strip and its orphan thread are drawn with the creatures; here the puff. Step 3
+                // (the director's call 6: a kill never throws up a V): a few grey flakes of soot, one or two pixels,
+                // round or ragged (`SpriteID.sootFlake`), lift off the body's middle from the second fall frame, drift
+                // apart and thin to nothing by 0.8 s after the kill. No ember: the small ones are cold. Under Reduce
+                // Motion they hang where they lift off and only thin.
+                let puff = (animTime - effect.start - HordeLook.puffFrom) / HordeLook.puffSeconds
+                guard puff >= 0, puff < 1 else { continue }
+                let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
+                let stand = effect.id >= 0 ? HordeLook.stand(id: effect.id) : 0
+                let middle = effect.y + stand + Double(HordeLook.height(body)) * 0.4
+                // (the gate's review: under Reduce Motion the flakes thin as before step 5, the still form unchanged)
+                let thin = reduceMotion ? Float(1 - puff) : HordeLook.puffAlpha(puff)
+                let drift = reduceMotion ? 0 : puff
+                // step 7 (the director's call 8, H4): six flakes scatter and rise 6 to 10 px over the crowd's top,
+                // eased out (`HordeLook.flakeHeight`), so a kill reads in the live crowd
+                let eased = 1 - (1 - drift) * (1 - drift)
+                for k in 0..<HordeLook.puffFlakes {
+                    guard spend() else { return }
+                    let x = effect.x + (unit(k, 2) - 0.5) * 9 + (unit(k, 3) - 0.5) * HordeLook.flakeScatter * eased
+                    let start = middle + (unit(k, 5) - 0.5) * 4
+                    let clear = HordeLook.flakeClear + HordeLook.flakeClearSpread * unit(k, 4)
+                    let y = HordeLook.flakeHeight(start: start, ground: effect.y + stand, puff: drift, clear: clear)
+                    add(.sootFlake, Int(unit(k, 6) * Double(HordeLook.flakeShapes)) % HordeLook.flakeShapes,
+                        x.rounded(), y.rounded(), false, SIMD4<Float>(1, 1, 1, thin), false, effect.lit)
                 }
             case .beaconFlare:
                 for k in 0..<6 {

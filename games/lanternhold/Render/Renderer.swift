@@ -792,7 +792,12 @@ final class Renderer {
             let peak = max(0.0001, max(rgb.x, max(rgb.y, rgb.z)))
             let hue = rgb / peak
             let tint = (SIMD3<Float>(repeating: 1) + (hue - 1) * 0.4) * peak
-            return SpriteQuad(rect: emissive.rect, texel: cell.texels(flipped: emissive.flipped),
+            // b3-horde step 4: a glow shows the part of its cell its source names (the whole cell unless it names
+            // less: the bank's eyes as single points, `HordeLook.singleEyes`)
+            let source = emissive.source
+            let part = AtlasCell(x: cell.x + Int(source.x), y: cell.y + Int(source.y),
+                                 width: min(cell.width, Int(source.z)), height: min(cell.height, Int(source.w)))
+            return SpriteQuad(rect: emissive.rect, texel: part.texels(flipped: emissive.flipped),
                               tint: SIMD4<Float>(tint.x, tint.y, tint.z, emissive.color.w))
         case .glass:
             let source = emissive.source
@@ -816,7 +821,8 @@ final class Renderer {
     /// unlit body's edge reads against the dark ground where its glow strip has no pixel (SPRITES.md "Unlit
     /// creatures"); firelight outshines it.
     static let rimmed: Set<SpriteID> = [.king, .lady, .kingSeated, .ladySeated, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
-                                        .ashGiant, .lightlessKing, .kingKnock, .ladyKnock]
+                                        .ashGiant, .lightlessKing, .kingKnock, .ladyKnock,
+                                        .tumbler, .sootFall]   // b3-horde
 
     /// The people of the realm, who keep a fainter sky rim in look 2.
     static let people: Set<SpriteID> = Set([SpriteID.archer, .guardsman, .builder, .citizen, .citizenB, .citizenC]
@@ -843,12 +849,17 @@ final class Renderer {
         }
         guard look == .two else {
             let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
-            let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, actor.lightCap)
+            // b3-horde step 4: a small one's packed cap (`HordeLook.pack`) is a plain cap in look 1
+            let cap = HordeLook.unpack(actor.lightCap)?.cap ?? actor.lightCap
+            let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, cap)
             return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
         }
         let rim: Float = rimmed.contains(actor.sprite) ? Look2.rim
             : (people.contains(actor.sprite) ? Look2.peopleRim : 0)
-        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, 0)
+        // b3-horde step 4 (the director's laws of 16.11.2026 06:15): look 2 keeps one cap for every figure; only a small
+        // one hands its veil and its own cap through w (`HordeLook.pack`, read by `lh_actor2_fragment`).
+        let horde: Float = actor.lightCap >= HordeLook.packBase ? actor.lightCap : 0
+        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, horde)
         return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
     }
 

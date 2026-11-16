@@ -21,7 +21,7 @@ from pixelart import Image, read_png, write_png  # noqa: E402
 
 GAME = os.path.dirname(HERE)
 ART = os.path.join(GAME, "Resources", "Art")
-SIZES = {"sootling": (14, 14, 6), "sootlingB": (14, 14, 6), "shadehound": (22, 14, 6), "sootCrow": (12, 10, 4),
+SIZES = {"sootling": (14, 14, 8), "sootlingB": (14, 14, 8), "shadehound": (22, 14, 6), "sootCrow": (12, 10, 4),
          "ashBrute": (44, 44, 7), "gloomweaver": (30, 30, 4), "ashGiant": (110, 110, 7), "lightlessKing": (64, 64, 7)}
 LAYOUT = [["sootling", "sootlingB", "shadehound", "sootCrow"], ["ashBrute", "gloomweaver"], ["lightlessKing"],
           ["ashGiant"]]

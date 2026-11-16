@@ -8,10 +8,11 @@ import Foundation
 enum PlaceholderCreatures {
     static func frames(for sprite: SpriteID) -> [PixelImage] {
         switch sprite {
-        case .sootling: return strip(6) { sootling($0).body }
-        case .sootlingGlow: return strip(6) { sootling($0).glow }
-        case .sootlingB: return strip(6) { matchstick($0).body }
-        case .sootlingBGlow: return strip(6) { matchstick($0).glow }
+        // b3-horde step 7: eight frames (`HordeLook.frameCount`), the stand-ins' six walked round
+        case .sootling: return strip(8) { sootling($0 % 6).body }
+        case .sootlingGlow: return strip(8) { sootling($0 % 6).glow }
+        case .sootlingB: return strip(8) { matchstick($0 % 6).body }
+        case .sootlingBGlow: return strip(8) { matchstick($0 % 6).glow }
         case .shadehound: return strip(6) { shadehound($0).body }
         case .shadehoundGlow: return strip(6) { shadehound($0).glow }
         case .sootCrow: return strip(4) { crow($0).body }
@@ -24,12 +25,38 @@ enum PlaceholderCreatures {
         case .ashGiantGlow: return strip(7) { giant($0).glow }
         case .lightlessKing: return strip(7) { lightlessKing($0).body }
         case .lightlessKingGlow: return strip(7) { lightlessKing($0).glow }
+        // b3-horde: stand-ins until the PNGs load (tools/creatures): the old sootling for the tumbler and the fall,
+        // a pale line for the thread
+        case .tumbler: return strip(7) { sootling($0 % 6).body }
+        case .tumblerGlow: return strip(7) { sootling($0 % 6).glow }
+        case .sootFall: return strip(9) { sootling($0 % 6).body }
+        case .sootFallGlow: return strip(9) { sootling($0 % 6).glow }
+        case .sootThread, .sootThreadB, .sootThreadC: return strip(HordeLook.threadFramesPerCurl) { _ in thread() }
+        case .sootFlake: return strip(3) { _ in flake() }
         default: return []
         }
     }
 
     private static func strip(_ count: Int, _ make: (Int) -> PixelImage) -> [PixelImage] {
         (0..<count).map(make)
+    }
+
+    /// b3-horde: the smoke thread's stand-in, a pale line up the middle of its cell.
+    static func thread() -> PixelImage {
+        let size = SpriteID.sootThread.size
+        var image = PixelImage(width: size.width, height: size.height)
+        for y in 2..<size.height {
+            image[size.width / 2, y] = RGBA(0x98A1BB)
+        }
+        return image
+    }
+
+    /// b3-horde step 3: the fall's flake's stand-in, a grey grain at the bottom of its cell.
+    static func flake() -> PixelImage {
+        let size = SpriteID.sootFlake.size
+        var image = PixelImage(width: size.width, height: size.height)
+        image[size.width / 2, size.height - 1] = RGBA(0x5E6170)
+        return image
     }
 
     // MARK: - Colours

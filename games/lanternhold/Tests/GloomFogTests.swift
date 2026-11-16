@@ -216,10 +216,14 @@ final class GloomFogTests: XCTestCase {
         let plain = layer(s, focus: edge - 60, gloom: nil)
         let foggy = layer(s, focus: edge - 60, gloom: fog)
         XCTAssertEqual(foggy.actors.count, plain.actors.count, "the fog hides no more than the bank already does")
-        let bodies = foggy.actors.filter { $0.sprite == .sootling || $0.sprite == .sootlingB }
+        // b3-horde: the small ones take three bodies by their ids, each with its glow strip and its smoke thread.
+        let bodies = foggy.actors.filter { [SpriteID.sootling, .sootlingB, .tumbler].contains($0.sprite) }
         XCTAssertEqual(bodies.count, 2, "the one in the open and the lit one; none deep in the bank")
         XCTAssertTrue(bodies.allSatisfy { $0.tint.w > 0.98 }, "whole")
-        XCTAssertEqual(foggy.actors.filter { $0.sprite == .sootlingGlow || $0.sprite == .sootlingBGlow }.count, 2, "no glow strip deep in the bank")
+        XCTAssertEqual(foggy.actors.filter { [SpriteID.sootlingGlow, .sootlingBGlow, .tumblerGlow].contains($0.sprite) }.count, 2, "no glow strip deep in the bank")
+        // b3-horde step 3: about every second one carries a thread (`HordeLook.hasThread`)
+        XCTAssertEqual(foggy.actors.filter { HordeLook.threadSprites.contains($0.sprite) }.count,
+                       [3, 4].filter { HordeLook.hasThread(id: $0) }.count, "no thread deep in the bank")
         XCTAssertEqual(foggy.lights.map(\.source), plain.lights.map(\.source), "the fog changes no light")
         XCTAssertEqual(foggy.props, plain.props)
         XCTAssertEqual(layer(s, focus: edge, gloom: fog, look: .one).actors,
@@ -411,7 +415,18 @@ final class GloomFogTests: XCTestCase {
         let later = frame(night, focus: 620, gloom: hard, time: 9, reduceMotion: true)
         XCTAssertEqual(all(still).map(\.rect), all(later).map(\.rect), "it stands")
         XCTAssertEqual(eyes(still).map(\.rect), eyes(later).map(\.rect))
-        XCTAssertEqual(eyes(still).count, 7)
+        // b3-horde step 4 (the director's call 8): single points, none within 9 px of another, so a close pair of
+        // slots shows one. The seven Reduce Motion slots stand at about x 635, 679, 641, 696, 584, 630 and 497 on this
+        // night (the bank at 500, the fog's front at 900); the buildings' clearance (`EyeRules.placedInFog`) moves the
+        // six over the line onto one spot past them, so before this step six pairs stood stacked on one x. Round
+        // lh-b3h-42 measured two points (plane x 142 and 380): the one at 497 and, by the x, where the six met.
+        let stillX = eyes(still).map { Int($0.rect.x) }
+        XCTAssertTrue((2...6).contains(eyes(still).count), "\(eyes(still).count) points at plane x \(stillX)")
+        let points = eyes(still).map(\.rect).sorted { $0.x < $1.x }
+        XCTAssertTrue(points.allSatisfy { $0.z == 1 && $0.w == 1 }, "single points, never pairs")
+        for (a, b) in zip(points, points.dropFirst()) {
+            XCTAssertGreaterThanOrEqual(b.x - a.x, HordeLook.eyeApart, "never two points within 9 px")
+        }
         XCTAssertTrue(eyes(still).allSatisfy { $0.plane == .world && $0.kind == .glow && $0.color.z > $0.color.x })
         XCTAssertEqual(eyeTiles(still), eyeTiles(later), "the painted eyes stand too")
         XCTAssertTrue(wisps(still).isEmpty && wisps(later).isEmpty)

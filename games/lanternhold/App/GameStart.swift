@@ -91,6 +91,13 @@ enum GameStart {
             state.king.facing = walk
             state.king.velocity = Double(walk) * balance.kingWalkSpeed
         }
+        // b3-horde (build 3, lane 4 step A; the director's seam of 16.11.2026, one block for the joiner): `-GWHorde`,
+        // the horde's proof, Debug only (`HordeProof`, `DebugArgs.horde`).
+        #if DEBUG
+        if let horde = DebugArgs.horde {
+            HordeProof.apply(&state, balance: balance, seconds: horde.seconds, dark: horde.dark)
+        }
+        #endif
         return Result(state: state, dawn: dawn, bot: bot)
     }
 
