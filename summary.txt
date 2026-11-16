@@ -1,0 +1,14 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 711e1110
+source: claude/lh-b3-lantern
+19:54:18 build starts (Lanternhold)
+simulator: 5AB3DACF-C352-49D1-BF9A-3C0104FA4ED3 (iPhone 17 Pro, iOS 26.5)
+19:56:07 simulator up
+19:56:36 project generated
+20:00:49 PASS build
+20:21:52 PASS unit LanternholdTests
+20:28:31 PASS ui LanternholdUITests/LookAroundUITests LanternholdUITests/LordUITests LanternholdUITests/HallUITests
+20:42:10 PASS ui LanternholdUITests/TouchUITests LanternholdUITests/CountUITests
+ALL PASSED
