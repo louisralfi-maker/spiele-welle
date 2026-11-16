@@ -185,6 +185,47 @@ final class PaySignTests: XCTestCase {
         XCTAssertEqual(crowded.shift, 0, accuracy: 1e-9)
     }
 
+    /// The review of step 5: a board keeps off `blocks` (Marek's cart, the barracks' recruit halves) as well. When no
+    /// place keeps off them, the first place that keeps the doors free stands, and the row says so (`fits` false).
+    func testABoardKeepsOffTheBlocksOrTheRowSaysSo() {
+        // A block on the right: the board goes left.
+        let left = PayModelRow.place(plot: 4, base: 1000, offers: offers(2), minimum: 22, doors: [], others: [],
+                                     boardWidths: [40], standGap: 10, bounds: 0...Realm.walkEnd, blocks: [1020...1040])
+        XCTAssertTrue(left.fits)
+        XCTAssertEqual(left.side, -1, "the board on the free side")
+        // Blocks on both sides and a door on the left: the doors still win, the row says it does not fit.
+        let door = PayDoor.passage(900...945, leaf: 6)
+        let boxed = PayModelRow.place(plot: 4, base: 1000, offers: offers(2), minimum: 22, doors: [door], others: [],
+                                      boardWidths: [40], standGap: 10, bounds: 0...Realm.walkEnd,
+                                      blocks: [930...990, 1012...1070])
+        XCTAssertFalse(boxed.fits, "said so")
+        XCTAssertTrue(boxed.clear(of: [door]), "the door's opening stays free")
+        XCTAssertEqual(boxed.side, 1)
+    }
+
+    /// The review of step 5 (step 2's H3), P3's report: on day 3 the main gate's board on the right meets the barracks'
+    /// archer half and Marek's cart; the left side would stand on the gate's passage. So the row does not fit there:
+    /// it stands at the plot's own place with the board on the right, off every door, and says so for the director.
+    func testTheMainGatesBoardMeetsTheBarracksAndTheCart() throws {
+        let game = engineGame()
+        let plot = Realm.lines[0].engine
+        let row = try XCTUnwrap(game.touch.models.first { $0.plot == plot })
+        let state = try XCTUnwrap(game.driver?.state)
+        XCTAssertFalse(row.fits, "no place keeps the board off the barracks and the cart: said, not forced")
+        XCTAssertEqual(row.side, 1)
+        XCTAssertEqual(row.shift, 0, accuracy: 1e-9)
+        XCTAssertEqual(row.spot, 1440, accuracy: 1e-9)
+        XCTAssertTrue(row.clear(of: game.modelDoors(state)), "the doors still free")
+        let archer = try XCTUnwrap(game.touch.things.first { $0.id == "touch-recruit-archer" })
+        let ballista = Double(PayBoardLayout.make(PayCount.hollows(price: Balance.standard.price(.ballista))).width)
+        let board = row.boardSpan(width: ballista, standGap: GameModel.countStandGap)
+        XCTAssertTrue(board.lowerBound < archer.x + archer.halfWidth && board.upperBound > archer.x - archer.halfWidth,
+                      "the ballista's board stands before the archer's half")
+        if CourtLayout.props(state, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
+            XCTAssertGreaterThan(board.upperBound, CourtLayout.marekCartX, "and before Marek's cart")
+        }
+    }
+
     /// P6: three offers take three models in one row, side by side, every area apart and inside the world.
     func testThreeOffersTakeThreeModels() {
         let row = PayModelRow.place(plot: 4, base: 1000, offers: offers(3), minimum: 22, doors: [], others: [],
@@ -259,7 +300,7 @@ final class PaySignTests: XCTestCase {
         let plot = Realm.lines[0].engine
         let row = try XCTUnwrap(game.touch.models.first { $0.plot == plot }, "the engine's row")
         XCTAssertEqual(row.models.map(\.item), [.ballista, .catapult])
-        XCTAssertTrue(row.fits)
+        XCTAssertEqual(row.spot, 1440, accuracy: 1e-9, "at the plot's own place (the board's blocks: the next test)")
         let state = try XCTUnwrap(game.driver?.state)
         XCTAssertTrue(row.clear(of: game.modelDoors(state)), "off every door's opening")
         let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)

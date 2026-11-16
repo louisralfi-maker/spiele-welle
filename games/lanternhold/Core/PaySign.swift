@@ -62,8 +62,10 @@ struct PayModelRow: Sendable, Equatable {
     var side: Double
     var shift: Double
     var models: [PayModel]
-    /// False when no place within the shift kept the row off every door's opening and the boards off every door: the
-    /// row then stands unforced at the plot's own place (the report says so; never at the main gate, a test pins it).
+    /// False when no place within the shift kept the row off every door's opening, the boards off every door and off
+    /// every block (Marek's cart, the barracks' recruit halves): the row then stands at the first place that keeps the
+    /// doors free, else unforced at the plot's own place (the report says so). At the main gate the board on the right
+    /// meets the barracks' archer half (and Marek's cart on his days), so it does not fit there; a test pins it.
     var fits = true
 
     /// A cell of `paySign` (tools/hudart.py): 24 wide, 13 high; the trestle fills its width and its bottom 10 rows.
@@ -213,12 +215,14 @@ struct PayModelRow: Sendable, Equatable {
     /// side (`boardWidths`, `standGap` from him) and the models on the other; when that does not fit, his spot moved
     /// toward the board's side a pixel at a time, 14 px at most. A place fits when the row keeps off every door's
     /// opening (a frame or a leaf covered by 6 px at most), every board stands clear of every door's whole span (H1),
-    /// and everything stays inside `bounds`. Of the sides that fit (each at its smallest move), the one whose row and
+    /// and everything stays inside `bounds`; a board also keeps off every one of `blocks` (Marek's cart, the barracks'
+    /// recruit halves: the review of step 5). Of the sides that fit (each at its smallest move), the one whose row and
     /// boards cover least of `others` (the other things' spans) wins; a tie keeps the board on the right. When no place
-    /// fits, the row stands unforced at `base` with its board on the right (`fits` false).
+    /// fits, the first place that keeps the doors free (blocks ignored) stands, else the row stands unforced at `base`
+    /// with its board on the right; either way `fits` is false.
     static func place(plot: Int, base: Double, offers: [BuildOption], minimum: Double, doors: [PayDoor],
                       others: [ClosedRange<Double>], boardWidths: [Double], standGap: Double,
-                      bounds: ClosedRange<Double>) -> PayModelRow {
+                      bounds: ClosedRange<Double>, blocks: [ClosedRange<Double>] = []) -> PayModelRow {
         func cover(_ span: ClosedRange<Double>) -> Double {
             var total = 0.0
             for other in others {
@@ -226,27 +230,37 @@ struct PayModelRow: Sendable, Equatable {
             }
             return total
         }
-        func boardFits(_ board: ClosedRange<Double>) -> Bool {
+        func boardFits(_ board: ClosedRange<Double>, _ blocked: [ClosedRange<Double>]) -> Bool {
             guard board.lowerBound >= bounds.lowerBound, board.upperBound <= bounds.upperBound else { return false }
-            return !doors.contains { board.lowerBound < $0.span.upperBound && board.upperBound > $0.span.lowerBound }
-        }
-        var best: (row: PayModelRow, cost: Double)?
-        for side in [1.0, -1.0] {
-            for step in 0...maxShift {
-                let row = make(plot: plot, spot: base + side * Double(step), side: side, shift: Double(step),
-                               offers: offers, minimum: minimum)
-                guard row.left >= bounds.lowerBound, row.right <= bounds.upperBound, row.clear(of: doors) else {
-                    continue
-                }
-                let boards = boardWidths.map { row.boardSpan(width: $0, standGap: standGap) }
-                guard boards.allSatisfy(boardFits) else { continue }
-                var cost = cover(row.left...row.right)
-                for board in boards { cost += cover(board) }
-                if best == nil || cost < (best?.cost ?? 0) - 1e-9 { best = (row: row, cost: cost) }
-                break
+            if doors.contains(where: { board.lowerBound < $0.span.upperBound && board.upperBound > $0.span.lowerBound }) {
+                return false
             }
+            return !blocked.contains { board.lowerBound < $0.upperBound && board.upperBound > $0.lowerBound }
         }
-        if let best { return best.row }
+        func search(_ blocked: [ClosedRange<Double>]) -> PayModelRow? {
+            var best: (row: PayModelRow, cost: Double)?
+            for side in [1.0, -1.0] {
+                for step in 0...maxShift {
+                    let row = make(plot: plot, spot: base + side * Double(step), side: side, shift: Double(step),
+                                   offers: offers, minimum: minimum)
+                    guard row.left >= bounds.lowerBound, row.right <= bounds.upperBound, row.clear(of: doors) else {
+                        continue
+                    }
+                    let boards = boardWidths.map { row.boardSpan(width: $0, standGap: standGap) }
+                    guard boards.allSatisfy({ boardFits($0, blocked) }) else { continue }
+                    var cost = cover(row.left...row.right)
+                    for board in boards { cost += cover(board) }
+                    if best == nil || cost < (best?.cost ?? 0) - 1e-9 { best = (row: row, cost: cost) }
+                    break
+                }
+            }
+            return best?.row
+        }
+        if let row = search(blocks) { return row }
+        if !blocks.isEmpty, var row = search([]) {
+            row.fits = false
+            return row
+        }
         var unforced = make(plot: plot, spot: base, side: 1, offers: offers, minimum: minimum)
         unforced.fits = false
         return unforced

@@ -74,7 +74,8 @@ extension GameModel {
     /// The row of `plot` for the realm as it stands (`key`), worked out again only when that changes: the lord at the
     /// plot's standing place, the boards of its offers on one side and the models on the other, moved at most 14 px
     /// to keep the doors free (`PayModelRow.place`); the other things' spans (as they stand by day, people left out)
-    /// decide between two sides that both fit.
+    /// decide between two sides that both fit. The boards also keep off Marek's cart (on his days) and the barracks'
+    /// recruit halves (the review of step 5: step 2's H3); where they cannot, the row says so (`fits` false).
     func modelRow(_ plot: Int, offers: [BuildOption], state: GameState, balance: Balance, minimum: Double,
                   key: String) -> PayModelRow {
         if let known = touch.modelChoices[plot], known.key == key { return known.row }
@@ -82,13 +83,18 @@ extension GameModel {
         var day = state
         day.hour = 12
         let id = "touch-plot-\(plot)"
-        let others = TouchThings.world(day, balance: balance, figures: [], talked: [])
+        let things = TouchThings.world(day, balance: balance, figures: [], talked: [])
+        let others = things
             .filter { !$0.isPerson && $0.id != id }
             .map { ($0.x - $0.halfWidth)...($0.x + $0.halfWidth) }
+        var blocks = things.filter { $0.kind == .recruit }.map { ($0.x - $0.halfWidth)...($0.x + $0.halfWidth) }
+        if CourtLayout.props(day, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
+            blocks.append(CourtLayout.marekCartX...(CourtLayout.marekCartX + Double(SpriteID.marekCart.size.width)))
+        }
         let widths = offers.map { Double(PayBoardLayout.make(PayCount.hollows(price: $0.price)).width) }
         let row = PayModelRow.place(plot: plot, base: KingTargets.spotX(plot: plot, layouts: layouts), offers: offers,
                                     minimum: minimum, doors: modelDoors(state), others: others, boardWidths: widths,
-                                    standGap: GameModel.countStandGap, bounds: 0...Realm.walkEnd)
+                                    standGap: GameModel.countStandGap, bounds: 0...Realm.walkEnd, blocks: blocks)
         touch.modelChoices[plot] = PayModelChoice(key: key, row: row)
         return row
     }
