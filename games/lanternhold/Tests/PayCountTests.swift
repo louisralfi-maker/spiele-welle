@@ -1117,6 +1117,41 @@ final class PayCountTests: XCTestCase {
         for actor in big { XCTAssertEqual(actor.rect.z, 11 * scale, accuracy: 0.5, "a big hollow is 11 px") }
     }
 
+    /// Step 3 (the director's call 8, M-a): let go, each coin flies home on the throw's high arc at its full size for
+    /// the first 60 % of the way and shrinks over the last 40 %; drawn: early in its way a coin is whole, late it is
+    /// smaller.
+    func testTheCoinsGoHomeWholeThenShrink() throws {
+        XCTAssertEqual(GameModel.countHomeScale(0), 1)
+        XCTAssertEqual(GameModel.countHomeScale(0.6), 1, accuracy: 1e-9, "whole for 60 % of the way")
+        XCTAssertEqual(GameModel.countHomeScale(0.8), 0.5, accuracy: 1e-9)
+        XCTAssertEqual(GameModel.countHomeScale(1), 0)
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        var count = try XCTUnwrap(game.touch.count)
+        for _ in 0..<4 { count.tap() }
+        game.touch.count = count
+        run(game, seconds: 1)
+        XCTAssertEqual(game.touch.count?.placed, 4)
+        var letGo = try XCTUnwrap(game.touch.count)
+        letGo.letGo()
+        game.touch.count = letGo
+        let scale = Float(try XCTUnwrap(game.touch.framing).scale)
+        var sawWhole = false
+        var sawShrunk = false
+        for _ in 0..<30 {
+            game.advance(by: 1.0 / 60)
+            guard let live = game.touch.count, let share = live.homeShare(3), share > 0, share < 1 else { continue }
+            let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let flying = frame.actors.filter { $0.sprite == .hudCoinTen }
+            if share < 0.55, flying.contains(where: { abs($0.rect.z - 11 * scale) < 0.5 }) { sawWhole = true }
+            if share > 0.85, flying.contains(where: { $0.rect.z < 11 * scale - 0.5 }) { sawShrunk = true }
+        }
+        XCTAssertTrue(sawWhole, "a coin on its way home is whole early on")
+        XCTAssertTrue(sawShrunk, "and shrinks near the hand")
+    }
+
     /// The critic's M2: the purse's figure never touches a board that stands by the lord.
     func testThePurseFigureStandsClearOfTheBoard() throws {
         let game = gateGame(gold: 200)

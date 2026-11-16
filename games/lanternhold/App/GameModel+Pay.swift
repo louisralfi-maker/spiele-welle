@@ -187,6 +187,12 @@ extension GameModel {
         }
     }
 
+    /// A coin going home after a let go (step 3, the director's call 8, M-a): its full size for the first 60 % of the
+    /// way, shrinking to nothing over the last 40 % (at `share` 0 ... 1 of its way).
+    nonisolated static func countHomeScale(_ share: Double) -> Double {
+        min(1, max(0, (1 - share) / 0.4))
+    }
+
     /// Each hollow's flight on `board` (step 3: by its distance from the hand of the lord standing at `board.stand`):
     /// `PayCount.flight` for the near one up to `PayCount.flightFar` for the far one.
     static func countFlights(_ board: CountBoard) -> [Double] {
@@ -936,16 +942,20 @@ extension GameModel {
                 actors.append(actor)
             }
         }
-        // The coins going home (H5): opaque, the last laid first, each shrinking to a pixel at the lord's hand.
+        // The coins going home (H5; step 3, the director's call 8): opaque, the last laid first, each on the throw's
+        // high arc back over the coins still lying to the lord's hand, at its full size for the first 60 % of the way
+        // and shrinking to a pixel over the last 40 %.
         for coin in homing {
-            let p = coin.share
             let size = coin.coin.sprite.size
-            let w = max(1, (Double(size.width) * (1 - p)).rounded())
-            let h = max(1, (Double(size.height) * (1 - p)).rounded())
-            let fromX = Double(coin.x) + Double(size.width) / 2
-            let fromY = coin.lift - Double(size.height) / 2
-            let centreX = fromX + (handX - fromX) * p
-            let centreY = fromY + (GameModel.countHandLift - fromY) * p + 5 * 4 * p * (1 - p)
+            let scale = GameModel.countHomeScale(coin.share)
+            let w = max(1, (Double(size.width) * scale).rounded())
+            let h = max(1, (Double(size.height) * scale).rounded())
+            let at = GameModel.countThrow(coin.share, fromX: Double(coin.x), fromLift: coin.lift,
+                                          toX: handX - Double(size.width) / 2,
+                                          toLift: GameModel.countHandLift + Double(size.height) / 2,
+                                          coinHeight: Double(size.height))
+            let centreX = at.x + Double(size.width) / 2
+            let centreY = at.lift - Double(size.height) / 2
             if let actor = countActor(coin.coin.sprite, coin.face, x: (centreX - w / 2).rounded(),
                                       lift: (centreY + h / 2).rounded(), alpha: 1, framing: framing, width: w,
                                       height: h) {
