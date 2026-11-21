@@ -20,6 +20,10 @@ final class AdModeTests: XCTestCase {
         XCTAssertEqual(mode(["GWAdStub": "YES"], tests: true), .none, "the unit tests' host app")
         XCTAssertEqual(mode(["GWAdStub": "YES"], debug: false), .google, "release: no stub")
         XCTAssertEqual(mode([:], any: false, debug: false, live: false), .none, "release without the real app id")
+        // Build 3, lane 6 (the `-GW` gate): a release build reads no ad argument at all.
+        XCTAssertEqual(mode(["GWNoAds": "YES"], debug: false), .google, "release: -GWNoAds does nothing")
+        XCTAssertEqual(mode(["GWAds": "none"], debug: false), .google, "release: -GWAds does nothing")
+        XCTAssertEqual(mode(["GWNoAds": "YES"], debug: false, live: false), .none, "release without the app id: none")
         XCTAssertTrue(AdMode.truthy("YES"))
         XCTAssertTrue(AdMode.truthy("1"))
         XCTAssertFalse(AdMode.truthy("NO"))

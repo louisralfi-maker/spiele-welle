@@ -2,6 +2,15 @@ import SwiftUI
 
 @main
 struct LanternholdApp: App {
+    init() {
+        // Build 3, lane 6 (the `-GW` gate): a Release build reads no launch argument and runs no sweep
+        // (`DebugArgs.launchHooksOpen`). One line in the launch log says so; the release proof greps it
+        // (scripts/ci/release-sim-launch.sh). Written straight to stderr, so it is out before any later kill.
+        if !DebugArgs.launchHooksOpen {
+            try? FileHandle.standardError.write(contentsOf: Data("debug args: none\n".utf8))
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             // The speed kit's sweep (App/SweepRunner.swift): a new RootView per shot; nothing without `GW_SWEEP`.
@@ -24,8 +33,10 @@ struct RootView: View {
     private let args = SweepRunner.current ?? DebugArgs.fromProcess()
     /// The one model of the run, made when the screen first appears (M2b review: not in a view's init).
     @State private var model: GameModel? = nil
-    /// The first light (item 12, `TitleView`): on a real launch the title stands before the game.
-    @State private var titleDone = !TitleGate.shows
+    /// The first light (item 12, `TitleView`): on a real launch the title stands before the game. Build 3, lane 6: a
+    /// Release build shows it on every launch (`TitleGate` skips it for a `-GW` argument or a sweep, which a Release
+    /// build does not read).
+    @State private var titleDone = DebugArgs.launchHooksOpen ? !TitleGate.shows : false
     /// render-1: the atlas and the pipelines are made off the main thread while the title stands (`RenderWarmup`).
     @State private var warmedUp = false
 

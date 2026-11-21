@@ -73,7 +73,8 @@ enum AdConfig {
 
 /// Which ads run in this launch (DESIGN.md "Ads"; the ads lane's launch arguments).
 ///
-/// - `none`: no SDK call at all: no consent form, no tracking question, no ad. `-GWNoAds YES`; the unit tests' host app;
+/// - `none`: no SDK call at all: no consent form, no tracking question, no ad. `-GWNoAds YES` (debug builds); the unit
+///   tests' host app;
 ///   and in debug builds every launch that carries any `-GW` argument without an ad argument, so every existing UI
 ///   test and every screenshot run has no ads without naming it (as the sound's rule, `SoundDirector.allowed`).
 /// - `stub`: `-GWAdStub YES` (debug builds): no SDK either; a rewarded "video" is always ready, ends at once and
@@ -89,9 +90,10 @@ enum AdMode: String, Sendable, Equatable, CaseIterable {
     /// `anyGWArgument`: the launch carried any `-GW` argument; `underTests`: the unit tests' host app.
     static func resolve(values: [String: String], anyGWArgument: Bool, underTests: Bool, debug: Bool,
                         liveConfigured: Bool) -> AdMode {
-        if truthy(values["GWNoAds"]) { return .none }
         if underTests { return .none }
+        // Build 3, lane 6 (the `-GW` gate): a release build reads no ad argument, `-GWNoAds` included.
         guard debug else { return liveConfigured ? .google : .none }
+        if truthy(values["GWNoAds"]) { return .none }
         if truthy(values["GWAdStub"]) { return .stub }
         if let asked = values["GWAds"]?.lowercased() {
             switch asked {

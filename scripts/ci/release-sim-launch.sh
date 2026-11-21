@@ -8,7 +8,9 @@
 #      if any folder other than en.lproj and Base.lproj is left (the proof of the Release-only language strip);
 #   3. uninstalls the app, installs the Release app, launches it with no arguments, saves simulator screenshots after
 #      3, 10 and 25 s and fails if the app is not running at 25 s;
-#   4. launches it again with -GWScreen report -GWGold 999 and saves a screenshot after 5 s (judged by eye at the gate).
+#   4. launches it again with -GWScreen report -GWGold 999, saves proof-release-hooks-ignored-05s.png after 5 s (the
+#      title must stand: the hooks are dead in Release; judged by eye at the gate) and fails unless the app's launch log
+#      carries its line "debug args: none".
 # Everything lands in $CI_OUT/release-sim/, which the round publishes. Put this step last in a round: it leaves the
 # Release app installed in place of the Debug one.
 set -euo pipefail
@@ -133,10 +135,25 @@ fi
 xcrun simctl terminate "$SIM" "$BUNDLE" >/dev/null 2>&1 || true
 sleep 2
 
-# 4. The debug hooks on a Release build: the gate judges this screenshot by eye.
+# 4. The debug hooks are dead in a Release build (build 3, lane 6): launched with -GWScreen report -GWGold 999 it must
+#    stand on the title (proof-release-hooks-ignored-05s.png, judged by eye at the gate), and its launch log must carry
+#    the app's line "debug args: none" (LanternholdApp, Release only; the app's stdout and stderr go to files here).
+HOOKS_OUT="$OUT/hooks-stdout.txt"
+HOOKS_ERR="$OUT/hooks-stderr.txt"
+rm -f "$HOOKS_OUT" "$HOOKS_ERR"
 START=$(date +%s)
-LAUNCHED=$(xcrun simctl launch "$SIM" "$BUNDLE" -GWScreen report -GWGold 999)
+LAUNCHED=$(xcrun simctl launch --stdout="$HOOKS_OUT" --stderr="$HOOKS_ERR" "$SIM" "$BUNDLE" -GWScreen report -GWGold 999)
 echo "== $(date +%H:%M:%S) launched with -GWScreen report -GWGold 999: $LAUNCHED"
-shot 5 proof-release-hooks-05s.png
+shot 5 proof-release-hooks-ignored-05s.png
 xcrun simctl terminate "$SIM" "$BUNDLE" >/dev/null 2>&1 || true
+if grep -q 'debug args: none' "$HOOKS_OUT" "$HOOKS_ERR" 2>/dev/null; then
+    echo "PASS: the Release app says \"debug args: none\" (it read no launch argument)"
+else
+    echo "FAIL: no \"debug args: none\" in the Release app's launch log"
+    for F in "$HOOKS_OUT" "$HOOKS_ERR"; do
+        echo "--- $(basename "$F"):"
+        head -20 "$F" 2>/dev/null || echo "(no file)"
+    done
+    exit 1
+fi
 echo "== $(date +%H:%M:%S) done; screenshots in release-sim/ (portrait frames of a landscape app)"

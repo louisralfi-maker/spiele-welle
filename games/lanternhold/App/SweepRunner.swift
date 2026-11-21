@@ -33,15 +33,18 @@ struct SweepPlan: Sendable, Equatable {
         return Int(name.dropFirst(prefix.count))
     }
 
-    /// The plan the environment carries; nil without one (or with a broken one), and always in a Release build.
+    /// The plan the environment carries; nil without one (or with a broken one), and always in a Release build
+    /// (`DebugArgs.launchHooksOpen`, build 3's `-GW` gate).
     static func from(environment: [String: String]) -> SweepPlan? {
-        #if DEBUG
-        guard let text = environment[environmentKey], let data = Data(base64Encoded: text),
+        from(environment: environment, allowed: DebugArgs.launchHooksOpen)
+    }
+
+    /// The plan where reading it is `allowed`, else nil: the closed path a Release build takes, which `SweepPlanTests`
+    /// proves in a Debug run.
+    static func from(environment: [String: String], allowed: Bool) -> SweepPlan? {
+        guard allowed, let text = environment[environmentKey], let data = Data(base64Encoded: text),
               let shots = try? JSONDecoder().decode([Shot].self, from: data), !shots.isEmpty else { return nil }
         return SweepPlan(shots: shots)
-        #else
-        return nil
-        #endif
     }
 
     /// What `DebugArgs.fromProcess()` reads in a launch with this shot's arguments: the known keys only.
