@@ -1625,6 +1625,43 @@ final class PayCountTests: XCTestCase {
         }
     }
 
+    /// b3-lantern (build 3, lane 5 step 2b, the smooth walk's small ones): as the lord walks in under a board from
+    /// either side, the purse's figure never jumps: from one 0.6 px step of his walk to the next it moves a little
+    /// (beside the board it waits, then rises, then glides over him), and it never stands over the board below its top.
+    func testThePurseFigureNeverJumpsAsTheLordWalksUnderTheBoard() throws {
+        let game = gateGame(gold: 200)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
+        game.touchThing(gate)
+        run(game, seconds: 10) { game.touch.count?.ready == true }
+        let board = try XCTUnwrap(game.touch.countBoard)
+        let boardLeft = Double(board.left)
+        let boardRight = Double(board.left + board.layout.width)
+        let middle = (boardLeft + boardRight) / 2
+        let lift = max(Double(HUDKit.lordHead + 8), board.top + 4) - Double(HUDKit.lordHead + HUDKit.purseAbove)
+        for width in [17, 27, 33] {
+            let half = Double(width) / 2 + 1
+            for side in [1.0, -1.0] {
+                let far = middle + side * ((boardRight - boardLeft) / 2 + Double(width) + 20)
+                var last = game.countPurseRoom(width: width, lordX: far)
+                var lordX = far
+                while (lordX - middle) * side > 0 {
+                    lordX -= side * SmoothWalkTests.walkStep
+                    let room = game.countPurseRoom(width: width, lordX: lordX)
+                    XCTAssertLessThanOrEqual(abs(room.x - last.x), SmoothWalkTests.walkStep * (3 + half / 5) + 1e-9,
+                                             "width \(width), side \(side), lord at \(lordX): no sideways jump")
+                    XCTAssertLessThanOrEqual(abs(room.ground - last.ground),
+                                             SmoothWalkTests.walkStep * abs(lift) / 5 + 1e-9,
+                                             "width \(width), side \(side), lord at \(lordX): no jump up")
+                    let left = Double(HUDKit.centredLeft(lordX: room.x, width: width))
+                    let overlaps = left < boardRight && left + Double(width) > boardLeft
+                    let bottom = Double(HUDKit.lordHead + HUDKit.purseAbove) + room.ground
+                    XCTAssertTrue(!overlaps || bottom >= board.top + 4, "width \(width) at \(lordX) clears the board")
+                    last = room
+                }
+            }
+        }
+    }
+
     /// The critic's H2: the seal lights the site lantern; it stays lit on its post, with its halo and without the
     /// board, while the work runs, and goes out when the work is done.
     func testTheLitLanternBurnsWhileTheJobRuns() throws {
