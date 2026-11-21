@@ -655,10 +655,11 @@ enum FrameBuilder {
         let lowest = town ? CastleSmoke.townFrame : 0
         let billowFrom = town ? calmBillowFrom.town : calmBillowFrom.keep
         func wander(_ rise: Double, _ index: Int) -> Double {
-            let own = unit(SeededRandom.hash(seed, Int64(16 + index)))
-            let ramp = min(1, max(0, rise) / calmWanderRamp)
-            return calm * ramp * (calmWander.chimney * sin(2 * Double.pi * (start + rise / meander))
-                                  + calmWander.puff * sin(2 * Double.pi * (own + rise / calmPuffWave)))
+            let own = FrameBuilder.unit(SeededRandom.hash(seed, Int64(16 + index)))
+            let ramp = min(1, max(0, rise) / FrameBuilder.calmWanderRamp)
+            let wave = FrameBuilder.calmWander
+            return calm * ramp * (wave.chimney * sin(2 * Double.pi * (start + rise / meander))
+                                  + wave.puff * sin(2 * Double.pi * (own + rise / FrameBuilder.calmPuffWave)))
         }
         var list: [CastleSmoke.Puff] = []
         for (index, puff) in puffs.enumerated() {
