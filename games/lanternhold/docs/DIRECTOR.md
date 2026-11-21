@@ -1253,3 +1253,18 @@ schneller geht."
   - claude/lh-b3-tidy e8452fac, rounds lh-b3t-21 and lh-b3t-23 ALL PASSED, checked by the director.
   - Debug hooks are dead in Release (DebugArgs and the sweep), the first video is ready after consent, three seams closed.
   - Join lines: seven -GW keys read outside DebugArgs still need the `launchHooksOpen` guard; L6b (`worldHeld`).
+
+- **The drill yard's layout is picked: A, "the long volley"; its step 3 runs (21.11.2026, 17:36).**
+  - A design card (three paste-ups at phone size, 14 minutes, one agent) settled the look before the build.
+    Layout A: sand from 1442 to 1545, a low fence only along the gate's apron, the bunkhouse's front open.
+    One archer at 1438 looses across the whole yard into two butts set behind each other at 1519 and 1528;
+    the lord's lane 1447 to 1463 stays free; the kettle on its tripod at 1466; one pell at 1482 with a guard at 1497.
+  - Amendments of the director: Brannock stands in the bunkhouse door (1511) by day and only turns; the arrow
+    passes at least 4 px above every figure, the lord's raised lantern included; the drill goes on while the lord
+    watches at the fence; the archer holds at the draw while somebody stands where the arrow is still low.
+    A unit test on the path proves it. No rule place and no number moves.
+  - Marek's cart leaves the barracks' front and stands at 2218 to 2266, flush with the bakehouse's east wall just
+    inside the back gate; Marek in front of its east half. The lord's talk spot for the collector (2272) stays free.
+    For the player: the place of Marek's gift is now on the way to the town.
+  - Step 3 (workflow, Opus 5.5, base c9fa0578, rounds lh-b3y-31 to -34) started 17:31; report b3-yard-s3.md.
+    Side by side with it run lantern step 4 (the mood at the map) and smooth step 1 (the smooth walk part 3).
