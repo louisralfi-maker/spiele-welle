@@ -1,0 +1,23 @@
+2026-11-21 15:50:20.986720+0000 Lanternhold[19928:69631] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-21 15:50:23.065913+0000 Lanternhold[19928:70654] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-21 15:50:23.066366+0000 Lanternhold[19928:70652] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-21 15:50:23.070614+0000 Lanternhold[19928:70649] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-21 15:50:23.106600+0000 Lanternhold[19928:70652] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-21 15:50:23.157111+0000 Lanternhold[19928:70652] [Client] Updating selectors failed with: Error 2026-11-21 15:50:23.226133+0000 Lanternhold[19928:70655] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-21 15:50:23.239047+0000 Lanternhold[19928:70652] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.DebugArgsTests testDefaults]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testMalformedValuesKeepTheDefaults]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheCastleStage]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheClosedGateReadsNoArgument]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheFrontNightShotArguments]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheGateLineSaysNoneOnlyWhenNothingWasRead]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheLookSwitch]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheWeatherArguments]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SweepPlanTests testAClosedGateRunsNoSweep]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.SweepPlanTests testAShotReadsAsItsLaunch]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SweepPlanTests testNoPlanWithoutTheEnvironment]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SweepPlanTests testTheNextNames]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SweepPlanTests testUnknownKeysAreLeftOutAsAtLaunch]' passed (0.001 seconds).
+exit=0
+screenshots: 0
