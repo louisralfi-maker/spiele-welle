@@ -1231,3 +1231,14 @@ schneller geht."
   - Worktree lh-b3-tidy, branch claude/lh-b3-tidy from ab29d2d4, rounds lh-b3t-21 and on, report b3-tidy-s2.md: the -GW gate in Release, the first rewarded video ready after consent, three seams. L6b waits for the join.
   - The other two lanes at 15:30: lane 5 step 2b with ten commits, the yard's step 2 with eleven; both are in review or at the gate.
   - Usage at 15:30: 3 % of the week, Fable 1 %.
+
+- **Lane 5 step 2b is green; the mood at the map and the smooth walk part 3 run side by side (21.11.2026, 16:58).**
+  - Step 2b: `claude/lh-b3-lantern` d7748951, round lh-b3l-32 ALL PASSED (the whole unit suite, 1174 cases); the ui steps passed in lh-b3l-31. Checked by the director: rounds, tested commits, the origin head, the frames.
+  - What it fixed: the glows behind the lane are read at their own plane (windows, lights, the wedge moon); the keep with its flags, vane, smoke and mist rides its own picture; rain and ash decide kind and wind at their own column; the world's-end dark moves with its fog; the purse row glides beside a count board; the hint's glint and the flare's sparks sit on the lord's own pixels.
+  - Left by it: the gold rims on walking figures, the one-frame lag of the SwiftUI row during the pan, the GPU cost of the new reads (unmeasured).
+  - The critic passed it (7/10, no blocker, two highs). The director sorted its findings into two steps with separate file owners, both cut from d7748951:
+    - **The mood at the map** (decision 6, form C, the town's banner at the realm strip's town end), with the lord's row drawn in Metal (H1), the strip's bracket in one colour (M4) and the halo check (M1). Lane `lantern`, script step 4, worktree `lh-b3-lantern`, labels lh-b3l-41 and on.
+    - **The smooth walk, part 3**: the empty valley picture dropped, a bitmask so empty bands cost nothing, a cost measure, the ash flake's copies, the gold rim on the figure's own actor, the smoke in calm air. Lane `smooth`, script step 1, new worktree `lh-b3-smooth`, branch `claude/lh-b3-smooth`, labels lh-b3s-11 and on.
+  - After both are green the director merges `claude/lh-b3-smooth` into `claude/lh-b3-lantern` and sends one short round on the joined head. Then lane 5 has one step left: the vignette and the figures' fade during the pan.
+  - Only a phone can show: whether the walk feels smooth, the presentation lag, the purse glide's speed.
+  - Running at this hour: the yard's step 2, lane 6's step, and these two. Usage 6 % of the week (stop at 80 %).
