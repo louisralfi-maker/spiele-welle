@@ -612,8 +612,9 @@ enum FrameBuilder {
     // about a pixel as it rises, seeded by the chimney and the puff; high in the column a puff takes a billow beside it
     // a size smaller, so the column widens with its rise and breaks into lumps; low in it a smaller puff fills the gap
     // under each, a thin wavering stream out of the mouth (proven in python first: ci-out/director/b3/smooth/scratch,
-    // smokemock2.py, smoke5.png; trimmed from smoke4.png's to keep the frame's instances down). Every one is a function of the puff's rise and of seeds alone, never of a jump in time, and fades
-    // in and out by its alpha, so nothing pops; the wind fades all of it out (`calmShare`); under Reduce Motion the
+    // smokemock2.py, smoke5.png; trimmed from smoke4.png's to keep the frame's instances down). Every one is a
+    // function of the puff's rise and of seeds alone, never of a jump in time, and fades in and out by its alpha, so
+    // nothing pops; the wind fades all of it out (`calmShare`); under Reduce Motion the
     // column is as before. Each added puff is placed as the others (by its plane's whole offset), so it keeps one offset
     // to the plane it moves with in every frame of a walk.
 

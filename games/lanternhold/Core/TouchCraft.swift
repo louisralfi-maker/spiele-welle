@@ -172,6 +172,8 @@ enum TouchFooting {
 /// it reads by day and at night and never covers the thing itself. (b3-smooth: round a person, as an actor, `actors`.)
 enum TouchRims {
     /// The rims in the world round the body of a marked person (the figures are actors, drawn over the world).
+    /// b3-smooth: no longer drawn by the app (`actors` is); kept as the old look's measure for TouchCraftTests and
+    /// SmoothWalkTests.
     static func world(_ marks: [TouchMark], figures: [DrawnFigure], night: Double) -> [EntityGlow] {
         var list: [EntityGlow] = []
         for mark in marks where mark.kind == .talk || mark.kind == .bench {
