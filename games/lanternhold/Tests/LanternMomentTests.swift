@@ -50,25 +50,31 @@ final class LanternMomentTests: XCTestCase {
 
     // MARK: - The pieces
 
+    /// Build 3, lane 5 step 4 (decision 6): the row over the lord is the purse alone, the coin and its figures; the
+    /// face and the people stand at the strip's town end. The day line stays centred under it.
     func testTheMomentsRowAndDayLineSitOnTheKitsGrid() {
-        let block = HUDKit.moment(gold: 93, happiness: 70, people: 28, day: 12)
+        let block = HUDKit.moment(gold: 93, day: 12)
         XCTAssertEqual(block.height, 9 + 2 + 9, "the row, 2 px, the day line")
         let coin = block.pieces.first { $0.sprite == .hudCoin }
-        let face = block.pieces.first { $0.sprite == .hudFace }
-        let people = block.pieces.first { $0.sprite == .hudPeople }
         let dawn = block.pieces.first { $0.sprite == .hudDawn }
         XCTAssertNotNil(coin)
-        XCTAssertEqual(face?.frame, 0, "70: the face is glad")
-        XCTAssertNotNil(people)
+        XCTAssertFalse(block.pieces.contains { $0.sprite == .hudFace }, "no face in the lord's row")
+        XCTAssertFalse(block.pieces.contains { $0.sprite == .hudPeople }, "no people in the lord's row")
         XCTAssertEqual(dawn?.y, 11, "the day line under the row")
-        // coin (9) + 1 + "93" (6 + 7) = 23; + 5 + face 9 = 37; + 5 + people 13 + 1 + "28" 13 = 69.
-        XCTAssertEqual(block.width, 69)
+        // The row: coin (9) + 1 + "93" (6 + 7) = 23; the day line: dawn (11) + 1 + "12" (13) = 25, the wider.
+        XCTAssertEqual(block.width, 25)
         let figures = block.pieces.filter { $0.sprite == .hudFigures && $0.y == 0 }
-        XCTAssertEqual(figures.map(\.frame), [9, 3, 2, 8])
+        XCTAssertEqual(figures.map(\.frame), [9, 3])
         XCTAssertEqual(figures[1].x - figures[0].x, HUDKit.advance, "tabular figures")
         XCTAssertEqual(figures[0].x, (coin?.x ?? 0) + 9 + 1, "the number 1 px after its sign")
-        // The day line: dawn (11) + 1 + "12" (13) = 25, centred under the 69 px row.
-        XCTAssertEqual(dawn?.x, (69 - 25) / 2)
+        XCTAssertEqual(coin?.x, (25 - 23) / 2, "the purse centred over the day line")
+        XCTAssertEqual(dawn?.x, 0)
+        // A purse wider than the day line: the line is centred under it.
+        let rich = HUDKit.moment(gold: 1234, day: 3)
+        // coin (9) + 1 + "1234" (3 x 6 + 7) = 35; dawn (11) + 1 + "3" (7) = 19.
+        XCTAssertEqual(rich.width, 35)
+        XCTAssertEqual(rich.pieces.first { $0.sprite == .hudCoin }?.x, 0)
+        XCTAssertEqual(rich.pieces.first { $0.sprite == .hudDawn }?.x, (35 - 19) / 2)
         XCTAssertTrue(block.pieces.allSatisfy { $0.x >= 0 && $0.x + $0.sprite.size.width <= block.width })
     }
 
@@ -593,7 +599,7 @@ final class LanternMomentTests: XCTestCase {
     /// Suspect 1: the coin and notes row above the walking lord keeps one distance in device px to him (a smooth
     /// actor, `Camera.deviceX`) in every frame of a walk; floored to whole game px it buzzed 3 to 5 device px.
     func testTheRowAboveTheWalkingLordKeepsItsDistanceToHim() throws {
-        let block = HUDKit.moment(gold: 93, happiness: 70, people: 28, day: 12)
+        let block = HUDKit.moment(gold: 93, day: 12)
         var gaps: Set<Double> = []
         for step in 0..<120 {
             let lordX = 1000.3 + 0.6 * Double(step)

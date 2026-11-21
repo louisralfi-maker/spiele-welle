@@ -101,21 +101,15 @@ struct LanternMomentView: View {
         .ignoresSafeArea()
     }
 
-    /// The elements over the block (they read the figures to VoiceOver and the UI tests): gold, the mood, the people
-    /// on the row, the day under it.
+    /// The elements over the block (they read the figures to VoiceOver and the UI tests): the gold on the row, the day
+    /// under it. Build 3, lane 5 step 4: the row is the purse alone; the mood and the people are the town's banner's
+    /// element at the strip (`hud-mood`).
     private func figures(left: CGFloat, top: CGFloat, width: CGFloat, unit: CGFloat) -> some View {
         let row = CGFloat(HUDKit.rowHeight) * unit
-        let third = max(1, width / 3)
         return ZStack(alignment: .topLeading) {
             element("hud-gold", label: Text("Gold"), value: "\(show.gold)")
-                .frame(width: third, height: row)
+                .frame(width: max(1, width), height: row)
                 .offset(x: left, y: top)
-            element("hud-happiness", label: Text("Happiness"), value: GameModel.moodWords(show.happiness))
-                .frame(width: third, height: row)
-                .offset(x: left + third, y: top)
-            element("hud-people", label: Text("People"), value: "\(show.people)")
-                .frame(width: third, height: row)
-                .offset(x: left + 2 * third, y: top)
             Color.clear
                 .frame(width: width, height: row)
                 .accessibilityElement()

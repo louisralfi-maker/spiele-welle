@@ -1,9 +1,10 @@
 import Foundation
 
 /// The interface on the world after docs/HUD.md (stage lane, step stage-3-interface, 15.11.2026): nothing stands on
-/// the walked world. A touch on the lord is the lantern moment (the world stands still; above him the gold, the mood
-/// and the people in the interface kit's pixel figures, the day under them as the dawn sign and its number, the realm
-/// strip at the top, the gear in a corner). While coins reach or leave him, the coin and the figure stand above him and
+/// the walked world. A touch on the lord is the lantern moment (the world stands still; above him the gold in the
+/// interface kit's pixel figures, the day under it as the dawn sign and its number, the realm strip at the top with the
+/// town's banner at its town end (build 3: the mood and the people, `MoodBanner`), the gear in a corner). While coins
+/// reach or leave him, the coin and the figure stand above him and
 /// tick (`PurseTicker`); a change of the mood or the people shows its sign with a small arrow for 2 s (`ChangeNotes`).
 /// Everything here is pure: the pieces' places in game pixels, the ticks and their timing. `GameModel+Lantern.swift`
 /// draws them.
@@ -106,12 +107,11 @@ enum HUDKit {
         return 3
     }
 
-    /// The lantern moment's block: the row (coin and gold, the face, the people and their count), 2 px, and centred
-    /// under it the day line (the dawn sign and the day's number). Its top-left is (0, 0).
-    static func moment(gold: Int, happiness: Int, people: Int, day: Int) -> Block {
-        let top = row([group(sign: .hudCoin, number: gold),
-                       group(sign: .hudFace, frame: faceFrame(happiness: happiness)),
-                       group(sign: .hudPeople, number: people)])
+    /// The lantern moment's block: the row, 2 px, and centred under it the day line (the dawn sign and the day's
+    /// number). Its top-left is (0, 0). Build 3, lane 5 step 4 (decision 6): the row is the purse alone (the coin and
+    /// the gold); the town's mood and the people's count stand at the realm strip's town end (`MoodBanner`).
+    static func moment(gold: Int, day: Int) -> Block {
+        let top = row([group(sign: .hudCoin, number: gold)])
         let line = group(sign: .hudDawn, number: day)
         let width = max(top.width, line.width)
         var block = Block()

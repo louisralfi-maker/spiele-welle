@@ -56,7 +56,7 @@ extension GameModel {
         touch.lordHintOn = false
         // The join (item 4): the purse as the town shows it, a coin in flight not counted before it lands.
         let shown = townShownGold(state, balance: driver?.balance ?? .standard)
-        let block = HUDKit.moment(gold: shown, happiness: state.happiness, people: state.citizens, day: state.day)
+        let block = HUDKit.moment(gold: shown, day: state.day)
         let lordX = stageLordX
         let viewLeft = framing.viewLeft.rounded(.up) + 3
         let viewRight = framing.viewRight.rounded(.down) - 3
