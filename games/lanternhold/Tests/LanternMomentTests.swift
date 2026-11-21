@@ -832,4 +832,28 @@ final class LanternMomentTests: XCTestCase {
                                           framing: try XCTUnwrap(game.touch.framing))
         XCTAssertEqual(walking.first?.tint.x, 1)
     }
+
+    /// Step 4 (the step 2b critic's M4): the strip's view bracket is bone with an ink edge wherever the view stands,
+    /// on the bank's black at the west end as at home and at the east end; the pane's brass line stays.
+    func testTheStripsBracketIsBoneWithAnInkEdgeEverywhere() {
+        var s = GameState.newRealm(seed: 2)
+        s.hour = 9
+        s.king.x = 1830
+        let bottomBrass = RealmMapPixels.tagHeight + RealmMapPixels.paneHeight - 2
+        for cameraX in [0.0, 1600, 3463] {
+            let window = RealmStrip.window(cameraX: cameraX, viewWidth: 437)
+            let strip = RealmStrip.make(s, balance: .standard, travelTarget: nil, window: window)
+            let image = RealmMapPixels.image(strip)
+            let left = RealmMapPixels.column(fraction: window.lowerBound)
+            let right = max(left + 3, RealmMapPixels.column(fraction: window.upperBound))
+            for y in (RealmMapPixels.tagHeight + 3)...(RealmMapPixels.groundRow + 1) {
+                XCTAssertEqual(image[left, y], RealmMapPixels.bone, "camera \(cameraX): the left bracket at row \(y)")
+                XCTAssertEqual(image[right, y], RealmMapPixels.bone, "camera \(cameraX): the right bracket")
+            }
+            XCTAssertEqual(image[left - 1, RealmMapPixels.groundRow - 3], RealmMapPixels.ink, "its ink edge outside")
+            XCTAssertEqual(image[right + 1, RealmMapPixels.groundRow - 3], RealmMapPixels.ink)
+            XCTAssertEqual(image[left, RealmMapPixels.tagHeight + 2], RealmMapPixels.ink, "and over its head")
+            XCTAssertEqual(image[left, bottomBrass], RealmMapPixels.brass, "the pane's brass line stays")
+        }
+    }
 }
