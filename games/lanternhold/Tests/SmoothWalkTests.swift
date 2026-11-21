@@ -46,32 +46,132 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertEqual(seen.count, 1, "one device column in every frame, not \(seen.sorted())")
     }
 
-    /// Every lit window of the planes behind the lane (the town's back row on the near plane, the valley's keep in the
-    /// mid plane's picture) keeps one device offset to the sprite it lights in every frame of a walk past the town.
-    /// Read on the world's grid, its offset changed by the difference of the two planes' device shifts.
+    /// The sprites whose rects are in `plane`'s target pixels and which the composite shows at its device shift: its
+    /// own picture's and those of the carried pictures that move with it (`CarriedPicture`).
+    private func shown(at plane: Plane, in desc: FrameDesc) -> [SpriteInstance] {
+        desc.layer(plane).sprites + desc.carried.filter { $0.plane == plane }.flatMap(\.sprites)
+    }
+
+    /// Every lit window of the planes behind the lane (the town's back row on the near plane, the valley's keep that
+    /// moves with the far plane, the keep that moves with the mist band) keeps one device offset to the sprite it
+    /// lights in every frame of a walk past the town and of one past the hall door. Read on the world's grid, its
+    /// offset changed by the difference of the two planes' device shifts.
     func testEveryWindowBehindTheLaneKeepsItsPlaceOnItsWallInEveryFrameOfAWalk() {
         let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
         var offsets: [String: Set<Double>] = [:]
         var planes: Set<Plane> = []
-        for step in 0..<SmoothWalkTests.frames {
-            let desc = frame(world, hour: 23, focus: 2700 + Double(step) * SmoothWalkTests.walkStep)
-            for glass in desc.emissives where glass.kind == .glass && glass.plane != .world {
-                let owner = desc.layer(glass.plane).sprites.first {
-                    $0.sprite == glass.sprite && $0.rect.x <= glass.rect.x && glass.rect.x < $0.rect.x + $0.rect.z
+        for start in [2700.0, SceneLayout.castleHallDoorX] {
+            for step in 0..<SmoothWalkTests.frames {
+                let desc = frame(world, hour: 23, focus: start + Double(step) * SmoothWalkTests.walkStep)
+                for glass in desc.emissives where glass.kind == .glass && glass.plane != .world {
+                    let owner = shown(at: glass.plane, in: desc).first {
+                        $0.sprite == glass.sprite && $0.rect.x <= glass.rect.x && glass.rect.x < $0.rect.x + $0.rect.z
+                    }
+                    guard let owner else { continue }
+                    let wall = deviceX(owner.rect.x, plane: glass.plane, in: desc)
+                    let light = deviceX(glass.rect.x, plane: EmissiveBands.readPlane(of: glass), in: desc)
+                    let key = "\(glass.sprite) \(glass.source) \(glass.flipped) \(glass.rect.x - owner.rect.x)"
+                    offsets[key, default: []].insert(light - wall)
+                    planes.insert(glass.plane)
                 }
-                guard let owner else { continue }
-                let wall = deviceX(owner.rect.x, plane: glass.plane, in: desc)
-                let light = deviceX(glass.rect.x, plane: EmissiveBands.readPlane(of: glass), in: desc)
-                let key = "\(glass.sprite) \(glass.source) \(glass.flipped) \(glass.rect.x - owner.rect.x)"
-                offsets[key, default: []].insert(light - wall)
-                planes.insert(glass.plane)
             }
         }
         XCTAssertTrue(planes.contains(.near), "the town's back row is lit: \(planes)")
-        XCTAssertTrue(planes.contains(.mid), "the valley's keep is lit: \(planes)")
+        XCTAssertTrue(planes.contains(.far), "the valley's keep is lit, with the far plane: \(planes)")
+        XCTAssertTrue(planes.contains(.mistBand), "the keep is lit, with the mist band: \(planes)")
         XCTAssertGreaterThan(offsets.count, 4)
         for (key, values) in offsets {
             XCTAssertEqual(values.count, 1, "\(key): one device offset to its wall in every frame, not \(values.sorted())")
+        }
+    }
+
+    // MARK: Suspect 4: the keep and its company, and the valley's keep, in the plane they move with
+
+    /// The keep moves with the mist band and the valley's keep with the far plane: in every frame of a walk each stands
+    /// within half a device px of where its plane's offset puts it (`6 × (x − p × camera)`), and the keep's flags,
+    /// vane, smoke and mist keep one device offset to it. Drawn into the near (and the mid) plane's picture they
+    /// stepped by up to 6 device px against it, and now and then backward.
+    func testTheKeepAndTheValleyKeepMoveWithTheirPlaneInEveryFrameOfAWalk() throws {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        var company: [String: Set<Double>] = [:]
+        for step in 0..<SmoothWalkTests.frames {
+            let desc = frame(world, hour: 0.97 * 24,
+                             focus: SceneLayout.castleHallDoorX + Double(step) * SmoothWalkTests.walkStep)
+            let carried = try XCTUnwrap(desc.carriedLayer(.keep), "the keep's carried picture")
+            XCTAssertEqual(carried.plane, .mistBand)
+            let keep = try XCTUnwrap(carried.sprites.first { SceneLayout.keepTops.contains($0.sprite) },
+                                     "the keep at step \(step)")
+            XCTAssertFalse(desc.layer(.near).sprites.contains { SceneLayout.keepTops.contains($0.sprite) },
+                           "no keep in the near plane's own picture")
+            let shown = deviceX(keep.rect.x, plane: .mistBand, in: desc)
+            let ideal = Double(desc.scale) * (SceneLayout.castleKeepX - Plane.mistBand.parallax * desc.cameraX)
+            XCTAssertEqual(shown, ideal, accuracy: 0.5 + 1e-9, "the keep with the mist band at step \(step)")
+            // The flags and the vane by their place in the picture (drawn after the keep, before its smoke).
+            for (index, item) in carried.sprites.enumerated()
+            where !SceneLayout.keepTops.contains(item.sprite) && item.sprite != .smokePuff {
+                company["\(index) \(item.sprite)", default: []].insert(
+                    deviceX(item.rect.x, plane: .mistBand, in: desc) - shown)
+            }
+            if let mist = desc.carriedLayer(.keepMist)?.sprites.first(where: { $0.sprite == .keepMist }) {
+                company["keepMist", default: []].insert(deviceX(mist.rect.x, plane: .mistBand, in: desc) - shown)
+            }
+        }
+        XCTAssertTrue(company.keys.contains { $0.hasSuffix("\(SpriteID.keepFlag)") }, "the keep's flags in its picture")
+        XCTAssertTrue(company.keys.contains { $0.hasSuffix("\(SpriteID.weatherVane)") }, "the vane in its picture")
+        XCTAssertNotNil(company["keepMist"], "the keep's mist in its own carried picture at night")
+        for (name, offsets) in company {
+            XCTAssertEqual(offsets.count, 1, "\(name): one device offset to the keep, not \(offsets.sorted())")
+        }
+        let dusk = frame(world, hour: 0.8 * 24, focus: SceneLayout.castleHallDoorX)
+        XCTAssertTrue(dusk.carriedLayer(.keep)?.sprites.contains { $0.sprite == .smokePuff } ?? false,
+                      "the keep's smoke in its picture")
+        XCTAssertFalse(dusk.layer(.near).sprites.contains { $0.sprite == .smokePuff }, "none left in the near picture")
+
+        for step in 0..<SmoothWalkTests.frames {
+            let desc = frame(world, hour: 12, focus: 2700 + Double(step) * SmoothWalkTests.walkStep)
+            let carried = try XCTUnwrap(desc.carriedLayer(.valley), "the valley's carried picture")
+            XCTAssertEqual(carried.plane, .far)
+            let x = Float(560 - desc.layer(.far).offset.whole)
+            let keep = try XCTUnwrap(carried.sprites.first { $0.sprite == .keepFar && $0.rect.x == x },
+                                     "the valley's keep at step \(step)")
+            XCTAssertFalse(desc.layer(.mid).sprites.contains { $0.sprite == .keepFar }, "not in the mid plane's picture")
+            let shown = deviceX(keep.rect.x, plane: .far, in: desc)
+            let ideal = Double(desc.scale) * (560 - Plane.far.parallax * desc.cameraX)
+            XCTAssertEqual(shown, ideal, accuracy: 0.5 + 1e-9, "the valley's keep with the far plane at step \(step)")
+        }
+    }
+
+    /// A carried picture is composited just behind the picture it belongs to, so it keeps its old depth only if nothing
+    /// of that picture stood behind it: no sprite of the near plane's own picture ever shares the screen with the keep's
+    /// (camera centres across the world, every castle tier), and every other prop of the mid plane and of fog A was
+    /// drawn after the valley's keep and the keep's mist anyway.
+    func testTheCarriedPicturesKeepTheDepthOfTheirPictures() {
+        for tier in 1...3 {
+            let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: tier))
+            var seen = 0
+            for focus in stride(from: 900.0, through: 2600, by: 8) {
+                let desc = frame(world, hour: 12, focus: focus)
+                guard let keep = desc.carriedLayer(.keep), !keep.sprites.isEmpty else { continue }
+                seen += 1
+                for item in keep.sprites {
+                    let left = deviceX(item.rect.x, plane: .mistBand, in: desc)
+                    let right = left + Double(desc.scale) * Double(item.rect.z)
+                    for other in desc.layer(.near).sprites {
+                        let start = deviceX(other.rect.x, plane: .near, in: desc)
+                        let end = start + Double(desc.scale) * Double(other.rect.z)
+                        let rows = other.rect.y < item.rect.y + item.rect.w && item.rect.y < other.rect.y + other.rect.w
+                        XCTAssertFalse(rows && start < right && left < end,
+                                       "tier \(tier), focus \(focus): \(other.sprite) of the near plane over the keep's \(item.sprite)")
+                    }
+                }
+            }
+            XCTAssertGreaterThan(seen, 20, "the keep in view at tier \(tier)")
+            let valleyZ = world.props.filter { $0.plane == .mid && $0.movesWith == .far }.map(\.z).max() ?? 0
+            XCTAssertTrue(world.props.filter { $0.plane == .mid && $0.movesWith == nil }.allSatisfy { $0.z > valleyZ },
+                          "every other prop of the mid plane drawn after the valley's keep")
+            let mistZ = world.props.filter { $0.plane == .fogA && $0.movesWith == .mistBand }.map(\.z).max() ?? 0
+            XCTAssertTrue(world.props.filter { $0.plane == .fogA && $0.movesWith == nil }.allSatisfy { $0.z > mistZ },
+                          "every other prop of fog A drawn after the keep's mist")
         }
     }
 

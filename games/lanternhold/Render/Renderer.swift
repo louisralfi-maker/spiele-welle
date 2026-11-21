@@ -82,6 +82,9 @@ final class RenderTargets {
     /// Build 3, lane 5 step 2b: look 2's glows of the planes behind the lane and of the foreground, a band per plane
     /// (`EmissiveBands`), `rgba16Float`.
     let back: any MTLTexture
+    /// b3-lantern (build 3, lane 5 step 2b, suspect 4): look 2's carried pictures, a band each (`CarriedPicture`),
+    /// `rgba8Unorm` like the planes.
+    let carried: any MTLTexture
     let bloomA: any MTLTexture
     let bloomB: any MTLTexture
 
@@ -106,6 +109,8 @@ final class RenderTargets {
         guard let light = make(.rgba16Float, width, height),
               let emissive = make(.rgba16Float, width, height),
               let back = make(.rgba16Float, width, EmissiveBands.textureRows(targetHeight: height)),
+              let carried = make(.rgba8Unorm, width,
+                                 CarriedPicture.allCases.count * EmissiveBands.stride(targetHeight: height)),
               let bloomA = make(.rgba16Float, halfWidth, halfHeight),
               let bloomB = make(.rgba16Float, halfWidth, halfHeight) else {
             return nil
@@ -116,6 +121,7 @@ final class RenderTargets {
         self.light = light
         self.emissive = emissive
         self.back = back
+        self.carried = carried
         self.bloomA = bloomA
         self.bloomB = bloomB
     }
@@ -254,6 +260,8 @@ final class Renderer {
         var emissive = Batch()
         /// Build 3, lane 5 step 2b: the band texture's quads (`EmissiveBands`).
         var back = Batch()
+        /// b3-lantern (suspect 4): the carried pictures' quads (`CarriedPicture`).
+        var carried = Batch()
         var lights = Batch()
         var actors = Batch()
         var instances = 0
@@ -450,6 +458,15 @@ final class Renderer {
             }
             passes += 1
         }
+        // b3-lantern (build 3, lane 5 step 2b, suspect 4): look 2's carried pictures, a band each (`CarriedPicture`),
+        // cleared in every frame of look 2 (the hall has none).
+        if lookTwo {
+            let carriedSize = SIMD4<Float>(Float(targets.width),
+                                           Float(CarriedPicture.allCases.count
+                                                 * EmissiveBands.stride(targetHeight: targets.height)), 0, 0)
+            draws += quadPass(commands, targets.carried, planePipeline, buffer, [batches.carried], carriedSize)
+            passes += 1
+        }
 
         // Light pools.
         var style: UInt32
@@ -519,6 +536,8 @@ final class Renderer {
                 encoder.setFragmentTexture(targets.planes[Plane.near.rawValue], index: 13)
                 // Build 3, lane 5 step 2b: the glows of the planes behind the lane (`EmissiveBands`).
                 encoder.setFragmentTexture(targets.back, index: 14)
+                // b3-lantern (suspect 4): the carried pictures (`CarriedPicture`).
+                encoder.setFragmentTexture(targets.carried, index: 15)
             }
             encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
             draws += 1
@@ -708,6 +727,21 @@ final class Renderer {
         planeQuads[Plane.world.rawValue] += Particles.motes(frame, time: settings.time,
                                                             reduceMotion: settings.reduceMotion, white: layout.white)
         let lookTwo = frame.look == .two
+        // b3-lantern (build 3, lane 5 step 2b, suspect 4): look 2's carried pictures, each cut to the target's rows and
+        // moved to its band (as the glows' bands, `EmissiveBands.placed`); the keep's mist (fog A's) goes with fog A
+        // under the thermal cut.
+        var carriedQuads: [SpriteQuad] = []
+        if lookTwo {
+            for (index, layer) in frame.carried.enumerated() {
+                if settings.reducedEffects && CarriedPicture(rawValue: index)?.picture == Plane.fogA { continue }
+                for sprite in layer.sprites {
+                    if let placed = EmissiveBands.placed(Renderer.quad(sprite, layout: layout), band: index,
+                                                         targetHeight: frame.targetHeight) {
+                        carriedQuads.append(placed)
+                    }
+                }
+            }
+        }
         var skyQuads: [SpriteQuad] = []
         var emissiveQuads: [SpriteQuad] = []
         // Build 3, lane 5 step 2b (the smooth walk, suspect 3): look 2's glows of the planes behind the lane and of the
@@ -773,11 +807,13 @@ final class Renderer {
         batches.sky = place(count: skyQuads.count, stride: quadStride)
         batches.emissive = place(count: emissiveQuads.count, stride: quadStride)
         batches.back = place(count: backQuads.count, stride: quadStride)
+        batches.carried = place(count: carriedQuads.count, stride: quadStride)
         batches.lights = place(count: lightQuads.count, stride: MemoryLayout<LightQuad>.stride)
         batches.actors = place(count: actorQuads.count, stride: MemoryLayout<ActorQuad>.stride)
         let length = offset + 256
         let planeTotal = planeQuads.reduce(0) { $0 + $1.count }
-        batches.instances = planeTotal + skyQuads.count + emissiveQuads.count + backQuads.count + actorQuads.count
+        batches.instances = planeTotal + skyQuads.count + emissiveQuads.count + backQuads.count + carriedQuads.count
+            + actorQuads.count
 
         slot = (slot + 1) % Renderer.framesInFlight
         if (buffers[slot]?.length ?? 0) < length {
@@ -791,6 +827,7 @@ final class Renderer {
         Renderer.copy(skyQuads, to: contents, at: batches.sky.offset)
         Renderer.copy(emissiveQuads, to: contents, at: batches.emissive.offset)
         Renderer.copy(backQuads, to: contents, at: batches.back.offset)
+        Renderer.copy(carriedQuads, to: contents, at: batches.carried.offset)
         Renderer.copy(Array(lightQuads), to: contents, at: batches.lights.offset)
         Renderer.copy(actorQuads, to: contents, at: batches.actors.offset)
         return (buffer, batches)

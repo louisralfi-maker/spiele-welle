@@ -24,7 +24,7 @@ final class WorldRebuild2Tests: XCTestCase {
     func testTheOneKeepStandsOverTheHallDoor() {
         let world = PlaceholderScene.world(look: .two)
         let door = frame(world, timeOfDay: 0.5, focus: SceneLayout.castleHallDoorX)
-        let keep = door.layer(.near).sprites.first { WorldRebuild2Tests.keeps.contains($0.sprite) }
+        let keep = door.pictured(.near).first { WorldRebuild2Tests.keeps.contains($0.sprite) }
         XCTAssertNotNil(keep, "the keep in the near plane's picture")
         if let keep {
             let middle = Double(keep.rect.x) + SceneLayout.castleKeepMiddle
@@ -33,14 +33,14 @@ final class WorldRebuild2Tests: XCTestCase {
         // From the front gate its west corner (fix round 1: the stair turret, about 60 px further in) stands at the
         // right edge; from the back gate on it is gone.
         let gate = frame(world, timeOfDay: 0.5, focus: 1360)
-        let corner = gate.layer(.near).sprites.first { WorldRebuild2Tests.keeps.contains($0.sprite) }
+        let corner = gate.pictured(.near).first { WorldRebuild2Tests.keeps.contains($0.sprite) }
         XCTAssertNotNil(corner, "the keep's corner from the front gate")
         if let corner {
             XCTAssertGreaterThan(Int(corner.rect.x), gate.targetWidth - 100)
             XCTAssertLessThan(Int(corner.rect.x), gate.targetWidth - 70)
         }
         for focus in [1100.0, 2420, 2800, 3600] {
-            XCTAssertNil(frame(world, timeOfDay: 0.5, focus: focus).layer(.near).sprites
+            XCTAssertNil(frame(world, timeOfDay: 0.5, focus: focus).pictured(.near)
                 .first { WorldRebuild2Tests.keeps.contains($0.sprite) }, "no keep in view at \(focus)")
         }
     }
@@ -124,13 +124,13 @@ final class WorldRebuild2Tests: XCTestCase {
     func testTheCastleChimneysSmoke() {
         let world = PlaceholderScene.world(look: .two)
         let door = frame(world, timeOfDay: 0.8, focus: SceneLayout.castleHallDoorX)
-        XCTAssertGreaterThanOrEqual(door.layer(.near).sprites.filter { $0.sprite == .smokePuff }.count, 4,
+        XCTAssertGreaterThanOrEqual(door.pictured(.near).filter { $0.sprite == .smokePuff }.count, 4,
                                     "the keep's smoke")
         let bake = frame(world, timeOfDay: 0.8, focus: SceneLayout.castleBakehouseX + 60)
         XCTAssertGreaterThanOrEqual(bake.layer(.world).sprites.filter { $0.sprite == .smokePuff }.count, 4,
                                     "the bakehouse's smoke")
         let building = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2, building: true))
-        XCTAssertFalse(frame(building, timeOfDay: 0.8, focus: SceneLayout.castleHallDoorX).layer(.near).sprites
+        XCTAssertFalse(frame(building, timeOfDay: 0.8, focus: SceneLayout.castleHallDoorX).pictured(.near)
             .contains { $0.sprite == .smokePuff }, "no smoke while the keep's roof is off")
     }
 

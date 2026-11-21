@@ -883,6 +883,11 @@ struct FrameDesc: Sendable, Equatable {
     var interior: InteriorLight? = nil
     /// World-3 fix round 1: a hard fog night's extra haze on the mid plane (`GloomFog.midHaze`), 0 otherwise.
     var gloomHaze: Float = 0
+    // b3-lantern: build 3, lane 5 step 2b (the smooth walk, suspect 4; one property for the join).
+    /// Look 2: the carried pictures, one layer per `CarriedPicture` in its order, each with the offset of the plane it
+    /// moves with (Core/CarriedPictures.swift); empty in look 1 and in the hall.
+    var carried: [PlaneLayer] = []
+    // b3-lantern end
 
     /// The layer of one plane.
     func layer(_ plane: Plane) -> PlaneLayer {

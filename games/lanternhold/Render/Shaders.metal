@@ -1120,14 +1120,16 @@ static inline float3 lh2_capped(float3 light) {
 // behind the mid plane, the near plane and the lane; the mid band and the mist band's behind the near plane and the
 // lane; the near band behind the lane; the foreground's and the lantern's streak on the water (band 5, the near
 // plane's column) behind nothing. Bands are `target.y + 2` rows apart.
-static float3 lh2_back_glow(PlaneCoords c, uint2 mist, uint2 near, float midA, float nearA, float worldA,
+// b3-lantern (suspect 4): the keep's carried picture (`keepA`) stands in front of the far and mid bands too; the mist
+// band holds the keep's own glows.
+static float3 lh2_back_glow(PlaneCoords c, uint2 mist, uint2 near, float midA, float keepA, float nearA, float worldA,
                             constant CompositeUniforms &u, texture2d<float> backTex) {
     uint stride = uint(max(u.target.y, 1.0f)) + 2u;
     uint row = c.row;
     float lane = lh_open(worldA);
     float front = lh_open(nearA) * lane;
-    float3 sum = backTex.read(uint2(c.distant.x, row)).rgb * (lh_open(midA) * front);
-    sum += backTex.read(uint2(c.mid.x, row + stride)).rgb * front;
+    float3 sum = backTex.read(uint2(c.distant.x, row)).rgb * (lh_open(midA) * lh_open(keepA) * front);
+    sum += backTex.read(uint2(c.mid.x, row + stride)).rgb * (lh_open(keepA) * front);
     sum += backTex.read(uint2(mist.x, row + 2u * stride)).rgb * front;
     sum += backTex.read(uint2(near.x, row + 3u * stride)).rgb * lane;
     sum += backTex.read(uint2(c.fg.x, row + 4u * stride)).rgb;
@@ -1135,14 +1137,55 @@ static float3 lh2_back_glow(PlaneCoords c, uint2 mist, uint2 near, float midA, f
     return sum;
 }
 
+// The mid plane's light on a texel `m` of a picture lit as the mid plane (`tex` at `at`, for its ledges): the plane
+// itself and (b3-lantern, suspect 4) the valley's carried picture.
+static inline float3 lh2_mid_lit(float4 m, texture2d<float> tex, uint2 at, float low, float band, PixelLight info,
+                                 constant CompositeUniforms &u, constant Look2Uniforms &v) {
+    float haze = saturate(v.midHC.w + low * v.bounceW.w * 0.5f);
+    float shade = lh_shade(m.rgb / m.a);
+    float3 ambient = lh2_ambient(v.ambM.rgb, 0.72f, shade, v);
+    float e = lh2_ledge(tex, at, m.a);
+    if (e > 0.0f) {
+        ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
+    }
+    // World rebuild: the backdrop lights a little stronger (0.3 before), so the castle's warm light grazes the
+    // cleft wall over the roofs at dusk and night.
+    float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.5f
+        + m.rgb * kMoonLight2 * lh2_moon_key(m, v);
+    lit = mix(lit, v.midHC.rgb * m.a, haze);
+    lit = mix(lit, v.bandC.rgb * m.a, band * 0.6f);
+    return lit;
+}
+
+// The near plane's light on a texel `n` of a picture lit as the near plane (`tex` at `at`, for its ledges): the plane
+// itself and (b3-lantern, suspect 4) the keep's carried picture.
+static inline float3 lh2_near_lit(float4 n, texture2d<float> tex, uint2 at, float peak, PixelLight info,
+                                  constant CompositeUniforms &u, constant Look2Uniforms &v) {
+    float shade = lh_shade(n.rgb / n.a);
+    float3 ambient = lh2_ambient(v.ambN.rgb, 1.05f, shade, v) * (1.0f - kFireCold2 * min(1.0f, peak * 0.75f));
+    float e = lh2_ledge(tex, at, n.a);
+    if (e > 0.0f) {
+        ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
+    }
+    float3 lit = lh2_cold(n.rgb, ambient, 1.0f - shade, 1.0f, v)
+        + lh_reflectance(n.rgb) * lh2_capped(info.light) * 0.5f + n.rgb * kMoonLight2 * lh2_moon_key(n, v);
+    return mix(lit, v.nearHC.rgb * n.a, v.nearHC.w);
+}
+
 // Sky and clouds, the far and mid planes, the mist band, the near plane, fog A, the lit world plane and its emissive
 // parts. `midVisible` returns how much of the mid plane still shows, `fogCover` the densest fog behind the world.
+// b3-lantern (build 3, lane 5 step 2b, suspect 4): the carried pictures (Core/CarriedPictures.swift), bands of
+// `carriedTex` `target.y + 2` rows apart, each read at the column and device shift of the plane it moves with and lit
+// as the picture it belongs to, just behind it: the valley's keep before the mid plane, the keep before the near
+// plane, the keep's mist before fog A.
 static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, constant CompositeUniforms &u,
                        constant Look2Uniforms &v,
                        texture2d<float> skyTex, texture2d<float> cloudsTex, texture2d<float> farTex,
                        texture2d<float> midTex, texture2d<float> mistTex, texture2d<float> nearTex,
                        texture2d<float> fogATex, texture2d<float> worldTex, texture2d<float> emissiveTex,
-                       thread float &midVisible, thread float &fogCover, texture2d<float> backTex) {
+                       thread float &midVisible, thread float &fogCover, texture2d<float> backTex,
+                       texture2d<float> carriedTex) {
+    uint carriedStride = uint(max(u.target.y, 1.0f)) + 2u;
     float3 color = lh_sky(c, u) + skyTex.read(c.sky).rgb;
     float horizon = max(u.target.z, 1.0f);
     float low = smoothstep(horizon - 70.0f, horizon, float(c.row));
@@ -1184,22 +1227,16 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
     float4 m = midTex.read(c.mid);
     midVisible = 0.0f;
     fogCover = 0.0f;
+    // b3-lantern (suspect 4): the valley's keep and its rock, at the far plane's place, lit as the mid plane.
+    uint2 valleyAt = uint2(c.distant.x, c.row + carriedStride);
+    float4 valley = carriedTex.read(valleyAt);
+    if (valley.a > 0.0f) {
+        color = color * (1.0f - valley.a) + lh2_mid_lit(valley, carriedTex, valleyAt, low, band, info, u, v);
+        midVisible = valley.a;
+    }
     if (m.a > 0.0f) {
-        float haze = saturate(v.midHC.w + low * v.bounceW.w * 0.5f);
-        float shade = lh_shade(m.rgb / m.a);
-        float3 ambient = lh2_ambient(v.ambM.rgb, 0.72f, shade, v);
-        float e = lh2_ledge(midTex, c.mid, m.a);
-        if (e > 0.0f) {
-            ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
-        }
-        // World rebuild: the backdrop lights a little stronger (0.3 before), so the castle's warm light grazes the
-        // cleft wall over the roofs at dusk and night.
-        float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.5f
-            + m.rgb * kMoonLight2 * lh2_moon_key(m, v);
-        lit = mix(lit, v.midHC.rgb * m.a, haze);
-        lit = mix(lit, v.bandC.rgb * m.a, band * 0.6f);
-        color = color * (1.0f - m.a) + lit;
-        midVisible = m.a;
+        color = color * (1.0f - m.a) + lh2_mid_lit(m, midTex, c.mid, low, band, info, u, v);
+        midVisible = m.a + midVisible * (1.0f - m.a);
     }
     float region = lh2_fog_region(c, u);
     float4 g = mistTex.read(mist) * region;
@@ -1208,19 +1245,24 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         midVisible *= 1.0f - g.a;
         fogCover = g.a;
     }
+    // b3-lantern (suspect 4): the keep, its flags, vane and smoke, at the mist band's place, lit as the near plane.
+    uint2 keepAt = uint2(mist.x, c.row);
+    float4 keep = carriedTex.read(keepAt);
+    if (keep.a > 0.0f) {
+        color = color * (1.0f - keep.a) + lh2_near_lit(keep, carriedTex, keepAt, peak, info, u, v);
+        midVisible *= 1.0f - keep.a;
+    }
     float4 n = nearTex.read(near);
     if (n.a > 0.0f) {
-        float shade = lh_shade(n.rgb / n.a);
-        float3 ambient = lh2_ambient(v.ambN.rgb, 1.05f, shade, v) * (1.0f - kFireCold2 * min(1.0f, peak * 0.75f));
-        float e = lh2_ledge(nearTex, near, n.a);
-        if (e > 0.0f) {
-            ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
-        }
-        float3 lit = lh2_cold(n.rgb, ambient, 1.0f - shade, 1.0f, v)
-            + lh_reflectance(n.rgb) * lh2_capped(info.light) * 0.5f + n.rgb * kMoonLight2 * lh2_moon_key(n, v);
-        lit = mix(lit, v.nearHC.rgb * n.a, v.nearHC.w);
-        color = color * (1.0f - n.a) + lit;
+        color = color * (1.0f - n.a) + lh2_near_lit(n, nearTex, near, peak, info, u, v);
         midVisible *= 1.0f - n.a;
+    }
+    // b3-lantern (suspect 4): the keep's mist, at the mist band's place, as fog A (it lay under fog A's own tiles).
+    float4 keepMist = carriedTex.read(uint2(mist.x, c.row + 2u * carriedStride)) * region;
+    if (keepMist.a > 0.0f) {
+        color = lh2_fog(color, keepMist, v.fog.x * info.bank, 0.6f, info.light);
+        midVisible *= 1.0f - keepMist.a;
+        fogCover = max(fogCover, keepMist.a);
     }
     float4 fa = fogATex.read(c.fogA) * region;
     if (fa.a > 0.0f) {
@@ -1279,7 +1321,7 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         color = color * (1.0f - w.a) + lit;
         midVisible *= 1.0f - w.a;
     }
-    return color + emissiveTex.read(c.world).rgb + lh2_back_glow(c, mist, near, m.a, n.a, w.a, u, backTex);
+    return color + emissiveTex.read(c.world).rgb + lh2_back_glow(c, mist, near, m.a, keep.a, n.a, w.a, u, backTex);
 }
 
 // Fog B, the foreground, bloom and the grade of look 2.
@@ -1391,7 +1433,8 @@ fragment float4 lh_composite2_fragment(FullscreenOut in [[stage_in]],
                                        texture2d<float> bloomTex [[texture(10)]],
                                        texture2d<float> mistTex [[texture(12)]],
                                        texture2d<float> nearTex [[texture(13)]],
-                                       texture2d<float> backTex [[texture(14)]]) {
+                                       texture2d<float> backTex [[texture(14)]],
+                                       texture2d<float> carriedTex [[texture(15)]]) {
     float2 p = in.position.xy;
     bool inset = u.debug.y != 0u && p.x < u.target.x && p.y < u.target.y;
     PlaneCoords c = inset ? lh_inset_coords(p, u) : lh_coords(p, u);
@@ -1405,7 +1448,7 @@ fragment float4 lh_composite2_fragment(FullscreenOut in [[stage_in]],
     float midVisible = 0.0f;
     float fogCover = 0.0f;
     float3 color = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
-                            worldTex, emissiveTex, midVisible, fogCover, backTex);
+                            worldTex, emissiveTex, midVisible, fogCover, backTex, carriedTex);
     color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
@@ -1436,7 +1479,8 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
                                    texture2d<float> atlas [[texture(11)]],
                                    texture2d<float> mistTex [[texture(12)]],
                                    texture2d<float> nearTex [[texture(13)]],
-                                   texture2d<float> backTex [[texture(14)]]) {
+                                   texture2d<float> backTex [[texture(14)]],
+                                   texture2d<float> carriedTex [[texture(15)]]) {
     float across = dfdx(in.texel.x);
     uint2 t = uint2(max(in.texel, float2(0.0f)));
     float4 texel = atlas.read(t);
@@ -1453,7 +1497,7 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     float3 base = float3(0.0f);
     if (in.tint.a < 0.999f) {
         base = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
-                        worldTex, emissiveTex, midVisible, fogCover, backTex);
+                        worldTex, emissiveTex, midVisible, fogCover, backTex, carriedTex);
     } else {
         fogCover = max(mistTex.read(mist).a, fogATex.read(c.fogA).a) * lh2_fog_region(c, u);
     }

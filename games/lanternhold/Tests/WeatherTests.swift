@@ -601,7 +601,7 @@ final class WeatherTests: XCTestCase {
             let weather = Weather.sample(seed: 3, day: 12, hour: 12, time: time, override: override,
                                          reduceMotion: reduceMotion)
             return windFrame(world, focus: 1830, weather: weather, time: time, reduceMotion: reduceMotion)
-                .layer(.near).sprites.filter { $0.sprite == .keepFlag }
+                .pictured(.near).filter { $0.sprite == .keepFlag }
         }
         let still = flags(WeatherOverride(mode: .clear), time: 4)
         XCTAssertEqual(still.count, 2, "both flags in view from the hall door")
@@ -927,7 +927,7 @@ final class WeatherTests: XCTestCase {
             let sample = Weather.sample(seed: 3, day: 12, hour: 12, time: 4,
                                         override: WeatherOverride(mode: .clear, wind: wind))
             return windFrame(world, focus: SceneLayout.castleHallDoorX, weather: sample, time: 4)
-                .layer(.near).sprites.first { $0.sprite == .weatherVane }
+                .pictured(.near).first { $0.sprite == .weatherVane }
         }
         let east = try XCTUnwrap(drawn(0.5), "the vane in the frame")
         let west = try XCTUnwrap(drawn(-0.5))
@@ -1132,7 +1132,7 @@ final class WeatherTests: XCTestCase {
             let sample = Weather.sample(seed: 3, day: 12, hour: 12, time: time, override: override,
                                         reduceMotion: reduce)
             return windFrame(world, focus: SceneLayout.castleHallDoorX, weather: sample, time: time,
-                             reduceMotion: reduce).layer(.near).sprites.filter { $0.sprite == .smokePuff }.map(\.rect)
+                             reduceMotion: reduce).pictured(.near).filter { $0.sprite == .smokePuff }.map(\.rect)
         }
         let held = puffs(WeatherOverride(mode: .storm), time: 2, reduce: true)
         XCTAssertFalse(held.isEmpty, "the keep smokes in a storm")

@@ -55,9 +55,9 @@ final class WorldRebuild2FixTests: XCTestCase {
         XCTAssertEqual(mist.plane, .fogA, "in front of the keep, lit as fog")
         XCTAssertEqual(mist.movesWith, .mistBand)
         XCTAssertGreaterThan(mist.y + Double(mist.height), 72 + 4, "its billows stand over the curtain's crenels")
-        let night = frame(world, timeOfDay: 0.97, focus: 1830).layer(.fogA).sprites.first { $0.sprite == .keepMist }
+        let night = frame(world, timeOfDay: 0.97, focus: 1830).pictured(.fogA).first { $0.sprite == .keepMist }
         XCTAssertGreaterThan(night?.tint.w ?? 0, 0.3, "a mist you see at night")
-        XCTAssertNil(frame(world, timeOfDay: 0.5, focus: 1830).layer(.fogA).sprites.first { $0.sprite == .keepMist },
+        XCTAssertNil(frame(world, timeOfDay: 0.5, focus: 1830).pictured(.fogA).first { $0.sprite == .keepMist },
                      "none at noon")
     }
 
@@ -110,7 +110,7 @@ final class WorldRebuild2FixTests: XCTestCase {
         XCTAssertEqual(SpriteID.smokePuff.frameCount, CastleSmoke.frames)
         let world = PlaceholderScene.world(look: .two)
         func puffs(_ time: Double, _ reduce: Bool) -> [SIMD4<Float>] {
-            frame(world, timeOfDay: 0.8, focus: 1830, reduceMotion: reduce, time: time).layer(.near).sprites
+            frame(world, timeOfDay: 0.8, focus: 1830, reduceMotion: reduce, time: time).pictured(.near)
                 .filter { $0.sprite == .smokePuff }.map(\.rect)
         }
         XCTAssertNotEqual(puffs(2, false), puffs(5, false))
@@ -131,7 +131,7 @@ final class WorldRebuild2FixTests: XCTestCase {
             // Build 3, lane 5 step 2b: on the sky plane (the sky pass, at the sky's place), under the rock.
             XCTAssertEqual(moon.plane, .sky, "on the sky, under the rock: the cleft hides it")
             if (1560...1660).contains(focus) {
-                let keep = desc.layer(.near).sprites.first { WorldRebuild2FixTests.keeps.contains($0.sprite) }
+                let keep = desc.pictured(.near).first { WorldRebuild2FixTests.keeps.contains($0.sprite) }
                 XCTAssertGreaterThan(keep?.rect.x ?? 999, moon.rect.x + moon.rect.z + 35, "clear of the keep at \(focus)")
             }
         }

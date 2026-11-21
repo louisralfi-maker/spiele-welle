@@ -104,9 +104,11 @@ enum FrameBuilder {
             glowRects.append(item.rect)
         }
 
-        /// A sprite drawn now on `plane` hides the glow under its opaque pixels.
+        /// A sprite drawn now on `plane` hides the glow under its opaque pixels. (b3-lantern: the mist band's are the
+        /// keep's carried picture's, `CarriedPicture.keep`.)
         mutating func occlude(_ sprite: SpriteInstance, plane: Plane) {
-            guard plane == .mid || plane == .near || plane == .world || plane == .foreground else { return }
+            guard plane == .mid || plane == .near || plane == .world || plane == .foreground || plane == .mistBand
+            else { return }
             let r = sprite.rect
             let covers = glowRects.contains { g in
                 g.x < r.x + r.z && r.x < g.x + g.z && g.y < r.y + r.w && r.y < g.y + g.w
@@ -170,7 +172,10 @@ enum FrameBuilder {
             }
         }
 
-        var planeSprites: [[SpriteInstance]] = Array(repeating: [], count: Plane.allCases.count)
+        // b3-lantern (build 3, lane 5 step 2b, suspect 4): a slot per plane, then one per carried picture
+        // (`CarriedPicture`, look 2 only).
+        var planeSprites: [[SpriteInstance]] = Array(repeating: [],
+                                                     count: Plane.allCases.count + CarriedPicture.allCases.count)
         var glow = EmissiveList()
 
         // Back to front, so the emissive pass sees every sprite in draw order: the props of each plane (sorted by z,
@@ -213,10 +218,10 @@ enum FrameBuilder {
             }
             if (plane == .near || plane == .world) && options.look == .two && options.drawsSmoke {
                 // World rebuild, step world-2: the castle's chimneys smoke, the keep's in the near plane's picture
-                // (moving with the mist band), the bakehouse's on the world plane.
-                planeSprites[plane.rawValue] += castleSmoke(props: ordered, plane: plane, animTime: animTime,
-                                                            reduceMotion: options.reduceMotion, geometry: geometry,
-                                                            ambient: ambient, hour: hour, glow: &glow)
+                // (moving with the mist band; b3-lantern: in the keep's carried picture), the bakehouse's on the world
+                // plane.
+                castleSmoke(props: ordered, plane: plane, animTime: animTime, reduceMotion: options.reduceMotion,
+                            geometry: geometry, ambient: ambient, hour: hour, sprites: &planeSprites, glow: &glow)
             }
             if plane == .mid && options.look == .two {
                 // Fix round 1: the threads of water falling down the cleft wall, in front of it.
@@ -409,6 +414,14 @@ enum FrameBuilder {
         for plane in Plane.allCases {
             planes.append(PlaneLayer(offset: geometry.offsets[plane.rawValue], sprites: planeSprites[plane.rawValue]))
         }
+        // b3-lantern (suspect 4): look 2's carried pictures, each with the offset of the plane it moves with.
+        var carried: [PlaneLayer] = []
+        if options.look == .two {
+            for picture in CarriedPicture.allCases {
+                carried.append(PlaneLayer(offset: geometry.offsets[picture.motion.rawValue],
+                                          sprites: planeSprites[Plane.allCases.count + picture.rawValue]))
+            }
+        }
         let spriteCount = planeSprites.reduce(0) { $0 + $1.count }
         let counts = FrameCounts(sprites: spriteCount, actors: actors.count, emissives: emissives.count,
                                  lights: lights.count)
@@ -444,6 +457,7 @@ enum FrameBuilder {
                          debugLights: options.debugLights,
                          counts: counts)
         desc.look = options.look
+        desc.carried = carried
         if options.look == .two {
             desc.rooms = rooms(props: ordered, geometry: geometry)
             desc.rain = Float(weather.rain)
@@ -665,12 +679,18 @@ enum FrameBuilder {
     /// chimneys smoke dimmer, slow to show and with no fire under them (`CastleSmoke.puffs(back:)`).
     /// b3-wind (step 6, calls S1 and S2): the puffs with body (`chimneyPuffs`); the back row smokes as the town's
     /// chimneys do, about half of them (`CastleSmoke.smokes`).
+    /// b3-lantern (build 3, lane 5 step 2b, suspect 4): the keep's smoke goes into its carried picture (`sprites`' slot
+    /// of `CarriedPicture.keep`), its glow with the mist band; look 2 only.
     private static func castleSmoke(props: [Prop], plane: Plane, animTime: Double, reduceMotion: Bool,
                                     geometry: Geometry, ambient: AmbientSample, hour: Double,
-                                    glow: inout EmissiveList) -> [SpriteInstance] {
+                                    sprites: inout [[SpriteInstance]], glow: inout EmissiveList) {
         let weather = geometry.weather
-        var list: [SpriteInstance] = []
         for prop in props where prop.plane == plane {
+            var list: [SpriteInstance] = []
+            let carried = CarriedPicture.of(picture: prop.plane, motion: prop.movesWith)
+            defer {
+                sprites[carried.map { Plane.allCases.count + $0.rawValue } ?? plane.rawValue] += list
+            }
             guard let chimney = SceneLayout.castleChimney(prop) else { continue }
             // b3-wind (step 5): the back row's smoke has no fire under it; step 6: it is the town's.
             let back = SceneLayout.townRowSprites.contains(prop.sprite)
@@ -686,11 +706,11 @@ enum FrameBuilder {
                 return SIMD4<Float>(Float(left), Float(geometry.top(y: tree.y, height: Double(tree.height))),
                                     Float(tree.width), Float(tree.height))
             }
-            chimneyPuffs(at: chimney, whole: whole, plane: plane, town: back, fire: prop.sprite == .bakehouse,
-                         hearth: !back, wind: wind, time: reduceMotion ? 0 : animTime, ambient: ambient,
-                         geometry: geometry, hiddenBy: before, list: &list, glow: &glow)
+            chimneyPuffs(at: chimney, whole: whole, plane: carried?.motion ?? plane, town: back,
+                         fire: prop.sprite == .bakehouse, hearth: !back, wind: wind,
+                         time: reduceMotion ? 0 : animTime, ambient: ambient, geometry: geometry, hiddenBy: before,
+                         list: &list, glow: &glow)
         }
-        return list
     }
 
     /// Fix round 1 (the critic's high 10: "the moon moves at about half the camera and sits on the keep's roof line"):
@@ -829,9 +849,14 @@ enum FrameBuilder {
             prop.flipped = pose.flipped
             prop.x += pose.dx
         }
-        // A prop that moves with another plane is placed by that plane's whole offset (within a game pixel of its
-        // own sub-pixel shift) but drawn into its own plane's picture.
+        // A prop that moves with another plane is placed by that plane's whole offset. Look 1 draws it into its own
+        // plane's picture (within a game pixel of its sub-pixel shift). b3-lantern (build 3, lane 5 step 2b, suspect 4):
+        // look 2 draws it into its carried picture (`CarriedPicture`), shown at the device shift of the plane it moves
+        // with; its glows and occluders go with that plane.
         let left = prop.x - geometry.whole(prop.movesWith ?? prop.plane)
+        let carried = options.look == .two ? CarriedPicture.of(picture: prop.plane, motion: prop.movesWith) : nil
+        let slot = carried.map { Plane.allCases.count + $0.rawValue } ?? prop.plane.rawValue
+        let glowPlane = carried?.motion ?? prop.plane
         let width = Double(prop.width)
         let height = Double(prop.height)
         guard geometry.isVisible(left: left, width: width) else { return }
@@ -917,18 +942,19 @@ enum FrameBuilder {
         let sprite = SpriteInstance(sprite: prop.sprite, frame: prop.frame, rect: rect, tint: tint,
                                     flipped: prop.flipped)
         if hidesGlow {
-            glow.occlude(sprite, plane: prop.plane)
+            glow.occlude(sprite, plane: glowPlane)
         }
         // The wind sways a tree's crown and the foreground's plants; the glow's occluder stays the whole sprite.
         let lean = hidesGlow ? swayLean(prop, animTime: animTime, options: options, geometry: geometry) : 0
-        sprites[prop.plane.rawValue] += sheared(sprite, offset: lean, bands: 6, bend: true)
+        sprites[slot] += sheared(sprite, offset: lean, bands: 6, bend: true)
 
         for part in prop.emissive {
             if part.isFire && !prop.isLit { continue }
             // Look 2: a fading sprite's glow fades with it (the far castle's pane over the valley).
-            if let emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
+            if var emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
                                                animTime: animTime, options: options, geometry: geometry,
                                                fade: options.look == .two ? alpha : 1) {
+                emissive.plane = glowPlane
                 glow.add(bentFlame(emissive, part: part, prop: prop, animTime: animTime, options: options,
                                    geometry: geometry))
             }
@@ -953,7 +979,7 @@ enum FrameBuilder {
             let place = SIMD4<Float>(Float(left + dx), Float(maskTop), Float(mask.width), Float(mask.height))
             let source = SIMD4<Float>(Float(mask.dx), Float(height - mask.dy - Double(mask.height)),
                                       Float(mask.width), Float(mask.height))
-            glow.add(EmissiveInstance(sprite: prop.sprite, plane: prop.plane, rect: place,
+            glow.add(EmissiveInstance(sprite: prop.sprite, plane: glowPlane, rect: place,
                                       color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1), kind: .glass, source: source,
                                       flipped: prop.flipped, frame: prop.frame))
         }
