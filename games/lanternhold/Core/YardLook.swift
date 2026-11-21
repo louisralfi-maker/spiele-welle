@@ -38,9 +38,14 @@ enum YardLook {
     /// empty from the day the yard stands, the kettle on its chain from the dawn Bram brings it.
     static let kettleLeft = 1466.0
     /// The kettle's low fire over its logs (the `flame` sprite, 4 x 5) and its small warm light, lit from the drill's
-    /// end to the next drill (the guard at the pell stands before the tripod while they drill).
+    /// end to the next drill. Step 3 (the critic's H3): the light at the pot's middle (its rows 8 to 13 of the 18 px
+    /// sprite, 6.5 px up; columns 3 to 9), so the pot is lit from below; the tripod's frames are 0 empty, 1 the kettle
+    /// cold, 2 the kettle over its fire (its underside in the fire's warm ramp).
     static let kettleFlame = (dx: 4.0, dy: 1.0)
-    static let kettleLight = (dx: 6.5, y: 5.0, radius: 18.0, intensity: 0.6)
+    static let kettleLight = (dx: 6.5, y: 6.5, radius: 18.0, intensity: 0.6)
+    static let kettleFrameEmpty = 0
+    static let kettleFrameCold = 1
+    static let kettleFrameLit = 2
     /// The site, marked out with six stakes and a cord round the whole ground (open at the door) while the drill yard
     /// is offered or waits for its dawn.
     static let siteLeft = 1442.0

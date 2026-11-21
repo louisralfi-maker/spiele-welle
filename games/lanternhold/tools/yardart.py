@@ -22,9 +22,11 @@ It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed
   yardButt     17x20      the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
                           turned to the archers on its left, two arrows in it, on a timber A-frame (two stand set
                           behind each other, the one behind a shade darker: the layout's shade)
-  yardKettle   13x18 x 2  the pitch kettle's place: a tripod of three poles lashed at the top over a ring of stones;
-                          frame 0 empty (a chain and its hook, cold ash), frame 1 the iron kettle hung on the chain
-                          over split logs (the low fire is the layout's flame), a pale lit rim, black pitch
+  yardKettle   13x18 x 3  the pitch kettle's place: a tripod of three poles lashed at the top over a ring of stones;
+                          frame 0 empty (a chain and its hook, cold ash), frame 1 the iron kettle (7 px, a pale lit
+                          rim, black pitch) hung on its bail over split logs, cold; frame 2 the same over its fire, two
+                          rows of its underside and lower flank in the fire's warm ramp (the low flame is the
+                          layout's emitter, its light at the pot's middle)
   yardSite     103x10 x 2 the drill yard's site, the larger ground marked out: six stakes (the corners with teal rag
                           flags, the door's two with red ones), a thin hemp cord sagging between them at two thirds
                           of their height, open at the bunkhouse door; frame 1, ordered (until its dawn): the timber
@@ -222,10 +224,11 @@ def butt():
 
 
 # ----------------------------------------------------------------------------------------------- the kettle
-def pole(c, x0, y0, x1, y1, name, behind=False):
+def pole(c, x0, y0, x1, y1, name, behind=False, edge="soil"):
     """A tripod pole: one pixel of `name` with a dark edge on its shaded right (never a full outline, so three poles
-    stay three lines and do not close into a dark lattice); `behind`: only where nothing is drawn yet."""
-    ink = col("ink")
+    stay three lines and do not close into a dark lattice); `behind`: only where nothing is drawn yet. Step 3 (the
+    critic's H3): the edge one tone over the ink (`soil`), so the legs still read on the dark lane at night."""
+    edge_col = col(edge)
     pts = []
     n = max(abs(x1 - x0), abs(y1 - y0))
     for i in range(n + 1):
@@ -236,11 +239,51 @@ def pole(c, x0, y0, x1, y1, name, behind=False):
             c.set(x, y, name)
     for x, y in pts:
         if 0 <= x + 1 < c.w and 0 <= y < c.h and not c.opaque(x + 1, y):
-            c.im.set(x + 1, y, ink)
+            c.im.set(x + 1, y, edge_col)
+
+
+# The pot of frames 1 and 2 (step 3, the critic's H3): 7 px wide (columns 3 to 9), its lip on row 8 and its round belly
+# down to row 13; on row 9 the pitch in its mouth. Its middle is row 10.5, 6.5 px over the sprite's foot: the kettle's
+# light stands there (`YardLook.kettleLight`), so the pot is lit from below.
+POT_ROWS = {8: (4, 8), 9: (3, 9), 10: (3, 9), 11: (3, 9), 12: (3, 9), 13: (4, 8)}
+
+
+def pot(c, lit):
+    for y, (x0, x1) in POT_ROWS.items():
+        for x in range(x0, x1 + 1):
+            if y == 8:
+                name = "stonePale" if x <= 5 else ("stoneLight" if x <= 7 else "stone")   # the lip, a pale rim
+            elif y == 9:
+                name = "night0" if x0 < x < x1 else ("stonePale" if x == x0 else "stoneMid")  # the pitch in its mouth
+            elif x == x0:
+                name = "stone" if y <= 11 else "stoneMid"                                  # the lit shoulder
+            elif x == x0 + 1 and y == 10:
+                name = "stoneLight"
+            elif x == x1:
+                name = "night1"
+            else:
+                name = "stoneDark"
+            c.set(x, y, name)
+    c.set(4, 10, "stoneMid")
+    c.set(5, 11, "stoneMid")
+    if lit:
+        # Two rows in the fire's warm ramp: the underside brightest over the flame's middle, the lower flank's outline
+        # catching it at both sides (painted albedo; the fire's light warms it more at night).
+        for x, name in ((4, "fireOrange"), (5, "fireGold"), (6, "fireWhite"), (7, "fireGold"), (8, "fireOrange")):
+            c.set(x, 13, name)
+        for x, name in ((3, "fireOrange"), (4, "ember"), (5, "emberDim"), (6, "ember"), (7, "emberDim"),
+                        (8, "ember"), (9, "fireOrange")):
+            c.set(x, 12, name)
+        c.set(3, 11, "ember")
+        c.set(9, 11, "emberDim")
+    # The lugs the bail hangs by.
+    c.set(2, 9, "stoneMid")
+    c.set(10, 9, "stoneDark")
 
 
 def kettle(frame):
-    # Step 2's review: 13 px wide (was 17), so it stands between the pell and the butt without covering either.
+    # Step 2's review: 13 px wide (was 17), so it stands without covering its neighbours. Step 3 (H3): frames 1 and 2
+    # carry a 7 px pot; frame 2 is the same kettle over its fire.
     c = C(13, 18)
     ax, ay = 6, 1                                    # the lashing
     # The ring of stones at the foot.
@@ -255,39 +298,28 @@ def kettle(frame):
         c.set(7, 17, "stoneDark")
         c.set(6, 16, "stoneMid")
     else:
-        # The kettle: a round iron belly 5 wide (rows 9 to 14) hung low between the legs, a lit lip, the pitch black
-        # in its mouth, a lit shoulder on the upper left, a lug each side.
-        belly = {9: (4, 8), 10: (4, 8), 11: (4, 8), 12: (4, 8), 13: (5, 7), 14: (6, 6)}
-        for y, (x0, x1) in belly.items():
-            for x in range(x0, x1 + 1):
-                c.set(x, y, "night1" if (x == x1 and y >= 10) else "stoneDark")
-        for (x, y, name) in ((5, 10, "stone"), (5, 11, "stoneMid"), (5, 12, "stoneMid"), (6, 11, "stoneMid")):
-            c.set(x, y, name)
-        for x in range(4, 9):
-            c.set(x, 9, "stoneLight" if x < 7 else "stone")
-        c.set(4, 9, "stonePale")
-        c.set(5, 9, "stonePale")
-        for x in range(6, 8):
-            c.set(x, 10, "night0")
-        c.set(3, 10, "stoneMid")
-        c.set(9, 10, "stoneDark")
-        # Split logs crossed under it (the flame is drawn by the layout over their middle).
+        pot(c, lit=frame == 2)
+        # Split logs crossed under it (the flame is drawn by the layout over their middle); their ends glow when lit.
         for x, y, name in ((4, 16, "woodLight"), (5, 15, "wood"), (6, 16, "woodDark"), (7, 15, "woodLight"),
                            (8, 16, "wood"), (5, 16, "woodDark"), (7, 16, "soil")):
             c.set(x, y, name)
+        if frame == 2:
+            c.set(5, 16, "ember")
+            c.set(7, 16, "emberDim")
     rim(c)
-    # The poles: the back one behind the kettle, then the two in front, splayed wide of it.
-    pole(c, ax + 1, ay + 1, 8, 17, "soil", behind=True)
-    pole(c, ax, ay, 0, 17, "woodLight")
-    pole(c, ax, ay, 12, 17, "woodDark")
+    # The poles after the ink edge, passing behind the pot: the back one first, then the two in front, splayed wide;
+    # one tone lighter than step 2's (the critic's H3).
+    pole(c, ax + 1, ay + 1, 8, 17, "woodDark", behind=True)
+    pole(c, ax, ay, 0, 17, "woodLight", behind=True)
+    pole(c, ax, ay, 12, 17, "wood", behind=True)
     # The lashing: rope round the crossing, the poles' ends standing over it.
     c.set(ax - 1, 0, "woodLight")
     c.set(ax + 1, 0, "wood")
     c.set(ax - 1, 2, "soilLight")
-    c.set(ax, 2, "soil")
-    c.set(ax + 1, 2, "soil")
-    # The chain, and its hook (empty) or the bail the kettle hangs by.
-    bottom = 10 if frame == 0 else 7
+    c.set(ax, 2, "strawLight")
+    c.set(ax + 1, 2, "soilLight")
+    # The chain, and its hook (empty) or the bail the kettle hangs by: from the hook out to the two lugs.
+    bottom = 10 if frame == 0 else 6
     for y in range(3, bottom):
         c.set(ax, y, "stoneLight" if y % 2 else "stoneMid")
     if frame == 0:
@@ -295,9 +327,11 @@ def kettle(frame):
         c.set(ax + 1, 11, "stoneLight")
         c.set(ax + 1, 10, "stoneMid")
     else:
-        for (x, y) in ((ax - 1, 7), (ax + 1, 7), (ax - 2, 8), (ax + 2, 8)):
-            c.set(x, y, "stoneMid")
-        c.set(ax - 2, 8, "stoneLight")
+        c.set(ax, 6, "stoneLight")
+        for (x, y, name) in ((ax - 1, 6, "stoneMid"), (ax + 1, 6, "stoneMid"), (ax - 2, 7, "stoneLight"),
+                             (ax + 2, 7, "stoneMid"), (ax - 3, 8, "stoneMid"), (ax + 3, 8, "stoneDark")):
+            if not c.opaque(x, y) or c.get(x, y) == col("ink"):
+                c.set(x, y, name)
     return c.im
 
 
@@ -451,7 +485,7 @@ BUILDERS = {
     "yardGround": ground,
     "yardPell": lambda: strip([pell(0), pell(1)]),
     "yardButt": butt,
-    "yardKettle": lambda: strip([kettle(0), kettle(1)]),
+    "yardKettle": lambda: strip([kettle(0), kettle(1), kettle(2)]),
     "yardSite": lambda: strip([site(0), site(1)]),
 }
 

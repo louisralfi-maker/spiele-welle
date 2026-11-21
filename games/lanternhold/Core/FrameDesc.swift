@@ -654,8 +654,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .siteHalo: return 2
         case .paySign: return 23
         case .payCoin, .hudCoinTen, .hudCoinBar: return 5
-        // b3-yard: the pell whole and battered; the tripod empty and with the kettle; the site offered and ordered.
-        case .yardPell, .yardKettle, .yardSite: return 2
+        // b3-yard: the pell whole and battered; the site offered and ordered; step 3 (H3): the tripod empty, with the
+        // kettle cold and with the kettle over its fire.
+        case .yardPell, .yardSite: return 2
+        case .yardKettle: return 3
         default: return 1
         }
     }

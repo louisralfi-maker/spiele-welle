@@ -656,19 +656,19 @@ enum EntityFrames {
             props.add(.yardButt, x: left, z: 1, shade: behind ? YardLook.buttBehindShade : 1)
         }
         guard yard.kettleInUse else {
-            props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: 0)
+            props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: YardLook.kettleFrameEmpty)
             return
         }
-        // Step 2's review: the fire burns from the drill's end to the next drill (the guard at the pell stands before
-        // the tripod while they drill).
+        // Step 2's review: the fire burns from the drill's end to the next drill; step 3 (H3): the kettle cold while
+        // they drill, its own lit frame over the fire.
         guard !Yard.drilling(s, balance: balance) else {
-            props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: 1)
+            props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: YardLook.kettleFrameCold)
             return
         }
         let seed: UInt64 = 0x5941_5244_4B45
         let flame = fire(.flame, dx: YardLook.kettleFlame.dx, dy: YardLook.kettleFlame.dy, seed: seed)
         let glow = YardLook.kettleLight
-        props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: 1, emissive: [flame],
+        props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: YardLook.kettleFrameLit, emissive: [flame],
                   lights: [LightSource(kind: .brazier, x: YardLook.kettleLeft + glow.dx, y: glow.y,
                                        radius: glow.radius, intensity: glow.intensity, flickerSeed: seed)])
     }

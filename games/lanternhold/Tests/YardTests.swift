@@ -671,9 +671,15 @@ final class YardLookTests: XCTestCase {
         s.hour = 17
         let kettle = props(s)
         let pot = kettle.props.first { $0.sprite == .yardKettle }
-        XCTAssertEqual(pot?.frame, 1, "the kettle hangs on the tripod")
+        XCTAssertEqual(pot?.frame, YardLook.kettleFrameLit, "step 3 (H3): the kettle over its fire, its own frame")
         XCTAssertEqual(pot?.emissive.first?.sprite, .flame, "over a low fire from the drill's end")
         XCTAssertEqual(kettle.lights.count, 1, "with a small warm light")
+        // Step 3 (H3): the light at the pot's middle (its rows 8 to 13 of 18, columns 3 to 9), so it is lit from below.
+        if let light = kettle.lights.first {
+            XCTAssertEqual(light.x, YardLook.kettleLeft + 6.5, accuracy: 0.01)
+            XCTAssertGreaterThanOrEqual(light.y, 4, "not under the pot")
+            XCTAssertLessThanOrEqual(light.y, 9, "not over it")
+        }
         s.defeated = true
         XCTAssertTrue(props(s).props.isEmpty)
     }
@@ -681,6 +687,46 @@ final class YardLookTests: XCTestCase {
     /// Step 3 (layout A): the drillers stand on the yard, out of the lord's lane and the bunkhouse door (step 2's
     /// "clear of the barracks and Marek's cart" went: the bunkhouse's front is the yard now, the cart moves to the
     /// back gate).
+    /// Step 3 (the critic's H3), on the drawn pixels of yardKettle.png: frames 1 and 2 carry an iron pot 7 px wide with
+    /// a pale lit rim; frame 2's underside and lower flank are in the fire's warm ramp (two rows), frame 1's are not.
+    func testTheKettleReadsAsAPotOverItsFire() throws {
+        let sprite = SpriteID.yardKettle
+        XCTAssertEqual(sprite.frameCount, 3, "empty, cold, lit")
+        let url = try XCTUnwrap(AtlasBuilder.artURL(for: sprite, bundle: .main), "yardKettle.png is in the bundle")
+        let strip = try XCTUnwrap(PNGDecoder.load(url: url))
+        let size = sprite.size
+        XCTAssertEqual(strip.width, size.width * 3)
+        let ink = RGBA(r: 42, g: 34, b: 48)
+        func iron(_ c: RGBA) -> Bool { c.a > 0 && c != ink && Int(c.b) >= Int(c.r) }
+        func warm(_ c: RGBA) -> Bool { c.a > 0 && Int(c.r) >= 200 && Int(c.r) > Int(c.b) + 80 }
+        for frame in [YardLook.kettleFrameCold, YardLook.kettleFrameLit] {
+            var widest = 0
+            for y in 9...12 {
+                var run = 0
+                for x in 0..<size.width {
+                    run = iron(strip[frame * size.width + x, y]) ? run + 1 : 0
+                    widest = max(widest, run)
+                }
+            }
+            XCTAssertGreaterThanOrEqual(widest, 7, "frame \(frame): the pot is 7 px wide (step 2's was about 5)")
+            var pale = 0
+            for x in 0..<size.width {
+                let c = strip[frame * size.width + x, 8]
+                if c.a > 0 && Int(c.r) + Int(c.g) + Int(c.b) >= 3 * 170 { pale += 1 }
+            }
+            XCTAssertGreaterThanOrEqual(pale, 2, "frame \(frame): a pale rim on the lip")
+            var warmRows = Set<Int>()
+            for y in 10...14 {
+                for x in 0..<size.width where warm(strip[frame * size.width + x, y]) { warmRows.insert(y) }
+            }
+            if frame == YardLook.kettleFrameLit {
+                XCTAssertGreaterThanOrEqual(warmRows.count, 2, "lit: two rows in the fire's warm ramp")
+            } else {
+                XCTAssertTrue(warmRows.isEmpty, "cold: no warm rim while they drill")
+            }
+        }
+    }
+
     func testTheDrillStandsOutOfTheLaneAndTheDoor() {
         var boxes: [(name: String, left: Double, right: Double)] = []
         for x in YardLook.archerSpots {
