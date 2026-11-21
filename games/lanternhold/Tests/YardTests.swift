@@ -747,7 +747,7 @@ final class YardLookTests: XCTestCase {
     func testTheSitesMarkShowsBesideTheBarracks() throws {
         let s = realm(day: 4)
         let body = try XCTUnwrap(Speakers.speaker("brannock")).body
-        let brannock = DrawnFigure(who: "brannock", key: "brannock", body: body, x: 1412, y: 0, facing: 1, frame: 0,
+        let brannock = DrawnFigure(who: "brannock", key: "brannock", body: body, x: 1422, y: 0, facing: 1, frame: 0,
                                    alpha: 1, look: nil, petition: nil, talking: false)
         let things = TouchThings.world(s, balance: balance, figures: [brannock], talked: [])
         XCTAssertTrue(things.contains { $0.id == "touch-yard" })
