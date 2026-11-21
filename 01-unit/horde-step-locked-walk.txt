@@ -1,0 +1,2 @@
+sootling: holds 45, steps 3 of 4 px, plants followed 2, tip drift 0.00 px, drawn x behind x at most 3.75 px, way in at most 4.00 px, last walk to strike 0.30 px
+sootlingB: holds 33, steps 3 of 3 px, plants followed 2, tip drift 0.00 px, drawn x behind x at most 2.75 px, way in at most 3.00 px, last walk to strike 0.31 px
