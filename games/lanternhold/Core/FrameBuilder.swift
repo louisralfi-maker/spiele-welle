@@ -2114,6 +2114,10 @@ enum FrameBuilder {
         let life = byNight(emberLife, night)
         let big = byNight(emberBig, night)
         let key = SeededRandom.hash(weather.gustSeed ^ 0x41_5348, Int64(depth + 1))
+        // b3-smooth (build 3, lane 5b step 1, the critic's M3): how far a flake can drift from the column it starts
+        // from (game px, a bound: the steady wind over its whole fall at its slowest, the gust's lean and the sway).
+        let reach = max(0, abs(weather.mean) - ashCalm) * ashDrift * fall / (0.8 * entry.speed)
+            + 4 * ashGustReach + ashSway + 2
         var list: [SpriteInstance] = []
         var glow: [EmissiveInstance] = []
         for index in 0..<count {
@@ -2127,77 +2131,87 @@ enum FrameBuilder {
             let y = share * fall - Double(size.height)
             let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
             let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
-            var x = (unit(pick) * span - whole).truncatingRemainder(dividingBy: span)
-            if x < 0 { x += span }
-            // Ash or water, decided once at the column it starts from (no flake blinks out in mid-air); a flake that
-            // drifts toward the wall fades as the water's share grows, and is gone at the wall.
-            // b3-lantern (suspect 6): at its own column in its plane, mapped to the lane (`rainLaneX`), so its drift's
-            // wind does not move with the camera either.
-            let start = rainLaneX(column: x - margin + whole, plane: entry.plane,
-                                  viewWidth: Double(geometry.targetWidth))
-            guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: start, seam: seam) else { continue }
-            let wind = Weather.wind(at: start, weather, time: fallTime)
-            x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
-            x = (x.truncatingRemainder(dividingBy: span) + span).truncatingRemainder(dividingBy: span) - margin
-            // The bank stands on the lane, so a near flake behind it is cut where the screen shows the bank (the
-            // lane's x under it).
-            if depth == 0 && x + lane < bankEdge + ashBankFace { continue }
-            // b3-lantern (suspect 6): the fade toward the wall is read at the same lane x as the kind (`rainLaneX` of
-            // the flake's column in its plane, after its drift), so a flake of the near or the foreground depth never
-            // fades or goes out in mid-fall while the lord walks.
-            let laneX = rainLaneX(column: x + whole, plane: entry.plane, viewWidth: Double(geometry.targetWidth))
-            var fade = Float(1 - RainLook.waterShare(x: laneX, seam: seam))
-            guard fade > 0.02 else { continue }
-            if reduceMotion {
-                fade *= rainPulseAlpha(time: animTime, own: own)
-            }
-            let tumble = Int(min(1.0e15, falling * (ashTumble.still + ashTumble.wind * abs(wind)) + own * 4)
-                .rounded(.down)) % 4
-            let frame = entry.size * 4 + tumble
-            let flipped = own > 0.5
-            let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
-                                    Float(size.height))
-            var grey: Float = 1
-            if !reduceMotion && isEmber(key: key, index: index, night: night) && share < life {
-                let age = Float(share / life)
-                let large = Double(age) < big
-                // b3-wind (step 5): the 2 x 2 point in the torch's orange round its hot gold core.
-                let strength = (1 - age * age) * emberGlow * fade
-                let heat = large ? emberColor * strength : emberHeat(life: age) * (emberGlow * fade)
-                let shown = emberBodyAlpha(life: age) * fade * (entry.plane == .foreground ? day : 1)
-                if shown > 0.01 {
-                    list.append(SpriteInstance(sprite: .ashFlake,
-                                               frame: large ? emberFrames.bigBody : emberFrames.body, rect: rect,
-                                               tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z, shown),
-                                               flipped: false))
+            var home = (unit(pick) * span - whole).truncatingRemainder(dividingBy: span)
+            if home < 0 { home += span }
+            // b3-smooth (M3): the flake's copies stand `span` apart in its plane, each with its own start column (so
+            // its own kind and wind); every copy whose drifted place is on the screen is drawn. Before, the one copy
+            // whose start column was on the screen was drawn and its drift wrapped round the screen, so a flake that
+            // had drifted far popped out (or jumped) when its start column left the screen while the lord walked.
+            let first = Int(((-reach - home) / span).rounded(.up))
+            let last = Int(((span + reach - home) / span).rounded(.down))
+            for copy in min(first, 0)...max(last, 0) {
+                var x = home + Double(copy) * span
+                // Ash or water, decided once at the column it starts from (no flake blinks out in mid-air); a flake
+                // that drifts toward the wall fades as the water's share grows, and is gone at the wall. b3-lantern
+                // (suspect 6): at its own column in its plane, mapped to the lane (`rainLaneX`), so its drift's wind
+                // does not move with the camera either.
+                let start = rainLaneX(column: x - margin + whole, plane: entry.plane,
+                                      viewWidth: Double(geometry.targetWidth))
+                guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: start, seam: seam) else { continue }
+                let wind = Weather.wind(at: start, weather, time: fallTime)
+                x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
+                guard x >= 0 && x < span else { continue }
+                x -= margin
+                // The bank stands on the lane, so a near flake behind it is cut where the screen shows the bank (the
+                // lane's x under it).
+                if depth == 0 && x + lane < bankEdge + ashBankFace { continue }
+                // b3-lantern (suspect 6): the fade toward the wall is read at the same lane x as the kind (`rainLaneX`
+                // of the flake's column in its plane, after its drift), so a flake of the near or the foreground depth
+                // never fades or goes out in mid-fall while the lord walks.
+                let laneX = rainLaneX(column: x + whole, plane: entry.plane, viewWidth: Double(geometry.targetWidth))
+                var fade = Float(1 - RainLook.waterShare(x: laneX, seam: seam))
+                guard fade > 0.02 else { continue }
+                if reduceMotion {
+                    fade *= rainPulseAlpha(time: animTime, own: own)
                 }
-                glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                             color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), kind: .glass,
-                                             source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
-                                             frame: large ? emberFrames.bigPoint : emberFrames.point))
-                if large {
-                    let core = emberCoreAdd * strength
+                let tumble = Int(min(1.0e15, falling * (ashTumble.still + ashTumble.wind * abs(wind)) + own * 4)
+                    .rounded(.down)) % 4
+                let frame = entry.size * 4 + tumble
+                let flipped = own > 0.5
+                let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
+                                        Float(size.height))
+                var grey: Float = 1
+                if !reduceMotion && isEmber(key: key, index: index, night: night) && share < life {
+                    let age = Float(share / life)
+                    let large = Double(age) < big
+                    // b3-wind (step 5): the 2 x 2 point in the torch's orange round its hot gold core.
+                    let strength = (1 - age * age) * emberGlow * fade
+                    let heat = large ? emberColor * strength : emberHeat(life: age) * (emberGlow * fade)
+                    let shown = emberBodyAlpha(life: age) * fade * (entry.plane == .foreground ? day : 1)
+                    if shown > 0.01 {
+                        list.append(SpriteInstance(sprite: .ashFlake,
+                                                   frame: large ? emberFrames.bigBody : emberFrames.body, rect: rect,
+                                                   tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z, shown),
+                                                   flipped: false))
+                    }
                     glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                                 color: SIMD4<Float>(core.x, core.y, core.z, 1), kind: .glass,
+                                                 color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), kind: .glass,
                                                  source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
-                                                 frame: emberFrames.point))
+                                                 frame: large ? emberFrames.bigPoint : emberFrames.point))
+                    if large {
+                        let core = emberCoreAdd * strength
+                        glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                                     color: SIMD4<Float>(core.x, core.y, core.z, 1), kind: .glass,
+                                                     source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
+                                                     frame: emberFrames.point))
+                    }
+                    grey = max(0, (age - emberGreyFrom) / (1 - emberGreyFrom))
                 }
-                grey = max(0, (age - emberGreyFrom) / (1 - emberGreyFrom))
-            }
-            // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks into
-            // the list: the same flakes stand in the list from one moment to the next. A foreground flake that rests at
-            // night (`body` 0) is left out, so it costs no instance; `body` depends on the air alone, never on the
-            // time, so the list still holds from one moment to the next.
-            if body > 0.004 {
-                list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
-                                           tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
-                                           flipped: flipped))
-            }
-            if night * fade * grey > 0.01 && entry.plane != .foreground {
-                let ash = warm * (night * fade * grey)
-                glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                             color: SIMD4<Float>(ash.x, ash.y, ash.z, 1), flipped: flipped,
-                                             frame: frame))
+                // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks
+                // into the list: the same flakes stand in the list from one moment to the next. A foreground flake that
+                // rests at night (`body` 0) is left out, so it costs no instance; `body` depends on the air alone,
+                // never on the time, so the list still holds from one moment to the next.
+                if body > 0.004 {
+                    list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
+                                               tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
+                                               flipped: flipped))
+                }
+                if night * fade * grey > 0.01 && entry.plane != .foreground {
+                    let ash = warm * (night * fade * grey)
+                    glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                                 color: SIMD4<Float>(ash.x, ash.y, ash.z, 1), flipped: flipped,
+                                                 frame: frame))
+                }
             }
         }
         return (list, glow)
