@@ -567,6 +567,12 @@ final class YardCountTests: XCTestCase {
         XCTAssertLessThanOrEqual(board.left + board.layout.width - 1, Int(EntityFrames.barracksLeft) - 1,
                                  "the board stands clear of the barracks")
         XCTAssertGreaterThan(board.stand, board.x, "he stands on the side he came from")
+        // The review: the gate's models hidden under the board take no touch while it stands.
+        for row in game.touch.models where game.yardBoardCovers(row) {
+            for model in row.models {
+                XCTAssertNil(game.modelAt((x: model.middle, lift: 6, minimum: 22)), "a hidden model takes no touch")
+            }
+        }
         run(game, seconds: 10) { game.touch.count?.ready == true }
         XCTAssertEqual(game.touch.count?.ready, true, "he stands beside the board")
         XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid yet")

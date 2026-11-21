@@ -127,7 +127,8 @@ extension GameModel {
     /// middle, or another building's, wall's or door's middle is nearer the finger than the model's.
     func modelAt(_ place: (x: Double, lift: Double, minimum: Double)) -> PayModel? {
         guard stage == .world else { return nil }
-        for row in touch.models where modelTouchable(row.plot) {
+        // b3-yard: a model hidden under the yard's board takes no touch (`yardBoardCovers`).
+        for row in touch.models where modelTouchable(row.plot) && !yardBoardCovers(row) {
             guard let model = row.models.first(where: { modelArea($0).contains(x: place.x, lift: place.lift) }) else {
                 continue
             }
@@ -373,7 +374,7 @@ extension GameModel {
     /// for its building and priced, at its catch area.
     func modelSpots(framing: TouchFraming) -> [TouchSpot] {
         var spots: [TouchSpot] = []
-        for row in touch.models where modelTouchable(row.plot) {
+        for row in touch.models where modelTouchable(row.plot) && !yardBoardCovers(row) {  // b3-yard: hidden, no spot
             for model in row.models {
                 let area = modelArea(model)
                 let left = framing.deviceX(stageX: area.left)
