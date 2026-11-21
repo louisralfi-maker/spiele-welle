@@ -435,14 +435,22 @@ final class RainLookTests: XCTestCase {
             let scale = with.scale
             var found: [Int] = []
             var townBodies: [(x: Float, step: Int)] = []
-            for plane in [Plane.near, .world] {
-                let shift = with.layer(plane).offset.deviceShift
+            // b3-lantern (lane 5 step 2b, suspect 4): the keep's smoke stands in its carried picture (`CarriedPicture`),
+            // shown at the mist band's device shift.
+            var groups: [(sprites: [SpriteInstance], shift: Int, tag: Int)] = [Plane.near, .world].map {
+                (sprites: with.layer($0).sprites, shift: with.layer($0).offset.deviceShift, tag: $0.rawValue)
+            }
+            if let keep = with.carriedLayer(.keep) {
+                groups.append((sprites: keep.sprites, shift: keep.offset.deviceShift, tag: 100))
+            }
+            for group in groups {
+                let shift = group.shift
                 func luma(_ picture: Renderer.Snapshot, _ column: Int, _ row: Int) -> Float {
                     let c = picture.color(x: column * scale - shift + scale / 2,
                                           y: picture.height - (with.targetHeight - row) * scale + scale / 2)
                     return (0.2126 * c.x + 0.7152 * c.y + 0.0722 * c.z) * 255
                 }
-                let puffs = with.layer(plane).sprites.filter { $0.sprite == .smokePuff }
+                let puffs = group.sprites.filter { $0.sprite == .smokePuff }
                 for (index, puff) in puffs.enumerated()
                     where puff.tint.w >= 0.999 && puff.frame < CastleSmoke.frames && puff.frame != CastleSmoke.mouthFrame {
                     let column = Int(puff.rect.x) + body[puff.frame].0
@@ -465,7 +473,7 @@ final class RainLookTests: XCTestCase {
                     if town {
                         // Round lh-b3w-72: the back row's chimneys (the near plane) are the town's too; each plane's
                         // columns apart.
-                        townBodies.append((x: puff.rect.x + Float(plane.rawValue) * 10_000, step: Int(step.rounded())))
+                        townBodies.append((x: puff.rect.x + Float(group.tag) * 10_000, step: Int(step.rounded())))
                     }
                 }
             }
