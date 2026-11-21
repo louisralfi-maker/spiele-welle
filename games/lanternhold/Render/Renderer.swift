@@ -961,6 +961,15 @@ final class Renderer {
         // the actor stays the lord's.
         let painted = look == .two ? LordCloak.dressed(actor.sprite, PeopleCast.launchCloth) : actor.sprite
         let cell = layout.cell(painted, frame: actor.frame)
+        // b3-smooth (build 3, lane 5b step 1, the critic's M2): a touch rim round a person (`TouchRims.actors`): its
+        // rect is the figure's grown by a game pixel left, right and up, so its texels are the cell grown the same way
+        // (the atlas keeps 2 clear texels round every cell); flags.y < 0 sends it down the actor shader's rim path, in
+        // both looks.
+        if actor.moonRim < 0 {
+            let grown = AtlasCell(x: cell.x - 1, y: cell.y - 1, width: cell.width + 2, height: cell.height + 1)
+            return ActorQuad(rect: actor.rect, texel: grown.texels(flipped: actor.flipped), tint: actor.tint,
+                             flags: SIMD4<Float>(1, TouchRims.actorRim, 0, 0))
+        }
         var rect = actor.rect
         var texel = cell.texels(flipped: actor.flipped)
         // The hall stage (stage lane, fix round 2 of step stage-1): a strip cut off at its bottom (a petitioner sitting

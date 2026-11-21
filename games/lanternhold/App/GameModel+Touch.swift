@@ -778,7 +778,13 @@ extension GameModel {
         }
         // Fix round 1: the gold rim on each marked thing, and an empty plot's footing behind every figure.
         TouchRims.mark(&layer.props, marks: marks, night: night)
-        layer.glows += TouchRims.world(marks, figures: figures, night: night)
+        // b3-smooth (build 3, lane 5b step 1, the critic's M2): the rim round a marked person rides the figure's own
+        // device pixels (an actor behind every figure, placed through the court's own view), not the world's grid.
+        let rims = TouchRims.actors(marks, figures: figures, night: night,
+                                    view: EntityFrames.ActorView(camera: view, pixelScale: pixelScale,
+                                                                 mode: options.actorMode))
+        layer.actors.insert(contentsOf: rims, at: 0)
+        // b3-smooth end
         layer.actors.insert(contentsOf: TouchFooting.actors(marks, framing: framing), at: 0)
         raisedLantern(&layer, state: state, framing: framing)
         // The flame shows the danger (director's note 5): as the next wave nears the lantern burns lower and

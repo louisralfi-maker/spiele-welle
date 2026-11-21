@@ -393,6 +393,74 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertEqual(EmissiveBands.textureRows(targetHeight: height), EmissiveBands.count * (height + 2))
     }
 
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's M2): the gold rim round a marked person
+
+    /// The gold rim round a marked person (`TouchRims.actors`) is an actor on the figure's own rect, grown by a game
+    /// pixel left, right and up: over a walk at 1/60 s, with the camera following the lord and the figure walking on its
+    /// own, its offset to the figure's actor (placed as `CourtFrames` places it, through the same view) is one value in
+    /// every frame. The old rim, a glow at whole game px on the world's grid, stepped against the walking figure. A
+    /// figure that stands at a whole x keeps the rim it had, to the device pixel (the rect of the old glow's quad), in
+    /// the same colour by day and at night, pressed or not.
+    func testTheGoldRimRidesItsFigureInEveryFrameOfAWalk() throws {
+        var options = FrameOptions(flickerTime: 2.5)
+        options.look = .two
+        let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        let s = Float(pixelScale.scale)
+        let groundRow = Camera.groundRow(targetHeight: pixelScale.targetHeight)
+        func person(at x: Double, step: Int) -> DrawnFigure {
+            DrawnFigure(who: "tamsin", key: "tamsin", body: SpeakerBody.court(.petitionerD), x: x, y: 0, facing: -1,
+                        frame: step / 8 % 2, alpha: 1, look: nil, petition: nil, talking: false)
+        }
+        let talk = TouchMark(sprite: .tapTalk, x: 0, lift: 33, pressed: false, poolX: 0, kind: .talk, who: "tamsin",
+                             half: 4, footing: nil)
+        func oldRim(_ mark: TouchMark, _ figure: DrawnFigure, night: Double, camera: Camera) throws -> EmissiveInstance {
+            var layer = EntityLayer()
+            layer.glows = TouchRims.world([mark], figures: [figure], night: night)
+            let world = camera.offset(for: .world, scale: pixelScale.scale)
+            return try XCTUnwrap(layer.emissives(worldWhole: Double(world.whole), groundRow: groundRow,
+                                                 targetWidth: pixelScale.targetWidth).first, "the old rim")
+        }
+        var riding: Set<[Float]> = []
+        var gridded: Set<Float> = []
+        for step in 0..<SmoothWalkTests.frames {
+            let camera = Camera(focusX: 1700 + Double(step) * SmoothWalkTests.walkStep, pixelScale: pixelScale)
+            let view = EntityFrames.ActorView(camera: camera, pixelScale: pixelScale, mode: .smooth)
+            let walker = person(at: 1712.3 + Double(step) * 0.37, step: step)
+            let own = view.rect(walker.sprite, x: walker.x, y: walker.y)
+            let rim = try XCTUnwrap(TouchRims.actors([talk], figures: [walker], night: 0, view: view).first,
+                                    "the rim at step \(step)")
+            XCTAssertEqual(rim.sprite, walker.sprite)
+            XCTAssertEqual(rim.frame, walker.frame)
+            XCTAssertTrue(rim.flipped)
+            XCTAssertTrue(rim.isEmissive)
+            XCTAssertEqual(rim.moonRim, TouchRims.actorRim, "the actor shader's rim path")
+            riding.insert([rim.rect.x - own.x, rim.rect.y - own.y, rim.rect.z - own.z, rim.rect.w - own.w])
+            let world = camera.offset(for: .world, scale: pixelScale.scale)
+            let old = try oldRim(talk, walker, night: 0, camera: camera)
+            gridded.insert(s * old.rect.x - Float(world.deviceShift) - own.x)
+        }
+        XCTAssertEqual(riding, [[-s, -s, 2 * s, s]], "one offset to its figure in every frame")
+        XCTAssertGreaterThan(gridded.count, 1, "on the world's grid it stepped against the figure: \(gridded.sorted())")
+
+        for (pressed, night) in [(false, 0.0), (true, 0.0), (false, 1.0), (true, 1.0)] {
+            var mark = talk
+            mark.pressed = pressed
+            for step in stride(from: 0, to: SmoothWalkTests.frames, by: 7) {
+                let camera = Camera(focusX: 1700 + Double(step) * SmoothWalkTests.walkStep, pixelScale: pixelScale)
+                let view = EntityFrames.ActorView(camera: camera, pixelScale: pixelScale, mode: .smooth)
+                let still = person(at: 1750, step: 0)
+                let rim = try XCTUnwrap(TouchRims.actors([mark], figures: [still], night: night, view: view).first)
+                let old = try oldRim(mark, still, night: night, camera: camera)
+                let world = camera.offset(for: .world, scale: pixelScale.scale)
+                let top = Float(pixelScale.physicalHeight) - s * (Float(pixelScale.targetHeight) - old.rect.y)
+                XCTAssertEqual(rim.rect, SIMD4<Float>(s * old.rect.x - Float(world.deviceShift), top, s * old.rect.z,
+                                                      s * old.rect.w),
+                               "standing still, pressed \(pressed), night \(night): the rim where it was")
+                XCTAssertEqual(rim.tint, old.color, "its colour as before")
+            }
+        }
+    }
+
     // MARK: b3-smooth (build 3, lane 5b step 1, the critic's H2b): the composite reads only what holds anything
 
     /// The mask of a frame (`EmissiveBands.mask`) names the bands with a glow and the carried pictures with a sprite;

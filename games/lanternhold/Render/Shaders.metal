@@ -222,6 +222,15 @@ fragment float4 lh_emissive_fragment(SpriteOut in [[stage_in]],
     return float4(c.rgb * in.tint.rgb * a, 0.0f);
 }
 
+// b3-smooth (build 3, lane 5b step 1, the critic's M2): a touch rim's texel, by the emissive pass's rim rule above:
+// clear, with an opaque texel at its left, at its right or under it.
+static inline bool lh_rim_texel(texture2d<float> atlas, uint2 t) {
+    float left = atlas.read(uint2(t.x > 0u ? t.x - 1u : 0u, t.y)).a;
+    float right = atlas.read(uint2(t.x + 1u, t.y)).a;
+    float below = atlas.read(uint2(t.x, t.y + 1u)).a;
+    return max(left, max(right, below)) >= 0.5f;
+}
+
 // MARK: Light pools
 
 struct LightQuad {
@@ -895,6 +904,24 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     float across = dfdx(in.texel.x);
     uint2 t = uint2(max(in.texel, float2(0.0f)));
     float4 texel = atlas.read(t);
+    // b3-smooth (build 3, lane 5b step 1, the critic's M2): a touch rim round a person (flags.y < 0,
+    // `TouchRims.actors`): its colour added to the whole stack behind it, as the emissive pass added it, on the
+    // figure's own device pixels.
+    if (in.flags.y < -0.5f) {
+        if (texel.a >= 0.5f || !lh_rim_texel(atlas, t)) {
+            discard_fragment();
+        }
+        PlaneCoords rc = lh_coords(in.position.xy, u);
+        PixelLight rinfo = lh_pixel_light(rc, u, lightTex);
+        float rimMid = 0.0f;
+        float3 rim = lh_base(rc, rinfo, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex, rimMid)
+            + in.tint.rgb;
+        rim = lh_top(rim, rc, rinfo, u, fogBTex, fgTex, bloomTex, rimMid);
+        if (u.debug.z != 0u) {
+            rim = lh_debug_lights(rim, rc, u, lights);
+        }
+        return float4(saturate(rim), 1.0f);
+    }
     if (texel.a < 0.5f || in.tint.a <= 0.003f) {
         discard_fragment();
     }
@@ -1563,6 +1590,28 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     float across = dfdx(in.texel.x);
     uint2 t = uint2(max(in.texel, float2(0.0f)));
     float4 texel = atlas.read(t);
+    // b3-smooth (build 3, lane 5b step 1, the critic's M2): a touch rim round a person (flags.y < 0,
+    // `TouchRims.actors`): its colour added to the whole stack behind it, as the emissive pass added it before the
+    // composite's fog B, foreground, bloom and grade, on the figure's own device pixels.
+    if (in.flags.y < -0.5f) {
+        if (texel.a >= 0.5f || !lh_rim_texel(atlas, t)) {
+            discard_fragment();
+        }
+        float2 rp = in.position.xy;
+        PlaneCoords rc = lh_coords(rp, u);
+        uint2 rimMist = uint2(lh_column(rp.x, v.shifts.x, u), rc.row);
+        uint2 rimNear = uint2(lh_column(rp.x, v.shifts.y, u), rc.row);
+        PixelLight rinfo = lh_pixel_light(rc, u, lightTex);
+        float rimMid = 0.0f;
+        float rimFog = 0.0f;
+        float3 rim = lh2_base(rc, rimMist, rimNear, rinfo, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex,
+                              fogATex, worldTex, emissiveTex, rimMid, rimFog, backTex, carriedTex) + in.tint.rgb;
+        rim = lh2_top(rim, rc, rinfo, u, v, fogBTex, fgTex, bloomTex, rimMid, rimFog);
+        if (u.debug.z != 0u) {
+            rim = lh_debug_lights(rim, rc, u, lights);
+        }
+        return float4(saturate(rim), 1.0f);
+    }
     if (texel.a < 0.5f || in.tint.a <= 0.003f) {
         discard_fragment();
     }
