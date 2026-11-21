@@ -219,6 +219,12 @@ struct DebugArgs: Sendable, Equatable {
         return DebugArgs(values: values)
     }
 
+    /// Build 3, lane 6: the Release launch's one log line (`LanternholdApp`), "debug args: none" when no `-GW` key is
+    /// left to read, else the keys still there; the release proof greps the first form.
+    static func gateLine(stillRead keys: [String]) -> String {
+        keys.isEmpty ? "debug args: none" : "debug args: still read: " + keys.sorted().joined(separator: " ")
+    }
+
     /// Parses argument values by key (`"GWTimeOfDay": "0.95"`).
     init(values: [String: String]) {
         if let scene = values["GWScene"], !scene.isEmpty {

@@ -4,10 +4,16 @@ import SwiftUI
 struct LanternholdApp: App {
     init() {
         // Build 3, lane 6 (the `-GW` gate): a Release build reads no launch argument and runs no sweep
-        // (`DebugArgs.launchHooksOpen`). One line in the launch log says so; the release proof greps it
+        // (`DebugArgs.launchHooksOpen`). The launch arguments are dropped from the defaults before anything reads them,
+        // so a `-GW` key read outside `DebugArgs` (the slides, the table, the people's cloth, the town's life) finds
+        // nothing either. One line in the launch log says what is left; the release proof greps "debug args: none"
         // (scripts/ci/release-sim-launch.sh). Written straight to stderr, so it is out before any later kill.
         if !DebugArgs.launchHooksOpen {
-            try? FileHandle.standardError.write(contentsOf: Data("debug args: none\n".utf8))
+            let defaults = UserDefaults.standard
+            defaults.removeVolatileDomain(forName: UserDefaults.argumentDomain)
+            let left = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix("GW") }
+            let line = DebugArgs.gateLine(stillRead: Array(left)) + "\n"
+            try? FileHandle.standardError.write(contentsOf: Data(line.utf8))
         }
     }
 

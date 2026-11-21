@@ -129,4 +129,12 @@ final class DebugArgsTests: XCTestCase {
         XCTAssertFalse(DebugArgs.launchHooksOpen)
         #endif
     }
+
+    /// The Release launch's log line: the proof greps "debug args: none", and any key still read is named.
+    func testTheGateLineNamesWhatIsStillRead() {
+        XCTAssertEqual(DebugArgs.gateLine(stillRead: []), "debug args: none")
+        XCTAssertEqual(DebugArgs.gateLine(stillRead: ["GWSlides", "GWCloth"]),
+                       "debug args: still read: GWCloth GWSlides")
+        XCTAssertFalse(DebugArgs.gateLine(stillRead: ["GWCloth"]).contains("debug args: none"))
+    }
 }
