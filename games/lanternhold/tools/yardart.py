@@ -94,53 +94,53 @@ def line(c, x0, y0, x1, y1, pick):
 def pell(frame):
     c = C(9, 22)
     seed = 4101 + frame
-    # The post: 3 px, lit left, from the mound to a flat cap (never a point: a pell is a post); its top is cut square
-    # with a lit chamfer.
     px = 3
-    for hh in range(0, 19):
+    # The post: 3 px, lit left, from the mound to a square top just over the bundle (never a point: a pell is a post).
+    for hh in range(0, 18):
         c.seth(px, hh, "woodLight")
         c.seth(px + 1, hh, "wood")
         c.seth(px + 2, hh, "woodDark")
-    c.seth(px, 19, "woodLight")
-    c.seth(px + 1, 19, "woodLight")
-    c.seth(px + 2, 19, "wood")
+    c.seth(px, 18, "woodLight")
+    c.seth(px + 1, 18, "woodLight")
+    c.seth(px + 2, 18, "wood")
     # Notches cut by blows below the bundle.
     c.seth(px + 1, 4, "woodDark")
     c.seth(px, 3, "wood")
-    # The straw bundle bound round the post's upper half, rows h 7 to 16: one column proud of the post each way.
+    # The straw bundle bound round the post's upper half (rows h 7 to 17), seven wide between its three rope bands
+    # and pinched to five at each band, so it reads as bound straw and never as a body.
     sag = 1 if frame == 1 else 0
-    top, bot = 16 - sag, 7 - sag
+    top, bot = 17 - sag, 7 - sag
+    bands = (bot + 1, (bot + top) // 2, top - 1)
     for hh in range(bot, top + 1):
-        x0, x1 = px - 1, px + 3
-        if hh in (bot, top):
-            x0, x1 = px, px + 2
+        pinch = hh in bands or hh in (bot, top)
+        x0, x1 = (px - 1, px + 3) if pinch else (px - 2, px + 4)
         for x in range(x0, x1 + 1):
-            v = h01(seed, x, hh // 3)
+            v = h01(seed, x, hh // 2, 3)
             if x <= px - 1:
-                name = "strawLight"
-            elif x == px:
-                name = "strawLight" if v < 0.6 else "straw"
-            elif x == px + 3:
-                name = "plasterDim" if v < 0.5 else "soilLight"
+                name = "strawLight" if v < 0.75 else "straw"
+            elif x <= px + 1:
+                name = "straw" if v < 0.6 else "strawLight"
+            elif x == px + 2:
+                name = "straw" if v < 0.5 else "plasterDim"
             else:
-                name = "straw" if v < 0.7 else "plasterDim"
+                name = "plasterDim" if v < 0.6 else "soilLight"
             c.seth(x, hh, name)
-    # Two rope bands, the knot lit on the left.
-    for band in (bot + 2, top - 2):
-        for x in range(px - 1, px + 4):
-            if c.opaque(x, c.r(band)):
-                c.seth(x, band, "soil" if x > px - 1 else "soilLight")
-    # Frayed straw ends over the top band and under the bottom one (a ragged edge, never a spike).
-    c.seth(px - 1, top + 1, "straw")
-    c.seth(px + 3, top, "plasterDim")
-    c.seth(px - 1, bot - 1, "strawLight")
-    c.seth(px + 3, bot - 1, "plasterDim")
+        if hh in bands:
+            for x in range(x0, x1 + 1):
+                c.seth(x, hh, "soilLight" if x == x0 else "soil")
+    # The straw's cut ends over the top band, standing up as a ragged fringe (never a spike, never a head).
+    for x, name in ((px - 1, "straw"), (px, "strawLight"), (px + 2, "straw"), (px + 3, "plasterDim")):
+        c.seth(x, top + 1, name)
+    c.seth(px + 1, top + 1, "woodLight")
+    c.seth(px - 2, bot - 1, "plasterDim")
+    c.seth(px + 4, bot - 1, "soilLight")
     if frame == 1:
-        # Battered: a strand torn loose hangs on the right, the bundle split over the lower band.
-        c.seth(px + 4, bot + 1, "straw")
-        c.seth(px + 4, bot, "plasterDim")
-        c.seth(px + 5, bot - 1, "plasterDim")
-        c.seth(px + 1, bot + 4, "wood")
+        # Battered: a strand torn loose hangs on the right, the post's wood showing through a gash.
+        c.seth(px + 5, bot + 2, "straw")
+        c.seth(px + 5, bot + 1, "plasterDim")
+        c.seth(px + 5, bot, "plasterDim")
+        c.seth(px + 1, bot + 3, "wood")
+        c.seth(px + 2, bot + 3, "woodDark")
     # The mound at its foot.
     for x in range(px - 2, px + 5):
         c.seth(x, 0, "soil" if x > px else "soilLight")
