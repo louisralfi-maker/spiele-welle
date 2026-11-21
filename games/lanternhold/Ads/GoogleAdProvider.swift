@@ -21,6 +21,8 @@ final class GoogleAdProvider: NSObject, AdProvider, FullScreenContentDelegate {
     @ObservationIgnored private var interstitialFailures = 0
     @ObservationIgnored private var loadingRewarded = false
     @ObservationIgnored private var loadingInterstitial = false
+    /// Counts the videos loaded: a freshness check for an earlier one finds a later count and does nothing.
+    @ObservationIgnored private var rewardedLoads = 0
     /// The reward of the video on screen, given in the SDK's reward callback, and only there.
     @ObservationIgnored private var pendingReward: (@MainActor () -> Void)?
     /// What runs when the full-screen ad on screen has gone.
@@ -95,6 +97,22 @@ final class GoogleAdProvider: NSObject, AdProvider, FullScreenContentDelegate {
         GoogleAdProvider.debugLog("rewarded loaded")
         rewarded = ad
         isRewardedReady = true
+        rewardedLoads += 1
+        keepFresh(rewardedLoads)
+    }
+
+    /// Build 3, lane 6: a video still held after `AdLoadTiming.rewardedFreshFor` (before Google's hour runs out) is
+    /// dropped and a fresh one loaded, so the first eligible dawn, however long after the consent flow it comes, never
+    /// offers a video that would not play.
+    private func keepFresh(_ load: Int) {
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(AdLoadTiming.rewardedFreshFor))
+            guard let self, self.rewardedLoads == load, self.rewarded != nil, !self.isShowingAd else { return }
+            GoogleAdProvider.debugLog("rewarded held too long: loading a fresh one")
+            self.rewarded = nil
+            self.isRewardedReady = false
+            self.loadRewarded()
+        }
     }
 
     // MARK: Interstitial
@@ -143,9 +161,10 @@ final class GoogleAdProvider: NSObject, AdProvider, FullScreenContentDelegate {
         isInterstitialReady = true
     }
 
-    /// 4 s, 8 s, 16 s … up to 5 minutes between attempts: offline costs nothing, and the ad comes back with the network.
+    /// 4 s, 8 s, 16 s … up to 5 minutes between attempts (`AdLoadTiming`): offline costs nothing, and the ad comes back
+    /// with the network.
     private func retry(after failures: Int, _ load: @escaping @MainActor () -> Void) {
-        let delay = min(300, 2 * pow(2, Double(min(failures, 8))))
+        let delay = AdLoadTiming.retryDelay(failures: failures)
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(delay))
             load()
