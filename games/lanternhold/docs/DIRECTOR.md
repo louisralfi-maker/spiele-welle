@@ -1248,3 +1248,8 @@ schneller geht."
   - Ruling: the sand runs from 1442 to 1545, the whole front of the barracks (its bunkhouse). Marek's cart moves to the castle's east end. No rule place and no number moves.
   - A design card (one Opus agent, mock pictures of two or three layouts) runs first. Then step 3 builds the pick.
   - Lesson: settle a look question with a cheap card before a lane step.
+
+- **Lane 6 (housekeeping) step 2 is green (21.11.2026, 17:15).**
+  - claude/lh-b3-tidy e8452fac, rounds lh-b3t-21 and lh-b3t-23 ALL PASSED, checked by the director.
+  - Debug hooks are dead in Release (DebugArgs and the sweep), the first video is ready after consent, three seams closed.
+  - Join lines: seven -GW keys read outside DebugArgs still need the `launchHooksOpen` guard; L6b (`worldHeld`).
