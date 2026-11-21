@@ -1138,7 +1138,7 @@ static float3 lh2_back_glow(PlaneCoords c, uint2 mist, uint2 near, float midA, f
 }
 
 // The mid plane's light on a texel `m` of a picture lit as the mid plane (`tex` at `at`, for its ledges): the plane
-// itself and (b3-lantern, suspect 4) the valley's carried picture.
+// itself (b3-smooth: the valley's carried picture that step 2b lit with it is gone, look 2 has no valley keep).
 static inline float3 lh2_mid_lit(float4 m, texture2d<float> tex, uint2 at, float low, float band, PixelLight info,
                                  constant CompositeUniforms &u, constant Look2Uniforms &v) {
     float haze = saturate(v.midHC.w + low * v.bounceW.w * 0.5f);
@@ -1176,8 +1176,8 @@ static inline float3 lh2_near_lit(float4 n, texture2d<float> tex, uint2 at, floa
 // parts. `midVisible` returns how much of the mid plane still shows, `fogCover` the densest fog behind the world.
 // b3-lantern (build 3, lane 5 step 2b, suspect 4): the carried pictures (Core/CarriedPictures.swift), bands of
 // `carriedTex` `target.y + 2` rows apart, each read at the column and device shift of the plane it moves with and lit
-// as the picture it belongs to, just behind it: the valley's keep before the mid plane, the keep before the near
-// plane, the keep's mist before fog A.
+// as the picture it belongs to, just behind it: the keep before the near plane (band 0), the keep's mist before fog A
+// (band 1; b3-smooth: the valley's band is gone).
 static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, constant CompositeUniforms &u,
                        constant Look2Uniforms &v,
                        texture2d<float> skyTex, texture2d<float> cloudsTex, texture2d<float> farTex,
@@ -1227,13 +1227,8 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
     float4 m = midTex.read(c.mid);
     midVisible = 0.0f;
     fogCover = 0.0f;
-    // b3-lantern (suspect 4): the valley's keep and its rock, at the far plane's place, lit as the mid plane.
-    uint2 valleyAt = uint2(c.distant.x, c.row + carriedStride);
-    float4 valley = carriedTex.read(valleyAt);
-    if (valley.a > 0.0f) {
-        color = color * (1.0f - valley.a) + lh2_mid_lit(valley, carriedTex, valleyAt, low, band, info, u, v);
-        midVisible = valley.a;
-    }
+    // b3-smooth (lane 5b step 1, the critic's H2a): look 2 draws no valley keep, so no carried picture stands before
+    // the mid plane (`CarriedPicture`).
     if (m.a > 0.0f) {
         color = color * (1.0f - m.a) + lh2_mid_lit(m, midTex, c.mid, low, band, info, u, v);
         midVisible = m.a + midVisible * (1.0f - m.a);
@@ -1258,7 +1253,7 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         midVisible *= 1.0f - n.a;
     }
     // b3-lantern (suspect 4): the keep's mist, at the mist band's place, as fog A (it lay under fog A's own tiles).
-    float4 keepMist = carriedTex.read(uint2(mist.x, c.row + 2u * carriedStride)) * region;
+    float4 keepMist = carriedTex.read(uint2(mist.x, c.row + carriedStride)) * region;
     if (keepMist.a > 0.0f) {
         color = lh2_fog(color, keepMist, v.fog.x * info.bank, 0.6f, info.light);
         midVisible *= 1.0f - keepMist.a;

@@ -90,8 +90,8 @@ final class SmoothWalkTests: XCTestCase {
     /// band's offset puts it (`6 × (x − p × camera)`), and the keep's flags, vane, smoke and mist keep one device offset
     /// to it. Drawn into the near plane's picture they stepped by up to 6 device px against it, and now and then
     /// backward. The valley's keep (look 1's, moving with the far plane) is not drawn in look 2
-    /// (`SceneLayout.look2DroppedMid`): its carried picture stays empty.
-    func testTheKeepAndTheValleyKeepMoveWithTheirPlaneInEveryFrameOfAWalk() throws {
+    /// (`SceneLayout.look2DroppedMid`), so it has no carried picture (b3-smooth: the empty one step 2b kept is gone).
+    func testTheKeepMovesWithItsPlaneInEveryFrameOfAWalk() throws {
         let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
         var company: [String: Set<Double>] = [:]
         for step in 0..<SmoothWalkTests.frames {
@@ -128,9 +128,10 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertFalse(dusk.layer(.near).sprites.contains { $0.sprite == .smokePuff }, "none left in the near picture")
 
         XCTAssertFalse(world.props.contains { $0.plane == .mid && $0.movesWith == .far }, "no valley keep in look 2")
-        let valley = frame(world, hour: 12, focus: 2700)
-        XCTAssertEqual(valley.carriedLayer(.valley)?.plane, .far)
-        XCTAssertEqual(valley.carriedLayer(.valley)?.sprites.isEmpty, true, "the valley's carried picture is empty")
+        // b3-smooth (lane 5b step 1, the critic's H2a): so there is no carried picture for it either.
+        XCTAssertNil(CarriedPicture.of(picture: .mid, motion: .far), "no valley picture")
+        XCTAssertEqual(CarriedPicture.allCases.map(\.picture), [.near, .fogA], "the keep's and its mist's")
+        XCTAssertEqual(frame(world, hour: 12, focus: 2700).carried.count, CarriedPicture.allCases.count)
     }
 
     /// A carried picture is composited just behind the picture it belongs to, so it keeps its old depth only if nothing
@@ -158,8 +159,8 @@ final class SmoothWalkTests: XCTestCase {
                 }
             }
             XCTAssertGreaterThan(seen, 20, "the keep in view at tier \(tier)")
-            // Look 2 draws no valley keep (`SceneLayout.look2DroppedMid`), so the mid plane's carried picture is empty
-            // and its depth cannot change; should one come back, it must stand behind every other prop of the mid plane.
+            // Look 2 draws no valley keep (`SceneLayout.look2DroppedMid`), so the mid plane has no carried picture
+            // (b3-smooth); should one come back, it needs one again, behind every other prop of the mid plane.
             let valley = world.props.filter { $0.plane == .mid && $0.movesWith == .far }
             XCTAssertTrue(valley.isEmpty, "no valley keep in look 2 at tier \(tier)")
             if let valleyZ = valley.map(\.z).max() {

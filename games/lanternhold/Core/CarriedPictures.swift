@@ -2,18 +2,20 @@
 /// another plane than the one whose picture they stand in.
 ///
 /// The keep stands in the near plane's picture but moves with the mist band; so do its flags, its vane and its
-/// chimney's smoke. The valley's keep and its rock stand in the mid plane's picture but move with the far plane. The
-/// keep's mist lies on fog A and moves with the mist band. Placed by the whole offset of the plane they move with but
-/// shown at the device shift of the picture they were drawn into, they stepped against their neighbours by up to 6
-/// device px from one frame of a walk to the next (and now and then backward while everything scrolled forward). In
-/// look 2 each goes into a picture of its own, read by the composite at the column and device shift of the plane it
-/// moves with and lit as the picture it belonged to, at that picture's depth: just behind it (no prop of that picture
-/// stands behind one of them on the screen: `SmoothWalkTests`). Look 1 keeps its pictures (`LookGoldenTests`).
+/// chimney's smoke. The keep's mist lies on fog A and moves with the mist band. Placed by the whole offset of the
+/// plane they move with but shown at the device shift of the picture they were drawn into, they stepped against
+/// their neighbours by up to 6 device px from one frame of a walk to the next (and now and then backward while
+/// everything scrolled forward). In look 2 each goes into a picture of its own, read by the composite at the column
+/// and device shift of the plane it moves with and lit as the picture it belonged to, at that picture's depth: just
+/// behind it (no prop of that picture stands behind one of them on the screen: `SmoothWalkTests`). Look 1 keeps its
+/// pictures (`LookGoldenTests`).
+/// b3-smooth (build 3, lane 5b step 1, the critic's H2a): look 2 draws no valley keep (`SceneLayout.look2DroppedMid`
+/// leaves out look 1's `keepFar` and its rock), so the valley's carried picture, always empty and still read for every
+/// pixel, is gone with its band. Should a prop of the mid plane that moves with the far plane come back in look 2, it
+/// needs a carried picture again (`SmoothWalkTests` asserts there is none).
 enum CarriedPicture: Int, CaseIterable, Sendable {
     /// The keep, its flags, its vane, its smoke: lit as the near plane, between the mist band and the near plane.
     case keep
-    /// The valley's keep and its rock: lit as the mid plane, between the far and the mid plane.
-    case valley
     /// The keep's mist: fog as fog A, between the near plane and fog A.
     case keepMist
 
@@ -21,7 +23,6 @@ enum CarriedPicture: Int, CaseIterable, Sendable {
     var picture: Plane {
         switch self {
         case .keep: return .near
-        case .valley: return .mid
         case .keepMist: return .fogA
         }
     }
@@ -30,7 +31,6 @@ enum CarriedPicture: Int, CaseIterable, Sendable {
     var motion: Plane {
         switch self {
         case .keep, .keepMist: return .mistBand
-        case .valley: return .far
         }
     }
 
