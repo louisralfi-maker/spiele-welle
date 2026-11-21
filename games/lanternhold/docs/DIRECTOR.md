@@ -1242,3 +1242,9 @@ schneller geht."
   - After both are green the director merges `claude/lh-b3-smooth` into `claude/lh-b3-lantern` and sends one short round on the joined head. Then lane 5 has one step left: the vignette and the figures' fade during the pan.
   - Only a phone can show: whether the walk feels smooth, the presentation lag, the purse glide's speed.
   - Running at this hour: the yard's step 2, lane 6's step, and these two. Usage 6 % of the week (stop at 80 %).
+
+- **The drill yard's step 2 passed its tests, not the critic's eye; the ground is ruled (21.11.2026, 17:14).**
+  - claude/lh-b3-yard c9fa0578, round lh-b3y-22 ALL PASSED. The critic: 5/10, the yard has 39 world px where YARD.md asks about 110.
+  - Ruling: the sand runs from 1442 to 1545, the whole front of the barracks (its bunkhouse). Marek's cart moves to the castle's east end. No rule place and no number moves.
+  - A design card (one Opus agent, mock pictures of two or three layouts) runs first. Then step 3 builds the pick.
+  - Lesson: settle a look question with a cheap card before a lane step.
