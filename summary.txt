@@ -1,0 +1,9 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: bce44a9a
+source: claude/lh-b3-tidy
+15:06:10 PASS release
+simulator: EED6FB0A-E273-43C6-B5DE-3DF739543042 (iPhone 17 Pro, iOS 26.5)
+15:23:51 FAIL sh (exit 1), see 02-sh.log.gz
+FAILED: 1
