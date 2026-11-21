@@ -39,14 +39,23 @@ struct SaveStore: Sendable {
         return SaveGame.decode(data)
     }
 
-    /// Writes the save atomically. Build 3, lane 6: after a failed `keepBeforeTown` the old file is moved aside first,
-    /// and while that still fails nothing is written over it (`Refusal.oldSaveHeld`).
+    /// Writes the save atomically. Build 3, lane 6: after a failed `keepBeforeTown` (its mark, or the old file itself
+    /// still in place, should the mark not have been written) the old file is moved aside first, and while that still
+    /// fails nothing is written over it (`Refusal.oldSaveHeld`).
     func write(_ save: SaveGame) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        if FileManager.default.fileExists(atPath: heldURL.path) {
+        if FileManager.default.fileExists(atPath: heldURL.path) || holdsSaveBeforeTown {
             guard keepBeforeTown() else { throw Refusal.oldSaveHeld }
         }
         try save.encoded().write(to: fileURL, options: .atomic)
+    }
+
+    /// The file in place is a save from before the taxes went on foot (no town): it is moved aside before any write.
+    /// Every realm of build 2 on has its town, so this holds only for the old file (read once per save, at a dawn or
+    /// when the app leaves).
+    var holdsSaveBeforeTown: Bool {
+        if case .loaded(let old)? = read() { return old.state.town == nil }
+        return false
     }
 
     /// Moves an unreadable save aside as `save-corrupt-<seconds>.json`.

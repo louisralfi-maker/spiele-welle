@@ -82,6 +82,34 @@ final class SeamTests: XCTestCase {
         XCTAssertEqual(next.state.seed, 22)
     }
 
+    /// The mark is written with `try?`: should it fail too (the same full disk), the old file itself still holds every
+    /// write back until a move works.
+    func testAnOldSaveIsNeverWrittenOverEvenWithoutItsMark() throws {
+        let failing = SaveStore(directory: directory, move: { _, _ in throw MoveRefused() })
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        var before = GameState.newRealm(seed: 9)
+        before.day = 5
+        before.town = nil
+        let old = try SaveGame(state: before).encoded()
+        try old.write(to: failing.fileURL)
+        XCTAssertTrue(failing.holdsSaveBeforeTown, "a save without its town")
+        XCTAssertFalse(failing.keepBeforeTown(), "the move failed")
+        try? FileManager.default.removeItem(at: failing.heldURL)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: failing.heldURL.path), "no mark")
+        XCTAssertThrowsError(try failing.write(SaveGame(state: GameState.newRealm(seed: 21)))) { error in
+            XCTAssertEqual(error as? SaveStore.Refusal, .oldSaveHeld)
+        }
+        XCTAssertEqual(try Data(contentsOf: failing.fileURL), old, "the old file stays, byte for byte")
+        // A current save in place is written over as always.
+        let working = SaveStore(directory: directory)
+        try working.write(SaveGame(state: GameState.newRealm(seed: 21)))
+        XCTAssertFalse(working.holdsSaveBeforeTown, "the new realm has its town")
+        try working.write(SaveGame(state: GameState.newRealm(seed: 22)))
+        XCTAssertEqual(working.read()?.loadedSave?.state.seed, 22)
+        let names = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+        XCTAssertEqual(names.filter { $0.hasPrefix("save-before-town-") }.count, 1, "the old file kept aside once")
+    }
+
     func testAMoveThatWorksAtOnceLeavesNoMark() throws {
         let store = SaveStore(directory: directory)
         try store.write(SaveGame(state: GameState.newRealm(seed: 5)))
