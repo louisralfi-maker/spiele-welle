@@ -23,7 +23,7 @@ enum YardLook {
     static let kettleLeft = 1456.0
     /// The kettle's low fire over its logs (the `flame` sprite, 4 x 5) and its small warm light.
     static let kettleFlame = (dx: 6.0, dy: 1.0)
-    static let kettleLight = (dx: 8.5, y: 5.0, radius: 18.0, intensity: Float(0.6))
+    static let kettleLight = (dx: 8.5, y: 5.0, radius: 18.0, intensity: 0.6)
     /// The site, marked out with stakes and cord over the whole ground while the drill yard is offered or waits for
     /// its dawn.
     static let siteLeft = 1442.0
