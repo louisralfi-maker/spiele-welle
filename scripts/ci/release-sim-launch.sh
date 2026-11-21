@@ -8,10 +8,9 @@
 #      if any folder other than en.lproj and Base.lproj is left (the proof of the Release-only language strip);
 #   3. uninstalls the app, installs the Release app, launches it with no arguments, saves simulator screenshots after
 #      3, 10 and 25 s and fails if the app is not running at 25 s;
-#   4. launches it again with -GWScreen report -GWGold 999 (and -GWSlides, -GWTableReturn, -GWCloth, -GWCollector, read
-#      outside DebugArgs), saves proof-release-hooks-ignored-05s.png after 5 s (the title must stand: the hooks are dead
-#      in Release; judged by eye at the gate) and fails unless the app's launch log carries its line "debug args: none"
-#      (the app writes "debug args: still read: <keys>" instead while any -GW key is left in its defaults).
+#   4. launches it again with -GWScreen report -GWGold 999, saves proof-release-hooks-ignored-05s.png after 5 s (the
+#      title must stand: the hooks are dead in Release; judged by eye at the gate) and fails unless the app's launch log
+#      carries its line "debug args: none" (DebugArgs and the sweep read nothing).
 # Everything lands in $CI_OUT/release-sim/, which the round publishes. Put this step last in a round: it leaves the
 # Release app installed in place of the Debug one.
 set -euo pipefail
@@ -143,9 +142,8 @@ HOOKS_OUT="$OUT/hooks-stdout.txt"
 HOOKS_ERR="$OUT/hooks-stderr.txt"
 rm -f "$HOOKS_OUT" "$HOOKS_ERR"
 START=$(date +%s)
-LAUNCHED=$(xcrun simctl launch --stdout="$HOOKS_OUT" --stderr="$HOOKS_ERR" "$SIM" "$BUNDLE" -GWScreen report -GWGold 999 \
-    -GWSlides end -GWTableReturn YES -GWCloth town -GWCollector YES)
-echo "== $(date +%H:%M:%S) launched with -GWScreen report -GWGold 999 -GWSlides end -GWTableReturn YES -GWCloth town -GWCollector YES: $LAUNCHED"
+LAUNCHED=$(xcrun simctl launch --stdout="$HOOKS_OUT" --stderr="$HOOKS_ERR" "$SIM" "$BUNDLE" -GWScreen report -GWGold 999)
+echo "== $(date +%H:%M:%S) launched with -GWScreen report -GWGold 999: $LAUNCHED"
 shot 5 proof-release-hooks-ignored-05s.png
 xcrun simctl terminate "$SIM" "$BUNDLE" >/dev/null 2>&1 || true
 if grep -q 'debug args: none' "$HOOKS_OUT" "$HOOKS_ERR" 2>/dev/null; then

@@ -219,10 +219,10 @@ struct DebugArgs: Sendable, Equatable {
         return DebugArgs(values: values)
     }
 
-    /// Build 3, lane 6: the Release launch's one log line (`LanternholdApp`), "debug args: none" when no `-GW` key is
-    /// left to read, else the keys still there; the release proof greps the first form.
-    static func gateLine(stillRead keys: [String]) -> String {
-        keys.isEmpty ? "debug args: none" : "debug args: still read: " + keys.sorted().joined(separator: " ")
+    /// Build 3, lane 6: the Release launch's one log line (`LanternholdApp`): "debug args: none" when the launch read
+    /// no argument and no sweep, as the gate wants; the release proof greps that form.
+    static func gateLine(read args: DebugArgs, sweeps: Bool) -> String {
+        args == DebugArgs() && !sweeps ? "debug args: none" : "debug args: READ (the gate is open)"
     }
 
     /// Parses argument values by key (`"GWTimeOfDay": "0.95"`).

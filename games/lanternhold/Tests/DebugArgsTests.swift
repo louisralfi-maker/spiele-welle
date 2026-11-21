@@ -130,11 +130,13 @@ final class DebugArgsTests: XCTestCase {
         #endif
     }
 
-    /// The Release launch's log line: the proof greps "debug args: none", and any key still read is named.
-    func testTheGateLineNamesWhatIsStillRead() {
-        XCTAssertEqual(DebugArgs.gateLine(stillRead: []), "debug args: none")
-        XCTAssertEqual(DebugArgs.gateLine(stillRead: ["GWSlides", "GWCloth"]),
-                       "debug args: still read: GWCloth GWSlides")
-        XCTAssertFalse(DebugArgs.gateLine(stillRead: ["GWCloth"]).contains("debug args: none"))
+    /// The Release launch's log line: the proof greps "debug args: none", which only a launch that read nothing writes.
+    func testTheGateLineSaysNoneOnlyWhenNothingWasRead() {
+        XCTAssertEqual(DebugArgs.gateLine(read: DebugArgs(), sweeps: false), "debug args: none")
+        let read = DebugArgs(values: ["GWScreen": "report", "GWGold": "999"])
+        XCTAssertFalse(DebugArgs.gateLine(read: read, sweeps: false).contains("debug args: none"))
+        XCTAssertFalse(DebugArgs.gateLine(read: DebugArgs(), sweeps: true).contains("debug args: none"))
+        let closed = DebugArgs.fromProcess(allowed: false)
+        XCTAssertEqual(DebugArgs.gateLine(read: closed, sweeps: false), "debug args: none", "the closed gate")
     }
 }
