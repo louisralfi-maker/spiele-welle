@@ -206,9 +206,10 @@ final class LookAroundUITests: XCTestCase {
     }
 
     /// Step 4 (the step 2b critic's M1): the lord's hint glinting (265a to 265h, eight shots as fast as they come over
-    /// a pulse of 1.4 s, so one stands near its peak) and the raise's flare at night slowed twenty times by
-    /// `-GWTimeScale 0.05` (266a, 266b, 266c at about 0.05, 0.15 and 0.30 s of game time after the lift), each with its
-    /// halo back.
+    /// a pulse of 1.4 s, so one stands near its peak) and the raise's flare at night slowed four times by
+    /// `-GWTimeScale 0.25` (DebugArgs clamps the scale to 0.25 at the least). The raise fires after 0.35 s of real
+    /// hold, so 266a, 266b, 266c are aimed at 0.2, 0.6 and 1.2 s of real time after it (about 0.05, 0.15 and 0.30 s of
+    /// game time); each note gives the real time it was taken. Each with its halo back.
     func testTheGlintAndTheFlare() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let hint = XCUIApplication()
@@ -229,22 +230,30 @@ final class LookAroundUITests: XCTestCase {
 
         let town = XCUIApplication()
         town.launchArguments = LookAroundUITests.plain + ["-GWNight", "2", "-GWSeed", "2", "-GWHour", "22",
-                                                          "-GWCameraX", "2600", "-GWTimeScale", "0.05"]
+                                                          "-GWCameraX", "2600", "-GWTimeScale", "0.25"]
         town.launch()
         guard waitUntilReady(town, name: "266-look-flare") else { return }
         pause(0.6)
         XCTAssertEqual(sceneField(town, "lantern:"), "ready", "the lantern can be raised")
         let scene = element(town, "world-scene")
         let groundY = 1 - 26.0 * 6 / 1206
+        let pressed = Date()
         scene.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: groundY - 15.0 * 6 / 1206)).press(forDuration: 0.5)
-        let lifted = Date()
-        for (name, at) in [("266a", 0.8), ("266b", 2.8), ("266c", 5.8)] {
-            let wait = at - Date().timeIntervalSince(lifted)
+        // The raise fires after 0.35 s of real hold (`LanternRaise.holdSeconds`, on the real clock).
+        let raised = pressed.addingTimeInterval(0.35)
+        var shots: [(String, XCUIScreenshot, Double)] = []
+        for (name, at) in [("266a", 0.2), ("266b", 0.6), ("266c", 1.2)] {
+            let wait = at - Date().timeIntervalSince(raised)
             if wait > 0 { pause(wait) }
-            attach(XCUIScreen.main.screenshot(), "\(name)-look-flare-\(language)")
-            note("\(name)-look-flare", String(format: "%.2f s after the hold (x 0.05 game time); lantern %@",
-                                               Date().timeIntervalSince(lifted), sceneField(town, "lantern:") ?? "?"))
+            let shot = XCUIScreen.main.screenshot()
+            shots.append((name, shot, Date().timeIntervalSince(raised)))
         }
+        for (name, shot, real) in shots {
+            attach(shot, "\(name)-look-flare-\(language)")
+            note("\(name)-look-flare", String(format: "%.2f s of real time after the raise (about %.2f s of game time)",
+                                               real, real * 0.25))
+        }
+        note("266-look-flare", "lantern \(sceneField(town, "lantern:") ?? "?")")
         town.terminate()
     }
 
