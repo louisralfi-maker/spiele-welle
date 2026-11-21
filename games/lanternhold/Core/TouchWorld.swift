@@ -219,11 +219,15 @@ enum TouchRules {
             let e = abs(b.x - lordX)
             return d == e ? a.id < b.id : d < e
         }
-        // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the yard's site is weighed first,
-        // so a nearer site of its group or a nearer tag never takes its mark; the marks still come out nearest first.
-        let yardFirst = list.filter { isYardSite($0) } + list.filter { !isYardSite($0) }
+        // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the yard's site is weighed
+        // before every other thing that is not a person, so a nearer building's tag never takes its mark, while a
+        // person nearer than any such thing keeps his; the marks still come out nearest first.
         let nearestFirst = list.map(\.id)
-        list = yardFirst
+        let yardSites = list.filter { isYardSite($0) }
+        if !yardSites.isEmpty {
+            list.removeAll { isYardSite($0) }
+            list.insert(contentsOf: yardSites, at: list.firstIndex { !$0.isPerson } ?? list.count)
+        }
         var out: [TouchThing] = []
         var wall = false
         var sites = 0
@@ -233,8 +237,9 @@ enum TouchRules {
                 wall = true
             }
             // Fix round 1: of sites (or cold braziers) side by side only the nearest carries a mark.
-            if grouped(thing.kind) && out.contains(where: { $0.kind == thing.kind
-                && abs($0.x - thing.x) < groupSpan }) { continue }
+            // b3-yard: the yard's site is no site of the group, either way (the engine plot beside it keeps its mark).
+            if grouped(thing.kind) && !isYardSite(thing) && out.contains(where: { $0.kind == thing.kind
+                && !isYardSite($0) && abs($0.x - thing.x) < groupSpan }) { continue }
             if thing.kind == .plot {
                 if sites >= maxSiteMarks { continue }
                 sites += 1
