@@ -1225,3 +1225,9 @@ schneller geht."
   - Lane 2 step 2, the drill yard's layout and look (base 3d134b6c, rounds lh-b3y-21 and on): the count board clear of the barracks, real pixel art in place of the placeholders, the yard's lines on the dawn card. No rule and no number changes.
   - The mood at the map: the director takes form C, the banner, unless Louis names A or B before that step starts. It follows step 2b in lane 5.
   - Housekeeping: never a bare `git fetch origin` (it pulls every ci-results branch and fails); 12.5 GB of stale tmp packs removed, 32 GB free.
+
+- **Lane 6, housekeeping, runs as a third lane (21.11.2026, 15:29).**
+  - Louis confirmed the set-up: the director leads the studio, Opus 5.5 is the working tier and the director sets its agents as he sees fit; ultracode stays on.
+  - Worktree lh-b3-tidy, branch claude/lh-b3-tidy from ab29d2d4, rounds lh-b3t-21 and on, report b3-tidy-s2.md: the -GW gate in Release, the first rewarded video ready after consent, three seams. L6b waits for the join.
+  - The other two lanes at 15:30: lane 5 step 2b with ten commits, the yard's step 2 with eleven; both are in review or at the gate.
+  - Usage at 15:30: 3 % of the week, Fable 1 %.
