@@ -599,7 +599,88 @@ enum FrameBuilder {
         for chimney in townSmokers(props: props, hour: hour) {
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
             chimneyPuffs(at: chimney, whole: whole, plane: .world, town: true, fire: false, hearth: true,
-                         wind: wind, time: time, ambient: ambient, geometry: geometry, list: &list, glow: &glow)
+                         wind: wind, time: time, still: reduceMotion, ambient: ambient, geometry: geometry,
+                         list: &list, glow: &glow)
+        }
+        return list
+    }
+
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's M5): the calm column
+
+    // In calm air the keep's and the chimneys' columns read as a vertical string of equal pale beads (frames
+    // ci-out/director/b3/lantern/s3/05 and 06): a machine's row of dots. In a calm each column now wanders sideways by
+    // about a pixel as it rises, seeded by the chimney and the puff; high in the column a puff takes a billow beside it
+    // a size smaller, so the column widens with its rise and breaks into lumps; low in it a smaller puff fills the gap
+    // under each, a thin wavering stream out of the mouth (proven in python first: ci-out/director/b3/smooth/scratch,
+    // smokemock.py). Every one is a function of the puff's rise and of seeds alone, never of a jump in time, and fades
+    // in and out by its alpha, so nothing pops; the wind fades all of it out (`calmShare`); under Reduce Motion the
+    // column is as before. Each added puff is placed as the others (by its plane's whole offset), so it keeps one offset
+    // to the plane it moves with in every frame of a walk.
+
+    /// The wander's two waves: the chimney's own (px), with a wavelength of `calmMeander` plus up to `calmMeanderSpread`
+    /// rows by the chimney, and the puff's own (px) over `calmPuffWave` rows; whole from `calmWanderRamp` rows up.
+    static let calmWander = (chimney: 0.8, puff: 0.6)
+    static let calmMeander = 14.0
+    static let calmMeanderSpread = 6.0
+    static let calmPuffWave = 9.0
+    static let calmWanderRamp = 6.0
+    /// A billow from this share of the column up (the keep's, the town's), whole `calmBillowRise` of it higher, at this
+    /// share of its puff's alpha.
+    static let calmBillowFrom = (keep: 0.3, town: 0.35)
+    static let calmBillowRise = 0.15
+    static let calmBillowAlpha: Float = 0.9
+    /// A filler under each puff below this share of the column, from `calmFillFrom` rows up, `calmFillDrop` rows under it
+    /// (the town's `calmFillDropTown`), at this share of its alpha; it fades over `calmFillEdge` of the column at the top.
+    static let calmFillUnder = 0.42
+    static let calmFillFrom = 3.0
+    static let calmFillDrop = 2.0
+    static let calmFillDropTown = 1.5
+    static let calmFillAlpha: Float = 0.75
+    static let calmFillEdge = 0.08
+
+    /// How calm the air is for the column, 1 in a calm and below, 0 once the wind leans it past its wobble (as
+    /// `CastleSmoke.puffs` lets its wobble go).
+    static func calmShare(wind: Double) -> Double {
+        max(0, 1 - CastleSmoke.share(wind: wind) / CastleSmoke.wobbleUntil)
+    }
+
+    /// One chimney's puffs (`CastleSmoke.puffs`, in their order) with the calm's wander, billows and fillers.
+    static func calmPuffs(_ puffs: [CastleSmoke.Puff], chimneyX: Double, wind: Double, town: Bool) -> [CastleSmoke.Puff] {
+        let calm = calmShare(wind: wind)
+        guard calm > 0 else { return puffs }
+        let path = town ? CastleSmoke.townRise : CastleSmoke.rise
+        let seed = SeededRandom.hash(0x434C_4D53_4D4B, Int64(chimneyX.rounded()))
+        let meander = calmMeander + calmMeanderSpread * unit(SeededRandom.hash(seed, 1))
+        let start = unit(SeededRandom.hash(seed, 2))
+        let lowest = town ? CastleSmoke.townFrame : 0
+        let billowFrom = town ? calmBillowFrom.town : calmBillowFrom.keep
+        func wander(_ rise: Double, _ index: Int) -> Double {
+            let own = unit(SeededRandom.hash(seed, Int64(16 + index)))
+            let ramp = min(1, max(0, rise) / calmWanderRamp)
+            return calm * ramp * (calmWander.chimney * sin(2 * Double.pi * (start + rise / meander))
+                                  + calmWander.puff * sin(2 * Double.pi * (own + rise / calmPuffWave)))
+        }
+        var list: [CastleSmoke.Puff] = []
+        for (index, puff) in puffs.enumerated() {
+            let share = puff.rise / path
+            var moved = puff
+            moved.dx += wander(puff.rise, index)
+            if share > billowFrom && puff.frame > lowest {
+                let grown = min(1, (share - billowFrom) / calmBillowRise)
+                let side: Double = unit(SeededRandom.hash(seed, Int64(32 + index))) < 0.5 ? 1 : -1
+                let spread = 1 + ((town ? 1.0 : 1.5) * share).rounded()
+                let up: Double = unit(SeededRandom.hash(seed, Int64(48 + index))) < 0.5 ? 1 : 0
+                list.append(CastleSmoke.Puff(dx: moved.dx + side * spread, rise: puff.rise + up, frame: puff.frame - 1,
+                                             alpha: puff.alpha * calmBillowAlpha * Float(grown * calm)))
+            }
+            list.append(moved)
+            if share < calmFillUnder && puff.rise > calmFillFrom {
+                let rise = puff.rise - (town ? calmFillDropTown : calmFillDrop)
+                let shown = min(1, (puff.rise - calmFillFrom) / 2) * min(1, (calmFillUnder - share) / calmFillEdge)
+                list.append(CastleSmoke.Puff(dx: puff.dx + wander(rise, index), rise: rise,
+                                             frame: max(lowest, puff.frame - 1),
+                                             alpha: puff.alpha * calmFillAlpha * Float(shown * calm)))
+            }
         }
         return list
     }
@@ -630,14 +711,16 @@ enum FrameBuilder {
     /// `hiddenBy`: the rects (the plane's target pixels) of what stands in front of the chimney on its own plane; a puff
     /// that would overlap one is not drawn (round lh-b3w-61: the back row's smoke stood over the lindens before it,
     /// and its light shone through them).
+    /// b3-smooth: `still` (Reduce Motion) keeps the calm column as it was (`calmPuffs`).
     private static func chimneyPuffs(at chimney: (x: Double, y: Double), whole: Double, plane: Plane, town: Bool,
-                                     fire: Bool, hearth: Bool, wind: Double, time: Double, ambient: AmbientSample,
-                                     geometry: Geometry, hiddenBy: [SIMD4<Float>] = [],
+                                     fire: Bool, hearth: Bool, wind: Double, time: Double, still: Bool,
+                                     ambient: AmbientSample, geometry: Geometry, hiddenBy: [SIMD4<Float>] = [],
                                      list: inout [SpriteInstance], glow: inout EmissiveList) {
         let size = SpriteID.smokePuff.size
         // b3-wind (step 7, call T3): the town's grey puffs take their own tint and no pale day light.
         let tint = town ? CastleSmoke.townTint(ambient) : CastleSmoke.tint
-        let puffs = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
+        let born = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
+        let puffs = (still ? born : calmPuffs(born, chimneyX: chimney.x, wind: wind, town: town))
             .filter { $0.alpha > 0.02 }
             .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
         for puff in puffs + [CastleSmoke.mouth(town: town)] {
@@ -710,8 +793,8 @@ enum FrameBuilder {
             }
             chimneyPuffs(at: chimney, whole: whole, plane: carried?.motion ?? plane, town: back,
                          fire: prop.sprite == .bakehouse, hearth: !back, wind: wind,
-                         time: reduceMotion ? 0 : animTime, ambient: ambient, geometry: geometry, hiddenBy: before,
-                         list: &list, glow: &glow)
+                         time: reduceMotion ? 0 : animTime, still: reduceMotion, ambient: ambient, geometry: geometry,
+                         hiddenBy: before, list: &list, glow: &glow)
         }
     }
 

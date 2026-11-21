@@ -393,6 +393,119 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertEqual(EmissiveBands.textureRows(targetHeight: height), EmissiveBands.count * (height + 2))
     }
 
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's M5): the calm column
+
+    /// In a calm a chimney's column is no string of equal beads (`FrameBuilder.calmPuffs`): it wanders sideways with
+    /// its rise (seeded by the chimney and the puff), high up its puffs take billows a size smaller beside them, low
+    /// down fillers close the gaps; every addition starts at nothing where it starts (no pop: the wander at the mouth,
+    /// a billow's and a filler's alpha at their thresholds), and two chimneys wander apart. In a wind the column is
+    /// `CastleSmoke.puffs`' own.
+    func testTheCalmColumnWandersAndBillowsAndNothingPops() {
+        let keepX = 1180.0
+        var spread = (today: 0.0, calm: 0.0)
+        var billows = 0
+        var additions = 0
+        for step in 0..<24 {
+            let time = Double(step) * 0.25
+            let born = CastleSmoke.puffs(time: time, wind: 0.04, seed: Int(keepX))
+            let calm = FrameBuilder.calmPuffs(born, chimneyX: keepX, wind: 0.04, town: false)
+            billows += calm.filter { puff in !born.contains { $0.frame == puff.frame && $0.rise == puff.rise }
+                                         && puff.rise > CastleSmoke.rise * FrameBuilder.calmBillowFrom.keep }.count
+            additions += calm.count - born.count
+            func width(_ puffs: [CastleSmoke.Puff]) -> Double {
+                let high = puffs.filter { $0.alpha > 0.3 && $0.rise > CastleSmoke.rise * 0.4 }.map { $0.dx.rounded() }
+                return (high.max() ?? 0) - (high.min() ?? 0)
+            }
+            spread.today += width(born) / 24
+            spread.calm += width(calm) / 24
+            XCTAssertEqual(FrameBuilder.calmPuffs(born, chimneyX: keepX, wind: 0.04, town: false), calm,
+                           "a function of its inputs")
+            XCTAssertEqual(FrameBuilder.calmPuffs(CastleSmoke.puffs(time: time, wind: 0.6, seed: Int(keepX)),
+                                                  chimneyX: keepX, wind: 0.6, town: false),
+                           CastleSmoke.puffs(time: time, wind: 0.6, seed: Int(keepX)), "in a wind as before")
+        }
+        XCTAssertGreaterThan(billows, 20, "billows high in the column")
+        XCTAssertGreaterThan(additions, billows, "and fillers low in it")
+        XCTAssertGreaterThan(spread.calm, spread.today + 0.5, "high up the column is wider than a bead: \(spread)")
+
+        // Nothing pops: at the mouth no wander, at its threshold a billow or a filler has no alpha.
+        let path = CastleSmoke.rise
+        func added(_ rise: Double, frame: Int = 3) -> [CastleSmoke.Puff] {
+            let puff = CastleSmoke.Puff(dx: 0, rise: rise, frame: frame, alpha: 1)
+            return FrameBuilder.calmPuffs([puff], chimneyX: keepX, wind: 0, town: false)
+        }
+        XCTAssertEqual(added(0).map(\.dx), [0], "no wander at the mouth")
+        let atBillow = added(path * FrameBuilder.calmBillowFrom.keep + 1e-6)
+        XCTAssertEqual(atBillow.count, 3, "a billow, the puff and its filler")
+        XCTAssertLessThan(atBillow.first?.alpha ?? 1, 1e-3, "a billow fades in from nothing")
+        let atFill = added(FrameBuilder.calmFillFrom + 1e-6, frame: 0)
+        XCTAssertEqual(atFill.count, 2)
+        XCTAssertLessThan(atFill.last?.alpha ?? 1, 1e-3, "a filler fades in from nothing")
+        let topFill = added(path * FrameBuilder.calmFillUnder - 1e-6, frame: 1)
+        XCTAssertLessThan(topFill.last?.alpha ?? 1, 1e-3, "and out at the top of the stream")
+        let half = FrameBuilder.calmPuffs([CastleSmoke.Puff(dx: 0, rise: 20, frame: 3, alpha: 1)], chimneyX: keepX,
+                                          wind: 0.1 + 0.05 * (CastleSmoke.leanTo - CastleSmoke.leanFrom), town: false)
+        XCTAssertEqual(FrameBuilder.calmShare(wind: 0.1 + 0.05 * (CastleSmoke.leanTo - CastleSmoke.leanFrom)), 0.5,
+                       accuracy: 1e-9)
+        XCTAssertEqual(half.count, 2, "half calm: half a billow")
+        // Two chimneys wander apart.
+        let a = FrameBuilder.calmPuffs(CastleSmoke.puffs(time: 2, wind: 0, seed: 2600), chimneyX: 2600, wind: 0,
+                                       town: true)
+        let b = FrameBuilder.calmPuffs(CastleSmoke.puffs(time: 2, wind: 0, seed: 2600), chimneyX: 2731, wind: 0,
+                                       town: true)
+        XCTAssertNotEqual(a.map(\.dx), b.map(\.dx), "each chimney its own wander")
+    }
+
+    /// The rule of step 2b holds for the calm column: with the clock held, in every frame of a walk each puff of the
+    /// keep's smoke (its carried picture, with the mist band), of the town's chimneys (the lane) and of the back row
+    /// (the near plane), the billows and fillers included, stands at the same column of the picture it moves with, the
+    /// same row, frame and alpha.
+    func testEverySmokePuffKeepsItsPlaceOnItsPlaneInEveryFrameOfAWalk() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let time = 2.5
+        let calm = Weather.sample(seed: 3, day: 12, hour: 12, time: time,
+                                  override: WeatherOverride(mode: .clear, wind: 0.04))
+        XCTAssertEqual(FrameBuilder.calmShare(wind: calm.mean), 1, "a calm")
+        typealias Puff = (picture: Int, column: Float, y: Float, frame: Int, alpha: Float)
+        func puffs(_ desc: FrameDesc, inner margin: Float) -> [Puff] {
+            let layers = desc.planes.map { (layer: $0, tag: $0.plane.rawValue) }
+                + desc.carried.enumerated().map { (layer: $0.element, tag: 100 + $0.offset) }
+            return layers.flatMap { item -> [Puff] in
+                let whole = Float(item.layer.offset.whole)
+                return item.layer.sprites.filter {
+                    $0.sprite == .smokePuff && $0.rect.x >= 20 + margin
+                        && $0.rect.x <= Float(desc.targetWidth) - 30 - margin
+                }.map { (picture: item.tag, column: $0.rect.x + whole, y: $0.rect.y, frame: $0.frame, alpha: $0.tint.w) }
+            }
+        }
+        func same(_ a: Puff, _ b: Puff) -> Bool {
+            a.picture == b.picture && a.column == b.column && a.y == b.y && a.frame == b.frame
+                && abs(a.alpha - b.alpha) < 1e-5
+        }
+        var checked = 0
+        for (start, step) in [(SceneLayout.castleHallDoorX, SmoothWalkTests.walkStep), (2800.0, -SmoothWalkTests.walkStep)] {
+            var last: FrameDesc?
+            for index in 0..<SmoothWalkTests.frames {
+                let desc = frame(world, hour: 12, focus: start + Double(index) * step, weather: calm, time: time)
+                if let last {
+                    let before = puffs(last, inner: 0)
+                    for puff in puffs(desc, inner: 1) {
+                        checked += 1
+                        XCTAssertTrue(before.contains { same($0, puff) },
+                                      "walk from \(start), frame \(index): a puff of picture \(puff.picture) moved")
+                    }
+                    let after = puffs(desc, inner: 0)
+                    for puff in puffs(last, inner: 1) {
+                        XCTAssertTrue(after.contains { same($0, puff) },
+                                      "walk from \(start), frame \(index): a puff of picture \(puff.picture) went")
+                    }
+                }
+                last = desc
+            }
+        }
+        XCTAssertGreaterThan(checked, 1500, "puffs were followed")
+    }
+
     // MARK: b3-smooth (build 3, lane 5b step 1, the critic's M2): the gold rim round a marked person
 
     /// The gold rim round a marked person (`TouchRims.actors`) is an actor on the figure's own rect, grown by a game
