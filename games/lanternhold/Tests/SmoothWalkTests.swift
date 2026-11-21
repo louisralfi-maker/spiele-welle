@@ -175,6 +175,71 @@ final class SmoothWalkTests: XCTestCase {
         }
     }
 
+    // MARK: Suspect 6: the rain's lean in a gust
+
+    /// In a gusty rain no streak of the near or the foreground depth changes its slant or its kind (water or ash) in
+    /// mid-fall while the lord walks: with the clock held, from one frame of the walk to the next each streak on the
+    /// screen stands at the same column of its plane with the same slant, and none blinks out. Before, the lane's x it
+    /// read its wind and its kind at moved with the camera. Walked east of the outermost wall and across its band.
+    func testNoStreakChangesItsLeanOrItsKindInMidFallWhileTheLordWalks() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let time = 7.0
+        // Gusty (0.55 + 0.35 of gust): the gusts carry the wind over the strong slant's 0.6 and back.
+        let gusty = Weather.sample(seed: 3, day: 12, hour: 12, time: time,
+                                   override: WeatherOverride(mode: .gusty, rain: 1))
+        XCTAssertGreaterThan(gusty.rain, 0.5, "it rains")
+        typealias Streak = (plane: Plane, column: Float, y: Float, frame: Int, flipped: Bool)
+        func streaks(_ desc: FrameDesc, inner margin: Float) -> [Streak] {
+            [Plane.near, .foreground].flatMap { plane -> [Streak] in
+                let whole = Float(desc.layer(plane).offset.whole)
+                return desc.layer(plane).sprites.filter {
+                    $0.sprite == .rainStreak && $0.rect.x >= 30 + margin
+                        && $0.rect.x <= Float(desc.targetWidth) - 60 - margin
+                }.map { (plane: plane, column: $0.rect.x + whole, y: $0.rect.y, frame: $0.frame, flipped: $0.flipped) }
+            }
+        }
+        func same(_ a: Streak, _ b: Streak) -> Bool {
+            a.plane == b.plane && a.column == b.column && a.y == b.y && a.frame == b.frame && a.flipped == b.flipped
+        }
+        var checked = 0
+        for (start, steps) in [(1000.0, 600), (480.0, 300)] {
+            var last: FrameDesc?
+            for step in 0..<steps {
+                let desc = frame(world, hour: 12, focus: start + Double(step) * SmoothWalkTests.walkStep,
+                                 weather: gusty, time: time)
+                if let last {
+                    let before = streaks(last, inner: 0)
+                    for streak in streaks(desc, inner: 1) {
+                        checked += 1
+                        XCTAssertTrue(before.contains { same($0, streak) },
+                                      "focus \(start) step \(step): a streak of the \(streak.plane) jumped or came in mid-fall")
+                    }
+                    let after = streaks(desc, inner: 0)
+                    for streak in streaks(last, inner: 1) {
+                        XCTAssertTrue(after.contains { same($0, streak) },
+                                      "focus \(start) step \(step): a streak of the \(streak.plane) jumped or went out in mid-fall")
+                    }
+                }
+                last = desc
+            }
+        }
+        XCTAssertGreaterThan(checked, 1000, "streaks were followed")
+    }
+
+    /// `FrameBuilder.rainLaneX`: on the lane's depth the column is the lane's x; in front of and behind it the column the
+    /// camera puts in the screen's middle maps to the lane's x there.
+    func testTheRainsLaneXIsTheLanesAtTheScreensMiddle() {
+        let width = 438.0
+        XCTAssertEqual(FrameBuilder.rainLaneX(column: 1234, plane: .world, viewWidth: width), 1234)
+        for plane in [Plane.near, .foreground] {
+            for camera in [0.0, 640, 1777.5] {
+                let middle = plane.parallax * camera + width / 2
+                XCTAssertEqual(FrameBuilder.rainLaneX(column: middle, plane: plane, viewWidth: width),
+                               camera + width / 2, accuracy: 1e-9, "\(plane) at \(camera)")
+            }
+        }
+    }
+
     /// Where look 2's emissive quads go (`EmissiveBands`): the lane, the fog planes and the clouds on the world's grid,
     /// the sky in the sky pass, every plane behind the lane and the foreground in a band of its own, read at its own
     /// plane's place; the far lantern's streak on the water in the band that nothing in front hides.

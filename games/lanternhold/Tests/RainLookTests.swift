@@ -58,6 +58,18 @@ final class RainLookTests: XCTestCase {
         shot.desc.layer(plane).sprites.filter { $0.sprite == sprite }
     }
 
+    /// b3-lantern (lane 5 step 2b, suspect 6): the lane's x at which each of a shot's `sprite`s (of every rain depth)
+    /// decided its kind: its column in its plane's picture mapped to the lane (`FrameBuilder.rainLaneX`).
+    private func laneXs(_ shot: Shot, _ sprite: SpriteID) -> [Double] {
+        FrameBuilder.rainDepths.flatMap { entry -> [Double] in
+            let whole = Double(shot.desc.layer(entry.plane).offset.whole)
+            return sprites(shot, sprite, entry.plane).map {
+                FrameBuilder.rainLaneX(column: Double($0.rect.x) + whole, plane: entry.plane,
+                                       viewWidth: Double(shot.desc.targetWidth))
+            }
+        }
+    }
+
     func testTheSeamIsTheOutermostStandingWallAndTheBandIsSoft() {
         var s = GameFrameSupport.demoNight(hour: 23.2)
         let storm = weather(s, WeatherOverride(mode: .storm))
@@ -102,9 +114,10 @@ final class RainLookTests: XCTestCase {
             XCTAssertLessThan(Double(flake.rect.x) + gorge.lane, gorge.seam, "never east of the wall")
             XCTAssertLessThanOrEqual(flake.tint.w, FrameBuilder.ashAlphaCap + 1e-6, "under the ash's own cap")
         }
-        for streak in sprites(gorge, .rainStreak) {
-            XCTAssertGreaterThan(Double(streak.rect.x) + gorge.lane, gorge.seam - RainLook.band - 1,
-                                 "no water west of the band")
+        // b3-lantern (lane 5 step 2b, suspect 6): each depth decides at its own column mapped to the lane
+        // (`FrameBuilder.rainLaneX`; on the lane's depth that is the lane's x under it, as before).
+        for streak in laneXs(gorge, .rainStreak) {
+            XCTAssertGreaterThan(streak, gorge.seam - RainLook.band - 1, "no water west of the band")
         }
         for splash in sprites(gorge, .rainSplash) {
             XCTAssertGreaterThan(Double(splash.rect.x) + gorge.lane, gorge.seam - RainLook.band - 1, "ash never splashes")
@@ -145,8 +158,8 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThan(sprites(fallen, .ashFlake).count, sprites(standing, .ashFlake).count + 10,
                              "the outer wall fell: the ash comes as far as the middle line")
         XCTAssertLessThan(sprites(fallen, .rainStreak).count, sprites(standing, .rainStreak).count)
-        for streak in sprites(fallen, .rainStreak) {
-            XCTAssertGreaterThan(Double(streak.rect.x) + fallen.lane, fallen.seam - RainLook.band - 1)
+        for streak in laneXs(fallen, .rainStreak) {
+            XCTAssertGreaterThan(streak, fallen.seam - RainLook.band - 1)
         }
     }
 

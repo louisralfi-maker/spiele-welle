@@ -1635,6 +1635,20 @@ enum FrameBuilder {
     static func rainSlant(force: Double) -> Int {
         force < 0.2 ? 0 : (force < 0.6 ? 1 : 2)
     }
+    /// b3-lantern (build 3, lane 5 step 2b, the smooth walk, suspect 6): the lane's x by which a streak or a flake of a
+    /// rain's depth decides its kind (water or ash) and reads its wind: its own column in its plane's picture (`column`,
+    /// the target column plus the plane's whole offset, fixed while it falls), mapped to the lane where the camera puts
+    /// that column in the screen's middle. On the lane's own depth it is the column itself, as before. In front of and
+    /// behind the lane the lane under a streak moved with the camera (a quarter of its step on the near plane, three
+    /// tenths on the foreground), so a streak could take another slant in mid-fall while the lord walked and jump by a
+    /// fifth of the rows it had fallen, or blink between water and ash; at this x it cannot. The kind's seam on these
+    /// depths stands where the lane's does at the screen's middle and moves with their parallax.
+    static func rainLaneX(column: Double, plane: Plane, viewWidth: Double) -> Double {
+        let parallax = plane.parallax
+        guard parallax > 0, parallax != 1 else { return column }
+        let half = viewWidth / 2
+        return (column - half) / parallax + half
+    }
     /// How many of `full` fall in a rain of this strength: by its root, so a light rain (0.4) is still rain on a
     /// phone (round lh-l2-3a: at 0.6 a count in proportion read as a few stray streaks).
     static func rainCount(_ full: Int, rain: Double) -> Int {
@@ -1777,7 +1791,6 @@ enum FrameBuilder {
         let reach = abs(widest) * fall
         let span = Double(geometry.targetWidth) + reach
         let whole = geometry.whole(entry.plane)
-        let lane = geometry.whole(.world)
         let tint = rainStreakTint(depth: depth, ambient: ambient)
         // Step 4 (M1): the lane's streaks in the sky band a step denser by day.
         let skyAlpha = depth == 1 ? tint.w + (max(tint.w, rainSkyDayAlpha) - tint.w) * rainShade(ambient) : tint.w
@@ -1800,7 +1813,8 @@ enum FrameBuilder {
             // Decided once for the whole fall, at the column it starts from: water or ash (so no streak blinks out in
             // the band), and its lean by the wind of the moment it set off (a gust leans the streaks that start in it,
             // never one in mid-fall).
-            let start = x + lane
+            // b3-lantern (suspect 6): at its own column in its plane, mapped to the lane (`rainLaneX`).
+            let start = rainLaneX(column: x + whole, plane: entry.plane, viewWidth: Double(geometry.targetWidth))
             guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: start, seam: seam) else { continue }
             let born = (cycle - own) * fall / entry.speed
             let wind = Weather.wind(at: start, weather, time: born)
@@ -2112,7 +2126,10 @@ enum FrameBuilder {
             if x < 0 { x += span }
             // Ash or water, decided once at the column it starts from (no flake blinks out in mid-air); a flake that
             // drifts toward the wall fades as the water's share grows, and is gone at the wall.
-            let start = x - margin + lane
+            // b3-lantern (suspect 6): at its own column in its plane, mapped to the lane (`rainLaneX`), so its drift's
+            // wind does not move with the camera either.
+            let start = rainLaneX(column: x - margin + whole, plane: entry.plane,
+                                  viewWidth: Double(geometry.targetWidth))
             guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: start, seam: seam) else { continue }
             let wind = Weather.wind(at: start, weather, time: fallTime)
             x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
