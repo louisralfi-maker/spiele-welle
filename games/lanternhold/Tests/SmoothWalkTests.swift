@@ -413,7 +413,7 @@ final class SmoothWalkTests: XCTestCase {
                                          && puff.rise > CastleSmoke.rise * FrameBuilder.calmBillowFrom.keep }.count
             additions += calm.count - born.count
             func width(_ puffs: [CastleSmoke.Puff]) -> Double {
-                let high = puffs.filter { $0.alpha > 0.3 && $0.rise > CastleSmoke.rise * 0.4 }.map { $0.dx.rounded() }
+                let high = puffs.filter { $0.alpha > 0.3 && $0.rise > CastleSmoke.rise * 0.5 }.map { $0.dx.rounded() }
                 return (high.max() ?? 0) - (high.min() ?? 0)
             }
             spread.today += width(born) / 24
@@ -436,7 +436,7 @@ final class SmoothWalkTests: XCTestCase {
         }
         XCTAssertEqual(added(0).map(\.dx), [0], "no wander at the mouth")
         let atBillow = added(path * FrameBuilder.calmBillowFrom.keep + 1e-6)
-        XCTAssertEqual(atBillow.count, 3, "a billow, the puff and its filler")
+        XCTAssertEqual(atBillow.count, 2, "a billow and its puff")
         XCTAssertLessThan(atBillow.first?.alpha ?? 1, 1e-3, "a billow fades in from nothing")
         let atFill = added(FrameBuilder.calmFillFrom + 1e-6, frame: 0)
         XCTAssertEqual(atFill.count, 2)

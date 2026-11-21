@@ -612,7 +612,7 @@ enum FrameBuilder {
     // about a pixel as it rises, seeded by the chimney and the puff; high in the column a puff takes a billow beside it
     // a size smaller, so the column widens with its rise and breaks into lumps; low in it a smaller puff fills the gap
     // under each, a thin wavering stream out of the mouth (proven in python first: ci-out/director/b3/smooth/scratch,
-    // smokemock.py). Every one is a function of the puff's rise and of seeds alone, never of a jump in time, and fades
+    // smokemock2.py, smoke5.png; trimmed from smoke4.png's to keep the frame's instances down). Every one is a function of the puff's rise and of seeds alone, never of a jump in time, and fades
     // in and out by its alpha, so nothing pops; the wind fades all of it out (`calmShare`); under Reduce Motion the
     // column is as before. Each added puff is placed as the others (by its plane's whole offset), so it keeps one offset
     // to the plane it moves with in every frame of a walk.
@@ -626,12 +626,12 @@ enum FrameBuilder {
     static let calmWanderRamp = 6.0
     /// A billow from this share of the column up (the keep's, the town's), whole `calmBillowRise` of it higher, at this
     /// share of its puff's alpha.
-    static let calmBillowFrom = (keep: 0.3, town: 0.35)
+    static let calmBillowFrom = (keep: 0.38, town: 0.42)
     static let calmBillowRise = 0.15
     static let calmBillowAlpha: Float = 0.9
     /// A filler under each puff below this share of the column, from `calmFillFrom` rows up, `calmFillDrop` rows under it
     /// (the town's `calmFillDropTown`), at this share of its alpha; it fades over `calmFillEdge` of the column at the top.
-    static let calmFillUnder = 0.42
+    static let calmFillUnder = 0.36
     static let calmFillFrom = 3.0
     static let calmFillDrop = 2.0
     static let calmFillDropTown = 1.5
