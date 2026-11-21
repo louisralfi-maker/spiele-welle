@@ -151,7 +151,7 @@ enum EntityFrames {
         defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
                      look: options.look, props: &props)
         beacon(s, look: options.look, props: &props)
-        courtyard(s, props: &props)
+        courtyard(s, balance: balance, props: &props)
         town(s, look: options.look, props: &props)
         let townDay = TownLife.Context(reduceMotion: options.reduceMotion,
                                       hearth: max(0, min(1, s.hearth / max(1, balance.hearthStrength))))
@@ -585,7 +585,7 @@ enum EntityFrames {
         }
     }
 
-    private static func courtyard(_ s: GameState, props: inout PropList) {
+    private static func courtyard(_ s: GameState, balance: Balance, props: inout PropList) {
         let barracksMasks = [glass(8, 26, 4, 4), glass(21, 26, 4, 4), glass(39, 26, 4, 4), glass(52, 26, 4, 4),
                              glass(23, 14, 1, 2), glass(41, 14, 1, 2)]
         props.add(.barracks, x: barracksLeft, z: -1, masks: barracksMasks,
@@ -625,30 +625,43 @@ enum EntityFrames {
             let width = Double((job.target == .bigLodge ? SpriteID.bigLodge : SpriteID.lodge).size.width)
             scaffold(&props, centre: lodgeCentre, width: width)
         }
-        yardProps(s, props: &props)
+        yardProps(s, balance: balance, props: &props)
     }
 
-    /// b3-yard (build 3, wave 2, lane 2, step 1): the drill yard's placeholder props, sprites the game already has,
-    /// until the picture step draws the yard (tools/yardart.py): while it stands a row of pells (the stake row), and
-    /// with the pitch kettle a small pot burning by them, with a small warm light.
-    static let yardPellsX = Yard.groundLeft + 1
-    static let yardKettleX = Yard.groundRight - 7
-
-    private static func yardProps(_ s: GameState, props: inout PropList) {
-        guard let yard = s.yard, yard.stands else { return }
-        props.add(.stakePit, x: yardPellsX, z: 1, frame: 0)
-        guard yard.kettleInUse else { return }
+    /// b3-yard (build 3, wave 2, lane 2, step 2; docs/YARD.md sections 1, 2 and 4; tools/yardart.py, `YardLook`): the
+    /// drill yard in the courtyard between the gatehouse's east tower and the barracks. While the drill yard is
+    /// offered or waits for its dawn its site is marked out with stakes and cord (the timber delivered once it is
+    /// ordered); once it stands, the sand and the fence, two pells, the archery butt and the pitch kettle's tripod,
+    /// empty until Bram brings the kettle, then the kettle on its chain over a low fire with a small warm light that
+    /// glows at night. All of it stands behind every figure (props), in the courtyard's light.
+    static func yardProps(_ s: GameState, balance: Balance, props: inout PropList) {
+        guard !s.defeated else { return }
+        let yard = s.yard ?? YardState()
+        guard yard.stands else {
+            // The site: from the day the drill yard is offered (`Yard.offer`) and while its order waits for the dawn.
+            if yard.orderedStage != nil {
+                props.add(.yardSite, x: YardLook.siteLeft, z: 1, frame: 1)
+            } else if s.day >= balance.yard.stageDay {
+                props.add(.yardSite, x: YardLook.siteLeft, z: 1, frame: 0)
+            }
+            return
+        }
+        props.add(.yardGround, x: YardLook.groundLeft, y: YardLook.groundY, z: 1)
+        for (index, left) in YardLook.pellLefts.enumerated() {
+            props.add(.yardPell, x: left, z: 1, frame: index % 2)
+        }
+        props.add(.yardButt, x: YardLook.buttLeft, z: 1)
+        guard yard.kettleInUse else {
+            props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: 0)
+            return
+        }
         let seed: UInt64 = 0x5941_5244_4B45
-        let flame = fire(.brazierFlame, dx: -1.5, dy: 4, seed: seed)
-        props.add(.firepot, x: yardKettleX, z: 1, emissive: [flame],
-                  lights: [LightSource(kind: .brazier, x: yardKettleX + 2.5, y: 8, radius: 14, intensity: 0.55,
-                                       flickerSeed: seed)])
+        let flame = fire(.flame, dx: YardLook.kettleFlame.dx, dy: YardLook.kettleFlame.dy, seed: seed)
+        let glow = YardLook.kettleLight
+        props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: 1, emissive: [flame],
+                  lights: [LightSource(kind: .brazier, x: YardLook.kettleLeft + glow.dx, y: glow.y,
+                                       radius: glow.radius, intensity: glow.intensity, flickerSeed: seed)])
     }
-
-    /// b3-yard (step 1, placeholder): at most this many soldiers are drawn at the drill, this far apart, from here.
-    static let yardDrillers = 4
-    static let yardDrillGap = 5.0
-    static let yardDrillX = Yard.groundLeft + 27
 
     /// The lit rooms of a town house (round 2 joined; SPRITES.md "The town at night"): in look 2 an emissive sprite
     /// of the house's size, painted over its glass, shows a room in every window at dusk and night (a wall brightest
@@ -1486,24 +1499,42 @@ enum EntityFrames {
                 let frame = 2 + Int((max(0, soldier.x) / 5).rounded(.down)) % 4
                 add(.guardsman, frame: frame, x: soldier.x, y: 0, flipped: soldier.targetX < soldier.x)
             case .reserve where abs(soldier.x - Realm.courtyardX) < 1:
+                // b3-yard (step 2): while the yard stands they wait in file toward the gate, clear of its things.
+                let file = YardLook.waitingGuard(waiting, yardStands: s.yard?.stands == true) - Realm.courtyardX
                 add(.guardsman, frame: Int((time * 2 + Double(waiting)).rounded(.down)) % 2,
-                    x: soldier.x + 7 * Double(waiting), y: 0, flipped: true)
+                    x: soldier.x + file, y: 0, flipped: true)
                 waiting += 1
             default:
                 break
             }
         }
 
-        // b3-yard (build 3, wave 2, lane 2, step 1; placeholder): while they drill (09:00 to 16:00, the yard standing) a
-        // few of the soldiers stand in the yard by the pells with the sprites they have, facing the wall; the drill walk,
-        // the butts and the looks come with the picture step. Reduce Motion: they stand still.
+        // b3-yard (build 3, wave 2, lane 2, step 2; docs/YARD.md section 5, `YardLook`): while they drill (09:00 to
+        // 16:00, the yard standing) two archers shoot at the butt from the line left of the fence (draw, loose, the
+        // arrow flies and sticks) and two guards strike the pells, each out of step; the others are in the bunkhouse.
+        // The frames are the ones they have. Reduce Motion: they stand still (the bow drawn), no arrow flies.
         if Yard.drilling(s, balance: balance) {
-            var drawnAtDrill = 0
-            for soldier in s.soldiers where soldier.state == .reserve && drawnAtDrill < yardDrillers {
-                let x = yardDrillX + yardDrillGap * Double(drawnAtDrill)
-                let frame = reduceMotion ? 0 : Int((time * 2 + Double(soldier.id % 5) * 0.37).rounded(.down)) % 2
-                add(soldier.kind == .archer ? .archer : .guardsman, frame: frame, x: x, y: 0, flipped: true)
-                drawnAtDrill += 1
+            var archersAtDrill = 0
+            var guardsAtDrill = 0
+            for soldier in s.soldiers where soldier.state == .reserve {
+                if soldier.kind == .archer {
+                    guard archersAtDrill < YardLook.archerSpots.count else { continue }
+                    let x = YardLook.archerSpots[archersAtDrill]
+                    add(.archer, frame: YardLook.archerFrame(index: archersAtDrill, time: time,
+                                                             reduceMotion: reduceMotion), x: x, y: 0)
+                    if let flight = YardLook.arrow(index: archersAtDrill, time: time, reduceMotion: reduceMotion) {
+                        let half = Double(SpriteID.arrow.size.height) / 2
+                        add(.arrow, frame: 1, x: flight.x, y: flight.y - half)
+                    }
+                    archersAtDrill += 1
+                } else {
+                    guard guardsAtDrill < YardLook.guardSpots.count else { continue }
+                    let spot = YardLook.guardSpots[guardsAtDrill]
+                    add(.guardsman, frame: YardLook.guardFrame(index: guardsAtDrill, time: time,
+                                                               reduceMotion: reduceMotion),
+                        x: spot.x, y: 0, flipped: spot.faceLeft)
+                    guardsAtDrill += 1
+                }
             }
         }
 

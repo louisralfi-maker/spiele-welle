@@ -270,6 +270,9 @@ extension GameModel {
             if let since = touch.modelHop[row.plot] {
                 hopAge = countFreezeNow?.hopHold ?? (now - since)
             }
+            // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the gate's models step
+            // aside while the yard's board stands over their slot (`YardLook.boardPlace`), and come back with it gone.
+            if yardBoardCovers(row) { continue }
             actors += modelActors(row, chosen: chosenNow[row.plot], hopAge: hopAge, now: now, night: night, alpha: 1,
                                   framing: framing)
         }
@@ -280,6 +283,16 @@ extension GameModel {
         }
         // Behind every figure (the offers' things stand on the ground the people walk in front of).
         layer.actors.insert(contentsOf: actors, at: 0)
+    }
+
+    /// b3-yard (build 3, wave 2, lane 2, step 2): true while the yard's board stands (its count not gone) over any
+    /// column of `row`'s slot.
+    func yardBoardCovers(_ row: PayModelRow) -> Bool {
+        guard let board = touch.countBoard, let count = touch.count, !count.isGone else { return false }
+        guard case .yard = board.act else { return false }
+        let left = Double(board.left)
+        let right = left + Double(board.layout.width)
+        return left < row.slotLeft + row.slotWidth && row.slotLeft < right
     }
 
     /// One row's trestles and models: each model on its trestle's beam at rest, or (step 6, R1) on the counter's cap

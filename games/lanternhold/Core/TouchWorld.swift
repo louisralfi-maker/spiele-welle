@@ -219,6 +219,11 @@ enum TouchRules {
             let e = abs(b.x - lordX)
             return d == e ? a.id < b.id : d < e
         }
+        // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the yard's site is weighed first,
+        // so a nearer site of its group or a nearer tag never takes its mark; the marks still come out nearest first.
+        let yardFirst = list.filter { isYardSite($0) } + list.filter { !isYardSite($0) }
+        let nearestFirst = list.map(\.id)
+        list = yardFirst
         var out: [TouchThing] = []
         var wall = false
         var sites = 0
@@ -240,6 +245,8 @@ enum TouchRules {
             out.append(thing)
             if out.count == maxMarks { break }
         }
+        // b3-yard: back in the order of nearness.
+        out.sort { (nearestFirst.firstIndex(of: $0.id) ?? 0) < (nearestFirst.firstIndex(of: $1.id) ?? 0) }
         return out
     }
 

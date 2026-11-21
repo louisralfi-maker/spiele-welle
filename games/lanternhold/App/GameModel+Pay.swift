@@ -566,6 +566,10 @@ extension GameModel {
     /// within `countBoardSearch` px outward whose box is clear of everyone standing there, Marek's cart and every door,
     /// else that first place. Returns the board's middle and its side.
     func countBoardPlace(_ thing: TouchThing, layout: PayBoardLayout) -> (x: Double, side: Double) {
+        // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the yard's board has a fixed
+        // place of its own over the yard's ground, its right edge a pixel clear of the barracks (`YardLook.boardPlace`):
+        // no place beside the yard is free for it (the barracks, Marek's cart, the gate's models and passage).
+        if case .yard = thing.act { return YardLook.boardPlace(width: layout.width, lordX: stageLordX) }
         let half = Double(layout.width) / 2
         var frameLeft = thing.x - thing.halfWidth
         var frameRight = thing.x + thing.halfWidth

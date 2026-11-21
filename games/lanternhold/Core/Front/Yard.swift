@@ -7,16 +7,13 @@
 /// `dawn`, `Battle` asks `archerPeriod`, and `balance` changes the night's numbers by values. A realm without a yard
 /// (`GameState.yard` nil: every older save, every reference bot) plays exactly as before.
 enum Yard {
-    // MARK: - The place (game px of the world strip; step 1's placeholder ground, the picture step lays it out)
+    // MARK: - The place (game px of the world strip; the picture's places are `YardLook`'s, step 2)
 
-    /// The yard's ground in the courtyard, between the gatehouse's back and the barracks (YARD.md section 1: where the
-    /// barracks stands, against the inner face of the wall).
-    static let groundLeft = 1446.0
-    static let groundRight = 1480.0
-    /// Where the yard's thing stands (the drill yard's site, then the kettle's tripod) and half its width. Its middle
-    /// keeps clear of Brannock's two day stops (`CourtLayout.routines`, 1428 and 1470): a person standing over a site
-    /// takes the touch (`TouchRules.pick`), so at 1464 he held the site about half the day (the review of step 1).
-    /// With the smallest touch area (22 px) only his walk between the stops crosses its middle.
+    /// Where the yard's thing stands (the drill yard's site, then the kettle's place by the butt) and half its width,
+    /// in the yard's ground between the gatehouse's east tower and the barracks (YARD.md section 1). Its middle keeps
+    /// clear of Brannock's two day stops (`CourtLayout.routines`, 1428 and, since step 2, 1444 on the drill line): a
+    /// person standing over a site takes the touch (`TouchRules.pick`), so at 1464 he held the site about half the day
+    /// (the review of step 1). With the smallest touch area (22 px) neither stop nor his walk crosses its middle.
     static let plotX = 1456.0
     static let plotHalf = 9.0
     /// The fence's middle (the lord at the fence: `YardTuning.fenceReach`), where the soldiers drill (the stake row and

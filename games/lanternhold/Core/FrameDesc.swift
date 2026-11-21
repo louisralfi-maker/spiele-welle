@@ -215,6 +215,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // plot with several offers
     case hudCoinTen, hudHollow, hudHollowTen, hudCoinBar, hudHollowBar, payBoard, siteLantern, payCoin, siteHalo
     case paySign
+    // b3-yard (build 3, wave 2, lane 2, step 2; docs/YARD.md; tools/yardart.py): the drill yard's ground and fence, a
+    // pell (whole, battered), the archery butt, the pitch kettle's tripod (empty, the kettle hung on it) and the
+    // site marked out (offered, ordered with its timber delivered)
+    case yardGround, yardPell, yardButt, yardKettle, yardSite
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -540,6 +544,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .siteHalo: return PixelSize(width: 25, height: 25)
         case .paySign: return PixelSize(width: 24, height: 17)
         case .hudDawn: return PixelSize(width: 11, height: 9)
+        // b3-yard
+        case .yardGround: return PixelSize(width: 39, height: 16)
+        case .yardPell: return PixelSize(width: 9, height: 22)
+        case .yardButt: return PixelSize(width: 17, height: 20)
+        case .yardKettle: return PixelSize(width: 17, height: 18)
+        case .yardSite: return PixelSize(width: 39, height: 10)
         }
     }
 
@@ -644,6 +654,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .siteHalo: return 2
         case .paySign: return 23
         case .payCoin, .hudCoinTen, .hudCoinBar: return 5
+        // b3-yard: the pell whole and battered; the tripod empty and with the kettle; the site offered and ordered.
+        case .yardPell, .yardKettle, .yardSite: return 2
         default: return 1
         }
     }

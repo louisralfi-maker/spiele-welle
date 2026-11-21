@@ -37,14 +37,30 @@ extension TouchRules {
     static func thinned(_ marked: [TouchThing], night: Double) -> [TouchThing] {
         var out: [TouchThing] = []
         for thing in marked {
-            if isBuilding(thing.kind)
-                && out.contains(where: { isBuilding($0.kind) && abs($0.markX - thing.markX) < buildingSpacing }) {
+            // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the yard's site keeps its
+            // mark beside the barracks' (frame 01 of step 1 lost it to them); the spacing neither takes it nor counts it.
+            if isBuilding(thing.kind) && !isYardSite(thing)
+                && out.contains(where: { isBuilding($0.kind) && !isYardSite($0)
+                    && abs($0.markX - thing.markX) < buildingSpacing }) {
                 continue
             }
             out.append(thing)
         }
-        if night < 0.5 && out.count > dayMarks { out.removeLast(out.count - dayMarks) }
+        if night < 0.5 && out.count > dayMarks {
+            // b3-yard: by day the yard's site stays among the marks kept (the farthest other gives way).
+            if let index = out.firstIndex(where: { isYardSite($0) }), index >= dayMarks {
+                let site = out.remove(at: index)
+                out.insert(site, at: dayMarks - 1)
+            }
+            out.removeLast(out.count - dayMarks)
+        }
         return out
+    }
+
+    /// b3-yard (build 3, wave 2, lane 2, step 2): true for the drill yard's thing (its site, then the kettle's place).
+    static func isYardSite(_ thing: TouchThing) -> Bool {
+        if case .yard = thing.act { return true }
+        return false
     }
     /// A mark shows only while its thing's centre lies this far inside the view (the critic's high 3: the door's mark
     /// stood half off the screen's left edge).

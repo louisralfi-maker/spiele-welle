@@ -427,7 +427,7 @@ final class YardTests: XCTestCase {
         let site = try XCTUnwrap(things.first { $0.id == "touch-yard" }, "day 4: the drill yard's site")
         XCTAssertEqual(site.act, .yard(.stage(2)))
         XCTAssertEqual(site.kind, .plot, "a site like every other")
-        XCTAssertEqual(site.footing, Yard.plotHalf, "its stakes and cord show where it will stand")
+        XCTAssertNil(site.footing, "step 2: its own stakes and cord (yardSite) mark it out, no footing over them")
         XCTAssertEqual(site.x, Yard.plotX)
         XCTAssertEqual(site.price, 70)
         XCTAssertTrue(site.marked, "marked while the purse can pay it")
@@ -554,6 +554,11 @@ final class YardCountTests: XCTestCase {
         XCTAssertEqual(game.touch.count?.thing, site.id, "its board comes up")
         XCTAssertEqual(game.touch.count?.coins.count, 7, "seven hollows for 70")
         XCTAssertNil(game.overlay, "no card")
+        // Step 2: the board's own place over the yard's ground, clear of the barracks; he came from the barracks' side.
+        let board = try XCTUnwrap(game.touch.countBoard)
+        XCTAssertLessThanOrEqual(board.left + board.layout.width - 1, Int(EntityFrames.barracksLeft) - 1,
+                                 "the board stands clear of the barracks")
+        XCTAssertGreaterThan(board.stand, board.x, "he stands on the side he came from")
         run(game, seconds: 10) { game.touch.count?.ready == true }
         XCTAssertEqual(game.touch.count?.ready, true, "he stands beside the board")
         XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid yet")
@@ -568,5 +573,142 @@ final class YardCountTests: XCTestCase {
         XCTAssertEqual(game.driver?.state.gold, 130, "and only once")
         XCTAssertEqual(game.touch.countLanterns.filter { $0.outAt == nil }.count, 1, "the site lantern burns on")
         XCTAssertFalse(game.touch.things.contains { $0.id.hasPrefix("touch-yard") }, "nothing more until its dawn")
+    }
+}
+
+/// The drill yard's layout and look (build 3, wave 2, lane 2, step 2; `YardLook`, tools/yardart.py): every thing of the
+/// yard on its own ground between the gatehouse's east tower and the barracks, the site marked out until its dawn, the
+/// kettle's fire and light, the drill clear of the barracks and Marek's cart and still under Reduce Motion, the guards
+/// waiting clear of the yard at night, the yard's board in its own place and the site's mark beside the barracks'.
+final class YardLookTests: XCTestCase {
+    private let balance = Balance.standard
+
+    private func props(_ s: GameState) -> EntityFrames.PropList {
+        var list = EntityFrames.PropList()
+        EntityFrames.yardProps(s, balance: balance, props: &list)
+        return list
+    }
+
+    private func realm(day: Int, hour: Double = 10) -> GameState {
+        var s = GameState.newRealm(seed: 2, balance: balance)
+        s.day = day
+        s.hour = hour
+        s.gold = 200
+        return s
+    }
+
+    func testTheSiteIsMarkedOutUntilItsDawnAndTheYardStandsOnItsOwnGround() {
+        var s = realm(day: 3)
+        XCTAssertTrue(props(s).props.isEmpty, "nothing before day 4")
+        s.day = 4
+        XCTAssertEqual(props(s).props.map(\.sprite), [.yardSite], "day 4: the site marked out")
+        XCTAssertEqual(props(s).props.first?.frame, 0)
+        s.hour = 23
+        XCTAssertEqual(props(s).props.map(\.sprite), [.yardSite], "its stakes stand at night too")
+        s.hour = 10
+        XCTAssertTrue(Yard.order(&s, .stage(2), balance: balance))
+        XCTAssertEqual(props(s).props.first?.frame, 1, "ordered: the timber is delivered")
+        Yard.proof(&s, stage: 2, kettle: false, trained: false, balance: balance)
+        let standing = props(s)
+        XCTAssertEqual(standing.props.map(\.sprite), [.yardGround, .yardPell, .yardPell, .yardButt, .yardKettle])
+        XCTAssertEqual(standing.props.last?.frame, 0, "the tripod stands empty")
+        XCTAssertTrue(standing.lights.isEmpty, "no fire before the kettle")
+        XCTAssertEqual(standing.props.first?.y, YardLook.groundY, "the sand lies on the lane's top rows")
+        for prop in standing.props {
+            let size = prop.sprite.size
+            XCTAssertGreaterThanOrEqual(prop.x, YardLook.groundLeft, "\(prop.sprite) on the yard's ground")
+            XCTAssertLessThanOrEqual(prop.x + Double(size.width) - 1, EntityFrames.barracksLeft - 1,
+                                     "\(prop.sprite) clear of the barracks")
+            XCTAssertLessThan(prop.x + Double(size.width), CourtLayout.marekCartX, "\(prop.sprite) clear of the cart")
+        }
+        s.yard?.kettle = .inUse
+        let kettle = props(s)
+        let pot = kettle.props.first { $0.sprite == .yardKettle }
+        XCTAssertEqual(pot?.frame, 1, "the kettle hangs on the tripod")
+        XCTAssertEqual(pot?.emissive.first?.sprite, .flame, "over a low fire")
+        XCTAssertEqual(kettle.lights.count, 1, "with a small warm light")
+        s.defeated = true
+        XCTAssertTrue(props(s).props.isEmpty)
+    }
+
+    func testTheDrillStandsClearOfTheBarracksAndMarekCart() {
+        let barracks = EntityFrames.barracksLeft
+        for x in YardLook.archerSpots {
+            XCTAssertLessThan(x + Double(SpriteID.archer.size.width) / 2, barracks, "an archer at \(x)")
+        }
+        for spot in YardLook.guardSpots {
+            XCTAssertLessThan(spot.x + Double(SpriteID.guardsman.size.width) / 2, barracks, "a guard at \(spot.x)")
+            XCTAssertLessThan(spot.x + Double(SpriteID.guardsman.size.width) / 2, CourtLayout.marekCartX)
+        }
+        // Brannock's day stops: on the drill line, never before the butt and never over the site's middle.
+        let brannock = CourtLayout.routines["brannock"]?.stops ?? []
+        for stop in brannock {
+            XCTAssertLessThan(stop, YardLook.buttLeft, "Brannock at \(stop) stands before no butt")
+            XCTAssertGreaterThan(abs(stop - Yard.plotX), 11, "and leaves the site's middle free")
+        }
+    }
+
+    func testTheDrillMovesAndStandsStillUnderReduceMotion() {
+        var archerFrames = Set<Int>()
+        var guardFrames = Set<Int>()
+        var flights = 0
+        for step in 0..<260 {
+            let time = Double(step) * 0.01 * YardLook.archerRound
+            archerFrames.insert(YardLook.archerFrame(index: 0, time: time, reduceMotion: false))
+            guardFrames.insert(YardLook.guardFrame(index: 0, time: time, reduceMotion: false))
+            if let arrow = YardLook.arrow(index: 0, time: time, reduceMotion: false) {
+                flights += 1
+                XCTAssertGreaterThanOrEqual(arrow.x, YardLook.archerSpots[0] + YardLook.bowReach - 0.01)
+                XCTAssertLessThanOrEqual(arrow.x, YardLook.buttHeart.x, "it flies into the butt")
+            }
+            XCTAssertEqual(YardLook.archerFrame(index: 1, time: time, reduceMotion: true), 3, "the bow held drawn")
+            XCTAssertEqual(YardLook.guardFrame(index: 1, time: time, reduceMotion: true), 0, "the guard stands")
+            XCTAssertNil(YardLook.arrow(index: 1, time: time, reduceMotion: true), "no arrow flies")
+        }
+        XCTAssertTrue(archerFrames.isSuperset(of: [2, 3, 4]), "the archer draws and looses: \(archerFrames)")
+        XCTAssertTrue(guardFrames.isSuperset(of: [6, 7, 8]), "the guard strikes: \(guardFrames)")
+        XCTAssertGreaterThan(flights, 0, "an arrow flies every round")
+        XCTAssertNotEqual(YardLook.archerFrame(index: 0, time: 2.1, reduceMotion: false),
+                          YardLook.archerFrame(index: 1, time: 2.1, reduceMotion: false), "out of step")
+    }
+
+    func testTheGuardsWaitClearOfTheYardAtNight() {
+        let half = Double(SpriteID.guardsman.size.width) / 2
+        for index in 0..<8 {
+            XCTAssertLessThanOrEqual(YardLook.waitingGuard(index, yardStands: true) + half, YardLook.pellLefts[0],
+                                     "guard \(index) waits clear of the pells")
+            XCTAssertEqual(YardLook.waitingGuard(index, yardStands: false), Realm.courtyardX + 7 * Double(index),
+                           "without a yard as before")
+        }
+    }
+
+    func testTheYardsBoardHasAPlaceOfItsOwn() {
+        for price in [balance.yard.stagePrice, balance.yard.kettlePrice] {
+            let width = PayBoardLayout.make(PayCount.hollows(price: price)).width
+            for lord in [1400.0, 1500.0] {
+                let place = YardLook.boardPlace(width: width, lordX: lord)
+                let left = Int(place.x.rounded(.down)) - width / 2
+                XCTAssertEqual(left + width - 1, Int(EntityFrames.barracksLeft) - 1, "flush clear of the barracks")
+                XCTAssertGreaterThan(Double(left), SceneLayout.castlePassages[0].upperBound, "clear of the gate's passage")
+                XCTAssertLessThan(Double(left + width), CourtLayout.marekCartX, "clear of Marek's cart")
+                XCTAssertEqual(place.side, lord < place.x ? -1 : 1, "the lord on his own side")
+            }
+        }
+    }
+
+    func testTheSitesMarkShowsBesideTheBarracks() throws {
+        let s = realm(day: 4)
+        let body = try XCTUnwrap(Speakers.speaker("brannock")).body
+        let brannock = DrawnFigure(who: "brannock", key: "brannock", body: body, x: 1444, y: 0, facing: 1, frame: 0,
+                                   alpha: 1, look: nil, petition: nil, talking: false)
+        let things = TouchThings.world(s, balance: balance, figures: [brannock], talked: [])
+        XCTAssertTrue(things.contains { $0.id == "touch-yard" })
+        for lord in [1470.0, 1500.0, 1530.0] {
+            let marked = TouchRules.marked(things, lordX: lord, viewLeft: lord - 218, viewRight: lord + 218)
+            let shown = TouchRules.thinned(marked, night: 0)
+            XCTAssertTrue(shown.contains { $0.id == "touch-yard" }, "the lord at \(lord): \(shown.map(\.id))")
+            let order = shown.map { abs($0.x - lord) }
+            XCTAssertEqual(order, order.sorted(), "the marks still come nearest first")
+        }
     }
 }
