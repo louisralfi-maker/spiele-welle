@@ -120,9 +120,13 @@ final class WorldRebuildFixTests: XCTestCase {
 
     func testTheMoonStandsInTheWedgeOverTheBaileyAtNight() {
         let night = frame(timeOfDay: 0.97, focus: 1800)
-        XCTAssertTrue(night.emissives.contains { $0.sprite == .moon && $0.plane == .mid }, "the moon in the wedge")
-        XCTAssertTrue(night.emissives.allSatisfy { !($0.sprite == .moon && $0.plane == .sky) },
-                      "the open sky's moon gives way inside the walls")
+        // Build 3, lane 5 step 2b: the wedge's moon is drawn in the sky pass (plane .sky) at its fixed column; the open
+        // sky's moon (at 0.72 of the width) gives way.
+        let moons = night.emissives.filter { $0.sprite == .moon }
+        XCTAssertEqual(moons.count, 1, "one moon inside the walls: the open sky's moon gives way to the wedge's")
+        XCTAssertEqual(moons.first?.plane, .sky, "the moon in the wedge, on the sky")
+        XCTAssertEqual(moons.first?.rect.x, Float(FrameBuilder.wedgeMoonX) - Float(SpriteID.moon.size.width / 2),
+                       "the moon in the wedge")
         XCTAssertTrue(frame(timeOfDay: 0.5, focus: 1800).emissives.allSatisfy { $0.sprite != .moon })
         let outside = frame(timeOfDay: 0.97, focus: 600)
         XCTAssertTrue(outside.emissives.contains { $0.sprite == .moon && $0.plane == .sky }, "the moon over the moor")

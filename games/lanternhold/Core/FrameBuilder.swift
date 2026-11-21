@@ -183,10 +183,6 @@ enum FrameBuilder {
         let eyeScreens = options.look == .two ? EyeRules.screens(ordered) : []
         var next = 0
         for plane in Plane.allCases {
-            if plane == .mid && options.look == .two, let moon = wedgeMoon(ambient: ambient, geometry: geometry) {
-                // World-2 fix round 1: the moon on the sky, behind the cleft's rock (`wedgeMoon`).
-                glow.add(moon)
-            }
             if plane == .world {
                 let tiles = options.look == .two ? laneTiles(geometry: geometry) : groundTiles(geometry: geometry)
                 for tile in tiles {
@@ -328,9 +324,13 @@ enum FrameBuilder {
         let cleftDusk = options.look == .two ? cleftDuskShare(focus: geometry.focusX, ambient: ambient) : 0
         var skyAmbient = ambient
         skyAmbient.starAlpha *= Float(1 - cleftDusk)
+        // World-2 fix round 1: the moon on the sky, behind the cleft's rock (`wedgeMoon`). Build 3, lane 5 step 2b (the
+        // smooth walk, suspect 3): in the sky pass, which the composite reads at the sky's place (it stood still on the
+        // screen only in the emissive pass's numbers: read on the world's grid it shook by the world's device shift).
+        let wedge = options.look == .two ? wedgeMoon(ambient: ambient, geometry: geometry) : nil
         var emissives = skyEmissives(ambient: skyAmbient, hour: hour, geometry: geometry,
                                      cleft: options.look == .two ? cleftShare(focus: geometry.focusX) : 0)
-            + glow.items
+            + (wedge.map { [$0] } ?? []) + glow.items
         // b3-horde (build 3, lane 4 step A, step 4; the director's call 8; one block for the join): the bank's and the
         // fog's eyes as single cold points at heights and spacing of their own, never pairs, rows or a grid
         // (`HordeLook.singleEyes`).
@@ -695,9 +695,10 @@ enum FrameBuilder {
 
     /// Fix round 1 (the critic's high 10: "the moon moves at about half the camera and sits on the keep's roof line"):
     /// inside the walls the moon stands on the sky, still on the screen (factor 0), `wedgeMoonX` columns from its left
-    /// and `wedgeMoonTop` rows under its top (under the HUD). It goes into the emissive pass before the mid plane's
-    /// rock, so the cleft wall hides it but where a wedge of sky passes over it (the Throat's wedge, the camera about
-    /// 1600), clear of the keep, which stands far to its right there; at dusk it is not up yet.
+    /// and `wedgeMoonTop` rows under its top (under the HUD). The cleft wall hides it but where a wedge of sky passes
+    /// over it (the Throat's wedge, the camera about 1600), clear of the keep, which stands far to its right there; at
+    /// dusk it is not up yet. Build 3, lane 5 step 2b: on the sky plane (the sky pass, read at the sky's place, under
+    /// the mid plane's rock), so it stands still on the screen in every frame of a walk.
     /// How strong the keep's warm west rim is (fix round 1): by the hour's warmth (none at noon and at night, full from
     /// the golden hour to sunset, fading through the dusk) and gone once the moon is up.
     static func keepRimShare(_ ambient: AmbientSample) -> Float {
@@ -713,7 +714,7 @@ enum FrameBuilder {
         let rect = SIMD4<Float>(Float(wedgeMoonX) - Float(size.width / 2), Float(wedgeMoonTop), Float(size.width),
                                 Float(size.height))
         let moon = GamePalette.moon * share
-        return EmissiveInstance(sprite: .moon, plane: .mid, rect: rect, color: SIMD4<Float>(moon.x, moon.y, moon.z, 1))
+        return EmissiveInstance(sprite: .moon, plane: .sky, rect: rect, color: SIMD4<Float>(moon.x, moon.y, moon.z, 1))
     }
 
     /// Look 2: the cut-away rooms on screen (`SceneLayout.look2Interior`), at most two, each as x0, y0, x1, y1 in

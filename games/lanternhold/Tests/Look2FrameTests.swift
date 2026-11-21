@@ -568,14 +568,16 @@ final class Look2FrameTests: XCTestCase {
                                         time: 1.5, override: scene.override)
             let wet = try renderer.renderOffscreen(frame(scene.state, focus: scene.focus, weather: sample),
                                                    settings: settings)
-            XCTAssertEqual(renderer.stats.passes, 16, "the weather adds no pass")
+            XCTAssertEqual(renderer.stats.passes, 17, "the weather adds no pass")
             let dry = try renderer.renderOffscreen(frame(scene.state, focus: scene.focus), settings: settings)
             attach(wet, name: "look2-\(scene.name)")
             XCTAssertNotEqual(LookGoldenTests.hash(wet.pixels), LookGoldenTests.hash(dry.pixels), scene.name)
         }
         for scene in scenes {
             let two = try renderer.renderOffscreen(frame(scene.state, focus: scene.focus), settings: settings)
-            XCTAssertEqual(renderer.stats.passes, 16, "ten planes, light, emissive, bloom's three, composite")
+            // Build 3, lane 5 step 2b: the band texture of the glows behind the lane (`EmissiveBands`) is look 2's pass.
+            XCTAssertEqual(renderer.stats.passes, 17,
+                           "ten planes, light, emissive, the bands' glows, bloom's three, composite")
             let one = try renderer.renderOffscreen(frame(scene.state, focus: scene.focus, look: .one),
                                                    settings: settings)
             XCTAssertEqual(renderer.stats.passes, 14, "look 1 keeps its passes")

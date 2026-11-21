@@ -321,8 +321,29 @@ fragment float4 lh_pool_fragment(LightPoolOut in [[stage_in]],
 struct BloomUniforms {
     float4 size;    // low-res width, height, half-res width, height
     float4 params;  // share of point light, share of the sky emissives, threshold, knee
-    float4 backdrop; // colour of the backdrop lights (the light buffer's alpha), unused
+    float4 backdrop; // colour of the backdrop lights (the light buffer's alpha); w 1 when the band texture is drawn
 };
+
+// Build 3, lane 5 step 2b (the smooth walk, suspect 3): 1 where a picture leaves a glow behind it open (as an
+// occluder cleared the glow under a sprite's opaque texels), 0 where it stands opaque in front of it.
+static inline float lh_open(float a) {
+    return a < 0.5f ? 1.0f : 0.0f;
+}
+
+// Build 3, lane 5 step 2b: the bloom's share of look 2's band texture (Render/EmissiveBands.swift) at a low-res
+// texel: the far band behind the mid plane, the near plane and the lane; the mid and mist bands behind the near plane
+// and the lane; the near band behind the lane; the foreground's and the lantern's streak on the water behind nothing.
+// Read on the world's grid (the bloom is soft); bands are `height + 2` rows apart.
+static float3 lh_back_bloom(texture2d<float> back, uint2 t, uint height, float midA, float nearA, float worldA) {
+    uint stride = height + 2u;
+    float lane = lh_open(worldA);
+    float front = lh_open(nearA) * lane;
+    float3 sum = back.read(t).rgb * (lh_open(midA) * front);
+    sum += (back.read(uint2(t.x, t.y + stride)).rgb + back.read(uint2(t.x, t.y + 2u * stride)).rgb) * front;
+    sum += back.read(uint2(t.x, t.y + 3u * stride)).rgb * lane;
+    sum += back.read(uint2(t.x, t.y + 4u * stride)).rgb + back.read(uint2(t.x, t.y + 5u * stride)).rgb;
+    return sum;
+}
 
 // Half resolution: each pixel averages 2 x 2 low-res pixels of emissive, light and sky glow, then keeps only what
 // is bright (soft knee).
@@ -330,7 +351,11 @@ fragment float4 lh_bloom_prefilter_fragment(FullscreenOut in [[stage_in]],
                                             constant BloomUniforms &u [[buffer(0)]],
                                             texture2d<float> emissive [[texture(0)]],
                                             texture2d<float> light [[texture(1)]],
-                                            texture2d<float> sky [[texture(2)]]) {
+                                            texture2d<float> sky [[texture(2)]],
+                                            texture2d<float> back [[texture(3)]],
+                                            texture2d<float> midTex [[texture(4)]],
+                                            texture2d<float> nearTex [[texture(5)]],
+                                            texture2d<float> worldTex [[texture(6)]]) {
     uint2 base = uint2(in.position.xy) * 2u;
     uint2 limit = uint2(max(u.size.xy, float2(1.0f))) - 1u;
     float3 sum = float3(0.0f);
@@ -339,6 +364,9 @@ fragment float4 lh_bloom_prefilter_fragment(FullscreenOut in [[stage_in]],
             uint2 t = min(base + uint2(i, j), limit);
             float4 l = light.read(t);
             sum += emissive.read(t).rgb + (l.rgb + u.backdrop.rgb * l.a) * u.params.x + sky.read(t).rgb * u.params.y;
+            if (u.backdrop.w > 0.5f) {
+                sum += lh_back_bloom(back, t, limit.y + 1u, midTex.read(t).a, nearTex.read(t).a, worldTex.read(t).a);
+            }
         }
     }
     float3 c = sum * 0.25f;
@@ -1085,6 +1113,28 @@ static inline float3 lh2_capped(float3 light) {
     return light * (min(peak, kLitCap2) / max(peak, 0.0001f));
 }
 
+// Build 3, lane 5 step 2b (the smooth walk, suspect 3): the glows of the planes behind the lane and of the foreground,
+// a band each in their own texture (Render/EmissiveBands.swift), each read at its own plane's column and device shift,
+// so a lit window keeps its place on its wall in every frame of a walk and of a pan (the main emissive texture is read
+// on the world's grid). What stands opaque in front of a band's plane hides it, as the occluders did: the far band
+// behind the mid plane, the near plane and the lane; the mid band and the mist band's behind the near plane and the
+// lane; the near band behind the lane; the foreground's and the lantern's streak on the water (band 5, the near
+// plane's column) behind nothing. Bands are `target.y + 2` rows apart.
+static float3 lh2_back_glow(PlaneCoords c, uint2 mist, uint2 near, float midA, float nearA, float worldA,
+                            constant CompositeUniforms &u, texture2d<float> backTex) {
+    uint stride = uint(max(u.target.y, 1.0f)) + 2u;
+    uint row = c.row;
+    float lane = lh_open(worldA);
+    float front = lh_open(nearA) * lane;
+    float3 sum = backTex.read(uint2(c.distant.x, row)).rgb * (lh_open(midA) * front);
+    sum += backTex.read(uint2(c.mid.x, row + stride)).rgb * front;
+    sum += backTex.read(uint2(mist.x, row + 2u * stride)).rgb * front;
+    sum += backTex.read(uint2(near.x, row + 3u * stride)).rgb * lane;
+    sum += backTex.read(uint2(c.fg.x, row + 4u * stride)).rgb;
+    sum += backTex.read(uint2(near.x, row + 5u * stride)).rgb;
+    return sum;
+}
+
 // Sky and clouds, the far and mid planes, the mist band, the near plane, fog A, the lit world plane and its emissive
 // parts. `midVisible` returns how much of the mid plane still shows, `fogCover` the densest fog behind the world.
 static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, constant CompositeUniforms &u,
@@ -1092,7 +1142,7 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
                        texture2d<float> skyTex, texture2d<float> cloudsTex, texture2d<float> farTex,
                        texture2d<float> midTex, texture2d<float> mistTex, texture2d<float> nearTex,
                        texture2d<float> fogATex, texture2d<float> worldTex, texture2d<float> emissiveTex,
-                       thread float &midVisible, thread float &fogCover) {
+                       thread float &midVisible, thread float &fogCover, texture2d<float> backTex) {
     float3 color = lh_sky(c, u) + skyTex.read(c.sky).rgb;
     float horizon = max(u.target.z, 1.0f);
     float low = smoothstep(horizon - 70.0f, horizon, float(c.row));
@@ -1229,7 +1279,7 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         color = color * (1.0f - w.a) + lit;
         midVisible *= 1.0f - w.a;
     }
-    return color + emissiveTex.read(c.world).rgb;
+    return color + emissiveTex.read(c.world).rgb + lh2_back_glow(c, mist, near, m.a, n.a, w.a, u, backTex);
 }
 
 // Fog B, the foreground, bloom and the grade of look 2.
@@ -1340,7 +1390,8 @@ fragment float4 lh_composite2_fragment(FullscreenOut in [[stage_in]],
                                        texture2d<float> emissiveTex [[texture(9)]],
                                        texture2d<float> bloomTex [[texture(10)]],
                                        texture2d<float> mistTex [[texture(12)]],
-                                       texture2d<float> nearTex [[texture(13)]]) {
+                                       texture2d<float> nearTex [[texture(13)]],
+                                       texture2d<float> backTex [[texture(14)]]) {
     float2 p = in.position.xy;
     bool inset = u.debug.y != 0u && p.x < u.target.x && p.y < u.target.y;
     PlaneCoords c = inset ? lh_inset_coords(p, u) : lh_coords(p, u);
@@ -1354,7 +1405,7 @@ fragment float4 lh_composite2_fragment(FullscreenOut in [[stage_in]],
     float midVisible = 0.0f;
     float fogCover = 0.0f;
     float3 color = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
-                            worldTex, emissiveTex, midVisible, fogCover);
+                            worldTex, emissiveTex, midVisible, fogCover, backTex);
     color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
@@ -1384,7 +1435,8 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
                                    texture2d<float> bloomTex [[texture(10)]],
                                    texture2d<float> atlas [[texture(11)]],
                                    texture2d<float> mistTex [[texture(12)]],
-                                   texture2d<float> nearTex [[texture(13)]]) {
+                                   texture2d<float> nearTex [[texture(13)]],
+                                   texture2d<float> backTex [[texture(14)]]) {
     float across = dfdx(in.texel.x);
     uint2 t = uint2(max(in.texel, float2(0.0f)));
     float4 texel = atlas.read(t);
@@ -1401,7 +1453,7 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     float3 base = float3(0.0f);
     if (in.tint.a < 0.999f) {
         base = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
-                        worldTex, emissiveTex, midVisible, fogCover);
+                        worldTex, emissiveTex, midVisible, fogCover, backTex);
     } else {
         fogCover = max(mistTex.read(mist).a, fogATex.read(c.fogA).a) * lh2_fog_region(c, u);
     }
