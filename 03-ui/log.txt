@@ -1,0 +1,22 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (24.269 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (28.124 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (71.155 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (20.323 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (66.267 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (22.734 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (140.403 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (19.973 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (18.127 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (19.553 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:341: error: -[LanternholdUITests.CountUITests testTheModels] : XCTAssertTrue failed - the catapult's board comes
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:342: error: -[LanternholdUITests.CountUITests testTheModels] : XCTAssertTrue failed - the catapult chosen
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' failed (52.334 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:423: error: -[LanternholdUITests.CountUITests testTheModelsPictures] : XCTAssertTrue failed - 198-count-model-catapult-counter: 11 hollows
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:426: error: -[LanternholdUITests.CountUITests testTheModelsPictures] : XCTAssertTrue failed - 198-count-model-catapult-counter: chosen
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' failed (92.557 seconds).
+Test Suite 'CountUITests' failed at 2026-11-21 14:59:44.310.
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (63.373 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-21 15:00:47.689.
+Test Suite 'Selected tests' failed at 2026-11-21 15:00:47.691.
+exit=65
+screenshots: 48
