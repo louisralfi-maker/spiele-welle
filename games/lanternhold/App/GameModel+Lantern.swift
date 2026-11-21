@@ -56,7 +56,9 @@ extension GameModel {
         touch.lordHintOn = false
         // The join (item 4): the purse as the town shows it, a coin in flight not counted before it lands.
         let shown = townShownGold(state, balance: driver?.balance ?? .standard)
-        let block = HUDKit.moment(gold: shown, day: state.day)
+        var block = HUDKit.moment(gold: shown, day: state.day)
+        // Build 3, lane 5 step 4 (critic H1): drawn in Metal under the moment's dim, a step brighter.
+        block.tint = HUDKitActors.momentTint
         let lordX = stageLordX
         let viewLeft = framing.viewLeft.rounded(.up) + 3
         let viewRight = framing.viewRight.rounded(.down) - 3
@@ -155,18 +157,12 @@ extension GameModel {
         touch.look.step(seconds)
     }
 
-    /// The camera's pan changed (`advanceGame`): the moment's block rides with the world over the lord, and the
-    /// strip's view bracket moves with the view (the strip is made again when the view's edge crosses a column).
+    /// The camera's pan changed (`advanceGame`): the strip's view bracket moves with the view (the strip is made again
+    /// when the view's edge crosses a column). Build 3, lane 5 step 4 (critic H1): the moment's block rides with the
+    /// world by itself, drawn in the world's own frame (`lanternWorld`), so `lanternMoment` is no longer published
+    /// again in every frame of a pan.
     func followLookAround() {
         guard kind == .world, stage == .world, let view = camera else { return }
-        if var show = lanternMoment, let blockX = show.blockX, let pixelScale = lastPixelScale {
-            let framing = TouchFraming.world(camera: view, pixelScale: pixelScale)
-            let left = framing.deviceX(stageX: blockX)
-            if left != show.left {
-                show.left = left
-                lanternMoment = show
-            }
-        }
         let column = RealmMapPixels.column(view.x)
         if column != touch.lookColumn {
             touch.lookColumn = column
@@ -246,6 +242,12 @@ extension GameModel {
     /// The notes as unlit actors above the lord on the world strip (`touchWorld`), and while the lantern is up the
     /// lord's raised pose and the brighter glass.
     func lanternWorld(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming) {
+        // Build 3, lane 5 step 4 (the step 2b critic's H1): while the lantern is up the moment's block (the purse and
+        // the day line) is drawn here, in the world's own frame, as the walking row is; it rides the look-around's pan
+        // with the world and never trails it.
+        if let show = lanternMoment, let blockX = show.blockX {
+            layer.actors += HUDKitActors.moment(show.block, left: blockX, groundLift: 0, framing: framing)
+        }
         let block = lordNotesBlock
         if !block.pieces.isEmpty {
             // Build 3, the count's step 2 (M2): the figure never touches a board standing by the lord.
@@ -312,6 +314,13 @@ extension GameModel {
     /// The notes above the lord in the hall (`hallFrame`): the block and the floor's lift under him.
     var hallLordNotes: (block: HUDKit.Block, x: Double, ground: Double)? {
         guard stage == .hall, let scene = hall else { return nil }
+        // Build 3, lane 5 step 4 (critic H1): the lantern moment's block in the hall's own frame, at its place: centred
+        // on its left edge (`HUDKitActors.actors` centres the block on `x`, the moment placed it inside the view) and
+        // lifted by the moment's height over the head instead of the purse's.
+        if let show = lanternMoment, let blockX = show.blockX {
+            let ground = HallLayout.lift(at: scene.walker.x) + Double(HUDKit.momentAbove - HUDKit.purseAbove)
+            return (show.block, blockX + Double(show.block.width) / 2, ground)
+        }
         let block = lordNotesBlock
         guard !block.pieces.isEmpty else { return nil }
         return (block, scene.walker.x, HallLayout.lift(at: scene.walker.x))

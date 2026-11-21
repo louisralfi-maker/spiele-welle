@@ -39,6 +39,9 @@ enum HUDKit {
         var pieces: [Piece] = []
         var width = 0
         var height = 0
+        /// Build 3, lane 5 step 4 (critic H1): the tint its actors are drawn with (`HUDKitActors`): 1, or the lantern
+        /// moment's `HUDKitActors.momentTint` under the moment's dim.
+        var tint: Float = 1
 
         /// The pieces moved by (dx, dy).
         func shifted(_ dx: Int, _ dy: Int) -> [Piece] {
@@ -356,7 +359,30 @@ enum HUDKitActors {
         let viewRight = framing.viewRight.rounded(.down) - 2
         let left = min(max(lordX - Double(block.width) / 2, viewLeft), viewRight - Double(block.width))
         let top = groundLift + Double(HUDKit.lordHead + HUDKit.purseAbove + block.height)
+        return placed(block, left: left, top: top, framing: framing)
+    }
+
+    /// Build 3, lane 5 step 4 (the step 2b critic's H1): the lantern moment's block (the purse and the day line) in the
+    /// same frame as the world, so it can never trail the world during the look-around's pan. `left` is its left edge
+    /// on the stage (game px, whole: placed when the moment opened, `LanternMomentShow.blockX`), never clamped to the
+    /// view, so in a pan it rides with the world over the lord; its day line's bottom `HUDKit.momentAbove` px above
+    /// his head.
+    static func moment(_ block: HUDKit.Block, left: Double, groundLift: Double, framing: TouchFraming)
+        -> [ActorInstance] {
+        let top = groundLift + Double(HUDKit.lordHead + HUDKit.momentAbove + block.height)
+        return placed(block, left: left, top: top, framing: framing)
+    }
+
+    /// The moment's dim (`LanternMomentView`, black at 0.18) lies over the whole picture, the Metal row too: the row is
+    /// drawn this much brighter so it shows about as bright as the SwiftUI row did over the dim (the picture's
+    /// shoulder and the grade keep its brightest pixels a little under it).
+    static let momentTint: Float = 1 / 0.82
+
+    /// The block's pieces as unlit actors with `left`, `top` its top-left on the stage (game px, `top` over the walk
+    /// line).
+    static func placed(_ block: HUDKit.Block, left: Double, top: Double, framing: TouchFraming) -> [ActorInstance] {
         let scale = Float(framing.scale)
+        let k = block.tint
         return block.pieces.map { piece in
             let size = piece.sprite.size
             let x = framing.deviceX(stageX: left + Double(piece.x))
@@ -364,7 +390,7 @@ enum HUDKitActors {
             return ActorInstance(sprite: piece.sprite, frame: piece.frame,
                                  rect: SIMD4<Float>(Float(x), Float(y), Float(size.width) * scale,
                                                     Float(size.height) * scale),
-                                 tint: SIMD4<Float>(1, 1, 1, 1), flipped: false, isEmissive: true, isLit: true)
+                                 tint: SIMD4<Float>(k, k, k, 1), flipped: false, isEmissive: true, isLit: true)
         }
     }
 }

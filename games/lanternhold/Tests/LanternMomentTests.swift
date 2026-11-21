@@ -462,11 +462,13 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(game.strip?.window?.lowerBound), 0, accuracy: 0.001,
                        "the strip's view bracket moved along")
         XCTAssertEqual(game.driver?.state.hour, hour, "no time passed")
-        // The moment's figures ride with the world over the lord.
-        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        // The moment's figures ride with the world over the lord (step 4: drawn in the world's frame).
+        let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let show = try XCTUnwrap(game.lanternMoment)
         let slid = try XCTUnwrap(game.touch.framing)
-        XCTAssertEqual(show.left, slid.deviceX(stageX: try XCTUnwrap(show.blockX)), accuracy: 0.5,
+        let coin = try XCTUnwrap(frame.actors.first { $0.sprite == .hudCoin }, "the purse's coin in the frame")
+        let coinX = try XCTUnwrap(show.blockX) + Double(show.block.pieces.first { $0.sprite == .hudCoin }?.x ?? 0)
+        XCTAssertEqual(Double(coin.rect.x), slid.deviceX(stageX: coinX), accuracy: 0.01,
                        "the block stands over the lord in the slid view")
     }
 
@@ -794,5 +796,40 @@ final class LanternMomentTests: XCTestCase {
         slip.open("You left their doors alone.")
         game.lowerLanternMoment()
         XCTAssertNil(slip.text, "lowering the lantern shuts it")
+    }
+
+    /// Step 4 (the step 2b critic's H1): while the lantern is up the lord's row is drawn in Metal, in the world's own
+    /// frame, so over a pan of 60 frames its first actor keeps one device distance to the hall's door under it; the
+    /// moment is not published again for the row's place, and the row is drawn a step brighter under the dim.
+    func testTheMomentsRowRidesThePanInTheWorldsOwnFrame() throws {
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" }, "the hall's door offers")
+        let doorX = TouchRules.area(door, minimum: 0).left
+        let show = try XCTUnwrap(game.lanternMoment)
+        XCTAssertEqual(show.block.pieces.first?.sprite, .hudCoin, "the row's first piece is the purse's coin")
+        let start = CGPoint(x: 600, y: 250)
+        game.touchChanged(start: start, at: start, translation: .zero, in: proPoints)
+        var gaps: Set<Double> = []
+        var views: Set<Double> = []
+        var tint: Float = 0
+        for step in 1...60 {
+            drag(game, from: start, dx: -3.7 * Double(step))
+            game.advance(by: 1.0 / 60)
+            let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let framing = try XCTUnwrap(game.touch.framing)
+            let coin = try XCTUnwrap(frame.actors.first { $0.sprite == .hudCoin }, "frame \(step): the coin")
+            gaps.insert(((Double(coin.rect.x) - framing.deviceX(stageX: doorX)) * 1000).rounded() / 1000)
+            views.insert(try XCTUnwrap(game.camera?.x))
+            tint = coin.tint.x
+        }
+        XCTAssertGreaterThanOrEqual(views.count, 50, "the view slid in the frames: \(views.count) places")
+        XCTAssertEqual(gaps.count, 1, "one device distance to the door in every frame: \(gaps.sorted())")
+        XCTAssertEqual(game.lanternMoment, show, "the moment is not published again for the row's place")
+        XCTAssertEqual(tint, HUDKitActors.momentTint, accuracy: 1e-6, "a step brighter under the dim")
+        XCTAssertGreaterThan(HUDKitActors.momentTint, 1)
+        // The walking row keeps its tint of 1.
+        let walking = HUDKitActors.actors(HUDKit.group(sign: .hudCoin, number: 5), lordX: 1000, groundLift: 0,
+                                          framing: try XCTUnwrap(game.touch.framing))
+        XCTAssertEqual(walking.first?.tint.x, 1)
     }
 }

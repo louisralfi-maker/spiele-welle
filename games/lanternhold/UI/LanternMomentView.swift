@@ -68,7 +68,8 @@ struct LanternMomentView: View {
     }
 
     /// The dim over the whole screen (it takes no finger: the touch goes through to the world; VoiceOver's double tap on
-    /// it lowers the lantern) and the figures above the lord, placed on the world's pixel grid in device pixels.
+    /// it lowers the lantern) and the elements of the figures above the lord (the figures themselves are drawn in the
+    /// world's frame, build 3).
     private var world: some View {
         GeometryReader { geometry in
             let perDevice = geometry.size.width / max(1, CGFloat(show.physicalWidth))
@@ -76,7 +77,6 @@ struct LanternMomentView: View {
             let left = CGFloat(show.left) * perDevice
             let top = CGFloat(show.top) * perDevice
             let blockWidth = CGFloat(show.block.width) * unit
-            let blockHeight = CGFloat(show.block.height) * unit
             ZStack(alignment: .topLeading) {
                 Color.black.opacity(0.18)
                     .allowsHitTesting(false)
@@ -86,14 +86,9 @@ struct LanternMomentView: View {
                     .accessibilityAddTraits(.isButton)
                     .accessibilityAction { model.lowerLanternMoment() }
                     .accessibilityIdentifier("lantern-moment")
-                if let image = LanternKitImages.image(show.block) {
-                    Image(decorative: image, scale: 1 / max(0.01, unit))
-                        .interpolation(.none)
-                        .frame(width: blockWidth, height: blockHeight)
-                        .offset(x: left, y: top)
-                        .allowsHitTesting(false)
-                        .accessibilityHidden(true)
-                }
+                // Build 3, lane 5 step 4 (the step 2b critic's H1): the figures above the lord are drawn in Metal, in
+                // the world's own frame (`GameModel.lanternWorld`), so they never trail the look-around's pan; only
+                // their elements stand here, where the moment opened.
                 figures(left: left, top: top, width: blockWidth, unit: unit)
             }
             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
