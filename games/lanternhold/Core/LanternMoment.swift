@@ -368,3 +368,119 @@ enum HUDKitActors {
         }
     }
 }
+
+/// Build 3, lane 5 step 4 (decision 6, form C; the director's notes of 16.11. and 21.11.2026, Louis: "neben der Map
+/// oben eine Anzeige, wie die Buerger drauf sind"): the town's mood stands at the realm strip's town end as the
+/// town's banner, so caring for the people is never out of sight while the strip shows (the lantern moment, a call).
+/// It hangs on two cords under the strip's town end: a short pole, the cloth in the mood's colour with a swallowtail,
+/// the hood face sewn on it in the kit's four moods, and in its hem three quiet marks (in which third of its mood's
+/// band the happiness stands). Beside it the people, their count and the mood's trend since the last dawn. A touch on
+/// it gives one slip with the main reason, read from what the dawn report knows of the day's happiness changes and
+/// the knocks at the doors. No rule or number of the happiness changes here: the bands are the face's
+/// (`HUDKit.faceFrame`). The picture is `Resources/Art/moodBanner.png` (tools/hudart.py), drawn by SwiftUI under the
+/// strip (`MoodBannerView`), never by the renderer. Pure.
+enum MoodBanner {
+    /// One frame of the banner's picture: pole, cords, cloth, face and hem (game px).
+    static let size = PixelSize(width: 21, height: 25)
+    /// Its frames: mood x 4 + marks (0 a plain hem, 1 to 3 that many marks lit), the moods in the face's order.
+    static let frameCount = 16
+    /// Whether the hem's marks are shown (false: the plain hem; one line to take them out).
+    static let showsMarks = true
+    /// The banner's left edge under the strip, in the strip's columns (its pole spans 128 to 148 of 150, under the
+    /// strip's town end; the people and their count stand beyond the strip's end).
+    static let column = 128
+    /// The people group's top-left beside the banner (game px from the banner's top-left): one px after the pole's
+    /// knob, its 9 px row level with the face.
+    static let peopleX = 22
+    static let peopleY = 8
+    /// The cloth's left edge and width in the picture (with its ink edge): the slip hangs under its middle.
+    static let clothLeft = 2
+    static let clothWidth = 17
+
+    /// The mood: 0 glad, 1 even, 2 grim, 3 unrest (the face's bands).
+    static func mood(happiness: Int) -> Int {
+        HUDKit.faceFrame(happiness: happiness)
+    }
+
+    /// The band of a mood (its lowest and highest happiness).
+    static func band(mood: Int) -> ClosedRange<Int> {
+        switch mood {
+        case 0: return 60...100
+        case 1: return 30...59
+        case 2: return 15...29
+        default: return 0...14
+        }
+    }
+
+    /// The hem's marks: in which third of its mood's band the happiness stands (1 the lowest, 3 the highest).
+    static func marks(happiness: Int) -> Int {
+        let value = min(100, max(0, happiness))
+        let range = band(mood: mood(happiness: value))
+        let span = range.upperBound - range.lowerBound + 1
+        return min(3, 1 + 3 * (value - range.lowerBound) / span)
+    }
+
+    /// The banner's frame in its picture.
+    static func frame(happiness: Int) -> Int {
+        mood(happiness: happiness) * 4 + (showsMarks ? marks(happiness: happiness) : 0)
+    }
+
+    /// The mood's trend: +1 rising, -1 falling, 0 even, against the happiness before the last dawn (0 without one).
+    static func trend(happiness: Int, report: DawnReport?) -> Int {
+        guard let report else { return 0 }
+        let delta = happiness - report.happinessBefore
+        return delta > 0 ? 1 : (delta < 0 ? -1 : 0)
+    }
+
+    /// The pieces beside the banner: the people, their count and, on a trend, its arrow 1 px after the count.
+    static func people(_ count: Int, trend: Int) -> HUDKit.Block {
+        var block = HUDKit.group(sign: .hudPeople, number: count)
+        if trend != 0 {
+            block.pieces.append(HUDKit.Piece(sprite: .hudArrow, frame: trend > 0 ? 0 : 1, x: block.width + 1, y: 0))
+            block.width += 1 + SpriteID.hudArrow.size.width
+        }
+        return block
+    }
+
+    /// What the slip names as the mood's main reason.
+    enum Reason: Sendable, Equatable {
+        /// A line of the dawn report's happiness column.
+        case dawn(HappinessReason)
+        /// The knocks at the town's doors, today and yesterday (each cost happiness at once).
+        case knocked
+        /// Nothing has moved them yet (the first day).
+        case quiet
+    }
+
+    /// The main reason: of the day's changes (the dawn's lines, and `knocked`, the happiness the knocks cost), the one
+    /// that carries the mood: the largest gain while the town is glad, the largest loss while it is grim or in unrest,
+    /// the largest either way while it is even (and when the mood's own side has none). The first wins a tie.
+    static func reason(happiness: Int, changes: [HappinessChange], knocked: Int) -> Reason {
+        var items: [(reason: Reason, delta: Int)] = changes.filter { $0.delta != 0 }.map {
+            (reason: Reason.dawn($0.reason), delta: $0.delta)
+        }
+        if knocked < 0 { items.append((reason: Reason.knocked, delta: knocked)) }
+        func largest(_ list: [(reason: Reason, delta: Int)]) -> Reason? {
+            var best: (reason: Reason, delta: Int)?
+            for item in list where best == nil || abs(item.delta) > abs(best?.delta ?? 0) {
+                best = item
+            }
+            return best?.reason
+        }
+        let side: [(reason: Reason, delta: Int)]
+        switch mood(happiness: happiness) {
+        case 0: side = items.filter { $0.delta > 0 }
+        case 2, 3: side = items.filter { $0.delta < 0 }
+        default: side = items
+        }
+        return largest(side) ?? largest(items) ?? .quiet
+    }
+
+    /// The main reason in a realm: the last dawn's lines, the knocks of yesterday (as that dawn told them) and today.
+    static func reason(_ s: GameState, balance: Balance) -> Reason {
+        let report = s.lastReport
+        var knocked = report?.town?.happinessCost ?? 0
+        if let today = s.town?.today { knocked += Town.knockCost(today, balance: balance) }
+        return reason(happiness: s.happiness, changes: report?.happinessChanges ?? [], knocked: knocked)
+    }
+}

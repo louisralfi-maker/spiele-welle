@@ -91,6 +91,8 @@ extension GameModel {
     func lowerLanternMoment() {
         guard lanternMoment != nil else { return }
         lanternMoment = nil
+        // Build 3, lane 5 step 4: lowering the lantern shuts the town banner's slip.
+        MoodSlip.shared.close()
         // Build 3, lane 5: a view the look-around slid glides home as the world runs on.
         if touch.look.pan != 0 || touch.look.isHeld {
             touch.panning = false

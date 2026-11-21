@@ -73,6 +73,16 @@ The count's coins in flight (build 3, the count's step 2: each coin flies from t
 The row of the lantern moment is 9 game pixels high (figures, coin, face, people); the big coin and its hollow are
 board and flight pieces only.
 
+The town's banner (build 3, lane 5 step 4: the town's mood at the realm strip's town end; drawn by SwiftUI under the
+strip, never by the renderer, so it has no SpriteID: UI/MoodBannerView.swift reads Resources/Art/moodBanner.png):
+
+  moodBanner   21x25, 16 frames: mood x 4 + marks, the moods glad, even, grim, unrest; marks 0 a plain hem, 1 to 3
+               that many of the hem's three marks lit in pale bone (in which third of its mood's band the happiness
+               stands). Two cords, a wooden pole with a knob at each end, the cloth 17 wide with its ink edge in the
+               mood's colour (glad the coin's gold, even bone, grim a cold blue-grey that holds on the grey cliff by
+               day and on navy at night, unrest wax red) with a swallowtail, its light on the left, its shade under
+               the pole, down the right and in the hem; a 13 x 13 hood face sewn on it, the hood in the cloth's shade
+
   hudart.py build <id> [--out DIR] [--face hood|cap|disc]   writes DIR/<id>.png (default games/lanternhold/Resources/Art)
   hudart.py list                     the ids
   hudart.py advance                  the figure advance and the row's spacing, for the stage lane
@@ -1319,6 +1329,155 @@ def figures(pal, style="hand"):
     return [edged(grid_image(glyphs[c], pal), pal) for c in FIGURE_ORDER]
 
 
+# ------------------------------------------------------------------------------------------------- the town's banner
+# Build 3, lane 5 step 4 (decision 6, form C, the director's notes of 16.11. and 21.11.2026): the town's mood stands at
+# the realm strip's town end as a banner hanging on two cords: a short wooden pole with a knob at each end, a cloth 17
+# px wide (with its ink edge) in the mood's colour with a swallowtail, a 13 x 13 hood face sewn on it, and in its hem
+# three quiet marks (lit in pale bone: in which third of its mood's band the happiness stands). Its moods are the
+# kit's face's four (glad, even, grim, unrest), the hood in the cloth's own shade, so the face reads as cloth sewn on
+# cloth. It is drawn by SwiftUI over the world, never by the renderer (no SpriteID: `MoodBannerArt` reads the PNG).
+
+BANNER_W = 21          # the pole with its knobs
+BANNER_H = 25          # cords 2, pole 3 (its lower ink the cloth's top edge), cloth 19, the cloth's lower ink 1
+BANNER_CLOTH_X = 2     # the cloth's left ink edge
+BANNER_CLOTH_Y = 4     # the cloth's top ink edge (the pole's lower ink)
+BANNER_FACE = (BANNER_CLOTH_X + 2, BANNER_CLOTH_Y + 2)   # the face's top-left (its own ink edge included)
+BANNER_MARKS = [(BANNER_CLOTH_X + 3 + 4 * k, BANNER_CLOTH_Y + 15) for k in range(3)]   # 3 x 2 each
+BANNER_MOODS = ("glad", "even", "grim", "unrest")
+
+# the cloth's body (15 wide, inside its ink edge): S its shade (under the pole, the hem, the right fold), L its light
+# (the left edge, toward the light), M its colour; the face covers columns 1 to 13 of rows 1 to 13; m the hem's marks
+# (rows 14 and 15, right under the face); the swallowtail's notch three rows deep and five wide at its foot, so its V
+# stays open inside the ink edge
+BANNER_CLOTH = ["SSSSSSSSSSSSSSS"] + ["LMMMMMMMMMMMMMS"] * 13 + [
+    "SSmmmSmmmSmmmSS",
+    "SSmmmSmmmSmmmSS",
+    "LMMMMMM.MMMMMMS",
+    "LMMMMM...MMMMMS",
+    "LMMMM.....MMMMS",
+]
+
+# the pole (19 wide inside its ink edge): a rod of wood with a turned knob at each end
+BANNER_POLE = ["PP...............PP",
+               "PPpppppppppppppppPP"]
+
+# the face (11 x 11 inside its ink edge): H the hood, h its deep shade, X the face in bone, x bone in shade, d hair,
+# r a flush, K an open mouth. Glad throws the hood back (hair, a broad raised face, a grin, the hood bunched at the
+# neck); even wears it (dot eyes, a straight mouth); grim pulls it down over the brow (the eyes in its shadow, the
+# mouth turned down); unrest shouts (brows down, the mouth wide open).
+BANNER_FACES = {
+    "glad": ["...ddddd...",
+             "..dXXXXXd..",
+             ".dXXXXXXXd.",
+             ".XXiXXXiXX.",
+             ".XiXiXiXiX.",
+             ".XXXXXXXXX.",
+             ".XrXXXXXrX.",
+             ".XXiXXXiXX.",
+             "..XXiiiXX..",
+             ".HHXXXXXHH.",
+             "HHhHHHHHhHH"],
+    "even": ["...HHHHH...",
+             "..HHHHHHH..",
+             ".HHhhhhhHH.",
+             ".HhXXXXXhH.",
+             ".HXiXXXiXH.",
+             ".HXXXXXXXH.",
+             ".HXXXXXXXH.",
+             ".HXXiiiXXH.",
+             ".HhXXXXXhH.",
+             "HHHhXXXhHHH",
+             "HHHHHHHHHHH"],
+    "grim": ["...HHHHH...",
+             "..HHHHHHH..",
+             ".HHHHHHHHH.",
+             ".HHHHHHHHH.",
+             ".HhhhhhhhH.",
+             ".HxixxxixH.",
+             ".HXXXXXXXH.",
+             ".HXXiiiXXH.",
+             ".HXiXXXiXH.",
+             "HHHhXXXhHHH",
+             "HHHHHHHHHHH"],
+    "unrest": ["...HHHHH...",
+               "..HHHHHHH..",
+               ".HHhhhhhHH.",
+               ".HiXXXXXiH.",
+               ".HXiXXXiXH.",
+               ".HXiXXXiXH.",
+               ".HXXiiiXXH.",
+               ".HXiKKKiXH.",
+               ".HXiKKKiXH.",
+               "HHHXiiiXHHH",
+               "HHHHHHHHHHH"],
+}
+
+# each mood's colours (palette names): the cloth's M L S, its marks unlit (D) and lit (B), the hood H h
+BANNER_TONES = {
+    "glad": {"M": "gold", "L": "fireGold", "S": "woodLight", "D": "woodDark", "B": "parchment",
+             "H": "woodLight", "h": "wood"},
+    "even": {"M": "parchment", "L": "fireWhite", "S": "plasterDim", "D": "wood", "B": "parchment",
+             "H": "plaster", "h": "plasterDim"},
+    "grim": {"M": "moon", "L": "mist", "S": "mistDark", "D": "farDeep", "B": "parchment",
+             "H": "mistDark", "h": "farDeep"},
+    "unrest": {"M": "crimsonLight", "L": "dawnRose", "S": "crimson", "D": "crimsonDeep", "B": "parchment",
+               "H": "crimson", "h": "crimsonDeep"},
+}
+BANNER_COMMON = {"i": "ink", "X": "parchment", "x": "plaster", "d": "wood", "r": "tileLight", "K": "crimsonDeep",
+                 "P": "woodLight", "p": "wood", "c": "ink"}
+
+
+def banner_grid(rows, pal, tones):
+    legend = dict(BANNER_COMMON)
+    legend.update(tones)
+    h = len(rows)
+    w = len(rows[0])
+    assert all(len(r) == w for r in rows), rows
+    img = Image(w, h)
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                img.set(x, y, pal.color(legend[ch]) + (255,))
+    return img
+
+
+def paste(dst, src, ox, oy):
+    for y in range(src.h):
+        for x in range(src.w):
+            c = src.get(x, y)
+            if c[3]:
+                dst.set(x + ox, y + oy, c)
+
+
+def banner_frame(mood, marks, pal):
+    """One banner: `mood` its cloth and face, `marks` (1 to 3) of its hem's three marks lit from the left; 0: a plain
+    hem without marks."""
+    tones = BANNER_TONES[mood]
+    rows = [list(r) for r in BANNER_CLOTH]
+    for y in (14, 15):
+        for k in range(3):
+            for dx in range(3):
+                rows[y][2 + 4 * k + dx] = "S" if marks == 0 else ("B" if k < marks else "D")
+    rows = ["".join(r) for r in rows]
+    out = Image(BANNER_W, BANNER_H)
+    cloth = edged(banner_grid(rows, pal, tones), pal)
+    paste(out, cloth, BANNER_CLOTH_X, BANNER_CLOTH_Y)
+    face = edged(banner_grid(BANNER_FACES[mood], pal, tones), pal)
+    paste(out, face, BANNER_FACE[0], BANNER_FACE[1])
+    pole = edged(banner_grid(BANNER_POLE, pal, tones), pal)
+    paste(out, pole, 0, BANNER_CLOTH_Y - 3)
+    ink = pal.color("ink") + (255,)
+    for x in (6, 14):
+        for y in range(0, BANNER_CLOTH_Y - 2):
+            out.set(x, y, ink)
+    return out
+
+
+def banner_frames(pal):
+    """moodBanner: 21 x 25, 16 frames: mood x 4 + marks (0 to 3), the moods glad, even, grim, unrest."""
+    return [banner_frame(mood, marks, pal) for mood in BANNER_MOODS for marks in range(4)]
+
+
 def frames_for(sprite, pal, style="hand", face=None):
     if sprite == "hudFigures":
         return figures(pal, style)
@@ -1357,12 +1516,14 @@ def frames_for(sprite, pal, style="hand", face=None):
         return [halo(), pool()]
     if sprite == "paySign":
         return model_frames(pal)
+    if sprite == "moodBanner":
+        return banner_frames(pal)
     raise SystemExit("unknown sprite " + sprite)
 
 
 SPRITES = ["hudFigures", "hudArrow", "hudCoin", "hudCoinTen", "hudHollow", "hudHollowTen", "hudFace", "hudPeople",
            "hudGear", "hudDawn", "hudCoinBar", "hudHollowBar", "payBoard", "siteLantern", "payCoin", "siteHalo",
-           "paySign"]
+           "paySign", "moodBanner"]
 
 
 def palette():

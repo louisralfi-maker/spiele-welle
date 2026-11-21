@@ -18,6 +18,8 @@ struct TouchLayer: View {
                 .gesture(
                     DragGesture(minimumDistance: 0, coordinateSpace: .local)
                         .onChanged { value in
+                            // Build 3, lane 5 step 4: a touch anywhere on the world shuts the town banner's slip.
+                            MoodSlip.shared.close()
                             model.touchChanged(start: value.startLocation, at: value.location,
                                                translation: value.translation, in: geometry.size)
                         }

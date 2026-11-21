@@ -670,4 +670,129 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertEqual(Double(bright.rect.w), Double(pro.scale), "one game px")
         XCTAssertEqual(Double(bright.rect.y), framing.deviceY(lift: 31), "its row over the walk line")
     }
+
+    // MARK: - Lane 5 step 4: the town's banner at the strip's town end (decision 6, form C)
+
+    /// The hem's marks tell in which third of its mood's band the happiness stands; the frame is mood x 4 + marks.
+    func testTheBannersMarksTellTheThirdOfTheMoodsBand() {
+        let thirds: [(Int, Int)] = [(100, 3), (88, 3), (87, 2), (74, 2), (73, 1), (60, 1), (59, 3), (50, 3), (49, 2),
+                                    (40, 2), (39, 1), (30, 1), (29, 3), (25, 3), (24, 2), (20, 2), (19, 1), (15, 1),
+                                    (14, 3), (10, 3), (9, 2), (5, 2), (4, 1), (0, 1), (-3, 1), (130, 3)]
+        for (happiness, marks) in thirds {
+            XCTAssertEqual(MoodBanner.marks(happiness: happiness), marks, "happiness \(happiness)")
+        }
+        XCTAssertEqual(MoodBanner.mood(happiness: 70), HUDKit.faceFrame(happiness: 70), "the face's bands")
+        XCTAssertEqual(MoodBanner.frame(happiness: 95), 0 * 4 + 3, "glad, high in its band")
+        XCTAssertEqual(MoodBanner.frame(happiness: 45), 1 * 4 + 2, "even, its middle")
+        XCTAssertEqual(MoodBanner.frame(happiness: 20), 2 * 4 + 2, "grim")
+        XCTAssertEqual(MoodBanner.frame(happiness: 8), 3 * 4 + 2, "unrest")
+    }
+
+    /// Beside the banner: the people, their count and the mood's trend since the last dawn as the kit's arrow.
+    func testTheBannersPeopleCountAndTrend() {
+        let report = ReportCard.sampleReport()
+        XCTAssertEqual(MoodBanner.trend(happiness: 65, report: report), 1, "over the 64 before the dawn: rising")
+        XCTAssertEqual(MoodBanner.trend(happiness: 64, report: report), 0)
+        XCTAssertEqual(MoodBanner.trend(happiness: 60, report: report), -1, "falling")
+        XCTAssertEqual(MoodBanner.trend(happiness: 60, report: nil), 0, "no dawn yet: no arrow")
+        let up = MoodBanner.people(14, trend: 1)
+        XCTAssertEqual(up.pieces.first?.sprite, .hudPeople)
+        XCTAssertEqual(up.pieces.filter { $0.sprite == .hudFigures }.map(\.frame), [1, 4])
+        let arrow = up.pieces.first { $0.sprite == .hudArrow }
+        XCTAssertEqual(arrow?.frame, 0, "up")
+        // people (13) + 1 + "14" (13) = 27, the arrow 1 px after it: 28 ... 36.
+        XCTAssertEqual(arrow?.x, 28)
+        XCTAssertEqual(up.width, 36)
+        XCTAssertEqual(MoodBanner.people(14, trend: -1).pieces.first { $0.sprite == .hudArrow }?.frame, 1, "down")
+        let even = MoodBanner.people(14, trend: 0)
+        XCTAssertFalse(even.pieces.contains { $0.sprite == .hudArrow })
+        XCTAssertEqual(even.width, 27)
+    }
+
+    /// The slip's main reason: the largest gain while the town is glad, the largest loss while it is grim or in
+    /// unrest, the largest either way while it is even; the knocks at the doors count as one reason.
+    func testTheBannersSlipNamesTheMainReason() {
+        let changes = ReportCard.sampleReport().happinessChanges   // the tavern +1, the fallen -3
+        XCTAssertEqual(MoodBanner.reason(happiness: 62, changes: changes, knocked: 0), .dawn(.tavern), "glad")
+        XCTAssertEqual(MoodBanner.reason(happiness: 20, changes: changes, knocked: 0), .dawn(.fallen), "grim")
+        XCTAssertEqual(MoodBanner.reason(happiness: 45, changes: changes, knocked: 0), .dawn(.fallen), "even")
+        XCTAssertEqual(MoodBanner.reason(happiness: 62, changes: changes, knocked: -6), .dawn(.tavern),
+                       "glad names a gain")
+        XCTAssertEqual(MoodBanner.reason(happiness: 10, changes: changes, knocked: -6), .knocked, "unrest")
+        XCTAssertEqual(MoodBanner.reason(happiness: 10, changes: [HappinessChange(reason: .tavern, delta: 1)],
+                                         knocked: 0), .dawn(.tavern), "no loss to name: the gain")
+        XCTAssertEqual(MoodBanner.reason(happiness: 50, changes: [], knocked: 0), .quiet)
+        XCTAssertEqual(MoodBanner.reason(happiness: 50, changes: [HappinessChange(reason: .chapel, delta: 0)],
+                                         knocked: 0), .quiet, "a change of 0 is none")
+        // In a realm: the first morning knows nothing yet; after a dawn its lines.
+        var s = GameState.newRealm(seed: 2)
+        s.hour = 9
+        XCTAssertEqual(MoodBanner.reason(s, balance: .standard), .quiet)
+        s.lastReport = ReportCard.sampleReport()
+        s.happiness = 20
+        XCTAssertEqual(MoodBanner.reason(s, balance: .standard), .dawn(.fallen))
+        let strip = RealmStrip.make(s, balance: .standard, travelTarget: nil)
+        XCTAssertEqual(strip.happiness, 20)
+        XCTAssertEqual(strip.people, s.citizens)
+        XCTAssertEqual(strip.moodTrend, -1, "20 under the 64 before the dawn")
+        XCTAssertEqual(strip.moodReason, .dawn(.fallen))
+        // The words, English, one short line each.
+        XCTAssertEqual(MoodBannerView.reasonText(.dawn(.fallen)), "They mourn the fallen.")
+        XCTAssertEqual(MoodBannerView.reasonText(.knocked), "You knocked at their doors.")
+        for reason in [MoodBanner.Reason.quiet, .knocked, .dawn(.leftAlone), .dawn(.tavern), .dawn(.chapel),
+                       .dawn(.noLosses), .dawn(.fallen), .dawn(.unheard), .dawn(.lowTax), .dawn(.normalTax),
+                       .dawn(.highTax), .dawn(.warTax)] {
+            XCTAssertLessThanOrEqual(MoodBannerView.reasonText(reason).count, 36, "\(reason): one short line")
+        }
+        XCTAssertEqual(MoodBannerView.voiceValue(strip), "the town is grim, \(s.citizens) people, the mood is falling")
+    }
+
+    /// The banner's picture (tools/hudart.py `moodBanner`): 16 frames of 21 x 25, the cloth in the mood's colour inside
+    /// an ink edge, at most 21 px deep under the pole, the hem's lit marks in pale bone, and frame 0 of each mood a
+    /// plain hem.
+    func testTheBannersPictureCarriesTheMoodsColour() throws {
+        let frames = MoodBannerArt.frames()
+        XCTAssertEqual(frames.count, MoodBanner.frameCount)
+        let ink = RGBA(r: 42, g: 34, b: 48)
+        let bone = RGBA(r: 222, g: 210, b: 184)
+        let cloth = [RGBA(r: 224, g: 174, b: 72), bone, RGBA(r: 126, g: 137, b: 182), RGBA(r: 184, g: 72, b: 58)]
+        for mood in 0..<4 {
+            let full = frames[mood * 4 + 3]
+            XCTAssertEqual(full.width, 21)
+            XCTAssertEqual(full.height, 25)
+            XCTAssertEqual(full[4, 21], cloth[mood], "mood \(mood): the cloth's colour on its tail")
+            XCTAssertEqual(full[2, 21], ink, "mood \(mood): its ink edge")
+            XCTAssertEqual(full[2, 4], ink, "the cloth's top edge under the pole")
+            XCTAssertTrue((0..<21).contains { full[$0, 24].a > 0 }, "the cloth's foot on the last row")
+            XCTAssertEqual(full[10, 24].a, 0, "the swallowtail's notch stays open")
+            for k in 0..<3 {
+                XCTAssertEqual(full[5 + 4 * k, 19], bone, "mood \(mood): mark \(k + 1) lit")
+            }
+            let one = frames[mood * 4 + 1]
+            XCTAssertEqual(one[5, 19], bone, "one mark lit")
+            XCTAssertNotEqual(one[9, 19], bone, "the second unlit")
+            XCTAssertNotEqual(frames[mood * 4][5, 19], bone, "a plain hem")
+        }
+        // Composed with the people beside it.
+        let pixels = try XCTUnwrap(MoodBannerArt.pixels(frame: 6, people: MoodBanner.people(14, trend: 1)))
+        XCTAssertEqual(pixels.width, MoodBanner.peopleX + 36)
+        XCTAssertEqual(pixels.height, 25)
+        // The banner with its people is a 44 pt target at the strip's 2 pt a game px.
+        XCTAssertGreaterThanOrEqual(CGFloat(pixels.width) * RealmStripView.unit, 44)
+        XCTAssertGreaterThanOrEqual(MoodBannerView.height, 44)
+    }
+
+    /// The slip: a touch on the banner opens it, a second shuts it; lowering the lantern shuts it.
+    func testTheBannersSlipOpensAndShuts() throws {
+        let slip = MoodSlip.shared
+        slip.close()
+        slip.toggle("They mourn the fallen.")
+        XCTAssertEqual(slip.text, "They mourn the fallen.")
+        slip.toggle("They mourn the fallen.")
+        XCTAssertNil(slip.text, "a second touch shuts it")
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        slip.open("You left their doors alone.")
+        game.lowerLanternMoment()
+        XCTAssertNil(slip.text, "lowering the lantern shuts it")
+    }
 }
