@@ -625,4 +625,43 @@ final class LanternMomentTests: XCTestCase {
             XCTAssertEqual(gaps.first ?? 0, column, accuracy: 0.001, "facing \(facing): on the glass's column")
         }
     }
+
+    /// Lane 5 step 2b (what step 2a left): the hint's glint and the raise's flare and sparks are emissive actors on the
+    /// lord's own columns (`GameModel.lanternPixel`): over a 120-step walk with the camera following, each keeps one
+    /// device distance to his anchor, the glass's column plus its own whole game px. As world glows they stood on the
+    /// ground's grid. A faint one is not drawn; under 1 its strength is its share, over 1 it brightens.
+    func testTheLanternsPixelsKeepTheirDistanceToTheWalkingLord() throws {
+        for facing in [1, -1] {
+            for dx in [-2.0, -1.3, 0, 1, 2.6] {
+                var gaps: Set<Double> = []
+                for step in 0..<120 {
+                    let lordX = 1000.3 + 0.6 * Double(step * facing)
+                    let camera = Camera(focusX: lordX, pixelScale: pro)
+                    let framing = TouchFraming.world(camera: camera, pixelScale: pro)
+                    let pixel = try XCTUnwrap(GameModel.lanternPixel(kingX: lordX, facing: facing, dx: dx, row: 30,
+                                                                     rgb: SIMD3<Float>(1, 0.9, 0.6),
+                                                                     framing: framing))
+                    let anchor = camera.deviceX(worldX: lordX, scale: pro.scale, mode: .smooth)
+                    gaps.insert(Double(pixel.rect.x) - Double(anchor))
+                }
+                XCTAssertEqual(gaps.count, 1, "facing \(facing), dx \(dx): one distance in every frame: \(gaps.sorted())")
+                let glass = (EntityFrames.kingGlass.dx * Double(facing)).rounded(.down)
+                XCTAssertEqual(gaps.first ?? 0, (glass + dx.rounded(.down)) * Double(pro.scale), accuracy: 0.001,
+                               "facing \(facing), dx \(dx): on its column")
+            }
+        }
+        let framing = TouchFraming.world(camera: Camera(focusX: 1000, pixelScale: pro), pixelScale: pro)
+        func pixel(_ rgb: SIMD3<Float>) -> ActorInstance? {
+            GameModel.lanternPixel(kingX: 1000, facing: 1, dx: 0, row: 30, rgb: rgb, framing: framing)
+        }
+        XCTAssertNil(pixel(SIMD3<Float>(0.001, 0.001, 0.001)), "too faint to draw")
+        let dim = try XCTUnwrap(pixel(SIMD3<Float>(0.5, 0.45, 0.3)))
+        XCTAssertEqual(dim.tint.w, 0.5, accuracy: 1e-6, "its strength is its share")
+        XCTAssertTrue(dim.isEmissive)
+        let bright = try XCTUnwrap(pixel(SIMD3<Float>(1.4, 1.26, 0.84)))
+        XCTAssertEqual(bright.tint.w, 1, accuracy: 1e-6)
+        XCTAssertEqual(bright.tint.x, 1.4, accuracy: 1e-5, "over 1 it brightens")
+        XCTAssertEqual(Double(bright.rect.w), Double(pro.scale), "one game px")
+        XCTAssertEqual(Double(bright.rect.y), framing.deviceY(lift: 31), "its row over the walk line")
+    }
 }

@@ -250,7 +250,7 @@ extension GameModel {
             let room = countPurseRoom(width: block.width, lordX: state.king.x)
             layer.actors += HUDKitActors.actors(block, lordX: room.x, groundLift: room.ground, framing: framing)
         }
-        if touch.lordHintOn && lanternMoment == nil { lordHintGlint(&layer, state: state) }
+        if touch.lordHintOn && lanternMoment == nil { lordHintGlint(&layer, state: state, framing: framing) }
         guard lanternMoment != nil else { return }
         let lord = state.lordOrDefault
         for index in layer.actors.indices
@@ -265,23 +265,46 @@ extension GameModel {
 
     /// The lord's hint (fix round 1, the critic's high 3): his lantern glints, a quick bright pulse on the glass every
     /// 1.4 s with a spark beside it; with Reduce Motion the glass only burns a little brighter while the hint stands.
-    func lordHintGlint(_ layer: inout EntityLayer, state: GameState) {
+    func lordHintGlint(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming) {
         let t = clock.elapsed.truncatingRemainder(dividingBy: 1.4) / 1.4
         let pulse = reduceMotion ? 0.35 : pow(max(0, sin(Double.pi * min(1, t / 0.35))), 2)
         for index in layer.lights.indices where isLordsLantern(layer.lights[index].source, state: state) {
             layer.lights[index].source.intensity *= 1 + 0.7 * pulse
         }
         guard !reduceMotion, pulse > 0.05 else { return }
-        let glassX = (state.king.x + EntityFrames.kingGlass.dx * Double(state.king.facing)).rounded(.down)
         let glassY = EntityFrames.kingGlass.dy.rounded(.down)
         let warm = GamePalette.fireWhite
         let k = Float(pulse) * 1.3
         for (dx, dy, share) in [(0.0, 0.0, 1.0), (-1.0, 0.0, 0.5), (1.0, 0.0, 0.5), (0.0, 1.0, 0.5), (0.0, -1.0, 0.5),
                                 (2.0, 2.0, 0.6)] {
-            let s = k * Float(share)
-            layer.glows.append(EntityGlow(.hallMote, x: glassX + dx, y: glassY + dy,
-                                          color: SIMD4<Float>(warm.x * s, warm.y * s, warm.z * s, 1)))
+            // b3-lantern (step 2b): on the lord's own columns (`lanternPixel`), no longer a glow on the ground's grid.
+            if let pixel = GameModel.lanternPixel(kingX: state.king.x, facing: state.king.facing, dx: dx,
+                                                  row: glassY + dy, rgb: warm * (k * Float(share)),
+                                                  framing: framing) {
+                layer.actors.append(pixel)
+            }
         }
+    }
+
+    /// Build 3, lane 5 step 2b (the smooth walk; what step 2a left): one warm pixel at the lord's lantern (the hint's
+    /// glint, the raise's flare and its sparks) as an emissive actor on the lord's own columns: the glass's offset from
+    /// his anchor floored (`raiseFlameLeft`) and the pixel's own offset in whole game px (`dx`; `row` its row over the
+    /// walk line), so it keeps its distance to him in device px in every frame of a walk. As glows of the world plane
+    /// they stood on the ground's grid and wobbled up to 3 device px against him. Its colour as the emissive pass tints
+    /// a glow (40 % of the hue of `rgb`); its strength (`rgb`'s peak) over 1 brightens it, under 1 is its share over the
+    /// picture behind it. Nil when it is too faint to see.
+    static func lanternPixel(kingX: Double, facing: Int, dx: Double, row: Double, rgb: SIMD3<Float>,
+                             framing: TouchFraming) -> ActorInstance? {
+        let peak = max(rgb.x, max(rgb.y, rgb.z))
+        guard peak > 0.003 else { return nil }
+        let left = raiseFlameLeft(kingX: kingX + dx.rounded(.down), facing: facing, framing: framing)
+        let top = framing.deviceY(lift: row.rounded(.down) + 1)
+        let side = Float(framing.scale)
+        let hue = rgb / peak
+        let tint = (SIMD3<Float>(repeating: 1) + (hue - 1) * 0.4) * max(1, peak)
+        return ActorInstance(sprite: .hallMote, frame: 0, rect: SIMD4<Float>(Float(left), Float(top), side, side),
+                             tint: SIMD4<Float>(tint.x, tint.y, tint.z, min(1, peak)), flipped: false,
+                             isEmissive: true, isLit: true)
     }
 
     /// The notes above the lord in the hall (`hallFrame`): the block and the floor's lift under him.

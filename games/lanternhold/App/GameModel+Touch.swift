@@ -913,22 +913,27 @@ extension GameModel {
             layer.lights[index].source.y += lift
         }
         guard flare > 0.01 else { return }
-        let glassX = (state.king.x + EntityFrames.kingGlass.dx * Double(state.king.facing)).rounded(.down)
+        // b3-lantern (build 3, lane 5 step 2b): the flare and its sparks on the lord's own columns
+        // (`GameModel.lanternPixel`), no longer glows on the ground's grid.
         let glassY = (EntityFrames.kingGlass.dy + lift).rounded(.down)
         let warm = GamePalette.fireWhite
         for spot in LanternFlare.flare {
             let k = Float(flare * spot.share) * 1.4
-            layer.glows.append(EntityGlow(.hallMote, x: glassX + spot.dx, y: glassY + spot.dy,
-                                          color: SIMD4<Float>(warm.x * k, warm.y * k, warm.z * k, 1)))
+            if let pixel = GameModel.lanternPixel(kingX: state.king.x, facing: state.king.facing, dx: spot.dx,
+                                                  row: glassY + spot.dy, rgb: warm * k, framing: framing) {
+                layer.actors.append(pixel)
+            }
         }
         // Stage-3-interface (stage-2 critic look 2, high 1): no ring. The wave is the light itself, growing on the
         // lane and the figures; the lift reads as a short burst of sparks rising from the glass.
         let gold = GamePalette.fireGold
         let t = since ?? 1
         for spark in LanternFlare.sparks(t: t) {
-            let k = Float(spark.share)
-            layer.glows.append(EntityGlow(.hallMote, x: glassX + spark.dx, y: glassY + spark.dy,
-                                          color: SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)))
+            if let pixel = GameModel.lanternPixel(kingX: state.king.x, facing: state.king.facing, dx: spark.dx,
+                                                  row: glassY + spark.dy, rgb: gold * Float(spark.share),
+                                                  framing: framing) {
+                layer.actors.append(pixel)
+            }
         }
     }
 
