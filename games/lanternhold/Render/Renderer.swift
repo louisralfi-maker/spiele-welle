@@ -248,6 +248,10 @@ final class Renderer {
     private let inFlight = DispatchSemaphore(value: 0)
     private let gpuTimer = GPUTimer()
     private(set) var stats = RenderStats()
+    /// b3-smooth (build 3, lane 5b step 1, the critic's H2b): tests only. True reads every band and every carried
+    /// picture for every pixel, as step 2b did (d7748951), instead of what the frame's mask names
+    /// (`EmissiveBands.mask`): the same picture, at step 2b's cost.
+    var readsEveryBand = false
 
     private struct Batch {
         var offset = 0
@@ -446,6 +450,11 @@ final class Renderer {
         let size = SIMD4<Float>(Float(targets.width), Float(targets.height), 0, 0)
 
         let lookTwo = frame.look == .two
+        // b3-smooth (H2b): the bands and carried pictures the composite, the translucent actors and the bloom's
+        // prefilter read (`EmissiveBands.mask`).
+        let bandMask: UInt32 = !lookTwo ? 0
+            : (readsEveryBand ? EmissiveBands.everything
+                              : EmissiveBands.mask(frame, reducedEffects: settings.reducedEffects))
         for plane in Plane.allCases {
             // The mist band and the near plane exist in look 2 only.
             if !lookTwo && !Renderer.lookOnePlanes.contains(plane) { continue }
@@ -511,7 +520,7 @@ final class Renderer {
         // Bloom.
         let bloomOn = frame.bloom && !settings.reducedEffects
         if bloomOn {
-            draws += encodeBloom(commands, targets: targets, frame: frame)
+            draws += encodeBloom(commands, targets: targets, frame: frame, bandMask: bandMask)
             passes += 3
         }
 
@@ -531,6 +540,7 @@ final class Renderer {
             if lookTwo {
                 let focus = frame.cameraX + Double(max(0, frame.targetWidth - 1)) / 2
                 var look2 = Look2.uniforms(frame, focus: focus)
+                look2.shifts.z = Int32(bitPattern: bandMask)   // b3-smooth (H2b)
                 encoder.setFragmentBytes(&look2, length: MemoryLayout<Look2Uniforms>.stride, index: 2)
                 encoder.setFragmentTexture(targets.planes[Plane.mistBand.rawValue], index: 12)
                 encoder.setFragmentTexture(targets.planes[Plane.near.rawValue], index: 13)
@@ -580,8 +590,10 @@ final class Renderer {
         return draws
     }
 
-    /// Threshold at half resolution, then a horizontal and a vertical blur (result in `bloomA`).
-    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets, frame: FrameDesc) -> Int {
+    /// Threshold at half resolution, then a horizontal and a vertical blur (result in `bloomA`). b3-smooth (H2b): the
+    /// prefilter reads the bands `bandMask` names (none in look 1).
+    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets, frame: FrameDesc,
+                             bandMask: UInt32) -> Int {
         let halfWidth = Float(targets.bloomWidth)
         let halfHeight = Float(targets.bloomHeight)
         var draws = 0
@@ -590,7 +602,7 @@ final class Renderer {
             size: SIMD4<Float>(Float(targets.width), Float(targets.height), halfWidth, halfHeight),
             params: SIMD4<Float>(frame.look == .two ? Look2.bloomLightShare : Look.bloomLightShare,
                                  Look.bloomSkyShare, Look.bloomThreshold, Look.bloomKnee),
-            backdrop: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, frame.look == .two ? 1 : 0))
+            backdrop: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, Float(bandMask & EmissiveBands.bandBits)))
         if let encoder = commands.makeRenderCommandEncoder(descriptor: Renderer.clearPass(targets.bloomA)) {
             encoder.label = "bloom threshold"
             encoder.setRenderPipelineState(prefilterPipeline)

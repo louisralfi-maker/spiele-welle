@@ -341,4 +341,62 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertNil(EmissiveBands.placed(above, band: 1, targetHeight: height))
         XCTAssertEqual(EmissiveBands.textureRows(targetHeight: height), EmissiveBands.count * (height + 2))
     }
+
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's H2b): the composite reads only what holds anything
+
+    /// The mask of a frame (`EmissiveBands.mask`) names the bands with a glow and the carried pictures with a sprite;
+    /// the composite, the translucent actors and the bloom's prefilter read nothing else. By day at the hall door no
+    /// glow stands behind the lane but the keep's smoke in its pale day light (on the mist band), and the keep is read
+    /// in its carried picture; at night the keep's panes light the mist band; in the town at night the back row's
+    /// windows light the near band. Step 2b read all of it for every pixel. The lines `BAND-MASK` go to the report.
+    func testTheMaskNamesOnlyTheBandsAndPicturesThatHoldSomething() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let door = SceneLayout.castleHallDoorX
+        let far = EmissiveBands.bit(band: 0)
+        let mid = EmissiveBands.bit(band: 1)
+        let mist = EmissiveBands.bit(band: 2)
+        let near = EmissiveBands.bit(band: 3)
+        let front = EmissiveBands.bit(band: 4)
+        let streak = EmissiveBands.bit(band: EmissiveBands.overLane)
+        let keep = EmissiveBands.bit(.keep)
+        func report(_ name: String, _ desc: FrameDesc) -> UInt32 {
+            let mask = EmissiveBands.mask(desc)
+            XCTAssertEqual(mask & ~EmissiveBands.everything, 0, name)
+            let bands = (0..<EmissiveBands.count).filter { mask & EmissiveBands.bit(band: $0) != 0 }
+            let pictures = CarriedPicture.allCases.filter { mask & EmissiveBands.bit($0) != 0 }
+            print("BAND-MASK \(name) 0x\(String(mask, radix: 16)) bands \(bands) carried \(pictures.map { "\($0)" }) "
+                  + "reads per pixel \(bands.count + pictures.count) (step 2b: \(EmissiveBands.count + 2))")
+            return mask
+        }
+
+        let day = frame(world, hour: 12, focus: door)
+        let dayMask = report("day-door", day)
+        XCTAssertEqual(dayMask & (far | mid | near | front | streak), 0, "by day no window, fire or rim behind the lane")
+        XCTAssertTrue(day.emissives.filter { $0.plane == .mistBand && $0.kind != .occluder }
+                        .allSatisfy { $0.sprite == .smokePuff }, "by day the mist band holds the keep's smoke alone")
+        XCTAssertNotEqual(dayMask & keep, 0, "the keep stands at the hall door")
+
+        let night = frame(world, hour: 23, focus: door)
+        let nightMask = report("night-door", night)
+        XCTAssertNotEqual(nightMask & mist, 0, "the keep's panes")
+        XCTAssertNotEqual(nightMask & keep, 0, "the keep")
+
+        let town = frame(world, hour: 23, focus: 2800)
+        let townMask = report("night-town", town)
+        XCTAssertNotEqual(townMask & near, 0, "the back row's windows")
+        XCTAssertEqual(townMask & keep != 0, !(town.carriedLayer(.keep)?.sprites.isEmpty ?? true),
+                       "the keep's picture is read only while the keep is in view")
+
+        var options = FrameOptions(flickerTime: 2.5)
+        options.look = .one
+        var clock = DayClock(hour: 23, day: 12)
+        clock.isFrozen = true
+        let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        let one = FrameBuilder.build(scene: PlaceholderScene.world(look: .one), clock: clock,
+                                     camera: Camera(focusX: door, pixelScale: pixelScale), pixelScale: pixelScale,
+                                     options: options)
+        XCTAssertEqual(EmissiveBands.mask(one), 0, "look 1 reads no band")
+        XCTAssertEqual(EmissiveBands.mask(night, reducedEffects: true) & EmissiveBands.bit(.keepMist), 0,
+                       "under the thermal cut the keep's mist is not drawn, so not read")
+    }
 }

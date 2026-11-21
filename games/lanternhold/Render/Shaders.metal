@@ -321,7 +321,7 @@ fragment float4 lh_pool_fragment(LightPoolOut in [[stage_in]],
 struct BloomUniforms {
     float4 size;    // low-res width, height, half-res width, height
     float4 params;  // share of point light, share of the sky emissives, threshold, knee
-    float4 backdrop; // colour of the backdrop lights (the light buffer's alpha); w 1 when the band texture is drawn
+    float4 backdrop; // colour of the backdrop lights (the light buffer's alpha); w the bands' mask (b3-smooth; 0: none)
 };
 
 // Build 3, lane 5 step 2b (the smooth walk, suspect 3): 1 where a picture leaves a glow behind it open (as an
@@ -330,18 +330,51 @@ static inline float lh_open(float a) {
     return a < 0.5f ? 1.0f : 0.0f;
 }
 
+// b3-smooth (build 3, lane 5b step 1, the critic's H2b): the mask of the bands and carried pictures that hold anything
+// (Render/EmissiveBands.swift `mask`): bit k for band k, bit 8 + k for carried picture k. What it leaves out is not
+// read and counts as the cleared texel it would have read (so the expressions below stay as they were).
+static inline bool lh_has(uint mask, uint bits) {
+    return (mask & bits) != 0u;
+}
+
 // Build 3, lane 5 step 2b: the bloom's share of look 2's band texture (Render/EmissiveBands.swift) at a low-res
 // texel: the far band behind the mid plane, the near plane and the lane; the mid and mist bands behind the near plane
 // and the lane; the near band behind the lane; the foreground's and the lantern's streak on the water behind nothing.
 // Read on the world's grid (the bloom is soft); bands are `height + 2` rows apart.
-static float3 lh_back_bloom(texture2d<float> back, uint2 t, uint height, float midA, float nearA, float worldA) {
+// b3-smooth (H2b): only the bands the mask names are read.
+static float3 lh_back_bloom(texture2d<float> back, uint2 t, uint height, float midA, float nearA, float worldA,
+                            uint mask) {
     uint stride = height + 2u;
     float lane = lh_open(worldA);
     float front = lh_open(nearA) * lane;
-    float3 sum = back.read(t).rgb * (lh_open(midA) * front);
-    sum += (back.read(uint2(t.x, t.y + stride)).rgb + back.read(uint2(t.x, t.y + 2u * stride)).rgb) * front;
-    sum += back.read(uint2(t.x, t.y + 3u * stride)).rgb * lane;
-    sum += back.read(uint2(t.x, t.y + 4u * stride)).rgb + back.read(uint2(t.x, t.y + 5u * stride)).rgb;
+    float3 b0 = float3(0.0f);
+    float3 b1 = float3(0.0f);
+    float3 b2 = float3(0.0f);
+    float3 b3 = float3(0.0f);
+    float3 b4 = float3(0.0f);
+    float3 b5 = float3(0.0f);
+    if (lh_has(mask, 1u)) {
+        b0 = back.read(t).rgb;
+    }
+    if (lh_has(mask, 2u)) {
+        b1 = back.read(uint2(t.x, t.y + stride)).rgb;
+    }
+    if (lh_has(mask, 4u)) {
+        b2 = back.read(uint2(t.x, t.y + 2u * stride)).rgb;
+    }
+    if (lh_has(mask, 8u)) {
+        b3 = back.read(uint2(t.x, t.y + 3u * stride)).rgb;
+    }
+    if (lh_has(mask, 16u)) {
+        b4 = back.read(uint2(t.x, t.y + 4u * stride)).rgb;
+    }
+    if (lh_has(mask, 32u)) {
+        b5 = back.read(uint2(t.x, t.y + 5u * stride)).rgb;
+    }
+    float3 sum = b0 * (lh_open(midA) * front);
+    sum += (b1 + b2) * front;
+    sum += b3 * lane;
+    sum += b4 + b5;
     return sum;
 }
 
@@ -365,7 +398,21 @@ fragment float4 lh_bloom_prefilter_fragment(FullscreenOut in [[stage_in]],
             float4 l = light.read(t);
             sum += emissive.read(t).rgb + (l.rgb + u.backdrop.rgb * l.a) * u.params.x + sky.read(t).rgb * u.params.y;
             if (u.backdrop.w > 0.5f) {
-                sum += lh_back_bloom(back, t, limit.y + 1u, midTex.read(t).a, nearTex.read(t).a, worldTex.read(t).a);
+                // b3-smooth (H2b): the bands the mask names (`backdrop.w`), and only the alphas that hide them.
+                uint mask = uint(u.backdrop.w);
+                float midA = 0.0f;
+                float nearA = 0.0f;
+                float worldA = 0.0f;
+                if (lh_has(mask, 1u)) {
+                    midA = midTex.read(t).a;
+                }
+                if (lh_has(mask, 7u)) {
+                    nearA = nearTex.read(t).a;
+                }
+                if (lh_has(mask, 15u)) {
+                    worldA = worldTex.read(t).a;
+                }
+                sum += lh_back_bloom(back, t, limit.y + 1u, midA, nearA, worldA, mask);
             }
         }
     }
@@ -904,7 +951,7 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
 // =====================================================================================================================
 
 struct Look2Uniforms {
-    int4 shifts;      // device shifts of the mist band and the near plane, unused, unused
+    int4 shifts;      // device shifts of the mist band and the near plane, the bands' mask (b3-smooth), unused
     float4 ambW;      // world ambient rgb, night colourise
     float4 ambF;      // far ambient rgb, daylight
     float4 ambM;      // mid ambient rgb, cool bounce strength
@@ -929,6 +976,9 @@ struct Look2Uniforms {
 };
 
 constant float3 kNightTint2 = float3(0.72f, 0.95f, 1.85f);
+// b3-smooth (H2b): the mask's bits of the carried pictures (`EmissiveBands.bit(_:)`: the keep, the keep's mist).
+constant uint kCarriedKeep2 = 256u;
+constant uint kCarriedKeepMist2 = 512u;
 constant float3 kBlack2 = float3(0.030f, 0.040f, 0.095f);
 constant float3 kEmber2 = float3(0.85098f, 0.28235f, 0.12157f);
 constant float3 kEmberDim2 = float3(0.54902f, 0.16471f, 0.07059f);
@@ -1122,18 +1172,43 @@ static inline float3 lh2_capped(float3 light) {
 // plane's column) behind nothing. Bands are `target.y + 2` rows apart.
 // b3-lantern (suspect 4): the keep's carried picture (`keepA`) stands in front of the far and mid bands too; the mist
 // band holds the keep's own glows.
+// b3-smooth (H2b): only the bands the mask names are read.
 static float3 lh2_back_glow(PlaneCoords c, uint2 mist, uint2 near, float midA, float keepA, float nearA, float worldA,
-                            constant CompositeUniforms &u, texture2d<float> backTex) {
+                            constant CompositeUniforms &u, texture2d<float> backTex, uint mask) {
     uint stride = uint(max(u.target.y, 1.0f)) + 2u;
     uint row = c.row;
     float lane = lh_open(worldA);
     float front = lh_open(nearA) * lane;
-    float3 sum = backTex.read(uint2(c.distant.x, row)).rgb * (lh_open(midA) * lh_open(keepA) * front);
-    sum += backTex.read(uint2(c.mid.x, row + stride)).rgb * (lh_open(keepA) * front);
-    sum += backTex.read(uint2(mist.x, row + 2u * stride)).rgb * front;
-    sum += backTex.read(uint2(near.x, row + 3u * stride)).rgb * lane;
-    sum += backTex.read(uint2(c.fg.x, row + 4u * stride)).rgb;
-    sum += backTex.read(uint2(near.x, row + 5u * stride)).rgb;
+    float3 b0 = float3(0.0f);
+    float3 b1 = float3(0.0f);
+    float3 b2 = float3(0.0f);
+    float3 b3 = float3(0.0f);
+    float3 b4 = float3(0.0f);
+    float3 b5 = float3(0.0f);
+    if (lh_has(mask, 1u)) {
+        b0 = backTex.read(uint2(c.distant.x, row)).rgb;
+    }
+    if (lh_has(mask, 2u)) {
+        b1 = backTex.read(uint2(c.mid.x, row + stride)).rgb;
+    }
+    if (lh_has(mask, 4u)) {
+        b2 = backTex.read(uint2(mist.x, row + 2u * stride)).rgb;
+    }
+    if (lh_has(mask, 8u)) {
+        b3 = backTex.read(uint2(near.x, row + 3u * stride)).rgb;
+    }
+    if (lh_has(mask, 16u)) {
+        b4 = backTex.read(uint2(c.fg.x, row + 4u * stride)).rgb;
+    }
+    if (lh_has(mask, 32u)) {
+        b5 = backTex.read(uint2(near.x, row + 5u * stride)).rgb;
+    }
+    float3 sum = b0 * (lh_open(midA) * lh_open(keepA) * front);
+    sum += b1 * (lh_open(keepA) * front);
+    sum += b2 * front;
+    sum += b3 * lane;
+    sum += b4;
+    sum += b5;
     return sum;
 }
 
@@ -1186,6 +1261,8 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
                        thread float &midVisible, thread float &fogCover, texture2d<float> backTex,
                        texture2d<float> carriedTex) {
     uint carriedStride = uint(max(u.target.y, 1.0f)) + 2u;
+    // b3-smooth (H2b): what the frame's bands and carried pictures hold (`EmissiveBands.mask`).
+    uint mask = uint(v.shifts.z);
     float3 color = lh_sky(c, u) + skyTex.read(c.sky).rgb;
     float horizon = max(u.target.z, 1.0f);
     float low = smoothstep(horizon - 70.0f, horizon, float(c.row));
@@ -1242,7 +1319,10 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
     }
     // b3-lantern (suspect 4): the keep, its flags, vane and smoke, at the mist band's place, lit as the near plane.
     uint2 keepAt = uint2(mist.x, c.row);
-    float4 keep = carriedTex.read(keepAt);
+    float4 keep = float4(0.0f);
+    if (lh_has(mask, kCarriedKeep2)) {
+        keep = carriedTex.read(keepAt);
+    }
     if (keep.a > 0.0f) {
         color = color * (1.0f - keep.a) + lh2_near_lit(keep, carriedTex, keepAt, peak, info, u, v);
         midVisible *= 1.0f - keep.a;
@@ -1253,7 +1333,10 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         midVisible *= 1.0f - n.a;
     }
     // b3-lantern (suspect 4): the keep's mist, at the mist band's place, as fog A (it lay under fog A's own tiles).
-    float4 keepMist = carriedTex.read(uint2(mist.x, c.row + carriedStride)) * region;
+    float4 keepMist = float4(0.0f);
+    if (lh_has(mask, kCarriedKeepMist2)) {
+        keepMist = carriedTex.read(uint2(mist.x, c.row + carriedStride)) * region;
+    }
     if (keepMist.a > 0.0f) {
         color = lh2_fog(color, keepMist, v.fog.x * info.bank, 0.6f, info.light);
         midVisible *= 1.0f - keepMist.a;
@@ -1316,7 +1399,8 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         color = color * (1.0f - w.a) + lit;
         midVisible *= 1.0f - w.a;
     }
-    return color + emissiveTex.read(c.world).rgb + lh2_back_glow(c, mist, near, m.a, keep.a, n.a, w.a, u, backTex);
+    return color + emissiveTex.read(c.world).rgb + lh2_back_glow(c, mist, near, m.a, keep.a, n.a, w.a, u, backTex,
+                                                                 mask);
 }
 
 // Fog B, the foreground, bloom and the grade of look 2.

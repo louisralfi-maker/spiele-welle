@@ -603,6 +603,155 @@ final class Look2FrameTests: XCTestCase {
         }
     }
 
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's H2b): the bands at render level
+
+    /// `base` remade with other planes, actors, lights, emissives or bloom; every other value, the carried pictures
+    /// included, as it was.
+    private static func remade(_ base: FrameDesc, planes: [PlaneLayer]? = nil, actors: [ActorInstance]? = nil,
+                               lights: [FrameLight]? = nil, emissives: [EmissiveInstance]? = nil, bloom: Bool? = nil,
+                               carried: [PlaneLayer]? = nil) -> FrameDesc {
+        let planes = planes ?? base.planes
+        let actors = actors ?? base.actors
+        let lights = lights ?? base.lights
+        let emissives = emissives ?? base.emissives
+        var desc = FrameDesc(scale: base.scale, physicalWidth: base.physicalWidth, physicalHeight: base.physicalHeight,
+                             targetWidth: base.targetWidth, targetHeight: base.targetHeight,
+                             groundRow: base.groundRow, groundDeviceY: base.groundDeviceY, hour: base.hour,
+                             phase: base.phase, cameraX: base.cameraX, kingX: base.kingX,
+                             kingScreenX: base.kingScreenX, planes: planes, actors: actors, lights: lights,
+                             emissives: emissives, fog: base.fog, ambient: base.ambient, skyTop: base.skyTop,
+                             skyBottom: base.skyBottom, starAlpha: base.starAlpha, bankEdge: base.bankEdge,
+                             bankAmbientScale: base.bankAmbientScale, lightStyle: base.lightStyle,
+                             lightBands: base.lightBands, bloom: bloom ?? base.bloom, debugLights: base.debugLights,
+                             counts: FrameCounts(sprites: planes.reduce(0) { $0 + $1.sprites.count },
+                                                 actors: actors.count, emissives: emissives.count,
+                                                 lights: lights.count))
+        desc.look = base.look
+        desc.rooms = base.rooms
+        desc.rain = base.rain
+        desc.wetness = base.wetness
+        desc.zoom = base.zoom
+        desc.interior = base.interior
+        desc.gloomHaze = base.gloomHaze
+        desc.carried = carried ?? base.carried
+        return desc
+    }
+
+    private static func luma(_ c: SIMD3<Float>) -> Float {
+        0.2126 * c.x + 0.7152 * c.y + 0.0722 * c.z
+    }
+
+    /// A glow of each band lands at its own plane's column and device shift (`lh2_back_glow`: band k read at the
+    /// place of `EmissiveBands.planes[k]`, the streak's band at the near plane's), at camera positions whose planes
+    /// stand at other device shifts than the world's. The frame holds nothing but the glows (no sprite, actor, light or
+    /// bloom), so nothing hides or spreads them: each 1 x 1 glow lights exactly the s device columns of its texel on
+    /// its plane's grid, and the lantern's streak lights whole texels of the near plane's grid inside its rect.
+    func testABandsGlowLandsAtItsOwnPlanesColumn() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let night = GameFrameSupport.demoNight(hour: 22.8)
+        var otherShift = 0
+        for focus in [2800.0, 2800.35, 2800.7, 2801.05, 2801.4] {
+            let base = frame(night, focus: focus)
+            var glows: [EmissiveInstance] = []
+            for (band, plane) in EmissiveBands.planes.enumerated() {
+                glows.append(EmissiveInstance(sprite: .hallMote, plane: plane,
+                                              rect: SIMD4<Float>(Float(150 + 25 * band), Float(70 + 10 * band), 1, 1),
+                                              color: SIMD4<Float>(1, 1, 1, 1)))
+            }
+            let size = SpriteID.riverLanternStreak.size
+            let streak = EmissiveInstance(sprite: .riverLanternStreak, plane: .near,
+                                          rect: SIMD4<Float>(300, 60, Float(size.width), Float(size.height)),
+                                          color: SIMD4<Float>(3, 3, 3, 1))
+            XCTAssertEqual(EmissiveBands.band(of: streak), EmissiveBands.overLane)
+            let planes = base.planes.map { PlaneLayer(offset: $0.offset, sprites: []) }
+            let desc = Look2FrameTests.remade(base, planes: planes, actors: [], lights: [], emissives: glows + [streak],
+                                              bloom: false, carried: [])
+            XCTAssertEqual(EmissiveBands.mask(desc), EmissiveBands.bandBits, "every band holds a glow, nothing else")
+            let shot = try renderer.renderOffscreen(desc, settings: settings)
+            let s = desc.scale
+            func deviceY(row: Int) -> Int {
+                desc.physicalHeight - 1 - s * (desc.targetHeight - 1 - row)
+            }
+            func lit(_ columns: Range<Int>, row: Int) -> [Int] {
+                let y = deviceY(row: row)
+                let background = Look2FrameTests.luma(shot.color(x: columns.lowerBound - 30, y: y))
+                return columns.filter { Look2FrameTests.luma(shot.color(x: $0, y: y)) > background + 0.3 }
+            }
+            for glow in glows {
+                let plane = EmissiveBands.readPlane(of: glow)
+                let shift = desc.layer(plane).offset.deviceShift
+                let left = s * Int(glow.rect.x) - shift
+                XCTAssertEqual(lit(left - 9 ..< left + s + 9, row: Int(glow.rect.y)), Array(left ..< left + s),
+                               "focus \(focus): the glow of the \(plane) band on its own plane's column")
+                if shift != desc.layer(.world).offset.deviceShift { otherShift += 1 }
+            }
+            let shift = desc.layer(.near).offset.deviceShift
+            let left = s * Int(streak.rect.x) - shift
+            var seen = 0
+            for row in Int(streak.rect.y) ..< Int(streak.rect.y + streak.rect.w) {
+                let columns = lit(left - 9 ..< left + s * size.width + 9, row: row)
+                seen += columns.count
+                for x in columns {
+                    let column = (x + shift) / s
+                    XCTAssertTrue(column >= Int(streak.rect.x) && column < Int(streak.rect.x) + size.width,
+                                  "focus \(focus): the streak inside its rect on the near plane's grid")
+                    let block = Array(s * column - shift ..< s * column - shift + s)
+                    XCTAssertTrue(block.allSatisfy { columns.contains($0) },
+                                  "focus \(focus): the streak lights whole texels of the near plane's grid")
+                }
+            }
+            XCTAssertGreaterThan(seen, 0, "focus \(focus): the streak's band is lit")
+        }
+        XCTAssertGreaterThan(otherShift, 5, "the band planes stood at other device shifts than the world's")
+    }
+
+    /// Reading only what the mask names changes no pixel: each frame rendered with its own mask equals the same frame
+    /// rendered with every band and carried picture read (step 2b's way, `Renderer.readsEveryBand`), byte for byte.
+    /// By day, at dusk and at night, at the hall door, the castle and the town, in a storm, and with a translucent
+    /// figure over the keep (the actors' own composite of the stack behind them, `lh_actor2_fragment`).
+    func testTheMaskChangesNoPixel() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        defer { renderer.readsEveryBand = false }
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let door = SceneLayout.castleHallDoorX
+        let storm = GameFrameSupport.demoNight(hour: 22.8)
+        let sample = Weather.sample(seed: storm.seed, day: storm.day, hour: storm.hour, time: 1.5,
+                                    override: WeatherOverride(mode: .storm))
+        var scenes: [(name: String, desc: FrameDesc)] = [
+            ("day-door", frame(GameFrameSupport.demoDay(hour: 12.0), focus: door)),
+            ("night-door", frame(GameFrameSupport.demoNight(hour: 22.8), focus: door)),
+            ("castle-dusk", frame(GameFrameSupport.demoDay(hour: 19.2), focus: 1360)),
+            ("town-night", frame(GameFrameSupport.demoNight(hour: 22.8), focus: 2800)),
+            ("storm-front-night", frame(storm, focus: 900, weather: sample)),
+        ]
+        // The keep's middle stands at the screen's middle at the hall door (`SceneLayout.castleKeepX`).
+        let keepNight = scenes[1].desc
+        let ghost = ActorInstance(sprite: .king, frame: 0,
+                                  rect: SIMD4<Float>(Float(keepNight.physicalWidth / 2 - 32 * keepNight.scale), 40,
+                                                     Float(16 * keepNight.scale * 4), Float(30 * keepNight.scale * 4)),
+                                  tint: SIMD4<Float>(1, 1, 1, 0.5), flipped: false, isEmissive: false, isLit: true)
+        scenes.append(("night-door-ghost", Look2FrameTests.remade(keepNight, actors: keepNight.actors + [ghost])))
+        var skipped = 0
+        for scene in scenes {
+            let mask = EmissiveBands.mask(scene.desc)
+            if mask != EmissiveBands.everything { skipped += 1 }
+            renderer.readsEveryBand = false
+            let masked = try renderer.renderOffscreen(scene.desc, settings: settings)
+            renderer.readsEveryBand = true
+            let full = try renderer.renderOffscreen(scene.desc, settings: settings)
+            renderer.readsEveryBand = false
+            let differing = zip(masked.pixels, full.pixels).reduce(0) { $0 + ($1.0 == $1.1 ? 0 : 1) }
+            XCTAssertEqual(masked.pixels.count, full.pixels.count, scene.name)
+            XCTAssertEqual(differing, 0, "\(scene.name) (mask 0x\(String(mask, radix: 16))): bytes that differ")
+        }
+        XCTAssertGreaterThan(skipped, 3, "most frames leave something out")
+    }
+
     /// Attaches a render as a PNG.
     private func attach(_ shot: Renderer.Snapshot, name: String) {
         var rgba = [UInt8](repeating: 0, count: shot.width * shot.height * 4)
