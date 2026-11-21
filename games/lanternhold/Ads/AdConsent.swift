@@ -202,8 +202,8 @@ enum TrackingAnswer: Sendable, Equatable {
         }
     }
 
-    /// The answer the device holds now.
-    static var current: TrackingAnswer {
+    /// The answer the device holds now (read on the main actor, as every read of Apple's status has been).
+    @MainActor static var current: TrackingAnswer {
         TrackingAnswer(ATTrackingManager.trackingAuthorizationStatus)
     }
 }
