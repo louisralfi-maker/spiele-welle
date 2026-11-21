@@ -103,12 +103,14 @@ enum CourtLayout {
         // right, as in the art's hall scenes, and never covers the seated lord) and walks round the hearth to her
         // lectern's near side (1894, the lectern from 1908), where she faces it.
         "odile": CourtRoutine(stops: [1858, 1894], faces: [-1, 1], dwell: [14, 6], night: 1860, nightFacing: -1),
-        // b3-yard (build 3, wave 2, lane 2, step 2; the director's leave for this one stop): his second day stop is
-        // behind the drill line (1422, was 1470), watching the archer and the pell, facing the yard; so he never stands
-        // over the drill, the yard's site (1456) or the engine plot's middle (1440), never before the butt, and stays
-        // between the courtyard and the gatehouse (1420 to 1480, CourtTests).
-        "brannock": CourtRoutine(stops: [1428, 1422], faces: [-1, 1], dwell: [9, 9], night: 1424, nightFacing: -1,
-                                 offset: 5),
+        // b3-yard (build 3, wave 2, lane 2, step 2; the director's leave for this one stop): his second day stop is at
+        // the butt's end of the yard (1472, was 1470), so his talk tag stands a full tag (16 px) clear of the yard
+        // site's and both show. Nowhere else is free: 1420 to 1480 (CourtTests), off the gate's catapult model (1411
+        // to 1435: a person standing on a model takes its touch; round lh-b3y-21 with 1422), off the engine plot's and
+        // the site's middles. The offset (5.5, was 5) keeps his round in step with step 1's at the hour the counts'
+        // tests touch the catapult.
+        "brannock": CourtRoutine(stops: [1428, 1472], faces: [-1, 1], dwell: [9, 9], night: 1424, nightFacing: -1,
+                                 offset: 5.5),
         "pip": CourtRoutine(stops: [1612, 1690, 1770, 1700], faces: [1, 1, -1, -1], dwell: [5, 4, 7, 3], night: 1880,
                             nightFacing: -1, speed: 22, offset: 11),
         // M3 step 3: Hesper at the altar (2058) and by the pews (2012), Tamsin at her table (2158) and at the

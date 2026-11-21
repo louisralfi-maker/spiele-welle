@@ -664,11 +664,11 @@ final class YardLookTests: XCTestCase {
             XCTAssertLessThan(spot.x + Double(SpriteID.guardsman.size.width) / 2, barracks, "a guard at \(spot.x)")
             XCTAssertLessThan(spot.x + Double(SpriteID.guardsman.size.width) / 2, CourtLayout.marekCartX)
         }
-        // Brannock's day stops: on the drill line, never before the butt and never over the site's middle.
+        // Brannock's day stops: never over the site's middle, and his tag a full tag clear of the site's.
         let brannock = CourtLayout.routines["brannock"]?.stops ?? []
         for stop in brannock {
-            XCTAssertLessThan(stop, YardLook.buttLeft, "Brannock at \(stop) stands before no butt")
-            XCTAssertGreaterThan(abs(stop - Yard.plotX), 11, "and leaves the site's middle free")
+            XCTAssertGreaterThan(abs(stop - Yard.plotX), 11, "Brannock at \(stop) leaves the site's middle free")
+            XCTAssertGreaterThanOrEqual(abs(stop - Yard.plotX), TouchRules.markWidth + 1, "and its tag")
         }
     }
 
@@ -747,7 +747,7 @@ final class YardLookTests: XCTestCase {
     func testTheSitesMarkShowsBesideTheBarracks() throws {
         let s = realm(day: 4)
         let body = try XCTUnwrap(Speakers.speaker("brannock")).body
-        let brannock = DrawnFigure(who: "brannock", key: "brannock", body: body, x: 1422, y: 0, facing: 1, frame: 0,
+        let brannock = DrawnFigure(who: "brannock", key: "brannock", body: body, x: 1472, y: 0, facing: 1, frame: 0,
                                    alpha: 1, look: nil, petition: nil, talking: false)
         let things = TouchThings.world(s, balance: balance, figures: [brannock], talked: [])
         XCTAssertTrue(things.contains { $0.id == "touch-yard" })
