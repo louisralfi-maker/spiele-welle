@@ -10,14 +10,16 @@ layout's emitter (`EntityFrames.yardProps`), never painted.
   yardart.py all --out <Resources/Art>
   yardart.py build <id> [<id> ...] --out <Resources/Art>
 
+It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed.
+
   yardGround   39x16      the drill ground: raked sand on the lane's top five rows (the sprite stands 5 px under
                           the walk line), a low post-and-rail fence behind it, the arms rack at its right end (two
                           practice spears and the house's round shield against the last post)
-  yardPell     7x19 x 2   a pell: a stout post with a flat cap, a bundle of straw bound round its middle with two
+  yardPell     9x22 x 2   a pell: a stout post with a flat cap, a bundle of straw bound round its middle with three
                           rope bands, a mound at its foot; frame 1 battered (a strand torn loose, the bundle sagging)
-  yardButt     13x17      the archery butt: a coiled straw boss, its face (the realm's teal ring and a gold heart)
+  yardButt     17x20      the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
                           turned to the archers on its left, two arrows in it, on a timber A-frame
-  yardKettle   13x17 x 2  the pitch kettle's place: a tripod of three poles lashed at the top over a ring of stones;
+  yardKettle   13x18 x 2  the pitch kettle's place: a tripod of three poles lashed at the top over a ring of stones;
                           frame 0 empty (a chain and its hook, cold ash), frame 1 the iron kettle hung on the chain
                           over split logs (the low fire is the layout's flame), a pale lit rim, black pitch
   yardSite     39x10 x 2  the drill yard's site: corner stakes with rag flags and a cord marked out along the
@@ -233,46 +235,46 @@ def pole(c, x0, y0, x1, y1, name, behind=False):
 
 
 def kettle(frame):
-    c = C(17, 18)
-    ax, ay = 8, 1                                    # the lashing
+    # Step 2's review: 13 px wide (was 17), so it stands between the pell and the butt without covering either.
+    c = C(13, 18)
+    ax, ay = 6, 1                                    # the lashing
     # The ring of stones at the foot.
-    for x, name in ((5, "stoneLight"), (6, "stone"), (7, "stoneMid"), (9, "stone"), (10, "stoneMid"),
-                    (11, "stoneDark")):
+    for x, name in ((3, "stoneLight"), (4, "stone"), (5, "stoneMid"), (7, "stone"), (8, "stoneMid"),
+                    (9, "stoneDark")):
         c.set(x, 17, name)
-    c.set(6, 16, "stonePale")
-    c.set(10, 16, "stoneLight")
+    c.set(4, 16, "stonePale")
+    c.set(8, 16, "stoneLight")
     if frame == 0:
+        c.set(5, 17, "stoneDark")
+        c.set(6, 17, "soilDark")
         c.set(7, 17, "stoneDark")
-        c.set(8, 17, "soilDark")
-        c.set(9, 17, "stoneDark")
-        c.set(8, 16, "stoneMid")
+        c.set(6, 16, "stoneMid")
     else:
-        # The kettle: a round iron belly 7 wide (rows 9 to 14) hung low between the legs, a lit lip, the pitch black
+        # The kettle: a round iron belly 5 wide (rows 9 to 14) hung low between the legs, a lit lip, the pitch black
         # in its mouth, a lit shoulder on the upper left, a lug each side.
-        belly = {9: (5, 11), 10: (5, 11), 11: (5, 11), 12: (5, 11), 13: (6, 10), 14: (7, 9)}
+        belly = {9: (4, 8), 10: (4, 8), 11: (4, 8), 12: (4, 8), 13: (5, 7), 14: (6, 6)}
         for y, (x0, x1) in belly.items():
             for x in range(x0, x1 + 1):
                 c.set(x, y, "night1" if (x == x1 and y >= 10) else "stoneDark")
-        for (x, y, name) in ((6, 10, "stone"), (7, 10, "stoneMid"), (6, 11, "stoneMid"), (6, 12, "stoneMid"),
-                             (7, 11, "stoneMid")):
+        for (x, y, name) in ((5, 10, "stone"), (5, 11, "stoneMid"), (5, 12, "stoneMid"), (6, 11, "stoneMid")):
             c.set(x, y, name)
-        for x in range(5, 12):
-            c.set(x, 9, "stoneLight" if x < 10 else "stone")
+        for x in range(4, 9):
+            c.set(x, 9, "stoneLight" if x < 7 else "stone")
+        c.set(4, 9, "stonePale")
         c.set(5, 9, "stonePale")
-        c.set(6, 9, "stonePale")
-        for x in range(8, 11):
+        for x in range(6, 8):
             c.set(x, 10, "night0")
-        c.set(4, 10, "stoneMid")
-        c.set(12, 10, "stoneDark")
+        c.set(3, 10, "stoneMid")
+        c.set(9, 10, "stoneDark")
         # Split logs crossed under it (the flame is drawn by the layout over their middle).
-        for x, y, name in ((6, 16, "woodLight"), (7, 15, "wood"), (8, 16, "woodDark"), (9, 15, "woodLight"),
-                           (10, 16, "wood"), (7, 16, "woodDark"), (9, 16, "soil")):
+        for x, y, name in ((4, 16, "woodLight"), (5, 15, "wood"), (6, 16, "woodDark"), (7, 15, "woodLight"),
+                           (8, 16, "wood"), (5, 16, "woodDark"), (7, 16, "soil")):
             c.set(x, y, name)
     rim(c)
     # The poles: the back one behind the kettle, then the two in front, splayed wide of it.
-    pole(c, ax + 1, ay + 1, 10, 17, "soil", behind=True)
-    pole(c, ax, ay, 1, 17, "woodLight")
-    pole(c, ax, ay, 14, 17, "woodDark")
+    pole(c, ax + 1, ay + 1, 8, 17, "soil", behind=True)
+    pole(c, ax, ay, 0, 17, "woodLight")
+    pole(c, ax, ay, 12, 17, "woodDark")
     # The lashing: rope round the crossing, the poles' ends standing over it.
     c.set(ax - 1, 0, "woodLight")
     c.set(ax + 1, 0, "wood")
@@ -288,9 +290,9 @@ def kettle(frame):
         c.set(ax + 1, 11, "stoneLight")
         c.set(ax + 1, 10, "stoneMid")
     else:
-        for (x, y) in ((ax - 1, 7), (ax + 1, 7), (ax - 2, 8), (ax + 2, 8), (ax - 3, 8), (ax + 3, 8)):
+        for (x, y) in ((ax - 1, 7), (ax + 1, 7), (ax - 2, 8), (ax + 2, 8)):
             c.set(x, y, "stoneMid")
-        c.set(ax - 3, 8, "stoneLight")
+        c.set(ax - 2, 8, "stoneLight")
     return c.im
 
 

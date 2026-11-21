@@ -548,7 +548,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .yardGround: return PixelSize(width: 39, height: 16)
         case .yardPell: return PixelSize(width: 9, height: 22)
         case .yardButt: return PixelSize(width: 17, height: 20)
-        case .yardKettle: return PixelSize(width: 17, height: 18)
+        case .yardKettle: return PixelSize(width: 13, height: 18)
         case .yardSite: return PixelSize(width: 39, height: 10)
         }
     }

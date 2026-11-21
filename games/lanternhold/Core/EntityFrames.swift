@@ -631,9 +631,10 @@ enum EntityFrames {
     /// b3-yard (build 3, wave 2, lane 2, step 2; docs/YARD.md sections 1, 2 and 4; tools/yardart.py, `YardLook`): the
     /// drill yard in the courtyard between the gatehouse's east tower and the barracks. While the drill yard is
     /// offered or waits for its dawn its site is marked out with stakes and cord (the timber delivered once it is
-    /// ordered); once it stands, the sand and the fence, two pells, the archery butt and the pitch kettle's tripod,
-    /// empty until Bram brings the kettle, then the kettle on its chain over a low fire with a small warm light that
-    /// glows at night. All of it stands behind every figure (props), in the courtyard's light.
+    /// ordered); once it stands, the sand and the fence, the pell, the pitch kettle's tripod and the archery butt,
+    /// the tripod empty until Bram brings the kettle, then the kettle on its chain, over a low fire with a small warm
+    /// light that glows at night from the drill's end. All of it stands behind every figure (props), in the courtyard's
+    /// light.
     static func yardProps(_ s: GameState, balance: Balance, props: inout PropList) {
         guard !s.defeated else { return }
         let yard = s.yard ?? YardState()
@@ -653,6 +654,12 @@ enum EntityFrames {
         props.add(.yardButt, x: YardLook.buttLeft, z: 1)
         guard yard.kettleInUse else {
             props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: 0)
+            return
+        }
+        // Step 2's review: the fire burns from the drill's end to the next drill (the guard at the pell stands before
+        // the tripod while they drill).
+        guard !Yard.drilling(s, balance: balance) else {
+            props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: 1)
             return
         }
         let seed: UInt64 = 0x5941_5244_4B45
@@ -1510,8 +1517,8 @@ enum EntityFrames {
         }
 
         // b3-yard (build 3, wave 2, lane 2, step 2; docs/YARD.md section 5, `YardLook`): while they drill (09:00 to
-        // 16:00, the yard standing) two archers shoot at the butt from the line left of the fence (draw, loose, the
-        // arrow flies and sticks) and two guards strike the pells, each out of step; the others are in the bunkhouse.
+        // 16:00, the yard standing) an archer shoots at the butt from the fence's gate (draw, loose, the arrow flies
+        // lofted over the guard and sticks) and a guard strikes the pell; the others are in the bunkhouse.
         // The frames are the ones they have. Reduce Motion: they stand still (the bow drawn), no arrow flies.
         if Yard.drilling(s, balance: balance) {
             var archersAtDrill = 0
@@ -1524,7 +1531,7 @@ enum EntityFrames {
                                                              reduceMotion: reduceMotion), x: x, y: 0)
                     if let flight = YardLook.arrow(index: archersAtDrill, time: time, reduceMotion: reduceMotion) {
                         let half = Double(SpriteID.arrow.size.height) / 2
-                        add(.arrow, frame: 1, x: flight.x, y: flight.y - half)
+                        add(.arrow, frame: flight.frame, x: flight.x, y: flight.y - half)
                     }
                     archersAtDrill += 1
                 } else {

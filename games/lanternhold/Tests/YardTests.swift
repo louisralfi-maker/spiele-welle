@@ -624,7 +624,7 @@ final class YardLookTests: XCTestCase {
         XCTAssertEqual(props(s).props.first?.frame, 1, "ordered: the timber is delivered")
         Yard.proof(&s, stage: 2, kettle: false, trained: false, balance: balance)
         let standing = props(s)
-        XCTAssertEqual(standing.props.map(\.sprite), [.yardGround, .yardPell, .yardPell, .yardButt, .yardKettle])
+        XCTAssertEqual(standing.props.map(\.sprite), [.yardGround, .yardPell, .yardButt, .yardKettle])
         XCTAssertEqual(standing.props.last?.frame, 0, "the tripod stands empty")
         XCTAssertTrue(standing.lights.isEmpty, "no fire before the kettle")
         XCTAssertEqual(standing.props.first?.y, YardLook.groundY, "the sand lies on the lane's top rows")
@@ -635,11 +635,21 @@ final class YardLookTests: XCTestCase {
                                      "\(prop.sprite) clear of the barracks")
             XCTAssertLessThan(prop.x + Double(size.width), CourtLayout.marekCartX, "\(prop.sprite) clear of the cart")
         }
+        // Step 2's review: no thing of the yard stands over another (the props side by side on its ground).
+        let things = standing.props.filter { $0.sprite != .yardGround }.sorted { $0.x < $1.x }
+        for (left, right) in zip(things, things.dropFirst()) {
+            XCTAssertLessThanOrEqual(left.x + Double(left.sprite.size.width), right.x,
+                                     "\(left.sprite) and \(right.sprite) side by side")
+        }
         s.yard?.kettle = .inUse
+        let cold = props(s).props.first { $0.sprite == .yardKettle }
+        XCTAssertEqual(cold?.frame, 1, "the kettle hangs on the tripod")
+        XCTAssertTrue(cold?.emissive.isEmpty ?? false, "cold while they drill (10:00)")
+        s.hour = 17
         let kettle = props(s)
         let pot = kettle.props.first { $0.sprite == .yardKettle }
         XCTAssertEqual(pot?.frame, 1, "the kettle hangs on the tripod")
-        XCTAssertEqual(pot?.emissive.first?.sprite, .flame, "over a low fire")
+        XCTAssertEqual(pot?.emissive.first?.sprite, .flame, "over a low fire from the drill's end")
         XCTAssertEqual(kettle.lights.count, 1, "with a small warm light")
         s.defeated = true
         XCTAssertTrue(props(s).props.isEmpty)
@@ -674,6 +684,11 @@ final class YardLookTests: XCTestCase {
                 flights += 1
                 XCTAssertGreaterThanOrEqual(arrow.x, YardLook.archerSpots[0] + YardLook.bowReach - 0.01)
                 XCTAssertLessThanOrEqual(arrow.x, YardLook.buttHeart.x, "it flies into the butt")
+                // Step 2's review: lofted over the guard at the pell, never through him.
+                if let guardX = YardLook.guardSpots.first?.x, abs(arrow.x - guardX) <= 5 {
+                    XCTAssertGreaterThanOrEqual(arrow.y, Double(SpriteID.guardsman.size.height),
+                                                "over the guard's head at \(arrow.x)")
+                }
             }
             XCTAssertEqual(YardLook.archerFrame(index: 1, time: time, reduceMotion: true), 3, "the bow held drawn")
             XCTAssertEqual(YardLook.guardFrame(index: 1, time: time, reduceMotion: true), 0, "the guard stands")
