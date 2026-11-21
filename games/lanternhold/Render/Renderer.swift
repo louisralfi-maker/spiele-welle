@@ -426,6 +426,43 @@ final class Renderer {
                         targetHeight: targets.height, lightValues: light, bgra: outputFormat == .bgra8Unorm)
     }
 
+    /// b3-smooth (build 3, lane 5b step 1, the critic's H2c): tests only. Renders a frame into an offscreen texture of
+    /// its physical size without reading it back, and returns the GPU's time for it (the command buffer's start to
+    /// end, also left in `stats.gpuMilliseconds`) and the wall time from commit to completion, both in ms (the wall
+    /// time stands in where a runner's GPU reports no times).
+    func timeOffscreen(_ frame: FrameDesc, settings: RenderSettings) throws -> (gpu: Double, wall: Double) {
+        let width = max(1, frame.physicalWidth)
+        let height = max(1, frame.physicalHeight)
+        let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: outputFormat, width: width,
+                                                                  height: height, mipmapped: false)
+        descriptor.usage = [.renderTarget]
+        descriptor.storageMode = .private
+        guard let output = context.device.makeTexture(descriptor: descriptor),
+              let commands = context.queue.makeCommandBuffer() else {
+            throw RendererError.resources
+        }
+        let pass = MTLRenderPassDescriptor()
+        pass.colorAttachments[0].texture = output
+        pass.colorAttachments[0].loadAction = .dontCare
+        pass.colorAttachments[0].storeAction = .store
+        inFlight.wait()
+        encode(frame, settings: settings, commands: commands, output: pass)
+        let semaphore = inFlight
+        commands.addCompletedHandler { _ in
+            semaphore.signal()
+        }
+        let start = CACurrentMediaTime()
+        commands.commit()
+        commands.waitUntilCompleted()
+        let wall = (CACurrentMediaTime() - start) * 1000
+        if let error = commands.error {
+            throw RendererError.gpu(error.localizedDescription)
+        }
+        let gpu = max(0, commands.gpuEndTime - commands.gpuStartTime) * 1000
+        stats.gpuMilliseconds = gpu
+        return (gpu: gpu, wall: wall)
+    }
+
     // MARK: - Encoding
 
     private func ensureTargets(width: Int, height: Int) -> RenderTargets? {

@@ -15,12 +15,12 @@ final class Look2FrameTests: XCTestCase {
 
     /// A game frame as `GameModel` builds it, in `look`.
     private func frame(_ s: GameState, focus: Double, look: LookVersion = .two, time: Double = 1.5,
-                       weather: WeatherSample = .clear, reduceMotion: Bool = false) -> FrameDesc {
+                       weather: WeatherSample = .clear, reduceMotion: Bool = false,
+                       screen: (Int, Int) = Look2FrameTests.screen) -> FrameDesc {
         var options = FrameOptions(flickerTime: time)
         options.look = look
         options.weather = weather
         options.reduceMotion = reduceMotion
-        let screen = Look2FrameTests.screen
         let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
         let camera = Camera(focusX: focus, pixelScale: pixelScale)
         let base = look == .two ? Look2FrameTests.world : GameFrameSupport.world
@@ -750,6 +750,64 @@ final class Look2FrameTests: XCTestCase {
             XCTAssertEqual(differing, 0, "\(scene.name) (mask 0x\(String(mask, radix: 16))): bytes that differ")
         }
         XCTAssertGreaterThan(skipped, 3, "most frames leave something out")
+    }
+
+    /// b3-smooth (build 3, lane 5b step 1, the critic's H2c): what the bands cost, on the runner's GPU. It is not a
+    /// phone's, so nothing is asserted on time; the lines go to the report. Each scene at the phone's size (2622 x 1206,
+    /// s 6), rendered by turns with every band and carried picture read (step 2b's cost, d7748951) and with its own
+    /// mask, after two warm-up renders of each; the median of eight of each. One line per scene,
+    /// `GPU-COST <scene> full <ms> masked <ms>`, from the GPU's time (`RenderStats.gpuMilliseconds`), or the wall
+    /// time where the runner's GPU reports none (then marked `wall`), and one line `GPU-READS <scene>` with the texture
+    /// reads per pixel the mask leaves of the bands and the carried pictures.
+    func testWhatTheBandsCostOnTheGPU() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        defer { renderer.readsEveryBand = false }
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let phone = (2622, 1206)
+        let scenes: [(name: String, state: GameState, focus: Double)] = [
+            ("look2-castle-dusk", GameFrameSupport.demoDay(hour: 19.2), 1360),
+            ("look2-town-dusk", GameFrameSupport.demoDay(hour: 19.2), 2800),
+            ("town-night", GameFrameSupport.demoNight(hour: 22.8), 2800),
+            ("door-noon", GameFrameSupport.demoDay(hour: 12.0), SceneLayout.castleHallDoorX),
+        ]
+        func median(_ values: [Double]) -> Double {
+            let sorted = values.sorted()
+            return sorted.isEmpty ? 0 : sorted[sorted.count / 2]
+        }
+        func ms(_ value: Double) -> String {
+            String(format: "%.3f", value)
+        }
+        for scene in scenes {
+            let desc = frame(scene.state, focus: scene.focus, screen: phone)
+            XCTAssertEqual(desc.physicalWidth, phone.0)
+            for every in [true, false, true, false] {
+                renderer.readsEveryBand = every
+                _ = try renderer.timeOffscreen(desc, settings: settings)
+            }
+            var full: [(gpu: Double, wall: Double)] = []
+            var masked: [(gpu: Double, wall: Double)] = []
+            for _ in 0..<8 {
+                renderer.readsEveryBand = true
+                let every = try renderer.timeOffscreen(desc, settings: settings)
+                full.append(every)
+                renderer.readsEveryBand = false
+                let own = try renderer.timeOffscreen(desc, settings: settings)
+                masked.append(own)
+            }
+            let gpu = median(full.map { $0.gpu }) > 0 && median(masked.map { $0.gpu }) > 0
+            let fullMs = gpu ? median(full.map { $0.gpu }) : median(full.map { $0.wall })
+            let maskedMs = gpu ? median(masked.map { $0.gpu }) : median(masked.map { $0.wall })
+            print("GPU-COST \(scene.name) full \(ms(fullMs)) masked \(ms(maskedMs))" + (gpu ? "" : " wall"))
+            let mask = EmissiveBands.mask(desc)
+            let bands = (0..<EmissiveBands.count).filter { mask & EmissiveBands.bit(band: $0) != 0 }.count
+            let pictures = CarriedPicture.allCases.filter { mask & EmissiveBands.bit($0) != 0 }.count
+            print("GPU-READS \(scene.name) mask 0x\(String(mask, radix: 16)) composite \(bands + pictures) per pixel "
+                  + "(full \(EmissiveBands.count + CarriedPicture.allCases.count), step 2b 9), bloom prefilter "
+                  + "\(bands) bands per low-res texel (full \(EmissiveBands.count))")
+            XCTAssertGreaterThan(fullMs, 0, "\(scene.name) was timed")
+        }
     }
 
     /// Attaches a render as a PNG.
