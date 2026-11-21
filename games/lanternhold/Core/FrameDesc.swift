@@ -545,11 +545,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .paySign: return PixelSize(width: 24, height: 17)
         case .hudDawn: return PixelSize(width: 11, height: 9)
         // b3-yard
-        case .yardGround: return PixelSize(width: 39, height: 16)
+        case .yardGround: return PixelSize(width: 103, height: 16)  // step 3: the whole yard, 1442 to 1544
         case .yardPell: return PixelSize(width: 9, height: 22)
         case .yardButt: return PixelSize(width: 17, height: 20)
         case .yardKettle: return PixelSize(width: 13, height: 18)
-        case .yardSite: return PixelSize(width: 39, height: 10)
+        case .yardSite: return PixelSize(width: 103, height: 10)
         }
     }
 

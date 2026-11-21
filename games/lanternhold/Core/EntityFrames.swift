@@ -628,13 +628,13 @@ enum EntityFrames {
         yardProps(s, balance: balance, props: &props)
     }
 
-    /// b3-yard (build 3, wave 2, lane 2, step 2; docs/YARD.md sections 1, 2 and 4; tools/yardart.py, `YardLook`): the
-    /// drill yard in the courtyard between the gatehouse's east tower and the barracks. While the drill yard is
-    /// offered or waits for its dawn its site is marked out with stakes and cord (the timber delivered once it is
-    /// ordered); once it stands, the sand and the fence, the pell, the pitch kettle's tripod and the archery butt,
-    /// the tripod empty until Bram brings the kettle, then the kettle on its chain, over a low fire with a small warm
-    /// light that glows at night from the drill's end. All of it stands behind every figure (props), in the courtyard's
-    /// light.
+    /// b3-yard (build 3, wave 2, lane 2, steps 2 and 3; docs/YARD.md sections 1, 2 and 4; tools/yardart.py, `YardLook`):
+    /// the drill yard on the gate's apron and the barracks' front (step 3: 1442 to 1544, layout A). While the drill yard
+    /// is offered or waits for its dawn its site is marked out with stakes and cord (the timber delivered once it is
+    /// ordered); once it stands, the sand and the apron's fence, the pitch kettle's tripod, the pell and the two butts
+    /// set behind each other (the one behind a shade darker), the tripod empty until Bram brings the kettle, then the
+    /// kettle on its chain, over a low fire with a small warm light that glows at night from the drill's end. All of it
+    /// stands behind every figure (props), in the courtyard's light.
     static func yardProps(_ s: GameState, balance: Balance, props: inout PropList) {
         guard !s.defeated else { return }
         let yard = s.yard ?? YardState()
@@ -651,7 +651,10 @@ enum EntityFrames {
         for (index, left) in YardLook.pellLefts.enumerated() {
             props.add(.yardPell, x: left, z: 1, frame: index % 2)
         }
-        props.add(.yardButt, x: YardLook.buttLeft, z: 1)
+        for (index, left) in YardLook.buttLefts.enumerated() {
+            let behind = index < YardLook.buttLefts.count - 1
+            props.add(.yardButt, x: left, z: 1, shade: behind ? YardLook.buttBehindShade : 1)
+        }
         guard yard.kettleInUse else {
             props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: 0)
             return

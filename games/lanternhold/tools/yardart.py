@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Lanternhold build 3, the drill yard (docs/YARD.md sections 1, 2 and 4; wave 2, lane 2, step 2): the yard's things in
-the courtyard, between the gatehouse's east tower and the barracks. Pure python on pixelart.py's Image, palette
+"""Lanternhold build 3, the drill yard (docs/YARD.md sections 1, 2 and 4; wave 2, lane 2, steps 2 and 3): the yard's things
+in the courtyard. Step 3 (the director's ruling of 21.11.2026, 17:10, and his pick, layout A, 17:31): the yard is the
+gate's apron plus the whole front of the barracks, its bunkhouse, sand from 1442 to 1544 (103 px). Pure python on pixelart.py's Image, palette
 colours only, no randomness (hashes of the position), so a run reproduces its files byte for byte. The bailey's
 language (tools/keepart.py: the barracks, the smithy, the lodge): timber in the wood ramp lit from the upper left,
 straw in the thatch's two tones, iron in the castle's stone ramp, the realm's teal and gold on what the house owns, an
@@ -12,19 +13,23 @@ layout's emitter (`EntityFrames.yardProps`), never painted.
 
 It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed.
 
-  yardGround   39x16      the drill ground: raked sand on the lane's top five rows (the sprite stands 5 px under
-                          the walk line), a low post-and-rail fence behind it, the arms rack at its right end (two
-                          practice spears and the house's round shield against the last post)
+  yardGround   103x16     the drill ground: raked sand on the lane's top five rows (the sprite stands 5 px under
+                          the walk line) from the gate's apron to the barracks' east wall, a low post-and-rail fence
+                          only along the apron (1442 to 1480), a corner post at the far end (1541); the bunkhouse's
+                          front stays open (its painted spear rack is the yard's arms rack)
   yardPell     9x22 x 2   a pell: a stout post with a flat cap, a bundle of straw bound round its middle with three
                           rope bands, a mound at its foot; frame 1 battered (a strand torn loose, the bundle sagging)
   yardButt     17x20      the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
-                          turned to the archers on its left, two arrows in it, on a timber A-frame
+                          turned to the archers on its left, two arrows in it, on a timber A-frame (two stand set
+                          behind each other, the one behind a shade darker: the layout's shade)
   yardKettle   13x18 x 2  the pitch kettle's place: a tripod of three poles lashed at the top over a ring of stones;
                           frame 0 empty (a chain and its hook, cold ash), frame 1 the iron kettle hung on the chain
                           over split logs (the low fire is the layout's flame), a pale lit rim, black pitch
-  yardSite     39x10 x 2  the drill yard's site: corner stakes with rag flags and a cord marked out along the
-                          ground; frame 1, ordered (until its dawn): the fence rails stacked, a straw bale, a bundle of
-                          stakes delivered
+  yardSite     103x10 x 2 the drill yard's site, the larger ground marked out: six stakes (the corners with teal rag
+                          flags, the door's two with red ones), a thin hemp cord sagging between them at two thirds
+                          of their height, open at the bunkhouse door; frame 1, ordered (until its dawn): the timber
+                          delivered on the bunkhouse's front (rails stacked, a bundle of stakes, a straw bale), clear
+                          of the lord's lane and the door
 """
 import os
 import sys
@@ -297,12 +302,17 @@ def kettle(frame):
 
 
 # ------------------------------------------------------------------------------------------------ the ground
-GW, GH, SAND = 39, 16, 5
+# Step 3, layout A (world x = 1442 + column): the fence only along the gate's apron (columns 0 to 38, 1442 to 1480),
+# the barracks' front open from 1481 (its door at 1505 to 1516 stays clear), a corner post at 1541 (column 99).
+GW, GH, SAND = 103, 16, 5
+FENCE_POSTS = (1, 10, 19, 28, 37)
+CORNER_POST = 99
 
 
 def ground():
     c = C(GW, GH)
-    # The sand: the lane's top five rows (rows h 0 to 4 are under the walk line), raked along, its ends ragged.
+    # The sand: the lane's top five rows (rows h 0 to 4 are under the walk line), raked along, its ends ragged; trodden
+    # darker where the archer stands and loosens his feet (columns 0 to 3) and round the pell (the drill's own wear).
     for hh in range(0, SAND):
         for x in range(GW):
             end = min(x, GW - 1 - x)
@@ -314,96 +324,118 @@ def ground():
                 name = "plasterDim" if v < 0.3 else "plaster"
             if hh % 2 == 0 and (x + hh * 3) % 7 < 3:
                 name = "plasterDim"          # the rake's furrows
-            if h01(13, x, hh) < 0.06:
+            if h01(13, x, hh) < 0.05:
                 name = "soilLight"           # a footprint, a pebble
+            if hh >= SAND - 2 and (x < 4 or 40 <= x < 56) and h01(23, x, hh) < 0.45:
+                name = "plasterDim"          # trodden
             c.seth(x, hh, name)
-    # The fence: posts on the walk line and two rails between them, a low fence about ten rows high. No full ink
-    # edge (it would close the gaps between the rails into a dark panel): each post keeps a dark right side and a cap,
-    # each rail a shaded underside, so the tower's stone shows through between them.
+    # The fence along the apron: posts on the walk line and two rails between them, a low fence about ten rows high. No
+    # full ink edge (it would close the gaps between the rails into a dark panel): each post keeps a dark right side and
+    # a cap, each rail a shaded underside, so the tower's stone shows through between them.
     ink = col("ink")
-    posts = (1, 10, 19, 28, 36)
     rails = (SAND + 4, SAND + 8)
     for rail in rails:
-        for x in range(posts[0] + 2, posts[-1]):
+        for x in range(FENCE_POSTS[0] + 2, FENCE_POSTS[-1]):
             v = h01(17, x // 5, rail)
             c.seth(x, rail, "woodLight" if v < 0.35 else "wood")
             c.seth(x, rail - 1, "woodDark")
             if h01(19, x, rail) < 0.08:
                 c.seth(x, rail, "woodDark")       # a knot, a crack
-    for px in posts:
-        tall = 11 if px in (posts[0], posts[-1]) else 10
+
+    def post(px, tall):
         for hh in range(SAND, SAND + tall):
             c.seth(px, hh, "woodLight")
             c.seth(px + 1, hh, "wood" if hh > SAND + tall - 3 else "woodDark")
-            c.im.set(px + 2, c.r(hh), ink) if c.get(px + 2, c.r(hh))[3] == 0 else None
+            if c.get(px + 2, c.r(hh))[3] == 0:
+                c.im.set(px + 2, c.r(hh), ink)
         c.seth(px, SAND + tall, "ink")
         c.seth(px + 1, SAND + tall, "ink")
-        c.seth(px - 1, SAND + tall - 1, "ink") if px - 1 >= 0 else None
-    c.im.set(posts[0] - 1, c.r(SAND + 2), ink)
+        if px - 1 >= 0 and c.get(px - 1, c.r(SAND + tall - 1))[3] == 0:
+            c.seth(px - 1, SAND + tall - 1, "ink")
+
+    for px in FENCE_POSTS:
+        post(px, 11 if px in (FENCE_POSTS[0], FENCE_POSTS[-1]) else 10)
     for hh in range(SAND, SAND + 10):
-        c.seth(posts[0] - 1, hh, "ink")
-    # The arms rack at the right end: two practice spears leaning on the last post (iron heads catching the light),
-    # the house's round shield at their foot.
-    for i, hh in enumerate(range(SAND, SAND + 13)):
-        c.seth(33 - i // 6, hh, "woodLight")
-        c.seth(31 - i // 5, hh, "wood")
-    c.seth(31, SAND + 13, "stonePale")
-    c.seth(31, SAND + 14, "stoneLight")
-    c.seth(28, SAND + 13, "stoneLight")
-    c.seth(28, SAND + 14, "stoneMid")
-    for dy in range(-2, 3):
-        for dx in range(-2, 3):
-            d = dx * dx + dy * dy
-            if d <= 6:
-                name = "banner" if dx < 0 or dy > 0 else "roofDeep"
-                if d >= 4:
-                    name = "roofLight" if dx < 0 and dy >= 0 else "ink"
-                c.seth(34 + dx, SAND + 3 + dy, name)
-    c.seth(34, SAND + 3, "gold")
-    c.seth(34, SAND, "ink")
+        c.seth(FENCE_POSTS[0] - 1, hh, "ink")
+    # The rails' cut ends past the last post, short of the barracks' wall (1481): the fence ends at the bunkhouse.
+    for rail in rails:
+        c.seth(FENCE_POSTS[-1] + 2, rail, "woodDark")
+    # The corner post at the far end: the yard's bound, a little taller, its top cut square.
+    post(CORNER_POST, 11)
+    c.seth(CORNER_POST, SAND + 11, "woodLight")
+    c.seth(CORNER_POST + 1, SAND + 11, "ink")
+    c.seth(CORNER_POST, SAND + 12, "ink")
     return c.im
 
 
 # -------------------------------------------------------------------------------------------------- the site
-SW, SH = 39, 10
+# Step 3, layout A: six stakes round the larger ground (world 1442, 1470, 1481, 1504, 1517, 1543), a thin hemp cord at
+# two thirds of their height, open at the bunkhouse door (1504 to 1517). The corners carry teal rag flags (the house's
+# colour), the door's two stakes red ones (the butt's red), each flag 2 x 2 so it shows at phone size.
+SW, SH = 103, 10
+# (column, height, flag, the flag's first column from the stake: inward at the corners, away from the door at the door)
+STAKES = ((0, 8, "teal", 2), (28, 6, None, 0), (39, 6, None, 0), (62, 7, "red", -2), (75, 7, "red", 2),
+          (101, 8, "teal", -2))
+DOOR = (62, 75)
+FLAGS = {"teal": ("roofLight", "banner"), "red": ("tileLight", "tile")}
 
 
 def site(frame):
     c = C(SW, SH)
-    stakes = ((1, 8), (13, 6), (24, 6), (36, 8))
-    for (sx, tall) in stakes:
+    for (sx, tall, _, _) in STAKES:
         for hh in range(0, tall):
             c.seth(sx, hh, "woodLight")
-            c.seth(sx + 1, hh, "wood")
-        c.seth(sx, tall, "strawLight")
-        c.seth(sx + 1, tall, "strawLight")
-    # Rag flags on the corner stakes.
-    c.seth(3, 7, "parchment")
-    c.seth(4, 7, "parchment")
-    c.seth(3, 6, "plasterDim")
-    c.seth(34, 7, "parchment")
-    c.seth(35, 7, "plasterDim")
-    # The cord from stake to stake, sagging a pixel in each span.
-    for (ax, at), (bx, bt) in zip(stakes, stakes[1:]):
-        for x in range(ax + 2, bx):
-            t = (x - ax) / float(bx - ax)
-            sag = 1 if 0.25 < t < 0.75 else 0
-            c.seth(x, min(at, bt) - 1 - sag, "plaster")
+            c.seth(sx + 1, hh, "wood" if hh < tall - 1 else "woodLight")
+        c.seth(sx, tall, "plasterDim")          # the cut top, pale
+        c.seth(sx + 1, tall, "plasterDim")
     if frame == 1:
-        # Delivered: the rails stacked, a straw bale, a bundle of stakes.
+        # Delivered on the bunkhouse's front, clear of the lord's lane and the door: the fence rails stacked (1484 to
+        # 1499), a bundle of stakes leaning on them, a straw bale east of the door (1522 to 1529).
         for hh in range(0, 3):
-            for x in range(4, 18):
+            for x in range(42, 58):
                 c.seth(x, hh, "woodLight" if hh == 2 else ("wood" if (x + 2 * hh) % 7 else "woodDark"))
-            c.seth(4, hh, "woodLight")             # the rails' cut ends
-            c.seth(17, hh, "soilLight")
-        for hh in range(0, 5):
-            for x in range(27, 34):
-                c.seth(x, hh, "strawLight" if x < 30 and hh > 1 else "straw")
-            c.seth(30, hh, "soil")
+            c.seth(42, hh, "woodLight")              # the rails' cut ends
+            c.seth(57, hh, "soilLight")
         for hh in range(0, 6):
-            c.seth(20 + hh // 3, hh, "woodLight")
-            c.seth(22 + hh // 3, hh, "wood")
+            c.seth(55 + hh // 3, hh, "woodLight")
+            c.seth(57 + hh // 3, hh, "wood")
+        for hh in range(0, 5):
+            for x in range(80, 88):
+                c.seth(x, hh, "strawLight" if x < 83 and hh > 1 else "straw")
+            c.seth(84, hh, "soil")
+            c.seth(87, hh, "plasterDim")
     rim(c)
+    # After the ink edge (a cord and a chalk line have none, or they would read as a rail and a kerb). The cord from
+    # stake to stake at two thirds of the lower stake's height, sagging a pixel in a short span and two
+    # in a long one; a dark hemp, one pixel thin, so it reads as a line on the ground, never as a rail.
+    for (ax, at, _, _), (bx, bt, _, _) in zip(STAKES, STAKES[1:]):
+        if (ax, bx) == DOOR:
+            continue                            # the door stays open
+        hh0 = (2 * min(at, bt)) // 3
+        span = bx - ax
+        for x in range(ax + 2, bx):
+            t = (x - ax) / float(span)
+            sag = 0
+            if 0.2 < t < 0.8:
+                sag = 1
+            if span > 20 and 0.35 < t < 0.65:
+                sag = 2
+            if not c.opaque(x, c.r(hh0 - sag)):  # behind the delivered timber
+                c.seth(x, hh0 - sag, "soilLight" if (x + sag) % 5 else "strawLight")
+    # Lime marks scratched on the ground at each stake's foot: the ground is marked out.
+    for (sx, _, _, _) in STAKES:
+        for dx in (-2, -1, 2, 3):
+            if 0 <= sx + dx < SW and not c.opaque(sx + dx, c.r(0)):
+                c.seth(sx + dx, 0, "plasterDim" if dx in (-1, 2) else "plaster")
+    # The flags after the ink edge (a rag has none): two rows of two on the side away from the door or the ground.
+    for (sx, tall, flag, off) in STAKES:
+        if not flag:
+            continue
+        light, dark = FLAGS[flag]
+        fx = sx + off
+        for dx in (0, 1):
+            c.seth(fx + dx, tall - 1, light)
+            c.seth(fx + dx, tall - 2, dark)
     return c.im
 
 
