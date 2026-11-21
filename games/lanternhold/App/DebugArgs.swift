@@ -416,22 +416,24 @@ extension DebugArgs {
 }
 #endif
 
-// b3-yard (build 3, wave 2, lane 2, step 1; one registration block for the join, lane 6 owns this file): `-GWYard
-// <stage>[,kettle]` (the drill yard standing at that stage, with the pitch kettle in use) and `-GWTrained YES` (every
-// soldier trained), the yard's pictures and UI tests (`Yard.proof`). Debug builds only, read here outside `keys`, so a
-// Release build never sees them.
+// b3-yard (build 3, wave 2, lane 2, steps 1 and 2; one registration block for the join, lane 6 owns this file):
+// `-GWYard <stage>[,kettle]` (the drill yard standing at that stage, with the pitch kettle in use), `-GWTrained YES`
+// (every soldier trained) and, step 2, `-GWTrained dawn` (every soldier drilled his days, trained at the next dawn, so
+// the dawn card names them), the yard's pictures and UI tests (`Yard.proof`). Debug builds only, read here outside
+// `keys`, so a Release build never sees them.
 #if DEBUG
 extension DebugArgs {
-    static var yard: (stage: Int?, kettle: Bool, trained: Bool)? {
+    static var yard: (stage: Int?, kettle: Bool, trained: Bool, ready: Bool)? {
         let defaults = UserDefaults.standard
         let text = defaults.string(forKey: "GWYard")?.trimmingCharacters(in: .whitespaces).lowercased() ?? ""
         let trainedText = defaults.string(forKey: "GWTrained")?.trimmingCharacters(in: .whitespaces).lowercased() ?? ""
         let trained = trainedText == "yes" || trainedText == "true" || trainedText == "1"
+        let ready = trainedText == "dawn"
         let parts = text.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
         let stage = parts.first.flatMap { Int($0) }.map { min(2, max(1, $0)) }
         let kettle = parts.contains("kettle")
-        guard stage != nil || kettle || trained else { return nil }
-        return (stage: stage ?? (kettle ? 2 : nil), kettle: kettle, trained: trained)
+        guard stage != nil || kettle || trained || ready else { return nil }
+        return (stage: stage ?? (kettle ? 2 : nil), kettle: kettle, trained: trained, ready: ready)
     }
 }
 #endif

@@ -102,8 +102,10 @@ enum GameStart {
         // for its pictures, Debug only (`Yard.proof`, `DebugArgs.yard`); the dawn snapshot takes it too.
         #if DEBUG
         if let yard = DebugArgs.yard {
-            Yard.proof(&state, stage: yard.stage, kettle: yard.kettle, trained: yard.trained, balance: balance)
-            Yard.proof(&dawn, stage: yard.stage, kettle: yard.kettle, trained: yard.trained, balance: balance)
+            Yard.proof(&state, stage: yard.stage, kettle: yard.kettle, trained: yard.trained, ready: yard.ready,
+                       balance: balance)
+            Yard.proof(&dawn, stage: yard.stage, kettle: yard.kettle, trained: yard.trained, ready: yard.ready,
+                       balance: balance)
         }
         #endif
         return Result(state: state, dawn: dawn, bot: bot)

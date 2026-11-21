@@ -210,14 +210,22 @@ enum Yard {
     // MARK: - Debug and tests
 
     /// The yard for a picture (`-GWYard`, `-GWTrained`, Debug only; the unit tests): `stage` stands (1 leaves no yard
-    /// unless the kettle is asked), the kettle in use, every soldier trained.
-    static func proof(_ s: inout GameState, stage: Int?, kettle: Bool, trained: Bool, balance: Balance) {
+    /// unless the kettle is asked), the kettle in use, every soldier trained; `ready` (step 2, `-GWTrained dawn`):
+    /// every soldier not yet trained has drilled his days, so the next dawn trains him and the report names him.
+    static func proof(_ s: inout GameState, stage: Int?, kettle: Bool, trained: Bool, ready: Bool = false,
+                      balance: Balance) {
         if let stage, stage >= 2 || kettle {
             var yard = s.yard ?? YardState()
             yard.stage = max(yard.stage, max(2, stage))
             yard.orderedStage = nil
             if kettle { yard.kettle = .inUse }
             s.yard = yard
+        }
+        if ready && !trained {
+            if s.yard == nil { s.yard = YardState(stage: 1) }
+            for index in s.soldiers.indices where s.soldiers[index].trained != true {
+                s.soldiers[index].drilled = max(s.soldiers[index].drilled ?? 0, balance.yard.trainDays)
+            }
         }
         if trained {
             // A trained man who falls is named through the yard's roster (`horn`), so the trained need a yard.

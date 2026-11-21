@@ -127,6 +127,35 @@ struct ReportCardView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("report-fallen")
             }
+            // b3-yard (build 3, wave 2, lane 2, step 2; the director's decision: one block for the join, no lane owns
+            // this file): the drill yard's lines in the card's ink, each after its glyph: a bow for the men trained,
+            // a shield for a trained man fallen, the hammer and the flame for the yard and the kettle come.
+            let yardLines = card.yard?.lines() ?? []
+            if !yardLines.isEmpty {
+                VStack(alignment: .leading, spacing: 3) {
+                    ForEach(Array(yardLines.enumerated()), id: \.offset) { _, line in
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            GlyphView(glyph: ReportCardView.yardGlyph(line))
+                            Text(inked: YardText.text(line), .subheadline)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .font(Theme.serif(.subheadline))
+                        .foregroundStyle(Theme.ink)
+                    }
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("report-yard")
+            }
+        }
+    }
+
+    /// b3-yard: the glyph before a line of the yard.
+    static func yardGlyph(_ line: YardLine) -> PixelGlyph {
+        switch line.key {
+        case YardLine.trained: return .bow
+        case YardLine.fallen: return .shield
+        case YardLine.kettle: return .flame
+        default: return .hammer
         }
     }
 

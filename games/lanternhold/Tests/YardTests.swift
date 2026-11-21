@@ -696,6 +696,25 @@ final class YardLookTests: XCTestCase {
         }
     }
 
+    /// The dawn card shows the yard's lines (the director's decision for step 2): `-GWTrained dawn`'s realm has every
+    /// soldier drilled his days, the dawn trains and names them, and the card carries the report's yard half.
+    func testTheDawnCardNamesTheTrainedMen() throws {
+        var s = GameState.newRealm(seed: 2, balance: balance)
+        s.day = 8
+        Yard.proof(&s, stage: 2, kettle: false, trained: false, ready: true, balance: balance)
+        XCTAssertFalse(s.soldiers.contains { $0.trained == true }, "nobody trained before the dawn")
+        XCTAssertTrue(s.soldiers.allSatisfy { ($0.drilled ?? 0) >= balance.yard.trainDays }, "every man drilled")
+        let report = try XCTUnwrap(Yard.dawn(&s, balance: balance))
+        XCTAssertEqual(report.trained.sorted(), s.soldiers.map(\.name).sorted(), "the dawn trains and names them all")
+        var dawn = ReportCard.sampleReport()
+        dawn.yard = YardDawnReport(trained: ["Wat", "Ilse"], fallenTrained: ["Edda"])
+        let card = ReportCard.make(dawn)
+        XCTAssertEqual(card.yard, dawn.yard, "the card carries the yard's half")
+        XCTAssertEqual(card.yard?.lines().map(\.key), [YardLine.trained, YardLine.fallen])
+        XCTAssertEqual(card.yard?.lines().first.map { YardText.text($0) }, "Trained: Wat, Ilse.")
+        XCTAssertNil(ReportCard.make(ReportCard.sampleReport()).yard, "a realm without a yard: no yard lines")
+    }
+
     func testTheSitesMarkShowsBesideTheBarracks() throws {
         let s = realm(day: 4)
         let body = try XCTUnwrap(Speakers.speaker("brannock")).body

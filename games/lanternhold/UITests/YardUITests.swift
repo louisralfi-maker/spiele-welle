@@ -1,12 +1,13 @@
 import UIKit
 import XCTest
 
-/// The drill yard (build 3, wave 2, lane 2, step 1; docs/YARD.md), with placeholder props: on day 4 (seed 2) at 10:00
-/// the yard's site in the courtyard offers the drill yard; a touch brings its tally board (seven hollows for 70), a hold
-/// pays it coin by coin, the seal orders it and the site lantern burns until its dawn (300 to 302). With the Debug-only
-/// `-GWYard <stage>[,kettle]` and `-GWTrained YES`: the noon drill on day 5 with the yard standing and the kettle's
-/// place offered (303), and a night with the kettle in use and every soldier trained (304). English only (the
-/// director's notes of 15.11., item 4). Saves `<nn>-yard-<what>-<lang>`.
+/// The drill yard (build 3, wave 2, lane 2; docs/YARD.md): on day 4 (seed 2) at 10:00 the yard's site in the courtyard,
+/// marked out with stakes and cord, offers the drill yard (300); a touch brings its tally board (seven hollows for 70) in
+/// its own place beside the barracks (301), a hold pays it coin by coin, the seal orders it and the site lantern burns
+/// until its dawn (302). With the Debug-only `-GWYard <stage>[,kettle]` and `-GWTrained YES|dawn`: the noon drill on day
+/// 5 with the yard standing and the kettle's place offered (303), a night with the kettle burning and every soldier
+/// trained (304), step 2: the yard at dusk with the kettle lit (305) and the dawn card naming the men trained at that
+/// dawn (306). English only (the director's notes of 15.11., item 4). Saves `<nn>-yard-<what>-<lang>`.
 @MainActor
 final class YardUITests: XCTestCase {
     override func setUp() async throws {
@@ -92,7 +93,8 @@ final class YardUITests: XCTestCase {
     func testANightWithTheKettle() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = YardUITests.base + ["-GWNight", "6", "-GWHour", "22", "-GWCameraX", "1300",
+        // Step 2: the camera on the yard (1300 showed it at the screen's right edge).
+        app.launchArguments = YardUITests.base + ["-GWNight", "6", "-GWHour", "22", "-GWCameraX", "1440",
                                                   "-GWYard", "2,kettle", "-GWTrained", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "yard-night") else { return }
@@ -109,6 +111,53 @@ final class YardUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "touch-yard-kettle").firstMatch.exists,
                        "no yard thing at night")
         attach(XCUIScreen.main.screenshot(), "304-yard-night-kettle-\(language)")
+        app.terminate()
+    }
+
+    /// Step 2: the yard at dusk (19:24), the kettle lit by the butt, the torches coming up.
+    func testTheYardAtDusk() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "19.4", "-GWCameraX", "1450",
+                                                  "-GWYard", "2,kettle", "-GWFreezeTime", "YES"]
+        app.launch()
+        guard waitUntilReady(app, name: "yard-dusk") else { return }
+        pause(1.5)
+        let word = sceneField(app, "yard:") ?? "?"
+        note("305-yard-state", word)
+        XCTAssertTrue(word.hasPrefix("2"), "the drill yard stands: \(word)")
+        XCTAssertTrue(word.contains("k:u"), "the kettle is in use: \(word)")
+        attach(XCUIScreen.main.screenshot(), "305-yard-dusk-kettle-\(language)")
+        app.terminate()
+    }
+
+    /// Step 2: the dawn card names the men trained at this dawn (`-GWTrained dawn`: every soldier drilled his days),
+    /// in the card's own ink (`report-yard`).
+    func testTheDawnCardNamesTheTrained() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = YardUITests.base + ["-GWNight", "8", "-GWBuild", "demo", "-GWHour", "5.9",
+                                                  "-GWCameraX", "1100", "-GWYard", "2", "-GWTrained", "dawn"]
+        app.launch()
+        guard waitUntilReady(app, name: "yard-dawn") else { return }
+        let report = element(app, "report-root")
+        guard report.waitForExistence(timeout: 60) else {
+            attach(XCUIScreen.main.screenshot(), "306-yard-dawn-noreport-\(language)")
+            XCTFail("the dawn report of day 9 never came")
+            app.terminate()
+            return
+        }
+        pause(1.0)
+        let yard = element(app, "report-yard")
+        XCTAssertTrue(yard.waitForExistence(timeout: 5), "the card carries the yard's lines")
+        XCTAssertTrue(yard.label.contains("Trained:"), "it names the men trained: \(yard.label)")
+        note("306-yard-dawn-lines", yard.label)
+        if yard.exists && !yard.isHittable {
+            // The card scrolls when its night column is long: bring the yard's lines into the picture.
+            report.swipeUp()
+            pause(0.6)
+        }
+        attach(XCUIScreen.main.screenshot(), "306-yard-dawn-card-\(language)")
         app.terminate()
     }
 
