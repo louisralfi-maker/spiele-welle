@@ -11,6 +11,8 @@ import XCTest
 /// slowed forty times by `-GWLookAround 0:40`, as fast as the shots come, each with the camera's x in a note; 254 a tap
 /// on the hall's door under the lantern: lowered in the same touch, he sets off to the door; 255 and 256 the view at
 /// the east and the west end of the world (`-GWLookAround e99999` and `w99999`), the strip's bracket at its ends.
+/// Step 4: 260 to 264 the town's banner under the strip (by day, at night, at dusk, its four moods, its slip), 265a to
+/// 265h the lord's hint glinting, 266a to 266c the raise's flare slowed (their halo, the step 2b critic's M1).
 /// English only (the director's notes of 15.11., item 4).
 @MainActor
 final class LookAroundUITests: XCTestCase {
@@ -147,6 +149,103 @@ final class LookAroundUITests: XCTestCase {
             note(name, "home cam \(home), end cam \(end); scene: \(sceneValue(app))")
             app.terminate()
         }
+    }
+
+    // MARK: - Step 4: the town's banner, the bracket, the glint and the flare
+
+    /// Launch arguments without the class's seed and clock (a scene that sets its own).
+    private static let plain = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWStage", "world"]
+
+    /// Step 4 (decision 6, form C): the town's banner under the strip's town end, with the lantern up. 260 at home by
+    /// day; 261 at night before the gatehouse; 262 in the town at dusk; 263a to 263d the four moods at home by day
+    /// (`-GWHappiness` 80, 45, 20, 8: glad, even, grim, unrest); 264 the slip after a touch on the banner, gone after a
+    /// touch elsewhere. The bracket at the west end is 256 (`testTheTwoEnds`).
+    func testTheTownsBanner() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let day = LookAroundUITests.base + ["-GWCameraX", "1830"]
+        let scenes: [(name: String, args: [String])] = [
+            ("260-mood-home-day", day),
+            ("261-mood-gatehouse-night", LookAroundUITests.plain + ["-GWNight", "3", "-GWSeed", "2", "-GWHour", "21.5",
+                                                                     "-GWCameraX", "1240"]),
+            ("262-mood-town-dusk", LookAroundUITests.plain + ["-GWDay", "3", "-GWSeed", "2", "-GWClock", "18.97",
+                                                               "-GWCameraX", "2900"]),
+            ("263a-mood-glad", day + ["-GWHappiness", "80"]),
+            ("263b-mood-even", day + ["-GWHappiness", "45"]),
+            ("263c-mood-grim", day + ["-GWHappiness", "20"]),
+            ("263d-mood-unrest", day + ["-GWHappiness", "8"]),
+        ]
+        for scene in scenes {
+            let app = XCUIApplication()
+            app.launchArguments = scene.args
+            app.launch()
+            guard waitUntilReady(app, name: scene.name) else { continue }
+            waitForStill(app, timeout: 4)
+            XCTAssertTrue(openLantern(app), "\(scene.name): a touch on the lord raises the lantern")
+            let banner = element(app, "hud-mood")
+            XCTAssertTrue(banner.waitForExistence(timeout: 3), "\(scene.name): the town's banner hangs under the strip")
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "\(scene.name)-\(language)")
+            note(scene.name, "banner \(banner.frame), value \((banner.value as? String) ?? "?"); scene: \(sceneValue(app))")
+            if banner.exists {
+                XCTAssertGreaterThanOrEqual(banner.frame.width, 44, "\(scene.name): a 44 pt target")
+                XCTAssertGreaterThanOrEqual(banner.frame.height, 44, "\(scene.name): a 44 pt target")
+            }
+            if scene.name == "260-mood-home-day", banner.exists {
+                banner.tap()
+                let slip = element(app, "hud-mood-slip")
+                XCTAssertTrue(slip.waitForExistence(timeout: 3), "a touch on the banner opens its slip")
+                XCTAssertTrue(element(app, "lantern-moment").exists, "and keeps the lantern up")
+                pause(0.3)
+                attach(XCUIScreen.main.screenshot(), "264-mood-slip-\(language)")
+                note("264-mood-slip", "slip \(slip.label); banner \(banner.frame)")
+                lowerLantern(app)
+                XCTAssertTrue(waitForGone(slip, timeout: 3), "a touch elsewhere shuts the slip")
+            }
+            app.terminate()
+        }
+    }
+
+    /// Step 4 (the step 2b critic's M1): the lord's hint glinting (265a to 265h, eight shots as fast as they come over
+    /// a pulse of 1.4 s, so one stands near its peak) and the raise's flare at night slowed twenty times by
+    /// `-GWTimeScale 0.05` (266a, 266b, 266c at about 0.05, 0.15 and 0.30 s of game time after the lift), each with its
+    /// halo back.
+    func testTheGlintAndTheFlare() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let hint = XCUIApplication()
+        hint.launchArguments = LookAroundUITests.plain + ["-GWSeed", "1", "-GWClock", "8", "-GWCameraX", "1180",
+                                                          "-GWLordHint", "YES"]
+        hint.launch()
+        if waitUntilReady(hint, name: "265-look-glint"),
+           element(hint, "touch-lord-hint").waitForExistence(timeout: 8) {
+            let started = Date()
+            for name in ["265a", "265b", "265c", "265d", "265e", "265f", "265g", "265h"] {
+                attach(XCUIScreen.main.screenshot(), "\(name)-look-glint-\(language)")
+                note("\(name)-look-glint", String(format: "%.2f s after the first", Date().timeIntervalSince(started)))
+            }
+        } else {
+            note("265-look-glint", "the hint did not show: \(sceneValue(hint))")
+        }
+        hint.terminate()
+
+        let town = XCUIApplication()
+        town.launchArguments = LookAroundUITests.plain + ["-GWNight", "2", "-GWSeed", "2", "-GWHour", "22",
+                                                          "-GWCameraX", "2600", "-GWTimeScale", "0.05"]
+        town.launch()
+        guard waitUntilReady(town, name: "266-look-flare") else { return }
+        pause(0.6)
+        XCTAssertEqual(sceneField(town, "lantern:"), "ready", "the lantern can be raised")
+        let scene = element(town, "world-scene")
+        let groundY = 1 - 26.0 * 6 / 1206
+        scene.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: groundY - 15.0 * 6 / 1206)).press(forDuration: 0.5)
+        let lifted = Date()
+        for (name, at) in [("266a", 0.8), ("266b", 2.8), ("266c", 5.8)] {
+            let wait = at - Date().timeIntervalSince(lifted)
+            if wait > 0 { pause(wait) }
+            attach(XCUIScreen.main.screenshot(), "\(name)-look-flare-\(language)")
+            note("\(name)-look-flare", String(format: "%.2f s after the hold (x 0.05 game time); lantern %@",
+                                               Date().timeIntervalSince(lifted), sceneField(town, "lantern:") ?? "?"))
+        }
+        town.terminate()
     }
 
     // MARK: - Helpers
