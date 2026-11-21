@@ -468,8 +468,10 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertEqual(FrameBuilder.calmShare(wind: calm.mean), 1, "a calm")
         typealias Puff = (picture: Int, column: Float, y: Float, frame: Int, alpha: Float)
         func puffs(_ desc: FrameDesc, inner margin: Float) -> [Puff] {
-            let layers = desc.planes.map { (layer: $0, tag: $0.plane.rawValue) }
-                + desc.carried.enumerated().map { (layer: $0.element, tag: 100 + $0.offset) }
+            var layers: [(layer: PlaneLayer, tag: Int)] = desc.planes.map { (layer: $0, tag: $0.plane.rawValue) }
+            for (index, layer) in desc.carried.enumerated() {
+                layers.append((layer: layer, tag: 100 + index))
+            }
             return layers.flatMap { item -> [Puff] in
                 let whole = Float(item.layer.offset.whole)
                 return item.layer.sprites.filter {
