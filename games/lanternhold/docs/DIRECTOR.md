@@ -1268,3 +1268,15 @@ schneller geht."
     For the player: the place of Marek's gift is now on the way to the town.
   - Step 3 (workflow, Opus 5.5, base c9fa0578, rounds lh-b3y-31 to -34) started 17:31; report b3-yard-s3.md.
     Side by side with it run lantern step 4 (the mood at the map) and smooth step 1 (the smooth walk part 3).
+
+- **Everything stopped on Louis' word; he works on Piston Empire (21.11.2026, 18:59).**
+  - His word at about 18:43: stop, he has to go on with Piston Empire. All three workflows and the keep-awake
+    were stopped at once. Nothing is started until he says to go on.
+  - Lantern step 4 (the mood at the map) is built and reviewed: head a97f9407, local, 8 commits. Its proof round
+    lh-b3l-41 was sent 17:58 and finishes by itself on GitHub's Mac. Open: read the round, push, frames, critic.
+  - Smooth step 1 (the smooth walk part 3) is built and reviewed: head b79a2d35, local, 10 commits. Its proof
+    round lh-b3s-11 was sent 18:07 and finishes by itself. Open: read the round, push, frames.
+  - Yard step 3 is one third in: head 1537cdc8 (the ground in layout A and the kettle), with a half-done edit of
+    four files lying uncommitted in its worktree. No round sent. Open: the arrow, Brannock, the marks, the cart,
+    the mediums, review, gate, critic. It goes on with a fresh continuation step.
+  - Usage at the stop: 10 % of the week.
