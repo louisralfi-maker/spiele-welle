@@ -399,7 +399,7 @@ enum FrameBuilder {
                                                                      geometry: geometry)
             }
             // Fix round 1: where the world ends the dark is whole (the last 80 px, before everything).
-            if let end = bankEndTile(geometry: geometry) {
+            if let end = bankEndTile(geometry: geometry, plane: .fogB) {
                 planeSprites[Plane.fogB.rawValue].append(end)
             }
         }
@@ -1255,10 +1255,13 @@ enum FrameBuilder {
         return list
     }
 
-    /// Where the world ends (x 0) the dark is whole: `bankEnd` on fog B, drawn black (fix round 1).
-    private static func bankEndTile(geometry: Geometry) -> SpriteInstance? {
+    /// Where the world ends (x 0) the dark is whole: `bankEnd` on fog B, drawn black (fix round 1). b3-lantern (build 3,
+    /// lane 5 step 2b, the diagnosis's small ones): placed by the whole offset of the plane it is drawn on (`plane`: fog
+    /// B for the dark, the world for its occluder in the emissive pass); on fog B by the world's it jumped up to 6
+    /// device px against the fog from one frame of a walk to the next near the world's west end.
+    private static func bankEndTile(geometry: Geometry, plane: Plane = .world) -> SpriteInstance? {
         let size = SpriteID.bankEnd.size
-        let left = -geometry.whole(.world)
+        let left = -geometry.whole(plane)
         guard geometry.isVisible(left: left, width: Double(size.width)) else { return nil }
         let top = geometry.top(y: bankSheetY, height: Double(size.height))
         let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))

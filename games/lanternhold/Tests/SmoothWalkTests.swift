@@ -240,6 +240,24 @@ final class SmoothWalkTests: XCTestCase {
         }
     }
 
+    // MARK: The small ones
+
+    /// The whole dark at the world's west end lies on fog B and moves with fog B in every frame of a walk off the end
+    /// (placed by the world's whole offset it jumped up to 6 device px against the fog).
+    func testTheWorldsEndDarkMovesWithItsFogInEveryFrameOfAWalk() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        var seen = 0
+        for step in 0..<SmoothWalkTests.frames {
+            let desc = frame(world, hour: 12, focus: 218.5 + Double(step) * SmoothWalkTests.walkStep)
+            guard let end = desc.layer(.fogB).sprites.first(where: { $0.sprite == .bankEnd }) else { continue }
+            seen += 1
+            let fog = desc.layer(.fogB).offset
+            XCTAssertEqual(deviceX(end.rect.x, plane: .fogB, in: desc), -Double(desc.scale) * fog.offset,
+                           accuracy: 0.5 + 1e-9, "the end's dark with fog B at step \(step)")
+        }
+        XCTAssertGreaterThan(seen, 20, "the world's end in view")
+    }
+
     /// Where look 2's emissive quads go (`EmissiveBands`): the lane, the fog planes and the clouds on the world's grid,
     /// the sky in the sky pass, every plane behind the lane and the foreground in a band of its own, read at its own
     /// plane's place; the far lantern's streak on the water in the band that nothing in front hides.
