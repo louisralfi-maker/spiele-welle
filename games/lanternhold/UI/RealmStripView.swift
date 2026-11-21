@@ -43,31 +43,32 @@ struct RealmStripView: View {
         let snapshot = strip
         let image = RealmStripImages.image(snapshot)
         // Build 3, lane 5 step 4 (decision 6, form C): the town's banner hangs under the strip's town end, wherever
-        // the strip shows (the lantern moment, a call); the strip's own tap and element stay the map's.
-        return VStack(alignment: .leading, spacing: 0) {
-            ZStack {
-                if let image {
-                    Image(decorative: image, scale: 1 / RealmStripView.unit)
-                        .interpolation(.none)
-                        .frame(width: RealmStripView.width, height: RealmStripView.height)
-                }
+        // the strip shows (the lantern moment, a call); the strip's own tap and element stay the map's. It hangs in an
+        // overlay, so the strip keeps its own frame and nothing under it (the horn's ribbon in a call) moves down.
+        return ZStack {
+            if let image {
+                Image(decorative: image, scale: 1 / RealmStripView.unit)
+                    .interpolation(.none)
+                    .frame(width: RealmStripView.width, height: RealmStripView.height)
             }
-            .frame(width: RealmStripView.width, height: RealmStripView.height)
-            .contentShape(Rectangle())
-            .onTapGesture { location in
-                MoodSlip.shared.close()
-                onTap(RealmMapPixels.fraction(column: Double(location.x / RealmStripView.unit)))
-            }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("Map of the valley"))
-            .accessibilityValue(Text(verbatim: RealmStripView.callsValue(snapshot)))
-            .accessibilityHint(Text("Tap to walk there"))
-            .accessibilityAddTraits(.isButton)
-            .accessibilityIdentifier("realm-strip")
+        }
+        .frame(width: RealmStripView.width, height: RealmStripView.height)
+        .contentShape(Rectangle())
+        .onTapGesture { location in
+            MoodSlip.shared.close()
+            onTap(RealmMapPixels.fraction(column: Double(location.x / RealmStripView.unit)))
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Map of the valley"))
+        .accessibilityValue(Text(verbatim: RealmStripView.callsValue(snapshot)))
+        .accessibilityHint(Text("Tap to walk there"))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("realm-strip")
+        .overlay(alignment: .topLeading) {
             MoodBannerView(strip: snapshot)
                 .frame(width: RealmStripView.width, height: MoodBannerView.height, alignment: .topLeading)
+                .offset(y: RealmStripView.height)
         }
-        .frame(width: RealmStripView.width, alignment: .leading)
     }
 
     /// The strip's VoiceOver value: who waits, and (fix lane D, player-loop-1) how many of the town's doors still owe

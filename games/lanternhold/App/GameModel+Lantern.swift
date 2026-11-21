@@ -19,8 +19,9 @@ struct LanternMomentShow: Sendable, Equatable {
     var people: Int
     var day: Int
     var clock: String
-    /// Build 3, lane 5: the block's left edge on the stage (game px): while the look-around slides the view, the block
-    /// rides with the world over the lord and `left` follows (`followLookAround`).
+    /// Build 3, lane 5: the block's left edge on the stage (game px). The block is drawn in the world's frame
+    /// (`lanternWorld`), so it rides with the world during the look-around; `left` and `top` stay where the moment
+    /// opened (the VoiceOver elements' place).
     var blockX: Double? = nil
 }
 
