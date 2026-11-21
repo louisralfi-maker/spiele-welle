@@ -2137,8 +2137,14 @@ enum FrameBuilder {
             let wind = Weather.wind(at: start, weather, time: fallTime)
             x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
             x = (x.truncatingRemainder(dividingBy: span) + span).truncatingRemainder(dividingBy: span) - margin
+            // The bank stands on the lane, so a near flake behind it is cut where the screen shows the bank (the
+            // lane's x under it).
             if depth == 0 && x + lane < bankEdge + ashBankFace { continue }
-            var fade = Float(1 - RainLook.waterShare(x: x + lane, seam: seam))
+            // b3-lantern (suspect 6): the fade toward the wall is read at the same lane x as the kind (`rainLaneX` of
+            // the flake's column in its plane, after its drift), so a flake of the near or the foreground depth never
+            // fades or goes out in mid-fall while the lord walks.
+            let laneX = rainLaneX(column: x + whole, plane: entry.plane, viewWidth: Double(geometry.targetWidth))
+            var fade = Float(1 - RainLook.waterShare(x: laneX, seam: seam))
             guard fade > 0.02 else { continue }
             if reduceMotion {
                 fade *= rainPulseAlpha(time: animTime, own: own)

@@ -98,8 +98,11 @@ final class RainLookTests: XCTestCase {
     func testWaterFallsEastOfTheWallAndAshWestOfIt() {
         let s = GameFrameSupport.demoNight(hour: 23.2)
         let storm = weather(s, WeatherOverride(mode: .storm))
-        // The castle's side: the rain as it was, no ash.
-        let town = shot(s, focus: 1000, weather: storm)
+        // The castle's side: the rain as it was, no ash. b3-lantern (lane 5 step 2b, suspect 6): at 1100, because the
+        // near and the foreground depths decide at their own column mapped to the lane (`FrameBuilder.rainLaneX`),
+        // whose seam moves about 73 px with their parallax: at 1000 a near streak starting at the leeward edge could
+        // still decide in the band.
+        let town = shot(s, focus: 1100, weather: storm)
         XCTAssertEqual(sprites(town, .ashFlake).count, 0, "no ash where the light reaches")
         for (depth, entry) in FrameBuilder.rainDepths.enumerated() {
             XCTAssertEqual(sprites(town, .rainStreak, entry.plane).count, entry.count, "depth \(depth): all water")
@@ -111,8 +114,11 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThan(ash.count, 30, "ash falls in the gorge")
         XCTAssertLessThan(ash.count, FrameBuilder.ashDepths.map { $0.count }.reduce(0, +) + 1, "few")
         for flake in ash {
-            XCTAssertLessThan(Double(flake.rect.x) + gorge.lane, gorge.seam, "never east of the wall")
             XCTAssertLessThanOrEqual(flake.tint.w, FrameBuilder.ashAlphaCap + 1e-6, "under the ash's own cap")
+        }
+        // b3-lantern (suspect 6): a flake decides and fades at its column mapped to the lane (`rainLaneX`).
+        for flake in laneXs(gorge, .ashFlake) {
+            XCTAssertLessThan(flake, gorge.seam, "never east of the wall")
         }
         // b3-lantern (lane 5 step 2b, suspect 6): each depth decides at its own column mapped to the lane
         // (`FrameBuilder.rainLaneX`; on the lane's depth that is the lane's x under it, as before).

@@ -414,8 +414,10 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(wet.rain, 1)
         XCTAssertEqual(wet.wetness, 1)
         // Build 3 step 2: the streaks are counted well east of the band at the outer wall (Realm.wallX[2] 640 and the
-        // 160 px west of it), where every one is water (RainLookTests has the band).
-        let east = frame(night, focus: 1000, weather: storm())
+        // 160 px west of it), where every one is water (RainLookTests has the band). b3-lantern (lane 5 step 2b,
+        // suspect 6): at 1100, since the near and the foreground depths decide at their own column mapped to the lane
+        // (`FrameBuilder.rainLaneX`), whose seam moves about 73 px with their parallax.
+        let east = frame(night, focus: 1100, weather: storm())
         for (depth, entry) in FrameBuilder.rainDepths.enumerated() {
             let streaks = east.layer(entry.plane).sprites.filter { $0.sprite == .rainStreak }
             XCTAssertEqual(streaks.count, entry.count, "depth \(depth)")

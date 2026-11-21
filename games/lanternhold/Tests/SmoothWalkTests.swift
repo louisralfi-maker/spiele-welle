@@ -226,6 +226,57 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertGreaterThan(checked, 1000, "streaks were followed")
     }
 
+    /// The same for the ash west of the outermost wall, on every depth: with the clock held, from one frame of a walk
+    /// to the next each flake on the screen stands at the same column of its plane with the same frame and the same
+    /// alpha, and none goes out. Before, a near or a foreground flake faded by the lane's x under it on the screen,
+    /// which moved with the camera, so it dimmed or went out in mid-fall in the band. Walked from the gorge across the
+    /// band, starting where the day's bank (resting at 200) has left the screen, since a near flake is cut where the
+    /// screen shows the bank.
+    func testNoAshFlakeFadesOrGoesOutInMidFallWhileTheLordWalks() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let time = 7.0
+        let gusty = Weather.sample(seed: 3, day: 12, hour: 12, time: time,
+                                   override: WeatherOverride(mode: .gusty, rain: 1))
+        typealias Flake = (plane: Plane, column: Float, y: Float, frame: Int, flipped: Bool, alpha: Float)
+        func flakes(_ desc: FrameDesc, inner margin: Float) -> [Flake] {
+            [Plane.near, .world, .foreground].flatMap { plane -> [Flake] in
+                let whole = Float(desc.layer(plane).offset.whole)
+                return desc.layer(plane).sprites.filter {
+                    $0.sprite == .ashFlake && $0.rect.x >= 30 + margin
+                        && $0.rect.x <= Float(desc.targetWidth) - 60 - margin
+                }.map { (plane: plane, column: $0.rect.x + whole, y: $0.rect.y, frame: $0.frame,
+                         flipped: $0.flipped, alpha: $0.tint.w) }
+            }
+        }
+        func same(_ a: Flake, _ b: Flake) -> Bool {
+            a.plane == b.plane && a.column == b.column && a.y == b.y && a.frame == b.frame && a.flipped == b.flipped
+                && abs(a.alpha - b.alpha) < 1e-4
+        }
+        var checked = 0
+        for (start, steps) in [(420.0, 400)] {
+            var last: FrameDesc?
+            for step in 0..<steps {
+                let desc = frame(world, hour: 12, focus: start + Double(step) * SmoothWalkTests.walkStep,
+                                 weather: gusty, time: time)
+                if let last {
+                    let before = flakes(last, inner: 0)
+                    for flake in flakes(desc, inner: 1) {
+                        checked += 1
+                        XCTAssertTrue(before.contains { same($0, flake) },
+                                      "focus \(start) step \(step): a flake of the \(flake.plane) changed or came in mid-fall")
+                    }
+                    let after = flakes(desc, inner: 0)
+                    for flake in flakes(last, inner: 1) {
+                        XCTAssertTrue(after.contains { same($0, flake) },
+                                      "focus \(start) step \(step): a flake of the \(flake.plane) changed or went out in mid-fall")
+                    }
+                }
+                last = desc
+            }
+        }
+        XCTAssertGreaterThan(checked, 1000, "flakes were followed")
+    }
+
     /// `FrameBuilder.rainLaneX`: on the lane's depth the column is the lane's x; in front of and behind it the column the
     /// camera puts in the screen's middle maps to the lane's x there.
     func testTheRainsLaneXIsTheLanesAtTheScreensMiddle() {
