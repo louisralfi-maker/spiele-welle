@@ -255,6 +255,7 @@ extension GameModel {
             layer.actors += HUDKitActors.actors(block, lordX: room.x, groundLift: room.ground, framing: framing)
         }
         if touch.lordHintOn && lanternMoment == nil { lordHintGlint(&layer, state: state, framing: framing) }
+        raiseHalo(&layer, state: state)
         guard lanternMoment != nil else { return }
         let lord = state.lordOrDefault
         for index in layer.actors.indices
@@ -277,6 +278,11 @@ extension GameModel {
         }
         guard !reduceMotion, pulse > 0.05 else { return }
         let glassY = EntityFrames.kingGlass.dy.rounded(.down)
+        // b3-lantern (step 4, the step 2b critic's M1): the soft halo the glint had while it was a glow of the world.
+        if let halo = GameModel.lanternHalo(kingX: state.king.x, facing: state.king.facing, row: glassY,
+                                            strength: GameModel.hintHaloStrength * pulse) {
+            layer.glows.append(halo)
+        }
         let warm = GamePalette.fireWhite
         let k = Float(pulse) * 1.3
         for (dx, dy, share) in [(0.0, 0.0, 1.0), (-1.0, 0.0, 0.5), (1.0, 0.0, 0.5), (0.0, 1.0, 0.5), (0.0, -1.0, 0.5),
@@ -309,6 +315,41 @@ extension GameModel {
         return ActorInstance(sprite: .hallMote, frame: 0, rect: SIMD4<Float>(Float(left), Float(top), side, side),
                              tint: SIMD4<Float>(tint.x, tint.y, tint.z, min(1, peak)), flipped: false,
                              isEmissive: true, isLit: true)
+    }
+
+    /// Build 3, lane 5 step 4 (the step 2b critic's M1): the raise's flare lost its soft halo when its pixels became
+    /// emissive actors in step 2b (232e41ab: actors do not feed the bloom). While the flare burns (its first 0.45 s,
+    /// not with Reduce Motion) a soft halo stands round the lifted glass, as `raisedLantern` places it.
+    func raiseHalo(_ layer: inout EntityLayer, state: GameState) {
+        guard !reduceMotion else { return }
+        let since = state.king.lanternSince
+        guard LanternRaise.phase(since: since) == .raised else { return }
+        let flare = LanternFlare.strength(since: since)
+        guard flare > 0.01 else { return }
+        let pose = LanternFlare.frame(since: since, standing: state.king.velocity == 0)
+        let lift = pose == nil ? 0 : LanternFlare.liftRows
+        if let halo = GameModel.lanternHalo(kingX: state.king.x, facing: state.king.facing,
+                                            row: (EntityFrames.kingGlass.dy + lift).rounded(.down),
+                                            strength: GameModel.raiseHaloStrength * flare) {
+            layer.glows.append(halo)
+        }
+    }
+
+    /// The hint's halo at the glint's peak and the raise's at the flare's start (the glow's strength; `siteHalo`, the
+    /// count's dithered halo, falls off from 0.6 in its middle).
+    static let hintHaloStrength = 0.5
+    static let raiseHaloStrength = 0.8
+
+    /// A soft warm halo round the lord's glass (`siteHalo` frame 0, 25 x 25, centred on the glass's column and `row`):
+    /// a glow of the world, so it feeds the bloom as the old glows did; it is soft, so standing on the world's grid
+    /// it only shimmers against the walking lord (suspect 7), never buzzes. Nil when too faint to see.
+    static func lanternHalo(kingX: Double, facing: Int, row: Double, strength: Double) -> EntityGlow? {
+        guard strength > 0.01 else { return nil }
+        let glassX = kingX + EntityFrames.kingGlass.dx * Double(facing)
+        let gold = GamePalette.fireGold
+        let k = Float(strength)
+        return EntityGlow(.siteHalo, x: glassX - 12, y: row - 12, color: SIMD4<Float>(gold.x * k, gold.y * k,
+                                                                                         gold.z * k, 1))
     }
 
     /// The notes above the lord in the hall (`hallFrame`): the block and the floor's lift under him.

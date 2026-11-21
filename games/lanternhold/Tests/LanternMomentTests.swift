@@ -856,4 +856,30 @@ final class LanternMomentTests: XCTestCase {
             XCTAssertEqual(image[left, bottomBrass], RealmMapPixels.brass, "the pane's brass line stays")
         }
     }
+
+    /// Step 4 (the step 2b critic's M1): the glint and the raise's flare get back a soft halo at the glass, a glow of
+    /// the world that feeds the bloom (their pixels are emissive actors since step 2b, which the bloom never sees):
+    /// centred on the glass, while the flare burns, never under Reduce Motion, none when too faint.
+    func testTheGlintAndTheFlareHaveTheirHaloBack() throws {
+        let halo = try XCTUnwrap(GameModel.lanternHalo(kingX: 1000.4, facing: 1, row: 22, strength: 0.8))
+        XCTAssertEqual(halo.sprite, .siteHalo)
+        XCTAssertEqual(halo.x + 12, 1000.4 + EntityFrames.kingGlass.dx, accuracy: 1e-9, "centred on the glass")
+        XCTAssertEqual(halo.y + 12, 22, accuracy: 1e-9, "on the glass's row")
+        XCTAssertEqual(Double(halo.color.x), Double(GamePalette.fireGold.x) * 0.8, accuracy: 1e-5)
+        let left = try XCTUnwrap(GameModel.lanternHalo(kingX: 1000.4, facing: -1, row: 22, strength: 0.8))
+        XCTAssertEqual(left.x + 12, 1000.4 - EntityFrames.kingGlass.dx, accuracy: 1e-9, "facing left")
+        XCTAssertNil(GameModel.lanternHalo(kingX: 1000, facing: 1, row: 22, strength: 0.005), "too faint")
+        for reduce in [false, true] {
+            var values = ["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"]
+            if reduce { values["GWReduceMotion"] = "YES" }
+            let game = model(values)
+            run(game, seconds: 0.3)
+            for (since, burns) in [(0.05, true), (0.15, true), (0.30, true), (0.6, false)] {
+                game.withDriver { $0.state.king.lanternSince = since }
+                let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+                let shown = frame.emissives.contains { $0.sprite == .siteHalo }
+                XCTAssertEqual(shown, burns && !reduce, "raised \(since) s ago, reduce motion \(reduce)")
+            }
+        }
+    }
 }
