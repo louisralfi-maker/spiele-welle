@@ -114,11 +114,12 @@ final class YardUITests: XCTestCase {
         app.terminate()
     }
 
-    /// Step 2: the yard at dusk (19:24), the kettle lit by the butt, the torches coming up.
+    /// Step 2: the yard at dusk (18:58: `-GWClock` takes 6 to 19 only, as TouchUITests' dusk), the kettle lit by the
+    /// butt, the torches coming up.
     func testTheYardAtDusk() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "19.4", "-GWCameraX", "1450",
+        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "18.97", "-GWCameraX", "1450",
                                                   "-GWYard", "2,kettle", "-GWFreezeTime", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "yard-dusk") else { return }
