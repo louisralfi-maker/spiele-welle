@@ -489,6 +489,10 @@ final class YardTests: XCTestCase {
         })
         let routine = try XCTUnwrap(CourtLayout.routines["brannock"])
         let body = try XCTUnwrap(Speakers.speaker("brannock")).body
+        // Step 2's review: the engine plot's middle (1440) stays the plot's at both stops too.
+        let engine = TouchThings.world(s, balance: balance, figures: [], talked: []).first {
+            $0.kind == .plot && abs($0.x - 1440) < 1 && !TouchRules.isYardSite($0)
+        }
         for stop in routine.stops {
             let figure = DrawnFigure(who: "brannock", key: "brannock", body: body, x: stop, y: 0, facing: 1, frame: 0,
                                      alpha: 1, look: nil, petition: nil, talking: false)
@@ -498,6 +502,10 @@ final class YardTests: XCTestCase {
             XCTAssertEqual(picked?.id, site.id, "Brannock at \(stop): the site's middle is still the site")
             let him = TouchRules.pick(x: stop, lift: 4, things: [site, person], minimum: 22)
             XCTAssertEqual(him?.id, person.id, "and a touch on him still finds him")
+            if let engine {
+                let atPlot = TouchRules.pick(x: engine.x, lift: 4, things: [engine, person], minimum: 22)
+                XCTAssertEqual(atPlot?.id, engine.id, "Brannock at \(stop): the engine plot's middle is still the plot")
+            }
         }
     }
 
@@ -718,10 +726,22 @@ final class YardLookTests: XCTestCase {
     func testTheSitesMarkShowsBesideTheBarracks() throws {
         let s = realm(day: 4)
         let body = try XCTUnwrap(Speakers.speaker("brannock")).body
-        let brannock = DrawnFigure(who: "brannock", key: "brannock", body: body, x: 1444, y: 0, facing: 1, frame: 0,
+        let brannock = DrawnFigure(who: "brannock", key: "brannock", body: body, x: 1412, y: 0, facing: 1, frame: 0,
                                    alpha: 1, look: nil, petition: nil, talking: false)
         let things = TouchThings.world(s, balance: balance, figures: [brannock], talked: [])
         XCTAssertTrue(things.contains { $0.id == "touch-yard" })
+        // The review: the site's mark takes nobody else's. Brannock at his day stop keeps his mark, and the engine plot
+        // beside the site (1440, the same group) keeps its own while both are affordable.
+        let lordAtGate = 1440.0
+        let marks = TouchRules.marked(things, lordX: lordAtGate, viewLeft: lordAtGate - 218, viewRight: lordAtGate + 218)
+        XCTAssertTrue(marks.contains { $0.id == "touch-yard" }, "the site: \(marks.map(\.id))")
+        if let him = things.first(where: { $0.id == "touch-talk-brannock" }), him.marked {
+            XCTAssertTrue(marks.contains { $0.id == him.id }, "Brannock keeps his mark: \(marks.map(\.id))")
+        }
+        if let engine = things.first(where: { $0.kind == .plot && abs($0.x - 1440) < 1 && !TouchRules.isYardSite($0) }),
+           engine.marked {
+            XCTAssertTrue(marks.contains { $0.id == engine.id }, "the engine plot keeps its mark: \(marks.map(\.id))")
+        }
         for lord in [1470.0, 1500.0, 1530.0] {
             let marked = TouchRules.marked(things, lordX: lord, viewLeft: lord - 218, viewRight: lord + 218)
             let shown = TouchRules.thinned(marked, night: 0)

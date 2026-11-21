@@ -11,7 +11,7 @@ enum Yard {
 
     /// Where the yard's thing stands (the drill yard's site, then the kettle's place by the butt) and half its width,
     /// in the yard's ground between the gatehouse's east tower and the barracks (YARD.md section 1). Its middle keeps
-    /// clear of Brannock's two day stops (`CourtLayout.routines`, 1428 and, since step 2, 1444 on the drill line): a
+    /// clear of Brannock's two day stops (`CourtLayout.routines`, 1428 and, since step 2, 1412 behind the drill line): a
     /// person standing over a site takes the touch (`TouchRules.pick`), so at 1464 he held the site about half the day
     /// (the review of step 1). With the smallest touch area (22 px) neither stop nor his walk crosses its middle.
     static let plotX = 1456.0
