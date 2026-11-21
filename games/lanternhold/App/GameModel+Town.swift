@@ -113,7 +113,7 @@ extension GameModel {
     /// The town door under a point of the screen, by day only (a knock is a day's errand), nil elsewhere. Asks only:
     /// the count (build 3) leaves a touch on a door to `tap(at:)`, which knocks.
     func townDoor(at point: CGPoint, in size: CGSize) -> Int? {
-        guard kind == .world, overlay == nil, let game = driver, game.bot == nil, let view = camera,
+        guard kind == .world, !doorsHeld, let game = driver, game.bot == nil, let view = camera,
               let pixelScale = lastPixelScale, size.width > 0, size.height > 0,
               DayClock.phase(at: game.state.hour) == .day else { return nil }
         let fx = Double(point.x / size.width)
@@ -144,10 +144,18 @@ extension GameModel {
         if t >= TownShow.stepBackUntil { townRun.stepBack = nil }
     }
 
+    /// Build 3, lane 6 (seam): no door raises while something holds the world over it: a card or screen (`overlay`),
+    /// and what holds it without being one, Marek's card first (`AdDirector.holdWorld`; also the consent form, an ad on
+    /// screen, the slides, the table). No door under the finger, no knock, no door for VoiceOver. The lantern moment
+    /// holds the world too, but a tap lowers it before a door is asked, so it leaves the doors as they were.
+    var doorsHeld: Bool {
+        overlay != nil || (isPaused && lanternMoment == nil)
+    }
+
     /// Sends the lord to the door of `plot` (the touch, or VoiceOver's action on the door): by day only.
     @discardableResult
     func knock(plot: Int) -> Bool {
-        guard kind == .world, overlay == nil, let game = driver, game.bot == nil else { return false }
+        guard kind == .world, !doorsHeld, let game = driver, game.bot == nil else { return false }
         let state = game.state
         guard DayClock.phase(at: state.hour) == .day,
               let spot = TownShow.spots(state).first(where: { $0.plot == plot }) else { return false }
@@ -186,7 +194,7 @@ extension GameModel {
         let ground = Double(Camera.groundDeviceY(physicalHeight: pixelScale.physicalHeight, scale: pixelScale.scale))
         var marks: [TownDoorMark] = []
         let isDay = DayClock.phase(at: state.hour) == .day
-        if isDay && overlay == nil {
+        if isDay && !doorsHeld {
             for spot in TownShow.spots(state) {
                 let fx = (spot.doorX - view.x) / max(1, view.viewWidth)
                 guard fx > 0.02, fx < 0.98 else { continue }
