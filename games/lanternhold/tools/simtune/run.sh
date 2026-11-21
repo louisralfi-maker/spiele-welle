@@ -9,7 +9,8 @@ cd "$(dirname "$0")/../.." || exit 1
 OUT=${CI_OUT:-/tmp}
 BIN="$(mktemp -d)/simtune"
 # The core the bots play (M3: the petitions the reference bot hears, their night modifiers and the court's state; since
-# the M2b review the battle's line-1 torches read WorldLayout, which needs Camera's planes and the pixel scale).
+# the M2b review the battle's line-1 torches read WorldLayout, which needs Camera's planes and the pixel scale; build 3,
+# the drill yard: the rule, its state, its numbers, its bot and its runs, never YardText, which needs the bundle).
 SRC="Core/DayClock.swift Core/SeededRandom.swift Core/LightField.swift Core/AmbientRamp.swift Core/Balance.swift
      Core/Realm.swift Core/GameState.swift Core/Economy.swift Core/Build.swift Core/Battle.swift Core/DawnReport.swift
      Core/Sim.swift Core/Names.swift Core/Autoplay.swift Core/SaveGame.swift Core/TuningRun.swift
@@ -18,6 +19,8 @@ SRC="Core/DayClock.swift Core/SeededRandom.swift Core/LightField.swift Core/Ambi
      Core/Front/FrontTuning.swift Core/Front/FrontState.swift Core/Front/FrontNight.swift
      Core/Front/HearthTuning.swift Core/Front/HearthState.swift Core/Front/Hearth.swift Core/Front/HearthNames.swift
      Core/Front/DawnRing.swift Core/Front/GorgeTuning.swift Core/Front/GorgeState.swift Core/Front/Gorge.swift
+     Core/Front/Yard.swift Core/Front/YardState.swift Core/Front/YardTuning.swift Core/Front/YardBot.swift
+     Core/Front/YardTuningRun.swift
      tools/simtune/main.swift"
 START=$(date +%s)
 # shellcheck disable=SC2086

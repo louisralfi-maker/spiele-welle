@@ -153,11 +153,6 @@ struct YardMetrics: Sendable {
     /// The yard carries no realm caught short: at the hardest budget its soldiers fall almost as the reference's.
     var holdsNoRealmCaughtShort: Bool { hardLossShare >= YardMetrics.hardLossFloor }
 
-    /// Nights of the band at the band's budgets on which `bot` fell.
-    func fallNights(_ bot: String) -> Int {
-        runs.filter { $0.bot == bot && stresses.contains($0.stress) && $0.fellOn != nil }.count
-    }
-
     var passesLosses: Bool {
         paired("yard").refLost >= YardMetrics.minReferenceLosses && YardMetrics.lossBand.contains(lossReduction)
     }
