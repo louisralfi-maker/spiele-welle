@@ -1219,3 +1219,9 @@ schneller geht."
     lines, T6 and nights 15+. The walls question goes to wave 3.
   - Wave 2 stands with two green lane steps on origin (yard 3d134b6c, lantern fb6e938a). At 98 % usage nothing new
     starts before Louis' reset.
+
+- **Wave 2 goes on after the weekly reset: two lane steps run side by side (21.11.2026, 14:01).**
+  - Lane 5 step 2b, the smooth walk part 2 (base fb6e938a, rounds lh-b3l-31 and on): the glows and the moon in the sky batch, the keep in the plane it moves with, the rain's lean, the small ones, and what step 2a left.
+  - Lane 2 step 2, the drill yard's layout and look (base 3d134b6c, rounds lh-b3y-21 and on): the count board clear of the barracks, real pixel art in place of the placeholders, the yard's lines on the dawn card. No rule and no number changes.
+  - The mood at the map: the director takes form C, the banner, unless Louis names A or B before that step starts. It follows step 2b in lane 5.
+  - Housekeeping: never a bare `git fetch origin` (it pulls every ci-results branch and fails); 12.5 GB of stale tmp packs removed, 32 GB free.
