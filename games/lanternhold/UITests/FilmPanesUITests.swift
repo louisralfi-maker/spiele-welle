@@ -164,9 +164,16 @@ final class FilmPanesUITests: XCTestCase {
             }
             film.pause(0.8)
             if round == 0 {
+                let probe = film.element(app, "pane-glint")
+                let before = (probe.value as? String) ?? "none"
                 film.tappingAt("g", app, taps: 4, framesPerTap: 3, after: 2, what: "taps on the dim beside the sheet: it "
                                + "stays, Resume's line glints (0.15 s up, 0.10 s down) after each",
                                at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.55)))
+                film.pause(0.5)
+                let after = (probe.value as? String) ?? "none"
+                film.note("p04-g-probe", "taps on the dim that reached it (OverlayView's glint count): \(before) -> "
+                          + "\(after); the window's frame \(window.frame)")
+                XCTAssertNotEqual(before, after, "p04: the taps beside the sheet reach the dim")
                 film.pause(0.8)
                 XCTAssertTrue(sheet.exists, "p04: a tap beside the pause sheet does not close it")
             }

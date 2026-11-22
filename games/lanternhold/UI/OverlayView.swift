@@ -80,6 +80,16 @@ struct OverlayView: View {
             case nil:
                 EmptyView()
             }
+            #if DEBUG
+            // The UI tests' probe (FilmPanesUITests p04): how many taps on the dim reached it.
+            Text(verbatim: "\(glint)")
+                .font(.system(size: 2))
+                .foregroundStyle(Color.clear)
+                .frame(width: 2, height: 2)
+                .allowsHitTesting(false)
+                .accessibilityIdentifier("pane-glint")
+                .accessibilityValue(Text(verbatim: "\(glint)"))
+            #endif
         }
         .environment(\.lhPaneGlint, glint)
         // The panes carry their own come and go on their transitions (`.lhPane()`); this only times what else the
