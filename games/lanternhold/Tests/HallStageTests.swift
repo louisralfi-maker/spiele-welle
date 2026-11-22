@@ -111,7 +111,8 @@ final class HallStageTests: XCTestCase {
         XCTAssertEqual(game.stage, .world, "past x 40 he went out")
         let state = try XCTUnwrap(game.driver?.state)
         XCTAssertEqual(state.king.x, HallLayout.worldDoorX, "he stands at the door in the world")
-        XCTAssertEqual(state.king.facing, 1, "facing right")
+        // Polish step A1 (R2): out of the hall he faces west, toward his household (he faced east, his back to it).
+        XCTAssertEqual(state.king.facing, -1, "facing west")
         XCTAssertTrue(game.sceneStatus.contains("stage:world"), game.sceneStatus)
 
         // Reduce Motion: the same without the dark.
@@ -124,6 +125,22 @@ final class HallStageTests: XCTestCase {
         }
         XCTAssertEqual(still.stage, .hall)
         XCTAssertEqual(dark, 0, "a cut")
+    }
+
+    /// The gate (A1-F5): out of the hall he faces west, toward his household, or the way the realm strip sends him on,
+    /// so his first step never flips him.
+    func testOutOfTheHallHeFacesWestOrTheWayHeGoesOn() throws {
+        let cases: [(travelOn: Double?, facing: Int)] = [(nil, -1), (1500, -1), (2400, 1)]
+        for (travelOn, facing) in cases {
+            let game = model(["GWStage": "hall", "GWHallX": "68"])
+            XCTAssertEqual(game.stage, .hall)
+            game.leaveHallNow(travelOn: travelOn)
+            XCTAssertEqual(game.stage, .world)
+            let label = String(describing: travelOn)
+            XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.facing), facing, "on to \(label)")
+            wait(game, seconds: 0.2)
+            XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.facing), facing, "no flip: \(label)")
+        }
     }
 
     func testTheRealmStripSendsTheLordOutAndOn() throws {

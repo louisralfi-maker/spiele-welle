@@ -65,7 +65,9 @@ extension GameModel {
         if stage != .hall { stage = .hall }
     }
 
-    /// The lord stands before the hall's door in the world now, facing right; with `travelOn` he goes on there.
+    /// The lord stands before the hall's door in the world now, facing west, toward his household (polish step A1, the
+    /// run critic's R2: facing east he turned his back on it); with `travelOn` he goes on there, facing that way from
+    /// the cut (the gate, A1-F5: no flip in his first step).
     func leaveHallNow(travelOn: Double?) {
         let wasInside = stage == .hall
         hall = nil
@@ -77,7 +79,7 @@ extension GameModel {
         closeTalk()
         withDriver { game in
             game.state.king.x = HallRules.doorX
-            game.state.king.facing = 1
+            game.state.king.facing = (travelOn ?? 0) > HallRules.doorX ? 1 : -1
             game.state.king.velocity = 0
             game.travelTarget = nil
         }

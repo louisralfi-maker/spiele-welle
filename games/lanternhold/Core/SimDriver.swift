@@ -50,6 +50,8 @@ struct SimDriver: Sendable {
     /// Touch the world (stage lane, step stage-2): the pace of that walk (a walk, a hurry or a run); nil runs, as the
     /// realm strip always did.
     var travelSpeed: Double?
+    /// Polish step A1: the lord's gait (the player's walk and what the picture needs of it); never saved.
+    private(set) var gait = LordGait()
     /// A card or the pause sheet is open (the UI sets it).
     var isPaused = false
     /// The app is not active.
@@ -123,21 +125,40 @@ struct SimDriver: Sendable {
             state.king.velocity = walk.velocity(kingX: state.king.x, speed: balance.kingWalkSpeed)
             walker = walk
         }
+        // Polish step A1 (`LordGait`): the player's walk to a spot starts over 0.12 s, brakes over the last 4 px onto
+        // the spot exactly, turns after a 0.07 s hold and changes pace over 0.25 s. Only here: `Sim.stepKing` and the
+        // bots move as they always did.
+        var landing: Double?
         if let target = travelTarget, bot == nil {
             let gap = target - state.king.x
-            if abs(gap) < 0.5 || state.king.lightingPlot >= 0 {
+            if state.king.lightingPlot >= 0 || gap == 0 || (gait.direction == 0 && abs(gap) < 0.5) {
                 state.king.velocity = 0
                 travelTarget = nil
+                gait.halt()
             } else {
-                let speed = travelSpeed ?? balance.kingRunSpeed
-                state.king.velocity = max(-speed, min(speed, gap / dt))
+                let step = gait.travel(x: state.king.x, target: target, want: travelSpeed ?? balance.kingRunSpeed,
+                                       current: state.king.velocity, dt: dt)
+                state.king.velocity = step.velocity
+                if let facing = step.facing { state.king.facing = facing }
+                if step.lands { landing = target }
             }
+        } else {
+            gait.halt()
         }
         if var player = bot {
             player.act(&state, dt: dt, balance: balance, events: &events, petitions: petitions)
             bot = player
         }
+        let before = state.king.x
         Sim.step(&state, dt: dt, balance: balance, events: &events)
+        if let target = landing, abs(state.king.x - target) < 1e-6 {
+            // On the spot exactly: he stands from this step on.
+            state.king.x = target
+            state.king.velocity = 0
+            travelTarget = nil
+            gait.halt()
+        }
+        gait.note(moved: abs(state.king.x - before), dt: dt)
         // b3-horde (build 3, lane 4 step A, step 4; one block for the join): the runner's clip of the horde holds the
         // night's clock and keeps its stream coming (`HordeProof.drive`, a `-GWHorde dark` launch of a Debug build only).
         #if DEBUG
@@ -296,6 +317,7 @@ struct SimDriver: Sendable {
     /// The defeat card's "Replay the day": the realm as it was at this day's dawn.
     mutating func replayDay() {
         state = dawnSnapshot
+        gait = LordGait()
         state.king.velocity = 0
         dawnSnapshot = state
         accumulator = SimDriver.startPhase
@@ -306,6 +328,7 @@ struct SimDriver: Sendable {
     /// stays who he or she was until the name entry answers again.
     mutating func restart(seed: UInt64) {
         let lord = state.lord
+        gait = LordGait()
         state = GameState.newRealm(seed: seed, balance: balance)
         state.lord = lord
         // Craft lane hook: a restarted chapter meets the travelling craftsmen too (build 3: `CraftVisits.open`).
@@ -335,6 +358,7 @@ struct SimDriver: Sendable {
     mutating func wake(back: Int) -> Bool {
         guard let dawn = dawnRing.wake(back: back) else { return false }
         state = dawn
+        gait = LordGait()
         state.king.velocity = 0
         dawnSnapshot = state
         accumulator = SimDriver.startPhase

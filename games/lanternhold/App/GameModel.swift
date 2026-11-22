@@ -1170,6 +1170,9 @@ final class GameModel {
                                           options: options)
             }
             let state = game.state
+            // LANE-A: A1
+            options.lordGait = game.gait
+            // LANE-A end
             // The hall stage: inside, the great hall is drawn instead of the world (`GameModel+Hall.swift`).
             if stage == .hall {
                 _ = ensureCamera(pixelScale, focus: state.king.x)
@@ -1466,6 +1469,14 @@ final class GameModel {
         text += " drill:" + (Yard.drilling(state, balance: game.balance)
             ? YardLook.drillWord(archerTime: yardDrillClock.time, guardTime: state.simTime) : "none")
         #endif
+        // LANE-A: A1
+        #if DEBUG
+        // Polish step A1 (the film): the lord's speed, place, frame and facing, for the slowed bursts of his steps.
+        text += " kv:" + String(format: "%.2f", state.king.velocity) + " kxf:" + String(format: "%.2f", state.king.x)
+            + " kf:\(EntityFrames.kingFrame(state.king, balance: game.balance, time: state.simTime, gait: game.gait))"
+            + " kd:\(state.king.facing)"
+        #endif
+        // LANE-A end
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {
             text += " lantern:\(GameModel.lanternWord(LanternRaise.phase(since: state.king.lanternSince)))"

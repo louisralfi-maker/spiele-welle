@@ -102,6 +102,11 @@ struct Camera: Sendable, Equatable {
     private(set) var dangerVelocity: Double = 0
     /// World-3: the last framing goal (its change per step is fed forward to the follow); nil after a jump.
     private(set) var lastGoal: Double?
+    // LANE-A: A1
+    /// Polish step A1 (the gate, A1-C1): the goal's velocity fed forward in the last follow step, so a goal that stops
+    /// from pace in one step (a drag let go, the hall's walker) is told from one that braked onto its spot.
+    private(set) var lastFeed: Double = 0
+    // LANE-A end
 
     /// A camera centred on `focusX`, clamped to the world.
     init(focusX: Double, viewWidth: Double, worldWidth: Double = WorldLayout.width) {
@@ -164,8 +169,27 @@ struct Camera: Sendable, Equatable {
         let omega = Camera.followOmega
         let spring = omega * omega * (goal - baseX - feedVelocity * dt)
         let damping = 2 * omega * (feedVelocity - velocity)
+        // LANE-A: A1
+        let behind = goal - baseX
+        // LANE-A end
         velocity += (spring + damping) * dt
         baseX += velocity * dt
+        // LANE-A: A1
+        // Polish step A1 (the walk's start and brake): the follow never runs past a goal that stands or moves on the
+        // same way, so a stop never slides the picture back (the spring's overshoot was about 1.7 game px after
+        // every stop). A goal that comes toward the camera (a turn) is followed back as before. A goal that stopped
+        // dead from pace in this step (`FigureMotion.cameraDeadStopSpeed`) is eased past and back as before, so the
+        // picture never stops in one frame (the gate, A1-C1).
+        let ahead = goal - baseX
+        let stoppedDead = feedVelocity == 0 && abs(lastFeed) > FigureMotion.cameraDeadStopSpeed
+        if !stoppedDead
+            && ((behind != 0 && ahead * behind < 0 && feedVelocity * behind >= 0)
+                || (behind == 0 && feedVelocity == 0 && ahead != 0)) {
+            baseX = goal
+            velocity = feedVelocity
+        }
+        lastFeed = feedVelocity
+        // LANE-A end
         if baseX < 0 {
             baseX = 0
             velocity = max(0, velocity)
