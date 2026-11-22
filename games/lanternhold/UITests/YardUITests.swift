@@ -87,10 +87,13 @@ final class YardUITests: XCTestCase {
         waitForCamera(app, timeout: 8)
         if let want = firstCamera, let camera = sceneField(app, "cam:").flatMap({ Double($0) }), abs(camera - want) > 3 {
             // The strip's columns are coarse: one touch on the open sky over the ground walks him the rest (the view
-            // is twice the distance from shot 300's left edge to its middle, 1600).
+            // is twice the distance from shot 300's left edge to its middle, 1600). Round lh-b3y-41: the camera frames
+            // him a little east of where -GWCameraX put it (1414 against 1382 with him at 1600), so he walks the
+            // camera's difference west of where he stands, and the touch lands there (it touched his own feet before).
             let view = 2 * (1600 - want)
+            let lord = sceneField(app, "lx:").flatMap { Double($0) } ?? 1600
             if view > 50 {
-                let share = min(0.95, max(0.05, (1600 - camera) / view))
+                let share = min(0.95, max(0.05, (lord - (camera - want) - camera) / view))
                 element(app, "world-scene").coordinate(withNormalizedOffset: CGVector(dx: share, dy: 0.22)).tap()
                 waitForStill(app)
                 waitForCamera(app, timeout: 8)
