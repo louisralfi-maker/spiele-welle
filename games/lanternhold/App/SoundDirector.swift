@@ -26,13 +26,19 @@ final class SoundDirector: FeedbackHub {
     private var voices: [SoundID: [AVAudioPlayer]] = [:]
     private var loops: [SoundID: AVAudioPlayer] = [:]
     private var levels: [SoundID: Double] = [:]
-    private var throttle = SoundThrottle()
-    private var hapticThrottle = SoundThrottle()
+    /// Step 0b: the throttles, the steps' alternation and the no-jitter rule (`FeedbackGate`, pure).
+    private var gate = FeedbackGate()
     private var lastAmbience: Double?
     /// After a loop could not start (an interruption, a call), it is tried again from this time on.
     private var retryAt = 0.0
-    private var stepFlip = false
     private var sessionActive = false
+    /// Step 0b: law 4's one duck, followed on this clock (down at quick, back over the settle time), and when the last
+    /// answer of step 3 and of step 4 played (their ducks).
+    private var duck = DuckFollower()
+    private var answer3At: Double?
+    private var answer4At: Double?
+    /// Step 0b: the title's beds stand (`startTitleBeds`) since this time.
+    private var titleSince: Double?
 
     private let lightImpact: UIImpactFeedbackGenerator
     private let softImpact: UIImpactFeedbackGenerator
@@ -40,6 +46,7 @@ final class SoundDirector: FeedbackHub {
     private let heavyImpact: UIImpactFeedbackGenerator
     private let rigidImpact: UIImpactFeedbackGenerator
     private let notification: UINotificationFeedbackGenerator
+    private let selection: UISelectionFeedbackGenerator
 
     init(bundle: Bundle = .main) {
         self.bundle = bundle
@@ -49,6 +56,7 @@ final class SoundDirector: FeedbackHub {
         heavyImpact = UIImpactFeedbackGenerator(style: .heavy)
         rigidImpact = UIImpactFeedbackGenerator(style: .rigid)
         notification = UINotificationFeedbackGenerator()
+        selection = UISelectionFeedbackGenerator()
         activateSession()
     }
 
@@ -63,19 +71,29 @@ final class SoundDirector: FeedbackHub {
     // MARK: - FeedbackHub
 
     func play(_ cue: FeedbackCue) {
+        sound(cue, gain: 1, pan: 0)
+    }
+
+    // Step 0b: law 4's space; the arithmetic is `SoundSpace` (Core), applied here.
+    func play(_ cue: FeedbackCue, at x: Double, listenerX: Double) {
+        guard let place = SoundSpace.place(cue, x: x, listenerX: listenerX) else { return }
+        sound(cue, gain: place.gain, pan: place.pan)
+    }
+
+    private func sound(_ cue: FeedbackCue, gain: Double, pan: Double) {
         let now = CACurrentMediaTime()
-        if hapticsOn, let haptic = cue.haptic, hapticThrottle.allow(cue.rawValue, gap: cue.hapticGap, now: now) {
-            fire(haptic)
+        let answer = gate.answer(cue, soundOn: soundOn, hapticsOn: hapticsOn, now: now)
+        if let haptic = answer.haptic { fire(haptic, strength: answer.hapticStrength) }
+        // Step 0b: an answer of step 3 or 4 ducks the beds (`BedDucks`; no cue made before the ladder has a size).
+        switch cue.answerSize {
+        case .triumph?: answer3At = now
+        case .realm?: answer4At = now
+        default: break
         }
-        guard soundOn, let sound = cue.sound else { return }
-        var id = sound.id
-        if id == .step1 {
-            stepFlip.toggle()
-            if !stepFlip { id = .step2 }
-        }
-        guard throttle.allow(id.rawValue, gap: id.minimumInterval, now: now), let player = voice(id) else { return }
-        let jitter = id.varies ? Double.random(in: 0.96...1.04) : 1
-        player.volume = Float(max(0, min(1, sound.volume)))
+        guard let sound = answer.sound, let player = voice(sound.id) else { return }
+        let jitter = answer.jitter ? Double.random(in: 0.96...1.04) : 1
+        player.volume = Float(max(0, min(1, sound.volume * gain)))
+        player.pan = Float(max(-1, min(1, pan)))
         player.rate = Float(max(0.5, min(2, sound.rate * jitter)))
         player.currentTime = 0
         activateSession()
@@ -95,6 +113,7 @@ final class SoundDirector: FeedbackHub {
         let step = voice(SoundID.coinStep(rate: rate))
         guard let player = step ?? voice(sound.id) else { return }
         player.volume = Float(max(0, min(1, sound.volume)))
+        player.pan = 0
         player.rate = Float(max(0.5, min(2, step == nil ? sound.rate * rate : sound.rate)))
         player.currentTime = 0
         activateSession()
@@ -122,13 +141,22 @@ final class SoundDirector: FeedbackHub {
         let now = CACurrentMediaTime()
         let dt = min(0.25, max(0, now - (lastAmbience ?? now)))
         lastAmbience = now
+        // Step 0b, law 4's one duck rule: the deepest active duck wins (`BedDucks.depth`), followed on this clock and
+        // laid over the crossfaded beds (the place, day and weather keep their 1.2 s crossfade).
+        var ducks = mix.ducks
+        if ducks.answer3Age == nil, let at = answer3At { ducks.answer3Age = now - at }
+        if ducks.answer4Age == nil, let at = answer4At { ducks.answer4Age = now - at }
+        let ducked = duck.step(toward: ducks.depth, dt: dt)
         for id in SoundID.loops {
-            let target = soundOn ? mix.level(id) : 0
+            // Under the title its beds are its own (`startTitleBeds`); the other loops rest.
+            if titleSince != nil && AmbienceMix.titleBeds.contains(where: { $0.id == id }) { continue }
+            let target = soundOn && titleSince == nil ? mix.level(id) : 0
             let level = AmbienceMix.approach(levels[id] ?? 0, target, dt: dt)
             levels[id] = level
-            if level > 0.003 {
+            let heard = level * ducked
+            if heard > 0.003 {
                 guard let player = loop(id) else { continue }
-                player.volume = Float(level)
+                player.volume = Float(heard)
                 if !player.isPlaying && now >= retryAt {
                     activateSession()
                     if !player.play() { retryAt = now + 1 }
@@ -136,6 +164,34 @@ final class SoundDirector: FeedbackHub {
             } else if let player = loops[id], player.isPlaying {
                 player.pause()
             }
+        }
+    }
+
+    // Step 0b (thing 8): the title's beds fade in over 1.5 s on their own clock (the game's frames may not run yet).
+    func startTitleBeds() {
+        guard titleSince == nil else { return }
+        let now = CACurrentMediaTime()
+        titleSince = now
+        guard soundOn else { return }
+        for bed in AmbienceMix.titleBeds {
+            guard let player = loop(bed.id) else { continue }
+            player.volume = Float(levels[bed.id] ?? 0)
+            activateSession()
+            if !player.isPlaying && !player.play() { continue }
+            player.setVolume(Float(bed.level), fadeDuration: AmbienceMix.titleFadeIn)
+        }
+    }
+
+    // The hand-over: each bed's level is where its fade stands, and the game's ambience carries it on from there.
+    func stopTitleBeds() {
+        guard let since = titleSince else { return }
+        titleSince = nil
+        let share = min(1, max(0, (CACurrentMediaTime() - since) / AmbienceMix.titleFadeIn))
+        for bed in AmbienceMix.titleBeds {
+            let from = levels[bed.id] ?? 0
+            let level = soundOn ? from + (bed.level - from) * share : 0
+            levels[bed.id] = level
+            loops[bed.id]?.volume = Float(level)
         }
     }
 
@@ -193,6 +249,7 @@ final class SoundDirector: FeedbackHub {
     }
 
     private func silence() {
+        titleSince = nil
         for player in loops.values where player.isPlaying { player.pause() }
         for id in SoundID.loops { levels[id] = 0 }
         for pool in voices.values {
@@ -202,15 +259,25 @@ final class SoundDirector: FeedbackHub {
 
     // MARK: - Haptics
 
-    private func fire(_ haptic: HapticKind) {
+    /// A haptic; `strength` (0 ... 1) shapes the soft tick (0.6 as before) and an impact below 1 (step 0b).
+    private func fire(_ haptic: HapticKind, strength: Double) {
+        let intensity = CGFloat(max(0.1, min(1, strength)))
+        func impact(_ generator: UIImpactFeedbackGenerator) {
+            if strength < 1 {
+                generator.impactOccurred(intensity: intensity)
+            } else {
+                generator.impactOccurred()
+            }
+        }
         switch haptic {
-        case .light: lightImpact.impactOccurred()
-        case .soft: softImpact.impactOccurred(intensity: 0.6)
-        case .medium: mediumImpact.impactOccurred()
-        case .heavy: heavyImpact.impactOccurred()
-        case .rigid: rigidImpact.impactOccurred()
+        case .light: impact(lightImpact)
+        case .soft: softImpact.impactOccurred(intensity: intensity)
+        case .medium: impact(mediumImpact)
+        case .heavy: impact(heavyImpact)
+        case .rigid: impact(rigidImpact)
         case .success: notification.notificationOccurred(.success)
         case .error: notification.notificationOccurred(.error)
+        case .selection: selection.selectionChanged()
         }
     }
 }
