@@ -1303,6 +1303,9 @@ extension GameModel {
             let poolLeft = Double(CountLantern.lanternLeft(postLeft: lantern.postLeft, toward: lantern.toward)) + 4 - 12
             let poolTop = CountLantern.crookTop - CountLantern.hang + 5
             if lit, dark < 0.99, !hidden,
+               // b3-yard (fix step 4b, the director's R8): the yard's site lantern shows no pool by day
+               YardLook.siteLanternPoolsByDay(lantern.offer),
+               // b3-yard end
                let pool = countActor(.siteHalo, 1, x: poolLeft, lift: poolTop,
                                      alpha: GameModel.countPoolAlpha * Float(1 - dark) * alpha, framing: framing) {
                 var warmPool = pool
