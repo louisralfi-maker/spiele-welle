@@ -1427,3 +1427,9 @@ schneller geht."
     in the town); a second touch calls the night; the dusk plays in 4.0 s; the pause sheet takes the same road. The
     director's calls after it are in ROUND.md's law 3 point 3 (the dusk eases out, the offer keeps its mark). Step E1b
     went out from 8c88e44d: the far goal said twice (Louis' answer 4), the standing mark, the eased dusk.
+
+  - Step A1 is in the join branch (23.11., 00:36): `claude/lh-round` 6b8e6840 = 0a + 0b + E1 + A1 (round lh-rnd-9
+    green). The lord starts over 0.12 s, brakes over 4 px onto the spot, holds 0.25 s and breathes on his own phase;
+    he leaves the hall facing west or the way he goes on. Step A1b went out from 6b8e6840: the stop closes the
+    stride, a drag and the hall's walker walk like a tap, the camera eases onto a standing goal, one breath
+    everywhere. Lane A also owns `Core/FigureMotion.swift`, `Core/Camera.swift` and `Core/HallFrames.swift`.

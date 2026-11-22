@@ -256,6 +256,13 @@ Shared: `SimDriver.callTheNight` (`:164-181`) is a `LANE-E` block.
    frame 0 short of full pace; the stop shows the held idle), m01-h (west on exit); `SmoothWalkTests`,
    `SimDriverTests` (brake ends exactly on target, no overshoot), `AutoplayTests` and `TuningTests` unchanged,
    `RendererTests`/`EntityFramesTests` kingFrame by time updated.
+   **A1b The walk's loose ends** (added 23.11. after A1's reviews; the director's calls). The stop closes the
+   stride (the landing step draws the standing pose, no wide stride directly before it); a drag and the hall's
+   walker start, change pace and brake like a tap walk; the camera eases onto a standing goal (its step never
+   grows, never reverses, never falls from a visible speed to nothing in one step); the hall's lord and the wall
+   guards on the one breath; FigureMotion uses Motion's curve and tempos. Lane A also owns `Core/FigureMotion.swift`,
+   `Core/Camera.swift` (the follow) and `Core/HallFrames.swift` from here on. Under Reduce Motion the figures keep
+   the walk, the ramp, the brake and the breath; a turn is stop, flip, 0.07 s hold, ramp.
 2. **A2 It stands** (M4 = F4 picture). Dust, swap at the peak, 1 px settle, keep's dust, 1 px jolt on damaged and
    rubble; cap 24 to 32. Proof: m05-c 15-22 (dust and settle), m11-c-crop 10-16; `RendererTests` (finished sprite
    0.12 s after `buildDone`), RM still.
