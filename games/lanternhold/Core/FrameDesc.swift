@@ -658,8 +658,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         // kettle cold and with the kettle over its fire.
         case .yardPell, .yardSite: return 2
         case .yardKettle: return 3
-        // b3-yard step 4 (H3): the front butt and the one behind.
-        case .yardButt: return 2
+        // b3-yard step 4 (H3, H4): the front butt, the one behind, the front one with the drill's arrow in its heart.
+        case .yardButt: return 3
         // b3-yard (step 4, the critic's H1): the east gate rock as it was, and taken back to the tower's face while the
         // drill yard's site shows or the yard stands (`YardLook.rockFrame`).
         case .gateRockR: return 2

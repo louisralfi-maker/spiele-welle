@@ -24,7 +24,11 @@ It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed
                           critic's H3, two butts set behind each other were one sprite twice): frame 1 the butt
                           behind, turned further from the viewer (its face a narrow oval, the boss a pixel smaller,
                           the coiled straw of its side showing), one arrow low in it, the back leg of its A-frame
-                          standing out behind it (the layout draws it darker and a pixel higher, farther back)
+                          standing out behind it (the layout draws it darker and a pixel higher, farther back);
+                          frame 2 the front butt with the drill's last arrow stuck in its heart (the critic's H4): its
+                          tip buried, its shaft steep as it fell out of the high arc (the flight's slope at the end is
+                          about 2.6 rows a column), six pixels showing up and to the left with the fletching over the
+                          boss's rim (`YardLook.buttFrameStuck`)
   yardKettle   13x18 x 3  the pitch kettle's place: a tripod of three poles lashed at the top over a ring of stones;
                           frame 0 empty (a chain and its hook, cold ash), frame 1 the iron kettle (7 px, a pale lit
                           rim, black pitch) hung on its bail over split logs, cold; frame 2 the same over its fire, two
@@ -180,7 +184,7 @@ def boss_layers():
     return layer
 
 
-def butt():
+def butt(stuck=False):
     c = C(17, 20)
     ox, oy = 4, 1                                   # the boss's top-left in the canvas
     # The easel: two legs splayed under the boss and a third propping it from behind, a cross bar.
@@ -223,6 +227,16 @@ def butt():
         c.set(fx, fy - 1, "parchment")
         c.set(fx - 1, fy - 1, "plaster")
         c.set(fx + 1, fy + 1, "ink")
+    if stuck:
+        # Step 4 (H4): the drill's arrow stuck in the heart (the boss's middle, ox + 5, oy + 5, stays the heart: the tip is
+        # in the straw). The shaft runs back along its fall, steep, dark against the face's bone and red; the fletching
+        # stands over the boss's rim against the wall.
+        for (x, y) in ((ox + 5, oy + 4), (ox + 4, oy + 3), (ox + 4, oy + 2), (ox + 4, oy + 1), (ox + 3, oy)):
+            c.set(x, y, "woodDark")
+        c.set(ox + 4, oy + 3, "wood")                  # the shaft's lit pixel on the bone
+        c.set(ox + 3, oy - 1, "parchment")             # the fletching
+        c.set(ox + 2, oy - 1, "plaster")
+        c.set(ox + 4, oy, "parchment")
     return c.im
 
 
@@ -545,7 +559,8 @@ def strip(frames):
 BUILDERS = {
     "yardGround": ground,
     "yardPell": lambda: strip([pell(0), pell(1)]),
-    "yardButt": lambda: strip([butt(), butt_behind()]),   # step 4: the front butt, the one behind
+    # step 4: the front butt, the one behind, the front one with the drill's arrow stuck in its heart
+    "yardButt": lambda: strip([butt(), butt_behind(), butt(stuck=True)]),
     "yardKettle": lambda: strip([kettle(0), kettle(1), kettle(2)]),
     "yardSite": lambda: strip([site(0), site(1)]),
 }

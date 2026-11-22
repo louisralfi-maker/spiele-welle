@@ -38,6 +38,9 @@ enum YardLook {
     /// darker and a pixel higher, as farther ground (step 3: the same frame at 0.8).
     static let buttFrameFront = 0
     static let buttFrameBehind = 1
+    /// Step 4 (the critic's H4: the arrow vanished when it landed): the front butt with the drill's last arrow stuck in
+    /// its heart, its shaft steep as it fell; drawn from the landing until the archer's next loose (`arrowStuck`).
+    static let buttFrameStuck = 2
     static let buttBehindShade: Float = 0.65
     static let buttBehindLift = 1.0
     /// The heart of the butt in front (the boss's middle pixel, 13 px up).
@@ -102,6 +105,28 @@ enum YardLook {
     static func archerFrame(index: Int, time: Double, reduceMotion: Bool) -> Int {
         if reduceMotion { return 3 }
         return frame(in: archerPhases, round: archerRound, at: time + Double(index) * 1.1)
+    }
+
+    /// Step 4 (the critic's H4): true while the drill's last arrow stands stuck in the front butt's heart: from its
+    /// landing until the archer's next loose, so whenever none flies; under Reduce Motion one arrow stands stuck as a
+    /// still.
+    static func arrowStuck(index: Int, time: Double, reduceMotion: Bool) -> Bool {
+        if reduceMotion { return true }
+        return arrow(index: index, time: time, reduceMotion: false) == nil
+    }
+
+    /// Step 4 (the critic's H4: the pell never answered the strike): the guard's blow lands at the start of his strike
+    /// frame 7, and the pell leans a pixel away from him for this long, then stands.
+    static let pellStrikeAt = 0.8
+    static let pellLeanSeconds = 0.15
+
+    /// The pell's lean (game px, + to the right) at `time` under the blow of the guard at place `index`: a pixel away
+    /// from him for `pellLeanSeconds` from his blow, else 0; always 0 under Reduce Motion.
+    static func pellLean(index: Int, time: Double, reduceMotion: Bool) -> Double {
+        guard !reduceMotion, index >= 0, index < guardSpots.count else { return 0 }
+        let t = wrapped(time + Double(index) * 0.7, round: guardRound) - pellStrikeAt
+        guard t >= 0, t < pellLeanSeconds else { return 0 }
+        return guardSpots[index].faceLeft ? -1 : 1
     }
 
     /// The frame of a guard at his pell at `time`; under Reduce Motion he stands.
@@ -191,6 +216,28 @@ enum YardLook {
         figures.contains { arrowGap(overFigureAt: $0.x, width: $0.width, height: $0.height) < arrowClearance }
     }
 
+    /// Step 4 (the critic's H4): the other figures the archer's hold sees, beside the lord, the court and the builders
+    /// (`GameModel.yardDrill`): the townsfolk out in the town and the courtyard (`PeopleCast.townLife`, look 2, as the
+    /// actors place them: `townsfolk`) and the soldiers walking on the ground (x, sprite width, height).
+    static func walkers(_ s: GameState, balance: Balance, townsfolk: Bool,
+                        reduceMotion: Bool) -> [(x: Double, width: Int, height: Int)] {
+        var list: [(x: Double, width: Int, height: Int)] = []
+        if townsfolk {
+            let hearth = max(0, min(1, s.hearth / max(1, balance.hearthStrength)))
+            PeopleCast.townLife(s, time: s.simTime,
+                                context: TownLife.Context(reduceMotion: reduceMotion, hearth: hearth)) { figure in
+                guard !figure.emissive else { return }
+                let size = figure.sprite.size
+                list.append((x: figure.x, width: size.width, height: size.height + Int(max(0, figure.y).rounded(.up))))
+            }
+        }
+        for soldier in s.soldiers where soldier.state == .moving {
+            let size = (soldier.kind == .archer ? SpriteID.archer : SpriteID.guardsman).size
+            list.append((x: soldier.x, width: size.width, height: size.height))
+        }
+        return list
+    }
+
     /// The drill's own clock and whether the archer holds now, handed to `EntityFrames.layer` (nil: the simulation's
     /// time, nobody in the way).
     struct Drill: Sendable, Equatable {
@@ -199,8 +246,9 @@ enum YardLook {
     }
 
     /// The archer's clock: it runs with the simulation's, except while he holds, when it stops at his full draw (just
-    /// before the loose) and runs on from there once the place is free, so he looses then. An arrow already in the air
-    /// when someone steps in is not drawn (`EntityFrames.actors`), so it never crosses him. Picture only, never saved.
+    /// before the loose) and runs on from there once the place is free, so he looses then. Step 4 (the critic's H4): an
+    /// arrow already in the air when someone steps in finishes its flight (it popped out of the air before); the hold
+    /// only stops the next loose. Picture only, never saved.
     struct DrillClock: Sendable, Equatable {
         private(set) var time = 0.0
         private var last: Double?

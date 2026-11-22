@@ -1207,7 +1207,8 @@ final class GameModel {
     /// b3-yard (build 3, wave 2, lane 2, step 3; the director's pick of 21.11.2026, 17:31, the critic's H4): while they
     /// drill, the archer's clock for this frame and whether he holds at the draw because someone stands where his arrow
     /// is still low: the lord (his raised lantern inside his frame), the court and today's guests as drawn, the
-    /// builders. Nil outside the drill (the clock starts afresh at the next one).
+    /// builders; step 4: the townsfolk and the soldiers walking on the ground. Nil outside the drill (the clock starts
+    /// afresh at the next one).
     func yardDrill(_ state: GameState, balance: Balance) -> YardLook.Drill? {
         guard Yard.drilling(state, balance: balance) else {
             yardDrillClock = YardLook.DrillClock()
@@ -1225,6 +1226,10 @@ final class GameModel {
         for one in state.builders {
             figures.append((x: one.x, width: builder.width, height: builder.height))
         }
+        // b3-yard (step 4, the critic's H4): the hold sees the townsfolk out in the town and the courtyard (PeopleCast,
+        // look 2, placed as the actors place them) and the soldiers walking on the ground, by the same rule.
+        figures += YardLook.walkers(state, balance: balance, townsfolk: args.look == .two, reduceMotion: reduceMotion)
+        // b3-yard end
         let held = YardLook.archerHolds(figures: figures)
         yardDrillClock.step(to: state.simTime, held: held)
         return YardLook.Drill(time: yardDrillClock.time, held: held)

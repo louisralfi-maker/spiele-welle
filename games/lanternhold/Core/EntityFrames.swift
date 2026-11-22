@@ -151,7 +151,7 @@ enum EntityFrames {
         defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
                      look: options.look, props: &props)
         beacon(s, look: options.look, props: &props)
-        courtyard(s, balance: balance, props: &props)
+        courtyard(s, balance: balance, props: &props, drill: drill, reduceMotion: options.reduceMotion)
         town(s, look: options.look, props: &props)
         let townDay = TownLife.Context(reduceMotion: options.reduceMotion,
                                       hearth: max(0, min(1, s.hearth / max(1, balance.hearthStrength))))
@@ -586,7 +586,8 @@ enum EntityFrames {
         }
     }
 
-    private static func courtyard(_ s: GameState, balance: Balance, props: inout PropList) {
+    private static func courtyard(_ s: GameState, balance: Balance, props: inout PropList, drill: YardLook.Drill?,
+                                  reduceMotion: Bool) {
         let barracksMasks = [glass(8, 26, 4, 4), glass(21, 26, 4, 4), glass(39, 26, 4, 4), glass(52, 26, 4, 4),
                              glass(23, 14, 1, 2), glass(41, 14, 1, 2)]
         props.add(.barracks, x: barracksLeft, z: -1, masks: barracksMasks,
@@ -626,7 +627,7 @@ enum EntityFrames {
             let width = Double((job.target == .bigLodge ? SpriteID.bigLodge : SpriteID.lodge).size.width)
             scaffold(&props, centre: lodgeCentre, width: width)
         }
-        yardProps(s, balance: balance, props: &props)
+        yardProps(s, balance: balance, props: &props, drill: drill, reduceMotion: reduceMotion)
     }
 
     /// b3-yard (build 3, wave 2, lane 2, steps 2 and 3; docs/YARD.md sections 1, 2 and 4; tools/yardart.py, `YardLook`):
@@ -635,8 +636,11 @@ enum EntityFrames {
     /// ordered); once it stands, the sand and the apron's fence, the pitch kettle's tripod, the pell and the two butts
     /// set behind each other (the one behind a shade darker), the tripod empty until Bram brings the kettle, then the
     /// kettle on its chain, over a low fire with a small warm light that glows at night from the drill's end. All of it
-    /// stands behind every figure (props), in the courtyard's light.
-    static func yardProps(_ s: GameState, balance: Balance, props: inout PropList) {
+    /// stands behind every figure (props), in the courtyard's light. Step 4 (the critic's H4): the pell leans a pixel
+    /// under the guard's blow, and the drill's last arrow stands stuck in the front butt's heart until the next loose
+    /// (`drill`: the archer's clock as `actors` draws him; Reduce Motion: the pell stands, one arrow stuck).
+    static func yardProps(_ s: GameState, balance: Balance, props: inout PropList, drill: YardLook.Drill? = nil,
+                          reduceMotion: Bool = false) {
         guard !s.defeated else { return }
         let yard = s.yard ?? YardState()
         guard yard.stands else {
@@ -649,15 +653,26 @@ enum EntityFrames {
             return
         }
         props.add(.yardGround, x: YardLook.groundLeft, y: YardLook.groundY, z: 1)
+        // Who drills, as `actors` draws them: the soldiers in reserve, an archer at each archer's spot, a guard at each
+        // pell.
+        let drilling = Yard.drilling(s, balance: balance)
+        let reserve = drilling ? s.soldiers.filter { $0.state == .reserve } : []
+        let archers = min(reserve.filter { $0.kind == .archer }.count, YardLook.archerSpots.count)
+        let guards = min(reserve.filter { $0.kind != .archer }.count, YardLook.guardSpots.count)
         for (index, left) in YardLook.pellLefts.enumerated() {
-            props.add(.yardPell, x: left, z: 1, frame: index % 2)
+            let lean = index < guards ? YardLook.pellLean(index: index, time: s.simTime, reduceMotion: reduceMotion) : 0
+            props.add(.yardPell, x: left + lean, z: 1, frame: index % 2)
         }
         for (index, left) in YardLook.buttLefts.enumerated() {
             // Step 4 (the critic's H3): the butt behind is its own frame (turned further, smaller, its back leg out),
             // darker and a pixel higher, on the farther ground.
             let behind = index < YardLook.buttLefts.count - 1
+            // The arrow flies into the front butt; outside the drill its last arrow stays.
+            let stuck = archers == 0
+                || YardLook.arrowStuck(index: 0, time: drill?.time ?? s.simTime, reduceMotion: reduceMotion)
             props.add(.yardButt, x: left, y: behind ? YardLook.buttBehindLift : 0, z: 1,
-                      frame: behind ? YardLook.buttFrameBehind : YardLook.buttFrameFront,
+                      frame: behind ? YardLook.buttFrameBehind
+                          : (stuck ? YardLook.buttFrameStuck : YardLook.buttFrameFront),
                       shade: behind ? YardLook.buttBehindShade : 1)
         }
         guard yard.kettleInUse else {
@@ -1530,20 +1545,20 @@ enum EntityFrames {
         // lofted over the guard and sticks) and a guard strikes the pell; the others are in the bunkhouse.
         // The frames are the ones they have. Reduce Motion: they stand still (the bow drawn), no arrow flies.
         // Step 3 (the critic's H4): one high arc over everyone; the archer runs on the drill's own clock (`drill`), held
-        // at the draw while someone stands where the arrow is still low, and no arrow is drawn while he holds.
+        // at the draw while someone stands where the arrow is still low (step 4: an arrow already loosed flies on).
         if Yard.drilling(s, balance: balance) {
             var archersAtDrill = 0
             var guardsAtDrill = 0
             let drillTime = drill?.time ?? time
-            let held = drill?.held ?? false
             for soldier in s.soldiers where soldier.state == .reserve {
                 if soldier.kind == .archer {
                     guard archersAtDrill < YardLook.archerSpots.count else { continue }
                     let x = YardLook.archerSpots[archersAtDrill]
                     add(.archer, frame: YardLook.archerFrame(index: archersAtDrill, time: drillTime,
                                                              reduceMotion: reduceMotion), x: x, y: 0)
-                    if !held, let flight = YardLook.arrow(index: archersAtDrill, time: drillTime,
-                                                          reduceMotion: reduceMotion) {
+                    // Step 4 (H4): an arrow in the air finishes its flight; the hold only stops the next loose.
+                    if let flight = YardLook.arrow(index: archersAtDrill, time: drillTime,
+                                                   reduceMotion: reduceMotion) {
                         let half = Double(SpriteID.arrow.size.height) / 2
                         add(.arrow, frame: flight.frame, x: flight.x, y: flight.y - half)
                     }

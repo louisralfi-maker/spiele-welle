@@ -1328,4 +1328,170 @@ final class YardPolishTests: XCTestCase {
         XCTAssertLessThan(faceWidth(YardLook.buttFrameBehind), faceWidth(YardLook.buttFrameFront),
                           "the one behind shows a narrower face")
     }
+
+    // MARK: - D (H4): the hit
+
+    /// A realm at its noon drill with the yard standing: every soldier in reserve, so an archer shoots and a guard
+    /// strikes the pell (as `actors` draws them).
+    private func drill(hour: Double = 12) -> GameState {
+        var s = realm(day: 6, hour: hour)
+        Yard.proof(&s, stage: 2, kettle: false, trained: false, balance: balance)
+        for index in s.soldiers.indices { s.soldiers[index].state = .reserve }
+        return s
+    }
+
+    private func yard(_ s: GameState, drill: YardLook.Drill? = nil, reduceMotion: Bool = false) -> [Prop] {
+        var list = EntityFrames.PropList()
+        EntityFrames.yardProps(s, balance: balance, props: &list, drill: drill, reduceMotion: reduceMotion)
+        return list.props
+    }
+
+    /// The landed arrow stays stuck in the front butt's heart from its landing until the archer's next loose; then it
+    /// is gone and the new one flies. The front butt draws it (its frame 2); the butt behind never does.
+    func testTheArrowStaysStuckInTheHeartUntilTheNextLoose() throws {
+        let round = YardLook.archerRound
+        let landing = YardLook.looseAt + YardLook.arrowSeconds
+        var t = 0.0
+        while t < 2 * round {
+            let flying = YardLook.arrow(index: 0, time: t, reduceMotion: false) != nil
+            XCTAssertEqual(YardLook.arrowStuck(index: 0, time: t, reduceMotion: false), !flying,
+                           "at \(t): one arrow, in the air or in the heart")
+            t += 0.005
+        }
+        XCTAssertTrue(YardLook.arrowStuck(index: 0, time: landing + 0.001, reduceMotion: false), "stuck at its landing")
+        XCTAssertTrue(YardLook.arrowStuck(index: 0, time: round + YardLook.looseAt - 0.001, reduceMotion: false),
+                      "still stuck as the archer draws again, up to his next loose")
+        XCTAssertFalse(YardLook.arrowStuck(index: 0, time: round + YardLook.looseAt + 0.001, reduceMotion: false),
+                       "gone at the next loose: the new one flies")
+        XCTAssertNotNil(YardLook.arrow(index: 0, time: round + YardLook.looseAt + 0.001, reduceMotion: false))
+
+        let s = drill()
+        XCTAssertTrue(Yard.drilling(s, balance: balance))
+        func front(_ time: Double, reduceMotion: Bool = false) -> Int? {
+            yard(s, drill: YardLook.Drill(time: time, held: false), reduceMotion: reduceMotion)
+                .filter { $0.sprite == .yardButt }.last?.frame
+        }
+        func behind(_ time: Double) -> Int? {
+            yard(s, drill: YardLook.Drill(time: time, held: false)).first { $0.sprite == .yardButt }?.frame
+        }
+        XCTAssertEqual(front(YardLook.looseAt + 0.2), YardLook.buttFrameFront, "in the air: none in the heart yet")
+        XCTAssertEqual(front(landing + 0.01), YardLook.buttFrameStuck, "landed: it stays in the heart")
+        XCTAssertEqual(front(round + 1.5), YardLook.buttFrameStuck, "while the archer draws again")
+        XCTAssertEqual(behind(landing + 0.01), YardLook.buttFrameBehind, "the butt behind takes no arrow")
+        XCTAssertEqual(front(YardLook.looseAt + 0.2, reduceMotion: true), YardLook.buttFrameStuck,
+                       "Reduce Motion: one arrow stands stuck as a still")
+        var quiet = s
+        quiet.hour = 20
+        XCTAssertEqual(yard(quiet).filter { $0.sprite == .yardButt }.last?.frame, YardLook.buttFrameStuck,
+                       "after the drill the day's last arrow stays")
+    }
+
+    /// The pell answers the guard's blow: a pixel away from him for 0.15 s from the start of his strike frame 7, then
+    /// it stands; never on any other frame, never under Reduce Motion, never without a guard at it.
+    func testThePellLeansUnderTheStrikeOnly() throws {
+        let spot = try XCTUnwrap(YardLook.guardSpots.first)
+        let away: Double = spot.faceLeft ? -1 : 1
+        var leaned = 0
+        var t = 0.0
+        while t < 2 * YardLook.guardRound {
+            let lean = YardLook.pellLean(index: 0, time: t, reduceMotion: false)
+            let frame = YardLook.guardFrame(index: 0, time: t, reduceMotion: false)
+            if lean != 0 {
+                leaned += 1
+                XCTAssertEqual(lean, away, "away from the guard at \(t)")
+                XCTAssertEqual(frame, 7, "only on the strike frame (\(t))")
+            }
+            if frame != 7 { XCTAssertEqual(lean, 0, "no lean on frame \(frame) at \(t)") }
+            XCTAssertEqual(YardLook.pellLean(index: 0, time: t, reduceMotion: true), 0, "Reduce Motion: it stands")
+            t += 0.001
+        }
+        XCTAssertEqual(Double(leaned) * 0.001, 2 * YardLook.pellLeanSeconds, accuracy: 0.004, "0.15 s in each round")
+        XCTAssertEqual(YardLook.pellLean(index: 0, time: YardLook.pellStrikeAt + 0.05, reduceMotion: false), away)
+        XCTAssertEqual(YardLook.pellLean(index: 0, time: YardLook.pellStrikeAt + 0.2, reduceMotion: false), 0,
+                       "then it stands")
+
+        var s = drill()
+        let left = try XCTUnwrap(YardLook.pellLefts.first)
+        func pellX(_ state: GameState, reduceMotion: Bool = false) -> Double? {
+            yard(state, reduceMotion: reduceMotion).first { $0.sprite == .yardPell }?.x
+        }
+        let round = YardLook.guardRound
+        s.simTime = 100 * round + YardLook.pellStrikeAt + 0.05
+        XCTAssertEqual(pellX(s), left + away, "the pell leans under the blow")
+        XCTAssertEqual(pellX(s, reduceMotion: true), left, "Reduce Motion: it stands")
+        s.simTime = 100 * round + 0.3
+        XCTAssertEqual(pellX(s), left, "between the blows it stands")
+        var nobody = drill()
+        nobody.simTime = 100 * round + YardLook.pellStrikeAt + 0.05
+        for index in nobody.soldiers.indices where nobody.soldiers[index].kind != .archer {
+            nobody.soldiers[index].state = .posted
+        }
+        XCTAssertEqual(pellX(nobody), left, "no guard at the pell, no lean")
+        nobody.hour = 20
+        XCTAssertEqual(pellX(nobody), left, "and none after the drill")
+    }
+
+    /// An arrow in the air never pops out of it: when someone steps where it is low mid-flight it finishes its flight;
+    /// the hold only stops the next loose.
+    func testAnArrowInFlightFinishesWhenAFigureStepsIn() {
+        var clock = YardLook.DrillClock()
+        let start = 50 * YardLook.archerRound + YardLook.looseAt + 0.05
+        clock.step(to: start, held: false)
+        XCTAssertNotNil(YardLook.arrow(index: 0, time: clock.time, reduceMotion: false), "loosed: it flies")
+        var sim = start
+        var flown = 0
+        while YardLook.arrow(index: 0, time: clock.time, reduceMotion: false) != nil {
+            sim += 1.0 / 60
+            let before = clock.time
+            clock.step(to: sim, held: true)
+            XCTAssertEqual(clock.time - before, 1.0 / 60, accuracy: 1e-9, "the clock runs on through the flight")
+            flown += 1
+            if flown > 120 { break }
+        }
+        XCTAssertGreaterThan(flown, 25, "it flew on with the figure in its way (\(flown) frames)")
+        XCTAssertLessThan(flown, 40, "and landed")
+        XCTAssertTrue(YardLook.arrowStuck(index: 0, time: clock.time, reduceMotion: false), "in the heart")
+        for _ in 0..<(60 * 6) {
+            sim += 1.0 / 60
+            clock.step(to: sim, held: true)
+            XCTAssertNil(YardLook.arrow(index: 0, time: clock.time, reduceMotion: false), "no new loose while he holds")
+        }
+        XCTAssertEqual(YardLook.archerFrame(index: 0, time: clock.time, reduceMotion: false), 3, "held at the draw")
+        XCTAssertTrue(YardLook.arrowStuck(index: 0, time: clock.time, reduceMotion: false), "the last one stays")
+    }
+
+    /// The archer's hold sees the townsfolk and the soldiers walking by day, by the rule it has for the lord and the
+    /// court: a townsman or a soldier where the arrow is low makes him hold; at the fence the drill goes on.
+    func testTheHoldSeesTownsfolkAndSoldiers() {
+        var s = drill()
+        for index in s.soldiers.indices { s.soldiers[index].state = .posted }
+        XCTAssertTrue(YardLook.walkers(s, balance: balance, townsfolk: false, reduceMotion: false).isEmpty,
+                      "soldiers at their posts walk nowhere")
+        let id = s.soldiers.first { $0.kind == .guardsman }?.id ?? s.soldiers[0].id
+        let index = s.soldiers.firstIndex { $0.id == id } ?? 0
+        s.soldiers[index].state = .moving
+        s.soldiers[index].x = 1448
+        let walkers = YardLook.walkers(s, balance: balance, townsfolk: false, reduceMotion: false)
+        XCTAssertEqual(walkers.count, 1)
+        XCTAssertEqual(walkers.first?.x, 1448)
+        XCTAssertTrue(YardLook.archerHolds(figures: walkers), "a soldier walking under the low arc: the archer holds")
+        s.soldiers[index].x = Yard.fenceX
+        XCTAssertFalse(YardLook.archerHolds(figures: YardLook.walkers(s, balance: balance, townsfolk: false,
+                                                                      reduceMotion: false)),
+                       "past him at the fence the drill goes on")
+        for body in [SpriteID.labourer, .washerwoman, .elder, .childA] {
+            let size = body.size
+            XCTAssertTrue(YardLook.archerHolds(figures: [(x: 1448, width: size.width, height: size.height)]),
+                          "a townsman (\(body)) under the low arc: the archer holds")
+            XCTAssertTrue(YardLook.archerHolds(figures: [(x: 1535, width: size.width, height: size.height)]),
+                          "\(body) before the butts: the archer holds")
+        }
+        // The townsfolk the town draws now are all handed to the hold, placed as the actors place them.
+        var drawn: [PeopleCast.Figure] = []
+        PeopleCast.townLife(s, time: s.simTime, context: TownLife.Context(hearth: max(0, min(1, s.hearth
+            / max(1, balance.hearthStrength))))) { if !$0.emissive { drawn.append($0) } }
+        let seen = YardLook.walkers(s, balance: balance, townsfolk: true, reduceMotion: false)
+        XCTAssertEqual(seen.count, drawn.count + 1, "every townsman drawn, and the soldier walking")
+        XCTAssertEqual(Set(seen.map { $0.x }), Set(drawn.map { $0.x } + [Yard.fenceX]))
+    }
 }
