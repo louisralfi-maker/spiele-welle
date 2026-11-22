@@ -49,13 +49,17 @@ enum TouchThings {
                                        footing: footed ? TouchFooting.half(plot: plot, state: s, layouts: layouts) : nil))
             }
             var seen = Set<String>()
+            // Polish E1 (law 3.3): once the day's work is done Brannock carries his mark again for the horn's offer
+            // until he was heard saying it (`NightOffer`); the rule "marks only while the purse can pay" stays.
+            let offered = figures.contains { $0.who == NightOffer.speaker }
+                && NightOffer.marks(s, balance: balance, talked: talked)
             for figure in figures where figure.alpha > 0.5 && figure.petition == nil && !seen.contains(figure.who) {
                 guard Speakers.canTalk(figure.who), !HallRules.livesInHallNow(figure.who, flags: s.flags),
                       lines.line(for: figure.who, state: s) != nil else { continue }
                 seen.insert(figure.who)
                 list.append(person(figure, act: .talk(who: figure.who), lordX: s.king.x,
                                    court: Speakers.speaker(figure.who)?.role == .court,
-                                   marked: !talked.contains(figure.who)))
+                                   marked: !talked.contains(figure.who) || (offered && figure.who == NightOffer.speaker)))
             }
             // Build 3, the drill yard (wave 2, lane 2): its site in the courtyard while it offers something; a touch
             // brings its counter (the count, docs/PAY.md), marked while the purse can pay it.
