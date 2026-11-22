@@ -177,6 +177,8 @@ struct PayCount: Sendable, Equatable {
     /// `sinkSeconds` (the coins' own way home, `slideSeconds`), one soft tick in the hand.
     static let tapWait = 3.0
     static let warnAfter = 2.0
+    /// A press that set at most this many coins counts as a tap for the wait (a hold streams more).
+    static let tapCoins = 1
     static let sinkSeconds = slideSeconds
     /// Going back, the coins leave one by one, the last laid first, `homeGap` apart (step 4, the director's call 2:
     /// 0.07 s, so they never bunch); each flies home to the lord's belt in `slideSeconds`, shrinking to a pixel, and the
@@ -289,7 +291,7 @@ struct PayCount: Sendable, Equatable {
     private(set) var pressPlaced = 0
     /// The last second a finger was on it.
     private(set) var lastTouch: Double
-    /// Polish B2 (H9): the last touch was a tap (a lift whose press set no coin, or a tap), not a hold that counted.
+    /// Polish B2 (H9): the last touch was a tap (a tap, or a press that set at most `tapCoins`), not a hold that streamed.
     private(set) var lastByTap = false
     /// Polish B2 (H9): the second the warning came (the rocking coin sinking home), nil while none stands.
     private(set) var warnedAt: Double?
@@ -452,7 +454,6 @@ struct PayCount: Sendable, Equatable {
         holding = true
         pressPlaced = 0
         lastTouch = time
-        lastByTap = false
         warnedAt = nil
         if launched.count < coins.count { due = time + nextDelay(fresh: true) }
     }
@@ -463,6 +464,9 @@ struct PayCount: Sendable, Equatable {
         holding = false
         due = nil
         lastTouch = time
+        // Polish B2 (H9): a press that set one coin was a quick touch (a held coin leaves the hand a flight before its
+        // moment, so even a 0.05 s touch lets one go: round lh-rb-2); one that streamed two or more was a hold.
+        if pressPlaced > 0 { lastByTap = pressPlaced <= PayCount.tapCoins }
         if tap && pressPlaced == 0 { self.tap() }
         pressPlaced = 0
     }

@@ -524,10 +524,11 @@ final class PayCountTests: XCTestCase {
         var held = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
         held.arrive()
         held.press()
-        _ = run(&held, seconds: 0.4, gold: 100)
+        _ = run(&held, seconds: 0.6, gold: 100)
         held.lift(tap: true)
-        XCTAssertGreaterThan(held.placed, 0, "the hold laid coins")
-        _ = run(&held, seconds: PayCount.slideAfter - 0.3, gold: 100)
+        _ = run(&held, seconds: 0.2, gold: 100)
+        XCTAssertGreaterThan(held.placed, 1, "the hold streamed coins")
+        _ = run(&held, seconds: PayCount.slideAfter - 0.5, gold: 100)
         XCTAssertTrue(held.isOpen, "a held count waits two seconds")
         _ = run(&held, seconds: 0.5, gold: 100)
         XCTAssertEqual(held.result, .letGo, "and goes home after two, as before")
@@ -593,6 +594,26 @@ final class PayCountTests: XCTestCase {
         XCTAssertTrue(count.isOpen, "a slow count of taps 2.4 s apart keeps its coins")
         XCTAssertEqual(beats.filter { $0 == .warn }.count, 1, "warned again 2.0 s after the new coin")
         beats += run(&count, to: quiet + 3.1, gold: 100)
+        XCTAssertEqual(count.result, .letGo)
+    }
+
+    /// Polish B2 (H9, round lh-rb-2): a finger's quick touch on the board is a press that lets one coin go (a held coin
+    /// leaves the hand a flight before its moment); it counts as a tap: warned at 2.0 s, home at 3.0 s.
+    func testAQuickPressThatSetOneCoinCountsAsATap() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        count.arrive()
+        _ = run(&count, seconds: 0.3, gold: 100)
+        count.press()
+        _ = run(&count, seconds: 0.1, gold: 100)
+        count.lift(tap: true)
+        _ = run(&count, seconds: 0.3, gold: 100)
+        XCTAssertEqual(count.placed, 1, "one coin")
+        XCTAssertTrue(count.lastByTap, "a tap")
+        let quiet = count.lastTouch
+        var beats = run(&count, to: quiet + 2.9, gold: 100)
+        XCTAssertTrue(count.isOpen, "kept at 2.9 s")
+        XCTAssertEqual(beats.filter { $0 == .warn }.count, 1, "warned")
+        beats += run(&count, to: quiet + 3.0 + 1e-6, gold: 100)
         XCTAssertEqual(count.result, .letGo)
     }
 

@@ -93,6 +93,13 @@ final class FilmDealsUITests: XCTestCase {
             // Polish B2 (H2): m05-e keeps its first tap and its 14 frames (00 to 14, the audit's burst), then three taps
             // on the lord's body 4, 6 and 8 game px toward him from the board's near edge (his middle stands
             // `countStandGap`, 10 px, from it): each must set a coin, with no purse, strip or gear coming up.
+            // Slowed four times, the empty board's 5 s wait is 20 s of real time: if the waits above outlasted it the
+            // board comes up again first (round lh-rb-2), so tap 1 sets a coin as in the audit's burst.
+            if !film.scene(slow).contains("count:touch-plot-0") {
+                touchThing(again)
+                film.wait(20) { film.scene(slow).contains(":there") }
+                film.note("m05-e-again", "the board had gone before the burst; brought again: \(film.scene(slow))")
+            }
             let lord = film.element(slow, "touch-lord")
             if lord.waitForExistence(timeout: 3) {
                 let toward: CGFloat = again.frame.midX >= lord.frame.midX ? 1 : -1
