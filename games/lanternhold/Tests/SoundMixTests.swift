@@ -185,7 +185,9 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(BedDucks(answer3Age: 0.7).depth, 1, "step 3 holds 0.7 s")
         XCTAssertEqual(BedDucks(hornIn: 0.5).depth, 0.3, "the horn from 0.6 s before it")
         XCTAssertEqual(BedDucks(hornIn: 0.7).depth, 1)
-        XCTAssertEqual(BedDucks(hornIn: -0.1).depth, 1)
+        XCTAssertEqual(BedDucks(hornIn: -0.1).depth, 0.3, "the horn's duck holds while it sounds")
+        XCTAssertEqual(BedDucks(hornIn: -1.29).depth, 0.3, "until its first tone ends")
+        XCTAssertEqual(BedDucks(hornIn: -1.31).depth, 1)
         XCTAssertTrue(BedDucks.battleNear([1200, 1790], listenerX: 1500))
         XCTAssertFalse(BedDucks.battleNear([1199, 1801], listenerX: 1500), "only within 300 px")
         let mix = AmbienceMix.target(hour: 22, rain: 0, place: .outside, fire: 0, ducked: true,

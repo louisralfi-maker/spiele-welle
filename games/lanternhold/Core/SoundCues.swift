@@ -382,7 +382,8 @@ struct BedDucks: Sendable, Equatable {
     var screen = false
     /// A fight within `battleReach` px of the lord.
     var battleNear = false
-    /// Seconds until the horn (from the caller); the beds duck from `hornLead` before it.
+    /// Seconds until the horn (from the caller, negative once it sounds); the beds duck from `hornLead` before it until
+    /// its first tone ends (`hornTone` after it).
     var hornIn: Double?
     /// Seconds since an answer of step 3 / step 4 played.
     var answer3Age: Double?
@@ -399,6 +400,8 @@ struct BedDucks: Sendable, Equatable {
     static let answer4Return = 2.0
     static let hornDepth = 0.3
     static let hornLead = 0.6
+    /// The horn's first tone (`tools/soundsynth.py` horn: 0 ... 1.3 s): the duck holds until it ends (critic F).
+    static let hornTone = 1.3
 
     init(screen: Bool = false, battleNear: Bool = false, hornIn: Double? = nil, answer3Age: Double? = nil,
          answer4Age: Double? = nil) {
@@ -414,7 +417,7 @@ struct BedDucks: Sendable, Equatable {
         var found: [Double] = []
         if screen { found.append(BedDucks.screenDepth) }
         if battleNear { found.append(BedDucks.battleDepth) }
-        if let hornIn, hornIn >= 0, hornIn <= BedDucks.hornLead { found.append(BedDucks.hornDepth) }
+        if let hornIn, hornIn >= -BedDucks.hornTone, hornIn <= BedDucks.hornLead { found.append(BedDucks.hornDepth) }
         if let age = answer3Age, age >= 0, age < BedDucks.answer3Hold { found.append(BedDucks.answer3Depth) }
         if let age = answer4Age, age >= 0, age < BedDucks.answer4Hold + BedDucks.answer4Return {
             let back = max(0, age - BedDucks.answer4Hold) / BedDucks.answer4Return
