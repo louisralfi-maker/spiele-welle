@@ -266,7 +266,9 @@ final class LookAroundUITests: XCTestCase {
     /// `-GWTimeScale 0.25` (the fade's 0.15 s take 0.6 s of real time). While it is held the town's banner (`hud-mood`)
     /// and the gear take no touch and the strip stays: 270, the held frame. The release glides home and brings them
     /// back: 271a to 271c as fast as the shots come after the glide set off (the filmstrip of the fade); 272 home,
-    /// both hittable again.
+    /// both hittable again. Step 5b (the director's ruling of 22.11.2026): the strip's red notes sign (the call's tag:
+    /// on day 1 at 9:00 a petitioner waits in the hall) fades with them: held, the strip's own picture shows no ember
+    /// red; home again, its tag is back.
     func testTheCleanFrame() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
@@ -299,6 +301,9 @@ final class LookAroundUITests: XCTestCase {
         let gearThere = gear.exists
         XCTAssertFalse(bannerThere && banner.isHittable, "held: the town's banner takes no touch (exists \(bannerThere))")
         XCTAssertFalse(gearThere && gear.isHittable, "held: the gear takes no touch (exists \(gearThere))")
+        // Step 5b: the strip's own picture while held (before the full shot, well inside the 5 s hold).
+        let strip = element(app, "realm-strip")
+        let heldRed = emberPixels(strip.screenshot())
         attach(XCUIScreen.main.screenshot(), "270-look-clean-held-east-\(language)")
         note("270-look-clean-held-east", String(format: "%.2f s after the raise; home cam \(home), cam \(end); ",
                                                  Date().timeIntervalSince(opened)) + "scene: \(sceneValue(app))")
@@ -329,11 +334,43 @@ final class LookAroundUITests: XCTestCase {
         XCTAssertTrue(banner.exists && banner.isHittable, "and takes a touch")
         XCTAssertTrue(gear.exists && gear.isHittable, "the gear is back")
         XCTAssertTrue(element(app, "lantern-moment").exists, "the lantern is still up")
+        let homeRed = emberPixels(strip.screenshot())
+        let stripValue = (strip.value as? String) ?? ""
+        XCTAssertTrue(stripValue.contains("Petitioners waiting"), "a note waits, so its sign is on the strip: \(stripValue)")
+        note("270-look-clean-notes-sign", "ember-red pixels of the strip: held \(heldRed), home \(homeRed); strip: \(stripValue)")
+        XCTAssertGreaterThan(homeRed, 1000, "home: the red notes sign stands on the strip (\(homeRed) px)")
+        XCTAssertLessThan(heldRed, homeRed / 4, "held: the red notes sign faded with the banner (\(heldRed) of \(homeRed) px)")
         attach(XCUIScreen.main.screenshot(), "272-look-clean-home-\(language)")
         app.terminate()
     }
 
     // MARK: - Helpers
+
+    /// Step 5b: the pixels of a shot in the strip's ember reds (the call tag's 217,72,31 and 140,42,18; never the roofs'
+    /// 158,86,64, the gold or the brass): red over 110, red at least twice green and 3 times blue. -1 without a
+    /// picture.
+    private func emberPixels(_ shot: XCUIScreenshot) -> Int {
+        guard let image = shot.image.cgImage else { return -1 }
+        let width = image.width
+        let height = image.height
+        var data = [UInt8](repeating: 0, count: width * height * 4)
+        let drawn = data.withUnsafeMutableBytes { buffer -> Bool in
+            guard let context = CGContext(data: buffer.baseAddress, width: width, height: height, bitsPerComponent: 8,
+                                          bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                                          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard drawn else { return -1 }
+        var count = 0
+        for index in stride(from: 0, to: data.count, by: 4) {
+            let r = Int(data[index])
+            let g = Int(data[index + 1])
+            let b = Int(data[index + 2])
+            if r > 110 && r >= g * 2 && r >= b * 3 { count += 1 }
+        }
+        return count
+    }
 
     /// The world camera's left edge from the scene's value (`cam:`, Debug builds).
     private func camera(_ app: XCUIApplication) -> Int? {

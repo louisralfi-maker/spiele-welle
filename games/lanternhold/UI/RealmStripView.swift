@@ -6,11 +6,24 @@ import SwiftUI
 @MainActor
 enum RealmStripImages {
     private static var last: (strip: RealmStrip, image: CGImage)?
+    private static var lastTags: (tags: [RealmMapPixels.Tag], image: CGImage)?
 
+    /// The strip without the calls' tags (step 5b: they are their own layer, `tags`).
     static func image(_ strip: RealmStrip) -> CGImage? {
         if let last, last.strip == strip { return last.image }
-        guard let made = SpriteImages.cgImage(RealmMapPixels.image(strip)) else { return nil }
+        guard let made = SpriteImages.cgImage(RealmMapPixels.image(strip, withTags: false)) else { return nil }
         last = (strip, made)
+        return made
+    }
+
+    /// Build 3, lane 5 step 5b: the calls' tags alone (the red notes sign and its number), nil while nothing calls;
+    /// kept while the tags stay the same (the view's bracket moving under a pan does not make it again).
+    static func tags(_ strip: RealmStrip) -> CGImage? {
+        let tags = RealmMapPixels.tags(strip)
+        guard !tags.isEmpty else { return nil }
+        if let lastTags, lastTags.tags == tags { return lastTags.image }
+        guard let pixels = RealmMapPixels.tagsImage(strip), let made = SpriteImages.cgImage(pixels) else { return nil }
+        lastTags = (tags, made)
         return made
     }
 }
@@ -32,7 +45,8 @@ struct RealmStripView: View {
     let strip: RealmStrip
     let reduceMotion: Bool
     /// Build 3, lane 5 step 5 (the clean frame): how far the town's banner is faded while a finger holds the
-    /// look-around's pan (`MomentFade`: 0 whole, 1 gone); the strip and its bracket never fade.
+    /// look-around's pan (`MomentFade`: 0 whole, 1 gone); the strip and its bracket never fade. Step 5b (the director's
+    /// ruling of 22.11.2026): the calls' tags (the red notes sign) fade with it; they are a sign, not the map.
     let bannerClean: Double
     let onTap: @MainActor (Double) -> Void
 
@@ -55,6 +69,17 @@ struct RealmStripView: View {
                 Image(decorative: image, scale: 1 / RealmStripView.unit)
                     .interpolation(.none)
                     .frame(width: RealmStripView.width, height: RealmStripView.height)
+            }
+            // Step 5b: the calls' tags over the strip in their own layer, faded with the banner and gone at 1. They
+            // were never their own touch or element (a tap on them is the strip's, the strip's value reads the
+            // waiting to VoiceOver), so nothing else changes: with VoiceOver `bannerClean` stays 0, and under Reduce
+            // Motion it jumps (`LanternVeil`).
+            if bannerClean < 1, let tags = RealmStripImages.tags(snapshot) {
+                Image(decorative: tags, scale: 1 / RealmStripView.unit)
+                    .interpolation(.none)
+                    .frame(width: RealmStripView.width, height: RealmStripView.height)
+                    .opacity(1 - bannerClean)
+                    .allowsHitTesting(false)
             }
         }
         .frame(width: RealmStripView.width, height: RealmStripView.height)

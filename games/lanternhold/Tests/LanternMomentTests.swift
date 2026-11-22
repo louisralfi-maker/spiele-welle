@@ -1237,6 +1237,40 @@ final class LanternMomentTests: XCTestCase {
         }
     }
 
+    /// Step 5b (the director's ruling of 22.11.2026, the red notes sign): the calls' tags are their own layer of the
+    /// strip, so they fade with the banner in the clean frame: the strip without them and the tags alone laid over it
+    /// give the whole picture pixel for pixel, and without a call there is no tag layer.
+    func testTheStripsCallTagsAreTheirOwnLayer() throws {
+        var s = GameState.newRealm(seed: 2)
+        s.hour = 9
+        s.king.x = 1830
+        let window = RealmStrip.window(cameraX: 1600, viewWidth: 437)
+        var strip = RealmStrip.make(s, balance: .standard, travelTarget: nil, window: window)
+        strip.inHall = false
+        strip.isNight = false
+        strip.strangerAtGate = false
+        strip.petitioners = 2
+        strip.owingDoors = 3
+        XCTAssertEqual(RealmMapPixels.tags(strip).count, 2, "the waiting and the owing doors call")
+        let whole = RealmMapPixels.image(strip)
+        let bare = RealmMapPixels.image(strip, withTags: false)
+        let tags = try XCTUnwrap(RealmMapPixels.tagsImage(strip))
+        var laid = bare
+        var tagPixels = 0
+        for y in 0..<tags.height {
+            for x in 0..<tags.width where tags[x, y].a > 0 {
+                laid[x, y] = tags[x, y]
+                tagPixels += 1
+            }
+        }
+        XCTAssertGreaterThan(tagPixels, 100, "the tags are drawn: \(tagPixels) px")
+        XCTAssertEqual(laid, whole, "the strip and its tags laid over it are the whole picture")
+        strip.petitioners = 0
+        strip.owingDoors = 0
+        XCTAssertNil(RealmMapPixels.tagsImage(strip), "nothing calls: no tag layer")
+        XCTAssertEqual(RealmMapPixels.image(strip, withTags: false), RealmMapPixels.image(strip))
+    }
+
     /// C6: the banner's depth, which step 4 left unpinned: the cloth 21 px under the pole (its top ink edge on row 4,
     /// its foot on row 24), 25 px with the cords and the pole (the cords from row 0); the people inside it.
     func testTheBannersDepthIsTwentyOneUnderThePoleAndTwentyFiveWithCordsAndPole() throws {
