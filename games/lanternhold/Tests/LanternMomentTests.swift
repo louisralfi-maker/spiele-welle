@@ -1261,9 +1261,12 @@ final class LanternMomentTests: XCTestCase {
             let rows = (0..<frame.height).filter { y in (0..<frame.width).contains { frame[$0, y].a > 0 } }
             XCTAssertEqual(rows.first, 0, "mood \(mood): the cords start on the top row")
             XCTAssertEqual(rows.last, MoodBanner.depth - 1, "mood \(mood): 25 px with the cords and the pole")
-            let clothTop = (0..<frame.height).first { frame[MoodBanner.clothLeft, $0] == ink }
-            XCTAssertEqual(clothTop, 4, "mood \(mood): the cloth's top ink edge under the pole")
-            XCTAssertEqual(MoodBanner.depth - (clothTop ?? 0), MoodBanner.clothDepth, "mood \(mood): 21 px of cloth")
+            // Rows 1 to 3 of the cloth's first column are the pole's knob (its top ink edge, then two rows of wood),
+            // so the cloth's own top edge is the first ink below the knob's wood.
+            let clothTop = 4
+            XCTAssertEqual(frame[MoodBanner.clothLeft, clothTop], ink, "mood \(mood): the cloth's top ink edge under the pole")
+            XCTAssertNotEqual(frame[MoodBanner.clothLeft, clothTop - 1], ink, "mood \(mood): the pole's wood above the cloth's edge")
+            XCTAssertEqual(MoodBanner.depth - clothTop, MoodBanner.clothDepth, "mood \(mood): 21 px of cloth")
         }
         let pixels = try XCTUnwrap(MoodBannerArt.pixels(frame: 1, people: MoodBanner.people(128, trend: -1)))
         XCTAssertEqual(pixels.height, MoodBanner.depth, "the people's edge never makes it deeper")
