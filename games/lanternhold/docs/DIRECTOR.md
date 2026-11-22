@@ -1373,3 +1373,14 @@ schneller geht."
     walked onto the lord's spot and kept the touch, as `prefersLord` says). No game bug. The helpers' fix and the
     tidy-up D4 are under proof in round lh-b3j-22 (6c173054, not pushed).
   - Idea kept for after the phone review: a person stops an arm's length short of the lord and never walks onto him.
+
+- **Louis' verdict on build 396 and the content stop (22.11.2026, 16:00).**
+  - His words: the game still looks raw, like a prototype; not smooth; the systems do not mesh. Interviewed, he named
+    all four areas (motion and transitions; handling; the game's run; effect and sound) and decided: first make what
+    exists round. No new system or content until it feels finished; wave 3 is stopped; the store date moves back.
+  - The director's reading: every system was built and proven in its own lane and nobody owned the seams (no shared
+    motion vocabulary, no shared rule for panes, little sound, consequences not shown in the next system).
+  - Step 1 is an audit of the first ten minutes as a player: filmstrips of twelve moments from the runner, a feedback
+    inventory, a flow map, four critics (motion, handling, run, feel), a refuter, one ranked backlog
+    (`ci-out/director/polish-audit.md`). Branch `claude/lh-polish` on be33de3c, labels lh-pol-1 to -9. The fix lanes
+    follow from the backlog.
