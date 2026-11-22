@@ -27,6 +27,12 @@ enum FigureMotion {
     static let lordWalkFrames = 6
     static let lordIdleFrame = 6
 
+    /// The camera (the gate, A1-C1): a goal that stops in one step from faster than this (game px/s) stopped dead (a
+    /// drag let go, a turn, the hall's walker), and the follow eases past and back as it did before A1 rather than stop
+    /// the picture in one frame. Below it the walk braked onto its spot: the last step of a brake is at most 26.7 px/s
+    /// at a run (80 × √(0.44 / 4)), 5.4 px/s at a walk; the slowest pace is the walk, 36.
+    static let cameraDeadStopSpeed = 30.0
+
     // MARK: - One breath
 
     /// One breath for every person (law 1: "Idle 1.15 s / 0.85 s, phase id x 0.37 s"): frame A held 1.15 s, frame B
@@ -61,8 +67,10 @@ enum FigureMotion {
     static let fidgetEvery: [Double] = [3.5, 4.0, 4.5, 5.0]
     static let fidgetFrameSeconds = 0.25
 
-    /// An idle builder's frame at `time` (`index` his place in the crew).
-    static func builderIdleFrame(time: Double, index: Int) -> Int {
+    /// An idle builder's frame at `time` (`index` his place in the crew). Reduce Motion: frame 1 held (the gate,
+    /// A1-C3: the fidget is new motion, and the law's idle holds frame A).
+    static func builderIdleFrame(time: Double, index: Int, reduceMotion: Bool = false) -> Int {
+        if reduceMotion { return 1 }
         let every = fidgetEvery[abs(index) % fidgetEvery.count]
         var t = (time + Double(index) * phaseStep).truncatingRemainder(dividingBy: every)
         if t < 0 { t += every }
