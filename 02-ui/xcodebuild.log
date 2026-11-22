@@ -1,0 +1,1318 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -project Lanternhold.xcodeproj -scheme Lanternhold -destination id=EED6FB0A-E273-43C6-B5DE-3DF739543042 -derivedDataPath build/SimData -parallel-testing-enabled NO "-only-testing:LanternholdUITests/CountUITests" -resultBundlePath /Users/runner/work/spiele-welle/spiele-welle/ci-out/02-ui.xcresult test-without-building
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  GoogleUserMessagingPlatform: https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git @ 3.1.0
+  GoogleMobileAds: https://github.com/googleads/swift-package-manager-google-mobile-ads.git @ 13.11.0
+
+Writing result bundle at path:
+	/Users/runner/work/spiele-welle/spiele-welle/ci-out/02-ui.xcresult
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, arch:arm64, id:EED6FB0A-E273-43C6-B5DE-3DF739543042, OS:26.2, name:iPhone 17 Pro }
+{ platform:iOS Simulator, arch:x86_64, id:EED6FB0A-E273-43C6-B5DE-3DF739543042, OS:26.2, name:iPhone 17 Pro }
+2026-11-22 21:10:10.709691+0000 LanternholdUITests-Runner[17725:62687] [Default] Running tests...
+2026-11-22 21:10:10.810216+0000 LanternholdUITests-Runner[17725:63702] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2026-11-22 21:10:10.851610+0000 LanternholdUITests-Runner[17725:63707] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-11-22 21:10:31.729.
+Test Suite 'LanternholdUITests.xctest' started at 2026-11-22 21:10:31.731.
+Test Suite 'CountUITests' started at 2026-11-22 21:10:31.731.
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' started.
+    t =     0.00s Start Test at 2026-11-22 21:10:31.732
+    t =     1.12s Set Up
+    t =     1.13s Setting device orientation to Landscape Left
+    t =     1.19s     Device orientation changed to Landscape Left
+    t =     1.24s     Wait for com.apple.springboard to idle
+    t =     1.37s Open com.louisherwick.lanternhold
+    t =     1.37s     Launch com.louisherwick.lanternhold
+2026-11-22 21:10:34.145 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:10:34.145 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     6.49s         Interface orientation changed to Landscape Right
+    t =     7.14s         Setting up automation session
+    t =    10.28s         Wait for com.louisherwick.lanternhold to idle
+    t =    18.23s Waiting 60.0s for "world-scene" Any to exist
+    t =    19.31s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    19.31s         Checking existence of `"world-scene" Any`
+    t =    20.51s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    20.52s     Find the "world-scene" Any
+    t =    21.23s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    22.25s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    22.26s         Checking existence of `"touch-plot-0" Any`
+    t =    23.23s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    23.23s     Wait for com.louisherwick.lanternhold to idle
+    t =    23.25s     Find the "touch-plot-0" Any
+    t =    23.73s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    24.09s     Synthesize event
+    t =    24.09s         Find the "touch-plot-0" Button
+    t =    24.36s         Find the "touch-plot-0" Button
+    t =    24.66s         Find the "touch-plot-0" Button
+    t =    25.39s     Wait for com.louisherwick.lanternhold to idle
+    t =    25.40s Find the "world-scene" Any
+    t =    25.81s Find the "world-scene" Any
+    t =    26.15s Find the "world-scene" Any
+    t =    26.45s Find the "world-scene" Any
+    t =    26.81s Find the "world-scene" Any
+    t =    27.13s Find the "world-scene" Any
+    t =    27.23s Find the "world-scene" Any
+    t =    27.53s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    28.61s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    28.61s         Checking existence of `"touch-plot-0" Any`
+    t =    28.89s Press "touch-plot-0" Any[0.50, 0.40] for 1.5 seconds
+    t =    28.89s     Wait for com.louisherwick.lanternhold to idle
+    t =    28.90s     Find the "touch-plot-0" Any
+    t =    29.01s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    29.55s     Synthesize event
+    t =    29.55s         Find the "touch-plot-0" Button
+    t =    29.66s         Find the "touch-plot-0" Button
+    t =    29.85s         Find the "touch-plot-0" Button
+    t =    31.80s     Wait for com.louisherwick.lanternhold to idle
+    t =    32.40s Added attachment named '178-count-bars-en'
+    t =    32.40s Find the "world-scene" Any
+    t =    32.46s Added attachment named '178-count-bars-state-en'
+    t =    32.46s Find the "world-scene" Any
+    t =    32.54s Terminate com.louisherwick.lanternhold:18253
+    t =    32.75s     Interface orientation changed to Portrait
+    t =    33.64s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (36.302 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' started.
+    t =     0.00s Start Test at 2026-11-22 21:11:08.037
+    t =     0.04s Set Up
+    t =     0.04s Setting device orientation to Landscape Left
+    t =     0.05s     Wait for com.apple.springboard to idle
+    t =     0.06s Open com.louisherwick.lanternhold
+    t =     0.06s     Launch com.louisherwick.lanternhold
+2026-11-22 21:11:08.266 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:11:08.266 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.84s         Interface orientation changed to Landscape Right
+    t =     1.65s         Setting up automation session
+    t =     3.74s         Wait for com.louisherwick.lanternhold to idle
+    t =     8.76s Waiting 60.0s for "world-scene" Any to exist
+    t =     9.83s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     9.83s         Checking existence of `"world-scene" Any`
+    t =    15.51s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    15.51s     Find the "world-scene" Any
+    t =    16.27s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    17.33s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    17.34s         Checking existence of `"touch-plot-0" Any`
+    t =    17.51s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    17.51s     Wait for com.louisherwick.lanternhold to idle
+    t =    17.53s     Find the "touch-plot-0" Any
+    t =    17.79s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    18.07s     Synthesize event
+    t =    18.07s         Find the "touch-plot-0" Button
+    t =    18.23s         Find the "touch-plot-0" Button
+    t =    18.45s         Find the "touch-plot-0" Button
+    t =    19.01s     Wait for com.louisherwick.lanternhold to idle
+    t =    19.04s Find the "world-scene" Any
+    t =    19.11s Find the "world-scene" Any
+    t =    19.34s Find the "world-scene" Any
+    t =    19.59s Find the "world-scene" Any
+    t =    19.84s Find the "world-scene" Any
+    t =    20.09s Find the "world-scene" Any
+    t =    20.33s Find the "world-scene" Any
+    t =    20.59s Find the "world-scene" Any
+    t =    20.66s Find the "world-scene" Any
+    t =    20.91s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    21.98s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    21.98s         Checking existence of `"touch-plot-0" Any`
+    t =    22.06s Press "touch-plot-0" Any[0.50, 0.40] for 1.2 seconds
+    t =    22.06s     Wait for com.louisherwick.lanternhold to idle
+    t =    22.07s     Find the "touch-plot-0" Any
+    t =    22.11s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    22.16s     Synthesize event
+    t =    22.16s         Find the "touch-plot-0" Button
+    t =    22.26s         Find the "touch-plot-0" Button
+    t =    22.32s         Find the "touch-plot-0" Button
+    t =    23.81s     Wait for com.louisherwick.lanternhold to idle
+    t =    23.82s Find the "world-scene" Any
+    t =    24.13s Added attachment named '176a-count-hold-coin3-fly-20-en'
+    t =    24.14s Find the "world-scene" Any
+    t =    24.21s Added attachment named '176a-count-hold-coin3-fly-20-state-en'
+    t =    24.21s Find the "world-scene" Any
+    t =    24.39s Find the "world-scene" Any
+    t =    24.58s Find the "world-scene" Any
+    t =    24.82s Find the "world-scene" Any
+    t =    25.03s Find the "world-scene" Any
+    t =    25.22s Find the "world-scene" Any
+    t =    25.41s Find the "world-scene" Any
+    t =    25.61s Find the "world-scene" Any
+    t =    25.80s Find the "world-scene" Any
+    t =    25.98s Find the "world-scene" Any
+    t =    26.22s Added attachment named '176b-count-hold-coin3-peak-45-en'
+    t =    26.23s Find the "world-scene" Any
+    t =    26.26s Added attachment named '176b-count-hold-coin3-peak-45-state-en'
+    t =    26.26s Find the "world-scene" Any
+    t =    26.48s Find the "world-scene" Any
+    t =    26.66s Find the "world-scene" Any
+    t =    26.87s Find the "world-scene" Any
+    t =    27.08s Find the "world-scene" Any
+    t =    27.29s Find the "world-scene" Any
+    t =    27.48s Find the "world-scene" Any
+    t =    27.69s Find the "world-scene" Any
+    t =    27.89s Find the "world-scene" Any
+    t =    28.09s Find the "world-scene" Any
+    t =    28.28s Find the "world-scene" Any
+    t =    28.48s Find the "world-scene" Any
+    t =    28.68s Find the "world-scene" Any
+    t =    28.89s Find the "world-scene" Any
+    t =    29.13s Added attachment named '176c-count-hold-coin3-fly-80-en'
+    t =    29.13s Find the "world-scene" Any
+    t =    29.19s Added attachment named '176c-count-hold-coin3-fly-80-state-en'
+    t =    29.19s Find the "world-scene" Any
+    t =    29.38s Find the "world-scene" Any
+    t =    29.59s Find the "world-scene" Any
+    t =    29.77s Find the "world-scene" Any
+    t =    30.01s Find the "world-scene" Any
+    t =    30.37s Find the "world-scene" Any
+    t =    30.81s Find the "world-scene" Any
+    t =    31.09s Find the "world-scene" Any
+    t =    31.45s Find the "world-scene" Any
+    t =    31.74s Find the "world-scene" Any
+    t =    32.31s Find the "world-scene" Any
+    t =    32.57s Added attachment named '176d-count-hold-coin3-landed-en'
+    t =    32.57s Find the "world-scene" Any
+    t =    32.68s Added attachment named '176d-count-hold-coin3-landed-state-en'
+    t =    32.68s Find the "world-scene" Any
+    t =    32.87s Terminate com.louisherwick.lanternhold:19564
+    t =    33.13s     Interface orientation changed to Portrait
+    t =    33.88s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (34.015 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' started.
+    t =     0.00s Start Test at 2026-11-22 21:11:42.054
+    t =     0.07s Set Up
+    t =     0.08s Setting device orientation to Landscape Left
+    t =     0.08s     Wait for com.apple.springboard to idle
+    t =     0.09s Open com.louisherwick.lanternhold
+    t =     0.09s     Launch com.louisherwick.lanternhold
+2026-11-22 21:11:42.221 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:11:42.221 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.55s         Interface orientation changed to Landscape Right
+    t =     0.67s         Setting up automation session
+    t =     3.61s         Wait for com.louisherwick.lanternhold to idle
+    t =     8.30s Waiting 60.0s for "world-scene" Any to exist
+    t =     9.36s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     9.36s         Checking existence of `"world-scene" Any`
+    t =    10.49s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    10.49s     Find the "world-scene" Any
+    t =    11.16s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    12.19s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    12.19s         Checking existence of `"touch-plot-0" Any`
+    t =    12.29s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    12.29s     Wait for com.louisherwick.lanternhold to idle
+    t =    12.30s     Find the "touch-plot-0" Any
+    t =    12.36s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    12.44s     Synthesize event
+    t =    12.44s         Find the "touch-plot-0" Button
+    t =    12.50s         Find the "touch-plot-0" Button
+    t =    12.58s         Find the "touch-plot-0" Button
+    t =    12.97s     Wait for com.louisherwick.lanternhold to idle
+    t =    12.97s Find the "world-scene" Any
+    t =    13.03s Find the "world-scene" Any
+    t =    13.28s Find the "world-scene" Any
+    t =    13.58s Find the "world-scene" Any
+    t =    13.85s Find the "world-scene" Any
+    t =    14.17s Find the "world-scene" Any
+    t =    14.64s Find the "world-scene" Any
+    t =    14.72s Find the "world-scene" Any
+    t =    14.95s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    15.98s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    15.98s         Checking existence of `"touch-plot-0" Any`
+    t =    16.05s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    16.05s     Wait for com.louisherwick.lanternhold to idle
+    t =    16.05s     Find the "touch-plot-0" Any
+    t =    16.12s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    16.24s     Synthesize event
+    t =    16.24s         Find the "touch-plot-0" Button
+    t =    16.31s         Find the "touch-plot-0" Button
+    t =    16.39s         Find the "touch-plot-0" Button
+    t =    16.76s     Wait for com.louisherwick.lanternhold to idle
+    t =    16.81s Find the "world-scene" Any
+    t =    17.48s Added attachment named '177a-count-tap-fly-20-en'
+    t =    17.48s Find the "world-scene" Any
+    t =    17.51s Added attachment named '177a-count-tap-fly-20-state-en'
+    t =    17.51s Terminate com.louisherwick.lanternhold:20795
+    t =    17.58s     Interface orientation changed to Portrait
+    t =    18.51s Open com.louisherwick.lanternhold
+    t =    18.51s     Launch com.louisherwick.lanternhold
+2026-11-22 21:12:00.568 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:12:00.568 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    18.90s         Interface orientation changed to Landscape Right
+    t =    19.39s         Setting up automation session
+    t =    21.23s         Wait for com.louisherwick.lanternhold to idle
+    t =    25.84s Waiting 60.0s for "world-scene" Any to exist
+    t =    26.86s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    26.86s         Checking existence of `"world-scene" Any`
+    t =    27.94s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    27.94s     Find the "world-scene" Any
+    t =    28.58s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    29.59s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    29.60s         Checking existence of `"touch-plot-0" Any`
+    t =    29.68s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    29.68s     Wait for com.louisherwick.lanternhold to idle
+    t =    29.69s     Find the "touch-plot-0" Any
+    t =    29.72s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    29.81s     Synthesize event
+    t =    29.81s         Find the "touch-plot-0" Button
+    t =    29.87s         Find the "touch-plot-0" Button
+    t =    29.93s         Find the "touch-plot-0" Button
+    t =    30.31s     Wait for com.louisherwick.lanternhold to idle
+    t =    30.33s Find the "world-scene" Any
+    t =    30.39s Find the "world-scene" Any
+    t =    30.63s Find the "world-scene" Any
+    t =    30.86s Find the "world-scene" Any
+    t =    31.12s Find the "world-scene" Any
+    t =    31.38s Find the "world-scene" Any
+    t =    31.63s Find the "world-scene" Any
+    t =    31.70s Find the "world-scene" Any
+    t =    31.94s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    32.98s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    32.98s         Checking existence of `"touch-plot-0" Any`
+    t =    33.06s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    33.06s     Wait for com.louisherwick.lanternhold to idle
+    t =    33.06s     Find the "touch-plot-0" Any
+    t =    33.12s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    33.17s     Synthesize event
+    t =    33.17s         Find the "touch-plot-0" Button
+    t =    33.22s         Find the "touch-plot-0" Button
+    t =    33.27s         Find the "touch-plot-0" Button
+    t =    33.61s     Wait for com.louisherwick.lanternhold to idle
+    t =    33.63s Find the "world-scene" Any
+    t =    34.12s Added attachment named '177b-count-tap-fly-50-en'
+    t =    34.12s Find the "world-scene" Any
+    t =    34.14s Added attachment named '177b-count-tap-fly-50-state-en'
+    t =    34.14s Terminate com.louisherwick.lanternhold:21504
+    t =    34.31s     Interface orientation changed to Portrait
+    t =    35.16s Open com.louisherwick.lanternhold
+    t =    35.16s     Launch com.louisherwick.lanternhold
+2026-11-22 21:12:17.238 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:12:17.238 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    35.47s         Interface orientation changed to Landscape Right
+    t =    35.84s         Setting up automation session
+    t =    37.94s         Wait for com.louisherwick.lanternhold to idle
+    t =    42.78s Waiting 60.0s for "world-scene" Any to exist
+    t =    43.83s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    43.83s         Checking existence of `"world-scene" Any`
+    t =    45.43s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    45.43s     Find the "world-scene" Any
+    t =    46.08s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    47.09s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    47.09s         Checking existence of `"touch-plot-0" Any`
+    t =    47.17s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    47.17s     Wait for com.louisherwick.lanternhold to idle
+    t =    47.17s     Find the "touch-plot-0" Any
+    t =    47.21s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    47.28s     Synthesize event
+    t =    47.28s         Find the "touch-plot-0" Button
+    t =    47.33s         Find the "touch-plot-0" Button
+    t =    47.40s         Find the "touch-plot-0" Button
+    t =    47.92s     Wait for com.louisherwick.lanternhold to idle
+    t =    47.92s Find the "world-scene" Any
+    t =    48.02s Find the "world-scene" Any
+    t =    48.43s Find the "world-scene" Any
+    t =    48.82s Find the "world-scene" Any
+    t =    49.05s Find the "world-scene" Any
+    t =    49.28s Find the "world-scene" Any
+    t =    49.53s Find the "world-scene" Any
+    t =    49.55s Find the "world-scene" Any
+    t =    49.81s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    50.86s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    50.86s         Checking existence of `"touch-plot-0" Any`
+    t =    50.92s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    50.92s     Wait for com.louisherwick.lanternhold to idle
+    t =    50.93s     Find the "touch-plot-0" Any
+    t =    50.98s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    51.05s     Synthesize event
+    t =    51.05s         Find the "touch-plot-0" Button
+    t =    51.09s         Find the "touch-plot-0" Button
+    t =    51.15s         Find the "touch-plot-0" Button
+    t =    51.48s     Wait for com.louisherwick.lanternhold to idle
+    t =    51.49s Find the "world-scene" Any
+    t =    51.99s Added attachment named '177c-count-tap-fly-80-en'
+    t =    51.99s Find the "world-scene" Any
+    t =    52.04s Added attachment named '177c-count-tap-fly-80-state-en'
+    t =    52.04s Terminate com.louisherwick.lanternhold:22186
+    t =    52.23s     Interface orientation changed to Portrait
+    t =    53.06s Open com.louisherwick.lanternhold
+    t =    53.06s     Launch com.louisherwick.lanternhold
+2026-11-22 21:12:35.119 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:12:35.119 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    53.48s         Interface orientation changed to Landscape Right
+    t =    53.71s         Setting up automation session
+    t =    55.44s         Wait for com.louisherwick.lanternhold to idle
+    t =    60.19s Waiting 60.0s for "world-scene" Any to exist
+    t =    61.23s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    61.23s         Checking existence of `"world-scene" Any`
+    t =    62.38s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    62.38s     Find the "world-scene" Any
+    t =    63.01s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    64.04s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    64.04s         Checking existence of `"touch-plot-0" Any`
+    t =    64.12s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    64.12s     Wait for com.louisherwick.lanternhold to idle
+    t =    64.12s     Find the "touch-plot-0" Any
+    t =    64.19s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    64.27s     Synthesize event
+    t =    64.27s         Find the "touch-plot-0" Button
+    t =    64.34s         Find the "touch-plot-0" Button
+    t =    64.41s         Find the "touch-plot-0" Button
+    t =    64.78s     Wait for com.louisherwick.lanternhold to idle
+    t =    64.79s Find the "world-scene" Any
+    t =    64.82s Find the "world-scene" Any
+    t =    65.11s Find the "world-scene" Any
+    t =    65.47s Find the "world-scene" Any
+    t =    66.02s Find the "world-scene" Any
+    t =    66.34s Find the "world-scene" Any
+    t =    66.66s Find the "world-scene" Any
+    t =    66.72s Find the "world-scene" Any
+    t =    66.98s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    67.99s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    67.99s         Checking existence of `"touch-plot-0" Any`
+    t =    68.26s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    68.26s     Wait for com.louisherwick.lanternhold to idle
+    t =    68.27s     Find the "touch-plot-0" Any
+    t =    68.47s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    68.62s     Synthesize event
+    t =    68.62s         Find the "touch-plot-0" Button
+    t =    68.72s         Find the "touch-plot-0" Button
+    t =    68.91s         Find the "touch-plot-0" Button
+    t =    69.40s     Wait for com.louisherwick.lanternhold to idle
+    t =    69.41s Find the "world-scene" Any
+    t =    69.94s Added attachment named '177d-count-tap-landed-en'
+    t =    69.94s Find the "world-scene" Any
+    t =    69.99s Added attachment named '177d-count-tap-landed-state-en'
+    t =    69.99s Terminate com.louisherwick.lanternhold:22551
+    t =    70.13s     Interface orientation changed to Portrait
+    t =    71.06s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (71.249 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' started.
+    t =     0.00s Start Test at 2026-11-22 21:12:53.302
+    t =     0.03s Set Up
+    t =     0.03s Setting device orientation to Landscape Left
+    t =     0.04s     Wait for com.apple.springboard to idle
+    t =     0.05s Open com.louisherwick.lanternhold
+    t =     0.05s     Launch com.louisherwick.lanternhold
+2026-11-22 21:12:53.805 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:12:53.805 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.86s         Interface orientation changed to Landscape Right
+    t =     1.08s         Setting up automation session
+    t =     2.57s         Wait for com.louisherwick.lanternhold to idle
+    t =     7.16s Waiting 60.0s for "world-scene" Any to exist
+    t =     8.22s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     8.22s         Checking existence of `"world-scene" Any`
+    t =     9.34s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =     9.35s     Find the "world-scene" Any
+    t =     9.99s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    11.01s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    11.01s         Checking existence of `"touch-plot-0" Any`
+    t =    11.09s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    11.09s     Wait for com.louisherwick.lanternhold to idle
+    t =    11.09s     Find the "touch-plot-0" Any
+    t =    11.16s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    11.26s     Synthesize event
+    t =    11.26s         Find the "touch-plot-0" Button
+    t =    11.30s         Find the "touch-plot-0" Button
+    t =    11.36s         Find the "touch-plot-0" Button
+    t =    11.72s     Wait for com.louisherwick.lanternhold to idle
+    t =    11.74s Find the "world-scene" Any
+    t =    11.80s Find the "world-scene" Any
+    t =    12.04s Find the "world-scene" Any
+    t =    12.28s Find the "world-scene" Any
+    t =    12.55s Find the "world-scene" Any
+    t =    12.82s Find the "world-scene" Any
+    t =    13.08s Find the "world-scene" Any
+    t =    13.33s Find the "world-scene" Any
+    t =    13.35s Find the "world-scene" Any
+    t =    13.59s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    14.62s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    14.62s         Checking existence of `"touch-plot-0" Any`
+    t =    14.76s Tap "touch-plot-0" Any[0.50, 0.40]
+    t =    14.76s     Wait for com.louisherwick.lanternhold to idle
+    t =    14.77s     Find the "touch-plot-0" Any
+    t =    14.89s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    14.94s     Synthesize event
+    t =    14.94s         Find the "touch-plot-0" Button
+    t =    14.99s         Find the "touch-plot-0" Button
+    t =    15.04s         Find the "touch-plot-0" Button
+    t =    15.38s     Wait for com.louisherwick.lanternhold to idle
+    t =    15.39s Find the "world-scene" Any
+    t =    15.40s Tap "touch-plot-0" Button[0.50, 0.40]
+    t =    15.40s     Wait for com.louisherwick.lanternhold to idle
+    t =    15.41s     Find the "touch-plot-0" Button
+    t =    15.47s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    15.54s     Synthesize event
+    t =    15.54s         Find the "touch-plot-0" Button
+    t =    15.62s         Find the "touch-plot-0" Button
+    t =    15.66s         Find the "touch-plot-0" Button
+    t =    16.01s     Wait for com.louisherwick.lanternhold to idle
+    t =    16.02s Find the "world-scene" Any
+    t =    16.05s Find the "world-scene" Any
+    t =    16.25s Find the "world-scene" Any
+    t =    16.47s Find the "world-scene" Any
+    t =    16.71s Find the "world-scene" Any
+    t =    16.91s Find the "world-scene" Any
+    t =    17.16s Find the "world-scene" Any
+    t =    17.40s Find the "world-scene" Any
+    t =    17.66s Find the "world-scene" Any
+    t =    17.91s Find the "world-scene" Any
+    t =    18.11s Find the "world-scene" Any
+    t =    18.35s Find the "world-scene" Any
+    t =    18.53s Added attachment named '174w-count-warned-en'
+    t =    18.53s Find the "world-scene" Any
+    t =    18.71s Find the "world-scene" Any
+    t =    18.90s Find the "world-scene" Any
+    t =    19.08s Find the "world-scene" Any
+    t =    19.10s Find the "world-scene" Any
+    t =    19.28s Find the "world-scene" Any
+    t =    19.91s Added attachment named '174-count-letgo-en'
+    t =    19.91s Find the "world-scene" Any
+    t =    19.95s Terminate com.louisherwick.lanternhold:23605
+    t =    20.12s     Interface orientation changed to Portrait
+    t =    21.00s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (21.053 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' started.
+    t =     0.00s Start Test at 2026-11-22 21:13:14.355
+    t =     0.03s Set Up
+    t =     0.03s Setting device orientation to Landscape Left
+    t =     0.04s     Wait for com.apple.springboard to idle
+    t =     0.04s Open com.louisherwick.lanternhold
+    t =     0.04s     Launch com.louisherwick.lanternhold
+2026-11-22 21:13:14.434 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:13:14.434 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.32s         Interface orientation changed to Landscape Right
+    t =     0.87s         Setting up automation session
+    t =     2.62s         Wait for com.louisherwick.lanternhold to idle
+    t =     7.78s Waiting 60.0s for "world-scene" Any to exist
+    t =     8.82s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     8.82s         Checking existence of `"world-scene" Any`
+    t =     9.95s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =     9.95s     Find the "world-scene" Any
+    t =    10.73s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    11.79s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    11.79s         Checking existence of `"touch-plot-0" Any`
+    t =    11.90s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    11.90s     Wait for com.louisherwick.lanternhold to idle
+    t =    11.91s     Find the "touch-plot-0" Any
+    t =    11.98s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    12.08s     Synthesize event
+    t =    12.08s         Find the "touch-plot-0" Button
+    t =    12.15s         Find the "touch-plot-0" Button
+    t =    12.20s         Find the "touch-plot-0" Button
+    t =    12.54s     Wait for com.louisherwick.lanternhold to idle
+    t =    12.55s Find the "world-scene" Any
+    t =    12.59s Find the "world-scene" Any
+    t =    12.82s Find the "world-scene" Any
+    t =    13.06s Find the "world-scene" Any
+    t =    13.29s Find the "world-scene" Any
+    t =    13.52s Find the "world-scene" Any
+    t =    13.76s Find the "world-scene" Any
+    t =    14.01s Find the "world-scene" Any
+    t =    14.05s Find the "world-scene" Any
+    t =    14.28s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    15.33s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    15.34s         Checking existence of `"touch-plot-0" Any`
+    t =    15.45s Press "touch-plot-0" Any[0.50, 0.40] for 1.6 seconds
+    t =    15.45s     Wait for com.louisherwick.lanternhold to idle
+    t =    15.45s     Find the "touch-plot-0" Any
+    t =    15.52s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    15.64s     Synthesize event
+    t =    15.64s         Find the "touch-plot-0" Button
+    t =    15.72s         Find the "touch-plot-0" Button
+    t =    15.78s         Find the "touch-plot-0" Button
+    t =    17.70s     Wait for com.louisherwick.lanternhold to idle
+    t =    17.70s Find the "world-scene" Any
+    t =    18.00s Added attachment named '181a-count-far-fly-25-en'
+    t =    18.00s Find the "world-scene" Any
+    t =    18.06s Added attachment named '181a-count-far-fly-25-state-en'
+    t =    18.06s Find the "world-scene" Any
+    t =    18.25s Find the "world-scene" Any
+    t =    18.43s Find the "world-scene" Any
+    t =    18.62s Find the "world-scene" Any
+    t =    18.85s Find the "world-scene" Any
+    t =    19.09s Find the "world-scene" Any
+    t =    19.32s Find the "world-scene" Any
+    t =    19.52s Find the "world-scene" Any
+    t =    19.77s Added attachment named '181b-count-far-peak-45-en'
+    t =    19.77s Find the "world-scene" Any
+    t =    19.83s Added attachment named '181b-count-far-peak-45-state-en'
+    t =    19.83s Find the "world-scene" Any
+    t =    20.02s Find the "world-scene" Any
+    t =    20.20s Find the "world-scene" Any
+    t =    20.37s Find the "world-scene" Any
+    t =    20.55s Find the "world-scene" Any
+    t =    20.73s Find the "world-scene" Any
+    t =    20.96s Find the "world-scene" Any
+    t =    21.24s Find the "world-scene" Any
+    t =    21.46s Find the "world-scene" Any
+    t =    21.64s Find the "world-scene" Any
+    t =    21.85s Find the "world-scene" Any
+    t =    22.04s Find the "world-scene" Any
+    t =    22.30s Find the "world-scene" Any
+    t =    22.51s Find the "world-scene" Any
+    t =    22.68s Added attachment named '181c-count-far-fly-85-en'
+    t =    22.68s Find the "world-scene" Any
+    t =    22.72s Added attachment named '181c-count-far-fly-85-state-en'
+    t =    22.72s Find the "world-scene" Any
+    t =    22.73s Terminate com.louisherwick.lanternhold:24310
+    t =    22.97s     Interface orientation changed to Portrait
+    t =    23.74s Open com.louisherwick.lanternhold
+    t =    23.74s     Launch com.louisherwick.lanternhold
+2026-11-22 21:13:38.103 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:13:38.103 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    24.40s         Interface orientation changed to Landscape Right
+    t =    24.53s         Setting up automation session
+    t =    25.89s         Wait for com.louisherwick.lanternhold to idle
+    t =    30.79s Waiting 60.0s for "world-scene" Any to exist
+    t =    31.87s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    31.87s         Checking existence of `"world-scene" Any`
+    t =    32.96s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    32.96s     Find the "world-scene" Any
+    t =    33.70s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    34.77s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    34.77s         Checking existence of `"touch-plot-0" Any`
+    t =    34.87s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    34.87s     Wait for com.louisherwick.lanternhold to idle
+    t =    34.88s     Find the "touch-plot-0" Any
+    t =    34.96s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    35.07s     Synthesize event
+    t =    35.07s         Find the "touch-plot-0" Button
+    t =    35.16s         Find the "touch-plot-0" Button
+    t =    35.23s         Find the "touch-plot-0" Button
+    t =    35.59s     Wait for com.louisherwick.lanternhold to idle
+    t =    35.60s Find the "world-scene" Any
+    t =    35.63s Find the "world-scene" Any
+    t =    35.87s Find the "world-scene" Any
+    t =    36.12s Find the "world-scene" Any
+    t =    36.37s Find the "world-scene" Any
+    t =    36.61s Find the "world-scene" Any
+    t =    36.84s Find the "world-scene" Any
+    t =    37.07s Find the "world-scene" Any
+    t =    37.08s Find the "world-scene" Any
+    t =    37.32s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    38.39s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    38.39s         Checking existence of `"touch-plot-0" Any`
+    t =    38.43s Press "touch-plot-0" Any[0.50, 0.40] for 1.6 seconds
+    t =    38.43s     Wait for com.louisherwick.lanternhold to idle
+    t =    38.43s     Find the "touch-plot-0" Any
+    t =    38.48s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    38.52s     Synthesize event
+    t =    38.52s         Find the "touch-plot-0" Button
+    t =    38.58s         Find the "touch-plot-0" Button
+    t =    38.63s         Find the "touch-plot-0" Button
+    t =    40.53s     Wait for com.louisherwick.lanternhold to idle
+    t =    41.03s Added attachment named '180a-count-bar-before-dip-en'
+    t =    41.03s Find the "world-scene" Any
+    t =    41.05s Added attachment named '180a-count-bar-before-dip-state-en'
+    t =    41.05s Find the "world-scene" Any
+    t =    41.10s Terminate com.louisherwick.lanternhold:25007
+    t =    41.32s     Interface orientation changed to Portrait
+    t =    42.14s Open com.louisherwick.lanternhold
+    t =    42.14s     Launch com.louisherwick.lanternhold
+2026-11-22 21:13:56.502 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:13:56.502 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    42.51s         Interface orientation changed to Landscape Right
+    t =    42.66s         Setting up automation session
+    t =    44.42s         Wait for com.louisherwick.lanternhold to idle
+    t =    49.14s Waiting 60.0s for "world-scene" Any to exist
+    t =    50.16s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    50.16s         Checking existence of `"world-scene" Any`
+    t =    51.36s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    51.37s     Find the "world-scene" Any
+    t =    52.01s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    53.05s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    53.06s         Checking existence of `"touch-plot-0" Any`
+    t =    53.47s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    53.47s     Wait for com.louisherwick.lanternhold to idle
+    t =    53.47s     Find the "touch-plot-0" Any
+    t =    53.58s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    53.75s     Synthesize event
+    t =    53.75s         Find the "touch-plot-0" Button
+    t =    53.87s         Find the "touch-plot-0" Button
+    t =    53.96s         Find the "touch-plot-0" Button
+    t =    54.34s     Wait for com.louisherwick.lanternhold to idle
+    t =    54.35s Find the "world-scene" Any
+    t =    54.37s Find the "world-scene" Any
+    t =    54.61s Find the "world-scene" Any
+    t =    54.84s Find the "world-scene" Any
+    t =    55.07s Find the "world-scene" Any
+    t =    55.30s Find the "world-scene" Any
+    t =    55.53s Find the "world-scene" Any
+    t =    55.76s Find the "world-scene" Any
+    t =    55.78s Find the "world-scene" Any
+    t =    56.01s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    57.06s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    57.06s         Checking existence of `"touch-plot-0" Any`
+    t =    57.14s Press "touch-plot-0" Any[0.50, 0.40] for 1.6 seconds
+    t =    57.14s     Wait for com.louisherwick.lanternhold to idle
+    t =    57.15s     Find the "touch-plot-0" Any
+    t =    57.20s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    57.32s     Synthesize event
+    t =    57.32s         Find the "touch-plot-0" Button
+    t =    57.38s         Find the "touch-plot-0" Button
+    t =    57.52s         Find the "touch-plot-0" Button
+    t =    59.47s     Wait for com.louisherwick.lanternhold to idle
+    t =    59.93s Added attachment named '180b-count-bar-dip-en'
+    t =    59.93s Find the "world-scene" Any
+    t =    59.95s Added attachment named '180b-count-bar-dip-state-en'
+    t =    59.95s Find the "world-scene" Any
+    t =    59.97s Terminate com.louisherwick.lanternhold:25732
+    t =    60.15s     Interface orientation changed to Portrait
+    t =    60.99s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (61.121 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' started.
+    t =     0.00s Start Test at 2026-11-22 21:14:15.478
+    t =     0.02s Set Up
+    t =     0.02s Setting device orientation to Landscape Left
+    t =     0.03s     Wait for com.apple.springboard to idle
+    t =     0.03s Open com.louisherwick.lanternhold
+    t =     0.03s     Launch com.louisherwick.lanternhold
+2026-11-22 21:14:15.554 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:14:15.554 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.28s         Interface orientation changed to Landscape Right
+    t =     0.88s         Setting up automation session
+    t =     2.09s         Wait for com.louisherwick.lanternhold to idle
+    t =     6.48s Waiting 60.0s for "world-scene" Any to exist
+    t =     7.52s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     7.52s         Checking existence of `"world-scene" Any`
+    t =     8.60s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =     8.60s     Find the "world-scene" Any
+    t =     9.59s Added attachment named '170-count-before-en'
+    t =     9.59s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    10.62s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    10.62s         Checking existence of `"touch-plot-0" Any`
+    t =    10.69s Checking existence of `"touch-plot-0" Any`
+    t =    10.73s Find the "touch-plot-0" Any
+    t =    10.79s Find the "touch-plot-0" Button
+    t =    10.83s Tap "touch-plot-0" Button[0.50, 0.50]
+    t =    10.83s     Wait for com.louisherwick.lanternhold to idle
+    t =    10.84s     Find the "touch-plot-0" Button
+    t =    10.89s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    10.94s     Synthesize event
+    t =    10.94s         Find the "touch-plot-0" Button
+    t =    11.00s         Find the "touch-plot-0" Button
+    t =    11.07s         Find the "touch-plot-0" Button
+    t =    11.42s     Wait for com.louisherwick.lanternhold to idle
+    t =    11.43s Find the "world-scene" Any
+    t =    11.58s Checking existence of `"build-card" Any`
+    t =    11.69s Find the "world-scene" Any
+    t =    11.92s Find the "world-scene" Any
+    t =    12.15s Find the "world-scene" Any
+    t =    12.38s Find the "world-scene" Any
+    t =    12.62s Find the "world-scene" Any
+    t =    12.88s Find the "world-scene" Any
+    t =    12.94s Find the "world-scene" Any
+    t =    13.42s Added attachment named '171-count-board-en'
+    t =    13.43s Find the "world-scene" Any
+    t =    13.48s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    14.53s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    14.53s         Checking existence of `"touch-plot-0" Any`
+    t =    14.56s Press "touch-plot-0" Any[0.50, 0.40] for 2.2 seconds
+    t =    14.56s     Wait for com.louisherwick.lanternhold to idle
+    t =    14.57s     Find the "touch-plot-0" Any
+    t =    14.62s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    14.72s     Synthesize event
+    t =    14.72s         Find the "touch-plot-0" Button
+    t =    14.78s         Find the "touch-plot-0" Button
+    t =    14.85s         Find the "touch-plot-0" Button
+    t =    17.36s     Wait for com.louisherwick.lanternhold to idle
+    t =    17.37s Find the "world-scene" Any
+    t =    17.61s Added attachment named '172-count-paid-en'
+    t =    17.61s Find the "world-scene" Any
+    t =    17.67s Find the "world-scene" Any
+    t =    17.69s Find the "world-scene" Any
+    t =    18.40s Added attachment named '172b-count-lantern-day-en'
+    t =    18.40s Terminate com.louisherwick.lanternhold:26799
+    t =    18.57s     Interface orientation changed to Portrait
+    t =    19.41s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (19.492 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' started.
+    t =     0.00s Start Test at 2026-11-22 21:14:34.970
+    t =     0.03s Set Up
+    t =     0.03s Setting device orientation to Landscape Left
+    t =     0.04s     Wait for com.apple.springboard to idle
+    t =     0.04s Open com.louisherwick.lanternhold
+    t =     0.04s     Launch com.louisherwick.lanternhold
+2026-11-22 21:14:35.052 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:14:35.053 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.34s         Interface orientation changed to Landscape Right
+    t =     0.54s         Setting up automation session
+    t =     1.82s         Wait for com.louisherwick.lanternhold to idle
+    t =     5.74s Waiting 60.0s for "world-scene" Any to exist
+    t =     6.79s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     6.79s         Checking existence of `"world-scene" Any`
+    t =     7.88s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =     7.88s     Find the "world-scene" Any
+    t =     8.65s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =     9.70s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =     9.70s         Checking existence of `"touch-plot-0" Any`
+    t =     9.81s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =     9.81s     Wait for com.louisherwick.lanternhold to idle
+    t =     9.82s     Find the "touch-plot-0" Any
+    t =     9.87s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =     9.94s     Synthesize event
+    t =     9.94s         Find the "touch-plot-0" Button
+    t =    10.04s         Find the "touch-plot-0" Button
+    t =    10.10s         Find the "touch-plot-0" Button
+    t =    10.46s     Wait for com.louisherwick.lanternhold to idle
+    t =    10.47s Find the "world-scene" Any
+    t =    10.49s Find the "world-scene" Any
+    t =    10.72s Find the "world-scene" Any
+    t =    10.98s Find the "world-scene" Any
+    t =    11.24s Find the "world-scene" Any
+    t =    11.52s Find the "world-scene" Any
+    t =    11.75s Find the "world-scene" Any
+    t =    11.97s Find the "world-scene" Any
+    t =    12.04s Find the "world-scene" Any
+    t =    12.30s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    13.38s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    13.38s         Checking existence of `"touch-plot-0" Any`
+    t =    13.48s Press "touch-plot-0" Any[0.50, 0.40] for 2.6 seconds
+    t =    13.48s     Wait for com.louisherwick.lanternhold to idle
+    t =    13.49s     Find the "touch-plot-0" Any
+    t =    13.58s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    13.71s     Synthesize event
+    t =    13.71s         Find the "touch-plot-0" Button
+    t =    13.82s         Find the "touch-plot-0" Button
+    t =    13.87s         Find the "touch-plot-0" Button
+    t =    16.77s     Wait for com.louisherwick.lanternhold to idle
+    t =    16.79s Find the "world-scene" Any
+    t =    17.51s Added attachment named '173a-count-empty-en'
+    t =    17.51s Find the "world-scene" Any
+    t =    17.57s Added attachment named '173a-count-empty-state-en'
+    t =    17.57s Find the "world-scene" Any
+    t =    17.59s Terminate com.louisherwick.lanternhold:27494
+    t =    17.79s     Interface orientation changed to Portrait
+    t =    18.63s Open com.louisherwick.lanternhold
+    t =    18.63s     Launch com.louisherwick.lanternhold
+2026-11-22 21:14:53.607 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:14:53.607 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    19.06s         Interface orientation changed to Landscape Right
+    t =    19.07s         Setting up automation session
+    t =    21.20s         Wait for com.louisherwick.lanternhold to idle
+    t =    25.63s Waiting 60.0s for "world-scene" Any to exist
+    t =    26.69s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    26.69s         Checking existence of `"world-scene" Any`
+    t =    27.85s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    27.85s     Find the "world-scene" Any
+    t =    28.57s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    29.62s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    29.62s         Checking existence of `"touch-plot-0" Any`
+    t =    29.75s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    29.75s     Wait for com.louisherwick.lanternhold to idle
+    t =    29.76s     Find the "touch-plot-0" Any
+    t =    29.86s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    30.29s     Synthesize event
+    t =    30.29s         Find the "touch-plot-0" Button
+    t =    30.38s         Find the "touch-plot-0" Button
+    t =    30.45s         Find the "touch-plot-0" Button
+    t =    30.82s     Wait for com.louisherwick.lanternhold to idle
+    t =    30.84s Find the "world-scene" Any
+    t =    30.91s Find the "world-scene" Any
+    t =    31.17s Find the "world-scene" Any
+    t =    31.63s Find the "world-scene" Any
+    t =    31.89s Find the "world-scene" Any
+    t =    32.13s Find the "world-scene" Any
+    t =    32.38s Find the "world-scene" Any
+    t =    32.41s Find the "world-scene" Any
+    t =    32.65s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    33.69s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    33.70s         Checking existence of `"touch-plot-0" Any`
+    t =    33.79s Press "touch-plot-0" Any[0.50, 0.40] for 2.6 seconds
+    t =    33.79s     Wait for com.louisherwick.lanternhold to idle
+    t =    33.80s     Find the "touch-plot-0" Any
+    t =    33.90s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    33.97s     Synthesize event
+    t =    33.97s         Find the "touch-plot-0" Button
+    t =    34.02s         Find the "touch-plot-0" Button
+    t =    34.07s         Find the "touch-plot-0" Button
+    t =    36.97s     Wait for com.louisherwick.lanternhold to idle
+    t =    37.01s Find the "world-scene" Any
+    t =    37.80s Added attachment named '173c-count-half-en'
+    t =    37.80s Find the "world-scene" Any
+    t =    37.86s Added attachment named '173c-count-half-state-en'
+    t =    37.86s Find the "world-scene" Any
+    t =    37.92s Terminate com.louisherwick.lanternhold:28195
+    t =    38.13s     Interface orientation changed to Portrait
+    t =    38.95s Open com.louisherwick.lanternhold
+    t =    38.95s     Launch com.louisherwick.lanternhold
+2026-11-22 21:15:13.922 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:15:13.922 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    39.27s         Interface orientation changed to Landscape Right
+    t =    39.93s         Setting up automation session
+    t =    41.13s         Wait for com.louisherwick.lanternhold to idle
+    t =    45.53s Waiting 60.0s for "world-scene" Any to exist
+    t =    46.61s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    46.61s         Checking existence of `"world-scene" Any`
+    t =    47.68s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    47.68s     Find the "world-scene" Any
+    t =    48.32s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    49.38s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    49.38s         Checking existence of `"touch-plot-0" Any`
+    t =    49.47s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    49.47s     Wait for com.louisherwick.lanternhold to idle
+    t =    49.47s     Find the "touch-plot-0" Any
+    t =    49.54s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    49.60s     Synthesize event
+    t =    49.60s         Find the "touch-plot-0" Button
+    t =    49.67s         Find the "touch-plot-0" Button
+    t =    49.73s         Find the "touch-plot-0" Button
+    t =    50.12s     Wait for com.louisherwick.lanternhold to idle
+    t =    50.12s Find the "world-scene" Any
+    t =    50.15s Find the "world-scene" Any
+    t =    50.38s Find the "world-scene" Any
+    t =    50.61s Find the "world-scene" Any
+    t =    50.85s Find the "world-scene" Any
+    t =    51.09s Find the "world-scene" Any
+    t =    51.33s Find the "world-scene" Any
+    t =    51.55s Find the "world-scene" Any
+    t =    51.58s Find the "world-scene" Any
+    t =    51.80s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    52.84s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    52.84s         Checking existence of `"touch-plot-0" Any`
+    t =    52.87s Press "touch-plot-0" Any[0.50, 0.40] for 2.6 seconds
+    t =    52.88s     Wait for com.louisherwick.lanternhold to idle
+    t =    52.88s     Find the "touch-plot-0" Any
+    t =    52.93s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    52.98s     Synthesize event
+    t =    52.98s         Find the "touch-plot-0" Button
+    t =    53.03s         Find the "touch-plot-0" Button
+    t =    53.07s         Find the "touch-plot-0" Button
+    t =    55.96s     Wait for com.louisherwick.lanternhold to idle
+    t =    55.97s Find the "world-scene" Any
+    t =    56.45s Added attachment named '173e-count-full-en'
+    t =    56.45s Find the "world-scene" Any
+    t =    56.49s Added attachment named '173e-count-full-state-en'
+    t =    56.49s Find the "world-scene" Any
+    t =    56.51s Terminate com.louisherwick.lanternhold:29155
+    t =    56.66s     Interface orientation changed to Portrait
+    t =    57.54s Open com.louisherwick.lanternhold
+    t =    57.54s     Launch com.louisherwick.lanternhold
+2026-11-22 21:15:32.518 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:15:32.518 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    57.75s         Interface orientation changed to Landscape Right
+    t =    58.02s         Setting up automation session
+    t =    59.46s         Wait for com.louisherwick.lanternhold to idle
+    t =    63.80s Waiting 60.0s for "world-scene" Any to exist
+    t =    64.83s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    64.84s         Checking existence of `"world-scene" Any`
+    t =    65.91s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    65.91s     Find the "world-scene" Any
+    t =    66.56s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    67.61s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    67.61s         Checking existence of `"touch-plot-0" Any`
+    t =    67.66s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    67.66s     Wait for com.louisherwick.lanternhold to idle
+    t =    67.66s     Find the "touch-plot-0" Any
+    t =    67.71s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    67.77s     Synthesize event
+    t =    67.77s         Find the "touch-plot-0" Button
+    t =    67.85s         Find the "touch-plot-0" Button
+    t =    67.93s         Find the "touch-plot-0" Button
+    t =    68.29s     Wait for com.louisherwick.lanternhold to idle
+    t =    68.29s Find the "world-scene" Any
+    t =    68.31s Find the "world-scene" Any
+    t =    68.54s Find the "world-scene" Any
+    t =    68.77s Find the "world-scene" Any
+    t =    69.01s Find the "world-scene" Any
+    t =    69.23s Find the "world-scene" Any
+    t =    69.47s Find the "world-scene" Any
+    t =    69.71s Find the "world-scene" Any
+    t =    69.97s Find the "world-scene" Any
+    t =    70.03s Find the "world-scene" Any
+    t =    70.26s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    71.33s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    71.33s         Checking existence of `"touch-plot-0" Any`
+    t =    71.39s Press "touch-plot-0" Any[0.50, 0.40] for 2.6 seconds
+    t =    71.39s     Wait for com.louisherwick.lanternhold to idle
+    t =    71.39s     Find the "touch-plot-0" Any
+    t =    71.49s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    71.61s     Synthesize event
+    t =    71.61s         Find the "touch-plot-0" Button
+    t =    71.67s         Find the "touch-plot-0" Button
+    t =    71.75s         Find the "touch-plot-0" Button
+    t =    74.67s     Wait for com.louisherwick.lanternhold to idle
+    t =    74.67s Find the "world-scene" Any
+    t =    75.26s Added attachment named '173f-count-sealed-en'
+    t =    75.26s Find the "world-scene" Any
+    t =    75.31s Added attachment named '173f-count-sealed-state-en'
+    t =    75.31s Find the "world-scene" Any
+    t =    75.34s Terminate com.louisherwick.lanternhold:30344
+    t =    75.54s     Interface orientation changed to Portrait
+    t =    76.38s Open com.louisherwick.lanternhold
+    t =    76.38s     Launch com.louisherwick.lanternhold
+2026-11-22 21:15:51.356 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:15:51.356 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    76.59s         Interface orientation changed to Landscape Right
+    t =    77.19s         Setting up automation session
+    t =    78.77s         Wait for com.louisherwick.lanternhold to idle
+    t =    83.07s Waiting 60.0s for "world-scene" Any to exist
+    t =    84.13s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =    84.13s         Checking existence of `"world-scene" Any`
+    t =    85.20s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =    85.20s     Find the "world-scene" Any
+    t =    85.84s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =    86.88s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    86.88s         Checking existence of `"touch-plot-0" Any`
+    t =    86.95s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    86.95s     Wait for com.louisherwick.lanternhold to idle
+    t =    86.95s     Find the "touch-plot-0" Any
+    t =    86.99s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    87.05s     Synthesize event
+    t =    87.05s         Find the "touch-plot-0" Button
+    t =    87.10s         Find the "touch-plot-0" Button
+    t =    87.16s         Find the "touch-plot-0" Button
+    t =    87.50s     Wait for com.louisherwick.lanternhold to idle
+    t =    87.51s Find the "world-scene" Any
+    t =    87.53s Find the "world-scene" Any
+    t =    87.76s Find the "world-scene" Any
+    t =    87.99s Find the "world-scene" Any
+    t =    88.23s Find the "world-scene" Any
+    t =    88.46s Find the "world-scene" Any
+    t =    88.71s Find the "world-scene" Any
+    t =    88.97s Find the "world-scene" Any
+    t =    88.99s Find the "world-scene" Any
+    t =    89.22s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    90.26s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    90.26s         Checking existence of `"touch-plot-0" Any`
+    t =    90.35s Press "touch-plot-0" Any[0.50, 0.40] for 2.6 seconds
+    t =    90.35s     Wait for com.louisherwick.lanternhold to idle
+    t =    90.35s     Find the "touch-plot-0" Any
+    t =    90.44s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    90.57s     Synthesize event
+    t =    90.58s         Find the "touch-plot-0" Button
+    t =    90.67s         Find the "touch-plot-0" Button
+    t =    90.72s         Find the "touch-plot-0" Button
+    t =    93.64s     Wait for com.louisherwick.lanternhold to idle
+    t =    93.65s Find the "world-scene" Any
+    t =    93.71s Find the "world-scene" Any
+    t =    95.71s Added attachment named '173g-count-lit-bloom-en'
+    t =    95.71s Find the "world-scene" Any
+    t =    95.76s Added attachment named '173g-count-lit-bloom-state-en'
+    t =    95.76s Find the "world-scene" Any
+    t =    95.88s Terminate com.louisherwick.lanternhold:31136
+    t =    96.07s     Interface orientation changed to Portrait
+    t =    96.91s Open com.louisherwick.lanternhold
+    t =    96.91s     Launch com.louisherwick.lanternhold
+2026-11-22 21:16:11.886 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:16:11.886 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    97.14s         Interface orientation changed to Landscape Right
+    t =    97.55s         Setting up automation session
+    t =    99.83s         Wait for com.louisherwick.lanternhold to idle
+    t =   104.15s Waiting 60.0s for "world-scene" Any to exist
+    t =   105.16s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =   105.16s         Checking existence of `"world-scene" Any`
+    t =   106.28s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =   106.28s     Find the "world-scene" Any
+    t =   106.93s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =   107.99s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =   107.99s         Checking existence of `"touch-plot-0" Any`
+    t =   108.08s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =   108.08s     Wait for com.louisherwick.lanternhold to idle
+    t =   108.08s     Find the "touch-plot-0" Any
+    t =   108.15s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =   108.24s     Synthesize event
+    t =   108.24s         Find the "touch-plot-0" Button
+    t =   108.31s         Find the "touch-plot-0" Button
+    t =   108.39s         Find the "touch-plot-0" Button
+    t =   108.77s     Wait for com.louisherwick.lanternhold to idle
+    t =   108.77s Find the "world-scene" Any
+    t =   108.81s Find the "world-scene" Any
+    t =   109.04s Find the "world-scene" Any
+    t =   109.30s Find the "world-scene" Any
+    t =   109.55s Find the "world-scene" Any
+    t =   109.91s Find the "world-scene" Any
+    t =   110.14s Find the "world-scene" Any
+    t =   110.17s Find the "world-scene" Any
+    t =   110.43s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =   111.48s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =   111.48s         Checking existence of `"touch-plot-0" Any`
+    t =   111.54s Press "touch-plot-0" Any[0.50, 0.40] for 2.6 seconds
+    t =   111.54s     Wait for com.louisherwick.lanternhold to idle
+    t =   111.54s     Find the "touch-plot-0" Any
+    t =   111.59s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =   111.68s     Synthesize event
+    t =   111.68s         Find the "touch-plot-0" Button
+    t =   111.75s         Find the "touch-plot-0" Button
+    t =   111.82s         Find the "touch-plot-0" Button
+    t =   114.72s     Wait for com.louisherwick.lanternhold to idle
+    t =   114.72s Find the "world-scene" Any
+    t =   114.75s Find the "world-scene" Any
+    t =   116.75s Added attachment named '173h-count-lit-embers-en'
+    t =   116.75s Find the "world-scene" Any
+    t =   116.85s Added attachment named '173h-count-lit-embers-state-en'
+    t =   116.85s Find the "world-scene" Any
+    t =   116.88s Terminate com.louisherwick.lanternhold:32067
+    t =   117.57s     Interface orientation changed to Portrait
+    t =   117.98s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (118.521 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' started.
+    t =     0.00s Start Test at 2026-11-22 21:16:33.493
+    t =     0.06s Set Up
+    t =     0.06s Setting device orientation to Landscape Left
+    t =     0.07s     Wait for com.apple.springboard to idle
+    t =     0.07s Open com.louisherwick.lanternhold
+    t =     0.07s     Launch com.louisherwick.lanternhold
+2026-11-22 21:16:33.713 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:16:33.713 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.43s         Interface orientation changed to Landscape Right
+    t =     0.66s         Setting up automation session
+    t =     2.11s         Wait for com.louisherwick.lanternhold to idle
+    t =     6.00s Waiting 60.0s for "world-scene" Any to exist
+    t =     7.05s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     7.05s         Checking existence of `"world-scene" Any`
+    t =     8.14s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =     8.14s     Find the "world-scene" Any
+    t =     8.77s Waiting 4.0s for "touch-plot-0" Any to exist
+    t =     9.87s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =     9.88s         Checking existence of `"touch-plot-0" Any`
+    t =    10.05s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    10.05s     Wait for com.louisherwick.lanternhold to idle
+    t =    10.06s     Find the "touch-plot-0" Any
+    t =    10.11s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    10.35s     Synthesize event
+    t =    10.35s         Find the "touch-plot-0" Button
+    t =    10.45s         Find the "touch-plot-0" Button
+    t =    10.52s         Find the "touch-plot-0" Button
+    t =    10.87s     Wait for com.louisherwick.lanternhold to idle
+    t =    10.88s Find the "world-scene" Any
+    t =    10.91s Find the "world-scene" Any
+    t =    11.16s Find the "world-scene" Any
+    t =    11.39s Find the "world-scene" Any
+    t =    11.64s Find the "world-scene" Any
+    t =    11.88s Find the "world-scene" Any
+    t =    12.12s Find the "world-scene" Any
+    t =    12.34s Find the "world-scene" Any
+    t =    12.38s Find the "world-scene" Any
+    t =    12.61s Waiting 3.0s for "touch-plot-0" Any to exist
+    t =    13.65s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-plot-0" Any`
+    t =    13.65s         Checking existence of `"touch-plot-0" Any`
+    t =    13.71s Tap "touch-plot-0" Any[0.50, 0.50]
+    t =    13.71s     Wait for com.louisherwick.lanternhold to idle
+    t =    13.72s     Find the "touch-plot-0" Any
+    t =    13.78s     Check for interrupting elements affecting "touch-plot-0" Button
+    t =    13.86s     Synthesize event
+    t =    13.86s         Find the "touch-plot-0" Button
+    t =    13.91s         Find the "touch-plot-0" Button
+    t =    13.96s         Find the "touch-plot-0" Button
+    t =    14.31s     Wait for com.louisherwick.lanternhold to idle
+    t =    14.31s Find the "world-scene" Any
+    t =    14.49s Find the "world-scene" Any
+    t =    14.96s Added attachment named '188-count-glint-en'
+    t =    14.96s Find the "world-scene" Any
+    t =    14.97s Added attachment named '188-count-glint-state-en'
+    t =    14.97s Terminate com.louisherwick.lanternhold:33232
+    t =    15.13s     Interface orientation changed to Portrait
+    t =    15.98s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (16.037 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' started.
+    t =     0.00s Start Test at 2026-11-22 21:16:49.531
+    t =     0.03s Set Up
+    t =     0.03s Setting device orientation to Landscape Left
+    t =     0.04s     Wait for com.apple.springboard to idle
+    t =     0.04s Open com.louisherwick.lanternhold
+    t =     0.04s     Launch com.louisherwick.lanternhold
+2026-11-22 21:16:49.592 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:16:49.592 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.32s         Interface orientation changed to Landscape Right
+    t =     0.99s         Setting up automation session
+    t =     1.84s         Wait for com.louisherwick.lanternhold to idle
+    t =     5.78s Waiting 60.0s for "world-scene" Any to exist
+    t =     6.84s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     6.84s         Checking existence of `"world-scene" Any`
+    t =     7.94s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =     7.94s     Find the "world-scene" Any
+    t =     8.62s Waiting 4.0s for "touch-recruit-guard" Any to exist
+    t =     9.70s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-recruit-guard" Any`
+    t =     9.70s         Checking existence of `"touch-recruit-guard" Any`
+    t =     9.78s Checking existence of `"touch-recruit-guard" Any`
+    t =     9.85s Find the "touch-recruit-guard" Any
+    t =     9.92s Tap "touch-recruit-guard" Button[0.50, 0.20]
+    t =     9.92s     Wait for com.louisherwick.lanternhold to idle
+    t =     9.92s     Find the "touch-recruit-guard" Button
+    t =     9.97s     Check for interrupting elements affecting "touch-recruit-guard" Button
+    t =    10.04s     Synthesize event
+    t =    10.04s         Find the "touch-recruit-guard" Button
+    t =    10.09s         Find the "touch-recruit-guard" Button
+    t =    10.17s         Find the "touch-recruit-guard" Button
+    t =    10.51s     Wait for com.louisherwick.lanternhold to idle
+    t =    10.52s Find the "world-scene" Any
+    t =    10.56s Find the "world-scene" Any
+    t =    10.80s Find the "world-scene" Any
+    t =    11.02s Find the "world-scene" Any
+    t =    11.24s Find the "world-scene" Any
+    t =    11.47s Find the "world-scene" Any
+    t =    11.72s Find the "world-scene" Any
+    t =    11.95s Find the "world-scene" Any
+    t =    11.97s Find the "world-scene" Any
+    t =    12.00s Waiting 3.0s for "touch-lord" Any to exist
+    t =    13.03s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-lord" Any`
+    t =    13.03s         Checking existence of `"touch-lord" Any`
+    t =    13.08s Waiting 3.0s for "touch-recruit-guard" Any to exist
+    t =    14.12s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-recruit-guard" Any`
+    t =    14.12s         Checking existence of `"touch-recruit-guard" Any`
+    t =    14.15s Find the "touch-recruit-guard" Any
+    t =    14.19s Find the "touch-lord" Any
+    t =    14.25s Tap "touch-lord" Button[0.50, 0.62] -> (-4.0, 0.0)
+    t =    14.25s     Wait for com.louisherwick.lanternhold to idle
+    t =    14.25s     Find the "touch-lord" Button
+    t =    14.29s     Check for interrupting elements affecting "touch-lord" Button
+    t =    14.34s     Synthesize event
+    t =    14.34s         Find the "touch-lord" Button
+    t =    14.38s         Find the "touch-lord" Button
+    t =    14.44s         Find the "touch-lord" Button
+    t =    14.78s     Wait for com.louisherwick.lanternhold to idle
+    t =    14.79s Find the "world-scene" Any
+    t =    14.81s Find the "world-scene" Any
+    t =    14.85s Waiting 3.0s for "touch-recruit-guard" Any to exist
+    t =    15.89s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-recruit-guard" Any`
+    t =    15.89s         Checking existence of `"touch-recruit-guard" Any`
+    t =    15.98s Press "touch-recruit-guard" Any[0.50, 0.20] for 1.5 seconds
+    t =    15.98s     Wait for com.louisherwick.lanternhold to idle
+    t =    15.98s     Find the "touch-recruit-guard" Any
+    t =    16.03s     Check for interrupting elements affecting "touch-recruit-guard" Button
+    t =    16.10s     Synthesize event
+    t =    16.10s         Find the "touch-recruit-guard" Button
+    t =    16.16s         Find the "touch-recruit-guard" Button
+    t =    16.21s         Find the "touch-recruit-guard" Button
+    t =    18.00s     Wait for com.louisherwick.lanternhold to idle
+    t =    18.31s Find the "world-scene" Any
+    t =    18.33s Find the "world-scene" Any
+    t =    18.47s Added attachment named '175-count-guard-en'
+    t =    18.47s Find the "world-scene" Any
+    t =    18.50s Added attachment named '175-count-guard-state-en'
+    t =    18.50s Terminate com.louisherwick.lanternhold:33961
+    t =    18.65s     Interface orientation changed to Portrait
+    t =    19.55s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (19.588 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' started.
+    t =     0.00s Start Test at 2026-11-22 21:17:09.120
+    t =     0.03s Set Up
+    t =     0.03s Setting device orientation to Landscape Left
+    t =     0.04s     Wait for com.apple.springboard to idle
+    t =     0.04s Open com.louisherwick.lanternhold
+    t =     0.04s     Launch com.louisherwick.lanternhold
+2026-11-22 21:17:09.173 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:17:09.173 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.44s         Interface orientation changed to Landscape Right
+    t =     0.47s         Setting up automation session
+    t =     1.87s         Wait for com.louisherwick.lanternhold to idle
+    t =     5.98s Waiting 60.0s for "world-scene" Any to exist
+    t =     7.03s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     7.03s         Checking existence of `"world-scene" Any`
+    t =     8.16s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =     8.16s     Find the "world-scene" Any
+    t =     9.00s Waiting 3.0s for "touch-wall-0" Any to exist
+    t =    10.04s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-wall-0" Any`
+    t =    10.05s         Checking existence of `"touch-wall-0" Any`
+    t =    10.12s Tap "touch-wall-0" Any[0.50, 0.50]
+    t =    10.12s     Wait for com.louisherwick.lanternhold to idle
+    t =    10.12s     Find the "touch-wall-0" Any
+    t =    10.20s     Check for interrupting elements affecting "touch-wall-0" Button
+    t =    10.30s     Synthesize event
+    t =    10.30s         Find the "touch-wall-0" Button
+    t =    10.36s         Find the "touch-wall-0" Button
+    t =    10.44s         Find the "touch-wall-0" Button
+    t =    10.82s     Wait for com.louisherwick.lanternhold to idle
+    t =    10.82s Find the "world-scene" Any
+    t =    10.84s Find the "world-scene" Any
+    t =    11.07s Find the "world-scene" Any
+    t =    11.30s Find the "world-scene" Any
+    t =    11.53s Find the "world-scene" Any
+    t =    11.76s Find the "world-scene" Any
+    t =    11.99s Find the "world-scene" Any
+    t =    12.21s Find the "world-scene" Any
+    t =    12.44s Find the "world-scene" Any
+    t =    12.66s Find the "world-scene" Any
+    t =    12.89s Find the "world-scene" Any
+    t =    12.91s Find the "world-scene" Any
+    t =    12.94s Waiting 2.0s for "touch-wall-0" Any to exist
+    t =    13.99s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-wall-0" Any`
+    t =    13.99s         Checking existence of `"touch-wall-0" Any`
+    t =    14.03s Tap "touch-wall-0" Any[0.50, 0.50]
+    t =    14.03s     Wait for com.louisherwick.lanternhold to idle
+    t =    14.04s     Find the "touch-wall-0" Any
+    t =    14.06s     Check for interrupting elements affecting "touch-wall-0" Button
+    t =    14.14s     Synthesize event
+    t =    14.14s         Find the "touch-wall-0" Button
+    t =    14.18s         Find the "touch-wall-0" Button
+    t =    14.22s         Find the "touch-wall-0" Button
+    t =    14.55s     Wait for com.louisherwick.lanternhold to idle
+    t =    14.55s Find the "world-scene" Any
+    t =    14.74s Find the "world-scene" Any
+    t =    14.91s Find the "world-scene" Any
+    t =    14.96s Find the "world-scene" Any
+    t =    15.14s Find the "world-scene" Any
+    t =    15.33s Find the "world-scene" Any
+    t =    15.50s Find the "world-scene" Any
+    t =    15.68s Find the "world-scene" Any
+    t =    15.85s Find the "world-scene" Any
+    t =    16.03s Find the "world-scene" Any
+    t =    16.05s Find the "world-scene" Any
+    t =    16.49s Added attachment named '179-count-lantern-night-en'
+    t =    16.49s Terminate com.louisherwick.lanternhold:34723
+    t =    16.69s     Interface orientation changed to Portrait
+    t =    17.53s Tear Down
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (17.601 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' started.
+    t =     0.00s Start Test at 2026-11-22 21:17:26.722
+    t =     0.04s Set Up
+    t =     0.04s Setting device orientation to Landscape Left
+    t =     0.04s     Wait for com.apple.springboard to idle
+    t =     0.05s Open com.louisherwick.lanternhold
+    t =     0.05s     Launch com.louisherwick.lanternhold
+2026-11-22 21:17:26.795 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:17:26.795 xcodebuild[16555:59556] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.46s         Interface orientation changed to Landscape Right
+    t =     0.52s         Setting up automation session
+    t =     1.96s         Wait for com.louisherwick.lanternhold to idle
+    t =     6.04s Waiting 60.0s for "world-scene" Any to exist
+    t =     7.11s     Checking `Expect predicate `existsNoRetry == 1` for object "world-scene" Any`
+    t =     7.11s         Checking existence of `"world-scene" Any`
+    t =     8.18s Checking `Expect predicate `value CONTAINS "ready"` for object "world-scene" Any`
+    t =     8.18s     Find the "world-scene" Any
+    t =     9.01s Find the "world-scene" Any
+    t =     9.17s Added attachment named '190-count-models-day-en'
+    t =     9.17s Waiting 4.0s for "touch-model-4-ballista" Any to exist
+    t =    10.21s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-model-4-ballista" Any`
+    t =    10.21s         Checking existence of `"touch-model-4-ballista" Any`
+    t =    10.28s Checking existence of `"touch-model-4-ballista" Any`
+    t =    10.34s Find the "touch-model-4-ballista" Any
+    t =    10.41s Checking existence of `"touch-model-4-catapult" Any`
+    t =    10.49s Find the "touch-model-4-catapult" Any
+    t =    10.57s Find the "touch-model-4-ballista" Button
+    t =    10.65s Find the "touch-model-4-ballista" Button
+    t =    10.70s Find the "touch-model-4-ballista" Button
+    t =    10.78s Checking existence of `"touch-plot-4" Any`
+    t =    10.86s Tap "touch-model-4-ballista" Button[0.50, 0.50]
+    t =    10.86s     Wait for com.louisherwick.lanternhold to idle
+    t =    10.87s     Find the "touch-model-4-ballista" Button
+    t =    10.93s     Check for interrupting elements affecting "touch-model-4-ballista" Button
+    t =    11.03s     Synthesize event
+    t =    11.03s         Find the "touch-model-4-ballista" Button
+    t =    11.10s         Find the "touch-model-4-ballista" Button
+    t =    11.17s         Find the "touch-model-4-ballista" Button
+    t =    11.57s     Wait for com.louisherwick.lanternhold to idle
+    t =    11.57s Find the "world-scene" Any
+    t =    11.61s Checking existence of `"build-card" Any`
+    t =    11.69s Find the "world-scene" Any
+    t =    11.94s Find the "world-scene" Any
+    t =    12.17s Find the "world-scene" Any
+    t =    12.47s Find the "world-scene" Any
+    t =    12.71s Find the "world-scene" Any
+    t =    12.77s Find the "world-scene" Any
+    t =    12.81s Find the "world-scene" Any
+    t =    13.33s Added attachment named '191-count-model-chosen-en'
+    t =    13.33s Waiting 3.0s for "touch-model-4-ballista" Any to exist
+    t =    14.38s     Checking `Expect predicate `existsNoRetry == 1` for object "touch-model-4-ballista" Any`
+    t =    14.38s         Checking existence of `"touch-model-4-ballista" Any`
+    t =    14.45s Press "touch-model-4-ballista" Any[0.50, 0.50] for 2.0 seconds
+    t =    14.45s     Wait for com.louisherwick.lanternhold to idle
+    t =    14.45s     Find the "touch-model-4-ballista" Any
+    t =    14.53s     Check for interrupting elements affecting "touch-model-4-ballista" Button
+    t =    14.60s     Synthesize event
+    t =    14.60s         Find the "touch-model-4-ballista" Button
+    t =    14.65s         Find the "touch-model-4-ballista" Button
+    t =    14.69s         Find the "touch-model-4-ballista" Button
