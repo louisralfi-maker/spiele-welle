@@ -1494,4 +1494,36 @@ final class YardPolishTests: XCTestCase {
         XCTAssertEqual(seen.count, drawn.count + 1, "every townsman drawn, and the soldier walking")
         XCTAssertEqual(Set(seen.map { $0.x }), Set(drawn.map { $0.x } + [Yard.fenceX]))
     }
+
+    // MARK: - E: the small ones
+
+    /// E2 (the critic's M3): the bunkhouse's painted spear rack no longer sticks out of the pell's head as three spikes.
+    /// Every pixel of the rack's three spears (their shafts and steel tips in barracks.png) that stands where the pell
+    /// stands is covered by the pell's own straw or its ink edge; the barracks' art is not changed.
+    func testThePellCoversTheSpearRacksTips() throws {
+        let pellURL = try XCTUnwrap(AtlasBuilder.artURL(for: .yardPell, bundle: .main))
+        let barracksURL = try XCTUnwrap(AtlasBuilder.artURL(for: .barracks, bundle: .main))
+        let pell = try XCTUnwrap(PNGDecoder.load(url: pellURL))
+        let barracks = try XCTUnwrap(PNGDecoder.load(url: barracksURL))
+        let pellSize = SpriteID.yardPell.size
+        let barracksSize = SpriteID.barracks.size
+        let left = try XCTUnwrap(YardLook.pellLefts.first)
+        // The spears: oak shafts and steel tips (barracks.png's colours).
+        let spear: Set<RGBA> = [RGBA(r: 0x8A, g: 0x63, b: 0x40), RGBA(r: 0x66, g: 0x42, b: 0x2F),
+                                RGBA(r: 0xBB, g: 0xBC, b: 0xBE), RGBA(r: 0x96, g: 0x9A, b: 0xA2)]
+        var checked = 0
+        for column in 0..<pellSize.width {
+            let world = left + Double(column)
+            let bx = Int(world - EntityFrames.barracksLeft)
+            guard bx >= 0, bx < barracksSize.width, [1495.0, 1497, 1499].contains(world) else { continue }
+            for height in 14...26 {
+                let by = barracksSize.height - 1 - height
+                guard by >= 0, spear.contains(barracks[bx, by]) else { continue }
+                let py = pellSize.height - 1 - height
+                XCTAssertTrue(py >= 0 && pell[column, py].a > 0, "the spear at \(world), \(height) px up shows")
+                checked += 1
+            }
+        }
+        XCTAssertGreaterThanOrEqual(checked, 15, "the rack's three spears were looked at (\(checked) pixels)")
+    }
 }

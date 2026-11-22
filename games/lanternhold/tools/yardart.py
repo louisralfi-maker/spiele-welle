@@ -17,8 +17,11 @@ It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed
                           the walk line) from the gate's apron to the barracks' east wall, a low post-and-rail fence
                           only along the apron (1442 to 1480), a corner post at the far end (1541); the bunkhouse's
                           front stays open (its painted spear rack is the yard's arms rack)
-  yardPell     9x22 x 2   a pell: a stout post with a flat cap, a bundle of straw bound round its middle with three
-                          rope bands, a mound at its foot; frame 1 battered (a strand torn loose, the bundle sagging)
+  yardPell     9x26 x 2   a pell: a stout post with a flat cap, a tall bundle of straw bound round it with four rope
+                          bands, a mound at its foot; frame 1 battered (a strand torn loose, the bundle sagging).
+                          Step 4 (the critic's M3): the bundle wraps the post's head as high as a man, so the
+                          bunkhouse's painted spear rack behind it (its tips at world 1495, 1497 and 1499, 23 px up)
+                          no longer sticks out of the pell's top as three spikes; the barracks' art is not changed
   yardButt     17x20 x 2  the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
                           turned to the archers on its left, two arrows in it, on a timber A-frame; step 4 (the
                           critic's H3, two butts set behind each other were one sprite twice): frame 1 the butt
@@ -107,26 +110,32 @@ def line(c, x0, y0, x1, y1, pick):
 
 
 # --------------------------------------------------------------------------------------------------- the pell
+# Step 4 (M3): the bundle's top row (h over the sprite's foot); with its fringe and ink edge it covers the spear rack's
+# tips (23 px up) on all three of their columns.
+PELL_TOP = 23
+
+
 def pell(frame):
-    c = C(9, 22)
+    c = C(9, PELL_TOP + 3)
     seed = 4101 + frame
     px = 3
     # The post: 3 px, lit left, from the mound to a square top just over the bundle (never a point: a pell is a post).
-    for hh in range(0, 18):
+    for hh in range(0, PELL_TOP + 1):
         c.seth(px, hh, "woodLight")
         c.seth(px + 1, hh, "wood")
         c.seth(px + 2, hh, "woodDark")
-    c.seth(px, 18, "woodLight")
-    c.seth(px + 1, 18, "woodLight")
-    c.seth(px + 2, 18, "wood")
+    c.seth(px, PELL_TOP + 1, "woodLight")
+    c.seth(px + 1, PELL_TOP + 1, "woodLight")
+    c.seth(px + 2, PELL_TOP + 1, "wood")
     # Notches cut by blows below the bundle.
     c.seth(px + 1, 4, "woodDark")
     c.seth(px, 3, "wood")
-    # The straw bundle bound round the post's upper half (rows h 7 to 17), seven wide between its three rope bands
-    # and pinched to five at each band, so it reads as bound straw and never as a body.
+    # The straw bundle bound round the post from its middle to its head (rows h 7 to 23), seven wide between its four
+    # rope bands and pinched to five at each band, so it reads as bound straw and never as a body (step 3: rows 7 to
+    # 17, three bands).
     sag = 1 if frame == 1 else 0
-    top, bot = 17 - sag, 7 - sag
-    bands = (bot + 1, (bot + top) // 2, top - 1)
+    top, bot = PELL_TOP - sag, 7 - sag
+    bands = (bot + 1, bot + 6, bot + 11, top - 1)
     for hh in range(bot, top + 1):
         pinch = hh in bands or hh in (bot, top)
         x0, x1 = (px - 1, px + 3) if pinch else (px - 2, px + 4)
