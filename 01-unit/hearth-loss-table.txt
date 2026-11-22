@@ -1,0 +1,35 @@
+the old rules (the realm falls):
+  T1 reference seed 1: held every night
+  T2 builds nothing seed 1: lost night 3 at 11, fallen 1, killed 1, walls 0, spawned 23
+  T1 reference seed 2: held every night
+  T2 builds nothing seed 2: lost night 3 at 219, fallen 1, killed 8, walls 0, spawned 36
+  T1 reference seed 3: held every night
+  T2 builds nothing seed 3: lost night 3 at 267, fallen 1, killed 10, walls 0, spawned 39
+  x6.0 seed 1 night 9: held every night
+  x6.0 seed 1 night 12: lost night 12 at 428, fallen 10, killed 218, walls 2, spawned 422
+  x6.0 seed 1 night 14: lost night 14 at 412, fallen 10, killed 198, walls 2, spawned 490
+  x6.0 seed 2 night 9: held every night
+  x6.0 seed 2 night 12: lost night 12 at 350, fallen 9, killed 161, walls 2, spawned 401
+  x6.0 seed 2 night 14: lost night 14 at 366, fallen 9, killed 238, walls 2, spawned 507
+  x6.0 seed 3 night 9: held every night
+  x6.0 seed 3 night 12: lost night 12 at 357, fallen 10, killed 139, walls 2, spawned 406
+  x6.0 seed 3 night 14: lost night 14 at 344, fallen 8, killed 120, walls 2, spawned 438
+
+the hearth rule (the first broken night):
+  T1 reference seed 1: held every night
+  T2 builds nothing seed 1: lost night 3 at 11, fallen 1, killed 1, walls 0, spawned 23
+  T1 reference seed 2: held every night
+  T2 builds nothing seed 2: lost night 3 at 219, fallen 1, killed 8, walls 0, spawned 36
+  T1 reference seed 3: held every night
+  T2 builds nothing seed 3: lost night 3 at 267, fallen 1, killed 10, walls 0, spawned 39
+  x6.0 seed 1 night 9: held every night
+  x6.0 seed 1 night 12: lost night 12 at 428, fallen 10, killed 218, walls 2, spawned 422
+  x6.0 seed 1 night 14: lost night 14 at 412, fallen 10, killed 198, walls 2, spawned 490
+  x6.0 seed 2 night 9: held every night
+  x6.0 seed 2 night 12: lost night 12 at 350, fallen 9, killed 161, walls 2, spawned 401
+  x6.0 seed 2 night 14: lost night 14 at 366, fallen 9, killed 238, walls 2, spawned 507
+  x6.0 seed 3 night 9: held every night
+  x6.0 seed 3 night 12: lost night 12 at 357, fallen 10, killed 139, walls 2, spawned 406
+  x6.0 seed 3 night 14: lost night 14 at 344, fallen 8, killed 120, walls 2, spawned 438
+
+differences: none
