@@ -54,6 +54,12 @@ enum YardLook {
     /// cold, 2 the kettle over its fire (its underside in the fire's warm ramp).
     static let kettleFlame = (dx: 4.0, dy: 1.0)
     static let kettleLight = (dx: 6.5, y: 6.5, radius: 18.0, intensity: 0.6)
+    /// Step 4 (the critic's M4: the guards waiting west of the gate at night read as one dark clump): the kettle's light
+    /// reaches them, its pool widened westward to about 1420 in two more rings (each pool's lit edge is a step on the
+    /// world grid), dimmer as they go, light only and never east of the kettle's own pool (world x of their middles).
+    static let kettleSpill: [(x: Double, y: Double, radius: Double, intensity: Double)] = [
+        (x: 1449, y: 9, radius: 29, intensity: 0.3), (x: 1437, y: 10, radius: 19, intensity: 0.16),
+    ]
     static let kettleFrameEmpty = 0
     static let kettleFrameCold = 1
     static let kettleFrameLit = 2
@@ -311,13 +317,17 @@ enum YardLook {
 
     // MARK: - At night
 
-    /// While the yard stands the guards waiting behind the gate stand in file toward it from here (each 7 px further
-    /// left), so the yard's things stay in sight at night (step 1's file ran right from 1440, over the pells).
+    /// While the yard stands the guards waiting behind the gate stand in file toward it from here (each
+    /// `waitingGuardSpacing` px further left), so the yard's things stay in sight at night (step 1's file ran right from
+    /// 1440, over the pells).
     static let waitingGuardX = 1434.0
+    /// Step 4 (the critic's M4): 10 px apart (step 3: 7, half their 14 px bodies overlapped into one dark clump), in the
+    /// kettle's light (`kettleSpill`).
+    static let waitingGuardSpacing = 10.0
 
     /// The drawn x of the `index`-th waiting guard (their rule place is `Realm.courtyardX` for all of them).
     static func waitingGuard(_ index: Int, yardStands: Bool) -> Double {
-        yardStands ? waitingGuardX - 7 * Double(index) : Realm.courtyardX + 7 * Double(index)
+        yardStands ? waitingGuardX - waitingGuardSpacing * Double(index) : Realm.courtyardX + 7 * Double(index)
     }
 
     // MARK: - The count

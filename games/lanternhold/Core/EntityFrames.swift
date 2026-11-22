@@ -688,9 +688,13 @@ enum EntityFrames {
         let seed: UInt64 = 0x5941_5244_4B45
         let flame = fire(.flame, dx: YardLook.kettleFlame.dx, dy: YardLook.kettleFlame.dy, seed: seed)
         let glow = YardLook.kettleLight
+        // Step 4 (M4): and its spill westward over the guards waiting by the gate, breathing with its fire.
+        let spill = YardLook.kettleSpill.map {
+            LightSource(kind: .brazier, x: $0.x, y: $0.y, radius: $0.radius, intensity: $0.intensity, flickerSeed: seed)
+        }
         props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: YardLook.kettleFrameLit, emissive: [flame],
                   lights: [LightSource(kind: .brazier, x: YardLook.kettleLeft + glow.dx, y: glow.y,
-                                       radius: glow.radius, intensity: glow.intensity, flickerSeed: seed)])
+                                       radius: glow.radius, intensity: glow.intensity, flickerSeed: seed)] + spill)
     }
 
     /// The lit rooms of a town house (round 2 joined; SPRITES.md "The town at night"): in look 2 an emissive sprite

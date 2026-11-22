@@ -701,7 +701,8 @@ final class YardLookTests: XCTestCase {
         let pot = kettle.props.first { $0.sprite == .yardKettle }
         XCTAssertEqual(pot?.frame, YardLook.kettleFrameLit, "step 3 (H3): the kettle over its fire, its own frame")
         XCTAssertEqual(pot?.emissive.first?.sprite, .flame, "over a low fire from the drill's end")
-        XCTAssertEqual(kettle.lights.count, 1, "with a small warm light")
+        // b3-yard step 4 (M4): its small warm light first, then its spill westward over the waiting guards.
+        XCTAssertEqual(kettle.lights.count, 1 + YardLook.kettleSpill.count, "with a small warm light")
         // Step 3 (H3): the light at the pot's middle (its rows 8 to 13 of 18, columns 3 to 9), so it is lit from below.
         if let light = kettle.lights.first {
             XCTAssertEqual(light.x, YardLook.kettleLeft + 6.5, accuracy: 0.01)
@@ -1525,5 +1526,36 @@ final class YardPolishTests: XCTestCase {
             }
         }
         XCTAssertGreaterThanOrEqual(checked, 15, "the rack's three spears were looked at (\(checked) pixels)")
+    }
+
+    /// E3 (the critic's M4): at night the kettle's light reaches the guards waiting west of the gate (its pool widened
+    /// westward to about 1420 in two more rings, never further east than its own pool), and they stand 10 px apart, so
+    /// they read as men; their file still starts at 1434 and stays off the yard.
+    func testTheWaitingGuardsStandInTheKettlesLight() throws {
+        var s = realm(day: 6, hour: 22)
+        Yard.proof(&s, stage: 2, kettle: true, trained: false, balance: balance)
+        var list = EntityFrames.PropList()
+        EntityFrames.yardProps(s, balance: balance, props: &list)
+        let main = try XCTUnwrap(list.lights.first)
+        XCTAssertEqual(list.lights.count, 1 + YardLook.kettleSpill.count)
+        let west = list.lights.map { $0.x - $0.radius }.min() ?? .infinity
+        XCTAssertLessThanOrEqual(west, 1422, "the pool reaches about 1420")
+        XCTAssertGreaterThanOrEqual(west, 1414, "and no further")
+        for light in list.lights.dropFirst() {
+            XCTAssertLessThan(light.x, main.x, "the spill lies west of the kettle")
+            XCTAssertLessThanOrEqual(light.x + light.radius, main.x + main.radius, "light only westward")
+            XCTAssertLessThan(light.intensity, main.intensity, "dimmer than the fire's own pool")
+            XCTAssertEqual(light.flickerSeed, main.flickerSeed, "breathing with its fire")
+        }
+        XCTAssertEqual(YardLook.waitingGuardX, 1434, "the file starts where it did")
+        XCTAssertEqual(YardLook.waitingGuard(1, yardStands: true) - YardLook.waitingGuard(0, yardStands: true), -10)
+        for index in 0..<2 {
+            let x = YardLook.waitingGuard(index, yardStands: true)
+            XCTAssertTrue(list.lights.contains { abs($0.x - x) < $0.radius - 4 }, "guard \(index) at \(x) in its light")
+        }
+        s.hour = 12
+        var day = EntityFrames.PropList()
+        EntityFrames.yardProps(s, balance: balance, props: &day)
+        XCTAssertTrue(day.lights.isEmpty, "the kettle is cold while they drill: no spill either")
     }
 }
