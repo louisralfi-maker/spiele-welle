@@ -148,7 +148,9 @@ final class MotionTests: XCTestCase {
         while !presence.isGone {
             presence.step(frame60, shown: false, mode: .full)
             XCTAssertLessThanOrEqual(presence.alpha, last)
-            XCTAssertLessThanOrEqual(presence.rise, rise, "it goes in place")
+            if !presence.isGone {
+                XCTAssertLessThanOrEqual(presence.rise, rise, "it goes in place")
+            }
             last = presence.alpha
         }
         // Gone, it comes again from its full rise.
@@ -290,6 +292,14 @@ final class MotionTests: XCTestCase {
         XCTAssertEqual(MotionStyle.mode(game: nil, system: true), .reduced)
         XCTAssertEqual(MotionStyle.mode(game: false, system: true), .full)
         XCTAssertEqual(MotionStyle.mode(game: true, system: false), .reduced)
+    }
+
+    @MainActor
+    func testThePaneLookAnimatesOneShareForOpacityAndRise() {
+        var look = LHPaneLook(shown: 0, rises: true)
+        look.animatableData = 0.5
+        XCTAssertEqual(look.shown, 0.5)
+        XCTAssertEqual(look.animatableData, 0.5)
     }
 
     func testThePaneRisesTwoGamePixelsInWholeSteps() {
