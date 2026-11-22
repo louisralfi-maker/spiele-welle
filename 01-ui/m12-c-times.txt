@@ -1,0 +1,26 @@
+m12-c: Continue after the video: no interstitial, the day
+real time; as fast as the frames come
+the cause (Continue after the video: no interstitial, the day) was sent at +0.176 s and returned at +0.856 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.6 -GWCameraX 1100
+scene before: frame:430 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:none cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:640 ready day:9 hour:6.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:strip cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.153 s  
+02  +1.360 s  
+03  +1.525 s  
+04  +1.683 s  
+05  +1.849 s  
+06  +2.037 s  
+07  +2.230 s  
+08  +2.410 s  
+09  +2.602 s  
+10  +2.843 s  
+11  +3.044 s  
+12  +3.233 s  
+13  +3.422 s  
+14  +3.620 s  
+15  +3.818 s  
+16  +4.019 s  
+mean spacing 0.191 s over 15 gaps

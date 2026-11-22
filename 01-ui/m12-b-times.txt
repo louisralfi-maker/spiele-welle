@@ -1,0 +1,30 @@
+m12-b: a tap on the offer (the stub's video ends at once): the offer goes, the note comes
+real time; as fast as the frames come
+the cause (a tap on the offer (the stub's video ends at once): the offer goes, the note comes) was sent at +0.173 s and returned at +1.032 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.6 -GWCameraX 1100
+scene before: frame:310 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:none cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:400 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:none cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.236 s  
+02  +1.391 s  
+03  +1.566 s  
+04  +1.731 s  
+05  +1.903 s  
+06  +2.147 s  
+07  +2.310 s  
+08  +2.492 s  
+09  +2.646 s  
+10  +2.825 s  
+11  +2.994 s  
+12  +3.176 s  
+13  +3.337 s  
+14  +3.539 s  
+15  +3.705 s  
+16  +3.876 s  
+17  +4.029 s  
+18  +4.234 s  
+19  +4.401 s  
+20  +4.559 s  
+mean spacing 0.175 s over 19 gaps

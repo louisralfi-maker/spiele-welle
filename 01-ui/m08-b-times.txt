@@ -1,0 +1,44 @@
+m08-b: the horn at 19:00; the condition: the horn's banner stands (or the hour 19.0)
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +7.482 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 17.5 -GWStage world -GWCameraX 2300
+
+frame  seconds since the burst began  (scene where read)
+01  +0.261 s  
+02  +0.647 s  day:3 hour:18.70 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+03  +1.304 s  
+04  +1.553 s  day:3 hour:18.77 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+05  +2.033 s  
+06  +2.201 s  day:3 hour:18.82 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+07  +2.730 s  
+08  +3.021 s  day:3 hour:19.09 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready  <- the condition holds
+09  +7.955 s  
+10  +8.353 s  
+11  +8.669 s  
+12  +8.991 s  
+13  +9.265 s  
+14  +9.543 s  
+15  +9.918 s  
+16  +10.236 s  
+17  +10.600 s  
+18  +10.878 s  
+19  +11.150 s  
+20  +11.433 s  
+21  +11.702 s  
+22  +12.035 s  
+23  +12.302 s  
+24  +12.682 s  
+25  +13.120 s  
+26  +13.378 s  
+27  +13.748 s  
+28  +14.154 s  
+29  +14.537 s  
+30  +14.782 s  
+31  +15.685 s  
+32  +16.165 s  
+33  +16.403 s  
+34  +16.627 s  
+35  +16.987 s  
+36  +17.376 s  day:3 hour:19.97 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.489 s over 35 gaps

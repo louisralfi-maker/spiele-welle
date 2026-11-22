@@ -1,0 +1,30 @@
+m12-d: Continue on a real dawn without the video: the stub's interstitial (it ends at once), the day
+real time; as fast as the frames come
+the cause (Continue on a real dawn without the video: the stub's interstitial (it ends at once), the day) was sent at +0.058 s and returned at +0.578 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.6 -GWCameraX 1100
+scene before: frame:280 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:none cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:510 ready day:9 hour:6.32 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:strip cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.824 s  
+02  +1.034 s  
+03  +1.190 s  
+04  +1.391 s  
+05  +1.573 s  
+06  +1.769 s  
+07  +1.952 s  
+08  +2.110 s  
+09  +2.291 s  
+10  +2.478 s  
+11  +2.678 s  
+12  +2.864 s  
+13  +3.036 s  
+14  +3.210 s  
+15  +3.428 s  
+16  +3.598 s  
+17  +3.756 s  
+18  +3.926 s  
+19  +4.081 s  
+20  +4.235 s  
+mean spacing 0.180 s over 19 gaps

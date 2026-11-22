@@ -1,0 +1,30 @@
+m12-f: Hold the realm: the card goes, the realm runs on
+real time; as fast as the frames come
+the cause (Hold the realm: the card goes, the realm runs on) was sent at +0.095 s and returned at +0.843 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSeed 1 -GWSkipOnboarding YES -GWLordName Oswin -GWSlides ending2 -GWLord lord
+scene before: frame:310 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+scene after: frame:550 ready day:1 hour:6.34 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.162 s  
+02  +1.477 s  
+03  +1.660 s  
+04  +1.855 s  
+05  +2.037 s  
+06  +2.190 s  
+07  +2.360 s  
+08  +2.523 s  
+09  +2.714 s  
+10  +2.900 s  
+11  +3.055 s  
+12  +3.242 s  
+13  +3.425 s  
+14  +3.636 s  
+15  +3.841 s  
+16  +4.014 s  
+17  +4.218 s  
+18  +4.398 s  
+19  +4.616 s  
+20  +4.801 s  
+mean spacing 0.192 s over 19 gaps
