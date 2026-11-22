@@ -1,0 +1,23 @@
+p01-c: "Not now": amber under the finger, the card goes (0.15 s ease-in, in place)
+real time; as fast as the frames come
+the tap was sent without waiting at +0.727 s (point 103.3, 251.5; interface orientation 3 (the app's)); the runner answered at +1.075 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWDay 6 -GWHour 7 -GWMerchant YES -GWCameraX 1500
+scene after: frame:940 ready day:6 hour:7.30 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1370 lord:lord stage:world lx:1370 errand:none door:1830 gold:10 hud:none cam:1145 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +1.090 s  
+02  +1.356 s  
+03  +1.591 s  
+04  +1.827 s  
+05  +2.097 s  
+06  +2.408 s  
+07  +2.605 s  
+08  +2.844 s  
+09  +3.177 s  
+10  +3.429 s  
+11  +3.636 s  
+12  +3.903 s  
+13  +4.180 s  
+14  +4.471 s  
+mean spacing 0.260 s over 13 gaps

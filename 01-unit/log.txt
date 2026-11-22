@@ -1,0 +1,30 @@
+2026-11-22 22:42:17.835172+0000 Lanternhold[11782:48186] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-22 22:42:19.144781+0000 Lanternhold[11782:49538] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:42:19.144858+0000 Lanternhold[11782:49539] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:42:19.150049+0000 Lanternhold[11782:49532] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:42:19.150084+0000 Lanternhold[11782:49539] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:42:19.261873+0000 Lanternhold[11782:49539] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:42:19.264545+0000 Lanternhold[11782:49539] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.DriverMovesTests testAnHourPlaysOnFromTheStart]' passed (0.823 seconds).
+Test Case '-[LanternholdTests.DriverMovesTests testATapOnTheStripWalksTheKingThereAndADragCancelsIt]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.DriverMovesTests testReplayAndRestart]' passed (0.179 seconds).
+Test Case '-[LanternholdTests.DriverMovesTests testTheNewArgumentsParse]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testReplayingTheDayStartsTheCourtAfresh]' passed (0.308 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheBarracksAndTheThrone]' passed (0.034 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheDawnBringsTheReportAndContinueStartsTheDay]' passed (0.722 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheDefeatCardsTwoWaysOut]' passed (0.157 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheHammerOpensTheBuildCardAndTheOrderGoesThroughTheSimulation]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheHornSendsTheWaitingPetitionersHome]' passed (0.017 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheNeighbourArrowAndClosing]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testThePauseSheetAndTheRestart]' passed (0.243 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testThePauseSheetSoundsTheHornByDay]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheSettingsAndTheSecondChanceSurviveARelaunch]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheStripTapAndTheSampleScreens]' passed (0.078 seconds).
+Test Case '-[LanternholdTests.PaneFamilyTests testAPlaquePressWithHapticsOffGivesNoHaptic]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.PaneFamilyTests testOneDimAndTheHallsVeil]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.PaneFamilyTests testTheOverlaysChangeNamesThePane]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.PaneFamilyTests testThePaneCues]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PaneFamilyTests testThePlaquesAnswerFollowsTheInstalledHub]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.PaneFamilyTests testThePlaquesSweepIsLinearAtTheQuickToken]' passed (0.002 seconds).
+exit=0
+screenshots: 0

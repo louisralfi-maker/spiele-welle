@@ -1,0 +1,7 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (194.808 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP01MareksCardIsOneOfThePanes]' passed (31.318 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP02APaneClosesByOpacityUnderReduceMotion]' passed (19.657 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP03ThePauseSheetsSwitchAndItsSwap]' passed (41.034 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP04ThePauseSheetComesGoesAndGlints]' passed (72.997 seconds).
+exit=0
+screenshots: 175

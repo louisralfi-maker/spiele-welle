@@ -1,0 +1,23 @@
+p02-b: "Not now" under Reduce Motion: the card goes by opacity only (0.10 s), in place
+real time; as fast as the frames come
+the tap was sent without waiting at +0.400 s (point 103.3, 251.5; interface orientation 3 (the app's)); the runner answered at +0.700 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWDay 6 -GWHour 7 -GWMerchant YES -GWCameraX 1500 -GWReduceMotion YES
+scene after: frame:450 ready day:6 hour:7.21 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1500 lord:lord stage:world lx:1500 errand:none door:1830 gold:10 hud:none cam:1238 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.599 s  
+02  +0.796 s  
+03  +1.054 s  
+04  +1.255 s  
+05  +1.469 s  
+06  +1.690 s  
+07  +1.925 s  
+08  +2.154 s  
+09  +2.312 s  
+10  +2.457 s  
+11  +2.596 s  
+12  +2.740 s  
+13  +2.897 s  
+14  +3.106 s  
+mean spacing 0.193 s over 13 gaps
