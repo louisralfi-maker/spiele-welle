@@ -1,0 +1,1 @@
+XCTAssertNil failed: "TouchThing(id: "touch-plot-0", kind: Lanternhold.TouchKind.plot, act: Lanternhold.KingTarget.build(plot: 0), x: 1360.0, standX: 1360.0, halfWidth: 24.0, top: 64.0, rank: 9, price: Optional(90), marked: true, markAt: nil, who: nil, look: nil, footing: nil, rimX: nil, soldier: nil)" - and no further
