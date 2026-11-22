@@ -270,8 +270,8 @@ final class TouchCraftTests: XCTestCase {
         // barracks keep their rim and their own mark (the cart's cases and `barracksFreeX` went).
         XCTAssertTrue(CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart }),
                       "day 3 is one of Marek's days")
-        XCTAssertFalse(barracks.noRim, "the barracks carry their rim on his days too")
-        XCTAssertEqual(barracks.markX, barracks.x, "and their own mark")
+        // Join item 9 (D4): `noRim` went (nothing set it), so the barracks always carry their rim.
+        XCTAssertEqual(barracks.markX, barracks.x, "the barracks keep their own mark")
     }
 
     func testTheLiftThrowsSparksNotARing() {

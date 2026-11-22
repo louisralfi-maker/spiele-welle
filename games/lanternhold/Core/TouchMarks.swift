@@ -63,8 +63,6 @@ struct TouchMark: Sendable, Equatable {
     /// Stage-3-interface (stage-2 critic look 2, high 2): a slip names the thing now and takes the mark's place, so the
     /// mark is not drawn (its rim and pool stay).
     var hidden = false
-    /// No gold rim on the thing (`TouchThing.noRim`; nothing sets it since Marek's cart left the barracks, build 3).
-    var noRim = false
 }
 
 /// The marks of touch the world on a stage (SPRITES.md "The marks of 'touch the world'"): a small tag over each thing
@@ -79,7 +77,7 @@ enum TouchMarks {
             guard let sprite = thing.kind.mark else { return nil }
             return TouchMark(sprite: sprite, x: thing.markX, lift: thing.markLift, pressed: thing.id == pressed,
                              poolX: thing.x, kind: thing.kind, who: thing.who, half: thing.halfWidth,
-                             footing: thing.footing, rimX: thing.rimX, noRim: thing.noRim)
+                             footing: thing.footing, rimX: thing.rimX)
         }
     }
 

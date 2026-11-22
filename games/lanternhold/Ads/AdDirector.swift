@@ -126,10 +126,6 @@ final class AdDirector {
             self.openMerchantCard()
             return self.merchantCardOpen
         }
-        // Build 3, the count: the same question without opening the card (a touch on the cart is his, not a count's).
-        model.merchantOpen = { [weak self] in
-            self?.merchantOffer != nil
-        }
         // Build 3 join (L6b): the ads' part of the one hold (`GameModel.worldHeld`).
         model.adsHoldWorld = { [weak self] in
             self?.holdsWorld ?? false

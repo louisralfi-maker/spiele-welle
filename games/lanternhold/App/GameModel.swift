@@ -126,9 +126,6 @@ final class GameModel {
     /// Build 2 review, app-ui-3: a touch on Marek's cart (`Ads/AdDirector.attach`): opens his gift card and answers
     /// true while his offer is open; false (or nil) leaves the touch to the barracks.
     @ObservationIgnored var merchantTouch: (@MainActor () -> Bool)?
-    /// Build 3, the count: true while Marek's offer is open (`Ads/AdDirector.attach`), asked without opening his card,
-    /// so a touch on his cart is left to `tap(at:)` and never starts a count.
-    @ObservationIgnored var merchantOpen: (@MainActor () -> Bool)?
     /// Build 3 join (L6b): true while the ads hold the world with no card of the model's (`Ads/AdDirector.attach`):
     /// Marek's card, the consent form, an ad on screen. Part of `worldHeld`.
     @ObservationIgnored var adsHoldWorld: (@MainActor () -> Bool)?

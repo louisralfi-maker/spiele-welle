@@ -203,7 +203,7 @@ enum TouchRims {
     /// itself, so whatever is drawn in front of it (Marek's cart before the barracks, round lh-s2f1-2's 58) hides it as
     /// it hides any glow.
     static func mark(_ props: inout [Prop], marks: [TouchMark], night: Double) {
-        for mark in marks where TouchRules.keepsToBand(mark.kind) && !mark.noRim {
+        for mark in marks where TouchRules.keepsToBand(mark.kind) {
             let color = TouchRules.rimColor(pressed: mark.pressed, night: night)
             let part = EmissivePart(sprite: .hallMote, dx: 0, dy: 0, color: SIMD3<Float>(color.x, color.y, color.z),
                                     intensity: 1, flickerSeed: nil, fadesByDay: false, isFire: false, rim: true)
