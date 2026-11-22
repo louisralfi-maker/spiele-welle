@@ -1,0 +1,10 @@
+Standard output and standard error from com.louisherwick.lanternhold with process ID 89085 beginning at 2026-11-22 21:17:21 +0000
+
+2026-11-22 21:17:24.226300+0000 Lanternhold[89085:227550] [Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x600000008e30>: {
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+}
+2026-11-22 21:17:24.230145+0000 Lanternhold[89085:227550] [Default] Received request to notify when the main run loop is idle
+2026-11-22 21:17:24.230239+0000 Lanternhold[89085:227550] [Default] Idle notifier finished setting up run loop observer
+2026-11-22 21:17:24.230701+0000 Lanternhold[89085:227661] [Default] Received request to notify when animations are idle
+2026-11-22 21:17:24.230943+0000 Lanternhold[89085:227661] [Default] Sending animations idle reply with error: (null)

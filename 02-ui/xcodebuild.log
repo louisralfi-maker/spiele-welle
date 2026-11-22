@@ -1,0 +1,34 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -project Lanternhold.xcodeproj -scheme Lanternhold -destination id=EED6FB0A-E273-43C6-B5DE-3DF739543042 -derivedDataPath build/SimData -parallel-testing-enabled NO "-only-testing:LanternholdUITests/FilmOpeningUITests" -resultBundlePath /Users/runner/work/spiele-welle/spiele-welle/ci-out/02-ui.xcresult test-without-building
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  GoogleUserMessagingPlatform: https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git @ 3.1.0
+  GoogleMobileAds: https://github.com/googleads/swift-package-manager-google-mobile-ads.git @ 13.11.0
+
+Writing result bundle at path:
+	/Users/runner/work/spiele-welle/spiele-welle/ci-out/02-ui.xcresult
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, arch:arm64, id:EED6FB0A-E273-43C6-B5DE-3DF739543042, OS:26.2, name:iPhone 17 Pro }
+{ platform:iOS Simulator, arch:x86_64, id:EED6FB0A-E273-43C6-B5DE-3DF739543042, OS:26.2, name:iPhone 17 Pro }
+2026-11-22 21:16:51.841365+0000 LanternholdUITests-Runner[88529:225404] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-11-22 21:17:02.258.
+Test Suite 'LanternholdUITests.xctest' started at 2026-11-22 21:17:02.262.
+Test Suite 'FilmOpeningUITests' started at 2026-11-22 21:17:02.262.
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1TheWalkSlowed]' started.
+    t =     0.01s Start Test at 2026-11-22 21:17:02.269
+    t =     1.21s Set Up
+    t =     1.23s Setting device orientation to Landscape Left
+    t =     1.27s     Device orientation changed to Landscape Left
+    t =     1.34s     Wait for com.apple.springboard to idle
+    t =     1.56s Open com.louisherwick.lanternhold
+    t =     1.56s     Launch com.louisherwick.lanternhold
+2026-11-22 21:17:06.282 xcodebuild[87662:223243] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-11-22 21:17:06.282 xcodebuild[87662:223243] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    15.52s         Interface orientation changed to Landscape Right
+    t =    18.96s         Setting up automation session
+    t =    21.97s         Wait for com.louisherwick.lanternhold to idle

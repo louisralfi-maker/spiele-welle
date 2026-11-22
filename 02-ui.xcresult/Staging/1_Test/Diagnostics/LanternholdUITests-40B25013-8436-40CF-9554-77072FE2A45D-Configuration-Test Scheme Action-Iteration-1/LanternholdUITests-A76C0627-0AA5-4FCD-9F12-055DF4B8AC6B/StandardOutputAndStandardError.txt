@@ -1,0 +1,16 @@
+2026-11-22 21:16:51.841365+0000 LanternholdUITests-Runner[88529:225404] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-11-22 21:17:02.258.
+Test Suite 'LanternholdUITests.xctest' started at 2026-11-22 21:17:02.262.
+Test Suite 'FilmOpeningUITests' started at 2026-11-22 21:17:02.262.
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1TheWalkSlowed]' started.
+    t =     0.01s Start Test at 2026-11-22 21:17:02.269
+    t =     1.21s Set Up
+    t =     1.23s Setting device orientation to Landscape Left
+    t =     1.27s     Device orientation changed to Landscape Left
+    t =     1.34s     Wait for com.apple.springboard to idle
+    t =     1.56s Open com.louisherwick.lanternhold
+    t =     1.56s     Launch com.louisherwick.lanternhold
+    t =    15.52s         Interface orientation changed to Landscape Right
+    t =    18.96s         Setting up automation session
+    t =    21.97s         Wait for com.louisherwick.lanternhold to idle

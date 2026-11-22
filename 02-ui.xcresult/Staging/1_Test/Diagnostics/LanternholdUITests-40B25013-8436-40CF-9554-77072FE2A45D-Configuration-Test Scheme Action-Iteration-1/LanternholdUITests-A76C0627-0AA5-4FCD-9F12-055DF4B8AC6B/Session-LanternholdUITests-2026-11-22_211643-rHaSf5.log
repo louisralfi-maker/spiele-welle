@@ -1,0 +1,1246 @@
+Xcode version: 26.6 (17F113)
+21:16:43.531 xcodebuild[87662:223243] Beginning test session LanternholdUITests-C23500F9-84DD-4644-8C4D-25A35D2261FB at 2026-11-22 21:16:43.530 on target <DVTiPhoneSimulator: 0xbe40d4a00> {
+		SimDevice: iPhone 17 Pro (EED6FB0A-E273-43C6-B5DE-3DF739543042, iOS 26.2, Booted)
+} (26.2 (23C54))
+21:16:43.531 xcodebuild[87662:223243] 	/Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild
+-project
+Lanternhold.xcodeproj
+-scheme
+Lanternhold
+-destination
+id=EED6FB0A-E273-43C6-B5DE-3DF739543042
+-derivedDataPath
+build/SimData
+-parallel-testing-enabled
+NO
+-only-testing:LanternholdUITests/FilmOpeningUITests
+-resultBundlePath
+/Users/runner/work/spiele-welle/spiele-welle/ci-out/02-ui.xcresult
+test-without-building
+21:16:43.533 xcodebuild[87662:223243] Test standard output and standard error is at /Users/runner/work/spiele-welle/spiele-welle/ci-out/02-ui.xcresult/Staging/1_Test/Diagnostics/LanternholdUITests-40B25013-8436-40CF-9554-77072FE2A45D-Configuration-Test Scheme Action-Iteration-1/LanternholdUITests-A76C0627-0AA5-4FCD-9F12-055DF4B8AC6B/StandardOutputAndStandardError.txt
+21:16:43.536 xcodebuild[87662:223310] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> claim LaunchSessionClaim_0xbe4205500 on simulator was issued, 2 claims exist.
+21:16:43.537 xcodebuild[87662:223243] Setting up test runner session
+21:16:43.537 xcodebuild[87662:223310] Sim iPhone 17 Pro: Unregistering for sim device notification with token 5
+21:16:43.537 xcodebuild[87662:223310] Calling -[SimDevice getenv:error:] for TESTMANAGERD_SIM_SOCK
+21:16:43.538 xcodebuild[87662:223310] Sim iPhone 17 Pro has testmanagerd socket at /private/tmp/com.apple.launchd.XoISlSSaas/com.apple.testmanagerd.unix-domain.socket
+21:16:43.538 xcodebuild[87662:223310] Validating test connection socket path (/private/tmp/com.apple.launchd.XoISlSSaas/com.apple.testmanagerd.unix-domain.socket)
+21:16:43.538 xcodebuild[87662:223310] Constructing transport for test connection socket
+21:16:43.538 xcodebuild[87662:223310] Connected socket 34 to testmanagerd for Sim iPhone 17 Pro
+21:16:43.539 xcodebuild[87662:223310] Received connection for test runner session
+21:16:43.539 xcodebuild[87662:223310] Listening for proxy connection request from the test bundle
+21:16:43.540 xcodebuild[87662:223310] Initiating session with identifier: C23500F9-84DD-4644-8C4D-25A35D2261FB
+21:16:43.541 xcodebuild[87662:223243] Registering/updating daemon-based crash report observer for process names (
+    xctest,
+    debugserver,
+    FrontBoard,
+    assertiond,
+    runningboardd,
+    SpringBoard,
+    testmanagerd,
+    backboardd,
+    DTServiceHub,
+    Lanternhold,
+    "LanternholdUITests-Runner",
+    LanternholdUITests
+)
+21:16:43.541 xcodebuild[87662:223243] Test runner session acquired connection.
+21:16:43.556 xcodebuild[87662:223243] Finished requesting crash reports. Continuing with testing.
+21:16:43.558 xcodebuild[87662:223251] Got reply to session initiation request with identifier C23500F9-84DD-4644-8C4D-25A35D2261FB (error: (null))
+21:16:43.722 xcodebuild[87662:223243] Launch session started.
+21:16:43.765 xcodebuild[87662:223310] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> claim LaunchSessionClaim_0xbe4205500 on simulator was issued, 2 claims exist.
+21:16:43.777 xcodebuild[87662:223312] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> claim LaunchSessionClaim_0xbe4205500 on simulator was issued, 2 claims exist.
+21:16:43.777 xcodebuild[87662:223312] EED6FB0A-E273-43C6-B5DE-3DF739543042: Registered for sim device notification, got token 8
+21:16:43.777 xcodebuild[87662:225131] EED6FB0A-E273-43C6-B5DE-3DF739543042: Unregistering for sim device notification with token 8
+21:16:44.056 xcodebuild[87662:223251] EED6FB0A-E273-43C6-B5DE-3DF739543042: Installing app at path: /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/LanternholdUITests-Runner.app and options: {
+    SkipWatchAppInstall = 1;
+}
+21:16:46.788 xcodebuild[87662:223251] EED6FB0A-E273-43C6-B5DE-3DF739543042: Installed app at path: /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/LanternholdUITests-Runner.app and options: {
+    SkipWatchAppInstall = 1;
+}
+21:16:47.270 xcodebuild[87662:223251] EED6FB0A-E273-43C6-B5DE-3DF739543042: Launching app with identifier: com.louisherwick.lanternhold.uitests.xctrunner and options: {
+    "activate_suspended" = 1;
+    arguments =     (
+        "-AppleLanguages",
+        "(en)",
+        "-AppleTextDirection",
+        NO,
+        "-AppleLocale",
+        "en_US"
+    );
+    environment =     {
+        "APP_DISTRIBUTOR_ID_OVERRIDE" = "com.apple.AppStore";
+        "CA_ASSERT_MAIN_THREAD_TRANSACTIONS" = 0;
+        "CA_DEBUG_TRANSACTIONS" = 0;
+        "DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/PackageFrameworks:/Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/PackageFrameworks:/Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks";
+        "DYLD_INSERT_LIBRARIES" = "/usr/lib/libRPAC.dylib:/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/libMainThreadChecker.dylib:/usr/lib/libRPAC.dylib:/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/libMainThreadChecker.dylib:/usr/lib/libRPAC.dylib";
+        "DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib";
+        "GW_LANG" = en;
+        "LLVM_PROFILE_FILE" = "/dev/null";
+        NSUnbufferedIO = YES;
+        "OS_ACTIVITY_DT_MODE" = YES;
+        "PERFC_ENABLE_EXTENDED_DIAGNOSTIC_FORMAT" = 1;
+        "PERFC_ENABLE_PROFILE_MODE" = 1;
+        "PERFC_RESET_INSERT_LIBRARIES" = 1;
+        "PERFC_SUPPRESS_SYSTEM_REPORTS" = 1;
+        "RUN_DESTINATION_DEVICE_NAME" = "iPhone 17 Pro";
+        "RUN_DESTINATION_DEVICE_PLATFORM_IDENTIFIER" = "com.apple.platform.iphonesimulator";
+        "RUN_DESTINATION_DEVICE_UDID" = "EED6FB0A-E273-43C6-B5DE-3DF739543042";
+        "SQLITE_ENABLE_THREAD_ASSERTIONS" = 1;
+        "SWIFT_BACKTRACE" = "enable=no";
+        TERM = dumb;
+        "XCODE_SCHEME_NAME" = Lanternhold;
+        XCTestBundleInjectPath = "/usr/lib/libRPAC.dylib:/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/libMainThreadChecker.dylib:/usr/lib/libRPAC.dylib:/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/libMainThreadChecker.dylib:/usr/lib/libRPAC.dylib";
+        XCTestBundlePath = "PlugIns/LanternholdUITests.xctest";
+        XCTestConfigurationFilePath = "";
+        XCTestSessionIdentifier = "C23500F9-84DD-4644-8C4D-25A35D2261FB";
+        "__XCODE_BUILT_PRODUCTS_DIR_PATHS" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+        "__XPC_DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+        "__XPC_DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+        "__XPC_LLVM_PROFILE_FILE" = "/dev/null";
+    };
+    stderr = "/dev/ttys000";
+    stdout = "/dev/ttys000";
+    "terminate_running_process" = 1;
+    "wait_for_debugger" = 1;
+}
+21:16:47.961 xcodebuild[87662:223312] EED6FB0A-E273-43C6-B5DE-3DF739543042: Launched app with identifier: com.louisherwick.lanternhold.uitests.xctrunner (pid = 88529)
+21:16:47.962 xcodebuild[87662:223312] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> tracking pid 88529
+21:16:47.962 xcodebuild[87662:223312] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> checking to see if pid 88529 is valid: kill(pid, 0) = 0 (YES, it's still running)
+21:16:48.021 xcodebuild[87662:223310] EED6FB0A-E273-43C6-B5DE-3DF739543042: Registered for sim device notification, got token 10
+21:16:48.025 xcodebuild[87662:223312] EED6FB0A-E273-43C6-B5DE-3DF739543042: Unregistering for sim device notification with token 10
+21:16:49.743 xcodebuild[87662:223243] Test process runnable PID is 88529.
+21:16:49.756 xcodebuild[87662:225412] XCTHTestOperationStateMachine: Transitioning from state Initial to AcquiredPID
+2026-11-22 21:16:51.841365+0000 LanternholdUITests-Runner[88529:225404] [Default] Running tests...
+21:16:51.950 xcodebuild[87662:223251] Handling proxy channel request from test runner
+21:16:51.948 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting test configuration' with timeout 600.00
+21:16:51.948 LanternholdUITests-Runner[88529:225404] Notifying test runner ready
+21:16:51.951 xcodebuild[87662:223251] Test runner is ready with capabilities: <XCTCapabilities: 0xbe756c4c0>: {
+    "delayed attachment transfer" = 1;
+    "fetch all test identifiers" = 2;
+    "ubiquitous test identifiers" = 1;
+}
+21:16:51.949 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c110b0> entering wait loop for 600.00s with expectations: `requesting test configuration`
+21:16:51.953 xcodebuild[87662:223243] Test runner session successfully initiated.
+21:16:51.953 xcodebuild[87662:223243] Authorizing test process ID 88529
+21:16:51.958 xcodebuild[87662:223251] XCTHTestOperationStateMachine: Transitioning from state AcquiredPID to ReportedReady
+21:16:51.959 xcodebuild[87662:223243] Got authorization response from test daemon: Success
+21:16:51.960 xcodebuild[87662:223243] Registering/updating daemon-based crash report observer for process names (
+    xctest,
+    debugserver,
+    FrontBoard,
+    assertiond,
+    runningboardd,
+    SpringBoard,
+    testmanagerd,
+    backboardd,
+    DTServiceHub,
+    Lanternhold,
+    "LanternholdUITests-Runner",
+    LanternholdUITests
+)
+21:16:51.959 LanternholdUITests-Runner[88529:225531] Received test runner ready reply. Waiting for request to start running tests.
+21:16:51.961 xcodebuild[87662:223243] Telling test runner to start executing tests.
+21:16:51.963 LanternholdUITests-Runner[88529:225531] _IDE_startExecutingTestPlanWithProtocolVersion:36
+21:16:52.021 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c110b0>
+21:16:52.021 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001711280> completed after 0.073s
+21:16:52.021 LanternholdUITests-Runner[88529:225404] cleaning up requesting test configuration
+21:16:52.021 LanternholdUITests-Runner[88529:225404] Loading test bundle at: file:///Users/runner/Library/Developer/CoreSimulator/Devices/EED6FB0A-E273-43C6-B5DE-3DF739543042/data/Containers/Bundle/Application/9B861EF7-DB5C-47D2-947E-750A33785F0B/LanternholdUITests-Runner.app/PlugIns/LanternholdUITests.xctest/
+21:16:52.073 LanternholdUITests-Runner[88529:225404] Finished loading test bundle
+21:16:52.075 LanternholdUITests-Runner[88529:225404] Interop: not enabled, so skipping install
+21:16:52.075 LanternholdUITests-Runner[88529:225404] Registering in-process symbolication service with image names: LanternholdUITests, LanternholdTests, Lanternhold, LanternholdUITests-Runner
+21:16:52.075 LanternholdUITests-Runner[88529:225404] Running tests with active test configuration: <XCTestConfiguration: 0x106105490>
+	                  testBundleURL:file:///Users/runner/Library/Developer/CoreSimulator/Devices/EED6FB0A-E273-43C6-B5DE-3DF739543042/data/Containers/Bundle/Application/9B861EF7-DB5C-47D2-947E-750A33785F0B/LanternholdUITests-Runner.app/PlugIns/LanternholdUITests.xctest/
+	         testBundleRelativePath:PlugIns/LanternholdUITests.xctest
+	              productModuleName:LanternholdUITests
+	                  testSelection:<XCTTestSelection: 0x600000c17600>
+	            identifiersToRun:<XCTTestIdentifier container, class ["FilmOpeningUITests"]>, <XCTTestIdentifier container ["FilmOpeningUITests"]>, <XCTTestIdentifier leaf ["FilmOpeningUITests"]>
+	            identifiersToSkip:
+	            tagsToRun:(null)
+	            tagsToSkip:<XCTTagSelection: 0x600000228220>
+	            mode:and
+	            tags:{(
+)}
+	  includeXCTests:NO
+
+
+	             reportResultsToIDE:YES
+	               testsDrivenByIDE:NO
+	inProcessParallelizationEnabled:NO
+	              sessionIdentifier:C23500F9-84DD-4644-8C4D-25A35D2261FB
+	      disablePerformanceMetrics:NO
+	treatMissingBaselinesAsFailures:NO
+	                baselineFileURL:(null)
+	       baselineFileRelativePath:(null)
+	          targetApplicationPath:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app
+	      targetApplicationBundleID:com.louisherwick.lanternhold
+	 testApplicationDependencies:
+{
+    "com.louisherwick.lanternhold" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app";
+    "com.louisherwick.lanternhold.uitests.xctrunner" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/LanternholdUITests-Runner.app";
+}
+	 bundleIDsForCrashReportEmphasis:
+{(
+    "com.louisherwick.lanternhold.tests",
+    "com.louisherwick.lanternhold.uitests",
+    "com.louisherwick.lanternhold"
+)}
+	 testApplicationUserOverrides:(null)
+	     targetApplicationArguments:-AppleLanguages, (en), -AppleTextDirection, NO, -AppleLocale, en_US
+	   targetApplicationEnvironment:
+{
+    "APP_DISTRIBUTOR_ID_OVERRIDE" = "com.apple.AppStore";
+    "DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/PackageFrameworks";
+    "DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "XCODE_SCHEME_NAME" = Lanternhold;
+    "__XCODE_BUILT_PRODUCTS_DIR_PATHS" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "__XPC_DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "__XPC_DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+}
+	                  reportActivities:YES
+	          testsMustRunOnMainThread:YES
+	            initializeForUITesting:YES
+	            traceCollectionEnabled:(null)
+	 enablePerformanceTestsDiagnostics:(null)
+	 aggregateStatisticsBeforeCrash:
+{
+    XCSuiteRecordsKey =     {
+    };
+}
+	        automationFrameworkPath:/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework
+	                     emitOSLogs:NO
+	       systemAttachmentLifetime:deleteOnSuccess
+	         userAttachmentLifetime:deleteOnSuccess
+	   preferredScreenCaptureFormat:screenRecording
+	   gatherLocalizableStringsData:NO
+	          testExecutionOrdering:alphabetical
+	    randomExecutionOrderingSeed:(null)
+	               repetitionPolicy:<XCTRepetitionPolicy: 0x6000002148c0>
+	            mode:None
+	            maximumIterations:1
+	            repeatInNewRunnerProcess:NO
+
+	       runtimeDiagnosticsPolicy:<XCTRuntimeDiagnosticsPolicy: 0x600000c10990>
+	            otherRuntimeIssuesDetectionPolicy:<XCTRuntimeIssueDetectionPolicy: 0x600000217d60>
+	            detectionEnabled:YES
+	            severity:warning
+
+	            threadPerformanceCheckerRuntimeIssueDetectionPolicy:<XCTRuntimeIssueDetectionPolicy: 0x600000217d60>
+	            detectionEnabled:YES
+	            severity:warning
+
+	            mainThreadCheckerDetectionPolicy:<XCTRuntimeIssueDetectionPolicy: 0x600000217d60>
+	            detectionEnabled:YES
+	            severity:warning
+
+	            checkedAllocations:disabled
+
+	            testTimeoutsEnabled:NO
+	              leaksCheckingMode:off
+	 defaultTestExecutionTimeAllowance:600
+	 maximumTestExecutionTimeAllowance:0
+	                IDECapabilities:<XCTCapabilities: 0x60000000ccb0>: {
+    "XCTIssue capability" = 1;
+    "daemon container sandbox extension" = 1;
+    "delayed attachment transfer" = 1;
+    "expected failure test capability" = 1;
+    "in-process test parallelization capability" = 1;
+    "request diagnostics for specific devices" = 1;
+    "runner plan" = 1;
+    "skipped suite capability" = 1;
+    "skipped test capability" = 1;
+    "test case run configurations" = 1;
+    "test iterations" = 2;
+    "test timeout capability" = 1;
+    traits = 1;
+    "ubiquitous test identifiers" = 1;
+    "unified issue recorded" = 1;
+}
+	        symbolicationImageNames:LanternholdUITests, LanternholdTests, Lanternhold, LanternholdUITests-Runner
+	         applicationBundleInfos:
+{
+    "com.louisherwick.lanternhold" = "<XCTApplicationBundleInfo localizations:[zh-Hans, fr, de, it, pt-BR, es, en, ja] infoDictionary:[UISupportedInterfaceOrientations: (\n    UIInterfaceOrientationLandscapeLeft,\n    UIInterfaceOrientationLandscapeRight\n)]>";
+    "com.louisherwick.lanternhold.uitests.xctrunner" = "<XCTApplicationBundleInfo localizations:[en] infoDictionary:[UISupportedInterfaceOrientations~ipad: (\n    UIInterfaceOrientationPortrait,\n    UIInterfaceOrientationPortraitUpsideDown,\n    UIInterfaceOrientationLandscapeLeft,\n    UIInterfaceOrientationLandscapeRight\n), UISupportedInterfaceOrientations: (\n    UIInterfaceOrientationPortrait,\n    UIInterfaceOrientationLandscapeLeft,\n    UIInterfaceOrientationLandscapeRight\n)]>";
+}
+
+21:16:52.076 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c1d590> entering wait loop for 600.00s with expectations: `requesting ready for testing`
+21:16:52.076 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c1d590>
+21:16:52.076 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000171bd00> completed after 0.001s
+21:16:52.077 LanternholdUITests-Runner[88529:225404] cleaning up requesting ready for testing
+21:16:52.077 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c1dcb0> entering wait loop for 600.00s with expectations: `IDE proxy`
+21:16:52.077 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c1dcb0>
+21:16:52.077 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000171b3c0> completed after 0.000s
+21:16:52.077 LanternholdUITests-Runner[88529:225404] cleaning up IDE proxy
+21:16:52.078 LanternholdUITests-Runner[88529:225404] Initializing for UI testing.
+21:16:52.081 LanternholdUITests-Runner[88529:225404] Linked XCTAutomationSupport.framework from /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework/XCTAutomationSupport, built with Xcode 2660(17F109), modified on Tuesday, November 17, 2026 at 5:01:10 AM Greenwich Mean Time, bundle version: 24904
+21:16:52.084 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c20a80> entering wait loop for 60.00s with expectations: `initiating daemon session`
+21:16:52.084 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c20a80>
+21:16:52.084 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000171c880> completed after 0.000s
+21:16:52.084 LanternholdUITests-Runner[88529:225404] cleaning up initiating daemon session
+21:16:52.085 LanternholdUITests-Runner[88529:225404] Creating future for 'enabling automation mode' with timeout 60.00
+21:16:52.086 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c1ec10> entering wait loop for 60.00s with expectations: `enabling automation mode`
+21:16:52.111 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c1ec10>
+21:16:52.111 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001719a80> completed after 0.025s
+21:16:52.111 LanternholdUITests-Runner[88529:225404] cleaning up enabling automation mode
+21:16:52.111 LanternholdUITests-Runner[88529:225404] Creating future for 'loading Accessibility' with timeout 70.00
+21:16:52.111 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c1ec10> entering wait loop for 70.00s with expectations: `loading Accessibility`
+    t =      nans Interface orientation changed to Portrait
+21:17:01.779 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c1ec10>
+21:17:01.782 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001701b00> completed after 9.671s
+21:17:01.783 LanternholdUITests-Runner[88529:225404] cleaning up loading Accessibility
+21:17:01.784 LanternholdUITests-Runner[88529:225404] Creating future for 'enabling localized string gathering' with timeout 70.00
+21:17:01.794 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c79260> entering wait loop for 69.99s with expectations: `enabling localized string gathering`
+21:17:01.802 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c79260>
+21:17:01.802 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001747600> completed after 0.008s
+21:17:01.803 LanternholdUITests-Runner[88529:225404] cleaning up enabling localized string gathering
+21:17:01.804 LanternholdUITests-Runner[88529:225404] Creating future for 'setting AX timeout to 60.00s' with timeout 65.00
+21:17:01.806 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7c630> entering wait loop for 65.00s with expectations: `setting AX timeout to 60.00s`
+21:17:01.808 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7c630>
+21:17:01.808 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017478c0> completed after 0.002s
+21:17:01.808 LanternholdUITests-Runner[88529:225404] cleaning up setting AX timeout to 60.00s
+21:17:01.808 LanternholdUITests-Runner[88529:225404] Creating future for 'registering for kAXUserTestingNotification' with timeout 65.00
+21:17:01.808 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c80240> entering wait loop for 65.00s with expectations: `registering for kAXUserTestingNotification`
+21:17:01.809 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c80240>
+21:17:01.810 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001742380> completed after 0.001s
+21:17:01.810 LanternholdUITests-Runner[88529:225404] cleaning up registering for kAXUserTestingNotification
+21:17:01.810 LanternholdUITests-Runner[88529:225404] Creating future for 'registering for kAXAlertNotification' with timeout 65.00
+21:17:01.810 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c80b70> entering wait loop for 65.00s with expectations: `registering for kAXAlertNotification`
+21:17:01.810 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c80b70>
+21:17:01.810 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001730f00> completed after 0.001s
+21:17:01.810 LanternholdUITests-Runner[88529:225404] cleaning up registering for kAXAlertNotification
+21:17:01.810 LanternholdUITests-Runner[88529:225404] Creating future for 'registering for kAXPidStatusChangedNotification' with timeout 65.00
+21:17:01.811 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7a820> entering wait loop for 65.00s with expectations: `registering for kAXPidStatusChangedNotification`
+21:17:01.811 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7a820>
+21:17:01.811 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001701900> completed after 0.001s
+21:17:01.811 LanternholdUITests-Runner[88529:225404] cleaning up registering for kAXPidStatusChangedNotification
+21:17:01.811 LanternholdUITests-Runner[88529:225404] Creating future for 'registering for AXNotification 3031' with timeout 65.00
+21:17:01.811 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7ac40> entering wait loop for 65.00s with expectations: `registering for AXNotification 3031`
+21:17:01.812 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7ac40>
+21:17:01.812 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001724140> completed after 0.001s
+21:17:01.812 LanternholdUITests-Runner[88529:225404] cleaning up registering for AXNotification 3031
+21:17:01.812 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting background assertion for test process' with timeout 30.00
+21:17:01.813 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c80b70> entering wait loop for 30.00s with expectations: `requesting background assertion for test process`
+21:17:01.815 LanternholdUITests-Runner[88529:225531] Got reply for background assertion for 88529, acquired: YES.
+21:17:01.815 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c80b70>
+21:17:01.815 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001741700> completed after 0.002s
+21:17:01.815 LanternholdUITests-Runner[88529:225404] cleaning up requesting background assertion for test process
+21:17:01.815 LanternholdUITests-Runner[88529:225404] Test runner is already executing in the background.
+21:17:01.815 LanternholdUITests-Runner[88529:225404] Done initializing for UI testing.
+21:17:01.862 xcodebuild[87662:223243] Test runner began initialization for UI testing.
+21:17:01.827 LanternholdUITests-Runner[88529:225404] Loading test suite...
+21:17:01.830 LanternholdUITests-Runner[88529:225404] Finished loading test suite, took 0.003s
+21:17:01.836 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c140c0> entering wait loop for 590.01s with expectations: `preparing execution worker`
+21:17:02.202 LanternholdUITests-Runner[88529:225529] Handling AXNotification 3031
+21:17:02.224 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c140c0>
+21:17:02.224 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001741a80> completed after 0.388s
+21:17:02.224 LanternholdUITests-Runner[88529:225404] cleaning up preparing execution worker
+21:17:02.271 xcodebuild[87662:223243] Test runner started executing tests.
+21:17:02.225 LanternholdUITests-Runner[88529:225404] Entering test execution event loop
+Test Suite 'Selected tests' started at 2026-11-22 21:17:02.258.
+21:17:02.256 LanternholdUITests-Runner[88529:225404] Setting a new interop record handler: Optional(XCTestCore.XCTestInteropRecordHandler())
+21:17:02.256 LanternholdUITests-Runner[88529:225404] -[XCTRunnerIDESession(_XCTestObservationInternal) testBundleWillStart:]
+21:17:02.257 LanternholdUITests-Runner[88529:225404] Running suite...
+21:17:02.258 LanternholdUITests-Runner[88529:225404] -[XCTRunnerIDESession(_XCTestObservationInternal) testSuiteWillStart:]
+21:17:02.271 xcodebuild[87662:223243] _XCT_testSuiteWithIdentifier:<XCTTestIdentifier container ["Selected tests"]> didStartAt:2026-11-22 21:17:02 +0000 traits:(null)
+21:17:02.272 xcodebuild[87662:225131] XCTHTestOperationStateMachine: Transitioning from state ReportedReady to ExecutingTests
+21:17:02.278 xcodebuild[87662:223243] Nothing to delete
+21:17:02.262 LanternholdUITests-Runner[88529:225404] -[XCTRunnerIDESession(_XCTestObservationInternal) testSuiteWillStart:]
+21:17:02.303 xcodebuild[87662:223243] _XCT_testSuiteWithIdentifier:<XCTTestIdentifier container []> didStartAt:2026-11-22 21:17:02 +0000 traits:(null)
+21:17:02.316 xcodebuild[87662:223243] Nothing to delete
+21:17:02.262 LanternholdUITests-Runner[88529:225404] -[XCTRunnerIDESession(_XCTestObservationInternal) testSuiteWillStart:]
+21:17:02.316 xcodebuild[87662:223243] _XCT_testSuiteWithIdentifier:<XCTTestIdentifier container, class ["FilmOpeningUITests"]> didStartAt:2026-11-22 21:17:02 +0000 traits:(null)
+21:17:02.316 xcodebuild[87662:223243] Nothing to delete
+21:17:02.264 LanternholdUITests-Runner[88529:225404] -[XCTRuntimeIssueDetectionManager runtimeIssueDetectionEnabled] runtimeIssueDetectionEnabled based on XCTDisableRuntimeIssues and runtime diagnostics policies: YES
+21:17:02.267 LanternholdUITests-Runner[88529:225404] -[XCTRunnerIDESession(_XCTestObservationInternal) testCaseWillStart:] LanternholdUITests.FilmOpeningUITests testA1TheWalkSlowed
+21:17:02.316 xcodebuild[87662:223243] _XCT_testCaseDidStartWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]>testCaseRunConfiguration:<XCTestCaseRunConfiguration: 0xbe5fd1980>traits:(null)
+21:17:02.317 xcodebuild[87662:223243] Test case did start: <XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]>
+21:17:02.317 xcodebuild[87662:223243] Nothing to delete
+21:17:02.269 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002124780> started activity <XCActivityRecord: 0x600002938850> 2026-11-22 21:17:02 +0000: Start Test at 2026-11-22 21:17:02.269
+Test Suite 'LanternholdUITests.xctest' started at 2026-11-22 21:17:02.262.
+Test Suite 'FilmOpeningUITests' started at 2026-11-22 21:17:02.262.
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1TheWalkSlowed]' started.
+    t =     0.01s Start Test at 2026-11-22 21:17:02.269
+21:17:02.317 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe755e0d0> 2026-11-22 21:17:02 +0000: Start Test at 2026-11-22 21:17:02.269
+21:17:02.318 xcodebuild[87662:223243] Nothing to delete
+21:17:02.270 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting to start screen recording' with timeout 30.00
+21:17:02.271 LanternholdUITests-Runner[88529:225404] Starting diagnostic screen recording.
+21:17:02.272 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7b9f0> entering wait loop for 30.00s with expectations: `requesting to start screen recording`
+21:17:02.322 xcodebuild[87662:223243] Nothing to delete
+21:17:02.323 xcodebuild[87662:223243] Nothing to delete
+21:17:02.323 xcodebuild[87662:223243] Nothing to delete
+21:17:02.416 xcodebuild[87662:223243] Nothing to delete
+21:17:02.417 xcodebuild[87662:223243] Nothing to delete
+21:17:02.417 xcodebuild[87662:223243] Nothing to delete
+21:17:02.417 xcodebuild[87662:223243] Nothing to delete
+21:17:02.417 xcodebuild[87662:223243] Nothing to delete
+    t =     1.21s Set Up
+    t =     1.23s Setting device orientation to Landscape Left
+    t =     1.27s     Device orientation changed to Landscape Left
+21:17:03.467 LanternholdUITests-Runner[88529:225528] Did start diagnostic screen recording with UUID CAF50E1B-DBF6-4DAC-848E-2EA7F56CCB7C.
+21:17:03.468 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7b9f0>
+21:17:03.468 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001748740> completed after 1.196s
+21:17:03.468 LanternholdUITests-Runner[88529:225404] cleaning up requesting to start screen recording
+21:17:03.468 LanternholdUITests-Runner[88529:225404] Activity 07803DAE-A469-4E64-B46B-D65D1F47BFE7 added attachment with name 'kXCTAttachmentScreenRecording', Uniform Type Identifier 'public.mpeg-4', lifetime 'deleteOnSuccess', hasPayload: NO, size (in bytes): 0.
+21:17:03.468 LanternholdUITests-Runner[88529:225404] Creating future for 'getting screen identifiers' with timeout 30.00
+21:17:03.469 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c81cb0> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+21:17:03.469 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c81cb0>
+21:17:03.469 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174cd40> completed after 0.000s
+21:17:03.469 LanternholdUITests-Runner[88529:225404] cleaning up getting screen identifiers
+21:17:03.469 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002124780> finished activity <XCActivityRecord: 0x600002938850> 2026-11-22 21:17:02 +0000: Start Test at 2026-11-22 21:17:02.269 (1.19978s)
+21:17:03.578 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> didFinishActivity:<XCActivityRecord: 0xbe755e300> 2026-11-22 21:17:02 +0000: Start Test at 2026-11-22 21:17:02.269 (1.19978s)
+21:17:03.580 xcodebuild[87662:223243] Did finish activity with attachment future (<XCTAttachmentFuture CAF50E1B-DBF6-4DAC-848E-2EA7F56CCB7C>) for test identifier <XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]>
+21:17:03.581 xcodebuild[87662:223243] Nothing to delete
+21:17:03.472 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002124780> started activity <XCActivityRecord: 0x60000293d420> 2026-11-22 21:17:03 +0000: Set Up
+21:17:03.585 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe755e3e0> 2026-11-22 21:17:03 +0000: Set Up
+21:17:03.586 xcodebuild[87662:223243] Nothing to delete
+21:17:03.486 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7bf90> entering indefinite wait loop for expectations: `failable invocation block completion`
+21:17:03.489 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7bf90>
+21:17:03.490 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001748700> completed after 0.004s
+21:17:03.490 LanternholdUITests-Runner[88529:225404] cleaning up failable invocation block completion
+21:17:03.490 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002124780> finished activity <XCActivityRecord: 0x60000293d420> 2026-11-22 21:17:03 +0000: Set Up (0.017736s)
+21:17:03.586 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> didFinishActivity:<XCActivityRecord: 0xbe755e450> 2026-11-22 21:17:03 +0000: Set Up (0.017736s)
+21:17:03.589 xcodebuild[87662:223243] Nothing to delete
+21:17:03.497 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> started activity <XCActivityRecord: 0x60000293d420> 2026-11-22 21:17:03 +0000: Setting device orientation to Landscape Left
+21:17:03.589 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe755e4c0> 2026-11-22 21:17:03 +0000: Setting device orientation to Landscape Left
+21:17:03.590 xcodebuild[87662:223243] Nothing to delete
+21:17:03.497 LanternholdUITests-Runner[88529:225404] Creating future for 'getting screen identifiers' with timeout 30.00
+21:17:03.497 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c81bc0> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+21:17:03.497 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c81bc0>
+21:17:03.497 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174c980> completed after 0.000s
+21:17:03.498 LanternholdUITests-Runner[88529:225404] cleaning up getting screen identifiers
+21:17:03.498 LanternholdUITests-Runner[88529:225404] Creating future for 'setting device orientation to Landscape Left' with timeout 30.00
+21:17:03.499 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c77c60> entering wait loop for 30.00s with expectations: `setting device orientation to Landscape Left`
+21:17:03.536 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> started activity <XCActivityRecord: 0x60000293d650> 2026-11-22 21:17:03 +0000: Device orientation changed to Landscape Left
+21:17:03.590 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe755e0d0> 2026-11-22 21:17:03 +0000: Device orientation changed to Landscape Left
+21:17:03.590 xcodebuild[87662:223243] Nothing to delete
+21:17:03.538 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> finished activity <XCActivityRecord: 0x60000293d650> 2026-11-22 21:17:03 +0000: Device orientation changed to Landscape Left (0.00201905s)
+21:17:03.590 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> didFinishActivity:<XCActivityRecord: 0xbe755e530> 2026-11-22 21:17:03 +0000: Device orientation changed to Landscape Left (0.00201905s)
+21:17:03.590 xcodebuild[87662:223243] Nothing to delete
+21:17:03.540 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c77c60>
+21:17:03.541 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001748f00> completed after 0.043s
+21:17:03.542 LanternholdUITests-Runner[88529:225404] cleaning up setting device orientation to Landscape Left
+21:17:03.542 LanternholdUITests-Runner[88529:225404] Creating future for 'fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element' with timeout 65.00
+21:17:03.550 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c1fae0> entering wait loop for 65.00s with expectations: `fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element`
+21:17:03.553 LanternholdUITests-Runner[88529:225529] Got attribute fetch response with values {
+    "XC_kAXXCAttributeSystemAppApplication" = "AX element pid: 2261, elementOrHash.elementID: 0.1";
+}, error: (null)
+21:17:03.554 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c1fae0>
+21:17:03.554 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174c980> completed after 0.005s
+21:17:03.554 LanternholdUITests-Runner[88529:225404] cleaning up fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element
+21:17:03.554 LanternholdUITests-Runner[88529:225404] Creating future for 'fetching attributes 'XC_kAXXCAttributeFocusedApplications' for AX element pid: 2261, elementOrHash.elementID: 0.1' with timeout 65.00
+21:17:03.554 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7cf00> entering wait loop for 65.00s with expectations: `fetching attributes 'XC_kAXXCAttributeFocusedApplications' for AX element pid: 2261, elementOrHash.elementID: 0.1`
+21:17:03.592 LanternholdUITests-Runner[88529:225528] Got attribute fetch response with values {
+    "XC_kAXXCAttributeFocusedApplications" =     (
+        "AX element pid: 2261, elementOrHash.elementID: 0.1"
+    );
+}, error: (null)
+21:17:03.592 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7cf00>
+21:17:03.593 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001749300> completed after 0.039s
+21:17:03.594 LanternholdUITests-Runner[88529:225404] cleaning up fetching attributes 'XC_kAXXCAttributeFocusedApplications' for AX element pid: 2261, elementOrHash.elementID: 0.1
+21:17:03.594 LanternholdUITests-Runner[88529:225404] Active application elements: (
+    "AX element pid: 2261, elementOrHash.elementID: 0.1"
+)
+21:17:03.594 LanternholdUITests-Runner[88529:225404] Creating future for 'looking up application specifier for pid 2261' with timeout 30.00
+21:17:03.594 LanternholdUITests-Runner[88529:225404] Requesting application specifier for pid 2261
+21:17:03.595 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7ccf0> entering wait loop for 30.00s with expectations: `looking up application specifier for pid 2261`
+21:17:03.596 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7ccf0>
+21:17:03.596 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001750140> completed after 0.001s
+21:17:03.596 LanternholdUITests-Runner[88529:225404] cleaning up looking up application specifier for pid 2261
+21:17:03.596 LanternholdUITests-Runner[88529:225404] App specifier for pid 2261: <XCUIApplicationSpecifier: 0x6000002929e0> { com.apple.springboard }
+21:17:03.596 LanternholdUITests-Runner[88529:225404] Error (com.apple.dt.xctest.ui-testing.error) 10100, userInfo keys: (null): Unknown application: 'com.apple.springboard'
+21:17:03.596 LanternholdUITests-Runner[88529:225404] Error (com.apple.dt.xctest.ui-testing.error) 10100, userInfo keys: (null): Unknown application: 'com.apple.springboard'
+21:17:03.596 LanternholdUITests-Runner[88529:225404] XCUIApplicationImplDepot: Creating XCUIApplicationImpl for identifier: com.apple.springboard
+21:17:03.597 LanternholdUITests-Runner[88529:225404] updating com.apple.springboard crashBehavior to 1
+21:17:03.597 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=NO
+21:17:03.603 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=NO
+21:17:03.603 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7dc50> entering wait loop for 60.00s with expectations: `Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1'`
+21:17:03.604 LanternholdUITests-Runner[88529:225528] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.springboard@/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/CoreServices/SpringBoard.app pid: 2261 state: running foreground
+21:17:03.604 LanternholdUITests-Runner[88529:225404] [AM:0] Processing state snapshot com.apple.springboard@/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/CoreServices/SpringBoard.app pid: 2261 state: running foreground
+21:17:03.605 LanternholdUITests-Runner[88529:225404] <XCUIApplicationImpl: 0x6000017505c0 com.apple.springboard> changing currentProcess from (null) to com.apple.springboard (pid:0)
+21:17:03.606 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=NO
+21:17:03.606 LanternholdUITests-Runner[88529:225404] Setting pid for 0x600002c53380 0 -> 2261
+21:17:03.606 LanternholdUITests-Runner[88529:225528] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.springboard@/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/CoreServices/SpringBoard.app pid: 2261 state: running foreground
+21:17:03.606 LanternholdUITests-Runner[88529:225528] com.apple.springboard (pid:0) pid 0 -> 2261
+21:17:03.606 LanternholdUITests-Runner[88529:225528] com.apple.springboard (pid:0) checking for cached AX loaded value using pid 2261
+21:17:03.606 LanternholdUITests-Runner[88529:225528] Monitor: set com.apple.springboard (pid:2261) for pid 2261
+21:17:03.606 LanternholdUITests-Runner[88529:225404] Done setting pid for <XCUIApplicationImpl: 0x6000017505c0 com.apple.springboard> to 2261
+21:17:03.606 LanternholdUITests-Runner[88529:225530] com.apple.springboard (pid:2261) application state Unknown (0) -> Running Foreground (4)
+21:17:03.607 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=YES
+21:17:03.607 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=YES
+21:17:03.607 LanternholdUITests-Runner[88529:225404] App state updated for <XCUIApplicationImpl: 0x6000017505c0 com.apple.springboard>: Running Foreground (4)
+21:17:03.607 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=YES
+21:17:03.607 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7dc50>
+21:17:03.607 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001750740> completed after 0.004s
+21:17:03.607 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1'
+21:17:03.607 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1'
+21:17:03.608 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> started activity <XCActivityRecord: 0x60000293d2d0> 2026-11-22 21:17:03 +0000: Wait for com.apple.springboard to idle
+21:17:03.661 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe755e0d0> 2026-11-22 21:17:03 +0000: Wait for com.apple.springboard to idle
+21:17:03.661 xcodebuild[87662:223243] Nothing to delete
+21:17:03.608 LanternholdUITests-Runner[88529:225404] Creating future for 'getting screen identifiers' with timeout 30.00
+21:17:03.608 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c80ea0> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+21:17:03.608 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c80ea0>
+21:17:03.608 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174d6c0> completed after 0.000s
+    t =     1.34s     Wait for com.apple.springboard to idle
+21:17:03.608 LanternholdUITests-Runner[88529:225404] cleaning up getting screen identifiers
+21:17:03.609 LanternholdUITests-Runner[88529:225404] Waiting for com.apple.springboard (PID 2261) quiescence...
+21:17:03.609 LanternholdUITests-Runner[88529:225404] Creating future for 'getting unsupported bundle IDs for automation sessions' with timeout 30.00
+21:17:03.609 LanternholdUITests-Runner[88529:225404] Requesting unsupported bundle IDs for automation sessions
+21:17:03.609 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c80ea0> entering wait loop for 30.00s with expectations: `getting unsupported bundle IDs for automation sessions`
+21:17:03.609 LanternholdUITests-Runner[88529:225404] [AM:0] Processing state snapshot com.apple.springboard@/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/CoreServices/SpringBoard.app pid: 2261 state: running foreground
+21:17:03.610 LanternholdUITests-Runner[88529:225404] Done setting pid for <XCUIApplicationImpl: 0x6000017505c0 com.apple.springboard> to 2261
+21:17:03.610 LanternholdUITests-Runner[88529:225404] App state updated for <XCUIApplicationImpl: 0x6000017505c0 com.apple.springboard>: Running Foreground (4)
+21:17:03.610 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c80ea0>
+21:17:03.611 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174de00> completed after 0.001s
+21:17:03.611 LanternholdUITests-Runner[88529:225404] cleaning up getting unsupported bundle IDs for automation sessions
+21:17:03.611 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting automation session for com.apple.springboard (pid:2261)' with timeout 60.00
+21:17:03.611 LanternholdUITests-Runner[88529:225404] Requesting automation session for pid 2261, automation framework path: /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework
+21:17:03.611 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c831e0> entering wait loop for 60.00s with expectations: `requesting automation session for com.apple.springboard (pid:2261)`
+21:17:03.617 LanternholdUITests-Runner[88529:225528] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.springboard@/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/CoreServices/SpringBoard.app pid: 2261 state: running foreground
+21:17:03.618 LanternholdUITests-Runner[88529:225404] [AM:0] Processing state snapshot com.apple.springboard@/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/CoreServices/SpringBoard.app pid: 2261 state: running foreground
+21:17:03.618 LanternholdUITests-Runner[88529:225404] Done setting pid for <XCUIApplicationImpl: 0x6000017505c0 com.apple.springboard> to 2261
+21:17:03.618 LanternholdUITests-Runner[88529:225404] App state updated for <XCUIApplicationImpl: 0x6000017505c0 com.apple.springboard>: Running Foreground (4)
+21:17:03.788 LanternholdUITests-Runner[88529:225528] Got endpoint for automation session with pid 2261
+21:17:03.789 LanternholdUITests-Runner[88529:225528] Exchanging capabilities for automation session connection to pid 2261
+21:17:03.800 LanternholdUITests-Runner[88529:225529] Got remote interface capabilities for automation session connection to pid 2261: <XCTCapabilities: 0x60000000d3d0>: {
+    "accept remote connection capability" = 1;
+    "containing transformer capability" = 1;
+    "disclosed child rows transformer capability" = 2;
+    "element sorting transformer capability" = 1;
+    "evaluate query capability" = 1;
+    "fetch element attributes capability" = 2;
+    "indexing transformer capability" = 4;
+    "main thread checker runtime issues" = 1;
+    "malloc stack logging" = 1;
+    "notify animations idle capability" = 1;
+    "notify main run loop idle capability" = 1;
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+    "system provides kAXXCAttributeBannerIsStickyAttribute" = 1;
+}
+21:17:03.801 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c831e0>
+21:17:03.801 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174e200> completed after 0.190s
+21:17:03.801 LanternholdUITests-Runner[88529:225404] cleaning up requesting automation session for com.apple.springboard (pid:2261)
+21:17:03.802 LanternholdUITests-Runner[88529:225404] Requesting main run loop idle notification using automation session for com.apple.springboard (pid:2261)
+21:17:03.802 LanternholdUITests-Runner[88529:225529] Got event loop idle reply for com.apple.springboard (PID 2261)
+21:17:03.803 LanternholdUITests-Runner[88529:225404] Requesting animations idle notification using automation session for com.apple.springboard (pid:2261)
+21:17:03.803 LanternholdUITests-Runner[88529:225404] Waiting on quiescence state variables
+21:17:03.803 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'foreground' of com.apple.springboard (pid:2261) to be '0': fulfill=NO
+21:17:03.803 LanternholdUITests-Runner[88529:225529] Event loop is idle.
+21:17:03.803 LanternholdUITests-Runner[88529:225528] com.apple.springboard (pid:2261) eventLoopHasIdled NO -> YES
+21:17:03.804 LanternholdUITests-Runner[88529:225528] Posting KVO notifications for eventLoopHasIdled
+21:17:03.804 LanternholdUITests-Runner[88529:225529] Got animations reply for com.apple.springboard (PID 2261)
+21:17:03.804 LanternholdUITests-Runner[88529:225529] Animations are not active.
+21:17:03.805 LanternholdUITests-Runner[88529:225531] com.apple.springboard (pid:2261) animationsHaveFinished NO -> YES
+21:17:03.805 LanternholdUITests-Runner[88529:225531] Posting KVO notifications for animationsHaveFinished
+21:17:03.804 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'foreground' of com.apple.springboard (pid:2261) to be '0': fulfill=NO
+21:17:03.805 LanternholdUITests-Runner[88529:225404] isQuiescent: self.eventLoopHasIdled: YES && self.animationsHaveFinished: YES
+21:17:03.805 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isQuiescent' of com.apple.springboard (pid:2261) to be '1': fulfill=YES
+21:17:03.805 LanternholdUITests-Runner[88529:225404] Fulfilling (Expect value of 'foreground' of com.apple.springboard (pid:2261) to be '0' OR Expect value of 'isQuiescent' of com.apple.springboard (pid:2261) to be '1') because Expect value of 'isQuiescent' of com.apple.springboard (pid:2261) to be '1' is fulfilled
+21:17:03.805 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7d5f0> entering wait loop for 60.00s with expectations: `(Expect value of 'foreground' of com.apple.springboard (pid:2261) to be '0' OR Expect value of 'isQuiescent' of com.apple.springboard (pid:2261) to be '1')`
+21:17:03.805 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7d5f0>
+21:17:03.805 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001751480> completed after 0.000s
+21:17:03.805 LanternholdUITests-Runner[88529:225404] cleaning up (Expect value of 'foreground' of com.apple.springboard (pid:2261) to be '0' OR Expect value of 'isQuiescent' of com.apple.springboard (pid:2261) to be '1')
+21:17:03.805 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'foreground' of com.apple.springboard (pid:2261) to be '0'
+21:17:03.805 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'foreground' of com.apple.springboard (pid:2261) to be '0'
+21:17:03.806 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'isQuiescent' of com.apple.springboard (pid:2261) to be '1'
+21:17:03.806 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'isQuiescent' of com.apple.springboard (pid:2261) to be '1'
+21:17:03.806 LanternholdUITests-Runner[88529:225404] com.apple.springboard has quiesced or quiescence timeout has elapsed.
+21:17:03.806 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> finished activity <XCActivityRecord: 0x60000293d2d0> 2026-11-22 21:17:03 +0000: Wait for com.apple.springboard to idle (0.198108s)
+21:17:03.817 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> didFinishActivity:<XCActivityRecord: 0xbe755e3e0> 2026-11-22 21:17:03 +0000: Wait for com.apple.springboard to idle (0.198108s)
+21:17:03.818 xcodebuild[87662:223243] Nothing to delete
+21:17:03.806 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> finished activity <XCActivityRecord: 0x60000293d420> 2026-11-22 21:17:03 +0000: Setting device orientation to Landscape Left (0.309371s)
+21:17:03.818 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> didFinishActivity:<XCActivityRecord: 0xbe755e5a0> 2026-11-22 21:17:03 +0000: Setting device orientation to Landscape Left (0.309371s)
+21:17:03.818 xcodebuild[87662:223243] Nothing to delete
+21:17:03.806 LanternholdUITests-Runner[88529:225404] XCUIApplicationImplDepot: Creating XCUIApplicationImpl for identifier: com.louisherwick.lanternhold
+21:17:03.806 LanternholdUITests-Runner[88529:225404] updating com.louisherwick.lanternhold crashBehavior to 1
+21:17:03.806 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Target Application 'com.louisherwick.lanternhold' to be '1': fulfill=NO
+21:17:03.807 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Target Application 'com.louisherwick.lanternhold' to be '1': fulfill=NO
+21:17:03.807 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7cc30> entering wait loop for 60.00s with expectations: `Expect value of 'isApplicationStateKnown' of Target Application 'com.louisherwick.lanternhold' to be '1'`
+21:17:03.809 LanternholdUITests-Runner[88529:225528] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.louisherwick.lanternhold@/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app pid: 0 state: not running
+21:17:03.810 LanternholdUITests-Runner[88529:225404] [AM:0] Processing state snapshot com.louisherwick.lanternhold@/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app pid: 0 state: not running
+21:17:03.810 LanternholdUITests-Runner[88529:225404] <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> changing currentProcess from (null) to com.louisherwick.lanternhold (pid:0)
+21:17:03.811 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Target Application 'com.louisherwick.lanternhold' to be '1': fulfill=NO
+21:17:03.811 LanternholdUITests-Runner[88529:225404] Setting pid for 0x600002c53580 0 -> 0
+21:17:03.811 LanternholdUITests-Runner[88529:225528] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.louisherwick.lanternhold@/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app pid: 0 state: not running
+21:17:03.811 LanternholdUITests-Runner[88529:225531] com.louisherwick.lanternhold (pid:0) application state Unknown (0) -> Not Running (1)
+21:17:03.812 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Target Application 'com.louisherwick.lanternhold' to be '1': fulfill=YES
+21:17:03.812 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Target Application 'com.louisherwick.lanternhold' to be '1': fulfill=YES
+21:17:03.812 LanternholdUITests-Runner[88529:225404] App state updated for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>: Not Running (1)
+21:17:03.812 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Target Application 'com.louisherwick.lanternhold' to be '1': fulfill=YES
+21:17:03.813 LanternholdUITests-Runner[88529:225404] Done setting pid for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to 0
+21:17:03.813 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7cc30>
+21:17:03.813 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001751c80> completed after 0.006s
+21:17:03.813 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'isApplicationStateKnown' of Target Application 'com.louisherwick.lanternhold' to be '1'
+21:17:03.813 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'isApplicationStateKnown' of Target Application 'com.louisherwick.lanternhold' to be '1'
+21:17:03.813 LanternholdUITests-Runner[88529:225404] updating com.louisherwick.lanternhold crashBehavior to 3
+21:17:03.818 LanternholdUITests-Runner[88529:225404] Launching Target Application 'com.louisherwick.lanternhold' with arguments and environment variables:
+(
+    "-AppleLanguages",
+    "(en)",
+    "-AppleTextDirection",
+    NO,
+    "-AppleLocale",
+    "en_US",
+    "-GWReset",
+    YES,
+    "-GWSkipOnboarding",
+    YES,
+    "-GWWeather",
+    clear,
+    "-GWSeed",
+    1,
+    "-GWClock",
+    9,
+    "-GWStage",
+    world,
+    "-GWCameraX",
+    1500,
+    "-GWTimeScale",
+    "0.25"
+)
+{
+    "APP_DISTRIBUTOR_ID_OVERRIDE" = "com.apple.AppStore";
+    "DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/PackageFrameworks";
+    "DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "XCODE_SCHEME_NAME" = Lanternhold;
+    "__XCODE_BUILT_PRODUCTS_DIR_PATHS" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "__XPC_DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "__XPC_DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+}
+21:17:03.819 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> started activity <XCActivityRecord: 0x60000293dd50> 2026-11-22 21:17:03 +0000: Open com.louisherwick.lanternhold
+    t =     1.56s Open com.louisherwick.lanternhold
+21:17:03.821 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe755e4c0> 2026-11-22 21:17:03 +0000: Open com.louisherwick.lanternhold
+21:17:03.821 xcodebuild[87662:223243] Nothing to delete
+21:17:03.819 LanternholdUITests-Runner[88529:225404] Creating future for 'getting screen identifiers' with timeout 30.00
+21:17:03.819 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c77870> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+21:17:03.820 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c77870>
+21:17:03.820 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001748f80> completed after 0.000s
+21:17:03.820 LanternholdUITests-Runner[88529:225404] cleaning up getting screen identifiers
+21:17:03.820 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> started activity <XCActivityRecord: 0x6000029390a0> 2026-11-22 21:17:03 +0000: Launch com.louisherwick.lanternhold
+    t =     1.56s     Launch com.louisherwick.lanternhold
+21:17:03.822 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe755e0d0> 2026-11-22 21:17:03 +0000: Launch com.louisherwick.lanternhold
+21:17:03.823 xcodebuild[87662:223243] Nothing to delete
+21:17:03.821 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'activated' of <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to be '1': fulfill=NO
+21:17:03.821 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'activated' of <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to be '1': fulfill=NO
+21:17:03.821 LanternholdUITests-Runner[88529:225404] Launching <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> via Xcode with args:-AppleLanguages (en) -AppleTextDirection NO -AppleLocale en_US -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500 -GWTimeScale 0.25 env:{
+    "APP_DISTRIBUTOR_ID_OVERRIDE" = "com.apple.AppStore";
+    "DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/PackageFrameworks";
+    "DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "OS_ACTIVITY_MODE" = info;
+    "XCODE_SCHEME_NAME" = Lanternhold;
+    "__XCODE_BUILT_PRODUCTS_DIR_PATHS" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "__XPC_DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "__XPC_DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+}
+21:17:03.822 LanternholdUITests-Runner[88529:225404] Creating future for 'launching application via Xcode' with timeout 60.00
+21:17:03.824 xcodebuild[87662:225131] Dispatching!
+21:17:03.824 xcodebuild[87662:223243] Test runner session received application launch request: <XCTProcessLaunchParameters: 0xbe3b34960> bundleID: com.louisherwick.lanternhold, path: /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app	Launch arguments: (
+    "-AppleLanguages",
+    "(en)",
+    "-AppleTextDirection",
+    NO,
+    "-AppleLocale",
+    "en_US",
+    "-GWReset",
+    YES,
+    "-GWSkipOnboarding",
+    YES,
+    "-GWWeather",
+    clear,
+    "-GWSeed",
+    1,
+    "-GWClock",
+    9,
+    "-GWStage",
+    world,
+    "-GWCameraX",
+    1500,
+    "-GWTimeScale",
+    "0.25"
+)	Launch environment: {
+    "APP_DISTRIBUTOR_ID_OVERRIDE" = "com.apple.AppStore";
+    "DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/PackageFrameworks";
+    "DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "OS_ACTIVITY_MODE" = info;
+    "XCODE_SCHEME_NAME" = Lanternhold;
+    "__XCODE_BUILT_PRODUCTS_DIR_PATHS" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "__XPC_DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+    "__XPC_DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+}
+21:17:06.312 xcodebuild[87662:223243] Stored token 1 for launch of com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app
+21:17:06.315 xcodebuild[87662:223243] Launch session standard output and standard error is at /Users/runner/work/spiele-welle/spiele-welle/ci-out/02-ui.xcresult/Staging/1_Test/Diagnostics/LanternholdUITests-40B25013-8436-40CF-9554-77072FE2A45D-Configuration-Test Scheme Action-Iteration-1/LanternholdUITests-A76C0627-0AA5-4FCD-9F12-055DF4B8AC6B/StandardOutputAndStandardError-com.louisherwick.lanternhold.txt
+21:17:06.316 xcodebuild[87662:223243] Invoking receipt with: 1, (null)
+21:17:03.822 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c32250> entering wait loop for 60.00s with expectations: `launching application via Xcode`
+21:17:03.823 LanternholdUITests-Runner[88529:225404] [AM:0] Processing state snapshot com.louisherwick.lanternhold@/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app pid: 0 state: not running
+21:17:03.823 LanternholdUITests-Runner[88529:225404] Done setting pid for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to 0
+21:17:06.317 LanternholdUITests-Runner[88529:225529] Got launch request reply from Xcode, token/error: 1
+21:17:06.318 LanternholdUITests-Runner[88529:225529] Got launch request reply from Xcode, token 1, error (null)
+21:17:06.318 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c32250>
+21:17:06.318 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001749e00> completed after 2.496s
+21:17:06.318 LanternholdUITests-Runner[88529:225404] cleaning up launching application via Xcode
+21:17:06.318 LanternholdUITests-Runner[88529:225404] Waiting for Xcode to confirm launch completion...
+21:17:06.318 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:06.318 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:07.034 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:07.034 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:06.319 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c4b000> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:07.035 LanternholdUITests-Runner[88529:225529] Got status/error: 0 for token 1
+21:17:07.035 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c4b000>
+21:17:07.035 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174aa80> completed after 0.717s
+21:17:07.035 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:07.035 LanternholdUITests-Runner[88529:225404] 	Got progress 0 for token 1
+21:17:07.035 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:07.035 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:07.037 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:07.037 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:07.036 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c82b50> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:07.037 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:07.038 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c82b50>
+21:17:07.038 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174f540> completed after 0.002s
+21:17:07.038 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:07.038 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c827f0> entering wait loop for 0.20s with expectations: `delay`
+21:17:07.061 xcodebuild[87662:226077] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> claim LaunchSessionClaim_0xbe4669500 on simulator was issued, 3 claims exist.
+21:17:07.081 xcodebuild[87662:226078] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> claim LaunchSessionClaim_0xbe4669500 on simulator was issued, 3 claims exist.
+21:17:07.081 xcodebuild[87662:226078] EED6FB0A-E273-43C6-B5DE-3DF739543042: Registered for sim device notification, got token 13
+21:17:07.097 xcodebuild[87662:223312] EED6FB0A-E273-43C6-B5DE-3DF739543042: Unregistering for sim device notification with token 13
+21:17:07.120 xcodebuild[87662:226078] EED6FB0A-E273-43C6-B5DE-3DF739543042: Installing app at path: /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app and options: {
+    SkipWatchAppInstall = 1;
+}
+21:17:07.245 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c827f0>
+21:17:07.245 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174f540> completed after 0.207s
+21:17:07.245 LanternholdUITests-Runner[88529:225404] cleaning up delay
+21:17:07.245 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:07.245 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:07.270 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:07.270 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:07.245 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7bab0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:07.270 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:07.271 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7bab0>
+21:17:07.271 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174afc0> completed after 0.026s
+21:17:07.271 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:07.271 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c81cb0> entering wait loop for 0.17s with expectations: `delay`
+21:17:07.476 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c81cb0>
+21:17:07.477 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174fc00> completed after 0.206s
+21:17:07.477 LanternholdUITests-Runner[88529:225404] cleaning up delay
+21:17:07.478 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:07.479 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:07.597 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:07.597 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:07.480 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c81da0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:07.614 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:07.618 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c81da0>
+21:17:07.618 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001733300> completed after 0.138s
+21:17:07.618 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:07.618 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c81da0> entering wait loop for 0.06s with expectations: `delay`
+21:17:07.684 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c81da0>
+21:17:07.684 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017203c0> completed after 0.066s
+21:17:07.684 LanternholdUITests-Runner[88529:225404] cleaning up delay
+21:17:07.684 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:07.684 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:07.732 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:07.732 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:07.685 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c82e80> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:07.734 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:07.734 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c82e80>
+21:17:07.734 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017541c0> completed after 0.049s
+21:17:07.734 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:07.734 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c83660> entering wait loop for 0.15s with expectations: `delay`
+21:17:07.915 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c83660>
+21:17:07.915 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017541c0> completed after 0.181s
+21:17:07.915 LanternholdUITests-Runner[88529:225404] cleaning up delay
+21:17:07.915 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:07.917 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:08.388 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:08.389 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:07.917 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7bfc0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:08.746 LanternholdUITests-Runner[88529:225529] Got status/error: 0 for token 1
+21:17:09.159 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7bfc0>
+21:17:09.160 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174b4c0> completed after 1.243s
+21:17:09.160 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:09.160 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:09.161 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:09.577 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:09.577 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:09.162 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7d140> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:09.406 LanternholdUITests-Runner[88529:225529] Handling kAXPidStatusChangedNotification
+21:17:09.407 LanternholdUITests-Runner[88529:225529] Got kAXPidStatusChangedNotification for pid 3539: active
+21:17:09.409 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3539, caching
+21:17:09.435 LanternholdUITests-Runner[88529:225529] Handling kAXPidStatusChangedNotification
+21:17:09.435 LanternholdUITests-Runner[88529:225529] Got kAXPidStatusChangedNotification for pid 3675: active
+21:17:09.447 LanternholdUITests-Runner[88529:225528] Handling kAXPidStatusChangedNotification
+21:17:09.447 LanternholdUITests-Runner[88529:225528] Got kAXPidStatusChangedNotification for pid 3606: active
+21:17:09.448 LanternholdUITests-Runner[88529:225529] Handling kAXPidStatusChangedNotification
+21:17:09.448 LanternholdUITests-Runner[88529:225529] Got kAXPidStatusChangedNotification for pid 3596: active
+21:17:09.450 LanternholdUITests-Runner[88529:225529] Handling kAXPidStatusChangedNotification
+21:17:09.450 LanternholdUITests-Runner[88529:225529] Got kAXPidStatusChangedNotification for pid 3598: active
+21:17:09.452 LanternholdUITests-Runner[88529:225528] Handling kAXPidStatusChangedNotification
+21:17:09.453 LanternholdUITests-Runner[88529:225528] Got kAXPidStatusChangedNotification for pid 3518: active
+21:17:09.456 LanternholdUITests-Runner[88529:225528] Handling kAXPidStatusChangedNotification
+21:17:09.456 LanternholdUITests-Runner[88529:225528] Got kAXPidStatusChangedNotification for pid 3619: active
+21:17:09.566 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3675, caching
+21:17:09.566 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3606, caching
+21:17:09.566 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3596, caching
+21:17:09.566 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3598, caching
+21:17:09.566 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3518, caching
+21:17:09.566 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3619, caching
+21:17:09.592 LanternholdUITests-Runner[88529:225529] Handling kAXPidStatusChangedNotification
+21:17:09.593 LanternholdUITests-Runner[88529:225529] Got kAXPidStatusChangedNotification for pid 3493: active
+21:17:09.742 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3493, caching
+21:17:09.841 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:09.914 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7d140>
+21:17:09.914 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001754840> completed after 0.753s
+21:17:09.915 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:09.915 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:09.915 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:10.171 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:10.171 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:09.915 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c84420> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:09.931 LanternholdUITests-Runner[88529:225528] Handling kAXPidStatusChangedNotification
+21:17:09.931 LanternholdUITests-Runner[88529:225528] Got kAXPidStatusChangedNotification for pid 3371: active
+21:17:09.943 LanternholdUITests-Runner[88529:225529] Handling kAXPidStatusChangedNotification
+21:17:09.943 LanternholdUITests-Runner[88529:225529] Got kAXPidStatusChangedNotification for pid 3700: active
+21:17:09.974 LanternholdUITests-Runner[88529:225528] Handling kAXPidStatusChangedNotification
+21:17:09.974 LanternholdUITests-Runner[88529:225528] Got kAXPidStatusChangedNotification for pid 3531: active
+21:17:10.023 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3371, caching
+21:17:10.023 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3700, caching
+21:17:10.024 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3531, caching
+21:17:10.061 LanternholdUITests-Runner[88529:225529] Handling kAXPidStatusChangedNotification
+21:17:10.061 LanternholdUITests-Runner[88529:225529] Got kAXPidStatusChangedNotification for pid 3554: active
+21:17:10.078 LanternholdUITests-Runner[88529:225529] Handling kAXPidStatusChangedNotification
+21:17:10.078 LanternholdUITests-Runner[88529:225529] Got kAXPidStatusChangedNotification for pid 3643: active
+21:17:10.134 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3554, caching
+21:17:10.139 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3643, caching
+21:17:10.174 LanternholdUITests-Runner[88529:225529] Got status/error: 0 for token 1
+21:17:10.175 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c84420>
+21:17:10.175 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174b780> completed after 0.260s
+21:17:10.175 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:10.175 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:10.176 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:10.193 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:10.195 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:10.176 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c84900> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:10.197 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:10.203 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c84900>
+21:17:10.205 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174ba80> completed after 0.029s
+21:17:10.205 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:10.205 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c84900> entering wait loop for 0.17s with expectations: `delay`
+21:17:10.392 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c84900>
+21:17:10.392 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001744fc0> completed after 0.187s
+21:17:10.392 LanternholdUITests-Runner[88529:225404] cleaning up delay
+21:17:10.392 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:10.392 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:10.739 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:10.739 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:10.393 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c839c0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:10.899 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:10.994 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c839c0>
+21:17:10.995 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001754d00> completed after 0.602s
+21:17:10.995 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:10.995 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:10.995 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:11.092 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:11.092 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:10.995 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c839f0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:11.209 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:11.308 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c839f0>
+21:17:11.308 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001755380> completed after 0.313s
+21:17:11.308 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:11.308 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:11.309 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:11.640 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:11.640 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:11.309 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c880c0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:11.726 LanternholdUITests-Runner[88529:225532] Got status/error: 0 for token 1
+21:17:11.732 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c880c0>
+21:17:11.732 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001755840> completed after 0.423s
+21:17:11.732 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:11.732 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:11.732 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:11.942 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:11.943 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:11.733 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c88990> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:12.112 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:12.336 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c88990>
+21:17:12.336 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001755d80> completed after 0.604s
+21:17:12.336 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:12.336 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:12.337 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:12.580 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:12.580 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:12.337 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c88d20> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:12.831 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:12.879 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c88d20>
+21:17:12.880 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001756240> completed after 0.543s
+21:17:12.880 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:12.880 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:12.880 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:13.136 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:13.137 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:12.880 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c84a80> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:13.489 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:13.610 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c84a80>
+21:17:13.610 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001746fc0> completed after 0.730s
+21:17:13.610 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:13.610 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:13.611 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:14.138 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:14.139 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:13.611 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c89050> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:14.226 LanternholdUITests-Runner[88529:225532] Got status/error: 0 for token 1
+21:17:14.227 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c89050>
+21:17:14.227 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001756540> completed after 0.616s
+21:17:14.227 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:14.227 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:14.227 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:14.302 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:14.302 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:14.227 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7d530> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:14.384 LanternholdUITests-Runner[88529:225532] Got status/error: 0 for token 1
+21:17:14.385 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7d530>
+21:17:14.385 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001752540> completed after 0.157s
+21:17:14.385 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:14.385 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c89140> entering wait loop for 0.04s with expectations: `delay`
+21:17:14.438 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c89140>
+21:17:14.438 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001756940> completed after 0.053s
+21:17:14.438 LanternholdUITests-Runner[88529:225404] cleaning up delay
+21:17:14.438 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:14.438 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:14.472 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:14.472 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:14.438 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c85530> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:14.554 LanternholdUITests-Runner[88529:225528] Got status/error: 0 for token 1
+21:17:14.555 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c85530>
+21:17:14.555 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017450c0> completed after 0.117s
+21:17:14.555 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:14.555 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c85530> entering wait loop for 0.08s with expectations: `delay`
+21:17:14.654 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c85530>
+21:17:14.654 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001742940> completed after 0.099s
+21:17:14.654 LanternholdUITests-Runner[88529:225404] cleaning up delay
+21:17:14.654 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:14.654 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:15.540 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:15.541 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:14.655 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7d140> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:15.952 xcodebuild[87662:226078] EED6FB0A-E273-43C6-B5DE-3DF739543042: Installed app at path: /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app and options: {
+    SkipWatchAppInstall = 1;
+}
+21:17:15.638 LanternholdUITests-Runner[88529:225532] Got status/error: 0 for token 1
+21:17:15.638 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7d140>
+21:17:15.638 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001752a80> completed after 0.983s
+21:17:15.638 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:15.638 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:15.638 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:16.035 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:16.035 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:15.639 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7e6d0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:16.121 LanternholdUITests-Runner[88529:225529] Got status/error: 0 for token 1
+21:17:16.127 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7e6d0>
+21:17:16.127 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001752440> completed after 0.488s
+21:17:16.127 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:16.127 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:16.127 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:16.365 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:16.366 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:16.128 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c89590> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:16.449 LanternholdUITests-Runner[88529:225532] Got status/error: 0 for token 1
+21:17:16.450 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c89590>
+21:17:16.450 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001755a00> completed after 0.322s
+21:17:16.450 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:16.450 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:16.450 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:16.532 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:16.533 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:16.450 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c841b0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:16.699 LanternholdUITests-Runner[88529:225529] Got status/error: 0 for token 1
+21:17:16.700 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c841b0>
+21:17:16.704 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017401c0> completed after 0.253s
+21:17:16.704 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:16.704 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:16.704 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:16.777 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:16.777 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:16.704 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c89a70> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:16.778 LanternholdUITests-Runner[88529:225532] Got status/error: 0 for token 1
+21:17:16.778 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c89a70>
+21:17:16.778 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001756b40> completed after 0.074s
+21:17:16.778 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:16.779 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c85ce0> entering wait loop for 0.13s with expectations: `delay`
+21:17:16.940 xcodebuild[87662:226078] EED6FB0A-E273-43C6-B5DE-3DF739543042: Launching app with identifier: com.louisherwick.lanternhold and options: {
+    "activate_suspended" = 0;
+    arguments =     (
+        "-AppleLanguages",
+        "(en)",
+        "-AppleTextDirection",
+        NO,
+        "-AppleLocale",
+        "en_US",
+        "-GWReset",
+        YES,
+        "-GWSkipOnboarding",
+        YES,
+        "-GWWeather",
+        clear,
+        "-GWSeed",
+        1,
+        "-GWClock",
+        9,
+        "-GWStage",
+        world,
+        "-GWCameraX",
+        1500,
+        "-GWTimeScale",
+        "0.25"
+    );
+    binpref = arm64;
+    environment =     {
+        "APP_DISTRIBUTOR_ID_OVERRIDE" = "com.apple.AppStore";
+        "CA_ASSERT_MAIN_THREAD_TRANSACTIONS" = 0;
+        "CA_DEBUG_TRANSACTIONS" = 0;
+        "DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator:/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/PackageFrameworks";
+        "DYLD_INSERT_LIBRARIES" = "/Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/libMainThreadChecker.dylib:/usr/lib/libRPAC.dylib:/usr/lib/libRPAC.dylib";
+        "DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+        "LLVM_PROFILE_FILE" = "/dev/null";
+        NSUnbufferedIO = YES;
+        "OS_ACTIVITY_DT_MODE" = YES;
+        "OS_ACTIVITY_MODE" = info;
+        "PERFC_ENABLE_EXTENDED_DIAGNOSTIC_FORMAT" = 1;
+        "PERFC_ENABLE_PROFILE_MODE" = 1;
+        "PERFC_RESET_INSERT_LIBRARIES" = 1;
+        "PERFC_SUPPRESS_SYSTEM_REPORTS" = 1;
+        "SWIFT_BACKTRACE" = "enable=no";
+        TERM = dumb;
+        "XCODE_SCHEME_NAME" = Lanternhold;
+        "__XCODE_BUILT_PRODUCTS_DIR_PATHS" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+        "__XPC_DYLD_FRAMEWORK_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+        "__XPC_DYLD_LIBRARY_PATH" = "/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator";
+        "__XPC_LLVM_PROFILE_FILE" = "/dev/null";
+    };
+    stderr = "/dev/ttys001";
+    stdout = "/dev/ttys001";
+    "terminate_running_process" = 1;
+    "wait_for_debugger" = 1;
+}
+21:17:16.914 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c85ce0>
+21:17:16.914 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017404c0> completed after 0.136s
+21:17:16.915 LanternholdUITests-Runner[88529:225404] cleaning up delay
+21:17:16.915 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:16.915 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:16.942 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:17.025 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:16.915 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7e8b0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:17.033 LanternholdUITests-Runner[88529:225534] Got status/error: 0 for token 1
+21:17:17.034 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7e8b0>
+21:17:17.034 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001752c40> completed after 0.119s
+21:17:17.034 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:17.034 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c89ad0> entering wait loop for 0.08s with expectations: `delay`
+    t =    15.52s         Interface orientation changed to Landscape Right
+21:17:17.115 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c89ad0>
+21:17:17.116 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017570c0> completed after 0.082s
+21:17:17.116 LanternholdUITests-Runner[88529:225404] cleaning up delay
+21:17:17.116 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:17.116 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:20.222 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:20.300 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:17.117 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c858c0> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:17.374 LanternholdUITests-Runner[88529:225534] Handling kAXUserTestingNotification
+21:17:17.375 LanternholdUITests-Runner[88529:225534] Received kAXUserTestingNotification from AX element pid: 2261, elementOrHash.elementID: 0.1: {
+    controllerClass = SBDeviceApplicationSceneViewController;
+    event = ViewDidAppear;
+}
+21:17:17.483 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:17.483 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 89085: active
+21:17:17.593 LanternholdUITests-Runner[88529:225404] No application process found matching pid 89085, caching
+21:17:17.780 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> started activity <XCActivityRecord: 0x60000293d730> 2026-11-22 21:17:17 +0000: Interface orientation changed to Landscape Right
+21:17:20.301 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe770a1b0> 2026-11-22 21:17:17 +0000: Interface orientation changed to Landscape Right
+21:17:20.384 xcodebuild[87662:223312] EED6FB0A-E273-43C6-B5DE-3DF739543042: Launched app with identifier: com.louisherwick.lanternhold (pid = 89085)
+21:17:20.385 xcodebuild[87662:223312] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> tracking pid 89085
+21:17:20.385 xcodebuild[87662:223312] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> checking to see if pid 89085 is valid: kill(pid, 0) = 0 (YES, it's still running)
+21:17:20.385 xcodebuild[87662:223312] 📱<DVTiPhoneSimulator (0xbe40d4a00), iPhone 17 Pro, unknown class, 26.2 (23C54), EED6FB0A-E273-43C6-B5DE-3DF739543042> checking to see if pid 88529 is valid: kill(pid, 0) = 0 (YES, it's still running)
+21:17:20.634 xcodebuild[87662:223243] Nothing to delete
+21:17:17.785 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> finished activity <XCActivityRecord: 0x60000293d730> 2026-11-22 21:17:17 +0000: Interface orientation changed to Landscape Right (0.00499105s)
+21:17:20.634 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> didFinishActivity:<XCActivityRecord: 0xbe770a220> 2026-11-22 21:17:17 +0000: Interface orientation changed to Landscape Right (0.00499105s)
+21:17:20.634 xcodebuild[87662:223243] Nothing to delete
+21:17:18.014 LanternholdUITests-Runner[88529:225529] Handling kAXUserTestingNotification
+21:17:18.020 LanternholdUITests-Runner[88529:225529] Received kAXUserTestingNotification from AX element pid: 2261, elementOrHash.elementID: 0.1: {
+    controllerClass = SBSwitcherViewController;
+    event = ViewDidAppear;
+}
+21:17:18.021 LanternholdUITests-Runner[88529:225529] Handling kAXUserTestingNotification
+21:17:18.021 LanternholdUITests-Runner[88529:225529] Received kAXUserTestingNotification from AX element pid: 2261, elementOrHash.elementID: 0.1: {
+    controllerClass = SBDeckSwitcherViewController;
+    event = ViewDidAppear;
+}
+21:17:18.984 LanternholdUITests-Runner[88529:225529] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.louisherwick.lanternhold@/Users/runner/Library/Developer/CoreSimulator/Devices/EED6FB0A-E273-43C6-B5DE-3DF739543042/data/Containers/Bundle/Application/5523CFA4-4BA3-431D-A329-9012FC9A035A/Lanternhold.app pid: 89085 state: running foreground
+21:17:19.067 LanternholdUITests-Runner[88529:225404] [AM:0] Processing state snapshot com.louisherwick.lanternhold@/Users/runner/Library/Developer/CoreSimulator/Devices/EED6FB0A-E273-43C6-B5DE-3DF739543042/data/Containers/Bundle/Application/5523CFA4-4BA3-431D-A329-9012FC9A035A/Lanternhold.app pid: 89085 state: running foreground
+21:17:19.067 LanternholdUITests-Runner[88529:225404] Updating pid for currentProcess com.louisherwick.lanternhold (pid:0) to 89085
+21:17:19.068 LanternholdUITests-Runner[88529:225404] Setting pid for 0x600002c53580 0 -> 89085
+21:17:19.068 LanternholdUITests-Runner[88529:225404] Done setting pid for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to 89085
+21:17:19.068 LanternholdUITests-Runner[88529:225532] com.louisherwick.lanternhold (pid:0) pid 0 -> 89085
+21:17:19.069 LanternholdUITests-Runner[88529:225532] com.louisherwick.lanternhold (pid:0) checking for cached AX loaded value using pid 89085
+21:17:19.069 LanternholdUITests-Runner[88529:225532] Monitor: set com.louisherwick.lanternhold (pid:89085) for pid 89085
+21:17:19.070 LanternholdUITests-Runner[88529:225532] com.louisherwick.lanternhold (pid:89085) application state Not Running (1) -> Running Foreground (4)
+21:17:19.070 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'activated' of <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to be '1': fulfill=YES
+21:17:19.071 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'activated' of <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to be '1': fulfill=YES
+21:17:19.071 LanternholdUITests-Runner[88529:225404] App state updated for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>: Running Foreground (4)
+21:17:19.071 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'activated' of <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to be '1': fulfill=YES
+21:17:20.305 LanternholdUITests-Runner[88529:225532] Got status/error: 0 for token 1
+21:17:20.305 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c858c0>
+21:17:20.305 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x600001742480> completed after 3.189s
+21:17:20.305 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:20.305 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:20.305 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:20.634 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:20.634 xcodebuild[87662:223243] Got status 0 from operation for token 1
+21:17:20.306 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7f660> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:20.718 LanternholdUITests-Runner[88529:225532] Got status/error: 0 for token 1
+21:17:20.718 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7f660>
+21:17:20.718 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017534c0> completed after 0.413s
+21:17:20.719 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:20.719 LanternholdUITests-Runner[88529:225404] 	Checking status using token 1 for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app>
+21:17:20.719 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting launch progress' with timeout 60.00
+21:17:21.212 xcodebuild[87662:223243] Test runner session received request for launch process status with token 1
+21:17:21.212 xcodebuild[87662:223243] Got status 1 from operation for token 1
+21:17:20.719 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c86460> entering wait loop for 60.00s with expectations: `requesting launch progress`
+21:17:20.776 LanternholdUITests-Runner[88529:225534] Handling kAXPidStatusChangedNotification
+21:17:20.777 LanternholdUITests-Runner[88529:225534] Got kAXPidStatusChangedNotification for pid 3539: active
+21:17:20.779 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.779 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3596: active
+21:17:20.783 LanternholdUITests-Runner[88529:225534] Handling kAXPidStatusChangedNotification
+21:17:20.783 LanternholdUITests-Runner[88529:225534] Got kAXPidStatusChangedNotification for pid 3598: active
+21:17:20.783 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.784 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3518: active
+21:17:20.784 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.784 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3619: active
+21:17:20.784 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.784 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3675: active
+21:17:20.785 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.785 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3493: active
+21:17:20.785 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.785 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3371: active
+21:17:20.786 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.786 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3606: active
+21:17:20.786 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.786 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3700: active
+21:17:20.786 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.786 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3531: active
+21:17:20.787 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.787 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3554: active
+21:17:20.787 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:20.787 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3643: active
+21:17:20.822 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3539, caching
+21:17:20.822 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3596, caching
+21:17:20.822 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3598, caching
+21:17:20.822 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3518, caching
+21:17:20.822 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3619, caching
+21:17:20.822 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3675, caching
+21:17:20.822 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3493, caching
+21:17:20.822 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3371, caching
+21:17:20.822 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3606, caching
+21:17:20.823 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3700, caching
+21:17:20.823 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3531, caching
+21:17:20.823 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3554, caching
+21:17:20.823 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3643, caching
+    t =    18.96s         Setting up automation session
+21:17:21.215 LanternholdUITests-Runner[88529:225532] Got status/error: 1 for token 1
+21:17:21.215 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c86460>
+21:17:21.216 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000173e940> completed after 0.497s
+21:17:21.216 LanternholdUITests-Runner[88529:225404] cleaning up requesting launch progress
+21:17:21.216 LanternholdUITests-Runner[88529:225404] 	Got progress 1 for token 1
+21:17:21.216 LanternholdUITests-Runner[88529:225404] Xcode confirmed launch completion.
+21:17:21.216 LanternholdUITests-Runner[88529:225404] com.louisherwick.lanternhold (pid:89085) setting launch token to 1
+21:17:21.216 LanternholdUITests-Runner[88529:225534] Monitor: set com.louisherwick.lanternhold (pid:89085) for token 1
+21:17:21.216 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isProcessIDValid' of com.louisherwick.lanternhold (pid:89085) to be '1': fulfill=YES
+21:17:21.216 LanternholdUITests-Runner[88529:225404] cleaning up (during deallocation) Expect value of 'isProcessIDValid' of com.louisherwick.lanternhold (pid:89085) to be '1'
+21:17:21.216 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'isProcessIDValid' of com.louisherwick.lanternhold (pid:89085) to be '1'
+21:17:21.217 LanternholdUITests-Runner[88529:225404] Waiting for <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to activate
+21:17:21.217 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c8aee0> entering wait loop for 60.00s with expectations: `Expect value of 'activated' of <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to be '1'`
+21:17:21.217 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c8aee0>
+21:17:21.217 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174e340> completed after 0.000s
+21:17:21.217 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'activated' of <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to be '1'
+21:17:21.217 LanternholdUITests-Runner[88529:225404] cleaning up Expect value of 'activated' of <XCUIApplicationImpl: 0x600001750180 com.louisherwick.lanternhold at /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/build/SimData/Build/Products/Debug-iphonesimulator/Lanternhold.app> to be '1'
+21:17:21.217 LanternholdUITests-Runner[88529:225404] Acquiring background assertion for com.louisherwick.lanternhold (pid:89085)
+21:17:21.217 LanternholdUITests-Runner[88529:225404] Creating future for 'acquiring background assertion' with timeout 10.00
+21:17:21.217 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7f570> entering wait loop for 10.00s with expectations: `acquiring background assertion`
+21:17:21.221 LanternholdUITests-Runner[88529:225532] Got reply for background assertion for 89085, acquired: YES.
+21:17:21.222 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7f570>
+21:17:21.222 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000173eb80> completed after 0.005s
+21:17:21.222 LanternholdUITests-Runner[88529:225404] cleaning up acquiring background assertion
+21:17:21.223 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> started activity <XCActivityRecord: 0x600002938e70> 2026-11-22 21:17:21 +0000: Setting up automation session
+21:17:21.285 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe770a300> 2026-11-22 21:17:21 +0000: Setting up automation session
+21:17:21.285 xcodebuild[87662:223243] Nothing to delete
+21:17:21.223 LanternholdUITests-Runner[88529:225404] Creating future for 'requesting automation session for com.louisherwick.lanternhold (pid:89085)' with timeout 60.00
+21:17:21.223 LanternholdUITests-Runner[88529:225404] Requesting automation session for pid 89085, automation framework path: /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework
+21:17:21.224 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c86a60> entering wait loop for 60.00s with expectations: `requesting automation session for com.louisherwick.lanternhold (pid:89085)`
+    t =    21.97s         Wait for com.louisherwick.lanternhold to idle
+21:17:24.222 LanternholdUITests-Runner[88529:225529] Got endpoint for automation session with pid 89085
+21:17:24.224 LanternholdUITests-Runner[88529:225529] Exchanging capabilities for automation session connection to pid 89085
+21:17:24.227 LanternholdUITests-Runner[88529:225529] Got remote interface capabilities for automation session connection to pid 89085: <XCTCapabilities: 0x600000008060>: {
+    "accept remote connection capability" = 1;
+    "containing transformer capability" = 1;
+    "disclosed child rows transformer capability" = 2;
+    "element sorting transformer capability" = 1;
+    "evaluate query capability" = 1;
+    "fetch element attributes capability" = 2;
+    "indexing transformer capability" = 4;
+    "main thread checker runtime issues" = 1;
+    "malloc stack logging" = 1;
+    "notify animations idle capability" = 1;
+    "notify main run loop idle capability" = 1;
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+    "system provides kAXXCAttributeBannerIsStickyAttribute" = 1;
+}
+21:17:24.227 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c86a60>
+21:17:24.227 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x60000174e340> completed after 3.004s
+21:17:24.227 LanternholdUITests-Runner[88529:225404] cleaning up requesting automation session for com.louisherwick.lanternhold (pid:89085)
+21:17:24.228 LanternholdUITests-Runner[88529:225404] -[XCTRuntimeIssueDetectionManager runtimeIssueDetectionEnabled] runtimeIssueDetectionEnabled based on XCTDisableRuntimeIssues and runtime diagnostics policies: YES
+21:17:24.228 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> finished activity <XCActivityRecord: 0x600002938e70> 2026-11-22 21:17:21 +0000: Setting up automation session (3.00533s)
+21:17:24.269 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> didFinishActivity:<XCActivityRecord: 0xbe770a370> 2026-11-22 21:17:21 +0000: Setting up automation session (3.00533s)
+21:17:24.270 xcodebuild[87662:223243] Nothing to delete
+21:17:24.229 LanternholdUITests-Runner[88529:225404] <XCTContext: 0x600002110550> started activity <XCActivityRecord: 0x600002931d50> 2026-11-22 21:17:24 +0000: Wait for com.louisherwick.lanternhold to idle
+21:17:24.270 xcodebuild[87662:223243] _XCT_testCaseWithIdentifier:<XCTTestIdentifier leaf, method, swift ["FilmOpeningUITests", "testA1TheWalkSlowed"]> willStartActivity:<XCActivityRecord: 0xbe770a3e0> 2026-11-22 21:17:24 +0000: Wait for com.louisherwick.lanternhold to idle
+21:17:24.270 xcodebuild[87662:223243] Nothing to delete
+21:17:24.229 LanternholdUITests-Runner[88529:225404] Creating future for 'getting screen identifiers' with timeout 30.00
+21:17:24.229 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c7f570> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+21:17:24.230 LanternholdUITests-Runner[88529:225404] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x600000c7f570>
+21:17:24.230 LanternholdUITests-Runner[88529:225404] Wait <XCTWaiterWait: 0x6000017494c0> completed after 0.000s
+21:17:24.230 LanternholdUITests-Runner[88529:225404] cleaning up getting screen identifiers
+21:17:24.230 LanternholdUITests-Runner[88529:225404] Waiting for com.louisherwick.lanternhold (PID 89085) quiescence...
+21:17:24.230 LanternholdUITests-Runner[88529:225404] Requesting main run loop idle notification using automation session for com.louisherwick.lanternhold (pid:89085)
+21:17:24.231 LanternholdUITests-Runner[88529:225404] Requesting animations idle notification using automation session for com.louisherwick.lanternhold (pid:89085)
+21:17:24.231 LanternholdUITests-Runner[88529:225404] Waiting on quiescence state variables
+21:17:24.231 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'foreground' of com.louisherwick.lanternhold (pid:89085) to be '0': fulfill=NO
+21:17:24.231 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'foreground' of com.louisherwick.lanternhold (pid:89085) to be '0': fulfill=NO
+21:17:24.231 LanternholdUITests-Runner[88529:225404] isQuiescent: self.eventLoopHasIdled: NO && self.animationsHaveFinished: NO
+21:17:24.231 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isQuiescent' of com.louisherwick.lanternhold (pid:89085) to be '1': fulfill=NO
+21:17:24.231 LanternholdUITests-Runner[88529:225404] isQuiescent: self.eventLoopHasIdled: NO && self.animationsHaveFinished: NO
+21:17:24.231 LanternholdUITests-Runner[88529:225404] KVO change: checked status of Expect value of 'isQuiescent' of com.louisherwick.lanternhold (pid:89085) to be '1': fulfill=NO
+21:17:24.231 LanternholdUITests-Runner[88529:225534] Got animations reply for com.louisherwick.lanternhold (PID 89085)
+21:17:24.232 LanternholdUITests-Runner[88529:225534] Animations are not active.
+21:17:24.232 LanternholdUITests-Runner[88529:225534] com.louisherwick.lanternhold (pid:89085) animationsHaveFinished NO -> YES
+21:17:24.232 LanternholdUITests-Runner[88529:225404] Not fulfilling (Expect value of 'foreground' of com.louisherwick.lanternhold (pid:89085) to be '0' OR Expect value of 'isQuiescent' of com.louisherwick.lanternhold (pid:89085) to be '1') because no subexpectations are fulfilled
+21:17:24.232 LanternholdUITests-Runner[88529:225404] <XCTWaiter: 0x600000c89b30> entering wait loop for 60.00s with expectations: `(Expect value of 'foreground' of com.louisherwick.lanternhold (pid:89085) to be '0' OR Expect value of 'isQuiescent' of com.louisherwick.lanternhold (pid:89085) to be '1')`
+21:17:24.232 LanternholdUITests-Runner[88529:225534] Posting KVO notifications for animationsHaveFinished
+21:17:24.232 LanternholdUITests-Runner[88529:225534] isQuiescent: self.eventLoopHasIdled: NO && self.animationsHaveFinished: YES
+21:17:24.232 LanternholdUITests-Runner[88529:225534] isQuiescent: self.eventLoopHasIdled: NO && self.animationsHaveFinished: YES
+21:17:24.232 LanternholdUITests-Runner[88529:225534] KVO change: checked status of Expect value of 'isQuiescent' of com.louisherwick.lanternhold (pid:89085) to be '1': fulfill=NO
+21:17:26.083 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:26.084 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3398: active
+21:17:26.211 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3398, caching
+21:17:26.281 LanternholdUITests-Runner[88529:225534] Handling kAXPidStatusChangedNotification
+21:17:26.281 LanternholdUITests-Runner[88529:225534] Got kAXPidStatusChangedNotification for pid 3419: active
+21:17:26.282 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:26.282 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3444: active
+21:17:26.285 LanternholdUITests-Runner[88529:225534] Handling kAXPidStatusChangedNotification
+21:17:26.290 LanternholdUITests-Runner[88529:225534] Got kAXPidStatusChangedNotification for pid 3341: active
+21:17:26.316 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:26.316 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3444: active
+21:17:26.317 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:26.317 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3341: active
+21:17:26.318 LanternholdUITests-Runner[88529:225532] Handling kAXPidStatusChangedNotification
+21:17:26.318 LanternholdUITests-Runner[88529:225532] Got kAXPidStatusChangedNotification for pid 3419: active
+21:17:26.319 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3419, caching
+21:17:26.320 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3444, caching
+21:17:26.320 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3341, caching
+21:17:26.320 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3444, caching
+21:17:26.320 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3341, caching
+21:17:26.320 LanternholdUITests-Runner[88529:225404] No application process found matching pid 3419, caching
