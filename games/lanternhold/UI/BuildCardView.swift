@@ -153,20 +153,21 @@ struct OptionRow<Trailing: View>: View {
                             GlyphView(glyph: .check)
                                 .foregroundStyle(NightGlass.lanternGold)
                         }
+                        // Polish C1: the plaque's own words (bone, or dim mist when it cannot be taken; deep navy
+                        // under the amber), the detail in its secondary.
                         Text(inked: name, .headline)
                             .font(Theme.caps(.headline))
-                            .foregroundStyle(Theme.ink.opacity(enabled ? 1 : 0.55))
                     }
                     SeparatedText(text: detail, style: .subheadline)
                         .font(Theme.serif(.subheadline))
-                        .foregroundStyle(Theme.inkSoft.opacity(enabled ? 1 : 0.7))
+                        .foregroundStyle(.secondary)
                     if let hint {
                         HStack(spacing: 4) {
                             GlyphView(glyph: hintIsWarning ? .warning : .lock)
                             Text(inked: hint, .footnote)
                         }
                         .font(Theme.serif(.footnote))
-                        .foregroundStyle(NightGlass.mist)
+                        .foregroundStyle(.secondary)
                     }
                 }
                 .fixedSize(horizontal: false, vertical: true)
@@ -183,10 +184,9 @@ struct OptionRow<Trailing: View>: View {
             // so the four tax rates fit their card without scrolling (round lh-ui-1 cut the fourth).
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
-            .background(PlaqueBackground(enabled: enabled, marked: selected))
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        // Polish C1: one button style (amber under the finger, the plaque's cue).
+        .buttonStyle(GlassPlaqueStyle(marked: selected))
         .disabled(!enabled)
         .accessibilityIdentifier(identifier)
     }

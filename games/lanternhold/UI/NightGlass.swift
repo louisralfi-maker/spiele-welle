@@ -164,6 +164,8 @@ enum NightGlass {
     /// The pane's navy at 224 of 255 (paneAlpha).
     static let navyInk = Ink(rgb: 0x121C3B, alpha: 224)
     static let brassInk = Ink(rgb: 0xA68A54)
+    /// The main plaque's glint on a tap beside its pane (polish C1): palette fireWhite.
+    static let glintInk = Ink(rgb: 0xFFF2C2)
 
     /// The skins of the pane family.
     enum Skin: String, Sendable, CaseIterable {
@@ -341,27 +343,44 @@ struct GlassPlaqueBackground: View {
     }
 }
 
-/// A choice on night glass. Pressed, lantern amber fills it from the left in 0.12 s (at once with Reduce Motion), the
-/// words under the fill turn deep navy, and one haptic tick answers (`haptics`: pass the player's setting). The label
-/// keeps its own padding and frame; words inside it must not set their own colour, or they keep it under the fill.
+/// A choice on night glass, the one button style of the game (polish C1, law 2 "Every button: `GlassPlaqueStyle`"). On
+/// touch-down lantern amber fills it from the left (linear, the quick token's 0.15 s; back in its 0.10 s; at once under
+/// Reduce Motion), the words under the fill turn deep navy, and the press plays `plaquePress` through the game's
+/// feedback hub (`PlaqueFeedback` in the environment), so the player's Haptics and Sound switches hold for it. The
+/// label keeps its own padding and frame; words inside it must not set their own colour, or they keep it under the
+/// fill: they take the plaque's primary (bone, lantern gold with `goldWords`) or `.foregroundStyle(.secondary)` (mist).
 struct GlassPlaqueStyle: ButtonStyle {
     var marked = false
     var danger = false
     /// Inside a pane (a sheet's buttons): the inset skins.
     var inside = false
+    /// False: the press asks nothing of the hand or the ear (kept for callers; every plaque of the game asks).
     var haptics = true
     /// Words in lantern gold at rest (a sheet's main button); otherwise bone.
     var goldWords = false
+    /// Drawn as a plaque that cannot be paid while it still takes the touch (the lord pass's portrait not chosen).
+    var dimmed = false
+    /// The skin's side (pt) when the plaque is smaller than its touch area (the card's x: a 26 pt box in 44 pt).
+    var face: CGFloat? = nil
 
+    @ViewBuilder
     func makeBody(configuration: Configuration) -> some View {
-        GlassPlaqueBody(label: configuration.label, isPressed: configuration.isPressed, marked: marked, danger: danger,
-                        inside: inside, haptics: haptics, goldWords: goldWords)
+        if let face {
+            GlassPlaqueBody(label: configuration.label.frame(width: face, height: face),
+                            isPressed: configuration.isPressed, marked: marked, danger: danger, inside: inside,
+                            haptics: haptics, goldWords: goldWords, dimmed: dimmed)
+                .frame(width: max(44, face), height: max(44, face))
+                .contentShape(Rectangle())
+        } else {
+            GlassPlaqueBody(label: configuration.label, isPressed: configuration.isPressed, marked: marked,
+                            danger: danger, inside: inside, haptics: haptics, goldWords: goldWords, dimmed: dimmed)
+        }
     }
 }
 
 /// The main button of a card or a sheet on night glass (Continue, Resume, Begin, a second chance), with
 /// GoldButtonStyle's metrics: small capitals, 22 x 8 pt of padding, 52 pt or more. Inside a pane its line and words
-/// are lantern gold.
+/// are lantern gold. A tap on the dim behind its pane makes its line glint (`lhPaneGlint`, law 2).
 struct GlassMainButtonStyle: ButtonStyle {
     var inside = true
     var haptics = true
@@ -374,7 +393,7 @@ struct GlassMainButtonStyle: ButtonStyle {
                             .padding(.vertical, 8)
                             .frame(minWidth: 52, minHeight: 52),
                         isPressed: configuration.isPressed, marked: true, danger: false, inside: inside,
-                        haptics: haptics, goldWords: true)
+                        haptics: haptics, goldWords: true, glints: true)
     }
 }
 
@@ -398,7 +417,7 @@ struct GlassQuietButtonStyle: ButtonStyle {
 }
 
 /// The plaque's body for the three styles: the skin at rest, the amber sweep over it, the words twice (at rest, and
-/// deep navy under the sweep).
+/// deep navy under the sweep), the main plaque's glint.
 struct GlassPlaqueBody<Label: View>: View {
     let label: Label
     let isPressed: Bool
@@ -407,31 +426,53 @@ struct GlassPlaqueBody<Label: View>: View {
     var inside = false
     var haptics = true
     var goldWords = false
+    var dimmed = false
+    /// The main plaque of a pane: its line glints when the dim behind the pane is touched.
+    var glints = false
     @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.lhReduceMotion) private var gameReduceMotion
+    @Environment(\.lhPlaqueFeedback) private var feedback
+    @Environment(\.lhPaneGlint) private var glint
+    @State private var glintLight = 0.0
 
     var body: some View {
         let pressed = isPressed && isEnabled
+        let mode = MotionStyle.mode(game: gameReduceMotion, system: systemReduceMotion)
         // Stage-3-interface (round lh-s3-3's 45): the skins lie behind the words, sized to them; as siblings in a
         // ZStack the resizable skins took all the room offered and the report's Continue filled half the card.
         label
-            .foregroundStyle(restWords)
+            .foregroundStyle(restWords, restSecondary)
             .background {
                 ZStack {
                     GlassSkinView(skin: restSkin)
+                    if glints {
+                        GlassGlintLine(inside: inside)
+                            .opacity(glintLight)
+                    }
                     GlassSkinView(skin: .plaquePressed)
                         .mask(alignment: .leading) { sweep(pressed) }
                 }
             }
             .overlay {
                 label
-                    .foregroundStyle(NightGlass.navyDeep)
+                    .foregroundStyle(NightGlass.navyDeep, NightGlass.navyDeep)
                     .mask(alignment: .leading) { sweep(pressed) }
                     .accessibilityHidden(true)
             }
-        .animation(reduceMotion ? nil : .linear(duration: 0.12), value: pressed)
+        .animation(GlassPlaqueMotion.sweep(pressed: pressed, mode: mode), value: pressed)
         .contentShape(Rectangle())
-        .sensoryFeedback(.selection, trigger: pressed) { _, now in now && haptics }
+        .onChange(of: pressed) { _, now in
+            if now && haptics { feedback?.pressed() }
+        }
+        .onChange(of: glint) { _, _ in
+            guard glints else { return }
+            withAnimation(.lhEnter(.quick, mode: mode)) { glintLight = 1 }
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: UInt64(mode.inSeconds(.quick) * 1_000_000_000))
+                withAnimation(.lhLeave(.quick, mode: mode)) { glintLight = 0 }
+            }
+        }
     }
 
     /// The fill's mask: the whole plaque, scaled from the leading edge.
@@ -445,7 +486,7 @@ struct GlassPlaqueBody<Label: View>: View {
             if danger { return .insetDanger }
             return marked ? .insetMarked : .inset
         }
-        if !isEnabled { return .plaqueOff }
+        if !isEnabled || dimmed { return .plaqueOff }
         if danger { return .plaqueDanger }
         return marked ? .plaqueMarked : .plaque
     }
@@ -453,6 +494,90 @@ struct GlassPlaqueBody<Label: View>: View {
     private var restWords: Color {
         if !isEnabled { return NightGlass.mistDim }
         return goldWords ? NightGlass.lanternGold : NightGlass.bone
+    }
+
+    private var restSecondary: Color {
+        isEnabled ? NightGlass.mist : NightGlass.mistDim
+    }
+}
+
+/// The plaque's timings (polish C1, law 1 and law 2), apart so the tests read them.
+enum GlassPlaqueMotion {
+    /// The amber sweep: light moving at a constant speed, so linear (with flicker, the time of day and the veil, the
+    /// law's one more case); in at the quick token's 0.15 s, back at its 0.10 s. None under Reduce Motion: the fill
+    /// is there at once, the cue still plays.
+    static func sweep(pressed: Bool, mode: MotionMode) -> Animation? {
+        guard !mode.reduceMotion else { return nil }
+        return .linear(duration: pressed ? MotionToken.quick.inSeconds : MotionToken.quick.outSeconds)
+    }
+
+    /// The glint of the main plaque's line on a tap beside its pane: up at the quick token's in, down at its out,
+    /// 0.25 s in all (law 2: "glints the main plaque's brass line for 0.25 s").
+    static var glintSeconds: Double { MotionToken.quick.inSeconds + MotionToken.quick.outSeconds }
+}
+
+/// The glint over a plaque's line: the line's own pixels in fire white (palette fireWhite), nothing else.
+struct GlassGlintLine: View {
+    var inside = false
+
+    var body: some View {
+        let grid = inside ? NightGlass.insetGrid : NightGlass.plaqueGrid
+        GlassNineSlice(image: NightGlassImages.image(key: inside ? "glint-inset" : "glint-plaque", grid: grid,
+                                                     legend: ["l": NightGlass.glintInk]),
+                       cap: (grid.count - 1) / 2)
+    }
+}
+
+// MARK: - The plaque's answer and the pane's glint in the environment
+
+/// Where a plaque's press is answered: the game's feedback hub, looked up at the press (the hub is installed after
+/// the model is made), so the press plays `plaquePress` behind the player's Haptics and Sound switches (polish C1;
+/// critic-feel F15: the plaque's own haptic ignored the switch).
+@MainActor
+final class PlaqueFeedback {
+    private let hub: () -> (any FeedbackHub)?
+
+    init(hub: @escaping () -> (any FeedbackHub)?) {
+        self.hub = hub
+    }
+
+    /// The model's hub, as it stands at each press.
+    convenience init(model: GameModel) {
+        self.init { [weak model] in model?.feedback }
+    }
+
+    /// A plaque went down under the finger.
+    func pressed() {
+        hub()?.play(.plaquePress)
+    }
+}
+
+private struct LHPlaqueFeedbackKey: EnvironmentKey {
+    static let defaultValue: PlaqueFeedback? = nil
+}
+
+private struct LHPaneGlintKey: EnvironmentKey {
+    static let defaultValue = 0
+}
+
+extension EnvironmentValues {
+    /// The plaques' answer (`PlaqueFeedback`), set once at the root; nil (previews, the title): a silent press.
+    var lhPlaqueFeedback: PlaqueFeedback? {
+        get { self[LHPlaqueFeedbackKey.self] }
+        set { self[LHPlaqueFeedbackKey.self] = newValue }
+    }
+
+    /// Counts the taps on the dim behind the open pane; each one glints the pane's main plaque (law 2).
+    var lhPaneGlint: Int {
+        get { self[LHPaneGlintKey.self] }
+        set { self[LHPaneGlintKey.self] = newValue }
+    }
+}
+
+extension View {
+    /// Sets the plaques' answer for every plaque below.
+    func lhPlaqueFeedback(_ feedback: PlaqueFeedback?) -> some View {
+        environment(\.lhPlaqueFeedback, feedback)
     }
 }
 
