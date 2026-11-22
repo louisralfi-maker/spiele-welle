@@ -164,8 +164,12 @@ final class SoundTests: XCTestCase {
         XCTAssertGreaterThan(wet.rain, 0, "rain only while it rains")
         let hall = AmbienceMix.target(hour: 12, rain: 0, place: .hall, fire: 0)
         XCTAssertGreaterThan(hall.hall, hall.day * 3, "in the great hall the hall is heard, the wind only faintly")
+        // Step 0b (law 4's one duck rule): the screen duck no longer sits inside the beds; it rides beside them
+        // (`ducks`) and the ear hears the bed at half once the hub's follower has caught up.
         let ducked = AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0, ducked: true)
-        XCTAssertEqual(ducked.day, noon.day / 2, accuracy: 1e-9)
+        XCTAssertEqual(ducked.heard(.ambDay), noon.day / 2, accuracy: 1e-9)
+        XCTAssertEqual(ducked.day, noon.day, accuracy: 1e-9, "the bed itself is not multiplied")
+        XCTAssertTrue(ducked.ducks.screen)
         XCTAssertEqual(SoundPlace.at(x: WorldLayout.throneX, inAudience: false), .hall)
         XCTAssertEqual(SoundPlace.at(x: 700, inAudience: false), .outside)
         XCTAssertEqual(SoundPlace.at(x: 1500, inAudience: false), .castle)
@@ -260,6 +264,35 @@ final class SoundTests: XCTestCase {
         XCTAssertTrue(DebugArgs.keys.contains("GWSound"))
         XCTAssertEqual(DebugArgs(values: ["GWSound": "YES"]).sound, true)
         XCTAssertNil(DebugArgs(values: [:]).sound)
+    }
+
+    /// Step 0b: every cue, the contract's too, plays a file that is in the app and in MANIFEST.txt; only the two mood
+    /// cues stay silent (their crowd sounds are D4's).
+    func testEveryCuePlaysAFileThatShipsAndIsInTheManifest() throws {
+        let folder = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let manifestURL = folder.appendingPathComponent("Resources/Sound/MANIFEST.txt")
+        var found = try? String(contentsOf: manifestURL, encoding: .utf8)
+        if found == nil, let url = Bundle.main.url(forResource: "MANIFEST", withExtension: "txt") {
+            found = try? String(contentsOf: url, encoding: .utf8)
+        }
+        let text = try XCTUnwrap(found, "MANIFEST.txt is found")
+        let listed = Set(text.split(separator: "\n").compactMap { $0.split(separator: " ").first.map(String.init) })
+        let silentOnPurpose: Set<FeedbackCue> = [.happinessUp, .happinessDown]
+        for cue in FeedbackCue.allCases where !silentOnPurpose.contains(cue) {
+            let sound = try XCTUnwrap(cue.sound, "\(cue) is not silent")
+            XCTAssertGreaterThan(sound.volume, 0, "\(cue)")
+            XCTAssertTrue(listed.contains(sound.id.rawValue), "\(cue): \(sound.id.rawValue) is in MANIFEST.txt")
+            let url = Bundle.main.url(forResource: sound.id.rawValue, withExtension: "wav", subdirectory: "Sound")
+                ?? Bundle.main.url(forResource: sound.id.rawValue, withExtension: "wav")
+            XCTAssertNotNil(url, "\(cue): \(sound.id.rawValue).wav is in the app")
+        }
+        let contract: [FeedbackCue] = [.lanternUp, .lanternDown, .paneOpen, .paneClose, .bubbleClose, .plaquePress,
+                                       .boardSet, .hit, .manHit, .dawnGate, .buildStood, .manFell, .dawnHeld,
+                                       .dawnToll]
+        for cue in contract {
+            XCTAssertNotNil(cue.answerSize, "\(cue) has its step on the ladder")
+            XCTAssertNotNil(cue.sound, "\(cue)")
+        }
     }
 
     func testEveryFileIsInTheAppAndSmall() throws {
