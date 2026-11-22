@@ -95,11 +95,11 @@ final class CountHandTests: XCTestCase {
             placed = game.touch.count?.placed ?? placed
         }
         XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid before the board is full")
-        // The board's area itself reaches `countNearReach` past its near edge (its full lift range).
-        let reach = try point(game, x: nearEdge + (GameModel.countNearReach - 0.5) * toward, lift: 2)
+        // The board's area itself reaches `countNearReach` past its near edge toward him (low, under his body's lift).
+        let reach = try point(game, x: nearEdge - (GameModel.countNearReach - 0.5) * toward, lift: 2)
         let place = try XCTUnwrap(game.stagePoint(reach, in: proPoints))
         XCTAssertEqual(game.countBoardThing(place)?.id, "touch-plot-0", "the widened area")
-        let beyond = try point(game, x: nearEdge + (GameModel.countNearReach + 2) * toward, lift: 2)
+        let beyond = try point(game, x: nearEdge - (GameModel.countNearReach + 2) * toward, lift: 2)
         let outside = try XCTUnwrap(game.stagePoint(beyond, in: proPoints))
         XCTAssertNil(game.countBoardThing(outside), "and no further")
     }
@@ -161,38 +161,51 @@ final class CountHandTests: XCTestCase {
     }
 
     /// H2, the rule kept: at night a hold on the lord beside an open board still raises the lantern against the dark
-    /// (and its lift sets no coin); a quick tap on him there is a coin.
+    /// (its lift sets no coin, the count stays open); with the lantern spent a quick tap on him there is a coin. At the
+    /// wall's repair (PayCountTests' night: night 1 at 22:00, the first wall at half), one big coin.
     func testAtNightAHoldOnTheLordBesideTheBoardStillRaisesTheLantern() throws {
-        let game = gateGame(clock: "20")
-        guard let gate = game.touch.things.first(where: { $0.id == "touch-plot-0" }) else {
-            throw XCTSkip("the gate offers nothing at night")
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWNight": "1", "GWHour": "22", "GWGold": "50",
+                          "GWCameraX": "1280"])
+        let wall = Realm.lines[0].wall
+        game.withDriver { driver in
+            if let item = driver.state.plots[wall].item {
+                driver.state.plots[wall].hp = Build.maxHP(item, balance: driver.balance) / 2
+            }
+            driver.state.gold = 50
         }
-        game.touchThing(gate)
-        guard game.touch.count != nil else { throw XCTSkip("no board at the gate at night") }
-        run(game, seconds: 10) { game.touch.count?.ready == true }
-        guard game.touch.count?.ready == true, let state = game.driver?.state, LanternRaise.canRaise(state) else {
-            throw XCTSkip("he does not stand at the board with the lantern ready")
-        }
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let repair = try XCTUnwrap(game.touch.things.first { $0.id == "touch-wall-\(wall)" }, "the wall offers")
+        game.touchThing(repair)
+        run(game, seconds: 8) { game.touch.count?.ready == true }
+        XCTAssertEqual(game.touch.count?.ready, true, "he stands beside the repair's board")
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let board = try XCTUnwrap(game.touch.countBoard)
+        let state = try XCTUnwrap(game.driver?.state)
+        XCTAssertTrue(LanternRaise.canRaise(state), "the lantern is ready")
         let lord = game.stageLordX
         let toward: Double = board.x >= lord ? 1 : -1
-        // A quick tap on him: a coin.
         let p = try point(game, x: lord + 2 * toward, lift: 14)
-        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
-        run(game, seconds: 0.1)
-        game.touchEnded(at: p, translation: .zero, in: proPoints)
-        run(game, seconds: 0.4)
-        XCTAssertEqual(game.touch.count?.placed, 1, "a quick tap on him is a coin")
-        XCTAssertNil(game.lanternMoment)
+        let place = try XCTUnwrap(game.stagePoint(p, in: proPoints))
+        XCTAssertEqual(game.countBoardThing(place)?.id, repair.id, "the board's widened area covers him")
+        XCTAssertTrue(game.countLordHold(place), "yet at night his hold is his")
         // A hold on him: the lantern against the dark, no coin.
-        let raises = game.driver?.state.king.raises ?? 0
+        let raises = state.king.raises ?? 0
         game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
         run(game, seconds: LanternRaise.holdSeconds + 0.2)
         XCTAssertEqual(game.driver?.state.king.raises ?? 0, raises + 1, "the hold raised the lantern")
         game.touchEnded(at: p, translation: .zero, in: proPoints)
         run(game, seconds: 0.3)
-        XCTAssertEqual(game.touch.count?.placed, 1, "its lift set no coin")
+        XCTAssertEqual(game.touch.count?.placed, 0, "its lift set no coin")
         XCTAssertEqual(game.touch.count?.isOpen, true, "the count stays open")
         XCTAssertNil(game.lanternMoment, "no lantern moment")
+        // The lantern raised (not ready): a quick tap on him is the board's coin, which pays the repair.
+        XCTAssertFalse(game.countLordHold(place))
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        run(game, seconds: 0.1)
+        game.touchEnded(at: p, translation: .zero, in: proPoints)
+        run(game, seconds: 1) { game.touch.countLast.hasPrefix("paid") }
+        XCTAssertEqual(game.touch.countLast, "paid:\(repair.id)", "a quick tap on him is the coin")
+        XCTAssertNil(game.lanternMoment)
+        XCTAssertEqual(game.driver?.state.gold, 50 - Balance.standard.patchCost, "paid once")
     }
 }
