@@ -215,6 +215,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // plot with several offers
     case hudCoinTen, hudHollow, hudHollowTen, hudCoinBar, hudHollowBar, payBoard, siteLantern, payCoin, siteHalo
     case paySign
+    // b3-yard (build 3, wave 2, lane 2, step 2; docs/YARD.md; tools/yardart.py): the drill yard's ground and fence, a
+    // pell (whole, battered), the archery butt, the pitch kettle's tripod (empty, the kettle hung on it) and the
+    // site marked out (offered, ordered with its timber delivered)
+    case yardGround, yardPell, yardButt, yardKettle, yardSite
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -540,6 +544,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .siteHalo: return PixelSize(width: 25, height: 25)
         case .paySign: return PixelSize(width: 24, height: 17)
         case .hudDawn: return PixelSize(width: 11, height: 9)
+        // b3-yard
+        case .yardGround: return PixelSize(width: 103, height: 16)  // step 3: the whole yard, 1442 to 1544
+        case .yardPell: return PixelSize(width: 9, height: 26)  // step 4 (M3): its straw wraps the head, over the rack
+        case .yardButt: return PixelSize(width: 17, height: 20)
+        case .yardKettle: return PixelSize(width: 13, height: 18)
+        case .yardSite: return PixelSize(width: 103, height: 10)
         }
     }
 
@@ -644,6 +654,16 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .siteHalo: return 2
         case .paySign: return 23
         case .payCoin, .hudCoinTen, .hudCoinBar: return 5
+        // b3-yard: the pell whole and battered; the site offered and ordered; step 3 (H3): the tripod empty, with the
+        // kettle cold and with the kettle over its fire.
+        case .yardPell, .yardSite: return 2
+        case .yardKettle: return 3
+        // b3-yard step 4 (H3, H4): the front butt, the one behind, the front one with the drill's arrow in its heart.
+        case .yardButt: return 3
+        // b3-yard (step 4, the critic's H1): the east gate rock as it was, and taken back to the tower's face while the
+        // drill yard's site shows or the yard stands (`YardLook.rockFrame`), and so at tier 3, where it stands 12 px
+        // further east.
+        case .gateRockR: return 3
         default: return 1
         }
     }

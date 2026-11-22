@@ -57,6 +57,9 @@ enum TouchThings {
                                    court: Speakers.speaker(figure.who)?.role == .court,
                                    marked: !talked.contains(figure.who)))
             }
+            // Build 3, the drill yard (wave 2, lane 2): its site in the courtyard while it offers something; a touch
+            // brings its counter (the count, docs/PAY.md), marked while the purse can pay it.
+            if let yard = yardThing(s, balance: balance) { list.append(yard) }
             if AudienceRules.gate(s, catalog: .standard) != nil {
                 let x = CourtLayout.strangerAtGate
                 list.append(TouchThing(id: "touch-talk-seren", kind: .talk, act: .stranger, x: x,
@@ -91,22 +94,20 @@ enum TouchThings {
         // gold the mark led to a card of refusals). Build 3, the count (PAY.md): the barracks are two things, the
         // archer's half on the left and the guard's on the right, each with its own tally board and price; the mark
         // shows over the one nearer the lord (the building spacing keeps it to one).
+        // b3-yard (build 3, wave 2, lane 2, step 3): Marek's cart stands by the back gate now (`CourtLayout.marekCartX`),
+        // so the barracks keep their own marks and rims on his days too (the cart's cases went).
         let recruits = RecruitCard.make(s, balance: balance).options
-        let cart = CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart })
         for option in recruits {
             let archer = option.kind == .archer
             let x = KingTargets.barracksX + (archer ? -1 : 1) * TouchThings.recruitOffset
-            var recruit = TouchThing(id: archer ? "touch-recruit-archer" : "touch-recruit-guard", kind: .recruit,
+            let recruit = TouchThing(id: archer ? "touch-recruit-archer" : "touch-recruit-guard", kind: .recruit,
                                      act: .recruit, x: x, standX: x, halfWidth: TouchThings.recruitHalf,
                                      top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit),
-                                     price: option.price, marked: option.canRecruit, soldier: option.kind)
-            // Stage-3-interface (stage-2 critic look 2, high 3): on Marek's days his cart stands before the barracks;
-            // the barracks' sign hangs at the edge the cart leaves free, and the barracks carry no rim (it read as the
-            // cart's).
-            if cart {
-                recruit.markAt = TouchRules.barracksFreeX
-                recruit.noRim = true
-            }
+                                     price: option.price, marked: option.canRecruit,
+                                     // b3-yard (step 4, the critic's H2): the rim on the bunkhouse itself (its middle);
+                                     // each half's middle lies 16 px off it, beyond its 14 px, so since the count's
+                                     // halves the barracks lost their rim and the yard's things standing there took it
+                                     rimX: KingTargets.barracksX, soldier: option.kind)
             list.append(recruit)
         }
         list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallRules.doorX,
@@ -115,6 +116,29 @@ enum TouchThings {
         // The join: Saul Tolliver at his post just inside the town gate (`CollectorTouch`), never on his round.
         if let collector = CollectorTouch.thing(s) { list.append(collector) }
         return list
+    }
+
+    /// Build 3, the drill yard (docs/YARD.md sections 2 and 4; wave 2, lane 2): the yard's site by day while it offers
+    /// something (from day 4 the drill yard, once it stands the pitch kettle), nil otherwise and at night. Its id is
+    /// `touch-yard` (the stage) or `touch-yard-kettle`; it is bought by its count like every bought thing.
+    static func yardThing(_ s: GameState, balance: Balance) -> TouchThing? {
+        guard !s.defeated, DayClock.phase(at: s.hour) == .day, let offer = Yard.offer(s, balance: balance) else {
+            return nil
+        }
+        let price = Yard.price(offer, balance: balance)
+        let id: String
+        switch offer {
+        case .stage:
+            id = "touch-yard"
+        case .kettle:
+            id = "touch-yard-kettle"
+        }
+        // Step 2: the empty site is marked out by its own stakes and cord over the whole ground (`yardSite`, drawn by
+        // `EntityFrames.yardProps` day and night), so no footing is laid over them; the kettle's place stands in the
+        // yard.
+        return TouchThing(id: id, kind: .plot, act: .yard(offer), x: Yard.plotX, standX: Yard.plotX,
+                          halfWidth: Yard.plotHalf, top: Double(TouchFooting.stakeHeight),
+                          rank: TouchRules.rank(.plot), price: price, marked: price <= s.gold, footing: nil)
     }
 
     /// Build 3, the count: each recruit's half of the barracks, its middle this far from the barracks' middle, and

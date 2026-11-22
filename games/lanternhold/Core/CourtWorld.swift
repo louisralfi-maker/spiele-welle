@@ -37,7 +37,7 @@ enum CourtWorld {
                     what: "a row of votive candles before the chapel's altar"),
         WorldChange(id: "castle.keep.window.dark", place: .castle, x: 1990, drawnIn: "M3",
                     what: "one window of the keep stays dark at night (mourning)"),
-        WorldChange(id: "castle.courtyard.stall", place: .castle, x: 1486, drawnIn: "M3",
+        WorldChange(id: "castle.courtyard.stall", place: .castle, x: 2218, drawnIn: "M3",  // b3-yard: by the back gate
                     what: "Marek's cart stays in the courtyard every day (marekCart)"),
         WorldChange(id: "castle.seren.lantern", place: .castle, x: 1950, drawnIn: "M3",
                     what: "Seren's grey lantern hangs in the great hall's far corner"),

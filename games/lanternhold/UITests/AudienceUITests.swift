@@ -1,8 +1,9 @@
 import UIKit
 import XCTest
 
-/// M3 step 3's UI (DESIGN.md "Tests", "UI"): `testAudience` walks the castle by day (the courtyard with the court and
-/// Marek's cart, the great hall shut from the courtyard and open inside with Odile and the petitioners on the benches,
+/// M3 step 3's UI (DESIGN.md "Tests", "UI"): `testAudience` walks the castle by day (the courtyard with the court; b3-yard:
+/// Marek's cart stands by the back gate now, YardUITests' 309 shows it; the great hall shut from the courtyard and
+/// open inside with Odile and the petitioners on the benches,
 /// the kitchen and the chapel opened, a line from Tamsin in a bubble), holds an audience on the throne (Brannock's
 /// story petition with his portrait, Odile's counsel, the reaction, the next petitioner, standing up), opens the herald
 /// of the Lightless King (`-GWScreen petition`) and checks Reduce Motion (the card at once). Every button is checked

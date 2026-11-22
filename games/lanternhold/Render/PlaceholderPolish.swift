@@ -31,6 +31,10 @@ enum PlaceholderPolish {
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0x2B2421))]
         case .payBoard, .paySign:
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0x66422F))]
+        // b3-yard (build 3, wave 2, lane 2, step 2; one block for the join, lane 5 owns Render/): the drill yard's
+        // things, a plain wood fill while a strip is missing (tools/yardart.py; their PNGs win).
+        case .yardGround, .yardPell, .yardButt, .yardKettle, .yardSite:
+            return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0x66422F))]
         default: return []
         }
     }

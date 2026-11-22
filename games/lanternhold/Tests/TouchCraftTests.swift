@@ -266,10 +266,12 @@ final class TouchCraftTests: XCTestCase {
         let barracks = try XCTUnwrap(TouchThings.world(s, balance: .standard, figures: [], talked: []).first {
             $0.id == "touch-recruit-archer"
         })
-        if CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
-            XCTAssertTrue(barracks.noRim, "no rim while the cart stands before the barracks")
-            XCTAssertEqual(barracks.markX, TouchRules.barracksFreeX, "the sign at the edge the cart leaves free")
-        }
+        // b3-yard (build 3, wave 2, lane 2, step 3): Marek's cart stands by the back gate now, so on his days the
+        // barracks keep their rim and their own mark (the cart's cases and `barracksFreeX` went).
+        XCTAssertTrue(CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart }),
+                      "day 3 is one of Marek's days")
+        XCTAssertFalse(barracks.noRim, "the barracks carry their rim on his days too")
+        XCTAssertEqual(barracks.markX, barracks.x, "and their own mark")
     }
 
     func testTheLiftThrowsSparksNotARing() {

@@ -56,7 +56,9 @@ enum Sim {
     static func step(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent]) {
         guard dt > 0, !s.defeated else { return }
         // Craft lane hook: the craftsmen's standing works change the balance by values (none standing: unchanged).
-        let balance = CraftWorks.balance(balance, for: s)
+        // b3-yard: the drill yard's works too (the pitch kettle; without a yard unchanged).
+        let balance = Yard.balance(CraftWorks.balance(balance, for: s), for: s)
+        let hourBefore = s.hour
         var clock = DayClock(hour: s.hour, day: s.day)
         let crossed = clock.advance(by: dt)
         s.hour = clock.hour
@@ -68,6 +70,7 @@ enum Sim {
                 Battle.prepareDusk(&s, balance: balance)
                 PetitionEngine.horn(&s)
                 Town.horn(&s, balance: balance)
+                Yard.horn(&s)  // b3-yard: the trained men's names for the dawn
                 events.append(.horn)
             case .nightfall:
                 Battle.planNight(&s, balance: balance)
@@ -78,6 +81,8 @@ enum Sim {
                 dawn(&s, balance: balance, events: &events)
             }
         }
+        // b3-yard (YARD.md section 3): the roll at noon, the lord at the fence, the day counted at 16:00.
+        Yard.step(&s, from: hourBefore, dt: dt, balance: balance)
         let kingFrom = s.king.x
         stepKing(&s, dt: dt, balance: balance, events: &events)
         Town.step(&s, from: kingFrom, balance: balance)
@@ -131,6 +136,7 @@ enum Sim {
                                 realmFell: fell ? true : nil, kingSlain: stats.kingSlain && !fell ? true : nil,
                                 housesFull: housesFull ? true : nil, town: people.town)
         s.lastReport = report
+        Yard.dawn(&s, balance: balance)  // b3-yard: the stage and the kettle come, recruits are trained, the fallen named
         FrontNight.dawn(&s)  // front lane hook (docs/lanes/front.md)
         Hearth.dawn(&s, balance: balance)  // front lane hook (docs/lanes/front.md "front-2")
         Gorge.dawn(&s, balance: balance)  // front lane hook (docs/lanes/front.md "front-3")

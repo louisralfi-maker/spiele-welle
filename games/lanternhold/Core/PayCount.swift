@@ -45,6 +45,9 @@ enum PayOffer: Sendable, Equatable {
     case patch(plot: Int)
     /// A recruit at the barracks.
     case recruit(SoldierKind)
+    // b3-yard (build 3, wave 2, lane 2; a registration block for the join): the drill yard and its works (docs/YARD.md).
+    /// What the drill yard offers at its site (`Yard.offer`): the drill yard, then the pitch kettle.
+    case yard(YardOffer)
 }
 
 /// How a count ended.
@@ -93,6 +96,10 @@ enum PayOffers {
         case .recruit:
             guard let soldier = thing.soldier else { return nil }
             return (.recruit(soldier), price(soldier, balance: balance))
+        // b3-yard: the yard's site, while it offers this.
+        case .yard(let offer):
+            guard Yard.offer(s, balance: balance) == offer else { return nil }
+            return (.yard(offer), Yard.price(offer, balance: balance))
         default:
             return nil
         }
@@ -113,6 +120,9 @@ enum PayOffers {
             return s.king.patchCooldown > 0 || plot < 0 || plot >= s.plots.count
         case .recruit:
             return s.taxpayers <= 0
+        // b3-yard: no longer on offer (ordered already, or night came).
+        case .yard(let offer):
+            return !Yard.isOpen(offer, state: s, balance: balance)
         }
     }
 }

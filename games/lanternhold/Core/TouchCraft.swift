@@ -24,8 +24,7 @@ extension TouchRules {
     /// never closer than `buildingSpacing` px (the farther gives way).
     static let dayMarks = 3
     static let buildingSpacing = 120.0
-    /// The barracks' free edge beside Marek's cart (the cart covers 1486 ... 1534 of the barracks' 1481 ... 1545).
-    static let barracksFreeX = 1540.0
+    // b3-yard (build 3, wave 2, lane 2, step 3): `barracksFreeX` went with Marek's cart (it stands by the back gate).
 
     /// True for the marks of buildings and works (the spacing rule).
     static func isBuilding(_ kind: TouchKind) -> Bool {
@@ -37,14 +36,30 @@ extension TouchRules {
     static func thinned(_ marked: [TouchThing], night: Double) -> [TouchThing] {
         var out: [TouchThing] = []
         for thing in marked {
-            if isBuilding(thing.kind)
-                && out.contains(where: { isBuilding($0.kind) && abs($0.markX - thing.markX) < buildingSpacing }) {
+            // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the yard's site keeps its
+            // mark beside the barracks' (frame 01 of step 1 lost it to them); the spacing neither takes it nor counts it.
+            if isBuilding(thing.kind) && !isYardSite(thing)
+                && out.contains(where: { isBuilding($0.kind) && !isYardSite($0)
+                    && abs($0.markX - thing.markX) < buildingSpacing }) {
                 continue
             }
             out.append(thing)
         }
-        if night < 0.5 && out.count > dayMarks { out.removeLast(out.count - dayMarks) }
+        if night < 0.5 && out.count > dayMarks {
+            // b3-yard: by day the yard's site stays among the marks kept (the farthest other gives way).
+            if let index = out.firstIndex(where: { isYardSite($0) }), index >= dayMarks {
+                let site = out.remove(at: index)
+                out.insert(site, at: dayMarks - 1)
+            }
+            out.removeLast(out.count - dayMarks)
+        }
         return out
+    }
+
+    /// b3-yard (build 3, wave 2, lane 2, step 2): true for the drill yard's thing (its site, then the kettle's place).
+    static func isYardSite(_ thing: TouchThing) -> Bool {
+        if case .yard = thing.act { return true }
+        return false
     }
     /// A mark shows only while its thing's centre lies this far inside the view (the critic's high 3: the door's mark
     /// stood half off the screen's left edge).
@@ -191,6 +206,17 @@ enum TouchRims {
             let part = EmissivePart(sprite: .hallMote, dx: 0, dy: 0, color: SIMD3<Float>(color.x, color.y, color.z),
                                     intensity: 1, flickerSeed: nil, fadesByDay: false, isFire: false, rim: true)
             for index in props.indices where standsOn(props[index], x: mark.rimX ?? mark.poolX, half: mark.half) {
+                // b3-yard (build 3, wave 2, lane 2, step 4; the critic's H2; one tagged block for the join, the smooth
+                // lane's file): the yard's things stand on the barracks' two recruit halves, and a recruit mark's rim
+                // outlined the butts at night ("the targets are for sale"). A recruit mark never rims a yard thing;
+                // the barracks keep their rim.
+                if mark.kind == .recruit {
+                    switch props[index].sprite {
+                    case .yardButt, .yardPell, .yardKettle, .yardGround, .yardSite: continue
+                    default: break
+                    }
+                }
+                // b3-yard end
                 props[index].emissive.append(part)
             }
         }

@@ -53,6 +53,10 @@ struct ReportCard: Sendable, Equatable {
     var speechKey: String?
     /// What the town did yesterday (town-1's `DawnReport.town`): the taxes row tells it in one line (town-2).
     var town: TownSummary? = nil
+    // b3-yard (build 3, wave 2, lane 2, step 2; the director's decision: one block for the join, no lane owns this
+    // file): the drill yard's half of the report (the trained named, a trained man fallen named as one, the yard and
+    // the kettle come), nil without a yard or with nothing to tell; the card words it (`YardDawnReport.lines`).
+    var yard: YardDawnReport? = nil
 
     var happinessDelta: Int { happinessAfter - happinessBefore }
     var isFinale: Bool { night == ReportCard.finaleNight }
@@ -94,7 +98,8 @@ struct ReportCard: Sendable, Equatable {
                           grown: report.grown, left: report.left, volunteer: report.volunteer, unlocked: unlocks,
                           goldIn: report.goldIn, goldAfter: report.goldAfter, housesFull: report.housesFull == true,
                           speechKey: report.night == finaleNight && report.held
-                              ? Remembered.speechKey(flags: flags) : nil, town: report.town)
+                              ? Remembered.speechKey(flags: flags) : nil, town: report.town,
+                          yard: report.yard)  // b3-yard
     }
 
     // MARK: - Samples (`-GWScreen report` and `-GWScreen finale`)

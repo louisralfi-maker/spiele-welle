@@ -26,7 +26,12 @@ struct CountBoard: Sendable, Equatable {
     static let lowLift = 3
 
     /// This board's bottom over the walk line (a counter's foot is on the ground).
-    var bottom: Int { counter ? 0 : layout.rows >= 2 ? CountBoard.lowLift : CountBoard.lift }
+    var bottom: Int {
+        // b3-yard (build 3, wave 2, lane 2, step 3; the step 2 critic's medium): the yard's board stands on the walk
+        // line over its site, so no stake or cord of the site shows under it and it never floats.
+        if case .yard = act { return 0 }
+        return counter ? 0 : layout.rows >= 2 ? CountBoard.lowLift : CountBoard.lift
+    }
 
     /// The board's left edge and its top (game px over the walk line), and its post's left edge and top (the iron
     /// plate over the board).
@@ -103,6 +108,9 @@ struct CountLantern: Sendable, Equatable {
             return state.king.patchCooldown > 0
         case .recruit:
             return now - litAt < CountLantern.recruitSeconds
+        // b3-yard (build 3, wave 2, lane 2; a registration block for the join): until its dawn brings it.
+        case .yard(let offer):
+            return Yard.isPending(offer, state: state)
         }
     }
 }
@@ -563,6 +571,10 @@ extension GameModel {
     /// within `countBoardSearch` px outward whose box is clear of everyone standing there, Marek's cart and every door,
     /// else that first place. Returns the board's middle and its side.
     func countBoardPlace(_ thing: TouchThing, layout: PayBoardLayout) -> (x: Double, side: Double) {
+        // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the yard's board has a fixed
+        // place of its own over the yard's ground, its right edge a pixel clear of the barracks (`YardLook.boardPlace`):
+        // no place beside the yard is free for it (the barracks, Marek's cart, the gate's models and passage).
+        if case .yard = thing.act { return YardLook.boardPlace(width: layout.width, lordX: stageLordX) }
         let half = Double(layout.width) / 2
         var frameLeft = thing.x - thing.halfWidth
         var frameRight = thing.x + thing.halfWidth
@@ -587,6 +599,19 @@ extension GameModel {
         for step in 0...GameModel.countBoardSearch where clear(ideal + Double(step) * side) {
             return (ideal + Double(step) * side, side)
         }
+        // b3-yard (build 3, wave 2, lane 2, step 3; a registration block for the join): with Marek's cart by the back
+        // gate a thing beside it may have no clear place on the lord's side (the treasury's plot, 2180, when he comes
+        // from the east: Tamsin's oven stop and the cart fill it); then the far side, outward the same way, before the
+        // first place. Only near the standing cart, so every other board stands as it did.
+        let cartMiddle = CourtLayout.marekCartX + Double(SpriteID.marekCart.size.width) / 2
+        if thing.kind != .recruit, abs(thing.x - cartMiddle) < 120, let state = driver?.state,
+           CourtLayout.props(state, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
+            let far = -side
+            let farIdeal = far < 0 ? (frameLeft - half).rounded(.down) : (frameRight + half).rounded(.up)
+            for step in 0...GameModel.countBoardSearch where clear(farIdeal + Double(step) * far) {
+                return (farIdeal + Double(step) * far, far)
+            }
+        }
         return (ideal, side)
     }
 
@@ -607,6 +632,8 @@ extension GameModel {
         }
         for other in touch.things where other.id != thing.id && !other.isPerson {
             if case .build(_) = other.act { add(other.x - other.halfWidth, other.x + other.halfWidth) }
+            // b3-yard (build 3, wave 2, lane 2; a registration block for the join): no board over the yard's site.
+            if case .yard = other.act { add(other.x - other.halfWidth, other.x + other.halfWidth) }
         }
         for row in touch.models where "touch-plot-\(row.plot)" != thing.id {
             add(row.slot.lowerBound, row.slot.upperBound)

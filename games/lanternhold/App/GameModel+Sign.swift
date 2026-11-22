@@ -127,7 +127,8 @@ extension GameModel {
     /// middle, or another building's, wall's or door's middle is nearer the finger than the model's.
     func modelAt(_ place: (x: Double, lift: Double, minimum: Double)) -> PayModel? {
         guard stage == .world else { return nil }
-        for row in touch.models where modelTouchable(row.plot) {
+        // b3-yard: a model hidden under the yard's board takes no touch (`yardBoardCovers`).
+        for row in touch.models where modelTouchable(row.plot) && !yardBoardCovers(row) {
             guard let model = row.models.first(where: { modelArea($0).contains(x: place.x, lift: place.lift) }) else {
                 continue
             }
@@ -270,6 +271,9 @@ extension GameModel {
             if let since = touch.modelHop[row.plot] {
                 hopAge = countFreezeNow?.hopHold ?? (now - since)
             }
+            // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the gate's models step
+            // aside while the yard's board stands over their slot (`YardLook.boardPlace`), and come back with it gone.
+            if yardBoardCovers(row) { continue }
             actors += modelActors(row, chosen: chosenNow[row.plot], hopAge: hopAge, now: now, night: night, alpha: 1,
                                   framing: framing)
         }
@@ -280,6 +284,25 @@ extension GameModel {
         }
         // Behind every figure (the offers' things stand on the ground the people walk in front of).
         layer.actors.insert(contentsOf: actors, at: 0)
+    }
+
+    /// b3-yard (build 3, wave 2, lane 2, step 2): true while the yard's board stands (its count not gone) over any
+    /// column of `row`'s slot.
+    func yardBoardCovers(_ row: PayModelRow) -> Bool {
+        guard let board = touch.countBoard, let count = touch.count, !count.isGone else { return false }
+        guard case .yard = board.act else { return false }
+        let left = Double(board.left)
+        let right = left + Double(board.layout.width)
+        return left < row.slotLeft + row.slotWidth && row.slotLeft < right
+    }
+
+    /// b3-yard (build 3, wave 2, lane 2, step 3; the critic's H1 of step 2): true while a count board stands (its count
+    /// not gone) over the middle of a person standing at `x`: at least half of him is behind the board, so his mark
+    /// (the talk bubble over his head) would float over the board with nobody in sight; it does not show there.
+    func countBoardHides(personAt x: Double) -> Bool {
+        guard let board = touch.countBoard, let count = touch.count, !count.isGone else { return false }
+        let left = Double(board.left)
+        return x >= left && x <= left + Double(board.layout.width) - 1
     }
 
     /// One row's trestles and models: each model on its trestle's beam at rest, or (step 6, R1) on the counter's cap
@@ -360,7 +383,7 @@ extension GameModel {
     /// for its building and priced, at its catch area.
     func modelSpots(framing: TouchFraming) -> [TouchSpot] {
         var spots: [TouchSpot] = []
-        for row in touch.models where modelTouchable(row.plot) {
+        for row in touch.models where modelTouchable(row.plot) && !yardBoardCovers(row) {  // b3-yard: hidden, no spot
             for model in row.models {
                 let area = modelArea(model)
                 let left = framing.deviceX(stageX: area.left)

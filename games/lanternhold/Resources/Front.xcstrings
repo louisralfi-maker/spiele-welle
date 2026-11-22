@@ -750,6 +750,90 @@
           }
         }
       }
+    },
+    "yard.names.more" : {
+      "comment" : "Dawn report, the drill yard's lines: a long list of names cut short (%1$@: the first three names, joined with commas; %2$lld: how many more, always 2 or more).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ and %2$lld more"
+          }
+        }
+      }
+    },
+    "yard.offer.kettle" : {
+      "comment" : "The drill yard: a thing to buy, its accessibility label. The pitch kettle (Pechkessel): Bram makes it, every archer dips his arrows in its pitch.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Order the pitch kettle"
+          }
+        }
+      }
+    },
+    "yard.offer.stage" : {
+      "comment" : "The drill yard: a thing to buy, its accessibility label. The drill yard (Übungshof) in the courtyard, where the soldiers train by day.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build the drill yard"
+          }
+        }
+      }
+    },
+    "yard.report.fallen" : {
+      "comment" : "Dawn report: trained soldiers who fell in the night, by name (%@: the names, joined with commas).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fallen with the company's coat: %@."
+          }
+        }
+      }
+    },
+    "yard.report.kettle" : {
+      "comment" : "Dawn report: Bram brought the pitch kettle to the drill yard at this dawn.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram brought the pitch kettle. Every third arrow flies burning."
+          }
+        }
+      }
+    },
+    "yard.report.raised" : {
+      "comment" : "Dawn report: the drill yard stands from this dawn.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The drill yard stands. The soldiers drill from nine to four."
+          }
+        }
+      }
+    },
+    "yard.report.trained" : {
+      "comment" : "Dawn report: recruits trained this morning, by name (%@: the names, joined with commas).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trained: %@."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

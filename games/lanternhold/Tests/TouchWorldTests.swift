@@ -397,42 +397,60 @@ final class TouchWorldTests: XCTestCase {
     }
 
     /// Build 2 review, app-ui-3: while Marek's offer is open a touch on his cart opens his gift card (no debug argument,
-    /// so in Release too); with no offer open the touch goes to the barracks as before.
+    /// so in Release too). b3-yard (build 3, wave 2, lane 2, step 3): the cart stands by the back gate now (2218), on
+    /// free ground: with no offer open a touch there walks the lord, as on any ground; a touch on Marek himself before
+    /// the cart's east half opens his card while he has no mark. (A card cutting a count off is PayCountTests' "a card
+    /// cuts it off"; the cart no longer stands over a thing that is bought.)
     func testATouchOnMareksCartOpensHisCardWhileTheOfferIsOpen() throws {
-        let game = model(["GWDay": "3", "GWStage": "world", "GWCameraX": "1430"])
+        let game = model(["GWDay": "3", "GWStage": "world", "GWCameraX": "2200"])
         let stub = StubAdProvider()
         let ads = AdDirector(mode: .stub, provider: stub, clock: CountedClock())
         ads.attach(game)
         XCTAssertNotNil(ads.merchantOffer, "his cart stands on day 3")
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let framing = try XCTUnwrap(game.touch.framing)
-        let cart = CGPoint(x: framing.deviceX(stageX: CourtLayout.marekCartX + 14) / 3,
+        // Between Tamsin at her oven (2208) and Marek before the cart's east half, each with a 44 pt touch area.
+        let cart = CGPoint(x: framing.deviceX(stageX: CourtLayout.marekCartX + 11) / 3,
                            y: framing.deviceY(lift: 12) / 3)
-        XCTAssertEqual(game.thingAt(cart, in: proPoints)?.kind, .recruit, "the cart stands in the barracks' area")
-        // Build 3: through the finger's own path (down, then lift), where the count could take the touch first.
+        XCTAssertNil(game.thingAt(cart, in: proPoints), "nobody and nothing that is bought at the cart's west half")
+        // Build 3: through the finger's own path (down, then lift).
         game.touchChanged(start: cart, at: cart, translation: .zero, in: proPoints)
-        XCTAssertNil(game.touch.count, "no recruit's count starts on his cart while the offer is open")
+        XCTAssertNil(game.touch.count, "no count starts on his cart")
         game.touchEnded(at: cart, translation: .zero, in: proPoints)
         XCTAssertTrue(ads.merchantCardOpen, "the touch on the cart opens his card")
         XCTAssertEqual(game.touch.lastTap, "merchant")
-        XCTAssertNil(game.touch.errand, "no walk to the barracks")
+        XCTAssertNil(game.touch.errand, "no walk")
         ads.closeMerchantCard()
-        // No offer open (no video ready): the barracks' touch as before.
+        // No offer open (no video ready): the ground's touch, he walks there.
         stub.rewardedReady = false
         XCTAssertNil(ads.merchantOffer)
         game.touchChanged(start: cart, at: cart, translation: .zero, in: proPoints)
         game.touchEnded(at: cart, translation: .zero, in: proPoints)
         XCTAssertFalse(ads.merchantCardOpen)
-        // Build 3: the cart stands before the archer's half; its board comes up and he sets off to it.
-        XCTAssertEqual(game.touch.lastTap, "touch-recruit-archer")
-        XCTAssertEqual(game.touch.count?.thing, "touch-recruit-archer", "the archer's board comes up")
-        XCTAssertEqual(game.touch.errand?.id, "touch-recruit-archer", "he sets off to the barracks")
-        // His card, opened over the standing board, cuts the count off (it holds the world without an overlay).
+        XCTAssertEqual(game.touch.lastTap, "ground", "free ground by the back gate")
+        XCTAssertNil(game.touch.count, "nothing is counted at the cart")
+        // Marek before his cart's east half is a person (his 44 pt area covers most of the cart). The review: heard
+        // today (no mark), a touch on him is the seller's stall, his card, so the whole cart stays one target; with his
+        // mark up his word comes first (`GameModel.cartTakesTouch`).
         stub.rewardedReady = true
-        ads.openMerchantCard()
-        XCTAssertTrue(ads.merchantCardOpen)
+        XCTAssertNotNil(ads.merchantOffer)
+        game.talkLog.note("marek", day: 3)
         run(game, seconds: 0.1)
-        XCTAssertEqual(game.touch.count?.result, .cutOff, "a card cuts a count off")
+        let now = try XCTUnwrap(game.touch.framing)
+        let marek = try XCTUnwrap(game.touch.things.first(where: { $0.who == "marek" }),
+                                  "Marek before his cart is a person with a word on day 3")
+        XCTAssertFalse(marek.marked, "heard today: no mark over him")
+        let on = CGPoint(x: now.deviceX(stageX: marek.x) / 3, y: now.deviceY(lift: 14) / 3)
+        XCTAssertEqual(game.thingAt(on, in: proPoints)?.id, marek.id, "a touch on Marek finds him")
+        game.touchChanged(start: on, at: on, translation: .zero, in: proPoints)
+        game.touchEnded(at: on, translation: .zero, in: proPoints)
+        XCTAssertTrue(ads.merchantCardOpen, "without his mark the seller opens his stall: his card")
+        XCTAssertEqual(game.touch.lastTap, "merchant")
+        ads.closeMerchantCard()
+        var hinted = marek
+        hinted.marked = true
+        XCTAssertFalse(GameModel.cartTakesTouch(from: hinted), "with his mark up, his word first")
+        XCTAssertTrue(GameModel.cartTakesTouch(from: nil), "the bare cart is the cart's")
     }
 
     /// Build 2 fix A's review: the background under Marek's card raises the lantern moment behind it; closing the card

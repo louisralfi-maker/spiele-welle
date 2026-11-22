@@ -30,6 +30,9 @@ enum KingTarget: Sendable, Equatable {
     /// The join (`CollectorTouch`): Saul Tolliver at his post just inside the town gate; a second touch takes him on,
     /// sends him home or takes him on again.
     case collector
+    /// Build 3, the drill yard (docs/YARD.md; wave 2, lane 2): its site in the courtyard, by day; what it offers is
+    /// paid coin by coin at its counter (docs/PAY.md, `PayOffer.yard`): the drill yard, then the pitch kettle.
+    case yard(YardOffer)
 }
 
 /// Why an offered night action cannot be done right now: the button shows it greyed (M2b review: Patch offered without
@@ -155,7 +158,7 @@ enum KingTargets {
             return nil
         case .light:
             return s.king.lightingPlot >= 0 ? .busy : nil
-        case .build, .recruit, .throne, .talk, .stranger, .hallDoor, .bench, .collector:
+        case .build, .recruit, .throne, .talk, .stranger, .hallDoor, .bench, .collector, .yard:
             return nil
         }
     }
@@ -173,6 +176,8 @@ enum KingTargets {
             return CourtLayout.strangerAtGate
         case .collector:
             return Town.collectorPost
+        case .yard:
+            return Yard.plotX
         case .talk(let who):
             return CourtLayout.figures(s, catalog: .standard).first { $0.who == who }?.x ?? s.king.x
         case .hallDoor:

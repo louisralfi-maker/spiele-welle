@@ -148,7 +148,9 @@ final class GameModel {
     @ObservationIgnored private var aimingArchers = 0
     /// The game's view of the scene, kept while the beacon's site and the rooms' fades stay as they are (M2b review:
     /// filtered every frame, the whole prop list with its emitters, masks and lights was copied 60 times a second).
-    @ObservationIgnored private var filteredScene: (built: Bool, rooms: CastleRooms.SceneKey, scene: PlaceholderScene)?
+    /// b3-yard (step 4, H1): and while the east gate rock keeps its frame (`YardLook.rockFrame`).
+    @ObservationIgnored private var filteredScene: (built: Bool, rooms: CastleRooms.SceneKey, rock: Int,
+                                                    scene: PlaceholderScene)?
     /// The castle's stage the scene was laid out with (look 2; `growCastle`).
     @ObservationIgnored private var castleStage = CastleStage.standard
     /// Where first light's front stands on screen (0 ... 1), nil when it is not on screen (the scene value's `dawn:`).
@@ -192,6 +194,9 @@ final class GameModel {
 
     // The court (M3 step 3, `GameModel+Court.swift`): the rooms cut away, the audience, talking.
     @ObservationIgnored var court = CourtScene(rooms: RoomFades(kingX: 0))
+    /// b3-yard (build 3, wave 2, lane 2, step 3; the critic's H4): the drilling archer's own clock, held at the draw
+    /// while someone stands where his arrow is still low (`YardLook.DrillClock`, `yardDrill(_:balance:)`). Picture only.
+    @ObservationIgnored var yardDrillClock = YardLook.DrillClock()
     @ObservationIgnored var talkLog = TalkLog()
     // The taxes on foot (town-2, `GameModel+Town.swift`): the walk to a door and the cues' clock; the doors on screen
     // for VoiceOver and the UI tests; the town's state for the UI tests.
@@ -676,6 +681,9 @@ final class GameModel {
         case .collector:
             // The join: the second touch at Saul Tolliver's post (`CollectorTouch`).
             collectorAnswers()
+        case .yard:
+            // Build 3, the drill yard: bought by its count (docs/PAY.md); arriving there opens nothing.
+            break
         case .talk(let who):
             talk(to: who)
         case .bench(let index):
@@ -806,6 +814,9 @@ final class GameModel {
             done = Build.recruit(&game.state, kind: soldier, balance: game.balance, events: &orderEvents)
         case .patch(let plot):
             done = game.perform(.patch(plot: plot), events: &orderEvents)
+        case .yard(let yardOffer):
+            // Build 3, the drill yard (docs/YARD.md): the stage stands and Bram brings the kettle at the next dawn.
+            done = Yard.order(&game.state, yardOffer, balance: game.balance)
         }
         driver = game
         revision += 1
@@ -818,7 +829,9 @@ final class GameModel {
         }
         // The purse is heard as the count already played it: the watch takes the new treasury without a cue.
         _ = watch.cues(TownShow.heard(game.state, balance: game.balance), balance: game.balance, moving: false)
-        let later = orderEvents.compactMap { FeedbackThinner.cue(for: $0)?.cue }.filter { $0 != .recruited }
+        var later = orderEvents.compactMap { FeedbackThinner.cue(for: $0)?.cue }.filter { $0 != .recruited }
+        // The drill yard's work begins with the work's own sound (the builders and Bram set to it).
+        if case .yard = offer { later.append(.buildOrdered) }
         refreshHUD()
         return (true, later)
     }
@@ -1128,8 +1141,10 @@ final class GameModel {
             // drawn with the rooms cut away as they stand (M3, `CastleRooms.scene`).
             let built = SceneFilter.beaconBuilt(state)
             let rooms = CastleRooms.sceneKey(state: state, rooms: court.rooms)
+            // b3-yard (step 4, the critic's H1): the gate rock gives way to the drill yard's site and the yard.
+            let rock = YardLook.rockFrame(state, balance: game.balance, tier: castleStage.tier)
             var filtered: PlaceholderScene
-            if let cached = filteredScene, cached.built == built, cached.rooms == rooms {
+            if let cached = filteredScene, cached.built == built, cached.rooms == rooms, cached.rock == rock {
                 filtered = cached.scene
                 filtered.king = KingState(x: state.king.x, facing: state.king.facing, velocity: state.king.velocity)
                 filtered.bankRestingEdge = state.bankEdge
@@ -1137,11 +1152,12 @@ final class GameModel {
             } else {
                 filtered = CastleRooms.scene(SceneFilter.gameScene(scene, state: state), state: state,
                                              rooms: court.rooms)
-                filteredScene = (built: built, rooms: rooms, scene: filtered)
+                YardLook.setRock(&filtered, frame: rock)
+                filteredScene = (built: built, rooms: rooms, rock: rock, scene: filtered)
             }
             var layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
                                            pixelScale: pixelScale, options: options, animTime: animationTime,
-                                           effects: effects)
+                                           effects: effects, drill: yardDrill(state, balance: game.balance))
             // M3: the court, the rooms cut away, the castle's world changes (`CourtFrames`).
             CourtFrames.apply(&layer, state: state, catalog: .standard, scene: court,
                               view: EntityFrames.ActorView(camera: view, pixelScale: pixelScale,
@@ -1186,6 +1202,37 @@ final class GameModel {
             if kind == .world { refreshGameStatus() }
         }
         return frame
+    }
+
+    /// b3-yard (build 3, wave 2, lane 2, step 3; the director's pick of 21.11.2026, 17:31, the critic's H4): while they
+    /// drill, the archer's clock for this frame and whether he holds at the draw because someone stands where his arrow
+    /// is still low: the lord (his raised lantern inside his frame), the court and today's guests as drawn, the
+    /// builders; step 4: the townsfolk and the soldiers walking on the ground. Nil outside the drill (the clock starts
+    /// afresh at the next one).
+    func yardDrill(_ state: GameState, balance: Balance) -> YardLook.Drill? {
+        guard Yard.drilling(state, balance: balance) else {
+            yardDrillClock = YardLook.DrillClock()
+            return nil
+        }
+        var figures: [(x: Double, width: Int, height: Int)] = []
+        let lord = state.lordOrDefault.body.size
+        figures.append((x: state.king.x, width: lord.width, height: lord.height))
+        for figure in CourtFrames.figures(state: state, catalog: .standard, scene: court, animTime: animationTime)
+        where figure.alpha > 0.5 {
+            let size = figure.sprite.size
+            figures.append((x: figure.x, width: size.width, height: size.height))
+        }
+        let builder = SpriteID.builder.size
+        for one in state.builders {
+            figures.append((x: one.x, width: builder.width, height: builder.height))
+        }
+        // b3-yard (step 4, the critic's H4): the hold sees the townsfolk out in the town and the courtyard (PeopleCast,
+        // look 2, placed as the actors place them) and the soldiers walking on the ground, by the same rule.
+        figures += YardLook.walkers(state, balance: balance, townsfolk: args.look == .two, reduceMotion: reduceMotion)
+        // b3-yard end
+        let held = YardLook.archerHolds(figures: figures)
+        yardDrillClock.step(to: state.simTime, held: held)
+        return YardLook.Drill(time: yardDrillClock.time, held: held)
     }
 
     /// Where the game's camera aims relative to the king: at night in front of the castle, `nightLead` toward the
@@ -1360,6 +1407,11 @@ final class GameModel {
         text += " hint:\(touch.lordHintOn ? "on" : "off")\(touch.lordHintShown)"
         // Build 3, the count: the board up (its thing, coins on it of all, its state) and the last count's end.
         text += " count:\(countWord) models:\(modelWord)"
+        // Build 3, the drill yard: its stage, the kettle, the trained, the days drilled (`Yard.word`).
+        text += " yard:\(Yard.word(state, balance: game.balance))"
+        // b3-yard step 4 (E4): where the drilling archer and guard stand in their rounds (the slowed strip's frames).
+        text += " drill:" + (Yard.drilling(state, balance: game.balance)
+            ? YardLook.drillWord(archerTime: yardDrillClock.time, guardTime: state.simTime) : "none")
         #endif
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {
