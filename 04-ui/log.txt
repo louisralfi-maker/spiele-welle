@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (143.994 seconds).
+exit=0
+screenshots: 13

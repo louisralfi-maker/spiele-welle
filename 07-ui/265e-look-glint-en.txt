@@ -1,0 +1,1 @@
+5.86 s of real time after the first of the run; 108 sampled px of the arm colour
