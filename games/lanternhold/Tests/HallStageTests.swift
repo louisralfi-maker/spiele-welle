@@ -127,6 +127,22 @@ final class HallStageTests: XCTestCase {
         XCTAssertEqual(dark, 0, "a cut")
     }
 
+    /// The gate (A1-F5): out of the hall he faces west, toward his household, or the way the realm strip sends him on,
+    /// so his first step never flips him.
+    func testOutOfTheHallHeFacesWestOrTheWayHeGoesOn() throws {
+        let cases: [(travelOn: Double?, facing: Int)] = [(nil, -1), (1500, -1), (2400, 1)]
+        for (travelOn, facing) in cases {
+            let game = model(["GWStage": "hall", "GWHallX": "68"])
+            XCTAssertEqual(game.stage, .hall)
+            game.leaveHallNow(travelOn: travelOn)
+            XCTAssertEqual(game.stage, .world)
+            let label = String(describing: travelOn)
+            XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.facing), facing, "on to \(label)")
+            wait(game, seconds: 0.2)
+            XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.facing), facing, "no flip: \(label)")
+        }
+    }
+
     func testTheRealmStripSendsTheLordOutAndOn() throws {
         let game = model(["GWStage": "hall", "GWHallX": "200"])
         XCTAssertEqual(game.stage, .hall)
