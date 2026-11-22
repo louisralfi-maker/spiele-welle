@@ -2,6 +2,12 @@ import ObjectiveC
 import UIKit
 import XCTest
 
+/// The runner's answer to a tap sent without waiting (`FilmReel.sendWithoutWaiting`).
+final class FilmAnswer: @unchecked Sendable {
+    var done = false
+    var at = Date()
+}
+
 /// The polish audit's film (22.11.2026, the director's seam audit; no game code): bursts of screenshots as fast as they
 /// come, so a critic sees whether a thing glides, pops or jumps. Each frame is kept as `<moment>-<letter>-<nn>`; each
 /// burst keeps one text note `<moment>-<letter>-times` with the launch arguments, the cause, and every frame's seconds
@@ -180,6 +186,145 @@ final class FilmReel {
             + "\(causeText)\n\(outcome)\nlaunch: \(arguments.joined(separator: " "))"
         keep(ring, letter: letter, numberFrom: 1, head: head)
         return held
+    }
+
+    // MARK: - A tap sent without waiting
+
+    /// A burst whose cause is a tap at `coordinate`, sent through the test runner's own event record without waiting
+    /// for it (`sendWithoutWaiting`), so the frames begin while the touch is still on its way; frame 00 is shot just
+    /// before. Where that path is not there the plain tap is the cause, as in `burst`. When `effect` (checked for up to
+    /// 3 s after the burst) does not hold after a tap sent without waiting, the plain tap follows with a burst of its
+    /// own, `<letter>s`, and the first burst's note says so.
+    func tapBurst(_ letter: String, _ app: XCUIApplication, count: Int, what: String, at coordinate: XCUICoordinate,
+                  effect: (() -> Bool)? = nil) {
+        let preShot = XCUIScreen.main.screenshot()
+        let started = Date()
+        let answer = FilmAnswer()
+        let sent = sendWithoutWaiting(coordinate, app, answer)
+        guard sent.ok else {
+            note("\(moment)-\(letter)-path", "the tap went the plain way: \(sent.text)")
+            burst(letter, app, count: count, what: what) { coordinate.tap() }
+            return
+        }
+        let sentAt = Date().timeIntervalSince(started)
+        var frames = [Frame(shot: preShot, seconds: -0.01, text: "before the tap")]
+        for _ in 0..<count {
+            frames.append(Frame(shot: XCUIScreen.main.screenshot(), seconds: Date().timeIntervalSince(started),
+                                text: ""))
+        }
+        _ = wait(2) { answer.done }
+        let answered = answer.done ? String(format: "the runner answered at +%.3f s", answer.at.timeIntervalSince(started))
+            : "the runner had not answered 2 s after the burst"
+        let worked = effect.map { check in wait(3, check) }
+        let effectText = worked.map { $0 ? "its effect holds" : "NO EFFECT: the plain tap follows as burst \(letter)s" }
+            ?? "no effect check"
+        let head = "\(moment)-\(letter): \(what)\n\(clock); as fast as the frames come\n"
+            + String(format: "the tap was sent without waiting at +%.3f s (%@); ", sentAt, sent.text)
+            + "\(answered); \(effectText)\nlaunch: \(arguments.joined(separator: " "))\nscene after: \(scene(app))"
+        keep(frames, letter: letter, numberFrom: 0, head: head)
+        if worked == false {
+            burst(letter + "s", app, count: count, what: what + " (the plain tap, after the tap sent without waiting "
+                  + "had no effect)") { coordinate.tap() }
+        }
+    }
+
+    /// Frame 00, then `taps` times: a tap at `coordinate` sent without waiting (or the plain tap where that path is not
+    /// there) and `framesPerTap` frames; then `after` frames more.
+    func tappingAt(_ letter: String, _ app: XCUIApplication, taps: Int, framesPerTap: Int, after: Int, what: String,
+                   at coordinate: XCUICoordinate) {
+        var frames: [Frame] = []
+        let preShot = XCUIScreen.main.screenshot()
+        let started = Date()
+        frames.append(Frame(shot: preShot, seconds: -0.01, text: "before the first tap"))
+        var lines: [String] = []
+        for index in 0..<taps {
+            let at = Date().timeIntervalSince(started)
+            let sent = sendWithoutWaiting(coordinate, app, FilmAnswer())
+            if !sent.ok { coordinate.tap() }
+            lines.append(String(format: "tap %ld at +%.3f s: ", index + 1, at)
+                         + (sent.ok ? "sent without waiting" : "the plain tap (\(sent.text)), returned at "
+                            + String(format: "+%.3f s", Date().timeIntervalSince(started))))
+            for shot in 0..<framesPerTap {
+                frames.append(Frame(shot: XCUIScreen.main.screenshot(), seconds: Date().timeIntervalSince(started),
+                                    text: shot == 0 ? "first frame after tap \(index + 1)" : ""))
+            }
+        }
+        for _ in 0..<after {
+            frames.append(Frame(shot: XCUIScreen.main.screenshot(), seconds: Date().timeIntervalSince(started),
+                                text: ""))
+        }
+        let head = "\(moment)-\(letter): \(what)\n\(clock); \(framesPerTap) frames after each tap as fast as they "
+            + "come, then \(after) more\n" + lines.joined(separator: "\n")
+            + "\nlaunch: \(arguments.joined(separator: " "))\nscene after: \(scene(app))"
+        keep(frames, letter: letter, numberFrom: 0, head: head)
+    }
+
+    /// Sends a tap at `coordinate` through the test runner's own event record and returns at once (test side only; the
+    /// path WebDriverAgent takes: `XCSynthesizedEventRecord`, `XCPointerEventPath`, `XCUIDevice.eventSynthesizer`'s
+    /// `synthesizeEvent:completion:`). Every class and method is looked up first; when one is missing nothing is sent and
+    /// the answer says which. The point is the coordinate's `screenPoint` in the app's interface orientation, as
+    /// XCTest's own tap takes it.
+    func sendWithoutWaiting(_ coordinate: XCUICoordinate, _ app: XCUIApplication, _ answer: FilmAnswer)
+        -> (ok: Bool, text: String) {
+        typealias Alloc = @convention(c) (AnyClass, Selector) -> Unmanaged<AnyObject>
+        typealias RecordInit = @convention(c) (AnyObject, Selector, NSString, Int) -> Unmanaged<AnyObject>
+        typealias PathInit = @convention(c) (AnyObject, Selector, CGPoint, Double) -> Unmanaged<AnyObject>
+        typealias TakesDouble = @convention(c) (AnyObject, Selector, Double) -> Void
+        typealias TakesObject = @convention(c) (AnyObject, Selector, AnyObject) -> Void
+        typealias Send = @convention(c) (AnyObject, Selector, AnyObject, AnyObject) -> Void
+        typealias GetInt = @convention(c) (AnyObject, Selector) -> Int
+        guard let recordClass = NSClassFromString("XCSynthesizedEventRecord") else { return (false, "no record class") }
+        guard let pathClass = NSClassFromString("XCPointerEventPath") else { return (false, "no path class") }
+        let allocName = NSSelectorFromString("alloc")
+        let recordInitName = NSSelectorFromString("initWithName:interfaceOrientation:")
+        let addName = NSSelectorFromString("addPointerEventPath:")
+        let pathInitName = NSSelectorFromString("initForTouchAtPoint:offset:")
+        let liftName = NSSelectorFromString("liftUpAtOffset:")
+        let synthesizerName = NSSelectorFromString("eventSynthesizer")
+        let sendName = NSSelectorFromString("synthesizeEvent:completion:")
+        let orientationName = NSSelectorFromString("interfaceOrientation")
+        guard let recordAlloc = class_getClassMethod(recordClass, allocName),
+              let pathAlloc = class_getClassMethod(pathClass, allocName),
+              let recordInit = class_getInstanceMethod(recordClass, recordInitName),
+              let add = class_getInstanceMethod(recordClass, addName),
+              let pathInit = class_getInstanceMethod(pathClass, pathInitName),
+              let lift = class_getInstanceMethod(pathClass, liftName) else { return (false, "a record method is missing") }
+        let device = XCUIDevice.shared
+        guard device.responds(to: synthesizerName),
+              let synthesizer = device.perform(synthesizerName)?.takeUnretainedValue() else {
+            return (false, "no event synthesizer")
+        }
+        guard let synthesizerObject = synthesizer as? NSObject, synthesizerObject.responds(to: sendName),
+              let synthesizerClass = object_getClass(synthesizerObject),
+              let send = class_getInstanceMethod(synthesizerClass, sendName) else {
+            return (false, "the synthesizer cannot send")
+        }
+        var orientation = UIInterfaceOrientation.landscapeRight.rawValue
+        var orientationText = "interface orientation \(orientation) (assumed)"
+        if let appClass = object_getClass(app), let getter = class_getInstanceMethod(appClass, orientationName) {
+            let read = unsafeBitCast(method_getImplementation(getter), to: GetInt.self)(app, orientationName)
+            if (1...4).contains(read) {
+                orientation = read
+                orientationText = "interface orientation \(read) (the app's)"
+            }
+        }
+        let point = coordinate.screenPoint
+        let rawRecord = unsafeBitCast(method_getImplementation(recordAlloc), to: Alloc.self)(recordClass, allocName)
+            .takeUnretainedValue()
+        let record = unsafeBitCast(method_getImplementation(recordInit), to: RecordInit.self)(
+            rawRecord, recordInitName, "film tap" as NSString, orientation).takeUnretainedValue()
+        let rawPath = unsafeBitCast(method_getImplementation(pathAlloc), to: Alloc.self)(pathClass, allocName)
+            .takeUnretainedValue()
+        let path = unsafeBitCast(method_getImplementation(pathInit), to: PathInit.self)(rawPath, pathInitName, point, 0)
+            .takeUnretainedValue()
+        unsafeBitCast(method_getImplementation(lift), to: TakesDouble.self)(path, liftName, 0.05)
+        unsafeBitCast(method_getImplementation(add), to: TakesObject.self)(record, addName, path)
+        let done: @Sendable @convention(block) () -> Void = {
+            answer.at = Date()
+            answer.done = true
+        }
+        unsafeBitCast(method_getImplementation(send), to: Send.self)(synthesizer, sendName, record, done as AnyObject)
+        return (true, String(format: "point %.1f, %.1f; ", point.x, point.y) + orientationText)
     }
 
     // MARK: - The cause without XCTest's wait for quiet

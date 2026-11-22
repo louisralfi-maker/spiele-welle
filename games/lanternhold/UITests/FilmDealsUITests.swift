@@ -37,17 +37,26 @@ final class FilmDealsUITests: XCTestCase {
             XCTFail("m05: the gate offers nothing")
             return
         }
-        film.burst("a", app, count: 20, what: "a touch on the gate's site: its counter comes up, he steps to it") {
-            self.touchThing(site)
+        film.tapBurst("a", app, count: 20, what: "a touch on the gate's site: its counter comes up, he steps to it",
+                      at: site.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+            film.scene(app).contains("count:touch-plot-0")
         }
         film.wait(6) { film.scene(app).contains(":there") }
         waitForStill(app, timeout: 4)
         film.pause(0.3)
         if let again = waitForThing(app, "touch-plot-0", timeout: 3) {
-            film.tapping("b", app, taps: 9, framesPerTap: 3, after: 20, what: "nine taps on the gate, one coin each "
-                         + "(nine hollows): the coins, the last coin, the seal, the counter going") {
-                again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).tap()
+            film.tappingAt("b", app, taps: 9, framesPerTap: 3, after: 20, what: "nine taps on the gate, one coin each "
+                           + "(nine hollows): the coins, the last coin, the seal, the counter going",
+                           at: again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)))
+            // A tap that did not land: the plain taps finish the count (unfilmed), so the work can be filmed.
+            var more = 0
+            while more < 9, !film.wait(1.5, { film.scene(app).contains("last:paid:touch-plot-0") }) {
+                more += 1
+                if film.scene(app).contains("count:touch-plot-0") {
+                    again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).tap()
+                }
             }
+            film.note("m05-b-plain-taps", "\(more) plain taps after the burst; scene: \(film.scene(app))")
         }
         let paid = film.wait(4) { film.scene(app).contains("last:paid:touch-plot-0") }
         film.note("m05-b-state", "paid: \(paid); scene: \(film.scene(app))")
@@ -72,17 +81,16 @@ final class FilmDealsUITests: XCTestCase {
             XCTFail("m05: the slowed gate offers nothing")
             return
         }
-        film.burst("d", slow, count: 24, what: "slowed: a touch on the gate's site: the counter comes up") {
-            self.touchThing(slowSite)
+        film.tapBurst("d", slow, count: 24, what: "slowed: a touch on the gate's site: the counter comes up",
+                      at: slowSite.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+            film.scene(slow).contains("count:touch-plot-0")
         }
         film.wait(20) { film.scene(slow).contains(":there") }
         waitForStill(slow, timeout: 20)
         film.pause(0.3)
         if let again = waitForThing(slow, "touch-plot-0", timeout: 3) {
-            film.tapping("e", slow, taps: 1, framesPerTap: 14, after: 0, what: "slowed: one tap, one coin from his "
-                         + "hand to its hollow") {
-                again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).tap()
-            }
+            film.tappingAt("e", slow, taps: 1, framesPerTap: 14, after: 0, what: "slowed: one tap, one coin from his "
+                           + "hand to its hollow", at: again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)))
             film.pause(1.0)
             film.burst("f", slow, count: 28, what: "slowed: a hold of 3 s on the gate; frames start after the finger "
                        + "lifted (the coins still flying, the seal, or the coins going home)") {
@@ -135,22 +143,27 @@ final class FilmDealsUITests: XCTestCase {
         film.pause(1.2)
         let counsel = film.element(app, "audience-counsel")
         if counsel.exists {
-            film.burst("c", app, count: 14, what: "counsel: Odile's line comes") { counsel.tap() }
+            let line = film.element(app, "audience-counsel-line")
+            film.tapBurst("c", app, count: 14, what: "counsel: Odile's line comes",
+                          at: counsel.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { line.exists }
             film.pause(1.2)
         }
         let choice = film.element(app, "audience-choice-0")
-        if choice.exists {
-            film.burst("d", app, count: 16, what: "the first answer: the reaction comes") { choice.tap() }
-        }
         let next = film.element(app, "audience-next")
+        if choice.exists {
+            film.tapBurst("d", app, count: 16, what: "the first answer: the reaction comes",
+                          at: choice.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { next.exists }
+        }
         if next.waitForExistence(timeout: 6) {
             film.pause(1.0)
-            film.burst("e", app, count: 16, what: "next: the reaction goes, the next petitioner comes") { next.tap() }
+            film.tapBurst("e", app, count: 16, what: "next: the reaction goes, the next petitioner comes",
+                          at: next.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !next.exists }
         }
         let leave = film.element(app, "audience-leave")
         if leave.waitForExistence(timeout: 8) {
             film.pause(1.0)
-            film.burst("f", app, count: 16, what: "leave: the slide goes, the hall again") { leave.tap() }
+            film.tapBurst("f", app, count: 16, what: "leave: the slide goes, the hall again",
+                          at: leave.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !card.exists }
         }
         film.pause(1.0)
         if openLantern(app) {
@@ -176,12 +189,15 @@ final class FilmDealsUITests: XCTestCase {
         film.pause(1.5)
         let offer = film.element(table, "table-offer-oil_round")
         if offer.exists {
-            film.burst("i", table, count: 14, what: "a tap on Pip's offer: its slip opens") { offer.tap() }
+            let slip = film.element(table, "table-slip-oil_round")
+            film.tapBurst("i", table, count: 14, what: "a tap on Pip's offer: its slip opens",
+                          at: offer.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { slip.exists }
             film.pause(1.0)
         }
         let back = film.element(table, "table-back")
         if back.exists {
-            film.burst("j", table, count: 16, what: "Back: the table goes") { back.tap() }
+            film.tapBurst("j", table, count: 16, what: "Back: the table goes",
+                          at: back.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !root.exists }
         } else {
             film.note("m06-j-missing", "no Back on the table")
         }
@@ -253,8 +269,9 @@ final class FilmDealsUITests: XCTestCase {
         }
         film.pause(0.8)
         if let site = waitForThing(app, "touch-yard", timeout: 4) {
-            film.burst("a", app, count: 24, what: "a touch on the yard's site: its counter comes up, he steps to it") {
-                self.touchThing(site)
+            film.tapBurst("a", app, count: 24, what: "a touch on the yard's site: its counter comes up, he steps to it",
+                          at: site.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+                film.scene(app).contains("count:touch-yard")
             }
             if !film.wait(3, { film.scene(app).contains("count:touch-yard:0/7") }),
                let again = waitForThing(app, "touch-yard", timeout: 2) {

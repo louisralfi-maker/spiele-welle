@@ -32,9 +32,8 @@ final class FilmOpeningUITests: XCTestCase {
             XCTFail("m01: no title to touch")
             return
         }
-        film.burst("c", app, count: 20, what: "a touch on the title: it goes, the name entry comes") {
-            title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
-        }
+        film.tapBurst("c", app, count: 20, what: "a touch on the title: it goes, the name entry comes",
+                      at: title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)))
         // TitleUITests: a touch before the game is ready only skips ahead; touch again while it stands.
         var extra = 0
         while title.exists && extra < 6 {
@@ -61,10 +60,11 @@ final class FilmOpeningUITests: XCTestCase {
         field.typeText("Oswin\n")
         film.pause(0.6)
         if !begin.isHittable { app.swipeUp() }
-        film.burst("e", app, count: 24, what: "Begin on the name entry: it goes, the prologue's first slide comes") {
-            begin.tap()
-        }
         let stage = film.element(app, "story-root")
+        film.tapBurst("e", app, count: 24, what: "Begin on the name entry: it goes, the prologue's first slide comes",
+                      at: begin.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+            stage.exists
+        }
         guard stage.waitForExistence(timeout: 8) else {
             film.note("m01-f-missing", "no prologue; scene: \(film.scene(app))")
             XCTFail("m01: no prologue after Begin")
@@ -72,8 +72,10 @@ final class FilmOpeningUITests: XCTestCase {
         }
         film.pause(2.4)
         let next = film.element(app, "story-next")
-        film.burst("f", app, count: 16, what: "a tap on the slide: the next slide comes") {
-            next.tap()
+        let words = next.label
+        film.tapBurst("f", app, count: 16, what: "a tap on the slide: the next slide comes",
+                      at: next.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+            next.exists && next.label != words
         }
         film.pause(1.2)
         let skip = film.element(app, "story-skip")
@@ -82,8 +84,9 @@ final class FilmOpeningUITests: XCTestCase {
             XCTFail("m01: no Skip")
             return
         }
-        film.burst("g", app, count: 32, what: "Skip: the prologue goes, day 1 comes (the step into the world)") {
-            skip.tap()
+        film.tapBurst("g", app, count: 32, what: "Skip: the prologue goes, day 1 comes (the step into the world)",
+                      at: skip.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+            !stage.exists
         }
         film.burst("h", app, count: 16, what: "the first 8 s of day 1 after burst g (a fresh install's onboarding), one "
                    + "frame every 0.5 s", before: false, every: 0.5)
@@ -105,26 +108,27 @@ final class FilmOpeningUITests: XCTestCase {
         waitForCamera(app, timeout: 4)
         let scene = film.element(app, "world-scene")
         // Below the walk line no thing and not the lord answers (TouchSupport.stepAside): a tap there is a walk.
-        film.burst("a", app, count: 32, what: "a tap on the ground at 80 % of the width, below the walk line: he "
-                   + "starts, walks, stops; the camera follows") {
-            scene.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.94)).tap()
+        var place = sceneField(app, "lx:")
+        film.tapBurst("a", app, count: 32, what: "a tap on the ground at 80 % of the width, below the walk line: he "
+                      + "starts, walks, stops; the camera follows",
+                      at: scene.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.94))) {
+            self.sceneField(app, "lx:") != place
         }
         waitForStill(app, timeout: 8)
         waitForCamera(app, timeout: 4)
         film.pause(0.5)
-        film.burst("b", app, count: 32, what: "a tap on the ground at 20 % of the width: he turns and walks back") {
-            scene.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.94)).tap()
+        place = sceneField(app, "lx:")
+        film.tapBurst("b", app, count: 32, what: "a tap on the ground at 20 % of the width: he turns and walks back",
+                      at: scene.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.94))) {
+            self.sceneField(app, "lx:") != place
         }
         waitForStill(app, timeout: 8)
         waitForCamera(app, timeout: 4)
         film.pause(0.5)
-        film.burst("c", app, count: 4, what: "a tap at 85 %: he sets off right (burst d follows at once)") {
-            scene.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.94)).tap()
-        }
-        film.burst("d", app, count: 24, what: "a second tap at 25 % while he walks right: he turns back mid-stride",
-                   before: false) {
-            scene.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.94)).tap()
-        }
+        film.tapBurst("c", app, count: 4, what: "a tap at 85 %: he sets off right (burst d follows at once)",
+                      at: scene.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.94)))
+        film.tapBurst("d", app, count: 24, what: "a second tap at 25 % while he walks right: he turns back mid-stride",
+                      at: scene.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.94)))
         film.note("m02-scene-end", film.scene(app))
         app.terminate()
     }
@@ -148,11 +152,12 @@ final class FilmOpeningUITests: XCTestCase {
         waitForStill(app, timeout: 4)
         waitForCamera(app, timeout: 3)
         waitForElementStill(tamsin, timeout: 6)
-        film.burst("a", app, count: 28, what: "a touch on Tamsin: he walks to her, the speech bubble opens") {
-            self.touchThing(tamsin)
-        }
         let bubble = film.element(app, "talk-bubble")
         let moment = film.element(app, "lantern-moment")
+        film.tapBurst("a", app, count: 28, what: "a touch on Tamsin: he walks to her, the speech bubble opens",
+                      at: tamsin.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+            bubble.exists || moment.exists || self.sceneField(app, "errand:") != "none"
+        }
         if !bubble.waitForExistence(timeout: 8) {
             film.note("m03-a-miss", "no bubble after the touch (the lantern up: \(moment.exists)); scene: "
                       + film.scene(app))
@@ -168,13 +173,17 @@ final class FilmOpeningUITests: XCTestCase {
             app.terminate()
             return
         }
-        film.burst("b", app, count: 16, what: "a tap on the bubble: the next line or the bubble closing") {
-            bubble.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let line = bubble.label
+        film.tapBurst("b", app, count: 16, what: "a tap on the bubble: the next line or the bubble closing",
+                      at: bubble.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+            !bubble.exists || bubble.label != line
         }
         if bubble.exists {
             film.pause(1.5)
-            film.burst("c", app, count: 16, what: "a second tap on the bubble") {
-                bubble.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            let second = bubble.label
+            film.tapBurst("c", app, count: 16, what: "a second tap on the bubble",
+                          at: bubble.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+                !bubble.exists || bubble.label != second
             }
         }
         film.note("m03-scene-end", film.scene(app))
@@ -200,9 +209,9 @@ final class FilmOpeningUITests: XCTestCase {
             XCTFail("m04: no lord to touch")
             return
         }
-        film.burst("a", app, count: 16, what: "a tap on the lord: the lantern rises, the world stills, the interface "
-                   + "comes") {
-            lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62)).tap()
+        film.tapBurst("a", app, count: 16, what: "a tap on the lord: the lantern rises, the world stills, the "
+                      + "interface comes", at: lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))) {
+            moment.exists
         }
         if !moment.waitForExistence(timeout: 3) {
             film.note("m04-a-miss", "the tap did not raise the lantern; scene: \(film.scene(app))")
@@ -222,9 +231,10 @@ final class FilmOpeningUITests: XCTestCase {
         waitForCamera(app, timeout: 6)
         film.pause(1.0)
         if moment.exists {
-            film.burst("c", app, count: 16, what: "a touch on the dim, low at the left: the lantern lowers, the "
-                       + "interface goes, the world moves again") {
-                moment.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.9)).tap()
+            film.tapBurst("c", app, count: 16, what: "a touch on the dim, low at the left: the lantern lowers, the "
+                          + "interface goes, the world moves again",
+                          at: moment.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.9))) {
+                !moment.exists
             }
         } else {
             film.note("m04-c-miss", "the lantern was already down before the lowering; scene: \(film.scene(app))")

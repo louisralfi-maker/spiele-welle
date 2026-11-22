@@ -108,7 +108,8 @@ final class FilmNightUITests: XCTestCase {
         film.pause(2.0)
         let proceed = film.element(app, "report-continue")
         if proceed.exists {
-            film.burst("b", app, count: 24, what: "Continue: the report goes, day 2 begins") { proceed.tap() }
+            film.tapBurst("b", app, count: 24, what: "Continue: the report goes, day 2 begins",
+                          at: proceed.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !report.exists }
         } else {
             film.note("m10-b-missing", "no Continue on the report")
             XCTFail("m10: no Continue")
@@ -132,16 +133,21 @@ final class FilmNightUITests: XCTestCase {
         }
         film.pause(1.5)
         if offer.exists {
-            film.burst("b", app, count: 20, what: "a tap on the offer (the stub's video ends at once): the offer goes, "
-                       + "the note comes") { offer.tap() }
+            film.tapBurst("b", app, count: 20, what: "a tap on the offer (the stub's video ends at once): the offer "
+                          + "goes, the note comes",
+                          at: offer.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !offer.exists }
         } else {
             film.note("m12-b-missing", "no offer on the report")
             XCTFail("m12: no offer")
         }
         film.pause(1.6)
         let proceed = film.element(app, "report-continue")
+        let firstReport = film.element(app, "report-root")
         if proceed.exists {
-            film.burst("c", app, count: 16, what: "Continue after the video: no interstitial, the day") { proceed.tap() }
+            film.tapBurst("c", app, count: 16, what: "Continue after the video: no interstitial, the day",
+                          at: proceed.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+                !firstReport.exists
+            }
         }
         app.terminate()
 
@@ -151,8 +157,9 @@ final class FilmNightUITests: XCTestCase {
             film.pause(1.5)
             let next = film.element(second, "report-continue")
             if next.exists {
-                film.burst("d", second, count: 20, what: "Continue on a real dawn without the video: the stub's "
-                           + "interstitial (it ends at once), the day") { next.tap() }
+                film.tapBurst("d", second, count: 20, what: "Continue on a real dawn without the video: the stub's "
+                              + "interstitial (it ends at once), the day",
+                              at: next.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !report.exists }
             } else {
                 film.note("m12-d-missing", "no Continue on the second report")
             }
@@ -173,13 +180,16 @@ final class FilmNightUITests: XCTestCase {
         }
         film.pause(2.6)
         let skip = film.element(end, "story-skip")
-        film.burst("e", end, count: 24, what: "Skip on the Shuttered Lantern's first slide: the slides go, the end "
-                   + "card comes") { skip.tap() }
         let card = film.element(end, "end-root")
+        film.tapBurst("e", end, count: 24, what: "Skip on the Shuttered Lantern's first slide: the slides go, the end "
+                      + "card comes", at: skip.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+            card.exists
+        }
         if card.waitForExistence(timeout: 6) {
             film.pause(1.6)
             let hold = film.element(end, "end-hold")
-            film.burst("f", end, count: 20, what: "Hold the realm: the card goes, the realm runs on") { hold.tap() }
+            film.tapBurst("f", end, count: 20, what: "Hold the realm: the card goes, the realm runs on",
+                          at: hold.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !card.exists }
         } else {
             film.note("m12-f-missing", "no end card after Skip")
             XCTFail("m12: no end card")
