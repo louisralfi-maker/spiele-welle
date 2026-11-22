@@ -105,13 +105,6 @@ final class FilmDealsUITests: XCTestCase {
             // Polish B2 (H2): m05-e keeps its first tap and its 14 frames (00 to 14, the audit's burst), then three taps
             // on the lord's body 4, 6 and 8 game px toward him from the board's near edge (his middle stands
             // `countStandGap`, 10 px, from it): each must set a coin, with no purse, strip or gear coming up.
-            // Slowed four times, the empty board's 5 s wait is 20 s of real time: if the waits above outlasted it the
-            // board comes up again first (round lh-rb-2), so tap 1 sets a coin as in the audit's burst.
-            if !film.scene(slow).contains("count:touch-plot-0") {
-                touchThing(again)
-                film.wait(20) { film.scene(slow).contains(":there") }
-                film.note("m05-e-again", "the board had gone before the burst; brought again: \(film.scene(slow))")
-            }
             let lord = film.element(slow, "touch-lord")
             if lord.waitForExistence(timeout: 3) {
                 let toward: CGFloat = again.frame.midX >= lord.frame.midX ? 1 : -1
@@ -121,20 +114,35 @@ final class FilmDealsUITests: XCTestCase {
                 let near = [4.0, 6.0, 8.0].map { d in
                     (d, middle.withOffset(CGVector(dx: toward * CGFloat(10 - d) * 2, dy: 0)))
                 }
-                // The count runs on real time even when the world is slowed (round lh-rb-5: on a slow runner the 14
-                // frames took 4.2 s and the tap count's 3.0 s ran out before the near taps), so each tap's frames stop
-                // after `seconds` too: on a runner as fast as the audit's the same 14 frames.
-                b2Tapping(film, "e", slow, framesPerTap: [14, 6, 6, 6], seconds: [2.1, 1.4, 1.4, 1.4], what: "slowed: one tap on the gate, one coin "
-                          + "from his hand to its hollow; then three taps on the lord's body 4, 6 and 8 game px toward "
-                          + "him from the board's near edge (polish B2, H2: each a coin, the lantern stays down)",
-                          spots: [("the gate", b2Fixed(slow, again, CGVector(dx: 0.5, dy: 0.4)))]
-                            + near.map { ("\(Int($0.0)) px from the board's near edge toward the lord", $0.1) })
-                let four = film.wait(8) { film.scene(slow).contains("count:touch-plot-0:4/9") }
+                let gatePoint = b2Fixed(slow, again, CGVector(dx: 0.5, dy: 0.4))
+                // The count runs on real time even while the world is slowed: the empty board waits 5 s of real time,
+                // which the waits above can outlast (rounds lh-rb-2, lh-rb-6); then the board comes up again first, so
+                // tap 1 sets a coin as in the audit's burst.
+                if !film.scene(slow).contains("count:touch-plot-0") {
+                    touchThing(again)
+                    film.wait(20) { film.scene(slow).contains(":there") }
+                    film.note("m05-e-again", "the board had gone before the burst; brought again: \(film.scene(slow))")
+                }
+                // Each tap's frames stop after `seconds` too (round lh-rb-5: on a slow runner the 14 frames took 4.2 s
+                // and the tap count's 3.0 s ran out before the near taps); on a runner as fast as the audit's the
+                // same 14 frames.
+                let before = b2Tapping(film, "e", slow, framesPerTap: [14, 6, 6, 6], seconds: [2.1, 1.4, 1.4, 1.4],
+                                       what: "slowed: one tap on the gate, one coin from his hand to its hollow; then "
+                                           + "three taps on the lord's body 4, 6 and 8 game px toward him from the "
+                                           + "board's near edge (polish B2, H2: each a coin, the lantern stays down)",
+                                       spots: [("the gate", gatePoint)]
+                                           + near.map { ("\(Int($0.0)) px from the board's near edge toward the lord",
+                                                         $0.1) })
+                // Tap 1 sets the first coin, or brings the board when it had gone in the meantime (the scene before
+                // the burst says which); the three near taps set three coins either way.
+                let laid = before.contains("count:touch-plot-0") ? 4 : 3
+                let three = film.wait(8) { film.scene(slow).contains("count:touch-plot-0:\(laid)/9") }
                 let value = film.scene(slow)
-                film.note("m05-e-state", "four coins: \(four); scene: \(value)")
-                XCTAssertTrue(four, "m05-e: the three near taps set three coins: \(FilmReel.short(value))")
+                film.note("m05-e-state", "\(laid) coins expected: \(three); scene: \(value)")
+                XCTAssertTrue(three, "m05-e: the three near taps set three coins: \(FilmReel.short(value))")
                 XCTAssertFalse(value.contains("hud:moment"), "m05-e: no purse, strip or gear")
-                XCTAssertTrue(value.contains("count:touch-plot-0:4/9:there"), "m05-e: the count stays open")
+                XCTAssertFalse(value.contains("tap:moment"), "m05-e: no tap raised the lantern")
+                XCTAssertTrue(value.contains("count:touch-plot-0:\(laid)/9:there"), "m05-e: the count stays open")
             } else {
                 XCTFail("m05-e: the lord has no element")
             }
@@ -194,9 +202,11 @@ final class FilmDealsUITests: XCTestCase {
     }
 
     /// Polish B2: frame 00, then for each spot a tap there sent without waiting (the plain tap where that path is not
-    /// there) and `framesPerTap[i]` frames as fast as they come, but none begun `seconds[i]` after the tap. The note gives each tap's place and time.
+    /// there) and `framesPerTap[i]` frames as fast as they come, but none begun `seconds[i]` after the tap. Returns the
+    /// scene read just before the first tap. The note gives each tap's place and time.
+    @discardableResult
     private func b2Tapping(_ film: FilmReel, _ letter: String, _ app: XCUIApplication, framesPerTap: [Int],
-                           seconds: [Double], what: String, spots: [(String, XCUICoordinate)]) {
+                           seconds: [Double], what: String, spots: [(String, XCUICoordinate)]) -> String {
         var frames: [(XCUIScreenshot, Double, String)] = [(XCUIScreen.main.screenshot(), -0.01, "before the first tap")]
         let started = Date()
         var lines: [String] = []
@@ -217,6 +227,7 @@ final class FilmDealsUITests: XCTestCase {
         b2Keep(film, letter, frames, head: "\(film.moment)-\(letter): \(what)\n\(film.clock)\n"
                + lines.joined(separator: "\n") + "\nlaunch: \(film.arguments.joined(separator: " "))\n"
                + "scene before: \(before)\nscene after: \(film.scene(app))")
+        return before
     }
 
     /// Polish B2: frame 00, then `taps` taps at `coordinate` sent `apart` seconds apart (each without waiting), a frame
