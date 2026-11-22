@@ -1304,3 +1304,10 @@ schneller geht."
 - **The joined lane-5 head is green and pushed (22.11.2026, 06:35).**
   - Round `lh-b3l-42` on eca49b2a (the smooth walk merged into the banner step): ALL PASSED. `claude/lh-b3-lantern`
     on origin is eca49b2a. Step 5 builds on it.
+
+- **Lane 2: the drill yard's step 3 is green and pushed; its polish step runs (22.11.2026, 07:34).**
+  - `claude/lh-b3-yard` 466f0460, round lh-b3y-31 ALL PASSED (build, the whole unit suite, ui Yard, FirstDay, Touch, Count, Lord). The yard stands on its full ground: sand 1442-1544, archer 1438, kettle 1466-1478, guard 1488 with the pell at 1494, Brannock in the door at 1513, the butts at 1519 and 1528, one arrow in a high arc of 0.55 s. Marek's cart stands by the back gate (2218-2266). The dawn card names the trained men.
+  - A critic passed it at 6/10 with four highs, and the director saw the same in the frames: the gatehouse's rock shoulder swallows the kettle by day; at night a recruit mark's gold rim lies on the butts; the two butts are the same sprite twice; the arrow vanishes on landing and the pell never answers a strike.
+  - Rulings: the guard at 1488 facing east, the pell at 1494 and the swapped butts are confirmed; the high arc stays, because the lord watches from the fence; with his mark up Marek's word comes before his card.
+  - Step 4 (workflow `wfnf0xy2l`, picture only): a second frame of the rock while the site shows or the yard stands; no rim on a yard prop; the rear butt's own frame; the stuck arrow, the leaning pell, the hold that sees townsfolk and soldiers; the night file in the kettle's light; at most four names on the dawn card. Its gate round adds AudienceUITests, which lh-b3y-31 had left out.
+  - Watch point for the store pass: the rewarded path (Marek's cart) now lies about 750 px east of the daily path.
