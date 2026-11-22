@@ -35,7 +35,7 @@ final class CourtTests: XCTestCase {
             let list = CourtLayout.figures(day: 2, hour: hour, flags: [], queue: [], catalog: Self.sample)
             XCTAssertEqual(member(list, "odile")?.room, .greatHall, "Odile by the throne at \(hour)")
             let brannock = member(list, "brannock")?.x ?? 0
-            // b3-yard (build 3, wave 2, lane 2, step 3): the drill master in the bunkhouse door at 1511 (was 1420 to
+            // b3-yard (build 3, wave 2, lane 2, step 3): the drill master in the bunkhouse door at 1513 (was 1420 to
             // 1480, between the courtyard and the gatehouse).
             XCTAssertTrue((1420.0...1520.0).contains(brannock), "Brannock at the gate's yard")
             let pip = member(list, "pip")?.room

@@ -108,14 +108,17 @@ enum CourtLayout {
         // lectern's near side (1894, the lectern from 1908), where she faces it.
         "odile": CourtRoutine(stops: [1858, 1894], faces: [-1, 1], dwell: [14, 6], night: 1860, nightFacing: -1),
         // b3-yard (build 3, wave 2, lane 2, step 3; the director's pick of 21.11.2026, 17:31, and the critic's H1):
-        // Brannock, the drill master, stands in the bunkhouse door at 1511 ("the captain in his doorway"; the door,
+        // Brannock, the drill master, stands in the bunkhouse door at 1513 ("the captain in his doorway"; the door,
         // 1505 to 1516, is allowed to him alone), by day and by night. Both day stops are the door: he only turns,
         // watching the drill westward and the butts eastward (his walk along the line comes in a later step). Step 2's
         // 1428 stood on the gate's catapult model and against the archer, 1472 before the butt, and the night's 1424
         // on the catapult model among the waiting guards. Clear of the lord's lane, the site's middle (1456) and its
         // tag, of every yard thing, more than 8 px from every mark (the barracks' recruit marks 1497 and 1529, the
-        // yard's 1456), and under the arrow's arc (`YardLook`, part C).
-        "brannock": CourtRoutine(stops: [1511, 1511], faces: [-1, 1], dwell: [9, 9], night: 1511, nightFacing: -1,
+        // yard's 1456), and under the arrow's arc (`YardLook`, part C). The review: 1513, not 1511, so his talk tag
+        // stands a full tag (16 px) from both recruit tags (1497, 1529) and none of the three gives way
+        // (`TouchRules.marked`); the arrow still passes 5.3 px over him, and his box (1505 to 1520) covers the rear
+        // butt's first two columns.
+        "brannock": CourtRoutine(stops: [1513, 1513], faces: [-1, 1], dwell: [9, 9], night: 1513, nightFacing: -1,
                                  offset: 5.5),
         "pip": CourtRoutine(stops: [1612, 1690, 1770, 1700], faces: [1, 1, -1, -1], dwell: [5, 4, 7, 3], night: 1880,
                             nightFacing: -1, speed: 22, offset: 11),

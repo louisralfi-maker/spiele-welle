@@ -25,12 +25,12 @@ enum YardLook {
     static let groundY = -5.0
     /// The pell (9 px sprite; the post's middle 4 px in). Step 3 (the critic's H2): 1494, before the bunkhouse's west
     /// wall right of the guard who strikes it (layout A had it at 1482 with the guard at 1497, right under the archer
-    /// recruit's mark); its foot a pixel clear of Brannock in the door (1503).
+    /// recruit's mark); its foot clear of Brannock in the door (his box from 1505).
     static let pellLefts: [Double] = [1494]
     /// The two archery butts set behind each other at the yard's far end (17 px each; the boss's middle 9 px in), their
     /// faces to the archers: the first drawn first, behind, a shade darker (`buttBehindShade`); the second in front, the
     /// one the arrow flies into. Step 3: the card had the front one at 1519 and the arrow's end at 1526; with Brannock
-    /// in the door (his box 1503 to 1518, 30 high) no arc of 40 to 60 falls from 4 px over his box into a heart 7 px
+    /// in the door (his box 1505 to 1520, 30 high) no arc of 40 to 60 falls from 4 px over his box into a heart 8 px
     /// past it, so the butt in front is the far one (heart 1537) and the near one stands behind it.
     static let buttLefts: [Double] = [1519, 1528]
     static let buttBehindShade: Float = 0.8
