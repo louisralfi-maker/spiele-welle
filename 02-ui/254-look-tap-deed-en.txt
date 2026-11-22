@@ -1,0 +1,1 @@
+scene: frame:580 ready day:1 hour:9.69 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1701 lord:lord stage:world lx:1701 errand:touch-door-hall door:1830 gold:60 hud:notes cam:1548 tap:touch-door-hall hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult
