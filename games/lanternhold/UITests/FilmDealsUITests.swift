@@ -312,7 +312,7 @@ final class FilmDealsUITests: XCTestCase {
         }
         slow.terminate()
 
-        let dawn = film.launch(FilmDealsUITests.yard + ["-GWNight", "8", "-GWBuild", "demo", "-GWHour", "5.9",
+        let dawn = film.launch(FilmDealsUITests.yard + ["-GWNight", "8", "-GWBuild", "demo", "-GWHour", "5.6",
                                                         "-GWCameraX", "1600", "-GWYard", "2", "-GWTrained", "dawn"])
         let report = film.element(dawn, "report-root")
         film.rolling("g", dawn, keepBefore: 16, after: 16, timeout: 90, what: "the dawn that trains them: the "

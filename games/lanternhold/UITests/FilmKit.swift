@@ -1,3 +1,4 @@
+import ObjectiveC
 import UIKit
 import XCTest
 
@@ -74,9 +75,9 @@ final class FilmReel {
         var causeText = "no cause: the burst only watches"
         if let cause {
             let at = Date()
-            cause()
+            quietly(cause)
             causeText = String(format: "the cause (%@) was sent at +%.3f s and returned at +%.3f s", what,
-                               at.timeIntervalSince(started), Date().timeIntervalSince(started))
+                               at.timeIntervalSince(started), Date().timeIntervalSince(started)) + "; " + quietNote
         }
         for index in 0..<count {
             if every > 0, index > 0 {
@@ -105,9 +106,10 @@ final class FilmReel {
         var tapLines: [String] = []
         for index in 0..<taps {
             let at = Date().timeIntervalSince(started)
-            tap()
+            quietly(tap)
             let back = Date().timeIntervalSince(started)
-            tapLines.append(String(format: "tap %ld sent at +%.3f s, returned at +%.3f s", index + 1, at, back))
+            tapLines.append(String(format: "tap %ld sent at +%.3f s, returned at +%.3f s", index + 1, at, back)
+                            + (index == 0 ? "; " + quietNote : ""))
             for shot in 0..<framesPerTap {
                 frames.append(Frame(shot: XCUIScreen.main.screenshot(), seconds: Date().timeIntervalSince(started),
                                     text: shot == 0 ? "first frame after tap \(index + 1)" : ""))
@@ -136,9 +138,9 @@ final class FilmReel {
         let started = Date()
         var causeText = "no cause: the burst watches until the condition"
         if let cause {
-            cause()
+            quietly(cause)
             causeText = String(format: "the cause (%@) was sent at +0.000 s and returned at +%.3f s", what,
-                               Date().timeIntervalSince(started))
+                               Date().timeIntervalSince(started)) + "; " + quietNote
         }
         var held = false
         var heldAt = -1.0
@@ -178,6 +180,51 @@ final class FilmReel {
             + "\(causeText)\n\(outcome)\nlaunch: \(arguments.joined(separator: " "))"
         keep(ring, letter: letter, numberFrom: 1, head: head)
         return held
+    }
+
+    // MARK: - The cause without XCTest's wait for quiet
+
+    /// What the last cause's quiescence swap did (for the notes).
+    private(set) var quietNote = ""
+
+    /// Runs `body` (a tap, a press) with XCTest's waits for the app to go quiet turned off, so the frames that follow
+    /// begin at once instead of after the app's animations have ended (round lh-rnd-1: a tap returned 0.5 to 1.9 s after
+    /// it was sent). Test side only: every instance method of XCTest's own `XCUIApplicationProcess` whose name holds
+    /// "waitForQuiescence" (and of `XCUIApplicationImpl`, where it may live) that returns nothing or a BOOL answers at
+    /// once while `body` runs, then its own code is put back. Without them `body` runs as before; the note says which.
+    func quietly(_ body: () -> Void) {
+        var swapped: [(Method, IMP)] = []
+        var names: [String] = []
+        for className in ["XCUIApplicationProcess", "XCUIApplicationImpl"] {
+            guard let owner: AnyClass = NSClassFromString(className) else { continue }
+            var count: UInt32 = 0
+            guard let list = class_copyMethodList(owner, &count) else { continue }
+            for index in 0..<Int(count) {
+                let method = list[index]
+                let name = NSStringFromSelector(method_getName(method))
+                guard name.contains("waitForQuiescence") else { continue }
+                let returns = method_copyReturnType(method)
+                let code = String(cString: returns)
+                free(returns)
+                let quiet: IMP
+                if code == "v" {
+                    let block: @Sendable @convention(block) (AnyObject) -> Void = { _ in }
+                    quiet = imp_implementationWithBlock(block)
+                } else if code == "B" || code == "c" {
+                    let block: @Sendable @convention(block) (AnyObject) -> Bool = { _ in true }
+                    quiet = imp_implementationWithBlock(block)
+                } else {
+                    continue
+                }
+                swapped.append((method, method_setImplementation(method, quiet)))
+                names.append("\(className) \(name) (\(code))")
+            }
+            free(list)
+        }
+        body()
+        for (method, original) in swapped.reversed() { method_setImplementation(method, original) }
+        quietNote = swapped.isEmpty ? "quiescence wait kept (no method to swap)"
+            : "quiescence wait skipped for the cause: " + names.joined(separator: ", ")
     }
 
     // MARK: - Reading the app

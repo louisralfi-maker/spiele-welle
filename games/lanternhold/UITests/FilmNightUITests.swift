@@ -123,7 +123,7 @@ final class FilmNightUITests: XCTestCase {
     func testM12AnAdOfferAndTheEndCard() {
         let film = FilmReel(self, "m12")
         let dawn = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWAdStub", "YES", "-GWNight", "8", "-GWBuild",
-                    "demo", "-GWHour", "5.9", "-GWCameraX", "1100"]
+                    "demo", "-GWHour", "5.6", "-GWCameraX", "1100"]
         let app = film.launch(dawn)
         let offer = film.element(app, "report-ad-double")
         film.rolling("a", app, keepBefore: 16, after: 16, timeout: 90, what: "the dawn report of day 9 and its offer "
