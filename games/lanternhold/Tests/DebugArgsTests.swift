@@ -103,4 +103,40 @@ final class DebugArgsTests: XCTestCase {
         XCTAssertEqual(args.scene, "world")
         XCTAssertEqual(DebugArgs(values: ["GWTimeOfDay": "1.7"]).timeOfDay, 1, "clamped to 0 ... 1")
     }
+
+    /// Build 3, lane 6 (the `-GW` gate): a Release build reads no launch argument. The closed path, proven in this Debug
+    /// run on the same values that open the report and fill the purse when it is open (the release proof's launch).
+    func testTheClosedGateReadsNoArgument() throws {
+        let suite = "lanternhold-gate-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set("report", forKey: "GWScreen")
+        defaults.set("999", forKey: "GWGold")
+        defaults.set("YES", forKey: "GWReset")
+        defaults.set("9", forKey: "GWDay")
+        let open = DebugArgs.fromProcess(allowed: true, defaults: defaults)
+        XCTAssertEqual(open.screen, .report)
+        XCTAssertEqual(open.gold, 999)
+        XCTAssertEqual(open.day, 9)
+        XCTAssertTrue(open.reset)
+        XCTAssertTrue(open.hasArguments)
+        let closed = DebugArgs.fromProcess(allowed: false, defaults: defaults)
+        XCTAssertEqual(closed, DebugArgs(), "a Release build: the defaults, whatever the launch carried")
+        XCTAssertFalse(closed.hasArguments, "so it plays as a plain launch: the title, the sound, the prologue")
+        #if DEBUG
+        XCTAssertTrue(DebugArgs.launchHooksOpen, "a Debug build (the UI tests) keeps every hook")
+        #else
+        XCTAssertFalse(DebugArgs.launchHooksOpen)
+        #endif
+    }
+
+    /// The Release launch's log line: the proof greps "debug args: none", which only a launch that read nothing writes.
+    func testTheGateLineSaysNoneOnlyWhenNothingWasRead() {
+        XCTAssertEqual(DebugArgs.gateLine(read: DebugArgs(), sweeps: false), "debug args: none")
+        let read = DebugArgs(values: ["GWScreen": "report", "GWGold": "999"])
+        XCTAssertFalse(DebugArgs.gateLine(read: read, sweeps: false).contains("debug args: none"))
+        XCTAssertFalse(DebugArgs.gateLine(read: DebugArgs(), sweeps: true).contains("debug args: none"))
+        let closed = DebugArgs.fromProcess(allowed: false)
+        XCTAssertEqual(DebugArgs.gateLine(read: closed, sweeps: false), "debug args: none", "the closed gate")
+    }
 }

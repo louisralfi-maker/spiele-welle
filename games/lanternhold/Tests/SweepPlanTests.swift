@@ -31,6 +31,16 @@ final class SweepPlanTests: XCTestCase {
         XCTAssertNil(SweepPlan.from(environment: encoded([])))
     }
 
+    /// Build 3, lane 6 (the `-GW` gate): a Release build never sweeps, whatever the environment carries.
+    func testAClosedGateRunsNoSweep() {
+        let environment = encoded([["name": "a", "values": ["GWScreen": "report", "GWGold": "999"]]])
+        XCTAssertNotNil(SweepPlan.from(environment: environment, allowed: true))
+        XCTAssertNil(SweepPlan.from(environment: environment, allowed: false), "the closed path of a Release build")
+        #if DEBUG
+        XCTAssertNotNil(SweepPlan.from(environment: environment), "a Debug build (the UI tests) sweeps")
+        #endif
+    }
+
     func testTheNextNames() {
         XCTAssertEqual(SweepPlan.nextName(after: 7), "gw.sweep.next.7")
         XCTAssertEqual(SweepPlan.index(inNextName: "gw.sweep.next.12"), 12)

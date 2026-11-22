@@ -3,7 +3,7 @@ import Foundation
 /// Launch arguments that let UI tests and screenshots reach any state (DESIGN.md "Debug launch arguments"): the
 /// light-lab group (scene, clock, camera, pixel scale and effect experiments) and, from M2b, the game's starts
 /// (`-GWDay`, `-GWNight`, `-GWBuild`, `-GWGold`, `-GWHappiness`, `-GWReset`). Values are plain parsed data; an unknown
-/// or malformed value keeps the default.
+/// or malformed value keeps the default. A Release build reads none of them (`launchHooksOpen`, build 3).
 struct DebugArgs: Sendable, Equatable {
     /// "world" (default: the game), "probe" (the M1b light probe: the scene as data, no simulation), "lightlab" or
     /// "testpattern".
@@ -190,8 +190,26 @@ struct DebugArgs: Sendable, Equatable {
         "GWLordHint",
     ]
 
+    /// Build 3, lane 6 (the `-GW` gate): whether this build listens to launch arguments and to the sweep's environment
+    /// at all. A Debug build (every UI test, every screenshot run) does; a Release build (TestFlight, the store) never,
+    /// so no argument there can start a realm, open a screen or set a number.
+    static var launchHooksOpen: Bool {
+        #if DEBUG
+        true
+        #else
+        false
+        #endif
+    }
+
+    /// This launch's arguments; the defaults in a Release build (`launchHooksOpen`), whatever the launch carried.
     static func fromProcess() -> DebugArgs {
-        let defaults = UserDefaults.standard
+        fromProcess(allowed: launchHooksOpen)
+    }
+
+    /// The arguments from `defaults` where reading them is `allowed`, else the defaults: the closed path a Release build
+    /// takes, which `DebugArgsTests` proves in a Debug run.
+    static func fromProcess(allowed: Bool, defaults: UserDefaults = .standard) -> DebugArgs {
+        guard allowed else { return DebugArgs() }
         var values: [String: String] = [:]
         for key in keys {
             if let value = defaults.string(forKey: key) {
@@ -199,6 +217,12 @@ struct DebugArgs: Sendable, Equatable {
             }
         }
         return DebugArgs(values: values)
+    }
+
+    /// Build 3, lane 6: the Release launch's one log line (`LanternholdApp`): "debug args: none" when the launch read
+    /// no argument and no sweep, as the gate wants; the release proof greps that form.
+    static func gateLine(read args: DebugArgs, sweeps: Bool) -> String {
+        args == DebugArgs() && !sweeps ? "debug args: none" : "debug args: READ (the gate is open)"
     }
 
     /// Parses argument values by key (`"GWTimeOfDay": "0.95"`).

@@ -20,6 +20,10 @@ final class AdModeTests: XCTestCase {
         XCTAssertEqual(mode(["GWAdStub": "YES"], tests: true), .none, "the unit tests' host app")
         XCTAssertEqual(mode(["GWAdStub": "YES"], debug: false), .google, "release: no stub")
         XCTAssertEqual(mode([:], any: false, debug: false, live: false), .none, "release without the real app id")
+        // Build 3, lane 6 (the `-GW` gate): a release build reads no ad argument at all.
+        XCTAssertEqual(mode(["GWNoAds": "YES"], debug: false), .google, "release: -GWNoAds does nothing")
+        XCTAssertEqual(mode(["GWAds": "none"], debug: false), .google, "release: -GWAds does nothing")
+        XCTAssertEqual(mode(["GWNoAds": "YES"], debug: false, live: false), .none, "release without the app id: none")
         XCTAssertTrue(AdMode.truthy("YES"))
         XCTAssertTrue(AdMode.truthy("1"))
         XCTAssertFalse(AdMode.truthy("NO"))
@@ -434,5 +438,131 @@ final class AdDirectorTests: XCTestCase {
         game.continueReport()
         XCTAssertNil(game.overlay)
         XCTAssertEqual(game.adPacing, AdPacing(), "no ad, no note")
+    }
+
+    // MARK: - Build 3, lane 6: the first video ready after consent
+
+    /// Google's mode with the stub that loads only when started, and a scripted consent flow.
+    private func consentDirector() -> (ads: AdDirector, stub: StubAdProvider, flow: ScriptedConsent) {
+        let stub = StubAdProvider()
+        stub.loadsOnStart = true
+        let flow = ScriptedConsent(startAds: { stub.start() })
+        let ads = AdDirector(mode: .google, provider: stub, clock: CountedClock(), consent: flow)
+        return (ads, stub, flow)
+    }
+
+    /// Nothing is requested at launch or while the first dawn report's flow (the form, then the tracking question)
+    /// runs; from its end on a video is loaded, so the first dawn that may offer one (day 9) finds it ready.
+    func testTheFirstVideoIsReadyByTheFirstEligibleDawnAndNothingLoadsBeforeConsent() {
+        let (ads, stub, flow) = consentDirector()
+        let game = model()
+        ads.attach(game)
+        XCTAssertEqual(flow.refreshed, 1, "the silent refresh at launch")
+        XCTAssertFalse(stub.started, "nothing requested at launch")
+        XCTAssertFalse(ads.rewardedReady)
+        // The first dawn report: the flow starts; while it runs nothing loads and nothing is offered.
+        game.setOverlay(.report(report(day: 2)))
+        ads.reportAppeared()
+        XCTAssertEqual(flow.asked, 1, "the first dawn report asks")
+        XCTAssertFalse(stub.started, "nothing requested while the form and the question are open")
+        XCTAssertFalse(ads.doubleTaxesOffered(for: report(day: 9)), "no video, no offer")
+        XCTAssertFalse(stub.isInterstitialReady, "no interstitial either")
+        // The flow has finished: the ads start, and the video is there long before day 9.
+        flow.finish(canRequestAds: true, tracking: .allowed)
+        XCTAssertTrue(stub.started)
+        XCTAssertTrue(ads.rewardedReady)
+        game.setOverlay(.report(report(day: 9)))
+        XCTAssertTrue(ads.doubleTaxesOffered(for: report(day: 9)), "the first eligible dawn finds its video")
+        XCTAssertEqual(stub.rewardedShown, 0, "ready, not shown: the offer is the player's to take")
+    }
+
+    /// A declined tracking answer still loads the ads, as Google serves them today (without the advertising
+    /// identifier); a consent form whose answer allows no ads never starts them, and an unanswered question waits.
+    func testADeclinedTrackingAnswerStillWarmsAndAnAnswerAgainstAdsNever() {
+        let declined = consentDirector()
+        let first = model()
+        declined.ads.attach(first)
+        declined.ads.reportAppeared()
+        declined.flow.finish(canRequestAds: true, tracking: .declined)
+        XCTAssertTrue(declined.stub.started, "declined tracking: the ads load all the same")
+        XCTAssertTrue(declined.ads.rewardedReady)
+
+        let refused = consentDirector()
+        let second = model()
+        refused.ads.attach(second)
+        refused.ads.reportAppeared()
+        refused.flow.finish(canRequestAds: false, tracking: .declined)
+        XCTAssertFalse(refused.stub.started, "never against the form's answer")
+        XCTAssertFalse(refused.ads.rewardedReady)
+
+        let unanswered = consentDirector()
+        let third = model()
+        unanswered.ads.attach(third)
+        unanswered.ads.reportAppeared()
+        unanswered.flow.finish(canRequestAds: true, tracking: .open)
+        XCTAssertFalse(unanswered.stub.started, "the tracking question comes first")
+    }
+
+    /// The real flow's order (`AdConsent`): the form's answer first, then the tracking question, then the ads, whatever
+    /// the tracking answer; at launch only after an earlier launch ran the flow to its end.
+    func testTheConsentFlowsOrder() {
+        XCTAssertEqual(AdConsent.nextStep(canRequestAds: false, tracking: .open), .wait)
+        XCTAssertEqual(AdConsent.nextStep(canRequestAds: false, tracking: .allowed), .wait, "the form's answer wins")
+        XCTAssertEqual(AdConsent.nextStep(canRequestAds: true, tracking: .open), .askTracking)
+        XCTAssertEqual(AdConsent.nextStep(canRequestAds: true, tracking: .allowed), .start)
+        XCTAssertEqual(AdConsent.nextStep(canRequestAds: true, tracking: .declined), .start)
+        XCTAssertEqual(AdConsent.nextStep(canRequestAds: true, tracking: .restricted), .start)
+        XCTAssertFalse(AdConsent.startsAtLaunch(askedBefore: false, canRequestAds: true, tracking: .allowed),
+                       "never before a dawn report has asked")
+        XCTAssertFalse(AdConsent.startsAtLaunch(askedBefore: true, canRequestAds: true, tracking: .open),
+                       "a flow cut short is finished at a report, not at launch")
+        XCTAssertFalse(AdConsent.startsAtLaunch(askedBefore: true, canRequestAds: false, tracking: .declined))
+        XCTAssertTrue(AdConsent.startsAtLaunch(askedBefore: true, canRequestAds: true, tracking: .declined))
+        XCTAssertTrue(AdConsent.startsAtLaunch(askedBefore: true, canRequestAds: true, tracking: .allowed))
+    }
+
+    /// A failed load waits longer each time, 4 s at the least and 5 minutes at the most, never a tight loop; a held
+    /// video is replaced before Google's hour runs out.
+    func testAFailedLoadWaitsLongerEachTime() {
+        var last = 0.0
+        for failures in 0...20 {
+            let delay = AdLoadTiming.retryDelay(failures: failures)
+            XCTAssertGreaterThanOrEqual(delay, 4, "failures \(failures)")
+            XCTAssertLessThanOrEqual(delay, 300, "failures \(failures)")
+            XCTAssertGreaterThanOrEqual(delay, last, "never shorter than the one before")
+            last = delay
+        }
+        XCTAssertEqual(AdLoadTiming.retryDelay(failures: 1), 4)
+        XCTAssertEqual(AdLoadTiming.retryDelay(failures: 2), 8)
+        XCTAssertEqual(AdLoadTiming.retryDelay(failures: 20), 300)
+        XCTAssertLessThan(AdLoadTiming.rewardedFreshFor, 3600, "before the video expires")
+        XCTAssertGreaterThanOrEqual(AdLoadTiming.rewardedFreshFor, 1800, "and not reloaded often")
+    }
+}
+
+/// A consent flow the tests finish by hand (build 3, lane 6): it starts the ads exactly as `AdConsent` decides it
+/// (`nextStep`) once the player's answers are in.
+@MainActor
+final class ScriptedConsent: AdConsentFlow {
+    private let startAds: @MainActor () -> Void
+    private(set) var refreshed = 0
+    private(set) var asked = 0
+    var privacyOptionsRequired = false
+    var onForm: (@MainActor (Bool) -> Void)?
+
+    init(startAds: @escaping @MainActor () -> Void) {
+        self.startAds = startAds
+    }
+
+    func refreshAtLaunch() { refreshed += 1 }
+
+    func askAtReport() { asked += 1 }
+
+    func presentPrivacyOptions() async {}
+
+    /// The form and the tracking question are behind the player with these answers.
+    func finish(canRequestAds: Bool, tracking: TrackingAnswer) {
+        guard AdConsent.nextStep(canRequestAds: canRequestAds, tracking: tracking) == .start else { return }
+        startAds()
     }
 }

@@ -26,6 +26,19 @@ protocol AdProvider: AnyObject {
     func showInterstitial(onClose: @escaping @MainActor () -> Void) -> Bool
 }
 
+/// When a provider loads again (build 3, lane 6; the pauses Google's provider has kept since build 2, now in one place
+/// the tests read). A failed load waits longer each time, never in a tight loop, and being offline costs nothing.
+enum AdLoadTiming {
+    /// The pause before the next try after `failures` failed loads in a row: 4 s, 8 s, 16 s ... up to 5 minutes.
+    static func retryDelay(failures: Int) -> Double {
+        min(300, 2 * pow(2, Double(min(max(1, failures), 8))))
+    }
+
+    /// Google's videos expire an hour after they loaded: one held this long is dropped and a fresh one loaded, so an
+    /// offer never stands on a dead video (the first eligible dawn may come long after the consent flow).
+    static let rewardedFreshFor: Double = 50 * 60
+}
+
 /// `-GWNoAds YES` (and every debug launch with `-GW` arguments but no ad argument, `AdMode`): never ready, never shows,
 /// never touches an SDK.
 @MainActor
@@ -58,17 +71,21 @@ final class StubAdProvider: AdProvider {
     var grants = true
     /// Tests: false, the ad stays on screen after its reward until `finish()`.
     var closesAtOnce = true
+    /// Tests (build 3, lane 6): true, nothing is loaded until `start()`, as with Google's, where the consent flow comes
+    /// first. False (the UI tests' stub, which has no consent flow): always loaded.
+    var loadsOnStart = false
     @ObservationIgnored var showingChanged: (@MainActor (Bool) -> Void)?
     private(set) var isShowingAd = false
     @ObservationIgnored private var pendingClose: (@MainActor () -> Void)?
 
-    var isRewardedReady: Bool { rewardedReady && !isShowingAd }
-    var isInterstitialReady: Bool { interstitialReady && !isShowingAd }
+    private var loaded: Bool { started || !loadsOnStart }
+    var isRewardedReady: Bool { rewardedReady && loaded && !isShowingAd }
+    var isInterstitialReady: Bool { interstitialReady && loaded && !isShowingAd }
 
     func start() { started = true }
 
     func showRewarded(onReward: @escaping @MainActor () -> Void, onClose: @escaping @MainActor () -> Void) -> Bool {
-        guard rewardedReady, !isShowingAd else { return false }
+        guard isRewardedReady else { return false }
         rewardedShown += 1
         come()
         if grants { onReward() }
@@ -78,7 +95,7 @@ final class StubAdProvider: AdProvider {
     }
 
     func showInterstitial(onClose: @escaping @MainActor () -> Void) -> Bool {
-        guard interstitialReady, !isShowingAd else { return false }
+        guard isInterstitialReady else { return false }
         interstitialsShown += 1
         come()
         pendingClose = onClose

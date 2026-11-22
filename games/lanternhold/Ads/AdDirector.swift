@@ -31,7 +31,7 @@ final class AdDirector {
     let mode: AdMode
     let provider: any AdProvider
     let clock: any AdClock
-    @ObservationIgnored private(set) var consent: AdConsent?
+    @ObservationIgnored private(set) var consent: (any AdConsentFlow)?
     @ObservationIgnored private(set) weak var model: GameModel?
 
     /// A full-screen ad was asked for and has not gone yet: the offers hide and a second tap does nothing.
@@ -60,7 +60,10 @@ final class AdDirector {
     /// appears must never leave the report's Continue or the offers dead).
     static let showTimeout: Duration = .seconds(4)
 
-    init(mode: AdMode, provider: (any AdProvider)? = nil, clock: any AdClock = WallClock()) {
+    /// `consent` (tests, build 3 lane 6): a scripted flow in place of `AdConsent`, so the stub provider shows that
+    /// nothing loads before the flow has finished. Without it Google's mode makes the real one.
+    init(mode: AdMode, provider: (any AdProvider)? = nil, clock: any AdClock = WallClock(),
+         consent flow: (any AdConsentFlow)? = nil) {
         self.mode = mode
         self.clock = clock
         if let provider {
@@ -74,9 +77,14 @@ final class AdDirector {
         }
         // An ad on screen holds the world, even one that came after the show timeout had let the day begin.
         self.provider.showingChanged = { [weak self] _ in self?.holdWorld() }
-        if mode == .google {
+        if mode == .google || flow != nil {
             let provider = self.provider
-            let made = AdConsent(startAds: { provider.start() })
+            let made: any AdConsentFlow
+            if let flow {
+                made = flow
+            } else {
+                made = AdConsent(startAds: { provider.start() })
+            }
             made.onForm = { [weak self] showing in
                 self?.formShowing = showing
                 self?.holdWorld()
