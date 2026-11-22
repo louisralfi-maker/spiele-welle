@@ -49,14 +49,14 @@ enum MoodBannerArt {
         return made
     }
 
-    /// The banner in `frame` with the people group beside it (`MoodBanner.people`) inside its shared ink edge, in game
-    /// px (one column more than the group for the edge).
+    /// The banner in `frame` with the people group beside it (`MoodBanner.people`), in game px. Step 5b (the director's
+    /// ruling M1 of 22.11.2026): each piece stands in the 1 px ink edge its atlas piece already has, as the lord's row
+    /// does; nothing is drawn between the pieces, so the world may show there (no shared edge, no plate).
     static func pixels(frame: Int, people: HUDKit.Block) -> PixelImage? {
         let all = frames()
         guard frame >= 0, frame < all.count else { return nil }
         let size = MoodBanner.size
-        var canvas = PixelImage(width: MoodBanner.peopleX + people.width + MoodBanner.stickerEdge,
-                                height: size.height)
+        var canvas = PixelImage(width: MoodBanner.peopleX + people.width, height: size.height)
         let banner = all[frame]
         for y in 0..<banner.height {
             for x in 0..<banner.width where banner[x, y].a > 0 {
@@ -73,61 +73,7 @@ enum MoodBannerArt {
                 }
             }
         }
-        if let left = people.pieces.map(\.x).min(), let top = people.pieces.map(\.y).min(),
-           let right = people.pieces.map({ $0.x + $0.sprite.size.width }).max(),
-           let bottom = people.pieces.map({ $0.y + $0.sprite.size.height }).max() {
-            sticker(&canvas, left: MoodBanner.peopleX + left, top: MoodBanner.peopleY + top,
-                    width: right - left, height: bottom - top)
-        }
         return canvas
-    }
-
-    /// The ink 42,34,48 of the group's shared edge.
-    static let ink = RGBA(r: 42, g: 34, b: 48)
-
-    /// Build 3, lane 5 step 5 (the step-4 critic's M1, the director's ruling): the people, the count and the trend
-    /// arrow (the box `left`, `top`, `width`, `height`, their joint bounds) become one group with one shared ink edge,
-    /// so no pixel of the world shows inside it (at the gatehouse at night a brazier's fire showed between them). Every
-    /// clear pixel between two of the group's pixels on an inner row or an inner column is ink, and then every clear
-    /// pixel touching the group (its 8 neighbours) up to 1 px beyond its bounds: a sticker edge that follows the
-    /// group's shapes at 1 px (notched between the figures' tops and feet), never a box or a plate.
-    static func sticker(_ canvas: inout PixelImage, left: Int, top: Int, width: Int, height: Int) {
-        guard width > 0, height > 0 else { return }
-        let right = left + width
-        let bottom = top + height
-        let drawn = canvas
-        var gaps: [(Int, Int)] = []
-        if height > 2 {
-            for y in (top + 1)..<(bottom - 1) {
-                let row = (left..<right).filter { drawn[$0, y].a > 0 }
-                guard let first = row.first, let last = row.last else { continue }
-                for x in first...last where drawn[x, y].a == 0 { gaps.append((x, y)) }
-            }
-        }
-        if width > 2 {
-            for x in (left + 1)..<(right - 1) {
-                let column = (top..<bottom).filter { drawn[x, $0].a > 0 }
-                guard let first = column.first, let last = column.last else { continue }
-                for y in first...last where drawn[x, y].a == 0 { gaps.append((x, y)) }
-            }
-        }
-        for (x, y) in gaps { canvas[x, y] = ink }
-        let filled = canvas
-        var edge: [(Int, Int)] = []
-        for y in (top - 1)...bottom {
-            for x in (left - 1)...right where filled.contains(x, y) && filled[x, y].a == 0 {
-                var touches = false
-                for dy in -1...1 {
-                    for dx in -1...1 {
-                        let nx = x + dx
-                        let ny = y + dy
-                        if nx >= left, nx < right, ny >= top, ny < bottom, filled[nx, ny].a > 0 { touches = true }
-                    }
-                }
-                if touches { edge.append((x, y)) }
-            }
-        }
-        for (x, y) in edge { canvas[x, y] = ink }
     }
 
     static func image(frame: Int, people: Int, trend: Int) -> CGImage? {
@@ -142,7 +88,7 @@ enum MoodBannerArt {
 }
 
 /// The town's banner under the realm strip's town end (build 3, lane 5 step 4; decision 6, form C): the cloth in the
-/// mood's colour with the hood face, the people, their count and the trend beside it in one ink edge. One
+/// mood's colour with the hood face, the people, their count and the trend beside it, each in its own ink edge. One
 /// VoiceOver element (`hud-mood`: the mood, the people, the trend); a touch on it (a 44 pt target at least, below the
 /// strip, clear of its tap and of the gear) opens the slip with the main reason under it (`hud-mood-slip`). No motion:
 /// the cloth hangs still (no sway, so Reduce Motion needs no other form).
@@ -156,7 +102,7 @@ struct MoodBannerView: View {
     var body: some View {
         let unit = RealmStripView.unit
         let people = MoodBanner.people(strip.people, trend: strip.moodTrend)
-        let width = CGFloat(MoodBanner.peopleX + people.width + MoodBanner.stickerEdge) * unit
+        let width = CGFloat(MoodBanner.peopleX + people.width) * unit
         let words = MoodBannerView.reasonText(strip.moodReason, happiness: strip.happiness)
         let slip = MoodSlip.shared
         return ZStack(alignment: .topLeading) {

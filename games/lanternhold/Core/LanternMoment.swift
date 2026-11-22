@@ -402,10 +402,10 @@ enum HUDKitActors {
 /// town's banner, so caring for the people is never out of sight while the strip shows (the lantern moment, a call).
 /// It hangs on two cords under the strip's town end: a short pole, the cloth in the mood's colour with a swallowtail,
 /// the hood face sewn on it in the kit's four moods (step 5: the hem's marks are gone; the arrow is the only sign of
-/// the trend). Beside it the people, their count and the mood's trend since the last dawn, one group with one shared
-/// ink edge (step 5, `MoodBannerArt.sticker`). A touch on
-/// it gives one slip with the main reason, read from what the dawn report knows of the day's happiness changes and
-/// the knocks at the doors. No rule or number of the happiness changes here: the bands are the face's
+/// the trend). Beside it the people, their count and the mood's trend since the last dawn, each piece in its own 1 px
+/// ink edge as the atlas draws it (step 5b, the director's ruling M1: step 5's shared edge is gone). A touch on it
+/// gives one slip with the main reason, read from what the dawn report knows of the day's happiness changes and the
+/// knocks at the doors. No rule or number of the happiness changes here: the bands are the face's
 /// (`HUDKit.faceFrame`). The picture is `Resources/Art/moodBanner.png` (tools/hudart.py), drawn by SwiftUI under the
 /// strip (`MoodBannerView`), never by the renderer. Pure.
 enum MoodBanner {
@@ -416,8 +416,6 @@ enum MoodBanner {
     /// The cloth's depth under the pole and the whole picture's with the cords and the pole (game px).
     static let clothDepth = 21
     static let depth = 25
-    /// The people group's shared ink edge beyond its joint bounds (game px; `MoodBannerArt.sticker`).
-    static let stickerEdge = 1
     /// The banner's left edge under the strip, in the strip's columns (its pole spans 128 to 148 of 150, under the
     /// strip's town end; the people and their count stand beyond the strip's end).
     static let column = 128

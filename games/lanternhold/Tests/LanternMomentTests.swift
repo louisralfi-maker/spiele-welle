@@ -788,9 +788,9 @@ final class LanternMomentTests: XCTestCase {
                 }
             }
         }
-        // Composed with the people beside it, inside their ink edge (one column more).
+        // Composed with the people beside it, each piece in its own ink edge (step 5b: no extra column for a shared one).
         let pixels = try XCTUnwrap(MoodBannerArt.pixels(frame: 2, people: MoodBanner.people(14, trend: 1)))
-        XCTAssertEqual(pixels.width, MoodBanner.peopleX + 36 + MoodBanner.stickerEdge)
+        XCTAssertEqual(pixels.width, MoodBanner.peopleX + 36)
         XCTAssertEqual(pixels.height, 25)
         // The banner with its people is a 44 pt target at the strip's 2 pt a game px.
         XCTAssertGreaterThanOrEqual(CGFloat(pixels.width) * RealmStripView.unit, 44)
@@ -1196,61 +1196,49 @@ final class LanternMomentTests: XCTestCase {
 
     // MARK: - Lane 5 step 5: the banner critic's fixes
 
-    /// C1 (the step-4 critic's M1): the people, the count and the arrow are one group with one shared ink edge: no
-    /// clear pixel inside the group's bounds but its outer edge row, the dark there the one ink 42,34,48, every light
-    /// pixel of the figures at least 3 px from a clear one (its own edge and the shared one), and an outline that
-    /// follows the shapes (notched between the figures, clear at the corners), no box.
-    func testThePeopleCountAndArrowShareOneInkEdge() throws {
-        let ink = RGBA(r: 42, g: 34, b: 48)
+    /// Step 5b (the director's ruling M1 of 22.11.2026, which replaces step 5's C1): the people, the count and the
+    /// arrow each stand in the 1 px ink edge their atlas piece already has, as in step 4 and as the lord's row does. In
+    /// the composed picture every pixel of the people group's area is exactly what the atlas pieces draw (no pixel
+    /// added: no fill between the pieces, no second ring, no plate), and the column between the people and the first
+    /// digit is clear in the heads' row, so the world shows there.
+    func testThePeopleCountAndArrowEachKeepTheirOwnInkEdge() throws {
+        let layout = AtlasLayout.shared
         for (count, trend) in [(17, 1), (7, -1), (128, 0), (14, 1)] {
             let people = MoodBanner.people(count, trend: trend)
             let pixels = try XCTUnwrap(MoodBannerArt.pixels(frame: 0, people: people))
-            let left = MoodBanner.peopleX
-            let top = MoodBanner.peopleY
-            let right = left + people.width
-            let bottom = top + HUDKit.rowHeight
-            var clear: [String] = []
-            for y in (top + 1)..<(bottom - 1) {
-                for x in (left + 1)..<(right - 1) where pixels[x, y].a == 0 { clear.append("\(x),\(y)") }
-            }
-            XCTAssertEqual(clear, [], "\(count) \(trend): no clear pixel inside the group")
-            // The dark inside the group is the one ink; a light pixel of the figures never stands within 2 px of a
-            // clear one (the world never touches the figures' own edge).
-            var gapsInk = true
-            var nearest = Int.max
-            var edgeClear = 0
-            for y in (top - 2)...(bottom + 1) {
-                for x in (left - 2)...(right + 1) {
-                    let texel = pixels[x, y]
-                    let inside = x >= left && x < right && y >= top && y < bottom
-                    if inside && texel.a > 0 && texel.r < 60 && texel.g < 60 && texel != ink { gapsInk = false }
-                    guard texel.a == 0 else { continue }
-                    if !inside && y >= top - 1 && y <= bottom && x >= left - 1 && x <= right { edgeClear += 1 }
-                    for dy in -2...2 {
-                        for dx in -2...2 {
-                            let nx = x + dx
-                            let ny = y + dy
-                            guard nx >= left, nx < right, ny >= top, ny < bottom else { continue }
-                            let near = pixels[nx, ny]
-                            if near.a > 0 && near != ink { nearest = min(nearest, max(abs(dx), abs(dy))) }
-                        }
+            XCTAssertEqual(pixels.width, MoodBanner.peopleX + people.width, "\(count) \(trend): no extra column")
+            // What the atlas pieces alone draw, in the picture's coordinates (a later piece over an earlier one).
+            var drawn = PixelImage(width: pixels.width, height: pixels.height)
+            for piece in people.pieces {
+                let cell = layout.cell(piece.sprite, frame: piece.frame)
+                let texels = layout.image.cropped(x: cell.x, y: cell.y, width: cell.width, height: cell.height)
+                for y in 0..<texels.height {
+                    for x in 0..<texels.width where texels[x, y].a > 0 {
+                        drawn[MoodBanner.peopleX + piece.x + x, MoodBanner.peopleY + piece.y + y] = texels[x, y]
                     }
                 }
             }
-            XCTAssertTrue(gapsInk, "\(count) \(trend): the dark inside the group is the one ink")
-            XCTAssertEqual(nearest, Int.max, "\(count) \(trend): two px of ink round every light pixel (\(nearest))")
-            XCTAssertGreaterThan(edgeClear, 0, "\(count) \(trend): the edge follows the shapes, no box")
-            XCTAssertEqual(pixels[left - 1, top - 1].a, 0, "\(count) \(trend): the edge's corner stays clear")
-            let ring = (left...right).filter { pixels[$0, top - 1].a > 0 }
-            if let first = ring.first, let last = ring.last {
-                XCTAssertTrue((first...last).contains { pixels[$0, top - 1].a == 0 },
-                              "\(count) \(trend): the top edge is notched between the figures, not a ruled line")
+            let top = MoodBanner.peopleY + (people.pieces.map(\.y).min() ?? 0)
+            let bottom = MoodBanner.peopleY + (people.pieces.map { $0.y + $0.sprite.size.height }.max() ?? 0)
+            var added: [String] = []
+            for y in max(0, top - 1)..<min(pixels.height, bottom + 1) {
+                // From the column after the banner's 21 (the banner never reaches it) to the picture's end.
+                for x in MoodBanner.size.width..<pixels.width where pixels[x, y] != drawn[x, y] {
+                    added.append("\(x),\(y)")
+                }
             }
+            XCTAssertEqual(added, [], "\(count) \(trend): every pixel of the group's area is the atlas pieces' own")
+            XCTAssertTrue((0..<SpriteID.hudPeople.size.width).contains { drawn[MoodBanner.peopleX + $0, MoodBanner.peopleY + 4].a > 0 },
+                          "the people are drawn")
+            // Between the people (13 px) and the first digit (1 px after them), in the heads' row: clear.
+            let gap = MoodBanner.peopleX + SpriteID.hudPeople.size.width
+            XCTAssertEqual(people.pieces[1].x, SpriteID.hudPeople.size.width + HUDKit.signGap, "the first digit")
+            XCTAssertEqual(pixels[gap, MoodBanner.peopleY + 1].a, 0, "\(count) \(trend): the world shows between them")
         }
     }
 
     /// C6: the banner's depth, which step 4 left unpinned: the cloth 21 px under the pole (its top ink edge on row 4,
-    /// its foot on row 24), 25 px with the cords and the pole (the cords from row 0); the people's ink edge inside it.
+    /// its foot on row 24), 25 px with the cords and the pole (the cords from row 0); the people inside it.
     func testTheBannersDepthIsTwentyOneUnderThePoleAndTwentyFiveWithCordsAndPole() throws {
         XCTAssertEqual(MoodBanner.clothDepth, 21)
         XCTAssertEqual(MoodBanner.depth, 25)
@@ -1269,7 +1257,7 @@ final class LanternMomentTests: XCTestCase {
             XCTAssertEqual(MoodBanner.depth - clothTop, MoodBanner.clothDepth, "mood \(mood): 21 px of cloth")
         }
         let pixels = try XCTUnwrap(MoodBannerArt.pixels(frame: 1, people: MoodBanner.people(128, trend: -1)))
-        XCTAssertEqual(pixels.height, MoodBanner.depth, "the people's edge never makes it deeper")
+        XCTAssertEqual(pixels.height, MoodBanner.depth, "the people never make it deeper")
     }
 
     /// C3 (the step-4 critic's M3): the glint is a cross of 7 px at its peak (centre 255,250,235, arms 240,220,170);
