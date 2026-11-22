@@ -1280,3 +1280,9 @@ schneller geht."
     four files lying uncommitted in its worktree. No round sent. Open: the arrow, Brannock, the marks, the cart,
     the mediums, review, gate, critic. It goes on with a fresh continuation step.
   - Usage at the stop: 10 % of the week.
+
+- **Louis said go on; all three lanes run again (22.11.2026, 05:07).**
+  - Read after the pause: round lh-b3l-41 on the lantern's a97f9407 (step 4, the town's banner at the strip's town end) is ALL PASSED; round lh-b3s-11 on the smooth lane's b79a2d35 failed with one unit test, `RainLookTests.testThePuffsHaveBodyOnTheDrawnPixel` (town, calm noon: 2 of 3 chimneys with body), most likely from the calm-air smoke.
+  - Started: the yard's step 3 as a continuation from 1537cdc8 (parts A and B committed, a half-done edit of four files for its builder to keep or drop), rounds lh-b3y-31 to -34; and one workflow that finishes lane 5's two steps: the lantern's push, frames, report and a critic, and the smoke fix with round lh-b3s-12 and the smooth lane's first push.
+  - Next for the director: judge the banner's frames and the critic, merge smooth into lantern, then the lane's last step (the vignette and the figures' fade).
+  - Usage 10 % of the week; the stop is 80 %.
