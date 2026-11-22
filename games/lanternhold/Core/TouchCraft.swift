@@ -328,7 +328,4 @@ enum LanternFlare {
             (dx: seed.dx + (seed.dx < 0 ? -k : k), dy: 1 + (seed.rise * k).rounded(.down), share: 1 - k)
         }
     }
-
-    /// The ring's band: its crest at the light's edge and two fainter pixels behind it (inset, share).
-    static let band: [(inset: Double, share: Double)] = [(0, 0.6), (1, 0.32), (2, 0.14)]
 }
