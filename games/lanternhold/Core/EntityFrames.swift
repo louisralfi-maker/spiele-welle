@@ -215,7 +215,7 @@ enum EntityFrames {
         layer.actors = actors(s, balance: balance, layouts: layouts, origins: origins, view: view, ambient: ambient,
                               isDay: isDay, animTime: animTime, effects: effects, look: options.look,
                               reduceMotion: options.reduceMotion, gloom: gloom, weather: options.weather, lifts: lifts,
-                              drill: drill)
+                              drill: drill, gait: options.lordGait)
         #if DEBUG
         // b3-horde: the runner's clip waits until the horde is on screen (`HordeProof.probe`, a `dark` proof only).
         if HordeProof.probing { HordeProof.probe(layer.actors, state: s) }
@@ -1152,7 +1152,7 @@ enum EntityFrames {
     }
 
     /// Game pixels the king walks per frame of his walk cycle (M2b review: at 7 px his planted feet slid; was 7).
-    static let kingStride = 4.0
+    static let kingStride = FigureMotion.lordStride
 
     /// A creature's frame: walk 0 ... 3 by the distance walked, attack from 4 by time (three attack frames for the
     /// brute, the giant and the Lightless King); the crow flies 0 ... 2 and perches 3; the gloomweaver floats 0 ... 3.
@@ -1181,17 +1181,20 @@ enum EntityFrames {
         }
     }
 
-    /// The king's frame: walk 0 ... 5 by distance along his facing (one frame per `kingStride` px), command 8 ... 9
-    /// while he lights a brazier or just after a patch, else idle 6 ... 7.
-    static func kingFrame(_ king: RealmKing, balance: Balance, time: Double) -> Int {
+    /// The king's frame: command 8 ... 9 while he lights a brazier or just after a patch; else, with the driver's gait
+    /// (polish step A1, `LordGait`), walk 0 ... 5 by the distance this walk has come (walk frame 0 first), the standing
+    /// pose held after a stop and through a turn, then the one breath (`FigureMotion.breath`). Without a gait (a frame
+    /// built without the driver): walk by distance along his facing (one frame per `kingStride` px), else the breath.
+    static func kingFrame(_ king: RealmKing, balance: Balance, time: Double, gait: LordGait? = nil) -> Int {
         if king.lightingPlot >= 0 || king.patchCooldown > balance.patchCooldown - 0.6 {
             return 8 + Int((time * 4).rounded(.down)) % 2
         }
+        if let gait { return gait.frame }
         if king.velocity != 0 {
             let step = Int((king.x * Double(king.facing) / kingStride).rounded(.down))
             return ((step % 6) + 6) % 6
         }
-        return 6 + Int((time * 2).rounded(.down)) % 2
+        return FigureMotion.lordIdleFrame + FigureMotion.breath(time: time, id: 0)
     }
 
     /// World-3 (M3): how many archers one wall walk or tower shows at most in look 2, and how far apart.
@@ -1213,7 +1216,7 @@ enum EntityFrames {
                 return soldier.cooldown < archerDrawSeconds / 2 ? 3 : 2
             }
         }
-        return Int((time * 2 + Double(soldier.id % 5) * 0.37).rounded(.down)) % 2
+        return FigureMotion.breath(time: time, id: soldier.id)
     }
 
     private static func actors(_ s: GameState, balance: Balance, layouts: [LineLayout],
@@ -1222,7 +1225,7 @@ enum EntityFrames {
                                effects: BattleEffects, look: LookVersion = .one,
                                reduceMotion: Bool = false, gloom: GloomFog? = nil,
                                weather: WeatherSample = .clear, lifts: [Int: Double]? = nil,
-                               drill: YardLook.Drill? = nil) -> [ActorInstance] {
+                               drill: YardLook.Drill? = nil, gait: LordGait? = nil) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let time = s.simTime
         func add(_ sprite: SpriteID, frame: Int, x: Double, y: Double, flipped: Bool = false,
@@ -1264,7 +1267,8 @@ enum EntityFrames {
             case .building, .repairing:
                 frame = 4 + Int((time * 4 + Double(index) * 0.5).rounded(.down)) % 2
             case .idle:
-                frame = 1
+                // Polish step A1 (M6): never one frozen frame; a hammer tap now and then, by his place in the crew.
+                frame = FigureMotion.builderIdleFrame(time: time, index: index)
                 x += Double(index) * 8
                 flipped = index % 2 == 0
             }
@@ -1527,7 +1531,7 @@ enum EntityFrames {
             switch soldier.state {
             case .holding:
                 let frame = attacked ? 6 + Int((time * 7 + Double(holding) * 0.4).rounded(.down)) % 3
-                    : Int((time * 2 + Double(holding) * 0.3).rounded(.down)) % 2
+                    : FigureMotion.breath(time: time, id: soldier.id)
                 add(.guardsman, frame: frame, x: soldier.x + 5 * Double(holding), y: 0, flipped: true)
                 holding += 1
             case .moving:
@@ -1536,7 +1540,7 @@ enum EntityFrames {
             case .reserve where abs(soldier.x - Realm.courtyardX) < 1:
                 // b3-yard (step 2): while the yard stands they wait in file toward the gate, clear of its things.
                 let file = YardLook.waitingGuard(waiting, yardStands: s.yard?.stands == true) - Realm.courtyardX
-                add(.guardsman, frame: Int((time * 2 + Double(waiting)).rounded(.down)) % 2,
+                add(.guardsman, frame: FigureMotion.breath(time: time, id: soldier.id),
                     x: soldier.x + file, y: 0, flipped: true)
                 waiting += 1
             default:
@@ -1654,7 +1658,7 @@ enum EntityFrames {
         // The lord last (the Burgherr or the Burgherrin, `GameState.lord`): the body and the glow of the lantern.
         let king = s.king
         let lord = s.lordOrDefault
-        let kingFrame = kingFrame(king, balance: balance, time: time)
+        let kingFrame = kingFrame(king, balance: balance, time: time, gait: gait)
         add(lord.body, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0)
         // The glass lights with the torches from the dusk and burns full at night; by day the painted cream glass and
         // the teal crown stone show in the sun (M2b review: the strip at half its colour read as a dead olive lantern
@@ -1705,7 +1709,7 @@ enum EntityFrames {
             }
             let direction = towardPlace ? place - home : home - place
             let frame = moving ? PeopleCast.walkFrame(sprites[k % sprites.count], x: x)
-                : 4 + Int((time * 2 + Double(k)).rounded(.down)) % 2
+                : 4 + FigureMotion.breath(time: time, id: k)
             add(sprites[k % sprites.count], frame, x, 0, direction < 0)
         }
     }
