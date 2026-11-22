@@ -293,6 +293,12 @@ extension GameModel {
     /// The speech bubble (the action button beside a court member): his next line of today over his head; he stops
     /// and turns to the king while it shows.
     func talk(to who: String) {
+        // Polish E1 (law 3.3): once the day's work is done Brannock offers the horn, and a second touch on him while
+        // that line stands is the word.
+        if who == NightOffer.speaker, overlay == nil, nightOfferStands {
+            offerTheHorn()
+            return
+        }
         guard overlay == nil, let state = driver?.state, DayClock.phase(at: state.hour) == .day,
               let line = CourtTalk.line(who, state: state, lines: .standard, log: talkLog) else { return }
         talkLog.note(who, day: state.day)
@@ -311,6 +317,12 @@ extension GameModel {
             feedback.play(.cardOpened)
             return
         }
+        openWorldBubble(who, textKey: line.text, state: state)
+    }
+
+    /// The bubble over a speaker in the world: he stops and turns to the lord while it shows.
+    private func openWorldBubble(_ who: String, textKey: String, state: GameState) {
+        let height = Double(Speakers.speaker(who)?.body.sprite.size.height ?? 30)
         let figure = CourtFrames.figures(state: state, catalog: .standard, scene: court, animTime: animationTime)
             .first { $0.who == who }
         court.talking = who
@@ -326,8 +338,26 @@ extension GameModel {
             headY = (ground - height * Double(pixelScale.scale)) / Double(max(1, pixelScale.physicalHeight))
         }
         talkBubble = TalkBubble(who: who, nameKey: Speakers.nameKey(who, day: state.day, flags: state.flags),
-                                textKey: line.text, anchorX: anchorX, headY: headY)
+                                textKey: textKey, anchorX: anchorX, headY: headY)
         feedback.play(.cardOpened)
+    }
+
+    /// Polish E1 (law 3.3; critic-run R1, the collector's two-touch pattern): Brannock's offer of the horn. The first
+    /// touch opens his line ("Say the word and I sound the horn"), and the offer counts as heard (his mark goes). A
+    /// touch on him while that very line stands, once it has stood `NightOffer.wordAfter`, is the word: the night is
+    /// called and the dusk plays. A touch on the bubble closes it, walking away closes it, and the next touch on him
+    /// only says the line again; a touch sooner than the beat does nothing, so a double tap never ends the day.
+    func offerTheHorn() {
+        guard let state = driver?.state else { return }
+        if let bubble = talkBubble, bubble.who == NightOffer.speaker, bubble.textKey == NightOffer.lineKey,
+           court.talking == NightOffer.speaker {
+            guard clock.elapsed - nightOfferShownAt >= NightOffer.wordAfter else { return }
+            soundTheNight()
+            return
+        }
+        talkLog.note(NightOffer.heardKey, day: state.day)
+        nightOfferShownAt = clock.elapsed
+        openWorldBubble(NightOffer.speaker, textKey: NightOffer.lineKey, state: state)
     }
 
     /// Closes the bubble (a tap on it, walking away, a card opening, the horn).
