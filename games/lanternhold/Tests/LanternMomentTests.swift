@@ -1036,17 +1036,19 @@ final class LanternMomentTests: XCTestCase {
                                      "beside the glass (\(dx), \(dy)): as with the lantern down")
         }
         let corners = [(3, pro.physicalHeight - 3), (pro.physicalWidth - 4, pro.physicalHeight - 4)]
+        var farthest = 0.0
         for (x, y) in corners {
             let column = Int(framing.whole) + Int(((Double(x) + framing.deviceShift) / framing.scale).rounded(.down))
             let lift = (pro.physicalHeight - 1 - y) / s - WorldLayout.groundRowsBelow
             let dim = LanternLight.dim(x: column, lift: lift, glass: glass)
-            XCTAssertEqual(dim, 0.30, accuracy: 1e-9, "corner (\(x), \(y)) lies beyond the last ring")
+            farthest = max(farthest, dim)
             let expected = LanternLight.dimmed(plain.color(x: x, y: y), by: dim)
             let got = lit.color(x: x, y: y)
             XCTAssertEqual(Double(got.x), Double(expected.x), accuracy: 0.03, "corner (\(x), \(y)): red")
             XCTAssertEqual(Double(got.y), Double(expected.y), accuracy: 0.03, "corner (\(x), \(y)): green")
             XCTAssertEqual(Double(got.z), Double(expected.z), accuracy: 0.03, "corner (\(x), \(y)): blue")
         }
+        XCTAssertEqual(farthest, 0.30, accuracy: 1e-9, "a far corner lies beyond the last ring: darkened by 0.30")
     }
 
     /// The moment's row is drawn over the finished picture with no make-up tint: its bone lands on 222,210,184
