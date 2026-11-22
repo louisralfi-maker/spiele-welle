@@ -121,7 +121,10 @@ final class FilmDealsUITests: XCTestCase {
                 let near = [4.0, 6.0, 8.0].map { d in
                     (d, middle.withOffset(CGVector(dx: toward * CGFloat(10 - d) * 2, dy: 0)))
                 }
-                b2Tapping(film, "e", slow, framesPerTap: [14, 6, 6, 6], what: "slowed: one tap on the gate, one coin "
+                // The count runs on real time even when the world is slowed (round lh-rb-5: on a slow runner the 14
+                // frames took 4.2 s and the tap count's 3.0 s ran out before the near taps), so each tap's frames stop
+                // after `seconds` too: on a runner as fast as the audit's the same 14 frames.
+                b2Tapping(film, "e", slow, framesPerTap: [14, 6, 6, 6], seconds: [2.1, 1.4, 1.4, 1.4], what: "slowed: one tap on the gate, one coin "
                           + "from his hand to its hollow; then three taps on the lord's body 4, 6 and 8 game px toward "
                           + "him from the board's near edge (polish B2, H2: each a coin, the lantern stays down)",
                           spots: [("the gate", b2Fixed(slow, again, CGVector(dx: 0.5, dy: 0.4)))]
@@ -191,9 +194,9 @@ final class FilmDealsUITests: XCTestCase {
     }
 
     /// Polish B2: frame 00, then for each spot a tap there sent without waiting (the plain tap where that path is not
-    /// there) and `framesPerTap[i]` frames as fast as they come. The note gives each tap's place and time.
-    private func b2Tapping(_ film: FilmReel, _ letter: String, _ app: XCUIApplication, framesPerTap: [Int], what: String,
-                           spots: [(String, XCUICoordinate)]) {
+    /// there) and `framesPerTap[i]` frames as fast as they come, but none begun `seconds[i]` after the tap. The note gives each tap's place and time.
+    private func b2Tapping(_ film: FilmReel, _ letter: String, _ app: XCUIApplication, framesPerTap: [Int],
+                           seconds: [Double], what: String, spots: [(String, XCUICoordinate)]) {
         var frames: [(XCUIScreenshot, Double, String)] = [(XCUIScreen.main.screenshot(), -0.01, "before the first tap")]
         let started = Date()
         var lines: [String] = []
@@ -204,7 +207,9 @@ final class FilmDealsUITests: XCTestCase {
             if !sent.ok { spot.1.tap() }
             lines.append(String(format: "tap %ld at +%.3f s on %@: ", index + 1, at, spot.0)
                          + (sent.ok ? "sent without waiting (\(sent.text))" : "the plain tap (\(sent.text))"))
+            let limit = started.addingTimeInterval(at + (index < seconds.count ? seconds[index] : 1.4))
             for shot in 0..<(index < framesPerTap.count ? framesPerTap[index] : 6) {
+                if shot > 0, Date() >= limit { break }
                 frames.append((XCUIScreen.main.screenshot(), Date().timeIntervalSince(started),
                                shot == 0 ? "first frame after tap \(index + 1)" : ""))
             }
