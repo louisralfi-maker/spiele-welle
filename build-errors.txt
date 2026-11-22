@@ -1,0 +1,13 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:477:9: error: expected declaration
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:477:9: error: Expected declaration
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:482:9: error: expected declaration
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:482:9: error: Expected declaration
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:491:9: error: expected declaration
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:491:9: error: Expected declaration
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:501:9: error: expected declaration
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:501:9: error: Expected declaration
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:579:20: error: static methods may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:579:20: error: Static methods may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:607:1: error: extraneous '}' at top level
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:607:1: error: Extraneous '}' at top level

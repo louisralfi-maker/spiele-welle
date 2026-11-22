@@ -1,0 +1,4 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Render/Shaders.metal:1093:17: warning: unused variable 'kMoonRim2' [-Wunused-const-variable]
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Render/Shaders.metal:1119:16: warning: unused variable 'kHordeRim2' [-Wunused-const-variable]
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Render/Shaders.metal:1120:16: warning: unused variable 'kHordeRimShare2' [-Wunused-const-variable]
+2026-11-22 22:10:25.307 appintentsmetadataprocessor[10411:44375] warning: Metadata extraction skipped. No AppIntents.framework dependency found.

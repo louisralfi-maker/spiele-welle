@@ -1,0 +1,11 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 249b41b6
+source: claude/lh-r-d
+22:03:13 build starts (Lanternhold)
+simulator: EED6FB0A-E273-43C6-B5DE-3DF739543042 (iPhone 17 Pro, iOS 26.5)
+22:06:20 simulator up
+22:06:58 project generated
+22:10:28 FAIL build (exit 65), see build-errors.txt
+FAILED: build
