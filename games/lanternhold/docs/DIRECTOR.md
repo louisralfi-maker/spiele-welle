@@ -1408,3 +1408,9 @@ schneller geht."
   - Louis' answers (21:03, the director's pick four times): the drag stays; wordless sounds for crowds and soldiers
     only; an empty day ends with Brannock offering the horn; the far goal is said by Hesper once and on the horn's
     ribbon ("Night 3 of 20"). They stand at the end of `docs/ROUND.md`.
+  - Step 0a is in the join branch (22.11., 22:04): `claude/lh-round` efe2dd85 holds `Core/Motion.swift` (the four tempos,
+    the curves, the one Reduce Motion switch, the follow spring, the 2/1/0 rise, `Presence`), `UI/MotionStyle.swift`
+    (`.lhPane()`, the 0.40 dim, the enter, leave and follow animations) and `Tests/MotionTests.swift`; rounds lh-rc-2 and
+    lh-rc-3 green. Every later step takes its durations and curves from there. C1 proves `.lhPane()` on film (0a proved
+    it only by compiling). Step E1 (the end of an empty day, Brannock at the horn, the dusk in 4.0 s) went out in lane E
+    at about 22:02. The far goal ("of 20") gets its own small step after E1.
