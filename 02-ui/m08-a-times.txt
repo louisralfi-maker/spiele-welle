@@ -1,0 +1,40 @@
+m08-a: Silas Moth lights the first street lantern by the postern (TownLamps: it takes the flame at 17:58); the condition: the hour 17.975
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +1.949 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 17.5 -GWStage world -GWCameraX 2300
+
+frame  seconds since the burst began  (scene where read)
+01  +0.192 s  
+02  +0.334 s  day:3 hour:17.84 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+03  +0.633 s  
+04  +0.841 s  day:3 hour:17.88 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+05  +1.157 s  
+06  +1.373 s  day:3 hour:17.93 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+07  +1.707 s  
+08  +1.895 s  day:3 hour:17.98 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+09  +2.173 s  
+10  +2.406 s  
+11  +2.623 s  
+12  +2.811 s  
+13  +2.976 s  
+14  +3.207 s  
+15  +3.376 s  
+16  +3.557 s  
+17  +3.793 s  
+18  +4.040 s  
+19  +4.238 s  
+20  +4.417 s  
+21  +4.593 s  
+22  +4.789 s  
+23  +4.964 s  
+24  +5.156 s  
+25  +5.350 s  
+26  +5.516 s  
+27  +5.670 s  
+28  +5.835 s  
+29  +6.015 s  
+30  +6.209 s  
+31  +6.386 s  
+32  +6.552 s  day:3 hour:18.36 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.205 s over 31 gaps
