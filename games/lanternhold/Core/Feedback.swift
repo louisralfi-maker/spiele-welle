@@ -31,6 +31,14 @@ import Foundation
 //   gate (whole-file RMS reads a long bell or gate tail quieter than its strike). D2 judges them by ear.
 // - When A2 calls `buildStood` and A3 `manFell`, the simulation's `buildDone` and `soldierFell` go quiet in the same
 //   step (D1/D2), so nothing plays twice.
+// - Old calls a new cue retires, in the caller's step (they share a file and its throttle, so the one called first in
+//   a frame would swallow the other and both haptics would fire):
+//   - B1: `lanternUp` replaces `play(.touched)` on the raise (`GameModel+Lantern.swift`, `openLanternMoment`); both
+//     play tap.wav under its 0.06 s throttle.
+//   - C1 (with lanes B and E for their call sites): `paneOpen` / `paneClose` replace `cardOpened` / `cardClosed`
+//     wherever a pane comes or goes; both pairs play tap.wav.
+//   - A3 with D1: `hit(x)` replaces `SoundWatch`'s `creatureHit` for the same blow (`Core/SoundCues.swift`,
+//     `SoundWatch`); both play creature_hit.wav under one 0.3 s throttle, so the heard volume would follow call order.
 
 /// What the player hears and feels (DESIGN.md "Feel": sound effects and haptics only, synthesized in code, never music
 /// and no melodic jingles). M6 plays them through the feedback hub; until then the hub is silent, but every moment of
