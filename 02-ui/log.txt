@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheDuskUnderReduceMotionInTheTown]' passed (48.060 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheEndOfAnEmptyDay]' passed (70.711 seconds).
+exit=0
+screenshots: 121
