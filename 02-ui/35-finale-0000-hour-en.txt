@@ -1,0 +1,1 @@
+35-finale-0000: taken at frame:2650 ready day:20 hour:0.51 alive:33 seen:8 lit:2 shots:2 aim:0 kx:954 lord:lord stage:world lx:954 errand:none door:1830 gold:14 hud:none cam:677 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;16:ballista,catapult yard:none drill:none lantern:ready

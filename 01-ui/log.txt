@@ -1,0 +1,11 @@
+Test Case '-[LanternholdUITests.EndingsUITests testTheFinaleEndsTheChapter]' passed (51.879 seconds).
+Test Case '-[LanternholdUITests.EndingsUITests testTheThreeEndings]' passed (130.655 seconds).
+Test Case '-[LanternholdUITests.PeopleUITests testPeople]' passed (111.332 seconds).
+Test Case '-[LanternholdUITests.SlidesUITests testTheNameEntryLeadsIntoThePrologue]' passed (67.790 seconds).
+Test Case '-[LanternholdUITests.SlidesUITests testThePrologue]' passed (31.203 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheLongestAndTheLostReportFit]' passed (39.383 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheMiddleOfTheChapterFillsTheHooks]' passed (59.417 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheRailTellsWhoIsAway]' passed (21.892 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport]' passed (58.762 seconds).
+exit=0
+screenshots: 44

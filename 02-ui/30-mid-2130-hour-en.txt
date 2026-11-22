@@ -1,0 +1,1 @@
+30-mid-2130: taken at frame:1180 ready day:12 hour:21.97 alive:13 seen:3 lit:2 shots:4 aim:2 kx:654 lord:lord stage:world lx:654 errand:none door:1830 gold:93 hud:none cam:375 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none lantern:ready
