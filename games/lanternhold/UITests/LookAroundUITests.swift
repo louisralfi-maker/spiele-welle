@@ -12,7 +12,8 @@ import XCTest
 /// on the hall's door under the lantern: lowered in the same touch, he sets off to the door; 255 and 256 the view at
 /// the east and the west end of the world (`-GWLookAround e99999` and `w99999`), the strip's bracket at its ends.
 /// Step 4: 260 to 264 the town's banner under the strip (by day, at night, at dusk, its four moods, its slip), 265a to
-/// 265h the lord's hint glinting, 266a to 266c the raise's flare slowed (their halo, the step 2b critic's M1).
+/// 265e the lord's hint glinting round its pulse's peak, 266a to 266c the raise's flare slowed (their halo, the step 2b
+/// critic's M1; step 5b: proof frames at the glint's peak and straight after the raise).
 /// Step 5: 270 the clean frame of a held pan at the east end, 271a to 271c the signs coming back after the release
 /// (`-GWTimeScale 0.25`), 272 home again with the banner and the gear back.
 /// English only (the director's notes of 15.11., item 4).
@@ -207,11 +208,16 @@ final class LookAroundUITests: XCTestCase {
         }
     }
 
-    /// Step 4 (the step 2b critic's M1): the lord's hint glinting (265a to 265h, eight shots as fast as they come over
-    /// a pulse of 1.4 s, so one stands near its peak) and the raise's flare at night slowed four times by
-    /// `-GWTimeScale 0.25` (DebugArgs clamps the scale to 0.25 at the least). The raise fires after 0.35 s of real
-    /// hold, so 266a, 266b, 266c are aimed at 0.2, 0.6 and 1.2 s of real time after it (about 0.05, 0.15 and 0.30 s of
-    /// game time); each note gives the real time it was taken. Each with its halo back.
+    /// Step 4 (the step 2b critic's M1), step 5b (the director's ruling M3: proof frames, no look value changes): the
+    /// lord's hint glinting and the raise's flare at night. The glint's pulse runs on the model's real clock
+    /// (`lordHintGlint`, `clock.elapsed`), which `-GWTimeScale` does not slow: every 1.4 s, its 7 px peak (pulse over
+    /// 0.8) for about 0.15 s. Shots come about every 0.2 s, so a run of them as fast as they come over 6 s holds four
+    /// pulses at shifting phases; the shot with the most pixels in the glint's arm colour 240,220,170 is the peak, kept
+    /// with two shots either side of it (265a to 265e; the run's counts in a note). The flare runs on the realm's time
+    /// (`lanternSince`), slowed four times by `-GWTimeScale 0.25` (DebugArgs clamps the scale to 0.25 at the least):
+    /// the raise fires after 0.35 s of real hold, so a hold of 0.4 s ends just after it and 266a, 266b, 266c follow as
+    /// fast as they come (each note gives the real time from the raise, counted from the press's call, so the game
+    /// time it names is the most it can be). Each with its halo back.
     func testTheGlintAndTheFlare() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let hint = XCUIApplication()
@@ -221,10 +227,20 @@ final class LookAroundUITests: XCTestCase {
         if waitUntilReady(hint, name: "265-look-glint"),
            element(hint, "touch-lord-hint").waitForExistence(timeout: 8) {
             let started = Date()
-            for name in ["265a", "265b", "265c", "265d", "265e", "265f", "265g", "265h"] {
-                attach(XCUIScreen.main.screenshot(), "\(name)-look-glint-\(language)")
-                note("\(name)-look-glint", String(format: "%.2f s after the first", Date().timeIntervalSince(started)))
+            var run: [(shot: XCUIScreenshot, real: Double)] = []
+            while Date().timeIntervalSince(started) < 6.0 && run.count < 60 {
+                run.append((XCUIScreen.main.screenshot(), Date().timeIntervalSince(started)))
             }
+            let arms = run.map { glintArmPixels($0.shot) }
+            let peak = arms.indices.max { arms[$0] < arms[$1] } ?? 0
+            let picks = Array(max(0, peak - 2)...max(0, min(run.count - 1, peak + 2)))
+            for (index, pick) in picks.enumerated() where pick < run.count {
+                let name = "265" + String(UnicodeScalar(UInt8(97 + index)))
+                attach(run[pick].shot, "\(name)-look-glint-\(language)")
+                note("\(name)-look-glint", String(format: "%.2f s of real time after the first of the run; ", run[pick].real)
+                     + "\(arms[pick]) sampled px of the arm colour" + (pick == peak ? "; the pulse's peak" : ""))
+            }
+            note("265-look-glint-run", "\(run.count) shots in 6 s; sampled arm-colour px per shot: \(arms)")
         } else {
             note("265-look-glint", "the hint did not show: \(sceneValue(hint))")
         }
@@ -240,13 +256,12 @@ final class LookAroundUITests: XCTestCase {
         let scene = element(town, "world-scene")
         let groundY = 1 - 26.0 * 6 / 1206
         let pressed = Date()
-        scene.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: groundY - 15.0 * 6 / 1206)).press(forDuration: 0.5)
-        // The raise fires after 0.35 s of real hold (`LanternRaise.holdSeconds`, on the real clock).
+        scene.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: groundY - 15.0 * 6 / 1206)).press(forDuration: 0.4)
+        // The raise fires after 0.35 s of real hold (`LanternRaise.holdSeconds`, on the real clock); step 5b: the
+        // three shots follow as fast as they come, so the first lands within about 0.1 s of game time after it.
         let raised = pressed.addingTimeInterval(0.35)
         var shots: [(String, XCUIScreenshot, Double)] = []
-        for (name, at) in [("266a", 0.2), ("266b", 0.6), ("266c", 1.2)] {
-            let wait = at - Date().timeIntervalSince(raised)
-            if wait > 0 { pause(wait) }
+        for name in ["266a", "266b", "266c"] {
             let shot = XCUIScreen.main.screenshot()
             shots.append((name, shot, Date().timeIntervalSince(raised)))
         }
@@ -350,6 +365,18 @@ final class LookAroundUITests: XCTestCase {
     /// 158,86,64, the gold or the brass): red over 110, red at least twice green and 3 times blue. -1 without a
     /// picture.
     private func emberPixels(_ shot: XCUIScreenshot) -> Int {
+        pixels(shot, step: 1) { r, g, b in r > 110 && r >= g * 2 && r >= b * 3 }
+    }
+
+    /// Step 5b: the pixels in the glint's arm colour 240,220,170 (within 8 a channel), every second pixel in each
+    /// direction (a game px is 6 device px, so each glint pixel is sampled 9 times).
+    private func glintArmPixels(_ shot: XCUIScreenshot) -> Int {
+        pixels(shot, step: 2) { r, g, b in abs(r - 240) <= 8 && abs(g - 220) <= 8 && abs(b - 170) <= 8 }
+    }
+
+    /// The pixels of a shot (every `step`-th in each direction, in device RGB) whose colour matches; -1 without a
+    /// picture.
+    private func pixels(_ shot: XCUIScreenshot, step: Int, match: (Int, Int, Int) -> Bool) -> Int {
         guard let image = shot.image.cgImage else { return -1 }
         let width = image.width
         let height = image.height
@@ -363,11 +390,11 @@ final class LookAroundUITests: XCTestCase {
         }
         guard drawn else { return -1 }
         var count = 0
-        for index in stride(from: 0, to: data.count, by: 4) {
-            let r = Int(data[index])
-            let g = Int(data[index + 1])
-            let b = Int(data[index + 2])
-            if r > 110 && r >= g * 2 && r >= b * 3 { count += 1 }
+        for y in stride(from: 0, to: height, by: step) {
+            for x in stride(from: 0, to: width, by: step) {
+                let index = (y * width + x) * 4
+                if match(Int(data[index]), Int(data[index + 1]), Int(data[index + 2])) { count += 1 }
+            }
         }
         return count
     }
