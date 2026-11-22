@@ -1384,3 +1384,8 @@ schneller geht."
     inventory, a flow map, four critics (motion, handling, run, feel), a refuter, one ranked backlog
     (`ci-out/director/polish-audit.md`). Branch `claude/lh-polish` on be33de3c, labels lh-pol-1 to -9. The fix lanes
     follow from the backlog.
+
+- **The audit's names, corrected (22.11.2026, 17:53).** Branch `claude/lh-round` (worktree `lh-round`), cut from
+  6c173054 (build 429's game plus join item 9's sturdier test helpers); labels lh-rnd-1 to -9. `claude/lh-polish` is
+  an older lane and is not used. Join item 9's proof round lh-b3j-22 on 6c173054 is ALL PASSED (the audience test four
+  times in a row).
