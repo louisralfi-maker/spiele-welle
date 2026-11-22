@@ -457,6 +457,12 @@ final class EntityFramesTests: XCTestCase {
             seen.insert(FigureMotion.builderIdleFrame(time: Double(index) * 0.01, index: 1))
         }
         XCTAssertEqual(seen, [1, 4, 5], "frame 1, and the tap")
+        // The gate (A1-C3): under Reduce Motion the idle builder holds frame 1.
+        var still = Set<Int>()
+        for index in 0..<600 {
+            still.insert(FigureMotion.builderIdleFrame(time: Double(index) * 0.01, index: 1, reduceMotion: true))
+        }
+        XCTAssertEqual(still, [1], "Reduce Motion: frame 1 held")
     }
 
     // MARK: - The horde (b3-horde, POLISH.md 7: the small ones' picture; Battle and Balance untouched)

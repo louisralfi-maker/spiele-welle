@@ -1268,7 +1268,7 @@ enum EntityFrames {
                 frame = 4 + Int((time * 4 + Double(index) * 0.5).rounded(.down)) % 2
             case .idle:
                 // Polish step A1 (M6): never one frozen frame; a hammer tap now and then, by his place in the crew.
-                frame = FigureMotion.builderIdleFrame(time: time, index: index)
+                frame = FigureMotion.builderIdleFrame(time: time, index: index, reduceMotion: reduceMotion)
                 x += Double(index) * 8
                 flipped = index % 2 == 0
             }
