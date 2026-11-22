@@ -235,7 +235,7 @@ final class LookAroundUITests: XCTestCase {
             let peak = arms.indices.max { arms[$0] < arms[$1] } ?? 0
             let picks = Array(max(0, peak - 2)...max(0, min(run.count - 1, peak + 2)))
             for (index, pick) in picks.enumerated() where pick < run.count {
-                let name = "265" + String(UnicodeScalar(UInt8(97 + index)))
+                let name = "265" + ["a", "b", "c", "d", "e"][min(index, 4)]
                 attach(run[pick].shot, "\(name)-look-glint-\(language)")
                 note("\(name)-look-glint", String(format: "%.2f s of real time after the first of the run; ", run[pick].real)
                      + "\(arms[pick]) sampled px of the arm colour" + (pick == peak ? "; the pulse's peak" : ""))
