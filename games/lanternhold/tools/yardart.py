@@ -19,9 +19,12 @@ It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed
                           front stays open (its painted spear rack is the yard's arms rack)
   yardPell     9x22 x 2   a pell: a stout post with a flat cap, a bundle of straw bound round its middle with three
                           rope bands, a mound at its foot; frame 1 battered (a strand torn loose, the bundle sagging)
-  yardButt     17x20      the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
-                          turned to the archers on its left, two arrows in it, on a timber A-frame (two stand set
-                          behind each other, the one behind a shade darker: the layout's shade)
+  yardButt     17x20 x 2  the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
+                          turned to the archers on its left, two arrows in it, on a timber A-frame; step 4 (the
+                          critic's H3, two butts set behind each other were one sprite twice): frame 1 the butt
+                          behind, turned further from the viewer (its face a narrow oval, the boss a pixel smaller,
+                          the coiled straw of its side showing), one arrow low in it, the back leg of its A-frame
+                          standing out behind it (the layout draws it darker and a pixel higher, farther back)
   yardKettle   13x18 x 3  the pitch kettle's place: a tripod of three poles lashed at the top over a ring of stones;
                           frame 0 empty (a chain and its hook, cold ash), frame 1 the iron kettle (7 px, a pale lit
                           rim, black pitch) hung on its bail over split logs, cold; frame 2 the same over its fire, two
@@ -220,6 +223,63 @@ def butt():
         c.set(fx, fy - 1, "parchment")
         c.set(fx - 1, fy - 1, "plaster")
         c.set(fx + 1, fy + 1, "ink")
+    return c.im
+
+
+# The butt behind (step 4), its boss from column 4 and row 1 (image rows): a pixel smaller than the front one's 11 x 11,
+# 9 wide and 10 high. Its painted face is an oval (R the ring, B the bone, H the heart, h its lit pixel) set toward
+# the archers on the left; e is the straw's thin edge on that side, S the coiled side turned toward the viewer (s its
+# lit coil, k the seam between the coils, d its shade).
+BEHIND_BOSS = (
+    "..eSSSS..",
+    ".eRRRssd.",
+    "eRBBBRskd",
+    "eRBhBRskd",
+    "eRBHBRskd",
+    "eRBBBRskd",
+    "eRBBBRSkd",
+    ".eRRRSSd.",
+    "..SSSSd..",
+    "...dd....",
+)
+BEHIND_INK = {"R": "tile", "B": "parchment", "H": "tile", "h": "tileLight", "e": "straw", "S": "straw",
+              "s": "strawLight", "k": "soilLight", "d": "plasterDim"}
+
+
+def butt_behind():
+    """Step 4 (the critic's H3): the butt set behind the front one, a different thing and never the same sprite twice.
+    Turned further from the viewer (`BEHIND_BOSS`), one arrow low in its ring, the A-frame seen more from the side: the
+    front legs closer together and the back leg standing well out behind it to the right."""
+    c = C(17, 20)
+    ox, oy = 4, 1
+    # The back leg first (behind everything): from the boss's upper back down to the ground well behind it.
+    line(c, ox + 8, oy + 3, 16, 18, lambda i, n, x, y: "woodDark" if i % 4 else "soil")
+    line(c, ox + 9, oy + 4, 16, 17, lambda i, n, x, y: "soil" if i > 1 else None)
+    # The front legs, close together (seen from the side), and their cross bar.
+    line(c, ox + 2, oy + 9, ox, 18, lambda i, n, x, y: "woodLight")
+    line(c, ox + 3, oy + 9, ox + 1, 18, lambda i, n, x, y: "wood")
+    line(c, ox + 5, oy + 9, ox + 6, 18, lambda i, n, x, y: "woodDark")
+    for x in range(ox + 1, ox + 7):
+        c.set(x, 15, "wood" if x < ox + 4 else "woodDark")
+    c.set(ox + 1, 15, "woodLight")
+    for y, row in enumerate(BEHIND_BOSS):
+        for x, ch in enumerate(row):
+            if ch == ".":
+                continue
+            name = BEHIND_INK[ch]
+            if ch == "R" and (x + y < 5):
+                name = "tileLight"                  # the ring's lit upper left
+            if ch == "B" and (x + y > 7):
+                name = "plaster"                    # the bone in the ring's shade
+            c.set(ox + x, oy + y, name)
+    rim(c)
+    # One arrow low in the ring, standing out toward the archers past the boss's edge.
+    for i in range(4):
+        c.set(ox + 1 - i, oy + 6, "woodLight" if i % 3 else "wood")
+    c.set(ox - 3, oy + 6, "parchment")
+    c.set(ox - 3, oy + 5, "parchment")
+    c.set(ox - 4, oy + 5, "plaster")
+    c.set(ox - 2, oy + 7, "ink")
     return c.im
 
 
@@ -485,7 +545,7 @@ def strip(frames):
 BUILDERS = {
     "yardGround": ground,
     "yardPell": lambda: strip([pell(0), pell(1)]),
-    "yardButt": butt,
+    "yardButt": lambda: strip([butt(), butt_behind()]),   # step 4: the front butt, the one behind
     "yardKettle": lambda: strip([kettle(0), kettle(1), kettle(2)]),
     "yardSite": lambda: strip([site(0), site(1)]),
 }

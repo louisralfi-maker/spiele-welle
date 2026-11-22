@@ -1283,4 +1283,49 @@ final class YardPolishTests: XCTestCase {
             }
         }
     }
+
+    // MARK: - C (H3): two different butts
+
+    /// The two butts set behind each other are two things, never one sprite twice: the one behind draws its own frame
+    /// (turned further: a narrower face), darker and a pixel higher; by day, at the drill and at night.
+    func testTheTwoButtsNeverShareAFrame() throws {
+        for hour in [7.0, 12, 22] {
+            var s = realm(day: 6, hour: hour)
+            Yard.proof(&s, stage: 2, kettle: true, trained: false, balance: balance)
+            var list = EntityFrames.PropList()
+            EntityFrames.yardProps(s, balance: balance, props: &list)
+            let butts = list.props.filter { $0.sprite == .yardButt }
+            XCTAssertEqual(butts.map(\.x), YardLook.buttLefts, "the two butts in their places at \(hour)")
+            guard butts.count == 2 else { continue }
+            XCTAssertNotEqual(butts[0].frame, butts[1].frame, "two things, never the same sprite twice, at \(hour)")
+            XCTAssertEqual(butts[0].frame, YardLook.buttFrameBehind, "the one behind first")
+            XCTAssertLessThan(butts[0].shade, butts[1].shade, "the one behind darker")
+            XCTAssertEqual(butts[0].y, butts[1].y + 1, "and a pixel higher, farther back")
+        }
+        XCTAssertEqual(YardLook.buttBehindShade, 0.65, accuracy: 0.001)
+        let url = try XCTUnwrap(AtlasBuilder.artURL(for: .yardButt, bundle: .main), "yardButt.png is in the bundle")
+        let strip = try XCTUnwrap(PNGDecoder.load(url: url))
+        let size = SpriteID.yardButt.size
+        XCTAssertGreaterThanOrEqual(strip.width, size.width * 2)
+        // The painted face (the ring's reds, the bone inside it: tile, tileLight, parchment, plaster) on its widest row,
+        // right of the arrows' fletchings: the one behind is turned further.
+        let face: Set<RGBA> = [RGBA(r: 122, g: 63, b: 49), RGBA(r: 158, g: 86, b: 64), RGBA(r: 222, g: 210, b: 184),
+                               RGBA(r: 200, g: 174, b: 132)]
+        func faceWidth(_ frame: Int) -> Int {
+            var widest = 0
+            for y in 0..<12 {
+                var row = 0
+                for x in 3..<size.width where face.contains(strip[frame * size.width + x, y]) { row += 1 }
+                widest = max(widest, row)
+            }
+            return widest
+        }
+        var same = true
+        for y in 0..<size.height {
+            for x in 0..<size.width where strip[x, y] != strip[size.width + x, y] { same = false }
+        }
+        XCTAssertFalse(same, "the two frames differ")
+        XCTAssertLessThan(faceWidth(YardLook.buttFrameBehind), faceWidth(YardLook.buttFrameFront),
+                          "the one behind shows a narrower face")
+    }
 }

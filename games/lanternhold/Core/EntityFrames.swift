@@ -653,8 +653,12 @@ enum EntityFrames {
             props.add(.yardPell, x: left, z: 1, frame: index % 2)
         }
         for (index, left) in YardLook.buttLefts.enumerated() {
+            // Step 4 (the critic's H3): the butt behind is its own frame (turned further, smaller, its back leg out),
+            // darker and a pixel higher, on the farther ground.
             let behind = index < YardLook.buttLefts.count - 1
-            props.add(.yardButt, x: left, z: 1, shade: behind ? YardLook.buttBehindShade : 1)
+            props.add(.yardButt, x: left, y: behind ? YardLook.buttBehindLift : 0, z: 1,
+                      frame: behind ? YardLook.buttFrameBehind : YardLook.buttFrameFront,
+                      shade: behind ? YardLook.buttBehindShade : 1)
         }
         guard yard.kettleInUse else {
             props.add(.yardKettle, x: YardLook.kettleLeft, z: 1, frame: YardLook.kettleFrameEmpty)

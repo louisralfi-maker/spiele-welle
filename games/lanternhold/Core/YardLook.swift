@@ -33,7 +33,13 @@ enum YardLook {
     /// in the door (his box 1505 to 1520, 30 high) no arc of 40 to 60 falls from 4 px over his box into a heart 8 px
     /// past it, so the butt in front is the far one (heart 1537) and the near one stands behind it.
     static let buttLefts: [Double] = [1519, 1528]
-    static let buttBehindShade: Float = 0.8
+    /// Step 4 (the critic's H3: one sprite twice): the butt behind has its own frame of yardButt (turned further from
+    /// the viewer, a narrower face, the boss a pixel smaller, one arrow low, the back leg of its A-frame out), drawn
+    /// darker and a pixel higher, as farther ground (step 3: the same frame at 0.8).
+    static let buttFrameFront = 0
+    static let buttFrameBehind = 1
+    static let buttBehindShade: Float = 0.65
+    static let buttBehindLift = 1.0
     /// The heart of the butt in front (the boss's middle pixel, 13 px up).
     static let buttHeart = (x: 1537.0, y: 13.0)
     /// The pitch kettle's tripod on the apron past the lord's lane (13 px, 1466 to 1478; the lashing 6 px in, 1472):
