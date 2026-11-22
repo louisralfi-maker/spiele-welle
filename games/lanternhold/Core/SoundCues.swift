@@ -129,7 +129,7 @@ extension FeedbackCue {
         case .fireArrow: return SoundPlay(id: .bow, volume: 0.5, rate: 0.92)
         case .ballista: return SoundPlay(id: .engine, volume: 0.7)
         case .catapult: return SoundPlay(id: .engine, volume: 0.8, rate: 0.85)
-        // D1 (law 4, step 2): a kill at -17.5 dBFS (was 0.55, -22.7); near the lord its chain climbs (`FeedbackGate`).
+        // D1 (law 4, step 2): a kill at -17.5 dBFS (was 0.55, -22.7); the kills' chain is not built (`FeedbackGate`).
         case .creatureDissolved: return SoundPlay(id: .dissolve, volume: 1)
         case .glancedOff: return SoundPlay(id: .arrowHit, volume: 0.5, rate: 1.3)
         case .stomp: return SoundPlay(id: .wallHit, volume: 0.8, rate: 0.7)
@@ -365,10 +365,9 @@ struct FeedbackGate: Sendable, Equatable {
     private var sounds = SoundThrottle()
     private var haptics = SoundThrottle()
     private var stepFlip = false
-    /// D1: the grunts alternate, the last plaque press, the kills' chain near the lord.
+    /// D1: the grunts alternate; the last plaque press.
     private var gruntFlip = false
     private var pressAt: Double?
-    private var kills = AnswerChain(cap: AnswerChain.killCap)
 
     /// At most one grunt every this many seconds (D1).
     static let gruntSpacing = 0.5
@@ -390,7 +389,7 @@ struct FeedbackGate: Sendable, Equatable {
 
     /// What the hub plays for `cue` at `now`. `near`: the cue happens within its hearing of the lord. Beyond it, at
     /// the edge of hearing, only the faded sound comes: no haptic and no answer duck (D1 gate M5, law 4: at its size
-    /// and never larger), and a kill climbs no chain.
+    /// and never larger).
     mutating func answer(_ cue: FeedbackCue, soundOn: Bool, hapticsOn: Bool, now: Double, near: Bool = true) -> CueAnswer {
         var answer = CueAnswer(haptic: nil, hapticStrength: cue.hapticStrength, sound: nil, jitter: false)
         // One touch, one tick: the press's own tick stands for the pane it opens or closes.
@@ -418,13 +417,11 @@ struct FeedbackGate: Sendable, Equatable {
             gruntFlip.toggle()
             if !gruntFlip { sound.id = .grunt2 }
         }
-        var chained = false
-        if cue == .creatureDissolved && near {
-            sound.rate *= AnswerChain.rate(step: kills.next(at: now))
-            chained = true
-        }
+        // D1 gate M2: law 4's kills' chain (+1 semitone a kill to +7, its hand soft growing 0.35 to 1) is not built. A
+        // player's rate only stretches time (the note at `coinP01`), so a chained rate would quicken the kills, not raise
+        // them; a true climb needs pitched dissolve files or a varispeed node (the director's call; `AnswerChain` waits).
         answer.sound = sound
-        answer.jitter = !chained && sound.id.varies && (cue.answerSize?.jitters ?? true)
+        answer.jitter = sound.id.varies && (cue.answerSize?.jitters ?? true)
         if near, let size = cue.answerSize, size >= .triumph { answer.duck = size }
         return answer
     }
@@ -465,7 +462,8 @@ enum SoundSpace {
         return abs(distance) < hearing * (1 + edge)
     }
 
-    /// Whether a cue at `distance` is near enough for the kills' chain (inside its hearing, not at the edge).
+    /// Whether a cue at `distance` is near enough for its full answer, haptic and duck (inside its hearing, not at the
+    /// edge; D1 gate M5).
     static func near(distance: Double, hearing: Double) -> Bool {
         abs(distance) <= hearing
     }

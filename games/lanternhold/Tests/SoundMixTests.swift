@@ -407,27 +407,22 @@ final class SoundMixTests: XCTestCase {
         XCTAssertNil(FeedbackThinner.cue(for: .soldierFell(name: "Aldo")))
     }
 
-    /// Polish D1: kills near the lord climb a semitone a kill to +7 (`AnswerChain`), back to the root after 1.5 s
-    /// without one; a kill at the edge of hearing climbs nothing; a chained kill never jitters.
-    func testAKillChainsRatesAndCap() {
+    /// Polish D1 gate M2 rewrote this test (it pinned the chain's rates): the kills' chain is not built, since a
+    /// player's rate stretches time and keeps the pitch. Every kill plays dissolve as made at rate 1, near or at the
+    /// edge, and varies a little like any step 2 answer. `AnswerChain` keeps its own rates and caps for pitched files.
+    func testKillsPlayAsMadeTheChainIsNotBuilt() {
         var gate = FeedbackGate()
-        var rates: [Double] = []
         for k in 0..<10 {
             let answer = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: Double(k) * 0.3)
-            rates.append(answer.sound?.rate ?? 0)
-            XCTAssertFalse(answer.jitter, "a chain climbs clean")
+            XCTAssertEqual(answer.sound?.id, .dissolve)
+            XCTAssertEqual(answer.sound?.rate, 1, "kill \(k): no stretched chain")
+            XCTAssertTrue(answer.jitter, "step 2: +-4 %")
+            XCTAssertNil(answer.haptic, "the chain's hand is not built either")
         }
-        let expected = [0, 1, 2, 3, 4, 5, 6, 7, 7, 7].map { AnswerChain.rate(step: $0) }
-        for (got, want) in zip(rates, expected) { XCTAssertEqual(got, want, accuracy: 1e-12) }
-        XCTAssertEqual(rates.last ?? 0, pow(2, 7.0 / 12), accuracy: 1e-12, "the cap: +7")
         let far = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: 3.2, near: false)
-        XCTAssertEqual(far.sound?.rate, 1, "at the edge: no step")
-        let next = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: 3.4)
-        XCTAssertEqual(next.sound?.rate ?? 0, AnswerChain.rate(step: 7), accuracy: 1e-12, "the far kill broke nothing")
-        let after = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: 3.4 + 1.5)
-        XCTAssertEqual(after.sound?.rate, 1, "1.5 s without a kill: back to the root")
+        XCTAssertEqual(far.sound?.rate, 1, "at the edge: as made")
         XCTAssertEqual(FeedbackCue.creatureDissolved.answerSize, .deed)
-        XCTAssertTrue((0.5...2).contains(AnswerChain.rate(step: AnswerChain.killCap)), "inside the player's rates")
+        XCTAssertEqual(AnswerChain.killCap, 7, "the law's cap waits for pitched files")
     }
 
     /// 0b's L2: after a shallower duck the beds come back over 1.2 s from it, not at the pace a deeper duck before it

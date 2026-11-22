@@ -5,8 +5,8 @@ import XCTest
 /// Polish step 0b, the gate's M1: the real hub's paths run once in the unit host. `SoundDirector.allowed` only gates
 /// the app's install, so the test builds the director directly and drives every new path (every cue, the placed play
 /// near and far, the duck follower over real frames, a step 3 answer's duck, the title's beds and their hand-over,
-/// Sound and Haptics off and on; polish D1's placed blows, chain, grunts, fall, crack, breach echo, battle duck and
-/// one touch, one tick). It checks that nothing traps or hangs; what is heard is judged on a phone.
+/// Sound and Haptics off and on; polish D1's placed blows, kills in a row, grunts, fall, crack, breach echo, battle
+/// duck and one touch, one tick). It checks that nothing traps or hangs; what is heard is judged on a phone.
 final class SoundDirectorTests: XCTestCase {
     @MainActor
     func testTheRealHubRunsEveryNewPath() {
@@ -39,7 +39,7 @@ final class SoundDirectorTests: XCTestCase {
         director.stopTitleBeds()
         frames(5, ducked: true)
 
-        // Polish D1: the night's new paths: the placed play near, at the edge and past it; the kills' chain; the grunts;
+        // Polish D1: the night's new paths: the placed play near, at the edge and past it; kills in a row; the grunts;
         // a man's fall and a wall's crack; the breach's echo haptic (a Task 0.12 s later) and step-4 duck; the battle
         // duck from a near blow; one touch, one tick; the retired cues.
         for k in 0..<12 {
