@@ -1286,3 +1286,17 @@ schneller geht."
   - Started: the yard's step 3 as a continuation from 1537cdc8 (parts A and B committed, a half-done edit of four files for its builder to keep or drop), rounds lh-b3y-31 to -34; and one workflow that finishes lane 5's two steps: the lantern's push, frames, report and a critic, and the smoke fix with round lh-b3s-12 and the smooth lane's first push.
   - Next for the director: judge the banner's frames and the critic, merge smooth into lantern, then the lane's last step (the vignette and the figures' fade).
   - Usage 10 % of the week; the stop is 80 %.
+
+- **Lane 5: the town's banner and the smooth walk are green and joined; the last step runs (22.11.2026, 05:56).**
+  - The town's banner at the map (lantern step 4) is green and pushed: `claude/lh-b3-lantern` a97f9407, round
+    `lh-b3l-41`. A critic gave it a pass, 7.5 of 10, with no blocker: the count fights a lit brazier at the gatehouse
+    at night, the hem marks do not read, the glint and the flare are too small, the slip's fallback gives no reason.
+  - The smooth walk part 3 is green and pushed: `claude/lh-b3-smooth` 041de04a, round `lh-b3s-12`. That lane is closed.
+  - Both are merged in the lantern lane as eca49b2a (local until round `lh-b3l-42` is green).
+  - The director's rulings: one ink edge round glyph, count and arrow; the hem marks go; a larger glint and flare; the
+    fallback names the mood ("The town is in good heart." / "The town goes about its days." / "The town is weary." /
+    "The town is angry."); the even cloth's lower third a step darker.
+  - Step 5, the last of the lane, runs: the dim becomes the lantern's own light (stepped rings on the world grid,
+    anchored in the world, none within 48 game px, 0.30 at the far edge, leaning to the night ink); during a held pan
+    the lord's row, the banner and the gear fade out and the dim lifts to 40 %, the strip stays; plus the rulings above.
+  - After it: the wave 2 join (lane 6, then the yard, then lane 5) and a TestFlight round.
