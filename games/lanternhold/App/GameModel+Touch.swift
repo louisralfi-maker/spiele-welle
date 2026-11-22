@@ -174,6 +174,12 @@ extension GameModel {
                 touch.pressed = thingAt(start, in: size)?.id
                 // Raise the lantern: a hold on the lord at night (`stepTouch` counts it).
                 touch.onLord = touch.pressed == nil && stagePoint(start, in: size).map(isOnLord) == true
+                // Polish B2 (H2): beside an open board (whose area now covers him) a hold on the lord at night still
+                // raises the lantern, as before the fix (`countLordHold`).
+                if stagePoint(start, in: size).map(countLordHold) == true {
+                    touch.pressed = nil
+                    touch.onLord = true
+                }
                 // Build 3, the count: a touch on a thing that is bought brings its board up and holds it; on the open
                 // board it holds (`GameModel+Pay.swift`).
                 if countDown(at: start, in: size) { touch.onLord = false }
@@ -335,6 +341,19 @@ extension GameModel {
               let place = stagePoint(point, in: size) else { return }
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
+        // Polish B2 (H2): while a count is open, and for `countSealGuard` after its seal, the lord takes no tap: on the
+        // board's widened area or his body it is a coin (a lift of the night's hold on him that raised nothing comes
+        // here), on his body after the seal nothing; the ground away from the board still leaves the count.
+        if !underLantern, let keep = countKeepsTap(place) {
+            switch keep {
+            case .coin(let thing):
+                touch.lastTap = thing.id
+                countTap(thing)
+            case .nothing:
+                touch.lastTap = "none"
+            }
+            return
+        }
         let picked = TouchRules.pick(x: place.x, lift: place.lift, things: touch.things, minimum: place.minimum)
         // Stage-3-interface: a touch on the lord's own body raises the lantern moment even where he stands in a
         // thing's area (a site he stands on), unless the finger is nearer the thing, it is a person, or he waits

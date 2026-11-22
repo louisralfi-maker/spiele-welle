@@ -74,6 +74,9 @@ enum PayBeat: Sendable, Equatable {
     case short
     /// The coins start sliding back into the purse (let go, cut off, or after the short blink).
     case slideBack
+    /// Polish B2 (H9): a count by taps has waited `warnAfter` untouched: the rocking coin sinks back into the lord's
+    /// hand, one soft tick in the hand tells it; `tapWait` untouched, the coins go home.
+    case warn
     /// The board is down: the count is over.
     case gone
 }
@@ -169,6 +172,12 @@ struct PayCount: Sendable, Equatable {
     /// critic's H5: the rocking coin is the whole lesson, and 2 s were too short to read it and reach).
     static let slideAfter = 2.0
     static let emptyWait = 5.0
+    /// Polish B2 (H9, the director's call of 22.11.): a count whose last touch was a tap waits `tapWait` (a hold keeps
+    /// `slideAfter`, an empty board `emptyWait`); at `warnAfter` the rocking coin sinks back into the lord's hand in
+    /// `sinkSeconds` (the coins' own way home, `slideSeconds`), one soft tick in the hand.
+    static let tapWait = 3.0
+    static let warnAfter = 2.0
+    static let sinkSeconds = slideSeconds
     /// Going back, the coins leave one by one, the last laid first, `homeGap` apart (step 4, the director's call 2:
     /// 0.07 s, so they never bunch); each flies home to the lord's belt in `slideSeconds`, shrinking to a pixel, and the
     /// purse takes it as it arrives.
@@ -280,6 +289,10 @@ struct PayCount: Sendable, Equatable {
     private(set) var pressPlaced = 0
     /// The last second a finger was on it.
     private(set) var lastTouch: Double
+    /// Polish B2 (H9): the last touch was a tap (a lift whose press set no coin, or a tap), not a hold that counted.
+    private(set) var lastByTap = false
+    /// Polish B2 (H9): the second the warning came (the rocking coin sinking home), nil while none stands.
+    private(set) var warnedAt: Double?
     /// Taps waiting for a coin (while he walks, or between two coins).
     private(set) var queued = 0
     /// The lord stands at the board (the coins wait while he walks there), and since when.
@@ -360,6 +373,13 @@ struct PayCount: Sendable, Equatable {
         return min(1, (time - start) / returnSeconds)
     }
 
+    /// Polish B2 (H9): the rocking coin sinking back into the lord's hand after the warning: 0 just warned ... 1 in
+    /// his hand (nil while no warning stands; the count still open).
+    var sinkShare: Double? {
+        guard let warnedAt, result == nil else { return nil }
+        return min(1, max(0, (time - warnedAt) / PayCount.sinkSeconds))
+    }
+
     /// Coin `index` on its way home: 0 still in its hollow ... 1 home in the purse (nil while the coins lie, or for a
     /// coin never laid). The last laid goes first.
     func homeShare(_ index: Int) -> Double? {
@@ -432,6 +452,8 @@ struct PayCount: Sendable, Equatable {
         holding = true
         pressPlaced = 0
         lastTouch = time
+        lastByTap = false
+        warnedAt = nil
         if launched.count < coins.count { due = time + nextDelay(fresh: true) }
     }
 
@@ -451,6 +473,8 @@ struct PayCount: Sendable, Equatable {
         guard result == nil, sealAt == nil, !pendingShort, launched.count + queued < coins.count else { return }
         queued += 1
         lastTouch = time
+        lastByTap = true
+        warnedAt = nil
     }
 
     /// VoiceOver's double tap: the whole price at once when he stands there.
@@ -458,6 +482,7 @@ struct PayCount: Sendable, Equatable {
         guard result == nil else { return }
         atOnce = true
         lastTouch = time
+        warnedAt = nil
     }
 
     /// The lord stands at the board: the coins may come.
@@ -541,9 +566,20 @@ struct PayCount: Sendable, Equatable {
                 resultAt = seal
                 beats.append(.seal)
             }
-            let wait = placed == 0 ? PayCount.emptyWait : PayCount.slideAfter
-            if result == nil, sealAt == nil, !holding, queued == 0, !atOnce, !pendingShort, launched.count == placed,
-               time - max(lastTouch, readyAt ?? time) >= wait {
+            // Polish B2 (H9): a tap count waits `tapWait` and warns at `warnAfter`; a hold and an empty board as before.
+            let wait = placed == 0 ? PayCount.emptyWait : lastByTap ? PayCount.tapWait : PayCount.slideAfter
+            let quiet = result == nil && sealAt == nil && !holding && queued == 0 && !atOnce && !pendingShort
+                && launched.count == placed
+            let idle = time - max(lastTouch, readyAt ?? time)
+            if quiet, placed > 0, lastByTap, idle >= PayCount.warnAfter {
+                if warnedAt == nil {
+                    warnedAt = time - (idle - PayCount.warnAfter)
+                    beats.append(.warn)
+                }
+            } else {
+                warnedAt = nil
+            }
+            if quiet, idle >= wait {
                 beats.append(finish(.letGo))
             }
         } else {
