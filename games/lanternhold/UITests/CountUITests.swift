@@ -175,8 +175,8 @@ final class CountUITests: XCTestCase {
         app.terminate()
     }
 
-    /// The guard's board beside the barracks, clear of Marek's cart: one big coin and four small (14), frozen with
-    /// half of them laid.
+    /// The guard's board beside the barracks: one big coin and four small (14), frozen with half of them laid (b3-yard:
+    /// Marek's cart stands by the back gate now, no longer before the barracks).
     func testTheGuardsBoard() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
@@ -191,7 +191,7 @@ final class CountUITests: XCTestCase {
             return
         }
         checkTarget(guardsman, "the guard's half")
-        // High on the barracks, over Marek's cart (a touch on the cart opens his card while his offer is open).
+        // High on the barracks, over Brannock's head in the bunkhouse door (b3-yard; a person takes a touch on him).
         guardsman.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).tap()
         XCTAssertTrue(waitForField(app, "count:touch-recruit-guard", timeout: 3), "the guard's board stands")
         waitForStill(app)

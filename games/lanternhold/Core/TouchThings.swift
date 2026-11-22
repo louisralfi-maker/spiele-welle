@@ -94,22 +94,16 @@ enum TouchThings {
         // gold the mark led to a card of refusals). Build 3, the count (PAY.md): the barracks are two things, the
         // archer's half on the left and the guard's on the right, each with its own tally board and price; the mark
         // shows over the one nearer the lord (the building spacing keeps it to one).
+        // b3-yard (build 3, wave 2, lane 2, step 3): Marek's cart stands by the back gate now (`CourtLayout.marekCartX`),
+        // so the barracks keep their own marks and rims on his days too (the cart's cases went).
         let recruits = RecruitCard.make(s, balance: balance).options
-        let cart = CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart })
         for option in recruits {
             let archer = option.kind == .archer
             let x = KingTargets.barracksX + (archer ? -1 : 1) * TouchThings.recruitOffset
-            var recruit = TouchThing(id: archer ? "touch-recruit-archer" : "touch-recruit-guard", kind: .recruit,
+            let recruit = TouchThing(id: archer ? "touch-recruit-archer" : "touch-recruit-guard", kind: .recruit,
                                      act: .recruit, x: x, standX: x, halfWidth: TouchThings.recruitHalf,
                                      top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit),
                                      price: option.price, marked: option.canRecruit, soldier: option.kind)
-            // Stage-3-interface (stage-2 critic look 2, high 3): on Marek's days his cart stands before the barracks;
-            // the barracks' sign hangs at the edge the cart leaves free, and the barracks carry no rim (it read as the
-            // cart's).
-            if cart {
-                recruit.markAt = TouchRules.barracksFreeX
-                recruit.noRim = true
-            }
             list.append(recruit)
         }
         list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallRules.doorX,

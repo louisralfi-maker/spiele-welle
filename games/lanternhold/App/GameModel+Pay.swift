@@ -594,6 +594,19 @@ extension GameModel {
         for step in 0...GameModel.countBoardSearch where clear(ideal + Double(step) * side) {
             return (ideal + Double(step) * side, side)
         }
+        // b3-yard (build 3, wave 2, lane 2, step 3; a registration block for the join): with Marek's cart by the back
+        // gate a thing beside it may have no clear place on the lord's side (the treasury's plot, 2180, when he comes
+        // from the east: Tamsin's oven stop and the cart fill it); then the far side, outward the same way, before the
+        // first place. Only near the standing cart, so every other board stands as it did.
+        let cartMiddle = CourtLayout.marekCartX + Double(SpriteID.marekCart.size.width) / 2
+        if thing.kind != .recruit, abs(thing.x - cartMiddle) < 120, let state = driver?.state,
+           CourtLayout.props(state, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
+            let far = -side
+            let farIdeal = far < 0 ? (frameLeft - half).rounded(.down) : (frameRight + half).rounded(.up)
+            for step in 0...GameModel.countBoardSearch where clear(farIdeal + Double(step) * far) {
+                return (farIdeal + Double(step) * far, far)
+            }
+        }
         return (ideal, side)
     }
 

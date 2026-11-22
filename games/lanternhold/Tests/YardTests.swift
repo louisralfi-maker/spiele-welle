@@ -1080,3 +1080,91 @@ final class YardLookTests: XCTestCase {
         }
     }
 }
+
+/// Build 3, wave 2, lane 2, step 3 (the director's ruling of 21.11.2026, 17:10, and his pick at 17:31): Marek's cart
+/// leaves the barracks' front (the drill yard's bunkhouse) for the castle's east end, 2218 to 2266, flush with the
+/// bakehouse's east wall just inside the back gate. Marek stands before its east half; Tamsin's oven stop, the lord's
+/// talk spot for the collector and the collector's box stay free; the treasury plot's board still finds a clear place.
+@MainActor
+final class YardCartTests: XCTestCase {
+    private var directory: URL!
+    private let pro = PixelScale(physicalWidth: 2622, physicalHeight: 1206)
+
+    override func setUp() async throws {
+        directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("lanternhold-yard-cart-\(UUID().uuidString)", isDirectory: true)
+    }
+
+    override func tearDown() async throws {
+        if let directory { try? FileManager.default.removeItem(at: directory) }
+    }
+
+    private var cart: ClosedRange<Double> {
+        CourtLayout.marekCartX...(CourtLayout.marekCartX + Double(SpriteID.marekCart.size.width))
+    }
+
+    func testMareksCartStandsByTheBackGateWithMarekBeforeIt() throws {
+        XCTAssertEqual(cart, 2218...2266, "flush with the bakehouse's east wall")
+        let props = CourtLayout.props(day: 3, hour: 10, world: [], queue: [], catalog: .standard)
+        XCTAssertTrue(props.contains(CourtProp(sprite: .marekCart, x: 2218)), "on his day")
+        XCTAssertTrue(CourtWorld.registry.contains { $0.id == "castle.courtyard.stall" && $0.x == CourtLayout.marekCartX },
+                      "the stall's world change stands where the cart does")
+        let marek = try XCTUnwrap(CourtLayout.routines["marek"])
+        let half = Double(SpriteID.marek.size.width / 2)
+        let eastHalf = (cart.lowerBound + cart.upperBound) / 2
+        // The lord talking to the collector from the west, and the collector's own box.
+        let collector = Town.collectorPost
+        let talkSpot = collector - CollectorTouch.standOff
+        XCTAssertEqual(talkSpot, 2272)
+        let lordHalf = Double(SpriteID.king.size.width / 2)
+        let collectorLeft = collector - Double(SpriteID.collector.size.width / 2)
+        for stop in marek.stops + [marek.night] {
+            XCTAssertGreaterThanOrEqual(stop, eastHalf, "Marek at \(stop) before the cart's east half")
+            XCTAssertLessThanOrEqual(stop + half, cart.upperBound, "and in front of it")
+            XCTAssertLessThanOrEqual(stop + half, talkSpot - lordHalf, "clear of the lord at the collector's talk spot")
+        }
+        XCTAssertLessThan(cart.upperBound, talkSpot, "the cart leaves the talk spot free (the director's place)")
+        XCTAssertLessThan(cart.upperBound, collectorLeft, "and the collector's box")
+        // Tamsin's oven stop (2208): her box clear of the cart and of Marek.
+        let tamsin = try XCTUnwrap(CourtLayout.routines["tamsin"])
+        XCTAssertTrue(tamsin.stops.contains(2208))
+        let tamsinHalf = Double(SpriteID.tamsin.size.width / 2)
+        XCTAssertLessThanOrEqual(2208 + tamsinHalf, cart.lowerBound, "Tamsin at her oven stays free")
+    }
+
+    /// The treasury's plot (2180, before the bakehouse) still finds a clear place for its board on Marek's day, the
+    /// lord coming from the west or from the east (Tamsin's oven stop and the cart fill its east side: the board then
+    /// stands on its west side).
+    func testTheTreasurysBoardFindsAClearPlaceWithTheCartThere() throws {
+        let plot = TownGrowth.treasuryPlot
+        XCTAssertGreaterThanOrEqual(plot, 0)
+        let price = Balance.standard.price(.treasury)
+        let layout = PayBoardLayout.make(PayCount.hollows(price: price))
+        let half = Double(layout.width) / 2
+        for lordX in [2110.0, 2300.0] {
+            let game = GameModel(args: DebugArgs(values: ["GWReset": "YES", "GWSkipOnboarding": "YES",
+                                                         "GWStage": "world", "GWSeed": "2", "GWDay": "3",
+                                                         "GWClock": "10", "GWCameraX": "\(Int(lordX))",
+                                                         "GWGold": "200"]),
+                                 kind: .world, store: SaveStore(directory: directory))
+            game.feedback = SilentFeedback()
+            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let state = try XCTUnwrap(game.driver?.state)
+            XCTAssertTrue(CourtLayout.props(state, catalog: .standard).contains { $0.sprite == .marekCart },
+                          "day 3: the cart stands")
+            let x = TownGrowth.treasuryX
+            let thing = TouchThing(id: "touch-plot-\(plot)", kind: .plot, act: .build(plot: plot), x: x, standX: x,
+                                   halfWidth: 6, top: Double(TouchFooting.stakeHeight), rank: TouchRules.rank(.plot),
+                                   price: price)
+            let place = game.countBoardPlace(thing, layout: layout)
+            let left = place.x - half
+            let right = place.x + half
+            XCTAssertFalse(left < cart.upperBound && right > cart.lowerBound, "lord at \(lordX): never in the cart")
+            XCTAssertTrue(right <= thing.x - thing.halfWidth || left >= thing.x + thing.halfWidth,
+                          "lord at \(lordX): never over the plot")
+            let blocked = game.countObstacles(thing)
+            XCTAssertFalse(blocked.contains { $0.lowerBound < right + 1 && $0.upperBound > left - 1 },
+                           "lord at \(lordX): clear of everyone and every door (\(place.x), side \(place.side))")
+        }
+    }
+}

@@ -157,7 +157,10 @@ final class CastleRoomsTests: XCTestCase {
         let figures = CourtFrames.figures(state: s, catalog: .standard, scene: court, animTime: 2)
         XCTAssertTrue(figures.contains { $0.who == "marek" }, "day 3 is one of Marek's days")
         let yard = Self.frame(s, focus: 1530, court: court)
-        XCTAssertTrue(sprites(yard.desc).contains(.marekCart), "his cart in the courtyard")
+        // b3-yard (build 3, wave 2, lane 2, step 3): his cart stands by the back gate (2218), the drill yard's bunkhouse
+        // keeps its front.
+        let backGate = Self.frame(s, focus: CourtLayout.marekCartX + 24, court: court)
+        XCTAssertTrue(sprites(backGate.desc).contains(.marekCart), "his cart in the courtyard by the back gate")
         XCTAssertTrue(yard.desc.actors.contains { $0.sprite == .brannock })
         XCTAssertTrue(yard.desc.actors.contains { $0.sprite == .bram })
 
@@ -225,7 +228,9 @@ final class CastleRoomsTests: XCTestCase {
         let yard = realm(day: 2, hour: 10, kingX: 1500, world: changes)
         let courtyard = Self.frame(yard, focus: 1500, court: CourtScene(rooms: RoomFades(kingX: 1500)))
         XCTAssertTrue(sprites(courtyard.desc).contains(.statue), "the statue of the lamplighter saint")
-        XCTAssertTrue(sprites(courtyard.desc).contains(.marekCart), "the stall every day")
+        // b3-yard (step 3): the stall stands by the back gate.
+        let stall = Self.frame(yard, focus: CourtLayout.marekCartX + 24, court: CourtScene(rooms: RoomFades(kingX: 1500)))
+        XCTAssertTrue(sprites(stall.desc).contains(.marekCart), "the stall every day")
         XCTAssertEqual(courtyard.desc.actors.filter { $0.sprite == .guardsman && $0.rect.y < 600 }.count, 2,
                        "two guards on the wall walk (the others wait on the ground)")
         // World-2: the hall's and the chapel's insides do not show in the world (the stage lane's hall shows its own).

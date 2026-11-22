@@ -1059,7 +1059,8 @@ final class PayCountTests: XCTestCase {
     }
 
     /// The critic's H3: the gate's board stands beside the gatehouse on the lord's side, never over the gate; the
-    /// recruits' boards beside the barracks, clear of Marek's cart; the lord on the board's outer side.
+    /// recruits' boards beside the barracks (b3-yard: Marek's cart stands by the back gate now; `YardCartTests` checks
+    /// the treasury's board beside it); the lord on the board's outer side.
     func testTheBoardStandsBesideItsThing() throws {
         let game = gateGame(gold: 200)
         let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" })
@@ -1083,8 +1084,6 @@ final class PayCountTests: XCTestCase {
         let barracks = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1580",
                               "GWGold": "60"])
         _ = barracks.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
-        let cartLeft = CourtLayout.marekCartX
-        let cartRight = cartLeft + Double(SpriteID.marekCart.size.width)
         let wallLeft = EntityFrames.barracksLeft
         let wallRight = wallLeft + Double(SpriteID.barracks.size.width)
         for id in ["touch-recruit-archer", "touch-recruit-guard"] {
@@ -1092,7 +1091,6 @@ final class PayCountTests: XCTestCase {
             let layout = PayBoardLayout.make(PayCount.hollows(price: thing.price ?? 10))
             let place = barracks.countBoardPlace(thing, layout: layout)
             let w = Double(layout.width) / 2
-            XCTAssertFalse(place.x - w < cartRight && place.x + w > cartLeft, "\(id): never in Marek's cart")
             XCTAssertFalse(place.x - w < wallRight && place.x + w > wallLeft, "\(id): beside the barracks")
             XCTAssertEqual(place.side, id.hasSuffix("archer") ? -1 : 1, "\(id): at its own wall")
         }

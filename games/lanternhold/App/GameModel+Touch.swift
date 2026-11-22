@@ -261,7 +261,9 @@ extension GameModel {
         }
         // Build 2 review, app-ui-3: Marek's cart stands before the barracks; while his offer is open a touch on it opens
         // his gift card, else it is the barracks' touch as before.
-        if stage == .world, picked?.kind == .recruit, isOnMarekCart(place), merchantTouch?() == true {
+        // b3-yard (build 3, wave 2, lane 2, step 3): the cart stands by the back gate now, on free ground: a touch on it
+        // opens his card while his offer is open, unless the finger is on a person (Marek before his cart's east half).
+        if stage == .world, picked?.isPerson != true, isOnMarekCart(place), merchantTouch?() == true {
             // Build 3 (PAY.md 4): his card cuts a count off; it pays nothing.
             cutCount()
             touch.lastTap = "merchant"

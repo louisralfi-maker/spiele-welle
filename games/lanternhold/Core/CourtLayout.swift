@@ -87,7 +87,11 @@ enum CourtLayout {
     static let serenCorner = 1950.0
     /// Before the gatehouse's portcullis, in the gorge: where the Stranger waits to be let in.
     static let strangerAtGate = 1352.0
-    static let marekCartX = 1486.0
+    /// b3-yard (build 3, wave 2, lane 2, step 3; the director's ruling of 21.11.2026, 17:10, and his pick at 17:31): Marek's
+    /// cart stands at the castle's east end, flush with the bakehouse's east wall (2218 to 2266), just inside the back
+    /// gate he comes through from Tallowford (it stood before the barracks at 1486, which is the drill yard's bunkhouse
+    /// now). Clear of Tamsin's oven stop (2208), the lord's talk spot for the collector (2272) and the collector's post.
+    static let marekCartX = 2218.0
     static let statueX = 1680.0
     static let marekEvery = 3
     static let serenInFlag = "stranger_in"
@@ -123,7 +127,11 @@ enum CourtLayout {
                                offset: 7),
         "bram": CourtRoutine(stops: [1566, 1588], faces: [1, 1], dwell: [10, 6], night: 1580, nightFacing: 1,
                              offset: 2),
-        "marek": CourtRoutine(stops: [1542, 1550], faces: [-1, -1], dwell: [10, 8], night: 1542, nightFacing: -1,
+        // b3-yard (step 3): Marek stands before his cart's east half (2242 to 2266) like a seller at his stall, at 2256
+        // and 2249, facing the castle the lord comes from; his box (14 px) ends at 2262, so the lord talking to the
+        // collector from the west (2272, his box from 2264) never touches him. By day only (the night stop is beside
+        // the cart too).
+        "marek": CourtRoutine(stops: [2256, 2249], faces: [-1, -1], dwell: [10, 8], night: 2249, nightFacing: -1,
                               offset: 4),
     ]
 

@@ -24,8 +24,7 @@ extension TouchRules {
     /// never closer than `buildingSpacing` px (the farther gives way).
     static let dayMarks = 3
     static let buildingSpacing = 120.0
-    /// The barracks' free edge beside Marek's cart (the cart covers 1486 ... 1534 of the barracks' 1481 ... 1545).
-    static let barracksFreeX = 1540.0
+    // b3-yard (build 3, wave 2, lane 2, step 3): `barracksFreeX` went with Marek's cart (it stands by the back gate).
 
     /// True for the marks of buildings and works (the spacing rule).
     static func isBuilding(_ kind: TouchKind) -> Bool {
