@@ -1,0 +1,44 @@
+m02-s: a tap at 80 %, slowed: he starts, walks, brakes and stands
+slowed: -GWTimeScale 0.25; frames back to back, the scene read after each
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500 -GWTimeScale 0.25
+a tap before frame 01 sent at +0.000 s (point 24.1, 699.2; interface orientation 3 (the app's))
+frame  seconds since the burst began  scene
+00  -0.010 s  before: hour:9.33 lx:1500 cam:1238 kv:0.00 kxf:1500.00 kf:7 kd:1
+01  +0.775 s  hour:9.35 lx:1500 cam:1239 kv:14.97 kxf:1500.38 kf:0 kd:1
+02  +1.229 s  hour:9.36 lx:1503 cam:1244 kv:35.95 kxf:1502.87 kf:0 kd:1
+03  +1.694 s  hour:9.37 lx:1510 cam:1270 kv:36.00 kxf:1510.07 kf:2 kd:1
+04  +2.240 s  hour:9.38 lx:1514 cam:1282 kv:36.00 kxf:1513.67 kf:3 kd:1
+05  +2.809 s  hour:9.39 lx:1518 cam:1296 kv:36.00 kxf:1518.47 kf:4 kd:1
+06  +3.691 s  hour:9.42 lx:1530 cam:1323 kv:36.00 kxf:1529.87 kf:1 kd:1
+07  +4.679 s  hour:9.43 lx:1534 cam:1332 kv:36.00 kxf:1534.07 kf:2 kd:1
+08  +5.238 s  hour:9.44 lx:1539 cam:1342 kv:36.00 kxf:1539.47 kf:3 kd:1
+09  +5.766 s  hour:9.45 lx:1543 cam:1349 kv:36.00 kxf:1543.07 kf:4 kd:1
+10  +6.423 s  hour:9.46 lx:1548 cam:1358 kv:36.00 kxf:1548.47 kf:0 kd:1
+11  +6.709 s  hour:9.47 lx:1551 cam:1362 kv:36.00 kxf:1550.87 kf:0 kd:1
+12  +7.209 s  hour:9.48 lx:1556 cam:1369 kv:36.00 kxf:1555.67 kf:1 kd:1
+13  +7.493 s  hour:9.49 lx:1558 cam:1371 kv:36.00 kxf:1558.07 kf:2 kd:1
+14  +7.842 s  hour:9.49 lx:1560 cam:1374 kv:36.00 kxf:1560.47 kf:3 kd:1
+15  +8.296 s  hour:9.50 lx:1565 cam:1378 kv:36.00 kxf:1564.67 kf:4 kd:1
+16  +8.756 s  hour:9.52 lx:1571 cam:1384 kv:36.00 kxf:1570.67 kf:5 kd:1
+17  +9.339 s  hour:9.52 lx:1575 cam:1388 kv:36.00 kxf:1574.87 kf:0 kd:1
+18  +9.836 s  hour:9.53 lx:1579 cam:1393 kv:36.00 kxf:1579.07 kf:1 kd:1
+19  +10.175 s  hour:9.54 lx:1582 cam:1396 kv:36.00 kxf:1582.07 kf:2 kd:1
+20  +10.508 s  hour:9.55 lx:1586 cam:1399 kv:30.19 kxf:1585.52 kf:3 kd:1
+21  +10.815 s  hour:9.55 lx:1587 cam:1400 kv:21.64 kxf:1586.75 kf:3 kd:1
+22  +11.158 s  hour:9.56 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:3 kd:1
+23  +11.514 s  hour:9.57 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+24  +11.931 s  hour:9.58 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+25  +12.414 s  hour:9.59 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+26  +12.803 s  hour:9.59 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+27  +13.218 s  hour:9.61 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+28  +13.771 s  hour:9.62 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+29  +13.991 s  hour:9.62 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+30  +14.246 s  hour:9.63 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+31  +14.738 s  hour:9.63 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+32  +15.064 s  hour:9.64 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+33  +15.350 s  hour:9.65 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+34  +15.806 s  hour:9.66 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+35  +16.172 s  hour:9.67 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+36  +16.653 s  hour:9.67 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:6 kd:1
+37  +16.948 s  hour:9.68 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:7 kd:1
+38  +17.335 s  hour:9.69 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:7 kd:1

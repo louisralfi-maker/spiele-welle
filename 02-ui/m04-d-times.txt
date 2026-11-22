@@ -1,0 +1,30 @@
+m04-d: at night a hold of 0.4 s before him raises his lantern (the flare)
+real time; as fast as the frames come
+the cause (at night a hold of 0.4 s before him raises his lantern (the flare)) was sent at +0.076 s and returned at +1.206 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWStage world -GWNight 2 -GWSeed 2 -GWHour 22 -GWCameraX 2600
+scene before: frame:200 ready day:2 hour:22.35 alive:9 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:30 hud:none cam:2382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none kv:0.00 kxf:2600.00 kf:7 kd:-1 lantern:ready
+scene after: frame:530 ready day:2 hour:22.89 alive:9 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:30 hud:none cam:2382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none kv:0.00 kxf:2600.00 kf:6 kd:-1 lantern:guttering
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.428 s  
+02  +1.696 s  
+03  +1.959 s  
+04  +2.247 s  
+05  +2.559 s  
+06  +2.868 s  
+07  +3.133 s  
+08  +3.409 s  
+09  +3.665 s  
+10  +3.910 s  
+11  +4.143 s  
+12  +4.425 s  
+13  +4.661 s  
+14  +4.887 s  
+15  +5.135 s  
+16  +5.392 s  
+17  +5.620 s  
+18  +5.928 s  
+19  +6.194 s  
+20  +6.477 s  
+mean spacing 0.266 s over 19 gaps

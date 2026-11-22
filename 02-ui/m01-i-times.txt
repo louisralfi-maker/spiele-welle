@@ -1,0 +1,17 @@
+m01-i: out of the hall's inner door: he stands before it in the world, facing west (scene kd:)
+real time; one frame every 0.25 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage hall -GWHallX 76
+scene before: frame:390 ready day:3 hour:10.72 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:91 hud:strip cam:1612 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none kv:0.00 kxf:1830.00 kf:6 kd:-1
+scene after: frame:490 ready day:3 hour:10.90 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:91 hud:strip cam:1612 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none kv:0.00 kxf:1830.00 kf:6 kd:-1
+
+frame  seconds since the burst began  (scene where read)
+01  +0.607 s  
+02  +0.854 s  
+03  +1.120 s  
+04  +1.354 s  
+05  +1.517 s  
+06  +1.712 s  
+07  +1.940 s  
+08  +2.155 s  
+mean spacing 0.221 s over 7 gaps
