@@ -1270,12 +1270,16 @@ final class YardPolishTests: XCTestCase {
     /// and by night; and as before the yard stood.
     func testARecruitMarkNeverRimsAYardThing() {
         let yardThings: Set<SpriteID> = [.yardButt, .yardPell, .yardKettle, .yardGround, .yardSite]
-        func rims(_ s: GameState) -> (yard: Int, barracks: Int, marks: Int) {
+        func rims(_ s: GameState, drill: YardLook.Drill? = nil,
+                  halves: Bool = false) -> (yard: Int, barracks: Int, marks: Int) {
             var list = EntityFrames.PropList()
             list.add(.barracks, x: EntityFrames.barracksLeft, z: -1)
-            EntityFrames.yardProps(s, balance: balance, props: &list)
+            EntityFrames.yardProps(s, balance: balance, props: &list, drill: drill)
             let recruits = TouchThings.world(s, balance: balance, figures: [], talked: []).filter { $0.kind == .recruit }
-            let marks = TouchMarks.marks(recruits, pressed: nil)
+            var marks = TouchMarks.marks(recruits, pressed: nil)
+            // Review: the recruit halves' own middles (1497, 1529) reach the yard's things; the TouchCraft block alone
+            // keeps their rim off them.
+            if halves { for index in marks.indices { marks[index].rimX = nil } }
             var props = list.props
             TouchRims.mark(&props, marks: marks, night: s.hour > 18 || s.hour < 6 ? 1 : 0)
             let yard = props.filter { yardThings.contains($0.sprite) }.map { $0.emissive.filter(\.rim).count }
@@ -1296,8 +1300,26 @@ final class YardPolishTests: XCTestCase {
                 XCTAssertEqual(now.marks, 2, "both recruit halves with the yard, kettle \(kettle), \(hour)")
                 XCTAssertEqual(now.yard, 0, "no rim on a yard thing, kettle \(kettle), \(hour)")
                 XCTAssertEqual(now.barracks, before.barracks, "the barracks keep their rim, kettle \(kettle), \(hour)")
+                let bare = rims(standing, halves: true)
+                XCTAssertEqual(bare.marks, 2)
+                XCTAssertEqual(bare.yard, 0, "a mark rimming at its half's middle skips the yard, kettle \(kettle), \(hour)")
             }
         }
+
+        // Review: the pell leaning under the strike (1 px nearer the bunkhouse's middle) stays unrimmed.
+        var leaning = drill()
+        leaning.gold = 1_000
+        leaning.simTime = 100 * YardLook.guardRound + YardLook.pellStrikeAt + 0.05
+        let pellLeft = YardLook.pellLefts[0]
+        var list = EntityFrames.PropList()
+        EntityFrames.yardProps(leaning, balance: balance, props: &list,
+                               drill: YardLook.Drill(time: leaning.simTime, held: false))
+        XCTAssertEqual(list.props.first { $0.sprite == .yardPell }?.x, pellLeft + 1, "the pell leans on the strike")
+        let lean = rims(leaning, drill: YardLook.Drill(time: leaning.simTime, held: false))
+        XCTAssertEqual(lean.marks, 2, "both recruit halves while they drill")
+        XCTAssertEqual(lean.yard, 0, "no rim on the leaning pell")
+        XCTAssertEqual(rims(leaning, drill: YardLook.Drill(time: leaning.simTime, held: false), halves: true).yard, 0,
+                       "nor from a half's own middle")
     }
 
     // MARK: - C (H3): two different butts
@@ -1474,6 +1496,29 @@ final class YardPolishTests: XCTestCase {
         }
         XCTAssertEqual(YardLook.archerFrame(index: 0, time: clock.time, reduceMotion: false), 3, "held at the draw")
         XCTAssertTrue(YardLook.arrowStuck(index: 0, time: clock.time, reduceMotion: false), "the last one stays")
+    }
+
+    /// Review: the drawn layer keeps an arrow already in the air while the archer holds (`actors` dropped it before);
+    /// before his loose nothing flies, held or not.
+    func testTheLayerDrawsTheArrowInTheAirWhileTheArcherHolds() {
+        let s = drill()
+        XCTAssertTrue(s.soldiers.contains { $0.kind == .archer }, "the drill realm has an archer")
+        func arrows(at time: Double, held: Bool) -> Int {
+            let options = FrameOptions(flickerTime: time)
+            let screen = GameFrameSupport.pro
+            let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
+            let scene = SceneFilter.gameScene(GameFrameSupport.world, state: s)
+            let layer = EntityFrames.layer(state: s, balance: balance, scene: scene,
+                                           camera: Camera(focusX: 1490, pixelScale: pixelScale),
+                                           pixelScale: pixelScale, options: options, animTime: time,
+                                           drill: YardLook.Drill(time: time, held: held))
+            return layer.actors.filter { $0.sprite == .arrow }.count
+        }
+        let flying = 50 * YardLook.archerRound + YardLook.looseAt + 0.2
+        XCTAssertEqual(arrows(at: flying, held: false), 1, "loosed: it flies")
+        XCTAssertEqual(arrows(at: flying, held: true), 1, "a figure steps in: it flies on")
+        let drawing = 50 * YardLook.archerRound + YardLook.looseAt - 0.05
+        XCTAssertEqual(arrows(at: drawing, held: true), 0, "at the draw nothing flies")
     }
 
     /// The archer's hold sees the townsfolk and the soldiers walking by day, by the rule it has for the lord and the
