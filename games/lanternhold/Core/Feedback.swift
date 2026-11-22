@@ -224,8 +224,9 @@ struct FeedbackThinner: Sendable, Equatable {
     }
 
     /// Step 0b: the same cues with the place each came from (the nearest of the frame for a cue heard twice, D1 gate
-    /// M4; nil: everywhere, kept when the first came with none), so a positional cue can be played with law 4's fall-off and pan (`FeedbackHub.play(placed:listenerX:)`;
-    /// D1 switched `GameModel.playCues` to it, in a `LANE-D: D1` block).
+    /// M4; nil: everywhere, kept when the first came with none), so a positional cue can be played with law 4's
+    /// fall-off and pan (`FeedbackHub.play(placed:listenerX:)`; D1 switched `GameModel.playCues` to it, in a
+    /// `LANE-D: D1` block).
     mutating func placedCues(for events: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], time: Double,
                              listenerX: Double) -> [(cue: FeedbackCue, x: Double?)] {
         var wanted: [FeedbackCue] = []

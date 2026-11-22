@@ -916,8 +916,8 @@ struct SoundWatch: Sendable, Equatable {
     init() {}
 
     /// Forget the last state (a new realm, a replayed day, a second chance): the next frame only primes. The walls'
-    /// cracks are forgotten too (D1 gate M3): a replayed night cracks its walls again. A wall already below half only
-    /// cracks again after it stood above half once more, as the next frame primes.
+    /// cracks are forgotten too (D1 gate M3): a replayed night cracks its walls again. A wall already below half does not
+    /// crack at once: the next frame only primes.
     mutating func reset() {
         primed = false
         cracked.removeAll()
