@@ -1,0 +1,40 @@
+m09-a: the horde comes into view; the condition: one creature drawn on screen (seen:1)
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +12.735 s (52 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWNight 1 -GWSeed 1 -GWCameraX 1330 -GWHour 22.5
+
+frame  seconds since the burst began  (scene where read)
+01  +11.357 s  
+02  +11.508 s  day:1 hour:23.72 alive:12 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+03  +11.710 s  
+04  +11.884 s  day:1 hour:23.75 alive:13 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+05  +12.124 s  
+06  +12.288 s  day:1 hour:23.78 alive:14 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+07  +12.517 s  
+08  +12.684 s  day:1 hour:23.81 alive:14 seen:1 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready  <- the condition holds
+09  +12.930 s  
+10  +13.101 s  
+11  +13.276 s  
+12  +13.470 s  
+13  +13.637 s  
+14  +13.825 s  
+15  +13.991 s  
+16  +14.191 s  
+17  +14.391 s  
+18  +14.601 s  
+19  +14.772 s  
+20  +14.949 s  
+21  +15.198 s  
+22  +15.432 s  
+23  +15.611 s  
+24  +15.838 s  
+25  +16.028 s  
+26  +16.226 s  
+27  +16.390 s  
+28  +16.602 s  
+29  +16.790 s  
+30  +16.977 s  
+31  +17.211 s  
+32  +17.378 s  day:1 hour:0.19 alive:12 seen:2 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.194 s over 31 gaps

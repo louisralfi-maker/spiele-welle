@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.FilmNightUITests testM08DuskAndTheHorn]' passed (56.943 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM09TheFirstAttack]' passed (99.145 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawn]' passed (25.644 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM12AnAdOfferAndTheEndCard]' passed (71.853 seconds).
+exit=0
+screenshots: 478
