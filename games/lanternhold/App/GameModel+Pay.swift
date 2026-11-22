@@ -26,7 +26,12 @@ struct CountBoard: Sendable, Equatable {
     static let lowLift = 3
 
     /// This board's bottom over the walk line (a counter's foot is on the ground).
-    var bottom: Int { counter ? 0 : layout.rows >= 2 ? CountBoard.lowLift : CountBoard.lift }
+    var bottom: Int {
+        // b3-yard (build 3, wave 2, lane 2, step 3; the step 2 critic's medium): the yard's board stands on the walk
+        // line over its site, so no stake or cord of the site shows under it and it never floats.
+        if case .yard = act { return 0 }
+        return counter ? 0 : layout.rows >= 2 ? CountBoard.lowLift : CountBoard.lift
+    }
 
     /// The board's left edge and its top (game px over the walk line), and its post's left edge and top (the iron
     /// plate over the board).

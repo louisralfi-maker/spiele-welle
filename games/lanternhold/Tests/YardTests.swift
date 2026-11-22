@@ -567,6 +567,12 @@ final class YardCountTests: XCTestCase {
         XCTAssertLessThanOrEqual(board.left + board.layout.width - 1, Int(EntityFrames.barracksLeft) - 1,
                                  "the board stands clear of the barracks")
         XCTAssertGreaterThan(board.stand, board.x, "he stands on the side he came from")
+        // Step 3 (the step 2 critic's medium): on the walk line, over the site's stakes and cord, never floating.
+        XCTAssertEqual(board.bottom, 0, "the yard's board stands on the walk line")
+        var other = board
+        other.act = .recruit
+        XCTAssertEqual(other.bottom, board.layout.rows >= 2 ? CountBoard.lowLift : CountBoard.lift,
+                       "every other board on its post as before")
         // The review: the gate's models hidden under the board take no touch while it stands.
         for row in game.touch.models where game.yardBoardCovers(row) {
             for model in row.models {
