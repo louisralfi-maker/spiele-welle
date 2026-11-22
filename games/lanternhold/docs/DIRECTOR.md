@@ -1366,3 +1366,10 @@ schneller geht."
     bug; the test helpers try again without hiding a bug).
   - For the phone review: the touch on the lord with a person on or next to him; the pause after an ad, the table and
     the end card (L6b); the yard's open points (the straw puff, the two dark night guards, the pell, the fletch).
+
+- **Wave 2 is in TestFlight's upload: version 1.0.0 build 429 (22.11.2026, 15:27).**
+  - Round tf-lh-4 on be33de3c: build and upload passed ("Upload succeeded"); Apple's processing follows.
+  - Join item 9's diagnosis: both audience failures are the test's (it tapped the old place of a walking Tamsin; she
+    walked onto the lord's spot and kept the touch, as `prefersLord` says). No game bug. The helpers' fix and the
+    tidy-up D4 are under proof in round lh-b3j-22 (6c173054, not pushed).
+  - Idea kept for after the phone review: a person stops an arm's length short of the lord and never walks onto him.
