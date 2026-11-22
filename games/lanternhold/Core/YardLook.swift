@@ -228,6 +228,33 @@ enum YardLook {
         return phases.last?.frame ?? 0
     }
 
+    // MARK: - The gate's rock (step 4, the critic's H1)
+
+    /// The gatehouse's east granite shoulder (`gateRockR`, `SceneLayout.look2GateRock`) bulged into the yard's middle
+    /// and swallowed the kettle by day. While the yard's site shows (from its day) or the yard stands, the scene draws
+    /// the rock's second frame (tools/w3f3art.py `YARD_ROCK_CAP`): the same rock taken back to the east tower's face,
+    /// nothing of it east of `rockEdgeX` higher than `rockRubble` px, its new east edge stepped down in ledges. A realm
+    /// without a site keeps the rock as it was.
+    static let rockFrame = 1
+    static let rockEdgeX = 1468.0
+    static let rockRubble = 8.0
+
+    /// The rock's frame for the realm: the yard's one while the site shows or the yard stands (as `EntityFrames
+    /// .yardProps` draws them), else today's (0).
+    static func rockFrame(_ s: GameState, balance: Balance) -> Int {
+        guard !s.defeated else { return 0 }
+        let yard = s.yard ?? YardState()
+        let shows = yard.stands || yard.orderedStage != nil || s.day >= balance.yard.stageDay
+        return shows ? rockFrame : 0
+    }
+
+    /// Sets the east gate rock's drawn frame in `scene` (the game's filtered scene; picture only).
+    static func setRock(_ scene: inout PlaceholderScene, frame: Int) {
+        for index in scene.props.indices where scene.props[index].sprite == .gateRockR {
+            scene.props[index].frame = frame
+        }
+    }
+
     // MARK: - At night
 
     /// While the yard stands the guards waiting behind the gate stand in file toward it from here (each 7 px further

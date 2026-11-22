@@ -1178,3 +1178,72 @@ final class YardCartTests: XCTestCase {
         }
     }
 }
+
+/// Build 3, wave 2, lane 2, step 4 (the drill yard's polish; the step-3 critic's highs and mediums, the director's
+/// rulings of 22.11.2026, 07:03): picture and staging only. No rule place, number or saved field moves.
+final class YardPolishTests: XCTestCase {
+    private let balance = Balance.standard
+
+    private func realm(day: Int, hour: Double = 10) -> GameState {
+        var s = GameState.newRealm(seed: 2, balance: balance)
+        s.day = day
+        s.hour = hour
+        s.gold = 200
+        return s
+    }
+
+    // MARK: - A (H1): the gate rock gives way to the yard
+
+    /// While the yard's site shows (from its day) or the yard stands, the east gate rock is drawn in its yard frame:
+    /// nothing of it east of world 1468 stands 8 px or more over the walk line (gateRockR.png's frame 1 read back,
+    /// placed where the scene places the rock). A realm without a site keeps today's rock, and the scene is not touched.
+    func testTheGateRockGivesWayToTheYardsSiteAndTheYard() throws {
+        XCTAssertEqual(SpriteID.gateRockR.frameCount, 2, "today's rock and the yard's")
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 1))
+        let rock = try XCTUnwrap(world.props.first { $0.sprite == .gateRockR && $0.plane == .world })
+        XCTAssertEqual(rock.frame, 0, "the scene lays the rock out as it was")
+
+        var s = realm(day: 3)
+        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), 0, "no site before its day: today's rock")
+        var untouched = world
+        YardLook.setRock(&untouched, frame: YardLook.rockFrame(s, balance: balance))
+        XCTAssertEqual(untouched, world, "a realm without a site changes nothing in the scene")
+        s.day = 4
+        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), YardLook.rockFrame, "the site shows: the yard's rock")
+        XCTAssertTrue(Yard.order(&s, .stage(2), balance: balance))
+        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), YardLook.rockFrame, "ordered, waiting for its dawn")
+        Yard.proof(&s, stage: 2, kettle: true, trained: false, balance: balance)
+        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), YardLook.rockFrame, "the yard stands")
+        var given = world
+        YardLook.setRock(&given, frame: YardLook.rockFrame(s, balance: balance))
+        let yardRock = try XCTUnwrap(given.props.first { $0.sprite == .gateRockR && $0.plane == .world })
+        XCTAssertEqual(yardRock.frame, YardLook.rockFrame)
+        XCTAssertEqual(yardRock.x, rock.x, "the rock stays where it stands; only its picture changes")
+        XCTAssertEqual(given.props.filter { $0.sprite != .gateRockR }, world.props.filter { $0.sprite != .gateRockR },
+                       "nothing else in the scene changes")
+
+        let url = try XCTUnwrap(AtlasBuilder.artURL(for: .gateRockR, bundle: .main), "gateRockR.png is in the bundle")
+        let strip = try XCTUnwrap(PNGDecoder.load(url: url))
+        let size = SpriteID.gateRockR.size
+        XCTAssertEqual(strip.width, size.width * 2)
+        func highest(frame: Int, eastOf edge: Double) -> Double {
+            var top = 0.0
+            for x in 0..<size.width where rock.x + Double(x) >= edge {
+                for y in 0..<size.height where strip[frame * size.width + x, y].a > 0 {
+                    top = max(top, rock.y + Double(size.height - y))
+                }
+            }
+            return top
+        }
+        XCTAssertGreaterThan(highest(frame: 0, eastOf: YardLook.rockEdgeX), 30, "today's rock bulges past the tower")
+        XCTAssertLessThan(highest(frame: YardLook.rockFrame, eastOf: YardLook.rockEdgeX), YardLook.rockRubble,
+                          "the yard's rock: nothing east of 1468 as high as 8 px")
+        var west = 0.0
+        for x in 0..<size.width where rock.x + Double(x) < YardLook.rockEdgeX - 4 {
+            for y in 0..<size.height where strip[YardLook.rockFrame * size.width + x, y].a > 0 {
+                west = max(west, Double(size.height - y))
+            }
+        }
+        XCTAssertGreaterThanOrEqual(west, 20, "the shoulder still stands against the tower's face")
+    }
+}

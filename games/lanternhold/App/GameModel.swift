@@ -148,7 +148,9 @@ final class GameModel {
     @ObservationIgnored private var aimingArchers = 0
     /// The game's view of the scene, kept while the beacon's site and the rooms' fades stay as they are (M2b review:
     /// filtered every frame, the whole prop list with its emitters, masks and lights was copied 60 times a second).
-    @ObservationIgnored private var filteredScene: (built: Bool, rooms: CastleRooms.SceneKey, scene: PlaceholderScene)?
+    /// b3-yard (step 4, H1): and while the east gate rock keeps its frame (`YardLook.rockFrame`).
+    @ObservationIgnored private var filteredScene: (built: Bool, rooms: CastleRooms.SceneKey, rock: Int,
+                                                    scene: PlaceholderScene)?
     /// The castle's stage the scene was laid out with (look 2; `growCastle`).
     @ObservationIgnored private var castleStage = CastleStage.standard
     /// Where first light's front stands on screen (0 ... 1), nil when it is not on screen (the scene value's `dawn:`).
@@ -1139,8 +1141,10 @@ final class GameModel {
             // drawn with the rooms cut away as they stand (M3, `CastleRooms.scene`).
             let built = SceneFilter.beaconBuilt(state)
             let rooms = CastleRooms.sceneKey(state: state, rooms: court.rooms)
+            // b3-yard (step 4, the critic's H1): the gate rock gives way to the drill yard's site and the yard.
+            let rock = YardLook.rockFrame(state, balance: game.balance)
             var filtered: PlaceholderScene
-            if let cached = filteredScene, cached.built == built, cached.rooms == rooms {
+            if let cached = filteredScene, cached.built == built, cached.rooms == rooms, cached.rock == rock {
                 filtered = cached.scene
                 filtered.king = KingState(x: state.king.x, facing: state.king.facing, velocity: state.king.velocity)
                 filtered.bankRestingEdge = state.bankEdge
@@ -1148,7 +1152,8 @@ final class GameModel {
             } else {
                 filtered = CastleRooms.scene(SceneFilter.gameScene(scene, state: state), state: state,
                                              rooms: court.rooms)
-                filteredScene = (built: built, rooms: rooms, scene: filtered)
+                YardLook.setRock(&filtered, frame: rock)
+                filteredScene = (built: built, rooms: rooms, rock: rock, scene: filtered)
             }
             var layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
                                            pixelScale: pixelScale, options: options, animTime: animationTime,
