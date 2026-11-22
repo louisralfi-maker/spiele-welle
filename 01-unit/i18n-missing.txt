@@ -1,0 +1,7 @@
+de (1): line.brannock_horn_offer
+fr (5): line.brannock_horn_offer, touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+es (5): line.brannock_horn_offer, touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+it (5): line.brannock_horn_offer, touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+pt-BR (5): line.brannock_horn_offer, touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+ja (5): line.brannock_horn_offer, touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+zh-Hans (5): line.brannock_horn_offer, touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first

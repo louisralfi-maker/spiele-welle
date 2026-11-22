@@ -1,0 +1,5 @@
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheEndOfAnEmptyDay]' passed (65.628 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (170.822 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (49.310 seconds).
+exit=0
+screenshots: 118
