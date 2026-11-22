@@ -373,8 +373,6 @@ extension GameModel {
                                           minimum: place.minimum) else { return false }
         // The lord's own body keeps its touch (the lantern), as `tap(at:)` decides it.
         if isOnLordsBody(place), prefersLord(over: thing, x: place.x) { return false }
-        // Marek's cart while his offer is open: the lift opens his gift card (`tap(at:)`), never a recruit's count.
-        if thing.kind == .recruit, isOnMarekCart(place), merchantOpen?() == true { return false }
         if touch.count?.isOpen == true, touch.count?.thing == thing.id {
             pressCount(thing)
             return true

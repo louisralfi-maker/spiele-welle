@@ -251,7 +251,7 @@ final class TouchCraftTests: XCTestCase {
         XCTAssertLessThan(dusk.z, dusk.x, "warm at night")
     }
 
-    func testAHiddenMarkIsNotDrawnAndTheCartCarriesNoRim() throws {
+    func testAHiddenMarkIsNotDrawnAndTheBarracksKeepTheirRimOnMareksDays() throws {
         var mark = TouchMark(sprite: .tapBuild, x: 100, lift: 22, pressed: false, poolX: 100, kind: .plot)
         let framing = TouchFraming(stage: .world, whole: 0, deviceShift: 0, scale: 6, groundY: 1050,
                                    physicalWidth: 2622, physicalHeight: 1206)

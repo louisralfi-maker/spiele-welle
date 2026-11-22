@@ -74,7 +74,8 @@ struct TouchThing: Sendable, Equatable {
     /// drawn there when it is not the standing place (a wall's: the gate in its gatehouse; the gold rim's).
     var footing: Double? = nil
     var rimX: Double? = nil
-    /// Stage-3-interface: no gold rim on it (the barracks while Marek's cart stands before them).
+    /// Stage-3-interface: no gold rim on it. Nothing sets it since build 3 (Marek's cart stands by the back gate, no
+    /// longer before the barracks); kept for a thing that must carry no rim.
     var noRim = false
     /// Build 3, the count (PAY.md): the recruit this half of the barracks takes on (`touch-recruit-archer`,
     /// `touch-recruit-guard`); nil for everything else.
