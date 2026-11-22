@@ -14,11 +14,13 @@ struct YardLine: Sendable, Equatable {
     /// The things at the yard (VoiceOver and the slip: what a touch there buys).
     static let offerStage = "yard.offer.stage"
     static let offerKettle = "yard.offer.kettle"
+    /// Step 4 (the director's ruling E5): a long list of names cut short, "Wat, Ilse, Odo and 15 more".
+    static let namesMore = "yard.names.more"
 
     /// Every key of the report's yard lines.
     static let reportKeys = [trained, fallen, raised, kettle]
     /// Every key of this file.
-    static let allKeys = reportKeys + [offerStage, offerKettle]
+    static let allKeys = reportKeys + [offerStage, offerKettle, namesMore]
 
     var key: String
     var names: [String] = []
@@ -44,11 +46,24 @@ enum YardText {
         FrontText.string(key, bundle: bundle)
     }
 
-    /// One line in the player's language, the names filled in (one `%@`, the names joined).
+    /// Step 4 (E5): up to this many names are listed in full; from one more on the line reads the first `namesShown`
+    /// and how many more (the dawn card of a whole company named 18 men on four lines).
+    static let namesInFull = 4
+    static let namesShown = 3
+
+    /// One line in the player's language, the names filled in (one `%@`, the names joined, `names(_:)`).
     static func text(_ line: YardLine, bundle: Bundle = .main) -> String {
         let format = string(line.key, bundle: bundle)
         guard !line.names.isEmpty else { return format }
-        return String(format: format, line.names.joined(separator: ", "))
+        return String(format: format, names(line.names, bundle: bundle))
+    }
+
+    /// The names of a line: all of them joined with commas up to `namesInFull`, else the first `namesShown` "and N
+    /// more".
+    static func names(_ names: [String], bundle: Bundle = .main) -> String {
+        guard names.count > namesInFull else { return names.joined(separator: ", ") }
+        let shown = names.prefix(namesShown).joined(separator: ", ")
+        return String(format: string(YardLine.namesMore, bundle: bundle), shown, names.count - namesShown)
     }
 
     /// The dawn report's yard lines in the player's language (none without a yard or with nothing to tell).

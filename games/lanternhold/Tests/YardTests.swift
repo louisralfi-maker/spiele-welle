@@ -1558,4 +1558,24 @@ final class YardPolishTests: XCTestCase {
         EntityFrames.yardProps(s, balance: balance, props: &day)
         XCTAssertTrue(day.lights.isEmpty, "the kettle is cold while they drill: no spill either")
     }
+
+    /// E5: the dawn card lists up to four trained names in full; from five on it reads the first three and "and N
+    /// more" (the words through YardText and Front.xcstrings). The fallen trained men's line takes the same cap.
+    func testTheDawnCardNamesFourInFullAndCutsALongerList() {
+        let company = ["Wat", "Ilse", "Odo", "Bertil", "Edda", "Hob", "Rune", "Tilda", "Ansel", "Mabry", "Cuthbert",
+                       "Wenna", "Gil", "Hesk", "Lorn", "Pell", "Sim", "Ada"]
+        XCTAssertEqual(company.count, 18)
+        XCTAssertNotNil(FrontText.string(YardLine.namesMore, language: "en"), "the words are in the catalog")
+        func trained(_ count: Int) -> String {
+            YardText.text(YardLine(key: YardLine.trained, names: Array(company.prefix(count))))
+        }
+        XCTAssertEqual(trained(1), "Trained: Wat.")
+        XCTAssertEqual(trained(4), "Trained: Wat, Ilse, Odo, Bertil.", "four in full")
+        XCTAssertEqual(trained(5), "Trained: Wat, Ilse, Odo and 2 more.", "from five on: three and the rest counted")
+        XCTAssertEqual(trained(18), "Trained: Wat, Ilse, Odo and 15 more.")
+        XCTAssertEqual(YardText.text(YardLine(key: YardLine.fallen, names: Array(company.prefix(6)))),
+                       "Fallen with the company's coat: Wat, Ilse, Odo and 3 more.", "the fallen line the same")
+        XCTAssertEqual(YardText.text(YardLine(key: YardLine.fallen, names: ["Edda"])),
+                       "Fallen with the company's coat: Edda.")
+    }
 }

@@ -751,6 +751,18 @@
         }
       }
     },
+    "yard.names.more" : {
+      "comment" : "Dawn report, the drill yard's lines: a long list of names cut short (%1$@: the first three names, joined with commas; %2$lld: how many more, always 2 or more).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ and %2$lld more"
+          }
+        }
+      }
+    },
     "yard.offer.kettle" : {
       "comment" : "The drill yard: a thing to buy, its accessibility label. The pitch kettle (Pechkessel): Bram makes it, every archer dips his arrows in its pitch.",
       "extractionState" : "manual",
