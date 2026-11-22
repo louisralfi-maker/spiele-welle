@@ -296,6 +296,15 @@ extension GameModel {
         return left < row.slotLeft + row.slotWidth && row.slotLeft < right
     }
 
+    /// b3-yard (build 3, wave 2, lane 2, step 3; the critic's H1 of step 2): true while a count board stands (its count
+    /// not gone) over the middle of a person standing at `x`: at least half of him is behind the board, so his mark
+    /// (the talk bubble over his head) would float over the board with nobody in sight; it does not show there.
+    func countBoardHides(personAt x: Double) -> Bool {
+        guard let board = touch.countBoard, let count = touch.count, !count.isGone else { return false }
+        let left = Double(board.left)
+        return x >= left && x <= left + Double(board.layout.width) - 1
+    }
+
     /// One row's trestles and models: each model on its trestle's beam at rest, or (step 6, R1) on the counter's cap
     /// while a board stands there, its feet on the cap with 1 px of dark contact shadow under each, the trestles gone;
     /// the chosen one lifted 2 px with its warm rim, the others at `dimmed` of their value; the hop (on arrival, and on

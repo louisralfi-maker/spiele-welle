@@ -49,8 +49,8 @@ struct CourtRoutine: Sendable, Equatable {
 /// The court's places (DESIGN.md "M3 in detail"): a pure function of the day, the hour, the flags and today's queue
 /// that puts every court member and today's guests in the castle, and today's petitioners on the great hall's benches.
 ///
-/// - Odile by the throne in the hall (stepping to her tax lectern beyond the hearth now and then); Brannock between
-///   the courtyard and the gatehouse; Pip wandering the courtyard and the hall; Mother Hesper in the chapel by day and at the hearth at
+/// - Odile by the throne in the hall (stepping to her tax lectern beyond the hearth now and then); Brannock in the
+///   bunkhouse door by the drill yard (b3-yard); Pip wandering the courtyard and the hall; Mother Hesper in the chapel by day and at the hearth at
 ///   night; Tamsin in the kitchen; Bram at the smithy; Marek with his cart in the courtyard on his days (every third
 ///   day, and any day he brings a petition), by day only.
 /// - Seren: waiting at the front gate on the day her petition comes, then from the moment she is let in
@@ -103,13 +103,15 @@ enum CourtLayout {
         // right, as in the art's hall scenes, and never covers the seated lord) and walks round the hearth to her
         // lectern's near side (1894, the lectern from 1908), where she faces it.
         "odile": CourtRoutine(stops: [1858, 1894], faces: [-1, 1], dwell: [14, 6], night: 1860, nightFacing: -1),
-        // b3-yard (build 3, wave 2, lane 2, step 2; the director's leave for this one stop): his second day stop is at
-        // the butt's end of the yard (1472, was 1470), so his talk tag stands a full tag (16 px) clear of the yard
-        // site's and both show. Nowhere else is free: 1420 to 1480 (CourtTests), off the gate's catapult model (1411
-        // to 1435: a person standing on a model takes its touch; round lh-b3y-21 with 1422), off the engine plot's and
-        // the site's middles. The offset (5.5, was 5) keeps his round in step with step 1's at the hour the counts'
-        // tests touch the catapult.
-        "brannock": CourtRoutine(stops: [1428, 1472], faces: [-1, 1], dwell: [9, 9], night: 1424, nightFacing: -1,
+        // b3-yard (build 3, wave 2, lane 2, step 3; the director's pick of 21.11.2026, 17:31, and the critic's H1):
+        // Brannock, the drill master, stands in the bunkhouse door at 1511 ("the captain in his doorway"; the door,
+        // 1505 to 1516, is allowed to him alone), by day and by night. Both day stops are the door: he only turns,
+        // watching the drill westward and the butts eastward (his walk along the line comes in a later step). Step 2's
+        // 1428 stood on the gate's catapult model and against the archer, 1472 before the butt, and the night's 1424
+        // on the catapult model among the waiting guards. Clear of the lord's lane, the site's middle (1456) and its
+        // tag, of every yard thing, more than 8 px from every mark (the barracks' recruit marks 1497 and 1529, the
+        // yard's 1456), and under the arrow's arc (`YardLook`, part C).
+        "brannock": CourtRoutine(stops: [1511, 1511], faces: [-1, 1], dwell: [9, 9], night: 1511, nightFacing: -1,
                                  offset: 5.5),
         "pip": CourtRoutine(stops: [1612, 1690, 1770, 1700], faces: [1, 1, -1, -1], dwell: [5, 4, 7, 3], night: 1880,
                             nightFacing: -1, speed: 22, offset: 11),

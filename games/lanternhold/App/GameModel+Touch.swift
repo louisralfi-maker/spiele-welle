@@ -775,6 +775,8 @@ extension GameModel {
             if touch.errand?.id == id && touch.errand?.stage == stage { marks[index].hidden = true }
             // Build 3: the board stands there; the mark gives way to it.
             if touch.count?.thing == id { marks[index].hidden = true }
+            // b3-yard (build 3, wave 2, lane 2, step 3; the critic's H1): no talk mark over a person behind a board.
+            if marked[index].isPerson && countBoardHides(personAt: marked[index].x) { marks[index].hidden = true }
             if stage == .hall && hornSlip != nil && marked[index].kind == .door { marks[index].hidden = true }
         }
         return marks

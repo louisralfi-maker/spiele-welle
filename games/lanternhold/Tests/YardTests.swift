@@ -588,6 +588,27 @@ final class YardCountTests: XCTestCase {
         XCTAssertEqual(game.touch.countLanterns.filter { $0.outAt == nil }.count, 1, "the site lantern burns on")
         XCTAssertFalse(game.touch.things.contains { $0.id.hasPrefix("touch-yard") }, "nothing more until its dawn")
     }
+
+    /// Step 3 (the critic's H1 of step 2: Brannock's talk mark floated over the yard's board with him hidden behind
+    /// it): no talk mark shows for a person whose middle stands behind a standing board (`countBoardHides`); Brannock in
+    /// the bunkhouse door stands clear of the yard's board.
+    func testNoMarkFloatsOverAPersonBehindABoard() throws {
+        let values = ["GWReset": "YES", "GWSkipOnboarding": "YES", "GWStage": "world", "GWSeed": "2", "GWDay": "4",
+                      "GWClock": "10", "GWCameraX": "\(Int(Yard.plotX) + 40)", "GWGold": "200"]
+        let game = GameModel(args: DebugArgs(values: values), kind: .world, store: SaveStore(directory: directory))
+        game.feedback = SilentFeedback()
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        run(game, seconds: 0.3)
+        let door = try XCTUnwrap(CourtLayout.routines["brannock"]?.stops.first)
+        XCTAssertFalse(game.countBoardHides(personAt: door), "no board stands yet")
+        let site = try XCTUnwrap(game.touch.things.first { $0.id == "touch-yard" })
+        game.touchThing(site)
+        let board = try XCTUnwrap(game.touch.countBoard)
+        let middle = Double(board.left) + Double(board.layout.width) / 2
+        XCTAssertTrue(game.countBoardHides(personAt: middle), "a person behind the board's middle shows no mark")
+        XCTAssertFalse(game.countBoardHides(personAt: Double(board.left - 1)), "beside it he keeps it")
+        XCTAssertFalse(game.countBoardHides(personAt: door), "Brannock in the door is clear of the yard's board")
+    }
 }
 
 /// The drill yard's layout and look (build 3, wave 2, lane 2, steps 2 and 3; `YardLook`, tools/yardart.py): every thing
@@ -978,7 +999,9 @@ final class YardLookTests: XCTestCase {
     func testTheSitesMarkShowsBesideTheBarracks() throws {
         let s = realm(day: 4)
         let body = try XCTUnwrap(Speakers.speaker("brannock")).body
-        let brannock = DrawnFigure(who: "brannock", key: "brannock", body: body, x: 1472, y: 0, facing: 1, frame: 0,
+        // Step 3: Brannock in the bunkhouse door (his day stop, `CourtLayout.routines`).
+        let door = try XCTUnwrap(CourtLayout.routines["brannock"]?.stops.first)
+        let brannock = DrawnFigure(who: "brannock", key: "brannock", body: body, x: door, y: 0, facing: 1, frame: 0,
                                    alpha: 1, look: nil, petition: nil, talking: false)
         let things = TouchThings.world(s, balance: balance, figures: [brannock], talked: [])
         XCTAssertTrue(things.contains { $0.id == "touch-yard" })
