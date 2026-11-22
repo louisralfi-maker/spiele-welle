@@ -1,0 +1,32 @@
+2026-11-22 20:08:21.017446+0000 Lanternhold[10744:46591] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-22 20:08:22.783513+0000 Lanternhold[10744:47117] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:08:22.785772+0000 Lanternhold[10744:47123] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:08:22.929070+0000 Lanternhold[10744:47118] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:08:22.929310+0000 Lanternhold[10744:47123] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:08:22.946915+0000 Lanternhold[10744:47123] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:08:22.947025+0000 Lanternhold[10744:47123] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.MotionTests testANormalPresenceComesInAQuarterAndGoesInFifteenHundredths]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.MotionTests testAQuickPresenceIsWholeAtFifteenHundredthsWithinOneFrame]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.MotionTests testEachCurveRunsFromZeroToOneAndNeverGoesBack]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.MotionTests testEaseOutIsAheadOfLinearAndEaseInBehind]' passed (0.003 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/MotionTests.swift:151: error: -[LanternholdTests.MotionTests testGoingItFadesInPlaceAndTurnedRoundItNeverJumps] : XCTAssertLessThanOrEqual failed: ("2") is greater than ("1") - it goes in place
+Test Case '-[LanternholdTests.MotionTests testGoingItFadesInPlaceAndTurnedRoundItNeverJumps]' failed (0.046 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheCurveInvertsItself]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheCurvesControlPoints]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheFollowFromRestApproachesWithoutTurning]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheFollowIsTheCamerasSpring]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheFollowIsTheSameCurveAtAnyStep]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheFollowNeverOvershootsAndSettlesWithinTheSettleToken]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheFourTokens]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.MotionTests testThePaneRisesTwoGamePixelsInWholeSteps]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.MotionTests testThePresenceComesOnTheEaseOutAndGoesOnTheEaseIn]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheRiseRunsTwoOneZeroInWholePixels]' passed (0.153 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheSameSecondsGiveTheSameValues]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.MotionTests testTheSwiftUIDurationsAreCoresTokens]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.MotionTests testUnderReduceMotionTheFollowSitsOnItsTarget]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.MotionTests testUnderReduceMotionThereIsNoRiseAndTheAlphaStillArrivesAtQuick]' passed (0.024 seconds).
+Test Suite 'MotionTests' failed at 2026-11-22 20:08:24.959.
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-22 20:08:24.959.
+Test Suite 'Selected tests' failed at 2026-11-22 20:08:24.960.
+exit=65
+screenshots: 0
