@@ -555,9 +555,11 @@ final class GameModel {
 
     /// The frame's cues, thinned (`FeedbackThinner`), to the feedback hub.
     private func playCues(_ frameEvents: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], state: GameState) {
-        for cue in thinner.cues(for: frameEvents, extra: extra, time: clock.elapsed, listenerX: state.king.x) {
-            feedback.play(cue)
+        // LANE-D: D1 (law 4's space: every positional cue with its x, faded and panned by the hub)
+        for placed in thinner.placedCues(for: frameEvents, extra: extra, time: clock.elapsed, listenerX: state.king.x) {
+            feedback.play(placed: placed, listenerX: state.king.x)
         }
+        // LANE-D end
     }
 
     /// Where the listener is for the ambience (DESIGN.md "Sound and haptics"): the great hall while the lord is on

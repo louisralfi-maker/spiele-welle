@@ -16,29 +16,58 @@ import Foundation
 // | bubbleClose  | B3 (LANE-B block in closeTalk, Court.swift)  | 1    | tap (law)     | 0.30 | 0.85 | -26.5 | none          |
 // | plaquePress  | C1 (GlassPlaqueStyle on press); B4 plaques   | 1    | tap           | 0.42 | 1.20 | -23.5 | selection     |
 // | boardSet     | B (GameModel+Pay, the board rises), D2       | 1    | knock (law)   | 0.40 | 0.62 | -22.8 | soft 0.3      |
-// | hit(x)       | A3 (BattleEffects' hp watch), D1             | 2    | creature_hit  | 0.80 | 1.00 | -18.9 | none          |
-// | manHit(x)    | A3 (a soldier's hp drop), D1                 | 2    | creature_hit  | 0.80 | 0.80 | -18.9 | none          |
+// | hit(x)       | D1 SoundWatch (a creature's hp drop); A3     | 2    | creature_hit  | 0.95 | 1.00 | -17.4 | none          |
+// | manHit(x)    | D1 SoundWatch (a soldier's hp drop); A3      | 2    | grunt_1 / _2  | 0.55 | 1.00 | -18.0 | none          |
 // | dawnGate     | A5 (the portcullis slides up), D2            | 2    | gate (law)    | 0.60 | 1.05 | -23.2 | none          |
 // | buildStood   | A2 (the swap at the dust's peak), D2         | 3    | build_done    | 0.90 | 1.00 | -15.3 | success       |
-// | manFell      | A3 (the fallen man's ghost), D1              | 3    | wall_hit      | 0.85 | 0.80 | -15.5 | heavy         |
+// | manFell(x)   | D1 SoundWatch (a new name on tonight's fallen)| 3   | man_fall      | 0.70 | 1.00 | -14.4 | heavy         |
+// | wallCracked  | D1 SoundWatch (a wall below half, once/night)| 3    | wall_crack    | 0.95 | 1.00 | -15.4 | medium        |
 // | dawnHeld     | E2 (the card lands, no man lost)             | 3    | bell (law)    | 0.50 | 0.90 | -23.3 | success       |
 // | dawnToll     | E2 (once per fallen man, at most 3)          | 3    | bell (law)    | 0.50 | 0.55 | -23.3 | heavy         |
 //
 // - A position rides on the play call, `FeedbackHub.play(_:at:listenerX:)` (law 4's fall-off and pan, `SoundSpace`);
 //   the dawn verdict's outcome rides on its two cases (`DawnVerdict.cues(fallen:)` picks and spaces them).
+// - D1, the night's other blows on the ladder (not new cues; their files stay): arrowHit step 2 arrow_hit 0.75
+//   (-19.7), wallHit step 2 wall_hit 0.6 (-18.5, medium at most every 0.3 s), creatureDissolved step 2 dissolve 1.0
+//   (-17.5; law 4's kills' chain, +1 semitone a kill to +7 with its hand soft growing 0.35 to 1, is NOT built: a
+//   player's rate stretches time and keeps the pitch, so it would quicken the kills; D1 gate M2, the director's call),
+//   wallBroken step 4 wall_break 1.0 (-11.4, heavy, heavy again 0.12 s later, the beds x 0.25 held 1.5 s and back
+//   over 2 s). Beyond its hearing a positional cue fades from 0.35 to nothing over a further half of it, and gives
+//   no haptic and no answer duck there (D1 gate M5). A blow (hit, manHit) is heard 440 px far (D1 gate M1).
+// - D1, the battle duck: the hub notes every placed blow, fall, crack and kill; one heard within 300 px of the lord in
+//   the last 1.2 s ducks the beds x 0.6 (`FightNear`, `BedDucks.battleNear`); the deepest duck still wins.
+// - D1, the soldiers' grunts sit behind one switch, `FeedbackCue.soldierGrunts` (Louis, 22.11.: out again if they
+//   sound artificial); off, a man struck plays arrow_hit 0.75.
 // - Steps 3 and 4 are never randomised (`AnswerSize.jitters`) and set off the answer ducks in the hub (`BedDucks`).
 // - The law's own numbers stand where its measure disagrees: the bubble close (-26.5), the dawn's bells and the dawn
 //   gate (whole-file RMS reads a long bell or gate tail quieter than its strike). D2 judges them by ear.
-// - When A2 calls `buildStood` and A3 `manFell`, the simulation's `buildDone` and `soldierFell` go quiet in the same
-//   step (D1/D2), so nothing plays twice.
+// - D1 retired `soldierFell` (the thinner maps the event to nothing; `SoundWatch` plays `manFell` at the man's x) and
+//   `creatureHit` (`SoundWatch` plays `hit`): both cues stay as cases and are silent. When A2 calls `buildStood`, the
+//   simulation's `buildDone` goes quiet in the same step (D2), so nothing plays twice.
 // - Old calls a new cue retires, in the caller's step (they share a file and its throttle, so the one called first in
 //   a frame would swallow the other and both haptics would fire):
 //   - B1: `lanternUp` replaces `play(.touched)` on the raise (`GameModel+Lantern.swift`, `openLanternMoment`); both
 //     play tap.wav under its 0.06 s throttle.
-//   - C1 (with lanes B and E for their call sites): `paneOpen` / `paneClose` replace `cardOpened` / `cardClosed`
-//     wherever a pane comes or goes; both pairs play tap.wav.
-//   - A3 with D1: `hit(x)` replaces `SoundWatch`'s `creatureHit` for the same blow (`Core/SoundCues.swift`,
-//     `SoundWatch`); both play creature_hit.wav under one 0.3 s throttle, so the heard volume would follow call order.
+//   - C1: `paneOpen` / `paneClose`, played from `OverlayView` on the overlay's change, replace `cardOpened` /
+//     `cardClosed`, which D1 made quiet in the hub (no sound, no haptic; the cases stay, so no call site changes).
+//     One touch, one tick: a pane cue within 0.25 s after a `plaquePress` plays its sound and no haptic.
+//     The old pair's call sites (read at 696eec4a) and whether the overlay changes in the same deed:
+//       covered (the overlay changes, so C1's pane cue answers):
+//         GameModel+Lord.swift confirmLord (cardClosed, overlay lordEntry -> nil)
+//         GameModel+Court.swift endAudience (cardClosed, audience -> nil)
+//         GameModel.swift openCard (cardOpened, nil -> build/recruit) and closeCard (cardClosed, card -> nil)
+//         Slides/GameModel+Endings.swift beginAgainNow (cardClosed, -> pause)
+//       silent now (no overlay change; the director decides who answers them):
+//         GameModel+Court.swift talk (cardOpened twice: the bubble opens, in the hall and in the world)
+//         GameModel+Touch.swift the bench's bubble (cardOpened)
+//         GameModel+Collector.swift Saul's bubble (cardOpened)
+//         GameModel+Table.swift sendErrand (cardOpened) and readTableReport (cardClosed): the Table is no overlay
+//         LordEntryView.swift a portrait chosen (cardOpened; a plaque press once C1 makes it a GlassPlaqueStyle)
+//         Slides/GameModel+Slides.swift turnSlide and skipSlides (cardClosed): the slides are no overlay
+//         Slides/GameModel+Endings.swift holdTheRealmNow (cardClosed; the end card is no overlay)
+//         Ads/AdDirector.swift openMerchantCard and closeMerchantCard (Marek's card is no overlay)
+//   - D1 did it: `SoundWatch` plays `hit(x)` where it played `creatureHit`; A3 later moves the call to its contact
+//     frame and takes the watch's line out in the same step.
 
 /// What the player hears and feels (DESIGN.md "Feel": sound effects and haptics only, synthesized in code, never music
 /// and no melodic jingles). M6 plays them through the feedback hub; until then the hub is silent, but every moment of
@@ -73,6 +102,8 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     case lanternUp, lanternDown, paneOpen, paneClose, bubbleClose, plaquePress, boardSet
     case hit, manHit, dawnGate
     case buildStood, manFell, dawnHeld, dawnToll
+    // Polish step D1: a wall falls below half (`SoundWatch`, once a wall and night; positional)
+    case wallCracked
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").
@@ -81,6 +112,8 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
         case .volley, .fireArrow, .ballista, .catapult, .creatureDissolved, .glancedOff, .stomp: return true
         case .wallHit, .creatureHit, .arrowHit: return true
         case .hit, .manHit: return true
+        // D1: a man's fall and a wall's crack are heard from where they happen, panned, and fade over a wide reach.
+        case .manFell, .wallCracked: return true
         default: return false
         }
     }
@@ -89,11 +122,17 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     var hearing: Double {
         switch self {
         case .volley, .fireArrow, .creatureDissolved, .arrowHit: return 220
-        case .creatureHit, .hit, .manHit: return 240
+        case .creatureHit: return 240
+        // D1 gate M1: a blow is heard about one screen far (a screen is about 440 px), so one 100 px away still clears
+        // the ducked night bed by 3 dB (at 240 only blows within about 70 px did).
+        case .hit, .manHit: return 440
         case .glancedOff: return 260
         case .wallHit: return 420
         case .ballista, .catapult: return 300
         case .stomp: return 420
+        // D1: a step 3 loss carries about two screens (a screen is about 440 px): from the courtyard and the hall's
+        // door over the walls (640 ... 1300), faded out by 1350 px.
+        case .manFell, .wallCracked: return 900
         default: return .infinity
         }
     }
@@ -107,12 +146,13 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
         case .glancedOff: return 0.25
         case .ballista: return 0.3
         case .catapult, .stomp: return 0.35
-        case .buildDone, .soldierFell: return 0.4
+        case .buildDone, .soldierFell, .manFell: return 0.4
         case .hearthHit: return 1
         case .coin, .arrowHit: return 0.12
         case .paid, .step: return 0.15
         case .wallHit: return 0.3
-        case .creatureHit: return 0.35
+        case .creatureHit, .hit, .manHit: return 0.35
+        case .wallCracked: return 0.3
         case .gate: return 0.5
         default: return 0
         }
@@ -140,7 +180,8 @@ struct FeedbackThinner: Sendable, Equatable {
         case .stomp(let x): return (.stomp, x)
         case .wallBroken: return (.wallBroken, nil)
         case .hearthHit: return (.hearthHit, nil)
-        case .soldierFell: return (.soldierFell, nil)
+        // D1: retired; `SoundWatch` plays `manFell` at the man's place (the event carries no x).
+        case .soldierFell: return nil
         case .defeat: return (.defeat, nil)
         case .beaconLit: return (.beaconLit, nil)
         case .kingAuraBroken: return (.kingAuraBroken, nil)
@@ -163,7 +204,7 @@ struct FeedbackThinner: Sendable, Equatable {
     static func rank(_ cue: FeedbackCue) -> Int {
         switch cue {
         case .defeat, .kingSlain, .beaconLit, .horn, .firstLight, .taxesCounted: return 0
-        case .wallBroken, .soldierFell, .kingAuraBroken, .hearthHit, .stomp, .gate, .manFell: return 1
+        case .wallBroken, .soldierFell, .kingAuraBroken, .hearthHit, .stomp, .gate, .manFell, .wallCracked: return 1
         case .buildOrdered, .buildDone, .recruited, .patched, .brazierLit, .coin, .paid, .buildStood: return 2
         case .ballista, .catapult, .glancedOff, .wallHit: return 3
         default: return 4
@@ -182,9 +223,10 @@ struct FeedbackThinner: Sendable, Equatable {
         placedCues(for: events, extra: extra, time: time, listenerX: listenerX).map { $0.cue }
     }
 
-    /// Step 0b: the same cues with the place each came from (the first of the frame for a cue heard twice; nil:
-    /// everywhere), so a positional cue can be played with law 4's fall-off and pan (`FeedbackHub.play(_:at:listenerX:)`;
-    /// D1 switches `GameModel.playCues` to it).
+    /// Step 0b: the same cues with the place each came from (the nearest of the frame for a cue heard twice, D1 gate
+    /// M4; nil: everywhere, kept when the first came with none), so a positional cue can be played with law 4's
+    /// fall-off and pan (`FeedbackHub.play(placed:listenerX:)`; D1 switched `GameModel.playCues` to it, in a
+    /// `LANE-D: D1` block).
     mutating func placedCues(for events: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], time: Double,
                              listenerX: Double) -> [(cue: FeedbackCue, x: Double?)] {
         var wanted: [FeedbackCue] = []
@@ -195,10 +237,14 @@ struct FeedbackThinner: Sendable, Equatable {
         }
         found.append(contentsOf: extra)
         for (cue, x) in found {
-            if let x, cue.isPositional, abs(x - listenerX) > cue.hearing { continue }
+            // D1: a positional cue is heard to the end of its edge (1.5 x its hearing), faded by `SoundSpace`.
+            if let x, cue.isPositional, !SoundSpace.heard(distance: x - listenerX, hearing: cue.hearing) { continue }
             if !wanted.contains(cue) {
                 wanted.append(cue)
                 if let x { places[cue] = x }
+            } else if let x, let kept = places[cue], abs(x - listenerX) < abs(kept - listenerX) {
+                // D1 gate M4: the nearest place of the frame, so a faint blow at the edge never takes a near one's slot.
+                places[cue] = x
             }
         }
         if wanted.contains(.taxesCounted) { wanted.removeAll { $0 == .coin } }

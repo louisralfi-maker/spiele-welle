@@ -10,7 +10,7 @@ protocol FeedbackHub: AnyObject {
     var hapticsOn: Bool { get set }
     func play(_ cue: FeedbackCue)
     /// Step 0b: a cue that happens at `x` (game px) for a lord at `listenerX`: law 4's fall-off and pan
-    /// (`SoundSpace`); nothing beyond the cue's hearing.
+    /// (`SoundSpace`); beyond the cue's hearing it fades out over a further half of it (D1).
     func play(_ cue: FeedbackCue, at x: Double, listenerX: Double)
     /// One coin of the count (build 3, PAY.md section 2): the clink at playback rate `rate` (each coin a little higher,
     /// at most an octave in all) and a tick of `strength` (0 ... 1, growing through the count). Never throttled away:
@@ -29,6 +29,28 @@ protocol FeedbackHub: AnyObject {
     /// where they stand over the settle time.
     func startTitleBeds()
     func stopTitleBeds()
+}
+
+/// 0b's L6: the requirements step 0b added have defaults, so a hub of another lane still builds. A hub without a
+/// place plays the cue where it stands; one without title beds stays silent under the title.
+extension FeedbackHub {
+    func play(_ cue: FeedbackCue, at x: Double, listenerX: Double) {
+        play(cue)
+    }
+
+    func startTitleBeds() {}
+
+    func stopTitleBeds() {}
+
+    /// D1: one of the thinner's placed cues (`FeedbackThinner.placedCues`): a positional cue with its x through law 4's
+    /// space, every other one as made (a cue that is not positional is never panned, 0b's L4).
+    func play(placed: (cue: FeedbackCue, x: Double?), listenerX: Double) {
+        if let x = placed.x, placed.cue.isPositional {
+            play(placed.cue, at: x, listenerX: listenerX)
+        } else {
+            play(placed.cue)
+        }
+    }
 }
 
 /// The hub of tests and UI test launches: it plays nothing and remembers what reached it.

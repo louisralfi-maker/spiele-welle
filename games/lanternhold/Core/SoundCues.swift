@@ -26,6 +26,9 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     // The count's step 3 (the director's call 9, M-e): the seal rendered deep (tools/soundsynth.py `seal_low`, the seal
     // resampled down), played as made; a player's rate only stretched it in time
     case sealLow = "seal_low"
+    // Polish step D1 (tools/polishsound.py; law 4's sounds): a man falls (a body on packed earth and a chink of mail), a
+    // man struck (two wordless grunts, played in turn), a wall splitting below half
+    case manFall = "man_fall", grunt1 = "grunt_1", grunt2 = "grunt_2", wallCrack = "wall_crack"
 
     static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall,
                                    .ambThroat, .ambBailey, .ambValley, .ambRiver]
@@ -62,8 +65,20 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
              .coinP10, .coinP11, .coinP12:
             return 0.04
         case .tap: return 0.06
+        // D1: a fall and a crack are rare; the grunts share one throttle (`throttleKey`): at most one every 0.5 s.
+        case .manFall, .wallCrack: return 0.25
+        case .grunt1, .grunt2: return FeedbackGate.gruntSpacing
         case .ambDay, .ambNight, .ambRain, .ambFire, .ambHall: return 0
         case .ambThroat, .ambBailey, .ambValley, .ambRiver: return 0
+        }
+    }
+
+    /// The key the throttle counts this sound under: its own name, except the two grunts, which share one (at most one
+    /// grunt every 0.5 s, whichever file; D1).
+    var throttleKey: String {
+        switch self {
+        case .grunt1, .grunt2: return "grunt"
+        default: return rawValue
         }
     }
 
@@ -82,7 +97,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     var varies: Bool {
         switch self {
         case .bow, .arrowHit, .creatureHit, .dissolve, .coin, .coins, .step1, .step2, .wallHit, .tap, .buildStart,
-             .knock:
+             .knock, .grunt1, .grunt2:
             return true
         default:
             return false
@@ -114,12 +129,16 @@ extension FeedbackCue {
         case .fireArrow: return SoundPlay(id: .bow, volume: 0.5, rate: 0.92)
         case .ballista: return SoundPlay(id: .engine, volume: 0.7)
         case .catapult: return SoundPlay(id: .engine, volume: 0.8, rate: 0.85)
-        case .creatureDissolved: return SoundPlay(id: .dissolve, volume: 0.55)
+        // D1 (law 4, step 2): a kill at -17.5 dBFS (was 0.55, -22.7); the kills' chain is not built (`FeedbackGate`).
+        case .creatureDissolved: return SoundPlay(id: .dissolve, volume: 1)
         case .glancedOff: return SoundPlay(id: .arrowHit, volume: 0.5, rate: 1.3)
         case .stomp: return SoundPlay(id: .wallHit, volume: 0.8, rate: 0.7)
-        case .wallBroken: return SoundPlay(id: .wallBreak, volume: 0.95)
+        // D1 (law 4, step 4): the re-made breach with its sub thud at -11.4 dBFS (inside -12 ... -10).
+        case .wallBroken: return SoundPlay(id: .wallBreak, volume: 1)
         case .hearthHit: return SoundPlay(id: .lantern, volume: 0.55, rate: 0.75)
-        case .soldierFell: return SoundPlay(id: .wallHit, volume: 0.4, rate: 1.25)
+        // D1: retired. `SoundWatch` plays `manFell` at the man's place instead (the event carries no x), and the
+        // thinner maps the event to nothing, so the fall never plays twice.
+        case .soldierFell: return nil
         case .defeat: return SoundPlay(id: .horn, volume: 0.9, rate: 0.8)
         case .beaconLit: return SoundPlay(id: .lantern, volume: 1, rate: 0.6)
         case .kingAuraBroken: return SoundPlay(id: .bell, volume: 0.6, rate: 1.5)
@@ -132,15 +151,19 @@ extension FeedbackCue {
         case .recruited: return SoundPlay(id: .seal, volume: 0.6)
         case .patched: return SoundPlay(id: .buildStart, volume: 0.6, rate: 1.1)
         case .brazierLit: return SoundPlay(id: .lantern, volume: 0.75)
-        case .cardOpened: return SoundPlay(id: .tap, volume: 0.55)
-        case .cardClosed: return SoundPlay(id: .tap, volume: 0.45, rate: 0.85)
+        // D1 (law 4, one touch, one tick): the old pair is quiet in the hub (no sound, no haptic); lane C plays
+        // `paneOpen` / `paneClose` from `OverlayView` on the overlay's change. The cases stay, so no call site changes;
+        // the call sites and whether the overlay changes with them are listed at the top of Core/Feedback.swift.
+        case .cardOpened, .cardClosed: return nil
         case .refused: return SoundPlay(id: .decline, volume: 0.6)
         case .happinessUp, .happinessDown: return nil
         case .coin: return SoundPlay(id: .coin, volume: 0.55)
         case .paid: return SoundPlay(id: .coins, volume: 0.5, rate: 1.08)
         case .wallHit: return SoundPlay(id: .wallHit, volume: 0.6)
-        case .creatureHit: return SoundPlay(id: .creatureHit, volume: 0.45)
-        case .arrowHit: return SoundPlay(id: .arrowHit, volume: 0.45)
+        // D1: retired. `SoundWatch` plays `hit` (the contract's cue, with its x) for the same blow.
+        case .creatureHit: return nil
+        // D1 (law 4, step 2): an arrow's or a bolt's landing at -19.7 dBFS (was 0.45, -24.1).
+        case .arrowHit: return SoundPlay(id: .arrowHit, volume: 0.75)
         case .gate: return SoundPlay(id: .gate, volume: 0.8)
         case .step: return SoundPlay(id: .step1, volume: 0.3)
         case .audienceOpened: return SoundPlay(id: .parchment, volume: 0.6)
@@ -166,15 +189,27 @@ extension FeedbackCue {
         case .bubbleClose: return SoundPlay(id: .tap, volume: 0.3, rate: 0.85)
         case .plaquePress: return SoundPlay(id: .tap, volume: 0.42, rate: 1.2)
         case .boardSet: return SoundPlay(id: .knock, volume: 0.4, rate: 0.62)
-        case .hit: return SoundPlay(id: .creatureHit, volume: 0.8)
-        case .manHit: return SoundPlay(id: .creatureHit, volume: 0.8, rate: 0.8)
+        // D1 (law 4, step 2): a blow on a creature at -17.4 dBFS, over the night bed under the battle duck; a man
+        // struck grunts at -18.0 / -19.0 (grunt_1 / grunt_2, in turn, at most one every 0.5 s), or, with the grunts
+        // switched off, the body blow of an arrow's landing.
+        case .hit: return SoundPlay(id: .creatureHit, volume: 0.95)
+        case .manHit:
+            return FeedbackCue.soldierGrunts ? SoundPlay(id: .grunt1, volume: 0.55)
+                : SoundPlay(id: .arrowHit, volume: 0.75)
         case .dawnGate: return SoundPlay(id: .gate, volume: 0.6, rate: 1.05)
         case .buildStood: return SoundPlay(id: .buildDone, volume: 0.9)
-        case .manFell: return SoundPlay(id: .wallHit, volume: 0.85, rate: 0.8)
+        // D1 (law 4, step 3): man_fall at -14.4 dBFS; the step's duck (beds x 0.7 for 0.7 s) comes with it.
+        case .manFell: return SoundPlay(id: .manFall, volume: 0.7)
+        // D1 (law 4, step 3): a wall below half splits at -15.4 dBFS.
+        case .wallCracked: return SoundPlay(id: .wallCrack, volume: 0.95)
         case .dawnHeld: return SoundPlay(id: .bell, volume: 0.5, rate: 0.9)
         case .dawnToll: return SoundPlay(id: .bell, volume: 0.5, rate: 0.55)
         }
     }
+
+    /// Polish step D1: the soldiers' wordless grunts (Louis allowed wordless sounds for crowds and soldiers, 22.11.2026;
+    /// they come out again if they sound artificial). False: a man struck plays the arrow's body blow instead.
+    static let soldierGrunts = true
 
     /// The haptic of a cue, nil for none.
     var haptic: HapticKind? {
@@ -200,6 +235,8 @@ extension FeedbackCue {
         case .plaquePress: return .selection
         case .buildStood, .dawnHeld: return .success
         case .manFell, .dawnToll: return .heavy
+        // D1 (law 4, step 3): a wall cracked below half.
+        case .wallCracked: return .medium
         default: return nil
         }
     }
@@ -216,12 +253,23 @@ extension FeedbackCue {
     }
 
     /// The cue's step on law 4's ladder (`AnswerSize`); nil for the cues made before the ladder (they keep their levels
-    /// until D2 re-levels them, and set off no answer duck).
+    /// until D2 re-levels them, and set off no answer duck). D1 put the night's blows, kills, crack and breach on it.
     var answerSize: AnswerSize? {
         switch self {
         case .lanternUp, .lanternDown, .paneOpen, .paneClose, .bubbleClose, .plaquePress, .boardSet: return .touch
         case .hit, .manHit, .dawnGate: return .deed
+        case .arrowHit, .wallHit, .creatureDissolved: return .deed
         case .buildStood, .manFell, .dawnHeld, .dawnToll: return .triumph
+        case .wallCracked: return .triumph
+        case .wallBroken: return .realm
+        default: return nil
+        }
+    }
+
+    /// Law 4's step 4 hand: a second heavy this many seconds after the first (D1: the breach).
+    var hapticEcho: Double? {
+        switch self {
+        case .wallBroken: return 0.12
         default: return nil
         }
     }
@@ -305,6 +353,10 @@ struct CueAnswer: Sendable, Equatable {
     var hapticStrength: Double
     var sound: SoundPlay?
     var jitter: Bool
+    /// D1 (0b's L1): the answer duck this cue lays on the beds (step 3 or 4), only when its sound really plays.
+    var duck: AnswerSize? = nil
+    /// D1: the haptic again this many seconds later (law 4's step 4: heavy, then heavy again after 0.12 s).
+    var echo: Double? = nil
 }
 
 /// The hub's decisions for a cue, pure (`SoundDirector` applies them; tests read them): the settings, the throttles per
@@ -313,46 +365,90 @@ struct FeedbackGate: Sendable, Equatable {
     private var sounds = SoundThrottle()
     private var haptics = SoundThrottle()
     private var stepFlip = false
+    /// D1: the grunts alternate; the last plaque press.
+    private var gruntFlip = false
+    private var pressAt: Double?
+
+    /// At most one grunt every this many seconds (D1).
+    static let gruntSpacing = 0.5
+    /// One touch, one tick (law 4, the director's call of 22.11.): a pane cue this soon after a plaque press plays its
+    /// sound and no haptic.
+    static let oneTouch = 0.25
 
     init() {}
+
+    /// The pane cues the one-tick rule quiets in the hand.
+    static func isPane(_ cue: FeedbackCue) -> Bool {
+        cue == .paneOpen || cue == .paneClose
+    }
 
     /// The haptic a cue gives with the Haptics switch at `hapticsOn`, throttles aside: nil when the switch is off.
     static func haptic(_ cue: FeedbackCue, hapticsOn: Bool) -> HapticKind? {
         hapticsOn ? cue.haptic : nil
     }
 
-    mutating func answer(_ cue: FeedbackCue, soundOn: Bool, hapticsOn: Bool, now: Double) -> CueAnswer {
+    /// What the hub plays for `cue` at `now`. `near`: the cue happens within its hearing of the lord. Beyond it, at
+    /// the edge of hearing, only the faded sound comes: no haptic and no answer duck (D1 gate M5, law 4: at its size
+    /// and never larger).
+    mutating func answer(_ cue: FeedbackCue, soundOn: Bool, hapticsOn: Bool, now: Double, near: Bool = true) -> CueAnswer {
         var answer = CueAnswer(haptic: nil, hapticStrength: cue.hapticStrength, sound: nil, jitter: false)
-        if let haptic = FeedbackGate.haptic(cue, hapticsOn: hapticsOn),
+        // One touch, one tick: the press's own tick stands for the pane it opens or closes.
+        var afterPress = false
+        if FeedbackGate.isPane(cue), let at = pressAt, now >= at, now - at <= FeedbackGate.oneTouch { afterPress = true }
+        if cue == .plaquePress { pressAt = now }
+        if !afterPress, near, let haptic = FeedbackGate.haptic(cue, hapticsOn: hapticsOn),
            haptics.allow(cue.rawValue, gap: cue.hapticGap, now: now) {
             answer.haptic = haptic
+            answer.echo = cue.hapticEcho
         }
         guard soundOn, var sound = cue.sound else { return answer }
         if sound.id == .step1 {
             stepFlip.toggle()
             if !stepFlip { sound.id = .step2 }
         }
-        guard sounds.allow(sound.id.rawValue, gap: sound.id.minimumInterval, now: now) else { return answer }
+        if afterPress {
+            // The pane's sound plays although the press's tap is still inside tap.wav's throttle.
+            sounds.note(sound.id.throttleKey, now: now)
+        } else {
+            guard sounds.allow(sound.id.throttleKey, gap: sound.id.minimumInterval, now: now) else { return answer }
+        }
+        // The grunts take turns among the grunts that play (a throttled one does not turn the order).
+        if sound.id == .grunt1 {
+            gruntFlip.toggle()
+            if !gruntFlip { sound.id = .grunt2 }
+        }
+        // D1 gate M2: law 4's kills' chain (+1 semitone a kill to +7, its hand soft growing 0.35 to 1) is not built. A
+        // player's rate only stretches time (the note at `coinP01`), so a chained rate would quicken the kills, not raise
+        // them; a true climb needs pitched dissolve files or a varispeed node (the director's call; `AnswerChain` waits).
         answer.sound = sound
         answer.jitter = sound.id.varies && (cue.answerSize?.jitters ?? true)
+        if near, let size = cue.answerSize, size >= .triumph { answer.duck = size }
         return answer
     }
 }
 
 /// Law 4's space: a positional cue is heard at volume x max(0.35, 1 - d / hearing) and panned
-/// clamp((x - lordX) / 320, -0.7, 0.7). All files stay mono; the player pans them.
+/// clamp((x - lordX) / 320, -0.7, 0.7). Beyond its hearing it does not cut: it falls from 0.35 to nothing over a
+/// further half of the hearing distance (the director's call on 0b's M3, built in D1). A cue that is not positional
+/// is never faded nor panned, whatever x it is played with (0b's L4). All files stay mono; the player pans them.
 enum SoundSpace {
-    /// The quietest a heard positional cue gets (at and beyond its hearing distance).
+    /// The quietest a positional cue gets inside its hearing distance (and where the edge begins).
     static let floor = 0.35
+    /// The edge of hearing: beyond the hearing distance the cue fades out over this share of it.
+    static let edge = 0.5
     /// Game px east or west of the lord that pan a cue fully to its side's limit.
     static let panWidth = 320.0
     /// The pan never goes past this (a cue never sits in one ear).
     static let panLimit = 0.7
 
-    /// The fall-off for a thing `distance` game px from the lord, for a cue heard `hearing` px far.
+    /// The fall-off for a thing `distance` game px from the lord, for a cue heard `hearing` px far: 1 at his feet,
+    /// 0.35 at the hearing distance, then down to 0 at 1.5 x the hearing distance.
     static func gain(distance: Double, hearing: Double) -> Double {
         guard hearing.isFinite, hearing > 0 else { return 1 }
-        return max(floor, 1 - abs(distance) / hearing)
+        let d = abs(distance)
+        if d <= hearing { return max(floor, 1 - d / hearing) }
+        let beyond = (d - hearing) / (hearing * edge)
+        return beyond >= 1 ? 0 : floor * (1 - beyond)
     }
 
     /// The pan (-1 west/left ... 1 east/right) of a thing at `x` heard by a lord at `listenerX`.
@@ -360,13 +456,22 @@ enum SoundSpace {
         min(panLimit, max(-panLimit, (x - listenerX) / panWidth))
     }
 
-    /// Whether a positional cue at `distance` is heard at all (as the thinner: only within its hearing).
+    /// Whether a positional cue at `distance` is heard at all (the thinner asks the same): short of the edge's end.
     static func heard(distance: Double, hearing: Double) -> Bool {
+        guard hearing.isFinite else { return true }
+        return abs(distance) < hearing * (1 + edge)
+    }
+
+    /// Whether a cue at `distance` is near enough for its full answer, haptic and duck (inside its hearing, not at the
+    /// edge; D1 gate M5).
+    static func near(distance: Double, hearing: Double) -> Bool {
         abs(distance) <= hearing
     }
 
-    /// The volume factor and pan of `cue` at `x` for a lord at `listenerX`; nil when it is too far to be heard.
+    /// The volume factor and pan of `cue` at `x` for a lord at `listenerX`; nil when it is too far to be heard. A cue
+    /// that is not positional plays as made (gain 1, pan 0).
     static func place(_ cue: FeedbackCue, x: Double, listenerX: Double) -> (gain: Double, pan: Double)? {
+        guard cue.isPositional else { return (1, 0) }
         let distance = x - listenerX
         guard heard(distance: distance, hearing: cue.hearing) else { return nil }
         return (gain(distance: distance, hearing: cue.hearing), pan(x: x, listenerX: listenerX))
@@ -374,9 +479,9 @@ enum SoundSpace {
 }
 
 /// Law 4's one duck rule: the beds duck under these, and the deepest active duck wins, never a product of several.
-/// The screen duck exists (the lantern moment and every screen); the others are named inputs that stay idle until
-/// their callers arrive (battle near: D1 from `GameModel`; the horn's lead: D1/E; the answers: the hub itself, when a
-/// cue of step 3 or 4 plays).
+/// The screen duck exists (the lantern moment and every screen); the battle duck's caller is the hub (D1: a blow, a
+/// fall or a kill heard within 300 px of the lord in the last 1.2 s, `FightNear`); the answers' are the hub itself,
+/// when a cue of step 3 or 4 plays; the horn's lead waits for its caller (E).
 struct BedDucks: Sendable, Equatable {
     /// The lantern moment or a whole screen stands.
     var screen = false
@@ -412,22 +517,31 @@ struct BedDucks: Sendable, Equatable {
         self.answer4Age = answer4Age
     }
 
-    /// Every active duck's factor (1 is no duck).
-    var active: [Double] {
-        var found: [Double] = []
-        if screen { found.append(BedDucks.screenDepth) }
-        if battleNear { found.append(BedDucks.battleDepth) }
-        if let hornIn, hornIn >= -BedDucks.hornTone, hornIn <= BedDucks.hornLead { found.append(BedDucks.hornDepth) }
-        if let age = answer3Age, age >= 0, age < BedDucks.answer3Hold { found.append(BedDucks.answer3Depth) }
+    /// Calls `body` with every active duck's factor (1 is no duck), building nothing.
+    private func forEachActive(_ body: (Double) -> Void) {
+        if screen { body(BedDucks.screenDepth) }
+        if battleNear { body(BedDucks.battleDepth) }
+        if let hornIn, hornIn >= -BedDucks.hornTone, hornIn <= BedDucks.hornLead { body(BedDucks.hornDepth) }
+        if let age = answer3Age, age >= 0, age < BedDucks.answer3Hold { body(BedDucks.answer3Depth) }
         if let age = answer4Age, age >= 0, age < BedDucks.answer4Hold + BedDucks.answer4Return {
             let back = max(0, age - BedDucks.answer4Hold) / BedDucks.answer4Return
-            found.append(BedDucks.answer4Depth + (1 - BedDucks.answer4Depth) * back)
+            body(BedDucks.answer4Depth + (1 - BedDucks.answer4Depth) * back)
         }
+    }
+
+    /// Every active duck's factor (for tests and the record; the frame reads `depth`).
+    var active: [Double] {
+        var found: [Double] = []
+        forEachActive { found.append($0) }
         return found
     }
 
-    /// The beds' factor: the deepest active duck, 1 with none.
-    var depth: Double { active.min() ?? 1 }
+    /// The beds' factor: the deepest active duck, 1 with none (0b's L5: no array a frame).
+    var depth: Double {
+        var deepest = 1.0
+        forEachActive { deepest = min(deepest, $0) }
+        return deepest
+    }
 
     /// Whether any of `xs` (the fight's places) is within `battleReach` of the lord at `listenerX`.
     static func battleNear(_ xs: [Double], listenerX: Double) -> Bool {
@@ -437,6 +551,8 @@ struct BedDucks: Sendable, Equatable {
 
 /// Follows the duck's depth in real time: down to a deeper duck at quick in (0.15 s, with the lantern's ramp), back up
 /// linearly over the settle time (1.2 s from the deepest point to full), never faster than the target itself returns.
+/// A duck held steady is the new deepest point (0b's L2): after a shallower duck the beds come back over 1.2 s from
+/// it, not at the pace an earlier, deeper duck set.
 struct DuckFollower: Sendable, Equatable {
     /// Law 1's quick in and settle.
     static let attack = 0.15
@@ -444,6 +560,7 @@ struct DuckFollower: Sendable, Equatable {
 
     private(set) var value = 1.0
     private var deepest = 1.0
+    private var lastGoal = 1.0
 
     init() {}
 
@@ -456,12 +573,51 @@ struct DuckFollower: Sendable, Equatable {
             deepest = min(deepest, value)
         } else if goal > value {
             value = min(goal, value + dt * max(0.01, 1 - deepest) / DuckFollower.settle)
+        } else if abs(goal - lastGoal) < 1e-9 {
+            // Held on a steady goal: the return is timed from here. A goal that moves (step 4's own return) keeps the
+            // deepest point, so the follower keeps up with it.
+            deepest = value
         }
+        lastGoal = goal
         if value >= 1 - 1e-9 {
             value = 1
             deepest = 1
         }
         return value
+    }
+}
+
+/// D1, the battle duck's caller: a fight is near while a blow, a fall, a crack or a kill was heard within
+/// `BedDucks.battleReach` (300 px) of the lord in the last `hold` seconds. The hub notes every placed cue; the beds
+/// then duck x 0.6 (`BedDucks.battleNear`), and a deeper duck still wins.
+struct FightNear: Sendable, Equatable {
+    /// Seconds the duck stays after the last near blow (law 1's settle): the gaps between blows never lift it.
+    static let hold = 1.2
+
+    private var last: Double?
+
+    init() {}
+
+    /// The cues that are a fight where they happen (a shot leaving a wall is not).
+    static func isFight(_ cue: FeedbackCue) -> Bool {
+        switch cue {
+        case .hit, .manHit, .manFell, .wallHit, .wallCracked, .arrowHit, .glancedOff, .stomp, .creatureDissolved:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// A cue played `distance` game px from the lord at `now` (seconds of one clock).
+    mutating func note(_ cue: FeedbackCue, distance: Double, now: Double) {
+        guard FightNear.isFight(cue), abs(distance) <= BedDucks.battleReach else { return }
+        last = now
+    }
+
+    /// Whether the fight is near at `now`.
+    func near(at now: Double) -> Bool {
+        guard let last, now >= last else { return false }
+        return now - last < FightNear.hold
     }
 }
 
@@ -523,6 +679,11 @@ struct SoundThrottle: Sendable, Equatable {
         if let then = last[key], now >= then, now - then < gap { return false }
         last[key] = now
         return true
+    }
+
+    /// Counts a sound as played at `now` without asking (D1: a pane's tap right after a plaque press).
+    mutating func note(_ key: String, now: Double) {
+        last[key] = now
     }
 }
 
@@ -717,9 +878,21 @@ struct AmbienceMix: Sendable, Equatable {
 }
 
 /// Reads sound cues off the realm's state from frame to frame (DESIGN.md "Sound and haptics"): gold won (a coin) or
-/// paid, a wall or palisade hit, a creature hit (and the arrow or bolt that hit it), the gate shutting at nightfall,
-/// the lord's steps while he walks. It only looks at the state the simulation made; the simulation never reads it.
+/// paid, a wall or palisade hit (and cracked below half, once a wall and night), a creature hit (and the arrow or
+/// bolt that hit it), a soldier hit and a soldier fallen (each at his place), the gate shutting at nightfall, the
+/// lord's steps while he walks. It only looks at the state the simulation made; the simulation never reads it.
+///
+/// Polish step D1: the blows play the cue contract's cues with their x, `hit` (a creature), `manHit` (a soldier) and
+/// `manFell` (a soldier gone with a new name on tonight's fallen), so the old `creatureHit` and the simulation's
+/// `soldierFell` retire (lane A's A3 later only moves these calls onto its contact frames).
 struct SoundWatch: Sendable, Equatable {
+    /// A soldier as the last frame saw him: his place, his hit points, his name (to find him among tonight's fallen).
+    private struct Seen: Sendable, Equatable {
+        var x: Double
+        var hp: Double
+        var name: String
+    }
+
     /// Game px between the lord's steps, walking and running.
     static let walkStride = 18.0
     static let runStride = 27.0
@@ -730,6 +903,11 @@ struct SoundWatch: Sendable, Equatable {
     private var gold = 0
     private var plotHP: [Double] = []
     private var creatureHP: [Int: Double] = [:]
+    private var soldiers: [Int: Seen] = [:]
+    /// How many of tonight's fallen the last frame knew.
+    private var fallen = 0
+    /// The day each wall (by plot) last cracked below half: once a wall and night.
+    private var cracked: [Int: Int] = [:]
     private var kingX = 0.0
     private var walked = SoundWatch.walkStride - 4
     private var hour = 0.0
@@ -737,9 +915,12 @@ struct SoundWatch: Sendable, Equatable {
 
     init() {}
 
-    /// Forget the last state (a new realm, a replayed day, a second chance): the next frame only primes.
+    /// Forget the last state (a new realm, a replayed day, a second chance): the next frame only primes. The walls'
+    /// cracks are forgotten too (D1 gate M3): a replayed night cracks its walls again. A wall already below half does not
+    /// crack at once: the next frame only primes.
     mutating func reset() {
         primed = false
+        cracked.removeAll()
     }
 
     /// The cues of what changed since the last call; `moving`: the simulation stepped this frame (no steps under a
@@ -755,6 +936,12 @@ struct SoundWatch: Sendable, Equatable {
                 guard let item = plot.item, item.isWall, !plot.isRubble, plot.hp < plotHP[index] - 0.01,
                       index < Realm.plots.count else { continue }
                 found.append((.wallHit, Realm.plots[index].x))
+                // D1 (F11): below half (the damaged sprite's own line, `EntityFrames`), once a wall and night.
+                let half = Build.maxHP(item, balance: balance) * 0.5
+                if plot.hp < half, plotHP[index] >= half, cracked[index] != s.day {
+                    cracked[index] = s.day
+                    found.append((.wallCracked, Realm.plots[index].x))
+                }
             }
         }
         if !creatureHP.isEmpty {
@@ -763,7 +950,27 @@ struct SoundWatch: Sendable, Equatable {
                 if creature.lastHit == .archer || creature.lastHit == .ballista {
                     found.append((.arrowHit, creature.x))
                 }
-                found.append((.creatureHit, creature.x))
+                found.append((.hit, creature.x))
+            }
+        }
+        // D1 (F5): a soldier struck, at his place.
+        if !soldiers.isEmpty {
+            for soldier in s.soldiers {
+                guard let before = soldiers[soldier.id], soldier.hp < before.hp - 0.01 else { continue }
+                found.append((.manHit, soldier.x))
+            }
+        }
+        // D1 (F5): a soldier fallen (a new name on tonight's fallen), at the place the last frame saw him.
+        if s.night.fallen.count > fallen {
+            let standing = Set(s.soldiers.map(\.id))
+            var gone = soldiers.filter { !standing.contains($0.key) }.sorted { $0.key < $1.key }
+            for man in s.night.fallen[fallen...] {
+                if let index = gone.firstIndex(where: { $0.value.name == man.name }) ?? gone.indices.first {
+                    found.append((.manFell, gone[index].value.x))
+                    gone.remove(at: index)
+                } else {
+                    found.append((.manFell, nil))
+                }
             }
         }
         if s.day == day && hour < 20 && s.hour >= 20 { found.append((.gate, nil)) }
@@ -790,6 +997,9 @@ struct SoundWatch: Sendable, Equatable {
         for (index, plot) in s.plots.enumerated() { plotHP[index] = plot.hp }
         if !creatureHP.isEmpty { creatureHP.removeAll(keepingCapacity: true) }
         for creature in s.creatures { creatureHP[creature.id] = creature.hp }
+        if !soldiers.isEmpty { soldiers.removeAll(keepingCapacity: true) }
+        for soldier in s.soldiers { soldiers[soldier.id] = Seen(x: soldier.x, hp: soldier.hp, name: soldier.name) }
+        fallen = s.night.fallen.count
         kingX = s.king.x
         hour = s.hour
         day = s.day
