@@ -64,6 +64,16 @@ final class MotionTests: XCTestCase {
         }
     }
 
+    /// Step 0a's review, L2: reference values computed outside the code (the same cubic Bezier in python, 60
+    /// halvings), so a solver error that keeps the curves symmetric and monotone still fails here. The Metal side
+    /// (`Presence`) and the SwiftUI side (`timingCurve`) run on this one curve.
+    func testTheCurvesMeetTheirReferenceValues() {
+        XCTAssertEqual(Motion.enter(0.5), 0.684643, accuracy: 1e-5)
+        XCTAssertEqual(Motion.leave(0.5), 0.315357, accuracy: 1e-5)
+        XCTAssertEqual(MotionCurve.enter.value(0.5), 0.684643, accuracy: 1e-5)
+        XCTAssertEqual(MotionCurve.leave.value(0.5), 0.315357, accuracy: 1e-5)
+    }
+
     func testTheCurveInvertsItself() {
         for curve in [MotionCurve.enter, MotionCurve.leave] {
             for step in 0...20 {
@@ -295,6 +305,24 @@ final class MotionTests: XCTestCase {
         XCTAssertEqual(MotionStyle.mode(game: true, system: false), .reduced)
         XCTAssertEqual(MotionStyle.mode(game: false, system: false), .full)
         XCTAssertEqual(MotionStyle.mode(game: nil, system: false), .full)
+    }
+
+    /// Step 0a's review, L1: the animations themselves, not only the seconds they read. A literal duration or a
+    /// curve written into `lhEnter` / `lhLeave` fails here.
+    func testTheSwiftUIAnimationsAreTheTimingCurvesOfTheTokens() {
+        for token in MotionToken.allCases {
+            XCTAssertEqual(Animation.lhEnter(token), .timingCurve(0, 0, 0.58, 1, duration: token.inSeconds),
+                           "\(token) enter")
+            XCTAssertEqual(Animation.lhLeave(token), .timingCurve(0.42, 0, 1, 1, duration: token.outSeconds),
+                           "\(token) leave")
+            XCTAssertEqual(Animation.lhEnter(token, mode: .reduced), .timingCurve(0, 0, 0.58, 1, duration: 0.15),
+                           "\(token) enter, Reduce Motion")
+            XCTAssertEqual(Animation.lhLeave(token, mode: .reduced), .timingCurve(0.42, 0, 1, 1, duration: 0.10),
+                           "\(token) leave, Reduce Motion")
+        }
+        XCTAssertEqual(Animation.lhEnter(.normal), .timingCurve(0, 0, 0.58, 1, duration: 0.25))
+        XCTAssertEqual(Animation.lhLeave(.normal), .timingCurve(0.42, 0, 1, 1, duration: 0.15))
+        XCTAssertNotEqual(Animation.lhEnter(.normal), .timingCurve(0, 0, 0.58, 1, duration: 0.22))
     }
 
     @MainActor
