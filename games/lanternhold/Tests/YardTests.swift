@@ -1578,4 +1578,11 @@ final class YardPolishTests: XCTestCase {
         XCTAssertEqual(YardText.text(YardLine(key: YardLine.fallen, names: ["Edda"])),
                        "Fallen with the company's coat: Edda.")
     }
+
+    /// E4: the scene's `drill:` word (Debug) tells the slowed strip where the archer and the guard stand in their rounds.
+    func testTheDrillWordTellsWhereTheyStandInTheirRounds() {
+        XCTAssertEqual(YardLook.drillWord(archerTime: 10 * YardLook.archerRound + 2.134,
+                                          guardTime: 3 * YardLook.guardRound + 0.851), "a2.134,g0.851")
+        XCTAssertFalse(YardLook.drillWord(archerTime: 0, guardTime: 0).contains(" "), "one word of the scene's value")
+    }
 }

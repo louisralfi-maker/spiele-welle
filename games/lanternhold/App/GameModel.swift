@@ -1409,6 +1409,9 @@ final class GameModel {
         text += " count:\(countWord) models:\(modelWord)"
         // Build 3, the drill yard: its stage, the kettle, the trained, the days drilled (`Yard.word`).
         text += " yard:\(Yard.word(state, balance: game.balance))"
+        // b3-yard step 4 (E4): where the drilling archer and guard stand in their rounds (the slowed strip's frames).
+        text += " drill:" + (Yard.drilling(state, balance: game.balance)
+            ? YardLook.drillWord(archerTime: yardDrillClock.time, guardTime: state.simTime) : "none")
         #endif
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {

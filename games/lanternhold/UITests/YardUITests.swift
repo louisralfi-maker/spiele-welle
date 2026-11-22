@@ -9,8 +9,12 @@ import XCTest
 /// trained (304), step 2: the yard at dusk with the kettle lit (305) and the dawn card naming the men trained at that
 /// dawn (306). Step 3 (layout A, the whole yard 1432 to 1550 in every picture, the lord at 1600 outside it unless he
 /// pays): the drill as a filmstrip of seven frames 0.4 s apart over one archer round (307-0 to 307-6) and one frame
-/// under Reduce Motion (308); Marek's cart by the back gate on his day with Marek before it (309). English only (the
-/// director's notes of 15.11., item 4). Saves `<nn>-yard-<what>-<lang>`.
+/// under Reduce Motion (308); Marek's cart by the back gate on his day with Marek before it (309). Step 4: the paid site
+/// from shot 300's camera (302); the flight slowed to a quarter (`-GWTimeScale 0.25`), shot back to back and kept at
+/// six points of it: the loose, the climb, the top, the fall, the hit and the arrow stuck while the archer draws again
+/// (310-<point>), and the pell standing and leaning under the guard's blow (311-pell-<stand|lean>), each with the
+/// drill's points read before and after it. English only (the director's notes of 15.11., item 4). Saves
+/// `<nn>-yard-<what>-<lang>`.
 @MainActor
 final class YardUITests: XCTestCase {
     override func setUp() async throws {
@@ -38,6 +42,8 @@ final class YardUITests: XCTestCase {
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "300-yard-site-day4-\(language)")
         note("300-yard-state", sceneField(app, "yard:") ?? "?")
+        // Step 4 (E1): shot 300's camera, for the paid site's shot (302).
+        let firstCamera = sceneField(app, "cam:").flatMap { Double($0) }
         XCTAssertEqual(sceneField(app, "yard:"), "none", "a realm without a yard")
         guard let site = waitForThing(app, "touch-yard", timeout: 4) else {
             XCTFail("the yard offers nothing on day 4")
@@ -73,10 +79,26 @@ final class YardUITests: XCTestCase {
         XCTAssertTrue(waitForField(app, "count:none", timeout: 4), "the board has gone")
         pause(1.0)
         XCTAssertEqual(sceneField(app, "lanterns:"), "1", "the site lantern burns on")
-        // Step 3: he walks off the yard to the smithy's side, so the paid site and its lantern are seen whole.
-        tapRealmStrip(app, worldX: 1620)
+        // Step 3: he walks off the yard to the smithy's side, so the paid site and its lantern are seen whole. Step 4
+        // (E1, the critic's M1): back to where shot 300 stood (1600) and the camera settled on him there, so the site,
+        // its lantern and the delivered timber are in view (step 3's walk to 1620 left the camera aimed east).
+        tapRealmStrip(app, worldX: 1600)
         waitForStill(app)
-        pause(0.6)
+        waitForCamera(app, timeout: 8)
+        if let want = firstCamera, let camera = sceneField(app, "cam:").flatMap({ Double($0) }), abs(camera - want) > 3 {
+            // The strip's columns are coarse: one touch on the open sky over the ground walks him the rest (the view
+            // is twice the distance from shot 300's left edge to its middle, 1600).
+            let view = 2 * (1600 - want)
+            if view > 50 {
+                let share = min(0.95, max(0.05, (1600 - camera) / view))
+                element(app, "world-scene").coordinate(withNormalizedOffset: CGVector(dx: share, dy: 0.22)).tap()
+                waitForStill(app)
+                waitForCamera(app, timeout: 8)
+            }
+        }
+        pause(0.4)
+        note("302-yard-camera", "shot 300 cam:\(firstCamera.map { String(Int($0)) } ?? "?") now cam:"
+             + (sceneField(app, "cam:") ?? "?") + " lx:" + (sceneField(app, "lx:") ?? "?"))
         XCTAssertEqual(sceneField(app, "lanterns:"), "1", "the site lantern still burns")
         attach(XCUIScreen.main.screenshot(), "302-yard-paid-lantern-\(language)")
         app.terminate()
@@ -207,6 +229,66 @@ final class YardUITests: XCTestCase {
         pause(1.5)
         attach(XCUIScreen.main.screenshot(), "308-yard-drill-reduce-motion-\(language)")
         still.terminate()
+    }
+
+    /// Step 4 (E4, the critic's M5; D: the hit): the drill at noon slowed to a quarter, shot back to back while the
+    /// scene's `drill:` says where the archer and the guard stand in their rounds; kept at six points of the flight
+    /// (310-loose, -climb, -top, -fall, -hit, -stuck: the arrow in the heart while the archer draws again) and the pell
+    /// standing and leaning under the blow (311-pell-stand, -lean). The points read before and after each shot are
+    /// noted beside them (310-yard-flight-times).
+    func testTheFlightSlowed() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "12", "-GWCameraX", YardUITests.beside,
+                                                  "-GWGold", "200", "-GWYard", "2", "-GWTimeScale", "0.25"]
+        app.launch()
+        guard waitUntilReady(app, name: "yard-flight") else { return }
+        pause(1.0)
+        XCTAssertTrue((sceneField(app, "yard:") ?? "").contains("drill"), "noon: they drill")
+        // The archer looses at 2.0 s of his 2.6 s round; the arrow flies 0.55 s (YardLook). The guard's blow lands at
+        // 0.8 s of his 1.6 s round, the pell leaning 0.15 s. A shot takes about a quarter second here (a sixteenth of
+        // the game's), so each window opens a little early.
+        let lead = 0.04
+        var archerWindows: [(name: String, from: Double, until: Double)] = [
+            ("loose", 2.0, 2.1), ("climb", 2.1, 2.2), ("top", 2.2, 2.33), ("fall", 2.33, 2.45), ("hit", 2.45, 2.6),
+            ("stuck", 1.2, 1.8),
+        ]
+        var guardWindows: [(name: String, from: Double, until: Double)] = [("stand", 0.2, 0.5), ("lean", 0.8, 0.92)]
+        var taken: [String] = []
+        func points() -> (archer: Double, pell: Double)? {
+            guard let word = sceneField(app, "drill:"), word != "none" else { return nil }
+            let parts = word.split(separator: ",")
+            guard parts.count == 2, let a = Double(parts[0].dropFirst()), let g = Double(parts[1].dropFirst()) else {
+                return nil
+            }
+            return (archer: a, pell: g)
+        }
+        func opening(_ windows: [(name: String, from: Double, until: Double)], at point: Double) -> Int? {
+            windows.firstIndex { point >= $0.from - lead && point < $0.until - lead }
+        }
+        let started = Date()
+        while (!archerWindows.isEmpty || !guardWindows.isEmpty) && Date().timeIntervalSince(started) < 60 {
+            guard let now = points() else {
+                pause(0.05)
+                continue
+            }
+            if let index = opening(archerWindows, at: now.archer) {
+                let window = archerWindows.remove(at: index)
+                attach(XCUIScreen.main.screenshot(), "310-yard-flight-\(window.name)-\(language)")
+                let after = points()
+                taken.append(String(format: "%@ %.2f s: archer %.3f to %.3f", window.name,
+                                    Date().timeIntervalSince(started), now.archer, after?.archer ?? -1))
+            } else if let index = opening(guardWindows, at: now.pell) {
+                let window = guardWindows.remove(at: index)
+                attach(XCUIScreen.main.screenshot(), "311-yard-pell-\(window.name)-\(language)")
+                let after = points()
+                taken.append(String(format: "pell-%@ %.2f s: guard %.3f to %.3f", window.name,
+                                    Date().timeIntervalSince(started), now.pell, after?.pell ?? -1))
+            }
+        }
+        note("310-yard-flight-times", taken.joined(separator: "\n"))
+        XCTAssertGreaterThanOrEqual(taken.count, 6, "the flight's points were shot: \(taken)")
+        app.terminate()
     }
 
     /// Step 3 (the director's pick of 21.11.2026, 17:31): on one of Marek's days (day 3) his cart stands by the back

@@ -277,6 +277,12 @@ enum YardLook {
         }
     }
 
+    /// Step 4 (E4): the drill's points for the scene's value (`drill:`, Debug; YardUITests' slowed strip): where the
+    /// archer stands in his round and the guard in his, in seconds ("a2.134,g0.851").
+    static func drillWord(archerTime: Double, guardTime: Double) -> String {
+        String(format: "a%.3f,g%.3f", wrapped(archerTime, round: archerRound), wrapped(guardTime, round: guardRound))
+    }
+
     private static func wrapped(_ time: Double, round: Double) -> Double {
         let t = time.truncatingRemainder(dividingBy: round)
         return t < 0 ? t + round : t
