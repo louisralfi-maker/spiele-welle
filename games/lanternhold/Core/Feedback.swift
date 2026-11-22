@@ -121,7 +121,10 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     var hearing: Double {
         switch self {
         case .volley, .fireArrow, .creatureDissolved, .arrowHit: return 220
-        case .creatureHit, .hit, .manHit: return 240
+        case .creatureHit: return 240
+        // D1 gate M1: a blow is heard about one screen far (a screen is about 440 px), so one 100 px away still clears
+        // the ducked night bed by 3 dB (at 240 only blows within about 70 px did).
+        case .hit, .manHit: return 440
         case .glancedOff: return 260
         case .wallHit: return 420
         case .ballista, .catapult: return 300

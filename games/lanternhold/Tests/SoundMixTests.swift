@@ -140,13 +140,17 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(SoundSpace.pan(x: lord + 224, listenerX: lord), 0.7, accuracy: 1e-12)
         XCTAssertEqual(SoundSpace.pan(x: lord + 2000, listenerX: lord), 0.7, "clamped at 0.7")
         XCTAssertEqual(SoundSpace.pan(x: lord - 2000, listenerX: lord), -0.7)
+        // D1 gate M1 rewrote the blow's lines below for its hearing of one screen (440 px; it was 240).
+        let blow = FeedbackCue.hit.hearing
+        XCTAssertEqual(blow, 440)
+        XCTAssertEqual(FeedbackCue.manHit.hearing, 440)
         let near = try XCTUnwrap(SoundSpace.place(.hit, x: lord + 100, listenerX: lord))
-        XCTAssertEqual(near.gain, 1 - 100.0 / 240, accuracy: 1e-12)
+        XCTAssertEqual(near.gain, 1 - 100.0 / blow, accuracy: 1e-12)
         XCTAssertEqual(near.pan, 100.0 / 320, accuracy: 1e-12)
         // Polish D1 rewrote these lines: beyond its hearing a cue fades over the edge and is gone at 1.5 x (it was cut
         // at once); a cue that is not positional plays as made, never panned (0b's L4; it was panned to -0.7).
-        XCTAssertNotNil(SoundSpace.place(.hit, x: lord + 241, listenerX: lord), "just beyond its hearing: still heard")
-        XCTAssertNil(SoundSpace.place(.hit, x: lord + 360, listenerX: lord), "at 1.5 x its hearing: not played")
+        XCTAssertNotNil(SoundSpace.place(.hit, x: lord + blow + 1, listenerX: lord), "just beyond its hearing: heard")
+        XCTAssertNil(SoundSpace.place(.hit, x: lord + blow * 1.5, listenerX: lord), "at 1.5 x its hearing: not played")
         XCTAssertEqual(SoundSpace.place(.buildStood, x: lord - 3000, listenerX: lord)?.gain, 1)
         XCTAssertEqual(SoundSpace.place(.buildStood, x: lord - 3000, listenerX: lord)?.pan, 0)
         XCTAssertTrue(FeedbackCue.hit.isPositional && FeedbackCue.manHit.isPositional)
@@ -174,13 +178,15 @@ final class SoundMixTests: XCTestCase {
         XCTAssertTrue(SoundSpace.near(distance: hearing, hearing: hearing))
         XCTAssertFalse(SoundSpace.near(distance: hearing + 1, hearing: hearing))
         let lord = 1500.0
-        let edge = try XCTUnwrap(SoundSpace.place(.hit, x: lord + 300, listenerX: lord))
+        // D1 gate M1 rewrote the blow's places for its hearing of 440 px (they were 300, 335 and 360 for 240).
+        let blow = FeedbackCue.hit.hearing
+        let edge = try XCTUnwrap(SoundSpace.place(.hit, x: lord + blow * 1.25, listenerX: lord))
         XCTAssertEqual(edge.gain, 0.175, accuracy: 1e-12)
         XCTAssertEqual(edge.pan, 0.7, "clamped")
         var thinner = FeedbackThinner()
-        XCTAssertEqual(thinner.cues(for: [], extra: [(.hit, lord - 335)], time: 1, listenerX: lord), [.hit],
+        XCTAssertEqual(thinner.cues(for: [], extra: [(.hit, lord - blow * 1.4)], time: 1, listenerX: lord), [.hit],
                        "inside the edge: through")
-        XCTAssertEqual(thinner.cues(for: [], extra: [(.hit, lord - 360)], time: 2, listenerX: lord), [],
+        XCTAssertEqual(thinner.cues(for: [], extra: [(.hit, lord - blow * 1.5)], time: 2, listenerX: lord), [],
                        "past the edge: dropped")
         XCTAssertTrue(FeedbackCue.manFell.isPositional && FeedbackCue.wallCracked.isPositional)
         XCTAssertEqual(FeedbackCue.manFell.hearing, 900)
@@ -486,6 +492,11 @@ final class SoundMixTests: XCTestCase {
         for cue in [FeedbackCue.hit, .manHit] {
             XCTAssertGreaterThanOrEqual(try XCTUnwrap(levels[cue]) - ducked, 3, "\(cue) over the ducked bed \(ducked)")
         }
+        // D1 gate M1: a blow on a creature 100 px from the lord, faded by its hearing, still clears the ducked bed by
+        // 3 dB.
+        let fade = SoundSpace.gain(distance: 100, hearing: FeedbackCue.hit.hearing)
+        let away = try XCTUnwrap(levels[.hit]) + 20 * log10(fade)
+        XCTAssertGreaterThanOrEqual(away - ducked, 3, "a blow 100 px away at \(away) over \(ducked)")
     }
 
     func testTheBedsDuckAtQuickAndComeBackOverTheSettleTime() {
