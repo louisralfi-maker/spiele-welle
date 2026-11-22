@@ -295,8 +295,10 @@ final class LookAroundUITests: XCTestCase {
         pause(1.0)
         XCTAssertTrue(element(app, "lantern-moment").exists, "the lantern is up")
         XCTAssertTrue(element(app, "realm-strip").exists, "the strip stays")
-        XCTAssertFalse(banner.exists && banner.isHittable, "held: the town's banner takes no touch")
-        XCTAssertFalse(gear.exists && gear.isHittable, "held: the gear takes no touch")
+        let bannerThere = banner.exists
+        let gearThere = gear.exists
+        XCTAssertFalse(bannerThere && banner.isHittable, "held: the town's banner takes no touch (exists \(bannerThere))")
+        XCTAssertFalse(gearThere && gear.isHittable, "held: the gear takes no touch (exists \(gearThere))")
         attach(XCUIScreen.main.screenshot(), "270-look-clean-held-east-\(language)")
         note("270-look-clean-held-east", String(format: "%.2f s after the raise; home cam \(home), cam \(end); ",
                                                  Date().timeIntervalSince(opened)) + "scene: \(sceneValue(app))")

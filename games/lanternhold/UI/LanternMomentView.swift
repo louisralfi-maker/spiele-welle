@@ -3,7 +3,8 @@ import SwiftUI
 
 /// Build 3, lane 5 step 5 (the clean frame): how far the moment's own signs in SwiftUI (the town's banner, the gear)
 /// are faded while a finger holds the look-around's pan (`LanternVeil.clean`: 0 whole, 1 gone), set by the model as it
-/// steps. While it is over 0 they take no touch and are no VoiceOver element (with VoiceOver running it stays 0).
+/// steps. While it is over 0 they take no touch and are no VoiceOver element, and at 1 they leave the view (round
+/// lh-b3l-51: faded and hidden, a UI test still found them hittable); with VoiceOver running it stays 0.
 @MainActor
 @Observable
 final class MomentFade {
@@ -77,13 +78,17 @@ struct LanternMomentView: View {
                 .padding(.top, 4)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
-            GearButton { model.openPauseFromLantern() }
-                .opacity(1 - clean)
-                .allowsHitTesting(clean == 0)
-                .accessibilityHidden(clean > 0)
-                .padding(.top, 2)
-                .padding(.trailing, 4)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            // Wholly faded, the gear leaves the view (no touch, no accessibility element); while it fades it takes no
+            // touch and is hidden from VoiceOver.
+            if clean < 1 {
+                GearButton { model.openPauseFromLantern() }
+                    .opacity(1 - clean)
+                    .allowsHitTesting(clean == 0)
+                    .accessibilityHidden(clean > 0)
+                    .padding(.top, 2)
+                    .padding(.trailing, 4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            }
         }
         .accessibilityAction(.escape) { model.lowerLanternMoment() }
         .transition(model.reduceMotion ? .identity : .opacity)

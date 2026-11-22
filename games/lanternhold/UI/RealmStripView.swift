@@ -70,12 +70,16 @@ struct RealmStripView: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityIdentifier("realm-strip")
         .overlay(alignment: .topLeading) {
-            MoodBannerView(strip: snapshot)
-                .frame(width: RealmStripView.width, height: MoodBannerView.height, alignment: .topLeading)
-                .opacity(1 - bannerClean)
-                .allowsHitTesting(bannerClean == 0)
-                .accessibilityHidden(bannerClean > 0)
-                .offset(y: RealmStripView.height)
+            // Step 5 (the clean frame): wholly faded, the banner leaves the view, so no touch and no accessibility
+            // element (not even a UI test's) finds it; while it fades it takes no touch and is hidden from VoiceOver.
+            if bannerClean < 1 {
+                MoodBannerView(strip: snapshot)
+                    .frame(width: RealmStripView.width, height: MoodBannerView.height, alignment: .topLeading)
+                    .opacity(1 - bannerClean)
+                    .allowsHitTesting(bannerClean == 0)
+                    .accessibilityHidden(bannerClean > 0)
+                    .offset(y: RealmStripView.height)
+            }
         }
     }
 
