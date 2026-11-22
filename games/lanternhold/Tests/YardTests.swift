@@ -1210,15 +1210,15 @@ final class YardPolishTests: XCTestCase {
         YardLook.setRock(&untouched, frame: YardLook.rockFrame(s, balance: balance))
         XCTAssertEqual(untouched, world, "a realm without a site changes nothing in the scene")
         s.day = 4
-        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), YardLook.rockFrame, "the site shows: the yard's rock")
+        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), YardLook.rockYardFrame, "the site shows: the yard's rock")
         XCTAssertTrue(Yard.order(&s, .stage(2), balance: balance))
-        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), YardLook.rockFrame, "ordered, waiting for its dawn")
+        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), YardLook.rockYardFrame, "ordered, waiting for its dawn")
         Yard.proof(&s, stage: 2, kettle: true, trained: false, balance: balance)
-        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), YardLook.rockFrame, "the yard stands")
+        XCTAssertEqual(YardLook.rockFrame(s, balance: balance), YardLook.rockYardFrame, "the yard stands")
         var given = world
         YardLook.setRock(&given, frame: YardLook.rockFrame(s, balance: balance))
         let yardRock = try XCTUnwrap(given.props.first { $0.sprite == .gateRockR && $0.plane == .world })
-        XCTAssertEqual(yardRock.frame, YardLook.rockFrame)
+        XCTAssertEqual(yardRock.frame, YardLook.rockYardFrame)
         XCTAssertEqual(yardRock.x, rock.x, "the rock stays where it stands; only its picture changes")
         XCTAssertEqual(given.props.filter { $0.sprite != .gateRockR }, world.props.filter { $0.sprite != .gateRockR },
                        "nothing else in the scene changes")
@@ -1237,11 +1237,11 @@ final class YardPolishTests: XCTestCase {
             return top
         }
         XCTAssertGreaterThan(highest(frame: 0, eastOf: YardLook.rockEdgeX), 30, "today's rock bulges past the tower")
-        XCTAssertLessThan(highest(frame: YardLook.rockFrame, eastOf: YardLook.rockEdgeX), YardLook.rockRubble,
+        XCTAssertLessThan(highest(frame: YardLook.rockYardFrame, eastOf: YardLook.rockEdgeX), YardLook.rockRubble,
                           "the yard's rock: nothing east of 1468 as high as 8 px")
         var west = 0.0
         for x in 0..<size.width where rock.x + Double(x) < YardLook.rockEdgeX - 4 {
-            for y in 0..<size.height where strip[YardLook.rockFrame * size.width + x, y].a > 0 {
+            for y in 0..<size.height where strip[YardLook.rockYardFrame * size.width + x, y].a > 0 {
                 west = max(west, Double(size.height - y))
             }
         }

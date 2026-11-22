@@ -301,7 +301,7 @@ enum YardLook {
     /// the rock's second frame (tools/w3f3art.py `YARD_ROCK_CAP`): the same rock taken back to the east tower's face,
     /// nothing of it east of `rockEdgeX` higher than `rockRubble` px, its new east edge stepped down in ledges. A realm
     /// without a site keeps the rock as it was.
-    static let rockFrame = 1
+    static let rockYardFrame = 1
     static let rockEdgeX = 1468.0
     static let rockRubble = 8.0
 
@@ -311,7 +311,7 @@ enum YardLook {
         guard !s.defeated else { return 0 }
         let yard = s.yard ?? YardState()
         let shows = yard.stands || yard.orderedStage != nil || s.day >= balance.yard.stageDay
-        return shows ? rockFrame : 0
+        return shows ? rockYardFrame : 0
     }
 
     /// Sets the east gate rock's drawn frame in `scene` (the game's filtered scene; picture only).
