@@ -1,0 +1,38 @@
+m06-b: a touch on the throne: he walks up and sits, the petition slide comes
+real time; as fast as the frames come (a rolling burst)
+the cause (a touch on the throne: he walks up and sits, the petition slide comes) was sent at +0.000 s and returned at +2.238 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +9.236 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+
+frame  seconds since the burst began  (scene where read)
+01  +2.482 s  
+02  +2.652 s  day:3 hour:12.45 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:284 gold:91 hud:none cam:96 tap:touch-throne count:none last:none lanterns:0 yard:none drill:none
+03  +3.103 s  
+04  +3.403 s  day:3 hour:12.53 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:316 gold:91 hud:none cam:129 tap:touch-throne count:none last:none lanterns:0 yard:none drill:none
+05  +4.476 s  
+06  +4.786 s  day:3 hour:12.62 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:355 gold:91 hud:none cam:168 tap:touch-throne count:none last:none lanterns:0 yard:none drill:none
+07  +6.261 s  
+08  +6.532 s  day:3 hour:12.76 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:416 gold:91 hud:none cam:225 tap:touch-throne count:none last:none lanterns:0 yard:none drill:none
+09  +8.270 s  
+10  +8.530 s  day:3 hour:12.76 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:416 gold:91 hud:none cam:225 tap:touch-throne count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+11  +9.447 s  
+12  +9.648 s  
+13  +9.883 s  
+14  +10.108 s  
+15  +10.355 s  
+16  +10.695 s  
+17  +10.955 s  
+18  +11.202 s  
+19  +11.518 s  
+20  +11.922 s  
+21  +12.196 s  
+22  +12.481 s  
+23  +12.781 s  
+24  +13.118 s  
+25  +13.453 s  
+26  +13.765 s  
+27  +14.057 s  
+28  +14.322 s  
+29  +14.663 s  
+30  +14.925 s  day:3 hour:12.76 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:416 gold:91 hud:none cam:225 tap:touch-throne count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.429 s over 29 gaps

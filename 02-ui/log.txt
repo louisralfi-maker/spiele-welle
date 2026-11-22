@@ -1,0 +1,7 @@
+<unknown>:0: error: -[LanternholdUITests.FilmDealsUITests testM05APurchase] : Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"touch-plot-0" IN identifiers'`, given input App element pid: 20034
+Test Case '-[LanternholdUITests.FilmDealsUITests testM05APurchase]' failed (56.910 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM06TheHall]' passed (135.653 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM07TheTaxesOnFoot]' passed (90.577 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM11TheDrillYard]' passed (140.456 seconds).
+exit=65
+screenshots: 563

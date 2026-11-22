@@ -1,0 +1,34 @@
+m11-h: Continue: the report goes, the day begins by the yard
+real time; as fast as the frames come
+the cause (Continue: the report goes, the day begins by the yard) was sent at +0.157 s and returned at +0.797 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWNight 8 -GWBuild demo -GWHour 5.6 -GWCameraX 1600 -GWYard 2 -GWTrained dawn
+scene before: frame:320 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1600 lord:lord stage:world lx:1600 errand:none door:1830 gold:10 hud:none cam:1382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:2,t:18/18,d:54 drill:none
+scene after: frame:670 ready day:9 hour:6.53 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1600 lord:lord stage:world lx:1600 errand:none door:1830 gold:10 hud:none cam:1382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:2,t:18/18,d:54 drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.136 s  
+02  +1.339 s  
+03  +1.519 s  
+04  +1.710 s  
+05  +1.888 s  
+06  +2.108 s  
+07  +2.335 s  
+08  +2.564 s  
+09  +2.885 s  
+10  +3.182 s  
+11  +3.441 s  
+12  +3.720 s  
+13  +3.982 s  
+14  +4.298 s  
+15  +4.676 s  
+16  +4.901 s  
+17  +5.208 s  
+18  +5.444 s  
+19  +5.658 s  
+20  +5.971 s  
+21  +6.290 s  
+22  +6.544 s  
+23  +6.799 s  
+24  +7.033 s  
+mean spacing 0.256 s over 23 gaps
