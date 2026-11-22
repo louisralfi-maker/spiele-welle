@@ -1300,3 +1300,7 @@ schneller geht."
     anchored in the world, none within 48 game px, 0.30 at the far edge, leaning to the night ink); during a held pan
     the lord's row, the banner and the gear fade out and the dim lifts to 40 %, the strip stays; plus the rulings above.
   - After it: the wave 2 join (lane 6, then the yard, then lane 5) and a TestFlight round.
+
+- **The joined lane-5 head is green and pushed (22.11.2026, 06:35).**
+  - Round `lh-b3l-42` on eca49b2a (the smooth walk merged into the banner step): ALL PASSED. `claude/lh-b3-lantern`
+    on origin is eca49b2a. Step 5 builds on it.
