@@ -15,14 +15,18 @@ It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed
 
   yardGround   103x16     the drill ground: raked sand on the lane's top five rows (the sprite stands 5 px under
                           the walk line) from the gate's apron to the barracks' east wall, a low post-and-rail fence
-                          only along the apron (1442 to 1480), a corner post at the far end (1541); the bunkhouse's
-                          front stays open (its painted spear rack is the yard's arms rack)
+                          only along the apron's west part, ending at its corner post at 1464 (fix step 4b, R1: no
+                          rail runs behind the kettle's tripod, 1466 to 1478), a corner post at the far end (1541);
+                          the bunkhouse's front stays open (its painted spear rack is the yard's arms rack)
   yardPell     9x26 x 2   a pell: a stout post with a flat cap, a tall bundle of straw bound round it with four rope
                           bands, a mound at its foot; frame 1 battered (a strand torn loose, the bundle sagging).
                           Step 4 (the critic's M3): the bundle wraps the post's head as high as a man, so the
                           bunkhouse's painted spear rack behind it (its tips at world 1495, 1497 and 1499, 23 px up)
-                          no longer sticks out of the pell's top as three spikes; the barracks' art is not changed
-  yardButt     17x20 x 3  the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
+                          no longer sticks out of the pell's top as three spikes; the barracks' art is not changed.
+                          Fix step 4b (the director's R5: it read as a hooped barrel): uneven rope bands (image rows
+                          3, 8, 12 and 18), the straw parted for two rows low down where the post's wood shows, and a
+                          tied top knot narrower than the body
+  yardButt     17x26 x 3  the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
                           turned to the archers on its left, two arrows in it, on a timber A-frame; step 4 (the
                           critic's H3, two butts set behind each other were one sprite twice): frame 1 the butt
                           behind, turned further from the viewer (its face a narrow oval, the boss a pixel smaller,
@@ -31,7 +35,12 @@ It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed
                           frame 2 the front butt with the drill's last arrow stuck in its heart (the critic's H4): its
                           tip buried, its shaft steep as it fell out of the high arc (the flight's slope at the end is
                           about 2.6 rows a column), six pixels showing up and to the left with the fletching over the
-                          boss's rim (`YardLook.buttFrameStuck`)
+                          boss's rim (`YardLook.buttFrameStuck`). Fix step 4b (the director's R2): the frame grew six
+                          rows upward (its feet and its heart, world 1537 and 13 px up, stay) so the stuck arrow
+                          reads on the phone: its tip in the heart (column 9, the heart's lower row), the shaft
+                          running back up and west along the fall for twelve pixels, four of them standing clear of
+                          the butt against the wall, each with an ink edge on its east side, a pale fletch of two
+                          pixels at its end (`stuck_arrow`)
   yardKettle   13x18 x 3  the pitch kettle's place: a tripod of three poles lashed at the top over a ring of stones;
                           frame 0 empty (a chain and its hook, cold ash), frame 1 the iron kettle (7 px, a pale lit
                           rim, black pitch) hung on its bail over split logs, cold; frame 2 the same over its fire, two
@@ -40,8 +49,9 @@ It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed
   yardSite     103x10 x 2 the drill yard's site, the larger ground marked out: six stakes (the corners with teal rag
                           flags, the door's two with red ones), a thin hemp cord sagging between them at two thirds
                           of their height, open at the bunkhouse door; frame 1, ordered (until its dawn): the timber
-                          delivered on the bunkhouse's front (rails stacked, a bundle of stakes, a straw bale), clear
-                          of the lord's lane and the door
+                          delivered on the bunkhouse's front (rails stacked, a bundle of stakes, and east of the door
+                          three logs stacked, their cut ends pale on the stack's east face: fix step 4b, R8; step 4's
+                          straw bale read as a crate), clear of the lord's lane and the door
 """
 import os
 import sys
@@ -135,9 +145,12 @@ def pell(frame):
     # 17, three bands).
     sag = 1 if frame == 1 else 0
     top, bot = PELL_TOP - sag, 7 - sag
-    bands = (bot + 1, bot + 6, bot + 11, top - 1)
+    # Fix step 4b (R5): the bands fall unevenly (image rows 18, 12, 8 and 3 of the 26: h 7, 13, 17, 22), never every
+    # 4 px as hoops on a barrel; between the two low ones the straw parts for two rows and the post's wood shows.
+    bands = (bot, bot + 6, bot + 10, top - 1)
+    parted = (bot + 3, bot + 4)
     for hh in range(bot, top + 1):
-        pinch = hh in bands or hh in (bot, top)
+        pinch = hh in bands or hh in (bot, top) or hh in parted
         x0, x1 = (px - 1, px + 3) if pinch else (px - 2, px + 4)
         for x in range(x0, x1 + 1):
             v = h01(seed, x, hh // 2, 3)
@@ -153,10 +166,14 @@ def pell(frame):
         if hh in bands:
             for x in range(x0, x1 + 1):
                 c.seth(x, hh, "soilLight" if x == x0 else "soil")
-    # The straw's cut ends over the top band, standing up as a ragged fringe (never a spike, never a head).
-    for x, name in ((px - 1, "straw"), (px, "strawLight"), (px + 2, "straw"), (px + 3, "plasterDim")):
+        if hh in parted:
+            # The post's wood between the parted straw: lit, mid and shaded, a straw wisp at each side.
+            for x, name in ((px, "woodLight"), (px + 1, "wood"), (px + 2, "woodDark")):
+                c.seth(x, hh, name)
+    # Fix step 4b (R5): the straw's ends over the top band tied in a knot, three wide (the body is seven), the post's
+    # head inside it (never a spike, never a head).
+    for x, name in ((px, "strawLight"), (px + 1, "straw"), (px + 2, "plasterDim")):
         c.seth(x, top + 1, name)
-    c.seth(px + 1, top + 1, "woodLight")
     c.seth(px - 2, bot - 1, "plasterDim")
     c.seth(px + 4, bot - 1, "soilLight")
     if frame == 1:
@@ -193,16 +210,22 @@ def boss_layers():
     return layer
 
 
+# Fix step 4b (R2): the butt's frames are BUTT_LIFT rows taller than step 4's (17 x 20), all of it upward: the stuck
+# arrow's shaft and fletch stand over the boss there. The feet stay on the sprite's bottom row, the heart 13 px up.
+BUTT_H, BUTT_LIFT = 26, 6
+BUTT_FOOT = BUTT_H - 2                              # the legs' last row (the ink edge under them)
+
+
 def butt(stuck=False):
-    c = C(17, 20)
-    ox, oy = 4, 1                                   # the boss's top-left in the canvas
+    c = C(17, BUTT_H)
+    ox, oy = 4, 1 + BUTT_LIFT                       # the boss's top-left in the canvas
     # The easel: two legs splayed under the boss and a third propping it from behind, a cross bar.
-    line(c, ox + 3, oy + 10, ox, 18, lambda i, n, x, y: "woodLight")
-    line(c, ox + 4, oy + 10, ox + 1, 18, lambda i, n, x, y: "wood")
-    line(c, ox + 7, oy + 10, ox + 10, 18, lambda i, n, x, y: "woodDark")
-    line(c, ox + 8, oy + 8, ox + 12, 18, lambda i, n, x, y: "soil")
+    line(c, ox + 3, oy + 10, ox, BUTT_FOOT, lambda i, n, x, y: "woodLight")
+    line(c, ox + 4, oy + 10, ox + 1, BUTT_FOOT, lambda i, n, x, y: "wood")
+    line(c, ox + 7, oy + 10, ox + 10, BUTT_FOOT, lambda i, n, x, y: "woodDark")
+    line(c, ox + 8, oy + 8, ox + 12, BUTT_FOOT, lambda i, n, x, y: "soil")
     for x in range(ox + 1, ox + 10):
-        c.set(x, 16, "wood" if x < ox + 7 else "woodDark")
+        c.set(x, BUTT_FOOT - 2, "wood" if x < ox + 7 else "woodDark")
     c.set(ox + 1, 16, "woodLight")
     # The boss: coiled straw, its painted face a red ring on bone round a red heart, as butts were painted; no teal
     # and no gold (those are the house's shields on the barracks' wall).
@@ -237,16 +260,38 @@ def butt(stuck=False):
         c.set(fx - 1, fy - 1, "plaster")
         c.set(fx + 1, fy + 1, "ink")
     if stuck:
-        # Step 4 (H4): the drill's arrow stuck in the heart (the boss's middle, ox + 5, oy + 5, stays the heart: the tip is
-        # in the straw). The shaft runs back along its fall, steep, dark against the face's bone and red; the fletching
-        # stands over the boss's rim against the wall.
-        for (x, y) in ((ox + 5, oy + 4), (ox + 4, oy + 3), (ox + 4, oy + 2), (ox + 4, oy + 1), (ox + 3, oy)):
-            c.set(x, y, "woodDark")
-        c.set(ox + 4, oy + 3, "wood")                  # the shaft's lit pixel on the bone
-        c.set(ox + 3, oy - 1, "parchment")             # the fletching
-        c.set(ox + 2, oy - 1, "plaster")
-        c.set(ox + 4, oy, "parchment")
+        stuck_arrow(c, ox, oy)
     return c.im
+
+
+# Fix step 4b (the director's R2): the drill's arrow stuck in the front butt, (column, row) from the boss's top-left
+# (ox, oy). The tip is buried in the heart's lower row (5, 6: canvas column 9); the shaft runs back up and west along the
+# fall (the flight comes down at about 2.6 rows a column), out over the boss's top: the last four pixels stand clear of
+# the butt's silhouette (its ink edge included) against the wall, each with an ink edge on its east side; the fletch is
+# two pale pixels at its end.
+STUCK_TIP = (5, 6)
+STUCK_SHAFT = ((5, 5), (5, 4), (4, 3), (4, 2), (4, 1), (3, 0), (3, -1), (3, -2), (2, -3), (2, -4), (1, -5))
+STUCK_OUT = 4                                       # the last four shaft pixels stand clear of the silhouette
+STUCK_FLETCH = ((1, -6), (0, -5))
+
+
+def stuck_arrow(c, ox, oy):
+    layer = boss_layers()
+    tx, ty = STUCK_TIP
+    c.set(ox + tx, oy + ty, "woodDark")             # the tip's end, buried in the heart's red
+    out = STUCK_SHAFT[-STUCK_OUT:]
+    for (x, y) in STUCK_SHAFT:
+        depth = layer.get((x, y))
+        if depth is not None and depth <= 1:
+            name = "woodDark"                       # on the coiled straw: dark, so it shows on the pale coils
+        else:
+            name = "woodLight"                      # on the red and the bone, on the boss's ink edge, in the air
+        c.set(ox + x, oy + y, name)
+    for (x, y) in out:
+        if not c.opaque(ox + x + 1, oy + y) and (x + 1, y) not in STUCK_SHAFT:
+            c.set(ox + x + 1, oy + y, "ink")        # the shaft's ink edge, so it reads against the wall
+    for (x, y) in STUCK_FLETCH:
+        c.set(ox + x, oy + y, "parchment")
 
 
 # The butt behind (step 4), its boss from column 4 and row 1 (image rows): a pixel smaller than the front one's 11 x 11,
@@ -272,18 +317,19 @@ BEHIND_INK = {"R": "tile", "B": "parchment", "H": "tile", "h": "tileLight", "e":
 def butt_behind():
     """Step 4 (the critic's H3): the butt set behind the front one, a different thing and never the same sprite twice.
     Turned further from the viewer (`BEHIND_BOSS`), one arrow low in its ring, the A-frame seen more from the side: the
-    front legs closer together and the back leg standing well out behind it to the right."""
-    c = C(17, 20)
-    ox, oy = 4, 1
+    front legs closer together and the back leg standing well out behind it to the right. Fix step 4b: on the taller
+    frame (BUTT_H), its feet on the same bottom row."""
+    c = C(17, BUTT_H)
+    ox, oy = 4, 1 + BUTT_LIFT
     # The back leg first (behind everything): from the boss's upper back down to the ground well behind it.
-    line(c, ox + 8, oy + 3, 16, 18, lambda i, n, x, y: "woodDark" if i % 4 else "soil")
-    line(c, ox + 9, oy + 4, 16, 17, lambda i, n, x, y: "soil" if i > 1 else None)
+    line(c, ox + 8, oy + 3, 16, BUTT_FOOT, lambda i, n, x, y: "woodDark" if i % 4 else "soil")
+    line(c, ox + 9, oy + 4, 16, BUTT_FOOT - 1, lambda i, n, x, y: "soil" if i > 1 else None)
     # The front legs, close together (seen from the side), and their cross bar.
-    line(c, ox + 2, oy + 9, ox, 18, lambda i, n, x, y: "woodLight")
-    line(c, ox + 3, oy + 9, ox + 1, 18, lambda i, n, x, y: "wood")
-    line(c, ox + 5, oy + 9, ox + 6, 18, lambda i, n, x, y: "woodDark")
+    line(c, ox + 2, oy + 9, ox, BUTT_FOOT, lambda i, n, x, y: "woodLight")
+    line(c, ox + 3, oy + 9, ox + 1, BUTT_FOOT, lambda i, n, x, y: "wood")
+    line(c, ox + 5, oy + 9, ox + 6, BUTT_FOOT, lambda i, n, x, y: "woodDark")
     for x in range(ox + 1, ox + 7):
-        c.set(x, 15, "wood" if x < ox + 4 else "woodDark")
+        c.set(x, BUTT_FOOT - 3, "wood" if x < ox + 4 else "woodDark")
     c.set(ox + 1, 15, "woodLight")
     for y, row in enumerate(BEHIND_BOSS):
         for x, ch in enumerate(row):
@@ -307,10 +353,12 @@ def butt_behind():
 
 
 # ----------------------------------------------------------------------------------------------- the kettle
-def pole(c, x0, y0, x1, y1, name, behind=False, edge="soil"):
-    """A tripod pole: one pixel of `name` with a dark edge on its shaded right (never a full outline, so three poles
-    stay three lines and do not close into a dark lattice); `behind`: only where nothing is drawn yet. Step 3 (the
-    critic's H3): the edge one tone over the ink (`soil`), so the legs still read on the dark lane at night."""
+def pole(c, x0, y0, x1, y1, name, behind=False, edge="strawLight"):
+    """A tripod pole: one pixel of `name` with an edge pixel on its east side in every row (never a full outline, so
+    three poles stay three lines and do not close into a dark lattice); `behind`: only where nothing is drawn yet.
+    Step 3 (the critic's H3): the edge one tone over the ink (`soil`), so the legs read on the dark lane at night. Fix
+    step 4b (the director's R1): the edge is one pale lit pixel per row (`strawLight`), so the legs stand free of the
+    east tower's dark edge stripe and the fence by day, in all three frames."""
     edge_col = col(edge)
     pts = []
     n = max(abs(x1 - x0), abs(y1 - y0))
@@ -335,7 +383,9 @@ def pot(c, lit):
     for y, (x0, x1) in POT_ROWS.items():
         for x in range(x0, x1 + 1):
             if y == 8:
-                name = "stonePale" if x <= 5 else ("stoneLight" if x <= 7 else "stone")   # the lip, a pale rim
+                # the lip, a pale rim; fix step 4b (R1): one lit row across all but its shaded end, so the cold pot
+                # reads as a pot at phone size on the dark rubble behind it
+                name = "stonePale" if x <= 7 else "stoneLight"
             elif y == 9:
                 name = "night0" if x0 < x < x1 else ("stonePale" if x == x0 else "stoneMid")  # the pitch in its mouth
             elif x == x0:
@@ -419,10 +469,14 @@ def kettle(frame):
 
 
 # ------------------------------------------------------------------------------------------------ the ground
-# Step 3, layout A (world x = 1442 + column): the fence only along the gate's apron (columns 0 to 38, 1442 to 1480),
-# the barracks' front open from 1481 (its door at 1505 to 1516 stays clear), a corner post at 1541 (column 99).
+# Step 3, layout A (world x = 1442 + column): the fence only along the gate's apron, the barracks' front open from 1481
+# (its door at 1505 to 1516 stays clear), a corner post at 1541 (column 99). Fix step 4b (the director's R1): the
+# apron's fence ends at its own corner post at 1464 (column 22, the last of FENCE_POSTS), so the kettle's tripod (1466 to
+# 1478) stands free on the open apron with no rail behind it. Picture only: `Yard.fenceX` 1468 and its reach stay, the
+# lord leans at the fence's corner.
 GW, GH, SAND = 103, 16, 5
-FENCE_POSTS = (1, 10, 19, 28, 37)
+FENCE_POSTS = (1, 11, 22)
+APRON_CORNER = FENCE_POSTS[-1]
 CORNER_POST = 99
 
 
@@ -475,9 +529,10 @@ def ground():
         post(px, 11 if px in (FENCE_POSTS[0], FENCE_POSTS[-1]) else 10)
     for hh in range(SAND, SAND + 10):
         c.seth(FENCE_POSTS[0] - 1, hh, "ink")
-    # The rails' cut ends past the last post, short of the barracks' wall (1481): the fence ends at the bunkhouse.
-    for rail in rails:
-        c.seth(FENCE_POSTS[-1] + 2, rail, "woodDark")
+    # Fix step 4b (R1): the apron's corner post (1464), its top cut square as the far one's; no rail runs past it.
+    c.seth(APRON_CORNER, SAND + 11, "woodLight")
+    c.seth(APRON_CORNER + 1, SAND + 11, "ink")
+    c.seth(APRON_CORNER, SAND + 12, "ink")
     # The corner post at the far end: the yard's bound, a little taller, its top cut square.
     post(CORNER_POST, 11)
     c.seth(CORNER_POST, SAND + 11, "woodLight")
@@ -517,11 +572,17 @@ def site(frame):
         for hh in range(0, 6):
             c.seth(55 + hh // 3, hh, "woodLight")
             c.seth(57 + hh // 3, hh, "wood")
-        for hh in range(0, 5):
-            for x in range(80, 88):
-                c.seth(x, hh, "strawLight" if x < 83 and hh > 1 else "straw")
-            c.seth(84, hh, "soil")
-            c.seth(87, hh, "plasterDim")
+        # Fix step 4b (R8): three logs stacked east of the door (1522 to 1529), the upper ones set back, each log two
+        # rows (its lit top, its shaded underside); on the stack's east face each log's cut end shows, a pale pixel
+        # over a dark ring, so the three ends read as timber and never as a crate.
+        for (x0, x1, hh0) in ((80, 87, 0), (80, 86, 2), (81, 85, 4)):
+            for x in range(x0, x1 + 1):
+                c.seth(x, hh0 + 1, "woodLight" if (x * 5 + hh0) % 7 else "wood")
+                c.seth(x, hh0, "woodDark" if (x * 3 + hh0) % 5 else "soil")
+            c.seth(x1 - 1, hh0 + 1, "strawLight")
+            c.seth(x1, hh0 + 1, "plaster")
+            c.seth(x1 - 1, hh0, "soilLight")
+            c.seth(x1, hh0, "soil")
     rim(c)
     # After the ink edge (a cord and a chalk line have none, or they would read as a rail and a kerb). The cord from
     # stake to stake at two thirds of the lower stake's height, sagging a pixel in a short span and two
