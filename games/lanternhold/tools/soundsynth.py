@@ -865,10 +865,15 @@ def wall_hit():
 
 
 def wall_break():
+    """A breach (F10, polish step D1): the old fall of stone and its rumble, now on a sub thud, a body blow falling
+    from 80 to 55 Hz (tau 0.3 s) with a 4 ms attack, so the wall's fall lands in the chest before the debris. 1.52 s
+    (was 1.7; law 4's step 4 is 1.5 to 3 s): the 0.18 s of rumble tail pay for D1's new files inside the 4 MB budget."""
     rng = Rng(72)
-    x = zeros(secs(1.7))
+    x = zeros(secs(1.52))
     n = secs(1.2)
     add_into(x, grain(n, 55, 0.35), 0, 1.0)
+    sub = mul(sine(n, lambda t: 55 + 25 * max(0.0, 1.0 - t / 0.08)), decay(n, 0.3, attack=0.004))
+    add_into(x, sub, 0, 1.6)
     rumble = lowpass(lowpass(noise(secs(1.6), rng), 220), 220)
     add_into(x, mul(rumble, decay(secs(1.6), 0.45, attack=0.03)), 0, 5.0)
     add_into(x, lowpass([rng.bipolar() * math.exp(-i / (0.12 * SR)) for i in range(n)], 900), 0, 1.2)
