@@ -1,0 +1,47 @@
+2026-11-22 20:18:50.674960+0000 Lanternhold[22286:74848] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-22 20:18:52.701449+0000 Lanternhold[22286:76300] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:18:52.701889+0000 Lanternhold[22286:75674] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:18:52.708246+0000 Lanternhold[22286:76286] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:18:52.708291+0000 Lanternhold[22286:75674] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:18:52.965422+0000 Lanternhold[22286:75674] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 20:18:52.967243+0000 Lanternhold[22286:75674] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.FeelTests testFirstLightSweepsFromRightToLeftWhereTheSimulationDissolves]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.FeelTests testTheBigMomentsAlwaysPlayAndComeFirst]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FeelTests testTheShakeFadesAndRespectsReduceMotion]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FeelTests testVolleysPlayNearTheKingAndThinOut]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testSpaceFallsOffAndPans]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheBedsDuckAtQuickAndComeBackOverTheSettleTime]' passed (0.001 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SoundMixTests.swift:252: error: -[LanternholdTests.SoundMixTests testTheChainClimbsASemitoneARepeatAndResets] : XCTAssertEqual failed: ("0") is not equal to ("1")
+Test Case '-[LanternholdTests.SoundMixTests testTheChainClimbsASemitoneARepeatAndResets]' failed (0.105 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheContractsHaptics]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheContractsStandInsSitOnTheirStep]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheDawnVerdictRingsOrTolls]' passed (0.840 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheDeepestDuckWinsNeverTheProduct]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheGateKeepsStepThreeSteady]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheHubTakesAPlace]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheLaddersFourSizes]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testThePlaquePressGivesNoHapticWithHapticsOff]' passed (0.377 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheThinnerKeepsWhereACueCameFrom]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheTitlesBeds]' passed (0.002 seconds).
+Test Suite 'SoundMixTests' failed at 2026-11-22 20:18:55.297.
+Test Case '-[LanternholdTests.SoundTests testEveryCuePlaysAFileThatShipsAndIsInTheManifest]' passed (0.048 seconds).
+Test Case '-[LanternholdTests.SoundTests testEveryFileIsInTheAppAndSmall]' passed (0.048 seconds).
+Test Case '-[LanternholdTests.SoundTests testFireIsHeardNearBraziersAndTheBeacon]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testSoundIsOffInTestsUnlessAskedFor]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheAmbienceFollowsDayNightRainAndPlace]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGameFeedsTheHubWithoutTouchingTheSimulation]' passed (1.069 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGateShutsAtNightfall]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheHaptics]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheLordsStepsFollowHisWalk]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheMomentsHaveTheirSounds]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundTests testThePlacesHaveTheirBedsAndCrossOver120Px]' passed (0.069 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThinnerTakesTheWatchsCues]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThrottleKeepsItsGapPerKey]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheWatchHearsGoldWallsAndCreatures]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.WindSoundTests testTheFlagsInViewAndTheBedFollowTheWind]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.WindSoundTests testTheGustsAreHeardRarely]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.WindSoundTests testTheWindsFilesAreInTheAppAndSmall]' passed (0.004 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-22 20:18:56.600.
+Test Suite 'Selected tests' failed at 2026-11-22 20:18:56.621.
+exit=65
+screenshots: 0
