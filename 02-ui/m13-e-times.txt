@@ -1,0 +1,26 @@
+m13-e: the pause sheet's Sound the horn, confirmed: the same dusk in 4.0 s, then the horn
+real time; as fast as the frames come (a rolling burst)
+the cause (the pause sheet's Sound the horn, confirmed: the same dusk in 4.0 s, then the horn) was sent at +0.000 s and returned at +0.226 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +5.192 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 1545
+
+frame  seconds since the burst began  (scene where read)
+01  +0.436 s  
+02  +0.785 s  day:1 hour:13.84 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none
+03  +1.487 s  
+04  +1.821 s  day:1 hour:17.31 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none
+05  +2.970 s  
+06  +3.286 s  day:1 hour:18.83 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none
+07  +4.319 s  
+08  +4.692 s  day:1 hour:18.99 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+09  +5.406 s  
+10  +5.657 s  
+11  +5.979 s  
+12  +6.347 s  
+13  +6.598 s  
+14  +6.858 s  
+15  +7.145 s  
+16  +7.387 s  
+17  +7.610 s  
+18  +7.920 s  day:1 hour:19.27 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.440 s over 17 gaps

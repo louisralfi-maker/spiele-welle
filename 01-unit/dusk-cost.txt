@@ -1,0 +1,2 @@
+E1B-DUSK-COST call 11.00 day 2 collectorOut Optional(true) back nil job no: 241 frames, 5760 steps, 23.0 us per step (Debug build), worst frame 73 steps 4.42 ms; first frames: 73 steps 4.42 ms, 73 steps 1.44 ms, 72 steps 2.07 ms, 71 steps 3.67 ms, 71 steps 1.78 ms
+E1B-DUSK-COST call 6.25 day 2 collectorOut Optional(true) back nil job yes: 241 frames, 9181 steps, 24.9 us per step (Debug build), worst frame 97 steps 9.36 ms; first frames: 118 steps 2.19 ms, 117 steps 2.11 ms, 116 steps 2.12 ms, 115 steps 2.09 ms, 114 steps 2.04 ms
