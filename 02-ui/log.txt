@@ -1,0 +1,19 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (33.827 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (28.022 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (78.627 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:175: error: -[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome] : XCTAssertTrue failed - at 2.0 s the warning, both coins still laid
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' failed (23.589 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (63.485 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (22.671 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (122.080 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (15.924 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (24.253 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (18.585 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (49.411 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (107.379 seconds).
+Test Suite 'CountUITests' failed at 2026-11-22 20:36:01.826.
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (75.969 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-22 20:37:17.802.
+Test Suite 'Selected tests' failed at 2026-11-22 20:37:17.803.
+exit=65
+screenshots: 49
