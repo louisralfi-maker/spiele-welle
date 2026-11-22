@@ -1,0 +1,24 @@
+Application, 0x103039830, pid: 19071, label: 'Lanternhold' <App element pid: 19071>
+  Window (Main), 0x10163ff80, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 19071, elementOrHash.elementID: 4345330816.4>
+    Other, 0x101644d20, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 19071, elementOrHash.elementID: 4348502256.5>
+      Other, 0x101642050, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 19071, elementOrHash.elementID: 4348464912.6>
+        Other, 0x101643f70, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 19071, elementOrHash.elementID: 4348477040.7>
+          Other, 0x103037c40, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 19071, elementOrHash.elementID: 4345944112.8>
+            Other, 0x103039120, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 19071, elementOrHash.elementID: 4345943008.9>
+              Other, 0x103036780, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:2370 ready d... <AX element pid: 19071, elementOrHash.elementID: 4348656448.10>
+              Other, 0x10303a970, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 19071, elementOrHash.elementID: 4347702400.11>
+              Other, 0x10303a280, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 19071, elementOrHash.elementID: 4347703184.12>
+              Other, 0x1030378a0, {{0.0, 0.0}, {1.0, 1.0}}, identifier: 'town-status', value: day:3 owing: paid:... <AX element pid: 19071, elementOrHash.elementID: 4347705568.13>
+              Other, 0x103038340, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 19071, elementOrHash.elementID: 4347707024.14>
+              Other, 0x1030356a0, {{437.0, 2.0}, {0.0, 4.0}} <AX element pid: 19071, elementOrHash.elementID: 4348805376.85>
+              Other, 0x103036e40, {{249.7, 248.0}, {250.7, 114.0}} <AX element pid: 19071, elementOrHash.elementID: 4345941472.17>
+                Button, 0x103039b70, {{249.7, 252.0}, {44.0, 110.0}}, identifier: 'touch-talk-tamsin', label: 'Talk to Tamsin' <AX element pid: 19071, elementOrHash.elementID: 4348764992.66>
+                Button, 0x103032950, {{282.7, 290.0}, {44.0, 60.0}}, identifier: 'touch-lord', label: 'Robin, day 3, 91 gold, the town is glad, 16 people' <AX element pid: 19071, elementOrHash.elementID: 4347636656.65>
+                Button, 0x1030333c0, {{384.3, 248.0}, {44.0, 114.0}}, identifier: 'touch-talk-marek', label: 'Talk to Marek' <AX element pid: 19071, elementOrHash.elementID: 4347727152.67>
+                Button, 0x1030359f0, {{448.3, 260.0}, {52.0, 102.0}}, identifier: 'touch-collector', label: 'Take on Saul Tolliver' <AX element pid: 19071, elementOrHash.elementID: 4345879280.68>
+              Button, 0x103032250, {{121.7, 186.3}, {300.0, 95.7}}, identifier: 'talk-bubble', label: 'Tamsin, Pip stole a whole pie yesterday and blamed the Gloom. The Gloom has crumbs in its beard, apparently.' <AX element pid: 19071, elementOrHash.elementID: 4345937392.80>
+                Image, 0x103034ff0, {{121.7, 186.3}, {300.0, 95.7}} <AX element pid: 19071, elementOrHash.elementID: 4347734368.82>
+                StaticText, 0x1030386b0, {{133.7, 194.3}, {44.7, 16.7}}, label: 'Tamsin' <AX element pid: 19071, elementOrHash.elementID: 4345950448.83>
+                StaticText, 0x1030371a0, {{133.7, 213.0}, {235.7, 61.0}}, label: 'Pip stole a whole pie yesterday and blamed the Gloom. The Gloom has crumbs in its beard, apparently.' <AX element pid: 19071, elementOrHash.elementID: 4345961152.84>
+              Image, 0x101640d10, {{264.7, 282.0}, {14.0, 8.0}} <AX element pid: 19071, elementOrHash.elementID: 4345964192.81>
+              Other, 0x101644650, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 19071, elementOrHash.elementID: 4345942576.18>

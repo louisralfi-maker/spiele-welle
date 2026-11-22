@@ -1,0 +1,21 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:129: error: -[LanternholdUITests.AudienceUITests testAudience] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/AudienceUITests.swift:101: error: -[LanternholdUITests.AudienceUITests testAudience] : XCTAssertTrue failed - the king stepped into the chapel
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' failed (173.932 seconds).
+Test Suite 'AudienceUITests' failed at 2026-11-22 13:01:05.696.
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (22.138 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (27.554 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (77.625 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (21.305 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (61.686 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (20.259 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (122.499 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (17.546 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (20.011 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (18.369 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (50.001 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (92.778 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (72.776 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-22 13:11:30.279.
+Test Suite 'Selected tests' failed at 2026-11-22 13:11:30.280.
+exit=65
+screenshots: 61

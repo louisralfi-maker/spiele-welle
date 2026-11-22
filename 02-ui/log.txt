@@ -1,0 +1,16 @@
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (246.631 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (72.397 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (118.376 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (188.240 seconds).
+Test Case '-[LanternholdUITests.YardUITests testANightWithTheKettle]' passed (14.878 seconds).
+Test Case '-[LanternholdUITests.YardUITests testDayFourTheYardIsPaidAtItsCounter]' passed (35.358 seconds).
+Test Case '-[LanternholdUITests.YardUITests testMareksCartByTheBackGate]' passed (13.353 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheDawnCardNamesTheTrained]' passed (17.915 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheDrillAsAFilmstrip]' passed (30.016 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheFlightSlowed]' passed (60.037 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheGateRockAtTiersTwoAndThree]' passed (25.273 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheNoonDrill]' passed (15.003 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheNoonDrillWithTheKettle]' passed (13.566 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheYardAtDusk]' passed (13.818 seconds).
+exit=0
+screenshots: 64
