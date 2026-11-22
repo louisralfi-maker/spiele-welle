@@ -39,6 +39,8 @@ final class SoundDirector: FeedbackHub {
     private var answer4At: Double?
     /// Step 0b: the title's beds stand (`startTitleBeds`) since this time.
     private var titleSince: Double?
+    /// D1: the battle duck's caller, from the placed blows (`FightNear`).
+    private var fight = FightNear()
 
     private let lightImpact: UIImpactFeedbackGenerator
     private let softImpact: UIImpactFeedbackGenerator
@@ -71,26 +73,42 @@ final class SoundDirector: FeedbackHub {
     // MARK: - FeedbackHub
 
     func play(_ cue: FeedbackCue) {
-        sound(cue, gain: 1, pan: 0)
+        sound(cue, gain: 1, pan: 0, near: true)
     }
 
-    // Step 0b: law 4's space; the arithmetic is `SoundSpace` (Core), applied here.
+    // Step 0b: law 4's space; the arithmetic is `SoundSpace` (Core), applied here. D1: every placed blow tells the
+    // battle duck where the fight is, heard or not.
     func play(_ cue: FeedbackCue, at x: Double, listenerX: Double) {
+        let now = CACurrentMediaTime()
+        fight.note(cue, distance: x - listenerX, now: now)
         guard let place = SoundSpace.place(cue, x: x, listenerX: listenerX) else { return }
-        sound(cue, gain: place.gain, pan: place.pan)
+        let near = !cue.isPositional || SoundSpace.near(distance: x - listenerX, hearing: cue.hearing)
+        sound(cue, gain: place.gain, pan: place.pan, near: near)
     }
 
-    private func sound(_ cue: FeedbackCue, gain: Double, pan: Double) {
+    private func sound(_ cue: FeedbackCue, gain: Double, pan: Double, near: Bool) {
         let now = CACurrentMediaTime()
-        let answer = gate.answer(cue, soundOn: soundOn, hapticsOn: hapticsOn, now: now)
-        if let haptic = answer.haptic { fire(haptic, strength: answer.hapticStrength) }
-        // Step 0b: an answer of step 3 or 4 ducks the beds (`BedDucks`; no cue made before the ladder has a size).
-        switch cue.answerSize {
+        let answer = gate.answer(cue, soundOn: soundOn, hapticsOn: hapticsOn, now: now, near: near)
+        if let haptic = answer.haptic {
+            fire(haptic, strength: answer.hapticStrength)
+            // D1, law 4's step 4: the same haptic again (the breach: heavy, then heavy 0.12 s later).
+            if let echo = answer.echo {
+                let strength = answer.hapticStrength
+                Task { [weak self] in
+                    try? await Task.sleep(nanoseconds: UInt64(echo * 1_000_000_000))
+                    guard let self, self.hapticsOn else { return }
+                    self.fire(haptic, strength: strength)
+                }
+            }
+        }
+        guard let sound = answer.sound, let player = voice(sound.id) else { return }
+        // Step 0b, D1 (0b's L1): an answer of step 3 or 4 ducks the beds only when its sound really plays (not when
+        // it was throttled away, Sound is off, or its file is missing).
+        switch answer.duck {
         case .triumph?: answer3At = now
         case .realm?: answer4At = now
         default: break
         }
-        guard let sound = answer.sound, let player = voice(sound.id) else { return }
         let jitter = answer.jitter ? Double.random(in: 0.96...1.04) : 1
         player.volume = Float(max(0, min(1, sound.volume * gain)))
         player.pan = Float(max(-1, min(1, pan)))
@@ -144,6 +162,8 @@ final class SoundDirector: FeedbackHub {
         // Step 0b, law 4's one duck rule: the deepest active duck wins (`BedDucks.depth`), followed on this clock and
         // laid over the crossfaded beds (the place, day and weather keep their 1.2 s crossfade).
         var ducks = mix.ducks
+        // D1: the battle duck, x 0.6 while a fight is within 300 px of the lord (the deepest duck still wins).
+        if !ducks.battleNear { ducks.battleNear = fight.near(at: now) }
         if ducks.answer3Age == nil, let at = answer3At { ducks.answer3Age = now - at }
         if ducks.answer4Age == nil, let at = answer4At { ducks.answer4Age = now - at }
         let ducked = duck.step(toward: ducks.depth, dt: dt)
