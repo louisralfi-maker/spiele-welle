@@ -1338,3 +1338,15 @@ schneller geht."
   - Rulings: the kettle by day gets its frame and a free tripod (the drawn fence ends at a corner post at 1464); the stuck arrow is redrawn so it reads as an arrow, with a short straw puff; the rock's tail steps unevenly; the waiting file at night gets more of the kettle's light and uneven gaps; the pell reads as a wrapped post; the bared pale wall stone is toned down; by day the site lantern has no glow disc.
   - Decision: in a realm without a yard the bunkhouse keeps its gold rim at night (it is the recruit place there).
   - The wave 2 join was rehearsed: lane 6 and the yard merge clean, the lantern conflicts only in App/DebugArgs.swift. Order: lane 6, the yard, the lantern; then lane 6's join lines; proof rounds from lh-b3j-10; then the TestFlight round tf-lh-4.
+
+- **Lane 2: the drill yard's fix step 4b is green and pushed; its merge onto the joined head is proven ahead (22.11.2026, 13:05).**
+  - `claude/lh-b3-yard` **aa7b9ea0**, round lh-b3y-14 ALL PASSED (build, the whole unit suite with 1204 tests, ui Yard
+    FirstDay Touch, ui Count Lord Audience). No rule place, number or saved field moved.
+  - Built: the kettle by day reads (shot 312 with `-GWYard 2,kettle`, the fence ends at a corner post at 1464, pale
+    tripod edges); the stuck arrow (yardButt 17 x 26, 12 px shaft from the heart) and a straw puff; the rock's cap; the
+    pell's uneven bindings; the wall patch; the spill's third ring; no day pool at the yard's site lantern; log timber.
+  - Judgment: accepted for build 3. For the phone review: the puff cannot be seen, the two western waiting guards are
+    dark at night, the pell's slight barrel echo, the fletch on the pale window sill.
+  - The joiner's stage 2 runs on f9f48fba without 4b (it looked before 4b was pushed). The director's merge commit
+    be33de3c (f9f48fba + aa7b9ea0, clean) is under proof in round lh-b3j-20 (build, whole unit, ui Yard FirstDay Touch,
+    ui Count Lord Audience, release). Green on both sides: fast-forward `claude/lh-b3join`, push, then tf-lh-4.
