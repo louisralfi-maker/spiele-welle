@@ -1,5 +1,45 @@
 import Foundation
 
+// MARK: - The cue contract (polish step 0b, polish-audit.md law 4 "The ladder of answers, and the sounds")
+//
+// The other lanes call these cues in their own steps; lane D swaps the real sounds in behind them (D1, D2) without a
+// caller changing. Until then each plays a stand-in from the files that ship. Size = the step on law 4's ladder
+// (`AnswerSize`: 1 touch, 2 deed done, 3 small triumph or loss, 4 the realm turns); level = effective dBFS (file RMS +
+// 20 log10 volume, inventory.md's measure). "Law" marks a stand-in law 4 names; the others are chosen here.
+//
+// | cue          | caller (lane, step)                          | size | stand-in file | vol  | rate | level | haptic        |
+// |--------------|----------------------------------------------|------|---------------|------|------|-------|---------------|
+// | lanternUp    | B1 (raise); C2 (the title's touch)           | 1    | tap (law vol) | 0.55 | 1.15 | -21.2 | soft 0.5      |
+// | lanternDown  | B1 (lower)                                   | 1    | tap (law vol) | 0.40 | 0.80 | -24.0 | none          |
+// | paneOpen     | C1 (OverlayView, the overlay's change)       | 1    | tap (law)     | 0.55 | 1.00 | -21.2 | soft 0.4      |
+// | paneClose    | C1 (OverlayView, the overlay's change)       | 1    | tap (law)     | 0.45 | 0.85 | -22.9 | soft 0.3      |
+// | bubbleClose  | B3 (LANE-B block in closeTalk, Court.swift)  | 1    | tap (law)     | 0.30 | 0.85 | -26.5 | none          |
+// | plaquePress  | C1 (GlassPlaqueStyle on press); B4 plaques   | 1    | tap           | 0.42 | 1.20 | -23.5 | selection     |
+// | boardSet     | B (GameModel+Pay, the board rises), D2       | 1    | knock (law)   | 0.40 | 0.62 | -22.8 | soft 0.3      |
+// | hit(x)       | A3 (BattleEffects' hp watch), D1             | 2    | creature_hit  | 0.80 | 1.00 | -18.9 | none          |
+// | manHit(x)    | A3 (a soldier's hp drop), D1                 | 2    | creature_hit  | 0.80 | 0.80 | -18.9 | none          |
+// | dawnGate     | A5 (the portcullis slides up), D2            | 2    | gate (law)    | 0.60 | 1.05 | -23.2 | none          |
+// | buildStood   | A2 (the swap at the dust's peak), D2         | 3    | build_done    | 0.90 | 1.00 | -15.3 | success       |
+// | manFell      | A3 (the fallen man's ghost), D1              | 3    | wall_hit      | 0.85 | 0.80 | -15.5 | heavy         |
+// | dawnHeld     | E2 (the card lands, no man lost)             | 3    | bell (law)    | 0.50 | 0.90 | -23.3 | success       |
+// | dawnToll     | E2 (once per fallen man, at most 3)          | 3    | bell (law)    | 0.50 | 0.55 | -23.3 | heavy         |
+//
+// - A position rides on the play call, `FeedbackHub.play(_:at:listenerX:)` (law 4's fall-off and pan, `SoundSpace`);
+//   the dawn verdict's outcome rides on its two cases (`DawnVerdict.cues(fallen:)` picks and spaces them).
+// - Steps 3 and 4 are never randomised (`AnswerSize.jitters`) and set off the answer ducks in the hub (`BedDucks`).
+// - The law's own numbers stand where its measure disagrees: the bubble close (-26.5), the dawn's bells and the dawn
+//   gate (whole-file RMS reads a long bell or gate tail quieter than its strike). D2 judges them by ear.
+// - When A2 calls `buildStood` and A3 `manFell`, the simulation's `buildDone` and `soldierFell` go quiet in the same
+//   step (D1/D2), so nothing plays twice.
+// - Old calls a new cue retires, in the caller's step (they share a file and its throttle, so the one called first in
+//   a frame would swallow the other and both haptics would fire):
+//   - B1: `lanternUp` replaces `play(.touched)` on the raise (`GameModel+Lantern.swift`, `openLanternMoment`); both
+//     play tap.wav under its 0.06 s throttle.
+//   - C1 (with lanes B and E for their call sites): `paneOpen` / `paneClose` replace `cardOpened` / `cardClosed`
+//     wherever a pane comes or goes; both pairs play tap.wav.
+//   - A3 with D1: `hit(x)` replaces `SoundWatch`'s `creatureHit` for the same blow (`Core/SoundCues.swift`,
+//     `SoundWatch`); both play creature_hit.wav under one 0.3 s throttle, so the heard volume would follow call order.
+
 /// What the player hears and feels (DESIGN.md "Feel": sound effects and haptics only, synthesized in code, never music
 /// and no melodic jingles). M6 plays them through the feedback hub; until then the hub is silent, but every moment of
 /// the table already reaches it as a cue.
@@ -28,6 +68,11 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     // The count (build 3, PAY.md): a coin lands on the tally board (its clink rises and its tick grows through the
     // count: `FeedbackHub.countCoin`), the seal falls, the site lantern is lit, the coins slide back into the purse
     case countCoin, countSeal, countLantern, coinsBack
+    // Polish step 0b, the cue contract (the table at the top of this file): the touch step, deeds done, small triumphs
+    // and losses. `hit` and `manHit` are positional (played with their x); the dawn verdict is `dawnHeld` or `dawnToll`.
+    case lanternUp, lanternDown, paneOpen, paneClose, bubbleClose, plaquePress, boardSet
+    case hit, manHit, dawnGate
+    case buildStood, manFell, dawnHeld, dawnToll
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").
@@ -35,6 +80,7 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
         switch self {
         case .volley, .fireArrow, .ballista, .catapult, .creatureDissolved, .glancedOff, .stomp: return true
         case .wallHit, .creatureHit, .arrowHit: return true
+        case .hit, .manHit: return true
         default: return false
         }
     }
@@ -43,7 +89,7 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     var hearing: Double {
         switch self {
         case .volley, .fireArrow, .creatureDissolved, .arrowHit: return 220
-        case .creatureHit: return 240
+        case .creatureHit, .hit, .manHit: return 240
         case .glancedOff: return 260
         case .wallHit: return 420
         case .ballista, .catapult: return 300
@@ -117,8 +163,8 @@ struct FeedbackThinner: Sendable, Equatable {
     static func rank(_ cue: FeedbackCue) -> Int {
         switch cue {
         case .defeat, .kingSlain, .beaconLit, .horn, .firstLight, .taxesCounted: return 0
-        case .wallBroken, .soldierFell, .kingAuraBroken, .hearthHit, .stomp, .gate: return 1
-        case .buildOrdered, .buildDone, .recruited, .patched, .brazierLit, .coin, .paid: return 2
+        case .wallBroken, .soldierFell, .kingAuraBroken, .hearthHit, .stomp, .gate, .manFell: return 1
+        case .buildOrdered, .buildDone, .recruited, .patched, .brazierLit, .coin, .paid, .buildStood: return 2
         case .ballista, .catapult, .glancedOff, .wallHit: return 3
         default: return 4
         }
@@ -133,7 +179,16 @@ struct FeedbackThinner: Sendable, Equatable {
     /// A single coin is left out when the dawn's coins are counted in the same frame.
     mutating func cues(for events: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], time: Double,
                        listenerX: Double) -> [FeedbackCue] {
+        placedCues(for: events, extra: extra, time: time, listenerX: listenerX).map { $0.cue }
+    }
+
+    /// Step 0b: the same cues with the place each came from (the first of the frame for a cue heard twice; nil:
+    /// everywhere), so a positional cue can be played with law 4's fall-off and pan (`FeedbackHub.play(_:at:listenerX:)`;
+    /// D1 switches `GameModel.playCues` to it).
+    mutating func placedCues(for events: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], time: Double,
+                             listenerX: Double) -> [(cue: FeedbackCue, x: Double?)] {
         var wanted: [FeedbackCue] = []
+        var places: [FeedbackCue: Double] = [:]
         var found: [(cue: FeedbackCue, x: Double?)] = []
         for event in events {
             if let cue = FeedbackThinner.cue(for: event) { found.append(cue) }
@@ -141,7 +196,10 @@ struct FeedbackThinner: Sendable, Equatable {
         found.append(contentsOf: extra)
         for (cue, x) in found {
             if let x, cue.isPositional, abs(x - listenerX) > cue.hearing { continue }
-            if !wanted.contains(cue) { wanted.append(cue) }
+            if !wanted.contains(cue) {
+                wanted.append(cue)
+                if let x { places[cue] = x }
+            }
         }
         if wanted.contains(.taxesCounted) { wanted.removeAll { $0 == .coin } }
         // By rank, the events' order breaking ties.
@@ -150,13 +208,32 @@ struct FeedbackThinner: Sendable, Equatable {
             let right = FeedbackThinner.rank(b.element)
             return left == right ? a.offset < b.offset : left < right
         }.map(\.element)
-        var played: [FeedbackCue] = []
+        var played: [(cue: FeedbackCue, x: Double?)] = []
         for cue in ordered where played.count < FeedbackThinner.maxPerFrame {
             if let last = lastPlayed[cue], time - last < cue.minimumGap, time >= last { continue }
             lastPlayed[cue] = time
-            played.append(cue)
+            played.append((cue, places[cue]))
         }
         return played
+    }
+}
+
+/// Step 0b: the dawn verdict as it lands (E2 calls it): a held night rings the bell once; a night that cost men tolls
+/// once per fallen man, at most `maxTolls`, `tollGap` apart (the stand-in is the bell, throttled to one every 2 s; D2's
+/// own toll keeps the gap).
+enum DawnVerdict {
+    static let maxTolls = 3
+    static let tollGap = 2.1
+
+    /// The verdict's cue for a night that cost `fallen` men.
+    static func cue(fallen: Int) -> FeedbackCue {
+        fallen > 0 ? .dawnToll : .dawnHeld
+    }
+
+    /// The cues to play and each one's delay (seconds after the card lands).
+    static func cues(fallen: Int) -> [(cue: FeedbackCue, delay: Double)] {
+        guard fallen > 0 else { return [(cue: FeedbackCue.dawnHeld, delay: 0)] }
+        return (0..<min(maxTolls, fallen)).map { (cue: FeedbackCue.dawnToll, delay: Double($0) * DawnVerdict.tollGap) }
     }
 }
 

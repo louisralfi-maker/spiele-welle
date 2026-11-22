@@ -9,6 +9,9 @@ protocol FeedbackHub: AnyObject {
     var soundOn: Bool { get set }
     var hapticsOn: Bool { get set }
     func play(_ cue: FeedbackCue)
+    /// Step 0b: a cue that happens at `x` (game px) for a lord at `listenerX`: law 4's fall-off and pan
+    /// (`SoundSpace`); nothing beyond the cue's hearing.
+    func play(_ cue: FeedbackCue, at x: Double, listenerX: Double)
     /// One coin of the count (build 3, PAY.md section 2): the clink at playback rate `rate` (each coin a little higher,
     /// at most an octave in all) and a tick of `strength` (0 ... 1, growing through the count). Never throttled away:
     /// every coin is heard on its own.
@@ -21,6 +24,11 @@ protocol FeedbackHub: AnyObject {
     func countWarm()
     /// The ambience's target mix for this frame (the hub crossfades toward it).
     func ambience(_ mix: AmbienceMix)
+    /// Step 0b (thing 8; lane C calls them for the title): the title's beds, the Throat's wind and the fire, fade in
+    /// over 1.5 s (`AmbienceMix.titleBeds`); the stop hands them to the game's ambience, which carries them on from
+    /// where they stand over the settle time.
+    func startTitleBeds()
+    func stopTitleBeds()
 }
 
 /// The hub of tests and UI test launches: it plays nothing and remembers what reached it.
@@ -37,6 +45,10 @@ final class SilentFeedback: FeedbackHub {
     private(set) var ticks: [Double] = []
     /// How often the count asked for its sounds to be made ready.
     private(set) var warmed = 0
+    /// Step 0b: the cues played at a place, the haptics felt (behind `hapticsOn`), the title's beds.
+    private(set) var placed: [(cue: FeedbackCue, x: Double, listenerX: Double)] = []
+    private(set) var felt: [HapticKind] = []
+    private(set) var titleBeds = false
 
     init() {}
 
@@ -44,6 +56,12 @@ final class SilentFeedback: FeedbackHub {
         count += 1
         last = cue
         if played.count < 512 { played.append(cue) }
+        if let haptic = FeedbackGate.haptic(cue, hapticsOn: hapticsOn), felt.count < 512 { felt.append(haptic) }
+    }
+
+    func play(_ cue: FeedbackCue, at x: Double, listenerX: Double) {
+        if placed.count < 512 { placed.append((cue: cue, x: x, listenerX: listenerX)) }
+        play(cue)
     }
 
     func countCoin(rate: Double, strength: Double) {
@@ -61,5 +79,13 @@ final class SilentFeedback: FeedbackHub {
 
     func ambience(_ mix: AmbienceMix) {
         lastMix = mix
+    }
+
+    func startTitleBeds() {
+        titleBeds = true
+    }
+
+    func stopTitleBeds() {
+        titleBeds = false
     }
 }
