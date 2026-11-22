@@ -1332,3 +1332,9 @@ schneller geht."
   - For the join: the lantern's head is 2c727f29; tagged `// b3-lantern` blocks in Core/RealmMapPixels.swift are
     accepted; the unused `LanternFlare.band` goes in the join's tidy.
   - Still running: the drill yard's polish (step 4). Then the wave 2 join and a TestFlight round.
+
+- **Lane 2: the drill yard's step 4 (the polish) is green and pushed; rulings on its critic; fix step 4b and the wave 2 join run (22.11.2026, 11:44).**
+  - `claude/lh-b3-yard` 04bbd941, round lh-b3y-43 ALL PASSED (build, the whole unit suite, six UI classes). Critic 7/10, two highs.
+  - Rulings: the kettle by day gets its frame and a free tripod (the drawn fence ends at a corner post at 1464); the stuck arrow is redrawn so it reads as an arrow, with a short straw puff; the rock's tail steps unevenly; the waiting file at night gets more of the kettle's light and uneven gaps; the pell reads as a wrapped post; the bared pale wall stone is toned down; by day the site lantern has no glow disc.
+  - Decision: in a realm without a yard the bunkhouse keeps its gold rim at night (it is the recruit place there).
+  - The wave 2 join was rehearsed: lane 6 and the yard merge clean, the lantern conflicts only in App/DebugArgs.swift. Order: lane 6, the yard, the lantern; then lane 6's join lines; proof rounds from lh-b3j-10; then the TestFlight round tf-lh-4.
