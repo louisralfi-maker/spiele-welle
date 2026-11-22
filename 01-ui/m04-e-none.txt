@@ -1,0 +1,1 @@
+no lantern moment after the night raise; scene: frame:570 ready day:2 hour:22.82 alive:9 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:30 hud:none cam:2382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none lantern:guttering

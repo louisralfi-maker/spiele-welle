@@ -1,0 +1,1 @@
+frame:1830 ready day:1 hour:11.67 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1405 lord:lord stage:world lx:1405 errand:none door:1830 gold:44 hud:none cam:1155 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none

@@ -1,0 +1,41 @@
+m01-a: the launch: from app.launch() returning, the loading and the title's first light
+real time; as fast as the frames come
+no cause: the burst only watches
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: 
+scene after: 
+
+frame  seconds since the burst began  (scene where read)
+01  +0.190 s  
+02  +0.295 s  
+03  +0.418 s  
+04  +0.521 s  
+05  +0.641 s  
+06  +0.751 s  
+07  +0.855 s  
+08  +0.960 s  
+09  +1.068 s  
+10  +1.178 s  
+11  +1.315 s  
+12  +1.448 s  
+13  +1.600 s  
+14  +1.778 s  
+15  +1.998 s  
+16  +2.247 s  
+17  +2.370 s  
+18  +2.489 s  
+19  +2.602 s  
+20  +2.923 s  
+21  +3.382 s  
+22  +3.558 s  
+23  +3.722 s  
+24  +3.876 s  
+25  +4.037 s  
+26  +4.176 s  
+27  +4.289 s  
+28  +4.402 s  
+29  +4.520 s  
+30  +4.639 s  
+31  +4.757 s  
+32  +4.873 s  
+mean spacing 0.151 s over 31 gaps
