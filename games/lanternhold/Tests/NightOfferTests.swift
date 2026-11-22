@@ -273,12 +273,13 @@ final class NightOfferTests: XCTestCase {
 
     /// Polish E1b (E1's L4: nobody had measured the dusk's cost): the extra steps of the eased dusk, timed on a full
     /// day 2 (the town, the collector hired and out on his round, a brazier being built), called at 11:00 after a
-    /// natural morning and at 06:15 (the pause sheet's early case). Reports the microseconds per step and the worst
-    /// frame at 60 frames a second (attachment `dusk-cost`, and the log line `E1B-DUSK-COST`). The director's bar:
-    /// the first frames take about 75 steps; above 4 ms for them the quadratic ease would be used instead.
+    /// natural morning and at 06:15 (the pause sheet's early case). One warm-up dusk first (the first run in the process
+    /// pays its caches), then three timed runs of each from the same state. Reports the microseconds per step, the
+    /// first frames (median of the runs) and the worst frame at 60 frames a second (attachment `dusk-cost`, and the log
+    /// line `E1B-DUSK-COST`). The director's bar: the first frames take about 75 steps; above 4 ms for them the
+    /// quadratic ease would be used instead. A Debug build (-Onone), as every runner test.
     func testTheDuskCostPerStepOnAFullDayTwo() throws {
-        var lines: [String] = []
-        for callHour in [11.0, 6.25] {
+        func dayTwo(callingAt callHour: Double) throws -> (driver: SimDriver, plot: Int) {
             var start = dawnDay(hour: 6.25, hire: true)
             start.gold = 200
             let plot = try XCTUnwrap(Realm.brazierPlots.first { plot in
@@ -294,40 +295,50 @@ final class NightOfferTests: XCTestCase {
                 events.removeAll(keepingCapacity: true)
                 driver.advance(by: 1.0 / 60, events: &events)
             }
-            let town = driver.state.town?.today
-            let job = driver.state.plots[plot].job != nil
+            return (driver, plot)
+        }
+        /// One timed dusk: each frame's steps and nanoseconds.
+        func timed(_ base: SimDriver) -> [(steps: Int, nanos: UInt64)] {
+            var driver = base
             XCTAssertTrue(driver.callTheNight())
+            var events: [SimEvent] = []
             var frames: [(steps: Int, nanos: UInt64)] = []
-            var totalSteps = 0
-            var totalNanos: UInt64 = 0
-            var guardFrames = 0
-            while !horn(events) && guardFrames < 600 {
-                guardFrames += 1
+            while !horn(events) && frames.count < 600 {
                 events.removeAll(keepingCapacity: true)
                 let begin = DispatchTime.now().uptimeNanoseconds
                 let before = driver.steps
                 driver.advance(by: 1.0 / 60, events: &events)
                 driver.playDusk(seconds: 1.0 / 60, events: &events)
-                let nanos = DispatchTime.now().uptimeNanoseconds - begin
-                let steps = driver.steps - before
-                frames.append((steps, nanos))
-                totalSteps += steps
-                totalNanos += nanos
+                frames.append((driver.steps - before, DispatchTime.now().uptimeNanoseconds - begin))
             }
-            XCTAssertTrue(horn(events), "the horn (\(callHour))")
-            let perStep = Double(totalNanos) / Double(max(1, totalSteps)) / 1000
-            let worst = try XCTUnwrap(frames.max { $0.nanos < $1.nanos })
-            let first = try XCTUnwrap(frames.first)
-            let firstFive = frames.prefix(5).map { String(format: "%ld steps %.2f ms", $0.steps, Double($0.nanos) / 1e6) }
+            XCTAssertTrue(horn(events), "the horn")
+            return frames
+        }
+        func ms(_ nanos: UInt64) -> String { String(format: "%.2f", Double(nanos) / 1e6) }
+        _ = timed(try dayTwo(callingAt: 11).driver)
+        var lines: [String] = []
+        for callHour in [11.0, 6.25] {
+            let (base, plot) = try dayTwo(callingAt: callHour)
+            let town = base.state.town?.today
+            let runs = (0..<3).map { _ in timed(base) }
+            let steps = runs[0].reduce(0) { $0 + $1.steps }
+            let nanos = runs.flatMap { $0 }.reduce(UInt64(0)) { $0 + $1.nanos }
+            let perStep = Double(nanos) / Double(3 * max(1, steps)) / 1000
+            var firsts: [String] = []
+            for index in 0..<min(6, runs[0].count) {
+                let times = runs.map { $0[index].nanos }.sorted()
+                firsts.append("\(runs[0][index].steps) steps \(ms(times[1])) ms")
+            }
+            let worst = runs.map { run in run.max { $0.nanos < $1.nanos }! }
+            let worstText = worst.map { "\($0.steps) steps \(ms($0.nanos)) ms" }.joined(separator: " / ")
             if callHour == 11 {
-                XCTAssertEqual(Double(first.steps), 74, accuracy: 3, "about 75 steps in the first frame from 11:00")
+                XCTAssertEqual(Double(runs[0][0].steps), 74, accuracy: 3, "about 75 steps in the first frame from 11:00")
             }
-            lines.append(String(format: "E1B-DUSK-COST call %.2f day %ld collectorOut %@ back %@ job %@: %ld frames, "
-                                + "%ld steps, %.1f us per step (Debug build), worst frame %ld steps %.2f ms; "
-                                + "first frames: %@", callHour, driver.state.day,
-                                String(describing: town?.collectorOut), String(describing: town?.collectorBack),
-                                job ? "yes" : "no", frames.count, totalSteps, perStep, worst.steps,
-                                Double(worst.nanos) / 1e6, firstFive.joined(separator: ", ")))
+            lines.append("E1B-DUSK-COST call \(callHour) day \(base.state.day) collectorOut "
+                         + "\(String(describing: town?.collectorOut)) back \(String(describing: town?.collectorBack)) "
+                         + "job \(base.state.plots[plot].job != nil): \(runs[0].count) frames, \(steps) steps, "
+                         + String(format: "%.1f", perStep) + " us per step (Debug build); first frames (median of 3): "
+                         + firsts.joined(separator: ", ") + "; worst frame of each run: " + worstText)
         }
         let text = lines.joined(separator: "\n")
         print(text)

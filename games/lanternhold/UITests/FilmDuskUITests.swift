@@ -72,21 +72,16 @@ final class FilmDuskUITests: XCTestCase {
         let horn = film.element(app, "horn-banner")
         let word = brannock.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         var sent = "not sent"
-        var ribbon = ""
-        let held = film.rolling("c", app, keepBefore: 70, after: 10, timeout: 14, what: "the second touch on Brannock "
-                                + "calls the night: the dusk in 4.0 s (eased out since E1b), then the horn; the "
-                                + "condition: the horn's banner stands or the hour 19.0", checkEvery: 2, cause: {
+        // E1b: a timed burst, a frame every 0.25 s from just before the word (frame 00) for 5.5 s, with no reading of
+        // the scene between the frames (each read held the next frame back by up to a second during the dusk).
+        film.burst("c", app, count: 22, what: "the second touch on Brannock calls the night: the dusk in 4.0 s, eased "
+                   + "out since E1b, then the horn", before: true, every: 0.25, cause: {
             let result = film.sendWithoutWaiting(word, app, FilmAnswer())
             sent = result.ok ? "sent without waiting" : "the plain tap (\(result.text))"
             if !result.ok { word.tap() }
-        }) { value in
-            if horn.exists {
-                ribbon = horn.label
-                return true
-            }
-            return self.hour(value) >= 19.0
-        }
-        if ribbon.isEmpty && horn.waitForExistence(timeout: 3) { ribbon = horn.label }
+        })
+        let held = film.wait(6) { horn.exists || self.hour(film.scene(app)) >= 19.0 }
+        let ribbon = horn.waitForExistence(timeout: 3) ? horn.label : "(no ribbon)"
         film.note("m13-c-path", "the word: \(sent); held: \(held); scene: \(film.scene(app))")
         // E1b (the far goal, R10): the ribbon's second line counts the run's nights.
         film.note("m13-c-ribbon", "the horn's ribbon: \(ribbon)")
