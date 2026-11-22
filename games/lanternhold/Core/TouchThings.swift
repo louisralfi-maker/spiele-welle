@@ -49,8 +49,9 @@ enum TouchThings {
                                        footing: footed ? TouchFooting.half(plot: plot, state: s, layouts: layouts) : nil))
             }
             var seen = Set<String>()
-            // Polish E1 (law 3.3): once the day's work is done Brannock carries his mark again for the horn's offer
-            // until he was heard saying it (`NightOffer`); the rule "marks only while the purse can pay" stays.
+            // Polish E1 (law 3.3): once the day's work is done Brannock carries his mark again for the horn's offer,
+            // and (E1b, the standing offer) keeps it while the offer stands, heard or not, until the night is called
+            // (`NightOffer.marks`); the rule "marks only while the purse can pay" stays.
             let offered = figures.contains { $0.who == NightOffer.speaker }
                 && NightOffer.marks(s, balance: balance, talked: talked)
             for figure in figures where figure.alpha > 0.5 && figure.petition == nil && !seen.contains(figure.who) {
