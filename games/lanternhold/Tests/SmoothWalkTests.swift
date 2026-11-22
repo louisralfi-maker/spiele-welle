@@ -456,6 +456,43 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertNotEqual(a.map(\.dx), b.map(\.dx), "each chimney its own wander")
     }
 
+    /// Round lh-b3s-11 (`RainLookTests.testThePuffsHaveBodyOnTheDrawnPixel`: in a calm the billows and fillers covered
+    /// the whole puffs' bodies and the wander moved them off the pixels they read on): the calm column keeps the body
+    /// of its whole puffs. In every calm (still air to the calm's last lean, both ways), at every moment, over the
+    /// keep's and the town's chimneys: the whole puffs (the first 60 % of a puff's life) of `calmPuffs` are those of
+    /// `CastleSmoke.puffs`, in their places and order (none wanders, no billow or filler is whole); in the drawn order
+    /// (`FrameBuilder.puffOrder`) every translucent puff stands behind every whole one, and the whole ones keep the
+    /// order they had. High up, as the puffs thin, the column still wanders.
+    func testTheCalmColumnKeepsItsWholePuffsInTheirPlacesAndInFront() {
+        var wandered = 0
+        for town in [false, true] {
+            let path = town ? CastleSmoke.townRise : CastleSmoke.rise
+            for chimneyX in [1180.0, 1245.5, 2600, 2731, 2918.5] {
+                for wind in [0.0, 0.04, 0.08, -0.08, 0.15, -0.17] {
+                    XCTAssertGreaterThan(FrameBuilder.calmShare(wind: wind), 0, "a calm at \(wind)")
+                    for step in 0..<32 {
+                        let time = Double(step) * 0.37
+                        let born = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimneyX), town: town)
+                        let calm = FrameBuilder.calmPuffs(born, chimneyX: chimneyX, wind: wind, town: town)
+                        let name = "\(town ? "town" : "keep") \(chimneyX), wind \(wind), time \(time)"
+                        XCTAssertEqual(calm.filter { $0.alpha >= 1 }, born.filter { $0.alpha >= 1 },
+                                       "\(name): the whole puffs stand where they stood")
+                        let drawn = FrameBuilder.puffOrder(calm, calm: true)
+                        let front = Array(drawn.drop { $0.alpha < 1 })
+                        XCTAssertTrue(front.allSatisfy { $0.alpha >= 1 }, "\(name): every thin puff behind the whole")
+                        XCTAssertEqual(front, FrameBuilder.puffOrder(born, calm: false).filter { $0.alpha >= 1 },
+                                       "\(name): the whole puffs in their order")
+                        wandered += calm.filter { puff in
+                            puff.rise > path * 0.7 && !born.contains(puff)
+                                && born.contains { $0.rise == puff.rise && $0.frame == puff.frame }
+                        }.count
+                    }
+                }
+            }
+        }
+        XCTAssertGreaterThan(wandered, 100, "high up the column wanders")
+    }
+
     /// The rule of step 2b holds for the calm column: with the clock held, in every frame of a walk each puff of the
     /// keep's smoke (its carried picture, with the mist band), of the town's chimneys (the lane) and of the back row
     /// (the near plane), the billows and fillers included, stands at the same column of the picture it moves with, the

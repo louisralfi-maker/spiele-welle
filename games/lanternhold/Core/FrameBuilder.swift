@@ -617,14 +617,28 @@ enum FrameBuilder {
     // nothing pops; the wind fades all of it out (`calmShare`); under Reduce Motion the
     // column is as before. Each added puff is placed as the others (by its plane's whole offset), so it keeps one offset
     // to the plane it moves with in every frame of a walk.
+    // Round lh-b3s-11 (RainLookTests.testThePuffsHaveBodyOnTheDrawnPixel, the town at a calm noon: the median body of
+    // the fourth column fell from 51 to 36 off its backdrop, two columns of 40 left where three are asked): the
+    // billows and fillers were drawn over the whole puffs and hid their bodies, and the wander moved the whole puffs
+    // off the pixels they read on. Now a whole puff
+    // (the first 60 % of its life) stands where it stood before, with its body in front: a puff wanders only from
+    // `calmWanderFrom` of the column up, above every whole puff, as it thins (the fillers keep their wander from the
+    // mouth: a thin wavering stream behind the column), and every translucent puff of a calm column (the billows, the
+    // fillers, the thinning puffs) is drawn behind every whole one (`puffOrder`). Proven in python over the test's
+    // own measure (ci-out/director/b3/smooth/scratch/smoke6.png: today, M5, now).
 
     /// The wander's two waves: the chimney's own (px), with a wavelength of `calmMeander` plus up to `calmMeanderSpread`
-    /// rows by the chimney, and the puff's own (px) over `calmPuffWave` rows; whole from `calmWanderRamp` rows up.
+    /// rows by the chimney, and the puff's own (px) over `calmPuffWave` rows; a filler's whole from `calmWanderRamp`
+    /// rows up (the column's own puffs': `calmWanderFrom`).
     static let calmWander = (chimney: 0.8, puff: 0.6)
     static let calmMeander = 14.0
     static let calmMeanderSpread = 6.0
     static let calmPuffWave = 9.0
     static let calmWanderRamp = 6.0
+    /// The column's puffs wander from this share of it up, whole `calmWanderFull` of it higher (a whole puff, in any
+    /// calm, stands below 0.6: at most 0.592 of the column, the keep's at the calm's last lean).
+    static let calmWanderFrom = 0.6
+    static let calmWanderFull = 0.2
     /// A billow from this share of the column up (the keep's, the town's), whole `calmBillowRise` of it higher, at this
     /// share of its puff's alpha.
     static let calmBillowFrom = (keep: 0.38, town: 0.42)
@@ -655,9 +669,12 @@ enum FrameBuilder {
         let start = unit(SeededRandom.hash(seed, 2))
         let lowest = town ? CastleSmoke.townFrame : 0
         let billowFrom = town ? calmBillowFrom.town : calmBillowFrom.keep
-        func wander(_ rise: Double, _ index: Int) -> Double {
+        // `filler`: the fillers' wander rises from the mouth; the column's own puffs' from `calmWanderFrom` (no whole
+        // puff wanders).
+        func wander(_ rise: Double, _ index: Int, filler: Bool = false) -> Double {
             let own = FrameBuilder.unit(SeededRandom.hash(seed, Int64(16 + index)))
-            let ramp = min(1, max(0, rise) / FrameBuilder.calmWanderRamp)
+            let ramp = filler ? min(1, max(0, rise) / FrameBuilder.calmWanderRamp)
+                : min(1, max(0, (rise / path - FrameBuilder.calmWanderFrom) / FrameBuilder.calmWanderFull))
             let wave = FrameBuilder.calmWander
             return calm * ramp * (wave.chimney * sin(2 * Double.pi * (start + rise / meander))
                                   + wave.puff * sin(2 * Double.pi * (own + rise / FrameBuilder.calmPuffWave)))
@@ -679,12 +696,23 @@ enum FrameBuilder {
             if share < calmFillUnder && puff.rise > calmFillFrom {
                 let rise = puff.rise - (town ? calmFillDropTown : calmFillDrop)
                 let shown = min(1, (puff.rise - calmFillFrom) / 2) * min(1, (calmFillUnder - share) / calmFillEdge)
-                list.append(CastleSmoke.Puff(dx: puff.dx + wander(rise, index), rise: rise,
+                list.append(CastleSmoke.Puff(dx: puff.dx + wander(rise, index, filler: true), rise: rise,
                                              frame: max(lowest, puff.frame - 1),
                                              alpha: puff.alpha * calmFillAlpha * Float(shown * calm)))
             }
         }
         return list
+    }
+
+    /// b3-smooth (round lh-b3s-11): one chimney's puffs in the order they are drawn: the oldest (the farthest from the
+    /// mouth) first, so the newer stand in front; in a calm column (`calm`) every translucent puff (a billow, a filler,
+    /// a thinning puff) behind every whole one, so no added puff covers a whole puff's body. Without the calm's added
+    /// puffs the order is the one before (the thinning puffs are the oldest).
+    static func puffOrder(_ puffs: [CastleSmoke.Puff], calm: Bool) -> [CastleSmoke.Puff] {
+        let sorted = puffs.filter { $0.alpha > 0.02 }
+            .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
+        guard calm else { return sorted }
+        return sorted.filter { $0.alpha < 1 } + sorted.filter { $0.alpha >= 1 }
     }
 
     /// b3-wind: build 3 step 7 (the director's call T2 of 16.11. 14:41): the town's chimneys that smoke at `hour`: every
@@ -722,9 +750,8 @@ enum FrameBuilder {
         // b3-wind (step 7, call T3): the town's grey puffs take their own tint and no pale day light.
         let tint = town ? CastleSmoke.townTint(ambient) : CastleSmoke.tint
         let born = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
-        let puffs = (still ? born : calmPuffs(born, chimneyX: chimney.x, wind: wind, town: town))
-            .filter { $0.alpha > 0.02 }
-            .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
+        let calm = !still && calmShare(wind: wind) > 0
+        let puffs = puffOrder(calm ? calmPuffs(born, chimneyX: chimney.x, wind: wind, town: town) : born, calm: calm)
         for puff in puffs + [CastleSmoke.mouth(town: town)] {
             let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
