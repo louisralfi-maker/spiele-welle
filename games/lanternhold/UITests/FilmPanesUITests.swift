@@ -164,9 +164,9 @@ final class FilmPanesUITests: XCTestCase {
             }
             film.pause(0.8)
             if round == 0 {
-                film.tapBurst("g", app, count: 8, what: "a tap on the dim beside the sheet: it stays, Resume's line "
-                              + "glints (0.15 s up, 0.10 s down)",
-                              at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.55))) { sheet.exists }
+                film.tappingAt("g", app, taps: 4, framesPerTap: 3, after: 2, what: "taps on the dim beside the sheet: it "
+                               + "stays, Resume's line glints (0.15 s up, 0.10 s down) after each",
+                               at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.55)))
                 film.pause(0.8)
                 XCTAssertTrue(sheet.exists, "p04: a tap beside the pause sheet does not close it")
             }
