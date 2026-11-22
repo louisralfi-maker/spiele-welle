@@ -89,8 +89,34 @@ final class FilmDealsUITests: XCTestCase {
         waitForStill(slow, timeout: 20)
         film.pause(0.3)
         if let again = waitForThing(slow, "touch-plot-0", timeout: 3) {
-            film.tappingAt("e", slow, taps: 1, framesPerTap: 14, after: 0, what: "slowed: one tap, one coin from his "
-                           + "hand to its hollow", at: again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)))
+            // LANE-B: B2
+            // Polish B2 (H2): m05-e keeps its first tap and its 14 frames (00 to 14, the audit's burst), then three taps
+            // on the lord's body 4, 6 and 8 game px toward him from the board's near edge (his middle stands
+            // `countStandGap`, 10 px, from it): each must set a coin, with no purse, strip or gear coming up.
+            let lord = film.element(slow, "touch-lord")
+            if lord.waitForExistence(timeout: 3) {
+                let toward: CGFloat = again.frame.midX >= lord.frame.midX ? 1 : -1
+                let middle = lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))
+                // 1 game px = 2 pt on the runner's iPhone 17 Pro; from the near edge d px toward him is 10 - d px from
+                // his middle toward the board.
+                let near = [4.0, 6.0, 8.0].map { d in
+                    (d, middle.withOffset(CGVector(dx: toward * CGFloat(10 - d) * 2, dy: 0)))
+                }
+                b2Tapping(film, "e", slow, framesPerTap: [14, 6, 6, 6], what: "slowed: one tap on the gate, one coin "
+                          + "from his hand to its hollow; then three taps on the lord's body 4, 6 and 8 game px toward "
+                          + "him from the board's near edge (polish B2, H2: each a coin, the lantern stays down)",
+                          spots: [("the gate", again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)))]
+                            + near.map { ("\(Int($0.0)) px from the board's near edge toward the lord", $0.1) })
+                let four = film.wait(8) { film.scene(slow).contains("count:touch-plot-0:4/9") }
+                let value = film.scene(slow)
+                film.note("m05-e-state", "four coins: \(four); scene: \(value)")
+                XCTAssertTrue(four, "m05-e: the three near taps set three coins: \(FilmReel.short(value))")
+                XCTAssertFalse(value.contains("hud:moment"), "m05-e: no purse, strip or gear")
+                XCTAssertTrue(value.contains("count:touch-plot-0:4/9:there"), "m05-e: the count stays open")
+            } else {
+                XCTFail("m05-e: the lord has no element")
+            }
+            // LANE-B end
             film.pause(1.0)
             film.burst("f", slow, count: 28, what: "slowed: a hold of 3 s on the gate; frames start after the finger "
                        + "lifted (the coins still flying, the seal, or the coins going home)") {
@@ -99,7 +125,121 @@ final class FilmDealsUITests: XCTestCase {
         }
         film.note("m05-f-state", film.scene(slow))
         slow.terminate()
+
+        // LANE-B: B2
+        // Polish B2 (H9): a slow count in real time, four taps on the gate 2.4 s apart (the slow-tap seam of the audit's
+        // capture lost the count at 1.5 to 1.9 s): the warning comes at 2.0 s after each coin (the rocking coin sinks
+        // back into his hand), the next tap keeps the coins; after the last one the coins go home at 3.0 s.
+        let calm = film.launch(FilmDealsUITests.gate)
+        guard film.ready(calm) else {
+            XCTFail("m05: the third scene never stood")
+            return
+        }
+        film.pause(0.8)
+        guard let calmSite = waitForThing(calm, "touch-plot-0", timeout: 4) else {
+            XCTFail("m05: the third gate offers nothing")
+            return
+        }
+        touchThing(calmSite)
+        film.wait(6) { film.scene(calm).contains(":there") }
+        waitForStill(calm, timeout: 4)
+        film.pause(0.3)
+        if let again = waitForThing(calm, "touch-plot-0", timeout: 3) {
+            b2SlowTaps(film, "g", calm, taps: 4, apart: 2.4, every: 0.3, after: 4.2,
+                       at: again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)))
+            let home = film.wait(6) { film.scene(calm).contains("last:letGo:touch-plot-0") }
+            film.note("m05-g-state", "let go after the last tap: \(home); scene: \(film.scene(calm))")
+            XCTAssertTrue(home, "m05-g: after the last tap the coins go home")
+            XCTAssertEqual(sceneGold(calm), 200, "m05-g: nothing paid")
+        }
+        calm.terminate()
+        // LANE-B end
     }
+
+    // LANE-B: B2
+    /// Polish B2: frame 00, then for each spot a tap there sent without waiting (the plain tap where that path is not
+    /// there) and `framesPerTap[i]` frames as fast as they come. The note gives each tap's place and time.
+    private func b2Tapping(_ film: FilmReel, _ letter: String, _ app: XCUIApplication, framesPerTap: [Int], what: String,
+                           spots: [(String, XCUICoordinate)]) {
+        var frames: [(XCUIScreenshot, Double, String)] = [(XCUIScreen.main.screenshot(), -0.01, "before the first tap")]
+        let started = Date()
+        var lines: [String] = []
+        let before = film.scene(app)
+        for (index, spot) in spots.enumerated() {
+            let at = Date().timeIntervalSince(started)
+            let sent = film.sendWithoutWaiting(spot.1, app, FilmAnswer())
+            if !sent.ok { spot.1.tap() }
+            lines.append(String(format: "tap %ld at +%.3f s on %@: ", index + 1, at, spot.0)
+                         + (sent.ok ? "sent without waiting (\(sent.text))" : "the plain tap (\(sent.text))"))
+            for shot in 0..<(index < framesPerTap.count ? framesPerTap[index] : 6) {
+                frames.append((XCUIScreen.main.screenshot(), Date().timeIntervalSince(started),
+                               shot == 0 ? "first frame after tap \(index + 1)" : ""))
+            }
+        }
+        b2Keep(film, letter, frames, head: "\(film.moment)-\(letter): \(what)\n\(film.clock)\n"
+               + lines.joined(separator: "\n") + "\nlaunch: \(film.arguments.joined(separator: " "))\n"
+               + "scene before: \(before)\nscene after: \(film.scene(app))")
+    }
+
+    /// Polish B2: frame 00, then `taps` taps at `coordinate` sent `apart` seconds apart (each without waiting), a frame
+    /// every `every` seconds between them and for `after` seconds after the last; the scene's count is read just before
+    /// each next tap, and each tap after the first must find the coins still laid.
+    private func b2SlowTaps(_ film: FilmReel, _ letter: String, _ app: XCUIApplication, taps: Int, apart: Double,
+                            every: Double, after: Double, at coordinate: XCUICoordinate) {
+        var frames: [(XCUIScreenshot, Double, String)] = [(XCUIScreen.main.screenshot(), -0.01, "before the first tap")]
+        let started = Date()
+        var lines: [String] = []
+        let end = apart * Double(taps - 1) + after
+        var nextTap = 0
+        var slot = 0.0
+        while slot <= end + 1e-6 {
+            if nextTap < taps, slot >= apart * Double(nextTap) - 1e-6 {
+                let target = started.addingTimeInterval(apart * Double(nextTap))
+                if nextTap > 0 {
+                    // Read 0.4 s before the tap, so the reading never delays it.
+                    let read = target.addingTimeInterval(-0.4)
+                    if read > Date() { RunLoop.current.run(until: read) }
+                    let count = FilmReel.short(film.scene(app)).split(separator: " ")
+                        .first { $0.hasPrefix("count:") }.map(String.init) ?? "count:?"
+                    lines.append(String(format: "before tap %ld (+%.3f s): ", nextTap + 1,
+                                        Date().timeIntervalSince(started)) + count)
+                    XCTAssertTrue(count.hasPrefix("count:touch-plot-0:\(nextTap)/9:there"),
+                                  "\(film.moment)-\(letter): tap \(nextTap + 1) finds the coins kept: \(count)")
+                }
+                if target > Date() { RunLoop.current.run(until: target) }
+                let at = Date().timeIntervalSince(started)
+                let sent = film.sendWithoutWaiting(coordinate, app, FilmAnswer())
+                if !sent.ok { coordinate.tap() }
+                lines.append(String(format: "tap %ld at +%.3f s: ", nextTap + 1, at)
+                             + (sent.ok ? "sent without waiting" : "the plain tap (\(sent.text))"))
+                nextTap += 1
+                frames.append((XCUIScreen.main.screenshot(), Date().timeIntervalSince(started),
+                               "first frame after tap \(nextTap)"))
+                slot += every
+                continue
+            }
+            let when = started.addingTimeInterval(slot)
+            if when > Date() { RunLoop.current.run(until: when) }
+            frames.append((XCUIScreen.main.screenshot(), Date().timeIntervalSince(started), ""))
+            slot += every
+        }
+        b2Keep(film, letter, frames, head: "\(film.moment)-\(letter): real time, \(taps) taps on the gate \(apart) s "
+               + "apart, a frame every \(every) s, then \(after) s after the last tap (polish B2, H9: the warning at 2.0 s, "
+               + "the coins kept by the next tap, home at 3.0 s after the last)\n" + lines.joined(separator: "\n")
+               + "\nlaunch: \(film.arguments.joined(separator: " "))\nscene after: \(film.scene(app))")
+    }
+
+    /// Polish B2: keeps the frames as `<moment>-<letter>-<nn>` and the note `<moment>-<letter>-times` (FilmKit's form).
+    private func b2Keep(_ film: FilmReel, _ letter: String, _ frames: [(XCUIScreenshot, Double, String)], head: String) {
+        var lines = [head, "", "frame  seconds since the burst began  (scene where read)"]
+        for (offset, frame) in frames.enumerated() {
+            let number = String(format: "%02d", offset)
+            film.keep(frame.0, "\(film.moment)-\(letter)-\(number)")
+            lines.append(String(format: "%@  %+.3f s  %@", number, frame.1, frame.2))
+        }
+        film.note("\(film.moment)-\(letter)-times", lines.joined(separator: "\n"))
+    }
+    // LANE-B end
 
     /// m06: day 3 at 10:00 (seed 2: three wait on the benches), before the hall's door (HallUITests): in by the door
     /// (a), the throne and the petition slide (b), counsel (c), an answer (d), next (e), leave (f), out by the realm
