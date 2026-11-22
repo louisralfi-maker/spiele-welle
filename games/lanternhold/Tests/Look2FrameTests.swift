@@ -796,10 +796,19 @@ final class Look2FrameTests: XCTestCase {
                 let own = try renderer.timeOffscreen(desc, settings: settings)
                 masked.append(own)
             }
+            // b3-lantern (lane 5 step 5): the same frame with the lantern's own light up at the screen's middle (one
+            // more ring sum and multiply in the composite and the actors).
+            var lantern = desc
+            lantern.lanternDim = LanternDim(x: desc.cameraX + Double(desc.targetWidth) / 2, lift: 24.5, strength: 1)
+            renderer.readsEveryBand = false
+            var lit: [(gpu: Double, wall: Double)] = []
+            for _ in 0..<8 { lit.append(try renderer.timeOffscreen(lantern, settings: settings)) }
             let gpu = median(full.map { $0.gpu }) > 0 && median(masked.map { $0.gpu }) > 0
             let fullMs = gpu ? median(full.map { $0.gpu }) : median(full.map { $0.wall })
             let maskedMs = gpu ? median(masked.map { $0.gpu }) : median(masked.map { $0.wall })
-            print("GPU-COST \(scene.name) full \(ms(fullMs)) masked \(ms(maskedMs))" + (gpu ? "" : " wall"))
+            let litMs = gpu ? median(lit.map { $0.gpu }) : median(lit.map { $0.wall })
+            print("GPU-COST \(scene.name) full \(ms(fullMs)) masked \(ms(maskedMs)) lantern \(ms(litMs))"
+                  + (gpu ? "" : " wall"))
             let mask = EmissiveBands.mask(desc)
             let bands = (0..<EmissiveBands.count).filter { mask & EmissiveBands.bit(band: $0) != 0 }.count
             let pictures = CarriedPicture.allCases.filter { mask & EmissiveBands.bit($0) != 0 }.count

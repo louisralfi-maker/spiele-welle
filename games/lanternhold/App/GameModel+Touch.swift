@@ -121,6 +121,8 @@ struct TouchState: Sendable {
     /// The look-around's view (`LookAround`), and the strip's column of the view's left edge it last showed.
     var look = LookAround()
     var lookColumn = -1
+    /// Build 3, lane 5 step 5: the lantern's own light (`LanternVeil`).
+    var veil = LanternVeil()
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -772,7 +774,12 @@ extension GameModel {
         touch.things = things
         touch.framing = framing
         let marks = currentMarks(lordX: state.king.x, framing: framing)
-        layer.actors += TouchMarks.actors(marks, framing: framing, night: night)
+        // Build 3, lane 5 step 5: the marks are never dimmed by the lantern's light.
+        layer.actors += TouchMarks.actors(marks, framing: framing, night: night).map { mark in
+            var kept = mark
+            kept.dimRule = .kept
+            return kept
+        }
         for pool in TouchMarks.pools(marks) {
             layer.lights.append((source: pool, plane: .world))
         }
@@ -811,10 +818,12 @@ extension GameModel {
             let top = framing.deviceY(lift: EntityFrames.kingGlass.dy + 5)
             let s = Float(framing.scale)
             let gold = GamePalette.fireGold
-            layer.actors.append(ActorInstance(sprite: .hallMote, frame: 0,
-                                              rect: SIMD4<Float>(Float(left), Float(top), s, 2 * s),
-                                              tint: SIMD4<Float>(gold.x, gold.y, gold.z, 1), flipped: false,
-                                              isEmissive: true, isLit: true))
+            var flame = ActorInstance(sprite: .hallMote, frame: 0,
+                                      rect: SIMD4<Float>(Float(left), Float(top), s, 2 * s),
+                                      tint: SIMD4<Float>(gold.x, gold.y, gold.z, 1), flipped: false,
+                                      isEmissive: true, isLit: true)
+            flame.dimRule = .kept   // b3-lantern step 5: the lantern's own pixels are never dimmed
+            layer.actors.append(flame)
         }
         // Build 3, the count: the tally board on its post at the thing (PAY.md).
         countWorld(&layer, state: state, framing: framing)

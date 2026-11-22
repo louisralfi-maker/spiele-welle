@@ -67,9 +67,10 @@ struct LanternMomentView: View {
         .transition(model.reduceMotion ? .identity : .opacity)
     }
 
-    /// The dim over the whole screen (it takes no finger: the touch goes through to the world; VoiceOver's double tap on
-    /// it lowers the lantern) and the elements of the figures above the lord (the figures themselves are drawn in the
-    /// world's frame, build 3).
+    /// The moment's element over the whole screen (it takes no finger: the touch goes through to the world; VoiceOver's
+    /// double tap on it lowers the lantern) and the elements of the figures above the lord (the figures themselves are
+    /// drawn in the world's frame, build 3). Build 3, lane 5 step 5: the flat black at 0.18 is gone; the dim is the
+    /// lantern's own light, drawn by the renderer round the lord's glass (`LanternLight`).
     private var world: some View {
         GeometryReader { geometry in
             let perDevice = geometry.size.width / max(1, CGFloat(show.physicalWidth))
@@ -78,7 +79,7 @@ struct LanternMomentView: View {
             let top = CGFloat(show.top) * perDevice
             let blockWidth = CGFloat(show.block.width) * unit
             ZStack(alignment: .topLeading) {
-                Color.black.opacity(0.18)
+                Color.clear
                     .allowsHitTesting(false)
                     .accessibilityElement()
                     .accessibilityLabel(Text(verbatim: show.summary))

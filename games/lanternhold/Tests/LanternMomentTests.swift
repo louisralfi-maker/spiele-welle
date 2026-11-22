@@ -800,7 +800,8 @@ final class LanternMomentTests: XCTestCase {
 
     /// Step 4 (the step 2b critic's H1): while the lantern is up the lord's row is drawn in Metal, in the world's own
     /// frame, so over a pan of 60 frames its first actor keeps one device distance to the hall's door under it; the
-    /// moment is not published again for the row's place, and the row is drawn a step brighter under the dim.
+    /// moment is not published again for the row's place. Step 5 (the vignette): the row is drawn over the finished
+    /// picture (`ActorDim.over`) with no make-up tint (step 4's 1/0.82 under the flat dim is gone).
     func testTheMomentsRowRidesThePanInTheWorldsOwnFrame() throws {
         let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
         let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" }, "the hall's door offers")
@@ -812,6 +813,7 @@ final class LanternMomentTests: XCTestCase {
         var gaps: Set<Double> = []
         var views: Set<Double> = []
         var tint: Float = 0
+        var rule = ActorDim.world
         for step in 1...60 {
             drag(game, from: start, dx: -3.7 * Double(step))
             game.advance(by: 1.0 / 60)
@@ -821,16 +823,18 @@ final class LanternMomentTests: XCTestCase {
             gaps.insert(((Double(coin.rect.x) - framing.deviceX(stageX: doorX)) * 1000).rounded() / 1000)
             views.insert(try XCTUnwrap(game.camera?.x))
             tint = coin.tint.x
+            rule = coin.dimRule
         }
         XCTAssertGreaterThanOrEqual(views.count, 50, "the view slid in the frames: \(views.count) places")
         XCTAssertEqual(gaps.count, 1, "one device distance to the door in every frame: \(gaps.sorted())")
         XCTAssertEqual(game.lanternMoment, show, "the moment is not published again for the row's place")
-        XCTAssertEqual(tint, HUDKitActors.momentTint, accuracy: 1e-6, "a step brighter under the dim")
-        XCTAssertGreaterThan(HUDKitActors.momentTint, 1)
-        // The walking row keeps its tint of 1.
+        XCTAssertEqual(tint, 1, accuracy: 1e-6, "no make-up tint")
+        XCTAssertEqual(rule, .over, "drawn over the finished picture, never dimmed")
+        // The walking row is part of the world's picture.
         let walking = HUDKitActors.actors(HUDKit.group(sign: .hudCoin, number: 5), lordX: 1000, groundLift: 0,
                                           framing: try XCTUnwrap(game.touch.framing))
         XCTAssertEqual(walking.first?.tint.x, 1)
+        XCTAssertEqual(walking.first?.dimRule, .world)
     }
 
     /// Step 4 (the step 2b critic's M4): the strip's view bracket is bone with an ink edge wherever the view stands,
@@ -881,5 +885,223 @@ final class LanternMomentTests: XCTestCase {
                 XCTAssertEqual(shown, burns && !reduce, "raised \(since) s ago, reduce motion \(reduce)")
             }
         }
+    }
+
+    // MARK: - Lane 5 step 5: the lantern's own light (the vignette)
+
+    /// `LanternLight`: no dim at the glass, never less with distance, 0.30 at the most, each pixel of a ring's band one
+    /// of its two neighbours (the 2 x 2 dither); over the home frame by day the mean lies between 0.14 and 0.24.
+    func testTheLanternsLightFallsInRingsFromTheGlass() throws {
+        let glass = LanternDim(x: 1000.5, lift: 24.5, strength: 1)
+        XCTAssertEqual(LanternLight.dim(x: 1000, lift: 24, glass: glass), 0, "none at the glass")
+        var last = 0.0
+        for step in 0...400 {
+            let r = Double(step) * 0.5
+            let level = LanternLight.level(distance: r)
+            XCTAssertGreaterThanOrEqual(level, last, "never less at \(r) px")
+            last = level
+        }
+        XCTAssertEqual(last, 0.30, accuracy: 1e-12, "0.30 beyond the last ring")
+        var highest = 0.0
+        var strays = 0
+        var dithered = Set<Double>()
+        for x in 760...1240 {
+            for lift in -26...190 {
+                let r = LanternLight.distance(x: x, lift: lift, glassX: glass.x, glassLift: glass.lift)
+                let dim = LanternLight.dim(x: x, lift: lift, glass: glass)
+                highest = max(highest, dim)
+                let inner = LanternLight.level(distance: r - LanternLight.band / 2)
+                let outer = LanternLight.level(distance: r + LanternLight.band / 2)
+                if dim != inner && dim != outer { strays += 1 }
+                if inner != outer { dithered.insert(dim) }
+                if r < 46 && dim != 0 { strays += 1 }
+            }
+        }
+        XCTAssertEqual(strays, 0, "every pixel is its ring's dim or, in a band, one of its two neighbours")
+        XCTAssertEqual(highest, 0.30, accuracy: 1e-12, "0.30 at the most")
+        XCTAssertGreaterThanOrEqual(dithered.count, 5, "the bands mix their two rings: \(dithered.sorted())")
+        let half = LanternDim(x: 1000.5, lift: 24.5, strength: 0.5)
+        XCTAssertEqual(LanternLight.dim(x: 700, lift: 150, glass: half), 0.15, accuracy: 1e-12, "times its strength")
+        let color = LanternLight.dimmed(SIMD3<Float>(1, 1, 1), by: 0.30)
+        XCTAssertEqual(Double(color.x), 1 - 0.30 * (1 - 42.0 / 255), accuracy: 1e-6, "toward the night ink")
+        XCTAssertEqual(Double(color.z), 1 - 0.30 * (1 - 48.0 / 255), accuracy: 1e-6)
+        // The home frame by day, the lantern up at the hall's door.
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        let lit = try XCTUnwrap(game.lanternDimNow, "the lantern's light is up")
+        XCTAssertEqual(lit.strength, 1, accuracy: 1e-9)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let left = Int(framing.viewLeft.rounded(.down))
+        let right = Int(framing.viewRight.rounded(.up))
+        let rows = Int(framing.physicalHeight / framing.scale)
+        var sum = 0.0
+        var count = 0.0
+        for x in left..<right {
+            for lift in -WorldLayout.groundRowsBelow..<(rows - WorldLayout.groundRowsBelow) {
+                sum += LanternLight.dim(x: x, lift: lift, glass: lit)
+                count += 1
+            }
+        }
+        let mean = sum / max(1, count)
+        XCTAssertGreaterThanOrEqual(mean, 0.14, "the home frame's mean dim \(mean)")
+        XCTAssertLessThanOrEqual(mean, 0.24, "the home frame's mean dim \(mean)")
+    }
+
+    /// The light is anchored in the world: over a pan of 60 frames the glass stands at one place of the stage, every
+    /// device px of a world pixel reads that pixel back as the composite reads it (the world plane's whole offset plus
+    /// its column), and so each world pixel keeps one ring's dim in every frame.
+    func testAWorldPixelKeepsItsDimThroughAPan() throws {
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        let start = CGPoint(x: 600, y: 250)
+        game.touchChanged(start: start, at: start, translation: .zero, in: proPoints)
+        let pixels: [(x: Int, lift: Int)] = [(1700, 10), (1830, 40), (1905, 90), (2010, -12), (1600, 150),
+                                             (1790, 61), (1880, 3)]
+        var seen: [Int: Set<Double>] = [:]
+        var glasses: Set<String> = []
+        var views: Set<Double> = []
+        var misread = 0
+        for step in 1...60 {
+            drag(game, from: start, dx: -3.7 * Double(step))
+            game.advance(by: 1.0 / 60)
+            var frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            game.lanternLight(&frame)
+            let glass = try XCTUnwrap(frame.lanternDim, "frame \(step): the lantern's light")
+            let uniform = Renderer.lanternUniform(frame)
+            XCTAssertEqual(Double(uniform.x), glass.x, accuracy: 0.001)
+            XCTAssertEqual(Double(uniform.y), glass.lift, accuracy: 0.001)
+            glasses.insert("\(glass.x) \(glass.lift)")
+            let framing = try XCTUnwrap(game.touch.framing)
+            views.insert(try XCTUnwrap(game.camera?.x))
+            for (index, pixel) in pixels.enumerated() {
+                let left = Int(framing.deviceX(stageX: Double(pixel.x)))
+                for px in left..<(left + Int(framing.scale)) {
+                    let column = Int(framing.whole) + Int(((Double(px) + framing.deviceShift) / framing.scale)
+                        .rounded(.down))
+                    if column != pixel.x { misread += 1 }
+                }
+                let ring = LanternLight.dim(x: pixel.x, lift: pixel.lift,
+                                            glass: LanternDim(x: glass.x, lift: glass.lift, strength: 1))
+                seen[index, default: []].insert(ring)
+            }
+        }
+        XCTAssertGreaterThanOrEqual(views.count, 50, "the view slid in the frames: \(views.count) places")
+        XCTAssertEqual(glasses.count, 1, "the glass stands at one place of the world: \(glasses)")
+        XCTAssertEqual(misread, 0, "every device px of a world pixel reads that pixel")
+        for (index, dims) in seen {
+            XCTAssertEqual(dims.count, 1, "world pixel \(pixels[index]): one dim in every frame: \(dims.sorted())")
+        }
+    }
+
+    /// An offscreen render with the lantern up: a pixel beside the glass stays as it is with the lantern down (within
+    /// 2/255), a far corner is 0.30 of the way to the night ink (within 0.03).
+    func testTheRenderedFrameDarkensFarFromTheGlassOnly() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        let down = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        var up = down
+        game.lanternLight(&up)
+        let glass = try XCTUnwrap(up.lanternDim, "the lantern's light is up")
+        XCTAssertNil(down.lanternDim, "the model's own frame carries no light; GameView adds it")
+        let lit = try renderer.renderOffscreen(up, settings: settings)
+        let plain = try renderer.renderOffscreen(down, settings: settings)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let s = Int(framing.scale)
+        for (dx, dy) in [(-4.0, 0.0), (4.0, 2.0), (0.0, -6.0), (-9.0, 8.0)] {
+            let x = Int(framing.deviceX(stageX: glass.x + dx)) + s / 2
+            let y = Int(framing.deviceY(lift: glass.lift + dy)) - s / 2
+            let a = lit.color(x: x, y: y)
+            let b = plain.color(x: x, y: y)
+            XCTAssertLessThanOrEqual(Double(max(abs(a.x - b.x), max(abs(a.y - b.y), abs(a.z - b.z)))), 2.0 / 255,
+                                     "beside the glass (\(dx), \(dy)): as with the lantern down")
+        }
+        let corners = [(3, pro.physicalHeight - 3), (pro.physicalWidth - 4, pro.physicalHeight - 4)]
+        for (x, y) in corners {
+            let column = Int(framing.whole) + Int(((Double(x) + framing.deviceShift) / framing.scale).rounded(.down))
+            let lift = (pro.physicalHeight - 1 - y) / s - WorldLayout.groundRowsBelow
+            let dim = LanternLight.dim(x: column, lift: lift, glass: glass)
+            XCTAssertEqual(dim, 0.30, accuracy: 1e-9, "corner (\(x), \(y)) lies beyond the last ring")
+            let expected = LanternLight.dimmed(plain.color(x: x, y: y), by: dim)
+            let got = lit.color(x: x, y: y)
+            XCTAssertEqual(Double(got.x), Double(expected.x), accuracy: 0.03, "corner (\(x), \(y)): red")
+            XCTAssertEqual(Double(got.y), Double(expected.y), accuracy: 0.03, "corner (\(x), \(y)): green")
+            XCTAssertEqual(Double(got.z), Double(expected.z), accuracy: 0.03, "corner (\(x), \(y)): blue")
+        }
+    }
+
+    /// The moment's row is drawn over the finished picture with no make-up tint: its bone lands on 222,210,184
+    /// (within 2 per channel) by day at the hall's door, at dusk in the town and at night before the gatehouse, the
+    /// same as the banner's count.
+    func testTheMomentsRowKeepsItsBoneByDayAtDuskAndAtNight() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        var settings = RenderSettings()
+        settings.time = 1.5
+        let scenes: [(name: String, values: [String: String])] = [
+            ("day", ["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"]),
+            ("dusk", ["GWStage": "world", "GWDay": "3", "GWSeed": "2", "GWClock": "18.97", "GWCameraX": "2900"]),
+            ("night", ["GWStage": "world", "GWNight": "3", "GWSeed": "2", "GWHour": "21.5", "GWCameraX": "1240"]),
+        ]
+        let layout = AtlasLayout.shared
+        let bone = RGBA(r: 222, g: 210, b: 184)
+        for scene in scenes {
+            let game = try raised(scene.values)
+            var frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            game.lanternLight(&frame)
+            XCTAssertNotNil(frame.lanternDim, "\(scene.name): the lantern's light is up")
+            let shot = try renderer.renderOffscreen(frame, settings: settings)
+            let row = frame.actors.filter { $0.dimRule == .over && $0.sprite == .hudFigures }
+            XCTAssertFalse(row.isEmpty, "\(scene.name): the row's figures are drawn over the picture")
+            var measured = 0
+            var worst = 0
+            for actor in row {
+                XCTAssertEqual(actor.tint, SIMD4<Float>(1, 1, 1, 1), "\(scene.name): no make-up tint")
+                let cell = layout.cell(actor.sprite, frame: actor.frame)
+                let s = Double(actor.rect.z) / Double(cell.width)
+                for ty in 0..<cell.height {
+                    for tx in 0..<cell.width where layout.image[cell.x + tx, cell.y + ty] == bone {
+                        let x = Int(Double(actor.rect.x) + (Double(tx) + 0.5) * s)
+                        let y = Int(Double(actor.rect.y) + (Double(ty) + 0.5) * s)
+                        guard x >= 0, x < shot.width, y >= 0, y < shot.height else { continue }
+                        let c = shot.color(x: x, y: y) * 255
+                        let off = max(abs(Int(c.x.rounded()) - 222), max(abs(Int(c.y.rounded()) - 210),
+                                                                        abs(Int(c.z.rounded()) - 184)))
+                        worst = max(worst, off)
+                        measured += 1
+                    }
+                }
+            }
+            XCTAssertGreaterThan(measured, 10, "\(scene.name): bone pixels measured")
+            XCTAssertLessThanOrEqual(worst, 2, "\(scene.name): the row's bone is 222,210,184 within \(worst)")
+        }
+    }
+
+    /// `LanternVeil`: the light comes in over 0.15 s in even steps (no ease) as the lantern goes up and leaves in 0.1 s
+    /// as it comes down; under Reduce Motion it is there and gone at once. Through the model it follows the moment.
+    func testTheLanternsLightComesAndGoesAndReduceMotionHasNoEase() throws {
+        let step = 1.0 / 60
+        var veil = LanternVeil()
+        veil.step(step, raised: true, reduceMotion: false)
+        XCTAssertEqual(veil.dim, step / LanternVeil.upSeconds, accuracy: 1e-9, "even steps, no ease")
+        veil.step(step, raised: true, reduceMotion: false)
+        XCTAssertEqual(veil.dim, 2 * step / LanternVeil.upSeconds, accuracy: 1e-9)
+        for _ in 2..<9 { veil.step(step, raised: true, reduceMotion: false) }
+        XCTAssertEqual(veil.dim, 1, "whole in 0.15 s")
+        for _ in 0..<5 { veil.step(step, raised: false, reduceMotion: false) }
+        XCTAssertGreaterThan(veil.dim, 0, "still going after 5 sixtieths")
+        veil.step(step, raised: false, reduceMotion: false)
+        XCTAssertEqual(veil.dim, 0, "gone in 0.1 s")
+        var still = LanternVeil()
+        still.step(step, raised: true, reduceMotion: true)
+        XCTAssertEqual(still.dim, 1, "Reduce Motion: at once")
+        still.step(step, raised: false, reduceMotion: true)
+        XCTAssertEqual(still.dim, 0, "and gone at once")
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        XCTAssertEqual(game.touch.veil.dim, 1, accuracy: 1e-9, "up with the moment")
+        game.lowerLanternMoment()
+        run(game, seconds: 0.2)
+        XCTAssertEqual(game.touch.veil.dim, 0, "down with it")
+        XCTAssertNil(game.lanternDimNow, "no light on the frame once it is gone")
     }
 }

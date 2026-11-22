@@ -732,6 +732,11 @@ struct ActorInstance: Sendable, Equatable {
     /// The hall stage (stage lane, fix round 2 of step stage-1): game rows cut off the strip's bottom (a petitioner
     /// sitting behind a bench: the legs below the wall line); 0: the whole frame.
     var cropBottom: Int = 0
+    // b3-lantern: build 3, lane 5 step 5 (the lantern's own light; one property for the join).
+    /// How the lantern moment's dim treats it (`ActorDim`): dimmed with the world, kept out of the dim, or drawn over
+    /// the finished picture.
+    var dimRule: ActorDim = .world
+    // b3-lantern end
 }
 
 /// One quad of the emissive pass (flames, window glass, lantern glass, stars, sun, moon), added after lighting; it
@@ -887,6 +892,11 @@ struct FrameDesc: Sendable, Equatable {
     /// Look 2: the carried pictures, one layer per `CarriedPicture` in its order, each with the offset of the plane it
     /// moves with (Core/CarriedPictures.swift); empty in look 1 and in the hall.
     var carried: [PlaneLayer] = []
+    // b3-lantern end
+    // b3-lantern: build 3, lane 5 step 5 (the lantern's own light; one property for the join).
+    /// The lantern moment's light (`LanternLight`): the lord's raised glass in world px and the dim's strength, set by
+    /// `GameModel.lanternLight` on the frame drawn; nil: no dim.
+    var lanternDim: LanternDim? = nil
     // b3-lantern end
 
     /// The layer of one plane.

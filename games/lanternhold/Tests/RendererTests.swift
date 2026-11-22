@@ -22,7 +22,7 @@ final class RendererTests: XCTestCase {
         XCTAssertEqual(MemoryLayout<LightPassUniforms>.stride, 32)
         XCTAssertEqual(MemoryLayout<BloomUniforms>.stride, 48)
         XCTAssertEqual(MemoryLayout<BlurUniforms>.stride, 16)
-        XCTAssertEqual(MemoryLayout<CompositeUniforms>.stride, 400)
+        XCTAssertEqual(MemoryLayout<CompositeUniforms>.stride, 416, "b3-lantern step 5: the lantern's own light")
         XCTAssertEqual(MemoryLayout<Look2Uniforms>.stride, 336, "the hall stage's three float4 (fix round 1)")
     }
 

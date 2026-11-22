@@ -58,8 +58,9 @@ extension GameModel {
         // The join (item 4): the purse as the town shows it, a coin in flight not counted before it lands.
         let shown = townShownGold(state, balance: driver?.balance ?? .standard)
         var block = HUDKit.moment(gold: shown, day: state.day)
-        // Build 3, lane 5 step 4 (critic H1): drawn in Metal under the moment's dim, a step brighter.
-        block.tint = HUDKitActors.momentTint
+        // Build 3, lane 5 step 5 (the vignette): drawn in Metal over the finished picture, after the grade and the
+        // lantern's dim, in the kit's own colours.
+        block.over = true
         let lordX = stageLordX
         let viewLeft = framing.viewLeft.rounded(.up) + 3
         let viewRight = framing.viewRight.rounded(.down) - 3
@@ -156,6 +157,36 @@ extension GameModel {
             }
         }
         touch.look.step(seconds)
+        // Build 3, lane 5 step 5: the lantern's own light comes and goes with the moment (`LanternVeil`), on the game's
+        // time (`-GWTimeScale` slows it for its pictures; 1 in a Release build).
+        touch.veil.step(seconds * args.timeScale, raised: lanternMoment != nil, reduceMotion: reduceMotion)
+    }
+
+    // MARK: - The lantern's own light (build 3, lane 5 step 5)
+
+    /// The lantern's own light on the frame drawn now (`GameView`, before the renderer): the lord's raised glass in
+    /// world px and the dim's strength (`LanternLight`, `LanternVeil`), on the world and in the hall; nil while the
+    /// lantern is down and its light gone.
+    func lanternLight(_ frame: inout FrameDesc) {
+        frame.lanternDim = lanternDimNow
+    }
+
+    /// Where the lord's raised glass stands (its middle, world px of the stage drawn) and the dim's strength now.
+    var lanternDimNow: LanternDim? {
+        let strength = touch.veil.dim
+        guard kind == .world, strength > 0.001, let state = driver?.state else { return nil }
+        var x = state.king.x
+        var facing = state.king.facing
+        var ground = 0.0
+        if stage == .hall {
+            guard let scene = hall else { return nil }
+            x = scene.walker.x
+            facing = scene.walker.facing
+            ground = HallLayout.lift(at: x)
+        }
+        // The raised pose (frame 9) holds the glass `LanternFlare.liftRows` higher, as its light stands.
+        return LanternDim(x: x + EntityFrames.kingGlass.dx * Double(facing),
+                          lift: ground + EntityFrames.kingGlass.dy + LanternFlare.liftRows, strength: strength)
     }
 
     /// The camera's pan changed (`advanceGame`): the strip's view bracket moves with the view (the strip is made again
@@ -313,9 +344,11 @@ extension GameModel {
         let side = Float(framing.scale)
         let hue = rgb / peak
         let tint = (SIMD3<Float>(repeating: 1) + (hue - 1) * 0.4) * max(1, peak)
-        return ActorInstance(sprite: .hallMote, frame: 0, rect: SIMD4<Float>(Float(left), Float(top), side, side),
-                             tint: SIMD4<Float>(tint.x, tint.y, tint.z, min(1, peak)), flipped: false,
-                             isEmissive: true, isLit: true)
+        var pixel = ActorInstance(sprite: .hallMote, frame: 0, rect: SIMD4<Float>(Float(left), Float(top), side, side),
+                                  tint: SIMD4<Float>(tint.x, tint.y, tint.z, min(1, peak)), flipped: false,
+                                  isEmissive: true, isLit: true)
+        pixel.dimRule = .kept   // b3-lantern step 5: the lantern's own pixels are never dimmed
+        return pixel
     }
 
     /// Build 3, lane 5 step 4 (the step 2b critic's M1): the raise's flare lost its soft halo when its pixels became

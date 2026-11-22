@@ -192,7 +192,9 @@ final class WorldSceneCoordinator: NSObject, MTKViewDelegate {
             lastSize = size
             stableFrames = 0
         }
-        let frame = model.frame(physicalWidth: width, physicalHeight: height)
+        var frame = model.frame(physicalWidth: width, physicalHeight: height)
+        // Build 3, lane 5 step 5: the lantern's own light on the frame drawn (`GameModel.lanternLight`).
+        model.lanternLight(&frame)
         renderer.draw(frame, settings: model.renderSettings, in: view)
         frames += 1
         stableFrames += 1

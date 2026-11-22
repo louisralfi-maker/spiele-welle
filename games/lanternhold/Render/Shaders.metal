@@ -479,6 +479,7 @@ struct CompositeUniforms {
     float4 bounceColor; // the sky's cool light at the ambient's level (rgb), unused
     float4 bandColor;   // the bright haze band's colour (rgb), its height in rows above the ground line
     float4 rim;         // the king's cool rim colour (rgb), its strength
+    float4 lantern;     // b3-lantern: the lantern's light: glass x, glass lift (world px), strength (0: none), squash
 };
 
 // The cold colour of the night: ambient-lit albedo pulled toward violet by its own luminance (k = 0 by day), so
@@ -751,6 +752,56 @@ static float3 lh_top(float3 color, PlaneCoords c, PixelLight info, constant Comp
     return lh_grade(color, mix(info.light, info.backdrop, midVisible), c, u);
 }
 
+// b3-lantern (build 3, lane 5 step 5; `LanternLight` in Core/LanternMoment.swift is the same sum): the lantern's own
+// light. While the lantern is up the finished picture darkens by the distance of each world pixel (its column on the
+// stage, its row over the walk line) from the lord's raised glass, in stepped rings on the world's grid: none within
+// 48 game px, then 0.08, 0.16, 0.24 and 0.30 beyond 170, a band 4 px wide between two rings in a 2 x 2 ordered dither
+// of the two; the dark leans to the night ink. The world's own lights (the emissive pass: fires, lit windows, the gold
+// rims, the halo at the glass) keep their glow.
+constant float kLanternRings[4] = { 48.0f, 80.0f, 120.0f, 170.0f };
+constant float kLanternLevels[5] = { 0.0f, 0.08f, 0.16f, 0.24f, 0.30f };
+constant float kLanternOrder[4] = { 0.125f, 0.625f, 0.875f, 0.375f };
+constant float3 kLanternInk = float3(0.164706f, 0.133333f, 0.188235f);
+
+static float lh_lantern_dim(PlaneCoords c, constant CompositeUniforms &u) {
+    float strength = u.lantern.z;
+    if (strength <= 0.0f) {
+        return 0.0f;
+    }
+    int x = int(u.target.w) + int(c.world.x);
+    int y = int(u.target.z) - 1 - int(c.row);
+    float dx = float(x) + 0.5f - u.lantern.x;
+    float dy = (float(y) + 0.5f - u.lantern.y) / max(u.lantern.w, 0.01f);
+    float r = sqrt(dx * dx + dy * dy);
+    for (int i = 0; i < 4; i++) {
+        float ring = kLanternRings[i];
+        if (r < ring - 2.0f) {
+            return kLanternLevels[i] * strength;
+        }
+        if (r < ring + 2.0f) {
+            float share = (r - (ring - 2.0f)) * 0.25f;
+            bool outer = share > kLanternOrder[(y & 1) * 2 + (x & 1)];
+            return kLanternLevels[outer ? i + 1 : i] * strength;
+        }
+    }
+    return kLanternLevels[4] * strength;
+}
+
+// A colour under the lantern's dim `d`.
+static inline float3 lh_lantern_dark(float3 color, float d) {
+    return mix(color, kLanternInk, d);
+}
+
+// The finished picture of a world pixel under the dim, its emissive light made up: the world's lights keep their glow.
+static inline float3 lh_lantern_world(float3 color, PlaneCoords c, constant CompositeUniforms &u,
+                                      texture2d<float> emissiveTex) {
+    float d = lh_lantern_dim(c, u);
+    if (d <= 0.0f) {
+        return color;
+    }
+    return lh_lantern_dark(color, d) + emissiveTex.read(c.world).rgb * d;
+}
+
 constant ushort kDigits[10] = { 0x7B6F, 0x2C97, 0x73E7, 0x73CF, 0x5BC9, 0x79CF, 0x79EF, 0x7249, 0x7BEF, 0x7BCF };
 
 // Two digits of a 3 x 5 pixel font with one column between them.
@@ -839,6 +890,7 @@ fragment float4 lh_composite_fragment(FullscreenOut in [[stage_in]],
     float midVisible = 0.0f;
     float3 color = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex, midVisible);
     color = lh_top(color, c, info, u, fogBTex, fgTex, bloomTex, midVisible);
+    color = lh_lantern_world(color, c, u, emissiveTex);   // b3-lantern (step 5)
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }
@@ -914,9 +966,16 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
         PlaneCoords rc = lh_coords(in.position.xy, u);
         PixelLight rinfo = lh_pixel_light(rc, u, lightTex);
         float rimMid = 0.0f;
-        float3 rim = lh_base(rc, rinfo, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex, rimMid)
-            + in.tint.rgb;
-        rim = lh_top(rim, rc, rinfo, u, fogBTex, fgTex, bloomTex, rimMid);
+        float3 rimBase = lh_base(rc, rinfo, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex,
+                                 rimMid);
+        float3 rim = lh_top(rimBase + in.tint.rgb, rc, rinfo, u, fogBTex, fgTex, bloomTex, rimMid);
+        // b3-lantern (build 3, lane 5 step 5): the gold rim is never dimmed; the picture behind it is, as the
+        // composite dims it (its own glow made up).
+        float rimDim = lh_lantern_dim(rc, u);
+        if (rimDim > 0.0f) {
+            float3 behind = lh_top(rimBase, rc, rinfo, u, fogBTex, fgTex, bloomTex, rimMid);
+            rim += (kLanternInk - behind + emissiveTex.read(rc.world).rgb) * rimDim;
+        }
         if (u.debug.z != 0u) {
             rim = lh_debug_lights(rim, rc, u, lights);
         }
@@ -928,6 +987,20 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     float2 p = in.position.xy;
     PlaneCoords c = lh_coords(p, u);
     PixelLight info = lh_pixel_light(c, u, lightTex);
+    // b3-lantern (build 3, lane 5 step 5): drawn over the finished picture, after the grade and the lantern's dim, in
+    // its own colours (`ActorDim.over`: the moment's row, the hint's glint, the raise's flare); while it fades it lies
+    // over the picture behind it.
+    if (in.flags.x > 2.5f) {
+        float3 over = texel.rgb * in.tint.rgb;
+        if (in.tint.a < 0.999f) {
+            float overMid = 0.0f;
+            float3 under = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex,
+                                   overMid);
+            under = lh_top(under, c, info, u, fogBTex, fgTex, bloomTex, overMid);
+            over = mix(lh_lantern_world(under, c, u, emissiveTex), over, saturate(in.tint.a));
+        }
+        return float4(saturate(over), 1.0f);
+    }
     // The stack behind the actor matters only where it shows through (the probe's translucent creatures); every game
     // actor is opaque, so the composite of the planes behind it is skipped (the A12's GPU budget, M2b review).
     float midVisible = 0.0f;
@@ -959,6 +1032,11 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
     color = lh_top(color, c, info, u, fogBTex, fgTex, bloomTex, midVisible);
+    // b3-lantern (step 5): the lantern's dim, as on the world behind; a kept actor (flags.x 2) is never dimmed.
+    float lanternDim = in.flags.x < 1.5f ? lh_lantern_dim(c, u) : 0.0f;
+    if (lanternDim > 0.0f) {
+        color = lh_lantern_dark(color, lanternDim);
+    }
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }
@@ -1556,6 +1634,7 @@ fragment float4 lh_composite2_fragment(FullscreenOut in [[stage_in]],
     float3 color = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
                             worldTex, emissiveTex, midVisible, fogCover, backTex, carriedTex);
     color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
+    color = lh_lantern_world(color, c, u, emissiveTex);   // b3-lantern (step 5)
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }
@@ -1604,9 +1683,16 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         PixelLight rinfo = lh_pixel_light(rc, u, lightTex);
         float rimMid = 0.0f;
         float rimFog = 0.0f;
-        float3 rim = lh2_base(rc, rimMist, rimNear, rinfo, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex,
-                              fogATex, worldTex, emissiveTex, rimMid, rimFog, backTex, carriedTex) + in.tint.rgb;
-        rim = lh2_top(rim, rc, rinfo, u, v, fogBTex, fgTex, bloomTex, rimMid, rimFog);
+        float3 rimBase = lh2_base(rc, rimMist, rimNear, rinfo, u, v, skyTex, cloudsTex, farTex, midTex, mistTex,
+                                  nearTex, fogATex, worldTex, emissiveTex, rimMid, rimFog, backTex, carriedTex);
+        float3 rim = lh2_top(rimBase + in.tint.rgb, rc, rinfo, u, v, fogBTex, fgTex, bloomTex, rimMid, rimFog);
+        // b3-lantern (build 3, lane 5 step 5): the gold rim is never dimmed; the picture behind it is, as the
+        // composite dims it (its own glow made up).
+        float rimDim = lh_lantern_dim(rc, u);
+        if (rimDim > 0.0f) {
+            float3 behind = lh2_top(rimBase, rc, rinfo, u, v, fogBTex, fgTex, bloomTex, rimMid, rimFog);
+            rim += (kLanternInk - behind + emissiveTex.read(rc.world).rgb) * rimDim;
+        }
         if (u.debug.z != 0u) {
             rim = lh_debug_lights(rim, rc, u, lights);
         }
@@ -1622,6 +1708,19 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     PixelLight info = lh_pixel_light(c, u, lightTex);
     float midVisible = 0.0f;
     float fogCover = 0.0f;
+    // b3-lantern (build 3, lane 5 step 5): drawn over the finished picture, after the grade and the lantern's dim, in
+    // its own colours (`ActorDim.over`: the moment's row, the hint's glint, the raise's flare); while it fades it lies
+    // over the picture behind it.
+    if (in.flags.x > 2.5f) {
+        float3 over = texel.rgb * in.tint.rgb;
+        if (in.tint.a < 0.999f) {
+            float3 under = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex,
+                                    fogATex, worldTex, emissiveTex, midVisible, fogCover, backTex, carriedTex);
+            under = lh2_top(under, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
+            over = mix(lh_lantern_world(under, c, u, emissiveTex), over, saturate(in.tint.a));
+        }
+        return float4(saturate(over), 1.0f);
+    }
     float3 base = float3(0.0f);
     if (in.tint.a < 0.999f) {
         base = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
@@ -1704,6 +1803,11 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         } else if (topEdge) {
             color = mix(color, kCreatureRim2, 0.6f * rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
+    }
+    // b3-lantern (step 5): the lantern's dim, as on the world behind; a kept actor (flags.x 2) is never dimmed.
+    float lanternDim = in.flags.x < 1.5f ? lh_lantern_dim(c, u) : 0.0f;
+    if (lanternDim > 0.0f) {
+        color = lh_lantern_dark(color, lanternDim);
     }
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);

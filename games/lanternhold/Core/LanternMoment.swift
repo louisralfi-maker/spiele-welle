@@ -39,9 +39,9 @@ enum HUDKit {
         var pieces: [Piece] = []
         var width = 0
         var height = 0
-        /// Build 3, lane 5 step 4 (critic H1): the tint its actors are drawn with (`HUDKitActors`): 1, or the lantern
-        /// moment's `HUDKitActors.momentTint` under the moment's dim.
-        var tint: Float = 1
+        /// Build 3, lane 5 step 5 (the vignette): the lantern moment's row is drawn over the finished picture, after
+        /// the grade and the lantern's dim (`ActorDim.over`), in the kit's own colours; false for the walking row.
+        var over = false
 
         /// The pieces moved by (dx, dy).
         func shifted(_ dx: Int, _ dy: Int) -> [Piece] {
@@ -367,30 +367,32 @@ enum HUDKitActors {
     /// on the stage (game px, whole: placed when the moment opened, `LanternMomentShow.blockX`), never clamped to the
     /// view, so in a pan it rides with the world over the lord; its day line's bottom `HUDKit.momentAbove` px above
     /// his head.
-    static func moment(_ block: HUDKit.Block, left: Double, groundLift: Double, framing: TouchFraming)
-        -> [ActorInstance] {
+    static func moment(_ block: HUDKit.Block, left: Double, groundLift: Double, framing: TouchFraming,
+                       alpha: Float = 1) -> [ActorInstance] {
         let top = groundLift + Double(HUDKit.lordHead + HUDKit.momentAbove + block.height)
-        return placed(block, left: left, top: top, framing: framing)
+        return placed(block, left: left, top: top, framing: framing, alpha: alpha)
     }
 
-    /// The moment's dim (`LanternMomentView`, black at 0.18) lies over the whole picture, the Metal row too: the row is
-    /// drawn this much brighter so it shows about as bright as the SwiftUI row did over the dim (the picture's
-    /// shoulder and the grade keep its brightest pixels a little under it).
-    static let momentTint: Float = 1 / 0.82
-
     /// The block's pieces as unlit actors with `left`, `top` its top-left on the stage (game px, `top` over the walk
-    /// line).
-    static func placed(_ block: HUDKit.Block, left: Double, top: Double, framing: TouchFraming) -> [ActorInstance] {
+    /// line). Build 3, lane 5 step 5: the lantern moment's row (`HUDKit.Block.over`) is drawn over the finished
+    /// picture with no make-up tint (the step-4 tint of 1/0.82 under the flat dim is gone with the dim), so its bone
+    /// lands on 222,210,184 like the banner's count; `alpha` is its share while the look-around's clean frame fades it
+    /// (`LanternVeil.signs`).
+    static func placed(_ block: HUDKit.Block, left: Double, top: Double, framing: TouchFraming,
+                       alpha: Float = 1) -> [ActorInstance] {
         let scale = Float(framing.scale)
-        let k = block.tint
+        let rule: ActorDim = block.over ? .over : .world
         return block.pieces.map { piece in
             let size = piece.sprite.size
             let x = framing.deviceX(stageX: left + Double(piece.x))
             let y = framing.deviceY(lift: top - Double(piece.y))
-            return ActorInstance(sprite: piece.sprite, frame: piece.frame,
-                                 rect: SIMD4<Float>(Float(x), Float(y), Float(size.width) * scale,
-                                                    Float(size.height) * scale),
-                                 tint: SIMD4<Float>(k, k, k, 1), flipped: false, isEmissive: true, isLit: true)
+            var actor = ActorInstance(sprite: piece.sprite, frame: piece.frame,
+                                      rect: SIMD4<Float>(Float(x), Float(y), Float(size.width) * scale,
+                                                         Float(size.height) * scale),
+                                      tint: SIMD4<Float>(1, 1, 1, alpha), flipped: false, isEmissive: true,
+                                      isLit: true)
+            actor.dimRule = rule
+            return actor
         }
     }
 }
@@ -508,5 +510,117 @@ enum MoodBanner {
         var knocked = report?.town?.happinessCost ?? 0
         if let today = s.town?.today { knocked += Town.knockCost(today, balance: balance) }
         return reason(happiness: s.happiness, changes: report?.happinessChanges ?? [], knocked: knocked)
+    }
+}
+
+// MARK: - Build 3, lane 5 step 5: the lantern's own light
+
+/// How the lantern moment's dim treats an actor (build 3, lane 5 step 5; `ActorInstance.dimRule`): `world` is dimmed
+/// with the picture it stands in; `kept` is drawn as before but never dimmed (the touch marks, the sparks of the
+/// lord's lantern); `over` is drawn over the finished picture, after the grade and the dim, in its own colours (the
+/// moment's row, whose bone lands on 222,210,184 like the banner's count; the hint's glint and the raise's flare).
+enum ActorDim: Sendable, Equatable {
+    case world, kept, over
+}
+
+/// The lord's raised glass and the dim's strength in one frame (`FrameDesc.lanternDim`, `LanternLight`).
+struct LanternDim: Sendable, Equatable {
+    /// The glass's middle on the stage (world px) and its height over the walk line (world px).
+    var x: Double
+    var lift: Double
+    /// 0 ... 1: the share of the rings' dim (`LanternVeil.dim`).
+    var strength: Double
+}
+
+/// The lantern's own light (build 3, lane 5 step 5; the director's ruling of 22.11.2026): while the lantern is up the
+/// picture darkens by the distance from the lord's raised glass, in stepped rings on the world's grid, anchored in the
+/// world: a world pixel (its column on the stage, its row over the walk line) keeps one dim in every frame of a pan,
+/// and a game pixel of the world never holds two. No dim within 48 game px of the glass, then 0.08 up to 80, 0.16 up to
+/// 120, 0.24 up to 170 and 0.30 beyond; between two rings a band 4 px wide in a 2 x 2 ordered dither of the two. The
+/// dark leans to the night ink 42,34,48, never to black. `lh_lantern_dim` in Shaders.metal is the same sum. Pure.
+enum LanternLight {
+    /// The rings' radii (game px from the glass) and the dim inside the first ring, between them and beyond the last.
+    static let rings: [Double] = [48, 80, 120, 170]
+    static let levels: [Double] = [0, 0.08, 0.16, 0.24, 0.30]
+    /// The dithered band between two rings, centred on the ring (game px).
+    static let band = 4.0
+    /// The circle's height over its width (1: a circle; 0.8 would squash it).
+    static let squash = 1.0
+    /// The night ink the dark leans to (42,34,48).
+    static let ink = SIMD3<Float>(42.0 / 255, 34.0 / 255, 48.0 / 255)
+    /// The 2 x 2 ordered dither's thresholds, by (row & 1) * 2 + (column & 1) of the world pixel.
+    static let order: [Double] = [0.125, 0.625, 0.875, 0.375]
+
+    /// Game px from the glass to the middle of the world pixel at column `x`, row `lift` (vertical in `squash`).
+    static func distance(x: Int, lift: Int, glassX: Double, glassLift: Double) -> Double {
+        let dx = Double(x) + 0.5 - glassX
+        let dy = (Double(lift) + 0.5 - glassLift) / squash
+        return (dx * dx + dy * dy).squareRoot()
+    }
+
+    /// The rings' dim at `distance` game px without the dither (strength 1).
+    static func level(distance: Double) -> Double {
+        var value = levels[0]
+        for (index, ring) in rings.enumerated() where distance >= ring {
+            value = levels[index + 1]
+        }
+        return value
+    }
+
+    /// The dim of the world pixel at column `x` and row `lift` (its bottom `lift` px over the walk line) under the
+    /// glass: 0 ... 0.30 times its strength.
+    static func dim(x: Int, lift: Int, glass: LanternDim) -> Double {
+        let strength = min(1, max(0, glass.strength))
+        guard strength > 0 else { return 0 }
+        let r = distance(x: x, lift: lift, glassX: glass.x, glassLift: glass.lift)
+        let half = band / 2
+        for (index, ring) in rings.enumerated() {
+            if r < ring - half { return levels[index] * strength }
+            if r < ring + half {
+                let share = (r - (ring - half)) / band
+                let outer = share > order[(lift & 1) * 2 + (x & 1)]
+                return levels[outer ? index + 1 : index] * strength
+            }
+        }
+        return levels[levels.count - 1] * strength
+    }
+
+    /// A colour (0 ... 1) under `dim`: mixed toward the night ink.
+    static func dimmed(_ color: SIMD3<Float>, by dim: Double) -> SIMD3<Float> {
+        color + (ink - color) * Float(dim)
+    }
+}
+
+/// The lantern moment's light as one value (build 3, lane 5 step 5), stepped by the frame's seconds: `light` comes in
+/// over 0.15 s as the lantern goes up and leaves in 0.1 s as it comes down, in even steps (no ease); under Reduce
+/// Motion it is there and gone at once, as the moment is. `dim` is the strength of `LanternLight`'s rings. Picture
+/// only, never saved.
+struct LanternVeil: Sendable, Equatable {
+    /// 0 ... 1: the lantern's own light.
+    private(set) var light = 0.0
+
+    static let upSeconds = 0.15
+    static let downSeconds = 0.1
+
+    /// The strength of the rings' dim now.
+    var dim: Double { light }
+
+    /// One step of `seconds`: `raised` while the lantern is up.
+    mutating func step(_ seconds: Double, raised: Bool, reduceMotion: Bool) {
+        let dt = max(0, seconds)
+        let target = raised ? 1.0 : 0.0
+        if reduceMotion {
+            light = target
+        } else if light < target {
+            light = LanternVeil.toward(light, target, by: dt / LanternVeil.upSeconds)
+        } else if light > target {
+            light = LanternVeil.toward(light, target, by: dt / LanternVeil.downSeconds)
+        }
+    }
+
+    /// `value` moved by `amount` toward `target`, landing on it within a hair (so 0.15 s of sixtieths reach it).
+    static func toward(_ value: Double, _ target: Double, by amount: Double) -> Double {
+        let next = value < target ? min(target, value + amount) : max(target, value - amount)
+        return abs(next - target) < 1e-9 ? target : next
     }
 }

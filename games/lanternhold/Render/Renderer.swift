@@ -748,7 +748,19 @@ final class Renderer {
                                  Look.bandStrength(ambient, focus: focus)),
             bounceColor: SIMD4<Float>(bounce.x, bounce.y, bounce.z, 0),
             bandColor: SIMD4<Float>(bandColor.x, bandColor.y, bandColor.z, Look.bandHeight),
-            rim: SIMD4<Float>(rim.x, rim.y, rim.z, Look.rim))
+            rim: SIMD4<Float>(rim.x, rim.y, rim.z, Look.rim),
+            lantern: Renderer.lanternUniform(frame))
+    }
+
+    /// b3-lantern (build 3, lane 5 step 5): the lantern's own light for the composite and the actors (`LanternLight`,
+    /// `lh_lantern_dim`): the glass's x and lift in world px, the dim's strength and the circle's squash; strength 0
+    /// while the frame has none.
+    static func lanternUniform(_ frame: FrameDesc) -> SIMD4<Float> {
+        guard let glass = frame.lanternDim, glass.strength > 0 else {
+            return SIMD4<Float>(0, 0, 0, Float(LanternLight.squash))
+        }
+        return SIMD4<Float>(Float(glass.x), Float(glass.lift), Float(min(1, glass.strength)),
+                            Float(LanternLight.squash))
     }
 
     /// The colour of the frame's backdrop lights (lights of the far and mid planes, such as the warden statue's bowl
@@ -979,11 +991,15 @@ final class Renderer {
             rect.w -= rect.w * rows / Float(cell.height)
             texel.w -= rows
         }
+        // b3-lantern (build 3, lane 5 step 5): flags.x carries the lantern's dim rule with the emissive mark: 0 lit,
+        // 1 emissive, 2 emissive and never dimmed (`ActorDim.kept`), 3 drawn over the finished picture
+        // (`ActorDim.over`, emissive by its nature). A lit actor is dimmed with the world whatever its rule says.
+        let emissive: Float = actor.dimRule == .over ? 3 : (actor.isEmissive ? (actor.dimRule == .kept ? 2 : 1) : 0)
         guard look == .two else {
             let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
             // b3-horde step 4: a small one's packed cap (`HordeLook.pack`) is a plain cap in look 1
             let cap = HordeLook.unpack(actor.lightCap)?.cap ?? actor.lightCap
-            let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, cap)
+            let flags = SIMD4<Float>(emissive, actor.moonRim, rim, cap)
             return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
         }
         let rim: Float = rimmed.contains(actor.sprite) ? Look2.rim
@@ -991,7 +1007,7 @@ final class Renderer {
         // b3-horde step 4 (the director's laws of 16.11.2026 06:15): look 2 keeps one cap for every figure; only a small
         // one hands its veil and its own cap through w (`HordeLook.pack`, read by `lh_actor2_fragment`).
         let horde: Float = actor.lightCap >= HordeLook.packBase ? actor.lightCap : 0
-        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, horde)
+        let flags = SIMD4<Float>(emissive, actor.moonRim, rim, horde)
         return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
     }
 

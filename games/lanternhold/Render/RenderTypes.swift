@@ -76,6 +76,9 @@ struct CompositeUniforms: Sendable {
     var bounceColor: SIMD4<Float>
     var bandColor: SIMD4<Float>
     var rim: SIMD4<Float>
+    /// b3-lantern (build 3, lane 5 step 5): the lantern's own light (`LanternLight`): the glass's x and lift (world
+    /// px), the dim's strength (0: none), the circle's squash.
+    var lantern: SIMD4<Float>
 }
 
 /// `Look2Uniforms`: what look 2's composite needs on top of `CompositeUniforms` (see `Shaders.metal`).
