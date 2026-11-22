@@ -1311,3 +1311,15 @@ schneller geht."
   - Rulings: the guard at 1488 facing east, the pell at 1494 and the swapped butts are confirmed; the high arc stays, because the lord watches from the fence; with his mark up Marek's word comes before his card.
   - Step 4 (workflow `wfnf0xy2l`, picture only): a second frame of the rock while the site shows or the yard stands; no rim on a yard prop; the rear butt's own frame; the stuck arrow, the leaning pell, the hold that sees townsfolk and soldiers; the night file in the kettle's light; at most four names on the dawn card. Its gate round adds AudienceUITests, which lh-b3y-31 had left out.
   - Watch point for the store pass: the rewarded path (Marek's cart) now lies about 750 px east of the daily path.
+
+- **Lane 5: the lantern's step 5 is green and pushed; its critic's small fixes run (22.11.2026, 09:03).**
+  - Head 553b4770 (round lh-b3l-52 ALL PASSED without the unit step; the whole unit suite passed on 61893340 in
+    lh-b3l-51). Built: the dim is the lantern's own light (stepped rings round the raised glass, no flat black), the
+    clean frame while a pan is held (row, banner and gear fade in 0.15 s), and the banner critic's fixes.
+  - Critic: pass 8/10, no blocker, no high. Rulings:
+    - the count beside the banner returns to a single 1 px ink edge per piece (the shared edge read as a dark plate);
+    - the ring values stay (three design cards showed that no ring value helps the dusk and a stronger one spoils the day);
+    - proof frames for the glint and the flare;
+    - the red notes sign fades in the clean frame;
+    - one unused member goes.
+  - One Opus agent does this as step 5b (round lh-b3l-43 with the whole unit suite). Usage 16 % all models, 8 % Fable.
