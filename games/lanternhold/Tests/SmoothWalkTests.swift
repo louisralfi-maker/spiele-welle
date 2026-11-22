@@ -670,4 +670,86 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertEqual(EmissiveBands.mask(night, reducedEffects: true) & EmissiveBands.bit(.keepMist), 0,
                        "under the thermal cut the keep's mist is not drawn, so not read")
     }
+
+    // MARK: Polish step A1: the camera and the far layers with the walk's start and brake
+
+    /// One walk through the driver as the game steps it (`GameModel.advanceGame`: the camera frames after every sim
+    /// step): the lead settled by an earlier walk the same way, then a tap `distance` px on at `pace`, until he stands
+    /// and three seconds more. Every step's lord move, camera move, the remaining gap before the step and the planes'
+    /// device offsets.
+    private func steppedWalk(distance: Double, pace: Double, reduceMotion: Bool = false)
+        -> [(lord: Double, camera: Double, gap: Double, ramping: Bool, planes: [Int])] {
+        var s = GameState.newRealm(seed: 6)
+        s.hour = 10
+        s.king.x = 2700
+        s.king.facing = distance > 0 ? 1 : -1
+        var driver = SimDriver(state: s, balance: .standard)
+        let pixelScale = PixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        var camera = Camera(focusX: 2700, pixelScale: pixelScale)
+        camera.presetLead(facing: s.king.facing, lordX: 2700)
+        var events: [SimEvent] = []
+        let target = 2700 + distance
+        driver.travel(to: target, speed: pace)
+        var rows: [(lord: Double, camera: Double, gap: Double, ramping: Bool, planes: [Int])] = []
+        var after = 0
+        var steps = 0
+        while after < 180 && steps < 3000 {
+            let x = driver.state.king.x
+            let left = camera.x
+            let gap = abs(target - x)
+            driver.advance(by: SimDriver.step, events: &events)
+            camera.frame(CameraFraming.input(driver.state, camera: camera), dt: SimDriver.step,
+                         reduceMotion: reduceMotion)
+            let planes = [Plane.far, .mid, .near, .world].map { plane -> Int in
+                let offset = camera.offset(for: plane, scale: 6)
+                return offset.whole * 6 + offset.deviceShift
+            }
+            rows.append((driver.state.king.x - x, camera.x - left, gap,
+                         Double(steps + 1) * SimDriver.step <= FigureMotion.startSeconds + SimDriver.step, planes))
+            if driver.travelTarget == nil { after += 1 }
+            steps += 1
+        }
+        XCTAssertEqual(driver.state.king.x, target, "he stands on the spot")
+        return rows
+    }
+
+    /// The camera stays calm through the walk's start and brake (Louis once saw roofs jitter while walking): no camera
+    /// step through the ramp, the brake and the settle after it is larger than the lord's own step at his pace, the
+    /// camera never steps back (before A1 the follow ran about 1.7 px past the goal after every stop and slid back),
+    /// and no far plane steps back by a device pixel. East and west, at a walk and at a run; under Reduce Motion the
+    /// camera moves with the lord step for step.
+    func testTheCameraAndTheFarPlanesStayCalmThroughTheStartAndTheBrake() {
+        for (distance, pace) in [(90.0, 36.0), (-90.0, 36.0), (200.0, 80.0), (12.0, 36.0)] {
+            let label = "\(distance) px at \(pace)"
+            let way = distance > 0 ? 1.0 : -1.0
+            let full = pace * SimDriver.step
+            let rows = steppedWalk(distance: distance, pace: pace)
+            var lastPlanes = rows.first?.planes ?? []
+            var brakeSeen = false
+            for (index, row) in rows.enumerated() {
+                XCTAssertGreaterThanOrEqual(row.camera * way, -1e-9, "\(label): the camera never steps back (\(index))")
+                XCTAssertGreaterThanOrEqual(row.lord * way, -1e-12, "\(label): nor does he")
+                if row.ramping {
+                    XCTAssertLessThanOrEqual(abs(row.camera), full + 1e-9, "\(label): ramp step \(index)")
+                }
+                if abs(distance) > 60 && row.gap < FigureMotion.brakePixels {
+                    brakeSeen = true
+                }
+                if brakeSeen {
+                    XCTAssertLessThanOrEqual(abs(row.camera), full + 1e-9, "\(label): brake or settle step \(index)")
+                }
+                for (plane, (now, before)) in zip(["far", "mid", "near", "world"], zip(row.planes, lastPlanes)) {
+                    XCTAssertGreaterThanOrEqual(Double(now - before) * way, 0, "\(label): the \(plane) plane at \(index)")
+                }
+                lastPlanes = row.planes
+            }
+            XCTAssertTrue(brakeSeen || abs(distance) <= 60, label)
+            // Between the ramp and the brake the follow catches up its lag as it always did (about 1.11 × his step).
+            XCTAssertLessThanOrEqual(rows.map { abs($0.camera) }.max() ?? 0, full * 1.12, "\(label): never races")
+        }
+        let still = steppedWalk(distance: 90, pace: 36, reduceMotion: true)
+        for (index, row) in still.enumerated() {
+            XCTAssertEqual(row.camera, row.lord, accuracy: 1e-9, "Reduce Motion: with the lord, step \(index)")
+        }
+    }
 }

@@ -111,7 +111,8 @@ final class HallStageTests: XCTestCase {
         XCTAssertEqual(game.stage, .world, "past x 40 he went out")
         let state = try XCTUnwrap(game.driver?.state)
         XCTAssertEqual(state.king.x, HallLayout.worldDoorX, "he stands at the door in the world")
-        XCTAssertEqual(state.king.facing, 1, "facing right")
+        // Polish step A1 (R2): out of the hall he faces west, toward his household (he faced east, his back to it).
+        XCTAssertEqual(state.king.facing, -1, "facing west")
         XCTAssertTrue(game.sceneStatus.contains("stage:world"), game.sceneStatus)
 
         // Reduce Motion: the same without the dark.

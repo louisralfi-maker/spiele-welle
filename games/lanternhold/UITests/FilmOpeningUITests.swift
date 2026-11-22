@@ -266,4 +266,134 @@ final class FilmOpeningUITests: XCTestCase {
         }
         night.terminate()
     }
+
+    // LANE-A: A1
+    /// Polish step A1 (the walk and the breath): the first steps slowed to a quarter (`-GWTimeScale 0.25`) and shot back
+    /// to back, the scene read after every frame (`kv:` his speed, `kxf:` his place, `kf:` his frame, `kd:` his facing),
+    /// so the start, the brake, the holds and the breath show frame by frame: m02-s a tap at 80 % (the start, then the
+    /// last frames before the stop and the stand after it), m02-t a tap at 20 % from standing (he turns and starts at
+    /// once), m02-u a tap at 85 % and a second at 25 % while he walks (the turn's hold). m01-i: out of the hall's inner
+    /// door (HallUITests' 143 way), where he now stands facing west.
+    func testA1TheWalkSlowed() {
+        let film = FilmReel(self, "m02")
+        let app = film.launch(FilmOpeningUITests.dayOne + ["-GWCameraX", "1500", "-GWTimeScale", "0.25"])
+        guard film.ready(app) else {
+            XCTFail("A1: the scene never stood")
+            return
+        }
+        film.pause(9)
+        waitForStill(app, timeout: 6)
+        waitForCamera(app, timeout: 8)
+        let scene = film.element(app, "world-scene")
+        let right = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.94))
+        a1Steps(film, app, letter: "s", what: "a tap at 80 %, slowed: he starts, walks, brakes and stands",
+                taps: [(0, right)], start: 12, untilStill: true)
+        waitForStill(app, timeout: 12)
+        waitForCamera(app, timeout: 10)
+        film.pause(1.0)
+        let left = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.94))
+        a1Steps(film, app, letter: "t", what: "a tap at 20 % from standing, slowed: he turns and starts at once",
+                taps: [(0, left)], start: 12, untilStill: false)
+        waitForStill(app, timeout: 16)
+        waitForCamera(app, timeout: 10)
+        film.pause(1.0)
+        a1Steps(film, app, letter: "u", what: "a tap at 85 % and a second at 25 % while he walks, slowed: the turn",
+                taps: [(0, scene.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.94))),
+                       (7, scene.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.94)))],
+                start: 20, untilStill: false)
+        app.terminate()
+
+        let door = FilmReel(self, "m01")
+        let hall = door.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWDay", "3",
+                                "-GWSeed", "2", "-GWClock", "10", "-GWStage", "hall", "-GWHallX", "76"])
+        guard door.ready(hall) else {
+            XCTFail("A1: the hall never stood")
+            return
+        }
+        door.pause(2)
+        let hallScene = door.element(hall, "world-scene")
+        hallScene.coordinate(withNormalizedOffset: CGVector(dx: 0.30, dy: 0.62))
+            .press(forDuration: 0.05, thenDragTo: hallScene.coordinate(withNormalizedOffset: CGVector(dx: 0.20, dy: 0.62)),
+                   withVelocity: .default, thenHoldForDuration: 1.6)
+        let outside = door.wait(8) { self.sceneField(hall, "stage:") == "world" }
+        XCTAssertTrue(outside, "A1: out past the inner door")
+        door.burst("i", hall, count: 8, what: "out of the hall's inner door: he stands before it in the world, facing "
+                   + "west (scene kd:)", before: false, every: 0.25)
+        door.note("m01-i-scene", door.scene(hall))
+        let facing = sceneField(hall, "kd:")
+        XCTAssertEqual(facing, "-1", "A1: facing west after the hall")
+        hall.terminate()
+    }
+
+    /// A slowed burst of the lord's steps: `taps` (sent without waiting, before the frame of the given number) and a
+    /// frame with the scene read after it, back to back; the first `start` frames are kept, then (`untilStill`) a ring
+    /// of the last 12 frames while he walks and 16 more once he stands. One note `m02-<letter>-times` lists every
+    /// kept frame's seconds and its scene values.
+    private func a1Steps(_ film: FilmReel, _ app: XCUIApplication, letter: String, what: String,
+                         taps: [(Int, XCUICoordinate)], start: Int, untilStill: Bool) {
+        struct Shot {
+            let shot: XCUIScreenshot
+            let seconds: Double
+            let text: String
+        }
+        let keys = ["kv:", "kxf:", "kf:", "kd:", "lx:", "cam:", "hour:"]
+        func values(_ value: String) -> String {
+            value.split(separator: " ").filter { word in keys.contains { word.hasPrefix($0) } }.joined(separator: " ")
+        }
+        var kept: [Shot] = [Shot(shot: XCUIScreen.main.screenshot(), seconds: -0.01,
+                                 text: "before: " + values(film.scene(app)))]
+        let started = Date()
+        var lines: [String] = []
+        var ring: [Shot] = []
+        var after = 0
+        var stood = false
+        var walked = false
+        var index = 0
+        while index < 400 {
+            for tap in taps where tap.0 == index {
+                let answer = FilmAnswer()
+                let at = Date().timeIntervalSince(started)
+                let sent = film.sendWithoutWaiting(tap.1, app, answer)
+                if !sent.ok { tap.1.tap() }
+                lines.append(String(format: "a tap before frame %02ld sent at +%.3f s (%@)", index + 1, at,
+                                    sent.ok ? sent.text : "the plain tap: " + sent.text))
+            }
+            let shot = XCUIScreen.main.screenshot()
+            let seconds = Date().timeIntervalSince(started)
+            let text = values(film.scene(app))
+            let frame = Shot(shot: shot, seconds: seconds, text: text)
+            index += 1
+            let speed = FilmReel.number("kv:", in: text) ?? 0
+            if speed != 0 { walked = true }
+            if index <= start {
+                kept.append(frame)
+                if !untilStill && index == start { break }
+                continue
+            }
+            if !untilStill { break }
+            if !stood {
+                ring.append(frame)
+                if ring.count > 12 { ring.removeFirst() }
+                if walked && speed == 0 {
+                    stood = true
+                    kept.append(contentsOf: ring)
+                    ring = []
+                }
+            } else {
+                kept.append(frame)
+                after += 1
+                if after >= 16 { break }
+            }
+        }
+        var notes = ["m02-\(letter): \(what)", film.clock + "; frames back to back, the scene read after each",
+                     "launch: " + film.arguments.joined(separator: " ")] + lines
+        notes.append("frame  seconds since the burst began  scene")
+        for (number, frame) in kept.enumerated() {
+            let name = String(format: "m02-%@-%02ld", letter, number)
+            film.keep(frame.shot, name)
+            notes.append(String(format: "%02ld  %+.3f s  %@", number, frame.seconds, frame.text))
+        }
+        film.note("m02-\(letter)-times", notes.joined(separator: "\n"))
+    }
+    // LANE-A end
 }
