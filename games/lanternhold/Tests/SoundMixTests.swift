@@ -249,7 +249,7 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(chain.next(at: 2.7 + 1.49), 7, "a repeat within 1.5 s goes on")
         XCTAssertEqual(chain.next(at: 2.7 + 1.49 + 1.5), 0, "1.5 s without a repeat: back to the root")
         XCTAssertEqual(chain.strength(), 0.35, accuracy: 1e-12)
-        XCTAssertEqual(chain.next(at: 4.5), 1)
+        XCTAssertEqual(chain.next(at: 2.7 + 1.49 + 1.5 + 0.3), 1)
         XCTAssertEqual(chain.next(at: 1), 0, "a clock that went back starts again")
         var count = AnswerChain(cap: AnswerChain.countCap)
         for k in 0..<20 { count.next(at: Double(k) * 0.05) }
