@@ -184,9 +184,11 @@ enum TouchFooting {
 
 /// The gold rim on what a mark points at (SPRITES.md "The marks of 'touch the world'"): the engine draws one pixel
 /// outside the sprite's outline at its left, right and top (`EmissiveInstance.Kind.rim`), added in the emissive pass so
-/// it reads by day and at night and never covers the thing itself.
+/// it reads by day and at night and never covers the thing itself. (b3-smooth: round a person, as an actor, `actors`.)
 enum TouchRims {
     /// The rims in the world round the body of a marked person (the figures are actors, drawn over the world).
+    /// b3-smooth: no longer drawn by the app (`actors` is); kept as the old look's measure for TouchCraftTests and
+    /// SmoothWalkTests.
     static func world(_ marks: [TouchMark], figures: [DrawnFigure], night: Double) -> [EntityGlow] {
         var list: [EntityGlow] = []
         for mark in marks where mark.kind == .talk || mark.kind == .bench {
@@ -230,6 +232,37 @@ enum TouchRims {
         }
         let centre = prop.x + Double(prop.width) / 2
         return abs(centre - x) <= max(4, half)
+    }
+
+    // b3-smooth (build 3, lane 5b step 1, the critic's M2): the rim round a marked person as an actor.
+
+    /// The mark of a touch rim in `ActorInstance.moonRim` (a moonlight rim is never below 0): the renderer grows its
+    /// texels by the pixel its rect is grown by and sends it down the actor shader's rim path (`lh_rim_texel`).
+    static let actorRim: Float = -1
+
+    /// The rims round the bodies of marked people as actors on the figures' own device pixels, to be drawn behind every
+    /// figure. A rim on the world's grid (`world`, an emissive glow at whole game px) stepped up to 3 device px against
+    /// a figure that walks while the camera followed; this one is the figure's own rect, as `CourtFrames` places its
+    /// actor through the same `view`, grown by one game pixel left, right and up, so its offset to the figure is the
+    /// same in every frame. The same pixels light as before: one outside the outline at the left, right and top, in
+    /// `TouchRules.rimColor` (brighter while the finger is down, warmed at night), added to what stands behind.
+    static func actors(_ marks: [TouchMark], figures: [DrawnFigure], night: Double,
+                       view: EntityFrames.ActorView) -> [ActorInstance] {
+        var list: [ActorInstance] = []
+        let side = Float(view.scale)
+        for mark in marks where mark.kind == .talk || mark.kind == .bench {
+            guard let who = mark.who, let figure = figures.first(where: { $0.who == who && $0.alpha > 0.5 }) else {
+                continue
+            }
+            let body = view.rect(figure.sprite, x: figure.x, y: figure.y)
+            let rect = SIMD4<Float>(body.x - side, body.y - side, body.z + 2 * side, body.w + side)
+            guard view.isOnScreen(rect) else { continue }
+            let color = TouchRules.rimColor(pressed: mark.pressed, night: night)
+            list.append(ActorInstance(sprite: figure.sprite, frame: figure.frame, rect: rect,
+                                      tint: SIMD4<Float>(color.x, color.y, color.z, 1), flipped: figure.facing < 0,
+                                      isEmissive: true, isLit: false, moonRim: actorRim))
+        }
+        return list
     }
 
     /// The rim round a figure as the actors place it (its anchor at its bottom middle).
@@ -298,10 +331,4 @@ enum LanternFlare {
 
     /// The ring's band: its crest at the light's edge and two fainter pixels behind it (inset, share).
     static let band: [(inset: Double, share: Double)] = [(0, 0.6), (1, 0.32), (2, 0.14)]
-
-    /// The flare on the glass: its middle and the pixels round it (offsets and shares).
-    static let flare: [(dx: Double, dy: Double, share: Double)] = [
-        (0, 0, 1), (-1, 0, 0.55), (1, 0, 0.55), (0, -1, 0.55), (0, 1, 0.55), (-2, 0, 0.2), (2, 0, 0.2),
-        (0, 2, 0.2), (0, -2, 0.2),
-    ]
 }

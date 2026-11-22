@@ -222,6 +222,15 @@ fragment float4 lh_emissive_fragment(SpriteOut in [[stage_in]],
     return float4(c.rgb * in.tint.rgb * a, 0.0f);
 }
 
+// b3-smooth (build 3, lane 5b step 1, the critic's M2): a touch rim's texel, by the emissive pass's rim rule above:
+// clear, with an opaque texel at its left, at its right or under it.
+static inline bool lh_rim_texel(texture2d<float> atlas, uint2 t) {
+    float left = atlas.read(uint2(t.x > 0u ? t.x - 1u : 0u, t.y)).a;
+    float right = atlas.read(uint2(t.x + 1u, t.y)).a;
+    float below = atlas.read(uint2(t.x, t.y + 1u)).a;
+    return max(left, max(right, below)) >= 0.5f;
+}
+
 // MARK: Light pools
 
 struct LightQuad {
@@ -321,8 +330,62 @@ fragment float4 lh_pool_fragment(LightPoolOut in [[stage_in]],
 struct BloomUniforms {
     float4 size;    // low-res width, height, half-res width, height
     float4 params;  // share of point light, share of the sky emissives, threshold, knee
-    float4 backdrop; // colour of the backdrop lights (the light buffer's alpha), unused
+    float4 backdrop; // colour of the backdrop lights (the light buffer's alpha); w the bands' mask (b3-smooth; 0: none)
 };
+
+// Build 3, lane 5 step 2b (the smooth walk, suspect 3): 1 where a picture leaves a glow behind it open (as an
+// occluder cleared the glow under a sprite's opaque texels), 0 where it stands opaque in front of it.
+static inline float lh_open(float a) {
+    return a < 0.5f ? 1.0f : 0.0f;
+}
+
+// b3-smooth (build 3, lane 5b step 1, the critic's H2b): the mask of the bands and carried pictures that hold anything
+// (Render/EmissiveBands.swift `mask`): bit k for band k, bit 8 + k for carried picture k. What it leaves out is not
+// read and counts as the cleared texel it would have read (so the expressions below stay as they were).
+static inline bool lh_has(uint mask, uint bits) {
+    return (mask & bits) != 0u;
+}
+
+// Build 3, lane 5 step 2b: the bloom's share of look 2's band texture (Render/EmissiveBands.swift) at a low-res
+// texel: the far band behind the mid plane, the near plane and the lane; the mid and mist bands behind the near plane
+// and the lane; the near band behind the lane; the foreground's and the lantern's streak on the water behind nothing.
+// Read on the world's grid (the bloom is soft); bands are `height + 2` rows apart.
+// b3-smooth (H2b): only the bands the mask names are read.
+static float3 lh_back_bloom(texture2d<float> back, uint2 t, uint height, float midA, float nearA, float worldA,
+                            uint mask) {
+    uint stride = height + 2u;
+    float lane = lh_open(worldA);
+    float front = lh_open(nearA) * lane;
+    float3 b0 = float3(0.0f);
+    float3 b1 = float3(0.0f);
+    float3 b2 = float3(0.0f);
+    float3 b3 = float3(0.0f);
+    float3 b4 = float3(0.0f);
+    float3 b5 = float3(0.0f);
+    if (lh_has(mask, 1u)) {
+        b0 = back.read(t).rgb;
+    }
+    if (lh_has(mask, 2u)) {
+        b1 = back.read(uint2(t.x, t.y + stride)).rgb;
+    }
+    if (lh_has(mask, 4u)) {
+        b2 = back.read(uint2(t.x, t.y + 2u * stride)).rgb;
+    }
+    if (lh_has(mask, 8u)) {
+        b3 = back.read(uint2(t.x, t.y + 3u * stride)).rgb;
+    }
+    if (lh_has(mask, 16u)) {
+        b4 = back.read(uint2(t.x, t.y + 4u * stride)).rgb;
+    }
+    if (lh_has(mask, 32u)) {
+        b5 = back.read(uint2(t.x, t.y + 5u * stride)).rgb;
+    }
+    float3 sum = b0 * (lh_open(midA) * front);
+    sum += (b1 + b2) * front;
+    sum += b3 * lane;
+    sum += b4 + b5;
+    return sum;
+}
 
 // Half resolution: each pixel averages 2 x 2 low-res pixels of emissive, light and sky glow, then keeps only what
 // is bright (soft knee).
@@ -330,7 +393,11 @@ fragment float4 lh_bloom_prefilter_fragment(FullscreenOut in [[stage_in]],
                                             constant BloomUniforms &u [[buffer(0)]],
                                             texture2d<float> emissive [[texture(0)]],
                                             texture2d<float> light [[texture(1)]],
-                                            texture2d<float> sky [[texture(2)]]) {
+                                            texture2d<float> sky [[texture(2)]],
+                                            texture2d<float> back [[texture(3)]],
+                                            texture2d<float> midTex [[texture(4)]],
+                                            texture2d<float> nearTex [[texture(5)]],
+                                            texture2d<float> worldTex [[texture(6)]]) {
     uint2 base = uint2(in.position.xy) * 2u;
     uint2 limit = uint2(max(u.size.xy, float2(1.0f))) - 1u;
     float3 sum = float3(0.0f);
@@ -339,6 +406,23 @@ fragment float4 lh_bloom_prefilter_fragment(FullscreenOut in [[stage_in]],
             uint2 t = min(base + uint2(i, j), limit);
             float4 l = light.read(t);
             sum += emissive.read(t).rgb + (l.rgb + u.backdrop.rgb * l.a) * u.params.x + sky.read(t).rgb * u.params.y;
+            if (u.backdrop.w > 0.5f) {
+                // b3-smooth (H2b): the bands the mask names (`backdrop.w`), and only the alphas that hide them.
+                uint mask = uint(u.backdrop.w);
+                float midA = 0.0f;
+                float nearA = 0.0f;
+                float worldA = 0.0f;
+                if (lh_has(mask, 1u)) {
+                    midA = midTex.read(t).a;
+                }
+                if (lh_has(mask, 7u)) {
+                    nearA = nearTex.read(t).a;
+                }
+                if (lh_has(mask, 15u)) {
+                    worldA = worldTex.read(t).a;
+                }
+                sum += lh_back_bloom(back, t, limit.y + 1u, midA, nearA, worldA, mask);
+            }
         }
     }
     float3 c = sum * 0.25f;
@@ -395,6 +479,7 @@ struct CompositeUniforms {
     float4 bounceColor; // the sky's cool light at the ambient's level (rgb), unused
     float4 bandColor;   // the bright haze band's colour (rgb), its height in rows above the ground line
     float4 rim;         // the king's cool rim colour (rgb), its strength
+    float4 lantern;     // b3-lantern: the lantern's light: glass x, glass lift (world px), strength (0: none), squash
 };
 
 // The cold colour of the night: ambient-lit albedo pulled toward violet by its own luminance (k = 0 by day), so
@@ -667,6 +752,64 @@ static float3 lh_top(float3 color, PlaneCoords c, PixelLight info, constant Comp
     return lh_grade(color, mix(info.light, info.backdrop, midVisible), c, u);
 }
 
+// b3-lantern (build 3, lane 5 step 5; `LanternLight` in Core/LanternMoment.swift is the same sum): the lantern's own
+// light. While the lantern is up the finished picture darkens by the distance of each world pixel (its column on the
+// stage, its row over the walk line) from the lord's raised glass, in stepped rings on the world's grid: none within
+// 48 game px, then 0.08, 0.16, 0.24 and 0.30 beyond 170, a band 4 px wide between two rings in a 2 x 2 ordered dither
+// of the two; the dark leans to the night ink. The world's own lights (the emissive pass: fires, lit windows, the gold
+// rims, the halo at the glass) keep their glow.
+constant float kLanternRings[4] = { 48.0f, 80.0f, 120.0f, 170.0f };
+constant float kLanternLevels[5] = { 0.0f, 0.08f, 0.16f, 0.24f, 0.30f };
+constant float kLanternOrder[4] = { 0.125f, 0.625f, 0.875f, 0.375f };
+constant float3 kLanternInk = float3(0.164706f, 0.133333f, 0.188235f);
+
+static float lh_lantern_dim(PlaneCoords c, constant CompositeUniforms &u) {
+    float strength = u.lantern.z;
+    if (strength <= 0.0f) {
+        return 0.0f;
+    }
+    int x = int(u.target.w) + int(c.world.x);
+    int y = int(u.target.z) - 1 - int(c.row);
+    float dx = float(x) + 0.5f - u.lantern.x;
+    float dy = (float(y) + 0.5f - u.lantern.y) / max(u.lantern.w, 0.01f);
+    float r = sqrt(dx * dx + dy * dy);
+    for (int i = 0; i < 4; i++) {
+        float ring = kLanternRings[i];
+        if (r < ring - 2.0f) {
+            return kLanternLevels[i] * strength;
+        }
+        if (r < ring + 2.0f) {
+            float share = (r - (ring - 2.0f)) * 0.25f;
+            bool outer = share > kLanternOrder[(y & 1) * 2 + (x & 1)];
+            return kLanternLevels[outer ? i + 1 : i] * strength;
+        }
+    }
+    return kLanternLevels[4] * strength;
+}
+
+// Whether a pixel of a fading `ActorDim.over` sign at opacity `alpha` is left out: a 2 x 2 ordered dither on the world's
+// grid, so one game pixel is whole or gone and the picture behind it stays as it was drawn.
+static inline bool lh_over_thinned(PlaneCoords c, constant CompositeUniforms &u, float alpha) {
+    int x = int(u.target.w) + int(c.world.x);
+    int y = int(u.target.z) - 1 - int(c.row);
+    return alpha < kLanternOrder[(y & 1) * 2 + (x & 1)];
+}
+
+// A colour under the lantern's dim `d`.
+static inline float3 lh_lantern_dark(float3 color, float d) {
+    return mix(color, kLanternInk, d);
+}
+
+// The finished picture of a world pixel under the dim, its emissive light made up: the world's lights keep their glow.
+static inline float3 lh_lantern_world(float3 color, PlaneCoords c, constant CompositeUniforms &u,
+                                      texture2d<float> emissiveTex) {
+    float d = lh_lantern_dim(c, u);
+    if (d <= 0.0f) {
+        return color;
+    }
+    return lh_lantern_dark(color, d) + emissiveTex.read(c.world).rgb * d;
+}
+
 constant ushort kDigits[10] = { 0x7B6F, 0x2C97, 0x73E7, 0x73CF, 0x5BC9, 0x79CF, 0x79EF, 0x7249, 0x7BEF, 0x7BCF };
 
 // Two digits of a 3 x 5 pixel font with one column between them.
@@ -755,6 +898,7 @@ fragment float4 lh_composite_fragment(FullscreenOut in [[stage_in]],
     float midVisible = 0.0f;
     float3 color = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex, midVisible);
     color = lh_top(color, c, info, u, fogBTex, fgTex, bloomTex, midVisible);
+    color = lh_lantern_world(color, c, u, emissiveTex);   // b3-lantern (step 5)
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }
@@ -820,12 +964,46 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     float across = dfdx(in.texel.x);
     uint2 t = uint2(max(in.texel, float2(0.0f)));
     float4 texel = atlas.read(t);
+    // b3-smooth (build 3, lane 5b step 1, the critic's M2): a touch rim round a person (flags.y < 0,
+    // `TouchRims.actors`): its colour added to the whole stack behind it, as the emissive pass added it, on the
+    // figure's own device pixels.
+    if (in.flags.y < -0.5f) {
+        if (texel.a >= 0.5f || !lh_rim_texel(atlas, t)) {
+            discard_fragment();
+        }
+        PlaneCoords rc = lh_coords(in.position.xy, u);
+        PixelLight rinfo = lh_pixel_light(rc, u, lightTex);
+        float rimMid = 0.0f;
+        float3 rimBase = lh_base(rc, rinfo, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex,
+                                 rimMid);
+        float3 rim = lh_top(rimBase + in.tint.rgb, rc, rinfo, u, fogBTex, fgTex, bloomTex, rimMid);
+        // b3-lantern (build 3, lane 5 step 5): the gold rim is never dimmed; the picture behind it is, as the
+        // composite dims it (its own glow made up).
+        float rimDim = lh_lantern_dim(rc, u);
+        if (rimDim > 0.0f) {
+            float3 behind = lh_top(rimBase, rc, rinfo, u, fogBTex, fgTex, bloomTex, rimMid);
+            rim += (kLanternInk - behind + emissiveTex.read(rc.world).rgb) * rimDim;
+        }
+        if (u.debug.z != 0u) {
+            rim = lh_debug_lights(rim, rc, u, lights);
+        }
+        return float4(saturate(rim), 1.0f);
+    }
     if (texel.a < 0.5f || in.tint.a <= 0.003f) {
         discard_fragment();
     }
     float2 p = in.position.xy;
     PlaneCoords c = lh_coords(p, u);
     PixelLight info = lh_pixel_light(c, u, lightTex);
+    // b3-lantern (build 3, lane 5 step 5): drawn over the finished picture, after the grade and the lantern's dim, in
+    // its own colours (`ActorDim.over`: the moment's row, the hint's glint, the raise's flare); while it fades it thins
+    // in a 2 x 2 ordered dither on the world's grid and keeps whatever was drawn behind it (a person under the row).
+    if (in.flags.x > 2.5f) {
+        if (in.tint.a < 0.999f && lh_over_thinned(c, u, in.tint.a)) {
+            discard_fragment();
+        }
+        return float4(saturate(texel.rgb * in.tint.rgb), 1.0f);
+    }
     // The stack behind the actor matters only where it shows through (the probe's translucent creatures); every game
     // actor is opaque, so the composite of the planes behind it is skipped (the A12's GPU budget, M2b review).
     float midVisible = 0.0f;
@@ -857,6 +1035,11 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
     color = lh_top(color, c, info, u, fogBTex, fgTex, bloomTex, midVisible);
+    // b3-lantern (step 5): the lantern's dim, as on the world behind; a kept actor (flags.x 2) is never dimmed.
+    float lanternDim = in.flags.x < 1.5f ? lh_lantern_dim(c, u) : 0.0f;
+    if (lanternDim > 0.0f) {
+        color = lh_lantern_dark(color, lanternDim);
+    }
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }
@@ -876,7 +1059,7 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
 // =====================================================================================================================
 
 struct Look2Uniforms {
-    int4 shifts;      // device shifts of the mist band and the near plane, unused, unused
+    int4 shifts;      // device shifts of the mist band and the near plane, the bands' mask (b3-smooth), unused
     float4 ambW;      // world ambient rgb, night colourise
     float4 ambF;      // far ambient rgb, daylight
     float4 ambM;      // mid ambient rgb, cool bounce strength
@@ -901,6 +1084,9 @@ struct Look2Uniforms {
 };
 
 constant float3 kNightTint2 = float3(0.72f, 0.95f, 1.85f);
+// b3-smooth (H2b): the mask's bits of the carried pictures (`EmissiveBands.bit(_:)`: the keep, the keep's mist).
+constant uint kCarriedKeep2 = 256u;
+constant uint kCarriedKeepMist2 = 512u;
 constant float3 kBlack2 = float3(0.030f, 0.040f, 0.095f);
 constant float3 kEmber2 = float3(0.85098f, 0.28235f, 0.12157f);
 constant float3 kEmberDim2 = float3(0.54902f, 0.16471f, 0.07059f);
@@ -1085,14 +1271,106 @@ static inline float3 lh2_capped(float3 light) {
     return light * (min(peak, kLitCap2) / max(peak, 0.0001f));
 }
 
+// Build 3, lane 5 step 2b (the smooth walk, suspect 3): the glows of the planes behind the lane and of the foreground,
+// a band each in their own texture (Render/EmissiveBands.swift), each read at its own plane's column and device shift,
+// so a lit window keeps its place on its wall in every frame of a walk and of a pan (the main emissive texture is read
+// on the world's grid). What stands opaque in front of a band's plane hides it, as the occluders did: the far band
+// behind the mid plane, the near plane and the lane; the mid band and the mist band's behind the near plane and the
+// lane; the near band behind the lane; the foreground's and the lantern's streak on the water (band 5, the near
+// plane's column) behind nothing. Bands are `target.y + 2` rows apart.
+// b3-lantern (suspect 4): the keep's carried picture (`keepA`) stands in front of the far and mid bands too; the mist
+// band holds the keep's own glows.
+// b3-smooth (H2b): only the bands the mask names are read.
+static float3 lh2_back_glow(PlaneCoords c, uint2 mist, uint2 near, float midA, float keepA, float nearA, float worldA,
+                            constant CompositeUniforms &u, texture2d<float> backTex, uint mask) {
+    uint stride = uint(max(u.target.y, 1.0f)) + 2u;
+    uint row = c.row;
+    float lane = lh_open(worldA);
+    float front = lh_open(nearA) * lane;
+    float3 b0 = float3(0.0f);
+    float3 b1 = float3(0.0f);
+    float3 b2 = float3(0.0f);
+    float3 b3 = float3(0.0f);
+    float3 b4 = float3(0.0f);
+    float3 b5 = float3(0.0f);
+    if (lh_has(mask, 1u)) {
+        b0 = backTex.read(uint2(c.distant.x, row)).rgb;
+    }
+    if (lh_has(mask, 2u)) {
+        b1 = backTex.read(uint2(c.mid.x, row + stride)).rgb;
+    }
+    if (lh_has(mask, 4u)) {
+        b2 = backTex.read(uint2(mist.x, row + 2u * stride)).rgb;
+    }
+    if (lh_has(mask, 8u)) {
+        b3 = backTex.read(uint2(near.x, row + 3u * stride)).rgb;
+    }
+    if (lh_has(mask, 16u)) {
+        b4 = backTex.read(uint2(c.fg.x, row + 4u * stride)).rgb;
+    }
+    if (lh_has(mask, 32u)) {
+        b5 = backTex.read(uint2(near.x, row + 5u * stride)).rgb;
+    }
+    float3 sum = b0 * (lh_open(midA) * lh_open(keepA) * front);
+    sum += b1 * (lh_open(keepA) * front);
+    sum += b2 * front;
+    sum += b3 * lane;
+    sum += b4;
+    sum += b5;
+    return sum;
+}
+
+// The mid plane's light on a texel `m` of a picture lit as the mid plane (`tex` at `at`, for its ledges): the plane
+// itself (b3-smooth: the valley's carried picture that step 2b lit with it is gone, look 2 has no valley keep).
+static inline float3 lh2_mid_lit(float4 m, texture2d<float> tex, uint2 at, float low, float band, PixelLight info,
+                                 constant CompositeUniforms &u, constant Look2Uniforms &v) {
+    float haze = saturate(v.midHC.w + low * v.bounceW.w * 0.5f);
+    float shade = lh_shade(m.rgb / m.a);
+    float3 ambient = lh2_ambient(v.ambM.rgb, 0.72f, shade, v);
+    float e = lh2_ledge(tex, at, m.a);
+    if (e > 0.0f) {
+        ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
+    }
+    // World rebuild: the backdrop lights a little stronger (0.3 before), so the castle's warm light grazes the
+    // cleft wall over the roofs at dusk and night.
+    float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.5f
+        + m.rgb * kMoonLight2 * lh2_moon_key(m, v);
+    lit = mix(lit, v.midHC.rgb * m.a, haze);
+    lit = mix(lit, v.bandC.rgb * m.a, band * 0.6f);
+    return lit;
+}
+
+// The near plane's light on a texel `n` of a picture lit as the near plane (`tex` at `at`, for its ledges): the plane
+// itself and (b3-lantern, suspect 4) the keep's carried picture.
+static inline float3 lh2_near_lit(float4 n, texture2d<float> tex, uint2 at, float peak, PixelLight info,
+                                  constant CompositeUniforms &u, constant Look2Uniforms &v) {
+    float shade = lh_shade(n.rgb / n.a);
+    float3 ambient = lh2_ambient(v.ambN.rgb, 1.05f, shade, v) * (1.0f - kFireCold2 * min(1.0f, peak * 0.75f));
+    float e = lh2_ledge(tex, at, n.a);
+    if (e > 0.0f) {
+        ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
+    }
+    float3 lit = lh2_cold(n.rgb, ambient, 1.0f - shade, 1.0f, v)
+        + lh_reflectance(n.rgb) * lh2_capped(info.light) * 0.5f + n.rgb * kMoonLight2 * lh2_moon_key(n, v);
+    return mix(lit, v.nearHC.rgb * n.a, v.nearHC.w);
+}
+
 // Sky and clouds, the far and mid planes, the mist band, the near plane, fog A, the lit world plane and its emissive
 // parts. `midVisible` returns how much of the mid plane still shows, `fogCover` the densest fog behind the world.
+// b3-lantern (build 3, lane 5 step 2b, suspect 4): the carried pictures (Core/CarriedPictures.swift), bands of
+// `carriedTex` `target.y + 2` rows apart, each read at the column and device shift of the plane it moves with and lit
+// as the picture it belongs to, just behind it: the keep before the near plane (band 0), the keep's mist before fog A
+// (band 1; b3-smooth: the valley's band is gone).
 static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, constant CompositeUniforms &u,
                        constant Look2Uniforms &v,
                        texture2d<float> skyTex, texture2d<float> cloudsTex, texture2d<float> farTex,
                        texture2d<float> midTex, texture2d<float> mistTex, texture2d<float> nearTex,
                        texture2d<float> fogATex, texture2d<float> worldTex, texture2d<float> emissiveTex,
-                       thread float &midVisible, thread float &fogCover) {
+                       thread float &midVisible, thread float &fogCover, texture2d<float> backTex,
+                       texture2d<float> carriedTex) {
+    uint carriedStride = uint(max(u.target.y, 1.0f)) + 2u;
+    // b3-smooth (H2b): what the frame's bands and carried pictures hold (`EmissiveBands.mask`).
+    uint mask = uint(v.shifts.z);
     float3 color = lh_sky(c, u) + skyTex.read(c.sky).rgb;
     float horizon = max(u.target.z, 1.0f);
     float low = smoothstep(horizon - 70.0f, horizon, float(c.row));
@@ -1134,22 +1412,11 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
     float4 m = midTex.read(c.mid);
     midVisible = 0.0f;
     fogCover = 0.0f;
+    // b3-smooth (lane 5b step 1, the critic's H2a): look 2 draws no valley keep, so no carried picture stands before
+    // the mid plane (`CarriedPicture`).
     if (m.a > 0.0f) {
-        float haze = saturate(v.midHC.w + low * v.bounceW.w * 0.5f);
-        float shade = lh_shade(m.rgb / m.a);
-        float3 ambient = lh2_ambient(v.ambM.rgb, 0.72f, shade, v);
-        float e = lh2_ledge(midTex, c.mid, m.a);
-        if (e > 0.0f) {
-            ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
-        }
-        // World rebuild: the backdrop lights a little stronger (0.3 before), so the castle's warm light grazes the
-        // cleft wall over the roofs at dusk and night.
-        float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.5f
-            + m.rgb * kMoonLight2 * lh2_moon_key(m, v);
-        lit = mix(lit, v.midHC.rgb * m.a, haze);
-        lit = mix(lit, v.bandC.rgb * m.a, band * 0.6f);
-        color = color * (1.0f - m.a) + lit;
-        midVisible = m.a;
+        color = color * (1.0f - m.a) + lh2_mid_lit(m, midTex, c.mid, low, band, info, u, v);
+        midVisible = m.a + midVisible * (1.0f - m.a);
     }
     float region = lh2_fog_region(c, u);
     float4 g = mistTex.read(mist) * region;
@@ -1158,19 +1425,30 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         midVisible *= 1.0f - g.a;
         fogCover = g.a;
     }
+    // b3-lantern (suspect 4): the keep, its flags, vane and smoke, at the mist band's place, lit as the near plane.
+    uint2 keepAt = uint2(mist.x, c.row);
+    float4 keep = float4(0.0f);
+    if (lh_has(mask, kCarriedKeep2)) {
+        keep = carriedTex.read(keepAt);
+    }
+    if (keep.a > 0.0f) {
+        color = color * (1.0f - keep.a) + lh2_near_lit(keep, carriedTex, keepAt, peak, info, u, v);
+        midVisible *= 1.0f - keep.a;
+    }
     float4 n = nearTex.read(near);
     if (n.a > 0.0f) {
-        float shade = lh_shade(n.rgb / n.a);
-        float3 ambient = lh2_ambient(v.ambN.rgb, 1.05f, shade, v) * (1.0f - kFireCold2 * min(1.0f, peak * 0.75f));
-        float e = lh2_ledge(nearTex, near, n.a);
-        if (e > 0.0f) {
-            ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
-        }
-        float3 lit = lh2_cold(n.rgb, ambient, 1.0f - shade, 1.0f, v)
-            + lh_reflectance(n.rgb) * lh2_capped(info.light) * 0.5f + n.rgb * kMoonLight2 * lh2_moon_key(n, v);
-        lit = mix(lit, v.nearHC.rgb * n.a, v.nearHC.w);
-        color = color * (1.0f - n.a) + lit;
+        color = color * (1.0f - n.a) + lh2_near_lit(n, nearTex, near, peak, info, u, v);
         midVisible *= 1.0f - n.a;
+    }
+    // b3-lantern (suspect 4): the keep's mist, at the mist band's place, as fog A (it lay under fog A's own tiles).
+    float4 keepMist = float4(0.0f);
+    if (lh_has(mask, kCarriedKeepMist2)) {
+        keepMist = carriedTex.read(uint2(mist.x, c.row + carriedStride)) * region;
+    }
+    if (keepMist.a > 0.0f) {
+        color = lh2_fog(color, keepMist, v.fog.x * info.bank, 0.6f, info.light);
+        midVisible *= 1.0f - keepMist.a;
+        fogCover = max(fogCover, keepMist.a);
     }
     float4 fa = fogATex.read(c.fogA) * region;
     if (fa.a > 0.0f) {
@@ -1229,7 +1507,8 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         color = color * (1.0f - w.a) + lit;
         midVisible *= 1.0f - w.a;
     }
-    return color + emissiveTex.read(c.world).rgb;
+    return color + emissiveTex.read(c.world).rgb + lh2_back_glow(c, mist, near, m.a, keep.a, n.a, w.a, u, backTex,
+                                                                 mask);
 }
 
 // Fog B, the foreground, bloom and the grade of look 2.
@@ -1340,7 +1619,9 @@ fragment float4 lh_composite2_fragment(FullscreenOut in [[stage_in]],
                                        texture2d<float> emissiveTex [[texture(9)]],
                                        texture2d<float> bloomTex [[texture(10)]],
                                        texture2d<float> mistTex [[texture(12)]],
-                                       texture2d<float> nearTex [[texture(13)]]) {
+                                       texture2d<float> nearTex [[texture(13)]],
+                                       texture2d<float> backTex [[texture(14)]],
+                                       texture2d<float> carriedTex [[texture(15)]]) {
     float2 p = in.position.xy;
     bool inset = u.debug.y != 0u && p.x < u.target.x && p.y < u.target.y;
     PlaneCoords c = inset ? lh_inset_coords(p, u) : lh_coords(p, u);
@@ -1354,8 +1635,9 @@ fragment float4 lh_composite2_fragment(FullscreenOut in [[stage_in]],
     float midVisible = 0.0f;
     float fogCover = 0.0f;
     float3 color = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
-                            worldTex, emissiveTex, midVisible, fogCover);
+                            worldTex, emissiveTex, midVisible, fogCover, backTex, carriedTex);
     color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
+    color = lh_lantern_world(color, c, u, emissiveTex);   // b3-lantern (step 5)
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }
@@ -1384,10 +1666,41 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
                                    texture2d<float> bloomTex [[texture(10)]],
                                    texture2d<float> atlas [[texture(11)]],
                                    texture2d<float> mistTex [[texture(12)]],
-                                   texture2d<float> nearTex [[texture(13)]]) {
+                                   texture2d<float> nearTex [[texture(13)]],
+                                   texture2d<float> backTex [[texture(14)]],
+                                   texture2d<float> carriedTex [[texture(15)]]) {
     float across = dfdx(in.texel.x);
     uint2 t = uint2(max(in.texel, float2(0.0f)));
     float4 texel = atlas.read(t);
+    // b3-smooth (build 3, lane 5b step 1, the critic's M2): a touch rim round a person (flags.y < 0,
+    // `TouchRims.actors`): its colour added to the whole stack behind it, as the emissive pass added it before the
+    // composite's fog B, foreground, bloom and grade, on the figure's own device pixels.
+    if (in.flags.y < -0.5f) {
+        if (texel.a >= 0.5f || !lh_rim_texel(atlas, t)) {
+            discard_fragment();
+        }
+        float2 rp = in.position.xy;
+        PlaneCoords rc = lh_coords(rp, u);
+        uint2 rimMist = uint2(lh_column(rp.x, v.shifts.x, u), rc.row);
+        uint2 rimNear = uint2(lh_column(rp.x, v.shifts.y, u), rc.row);
+        PixelLight rinfo = lh_pixel_light(rc, u, lightTex);
+        float rimMid = 0.0f;
+        float rimFog = 0.0f;
+        float3 rimBase = lh2_base(rc, rimMist, rimNear, rinfo, u, v, skyTex, cloudsTex, farTex, midTex, mistTex,
+                                  nearTex, fogATex, worldTex, emissiveTex, rimMid, rimFog, backTex, carriedTex);
+        float3 rim = lh2_top(rimBase + in.tint.rgb, rc, rinfo, u, v, fogBTex, fgTex, bloomTex, rimMid, rimFog);
+        // b3-lantern (build 3, lane 5 step 5): the gold rim is never dimmed; the picture behind it is, as the
+        // composite dims it (its own glow made up).
+        float rimDim = lh_lantern_dim(rc, u);
+        if (rimDim > 0.0f) {
+            float3 behind = lh2_top(rimBase, rc, rinfo, u, v, fogBTex, fgTex, bloomTex, rimMid, rimFog);
+            rim += (kLanternInk - behind + emissiveTex.read(rc.world).rgb) * rimDim;
+        }
+        if (u.debug.z != 0u) {
+            rim = lh_debug_lights(rim, rc, u, lights);
+        }
+        return float4(saturate(rim), 1.0f);
+    }
     if (texel.a < 0.5f || in.tint.a <= 0.003f) {
         discard_fragment();
     }
@@ -1398,10 +1711,19 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     PixelLight info = lh_pixel_light(c, u, lightTex);
     float midVisible = 0.0f;
     float fogCover = 0.0f;
+    // b3-lantern (build 3, lane 5 step 5): drawn over the finished picture, after the grade and the lantern's dim, in
+    // its own colours (`ActorDim.over`: the moment's row, the hint's glint, the raise's flare); while it fades it thins
+    // in a 2 x 2 ordered dither on the world's grid and keeps whatever was drawn behind it (a person under the row).
+    if (in.flags.x > 2.5f) {
+        if (in.tint.a < 0.999f && lh_over_thinned(c, u, in.tint.a)) {
+            discard_fragment();
+        }
+        return float4(saturate(texel.rgb * in.tint.rgb), 1.0f);
+    }
     float3 base = float3(0.0f);
     if (in.tint.a < 0.999f) {
         base = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
-                        worldTex, emissiveTex, midVisible, fogCover);
+                        worldTex, emissiveTex, midVisible, fogCover, backTex, carriedTex);
     } else {
         fogCover = max(mistTex.read(mist).a, fogATex.read(c.fogA).a) * lh2_fog_region(c, u);
     }
@@ -1480,6 +1802,11 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
         } else if (topEdge) {
             color = mix(color, kCreatureRim2, 0.6f * rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
+    }
+    // b3-lantern (step 5): the lantern's dim, as on the world behind; a kept actor (flags.x 2) is never dimmed.
+    float lanternDim = in.flags.x < 1.5f ? lh_lantern_dim(c, u) : 0.0f;
+    if (lanternDim > 0.0f) {
+        color = lh_lantern_dark(color, lanternDim);
     }
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);

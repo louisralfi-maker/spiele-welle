@@ -55,7 +55,10 @@ enum RealmMapPixels {
     }
 
     /// The strip's pixels.
-    static func image(_ strip: RealmStrip) -> PixelImage {
+    // b3-lantern (step 5b: `withTags` false leaves the calls' tags out, so the strip's view can lay them over the
+    // strip as their own layer that fades in the clean frame; true, the default, draws the whole picture as before)
+    static func image(_ strip: RealmStrip, withTags: Bool = true) -> PixelImage {
+    // b3-lantern end
         var canvas = PixelImage(width: width, height: height)
         pane(&canvas)
         ground(&canvas, strip: strip)
@@ -73,10 +76,29 @@ enum RealmMapPixels {
         if let window = strip.window, !strip.inHall { brackets(&canvas, window) }
         if let target = strip.target { diamond(&canvas, column(fraction: target)) }
         lord(&canvas, column(fraction: strip.king))
-        let calls = tags(strip)
-        for (call, left) in zip(calls, tagLefts(calls)) { tag(&canvas, call, left: left) }
+        // b3-lantern
+        if withTags { drawTags(&canvas, strip) }
+        // b3-lantern end
         return canvas
     }
+
+    // b3-lantern
+    /// Build 3, lane 5 step 5b (the director's ruling of 22.11.2026: the red notes sign is a sign, not the map): every
+    /// call's tag of the strip, drawn last over whatever is there.
+    static func drawTags(_ canvas: inout PixelImage, _ strip: RealmStrip) {
+        let calls = tags(strip)
+        for (call, left) in zip(calls, tagLefts(calls)) { tag(&canvas, call, left: left) }
+    }
+
+    /// The calls' tags alone on a clear picture of the strip's size, nil while nothing calls. Laid over
+    /// `image(strip, withTags: false)` it gives `image(strip)`.
+    static func tagsImage(_ strip: RealmStrip) -> PixelImage? {
+        guard !tags(strip).isEmpty else { return nil }
+        var canvas = PixelImage(width: width, height: height)
+        drawTags(&canvas, strip)
+        return canvas
+    }
+    // b3-lantern end
 
     // MARK: - The calls' tags (fix round 1, the critic's high 2: a bare number read as the day, a breach had none)
 
@@ -341,21 +363,35 @@ enum RealmMapPixels {
         c[x, groundRow - 1] = mistDark
     }
 
-    /// What is on screen: a bracket at each end of the window, in dark mist so the glyphs inside it stay the brightest
-    /// thing (fix round 1, the critic's high 1: the gatehouse was lost in it).
+    /// What is on screen: a bracket at each end of the window (fix round 1, the critic's high 1: the gatehouse was
+    /// lost in a bright one). Build 3, lane 5 step 4 (the step 2b critic's M4): in one colour everywhere, bone with an
+    /// ink edge, so it reads on the bank's black at the west end as it does at home (in dark mist it all but vanished
+    /// there). The ink is laid first round every pixel of both brackets (never over the pane's brass line), then the
+    /// bone, so a glyph beside a bracket loses one column at most and the bracket itself never.
     static func brackets(_ c: inout PixelImage, _ window: ClosedRange<Double>) {
-        let mist = mistDark
         let left = column(fraction: window.lowerBound)
         let right = max(left + 3, column(fraction: window.upperBound))
-        let top = tagHeight + 3
-        for y in top...(groundRow + 1) {
-            c[left, y] = mist
-            c[right, y] = mist
+        let pixels = bracketPixels(left: left, right: right)
+        for (x, y) in pixels {
+            for dy in -1...1 {
+                for dx in -1...1 where c.contains(x + dx, y + dy) && c[x + dx, y + dy] != brass {
+                    c[x + dx, y + dy] = ink
+                }
+            }
         }
-        c[left + 1, top] = mist
-        c[left + 1, groundRow + 1] = mist
-        c[right - 1, top] = mist
-        c[right - 1, groundRow + 1] = mist
+        for (x, y) in pixels { c[x, y] = bone }
+    }
+
+    /// The brackets' pixels: an upright at each end, its foot and its head turned one column inward.
+    static func bracketPixels(left: Int, right: Int) -> [(x: Int, y: Int)] {
+        let top = tagHeight + 3
+        var list: [(x: Int, y: Int)] = []
+        for y in top...(groundRow + 1) {
+            list.append((left, y))
+            list.append((right, y))
+        }
+        list += [(left + 1, top), (left + 1, groundRow + 1), (right - 1, top), (right - 1, groundRow + 1)]
+        return list
     }
 
     /// Where the lord walks to: a small gold diamond on the ground.

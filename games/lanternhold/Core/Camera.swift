@@ -1,3 +1,5 @@
+import Foundation
+
 /// The parallax planes, back to front (DESIGN.md "Tech plan", docs/research-rendering.md 5.1). Each plane is one
 /// low-resolution layer drawn at its own integer camera offset. `sky` holds the stars, the moon and the sun (fixed to
 /// the screen), `clouds` the cloud bands (M1b, lit by the sky's own light). Look 2 adds two planes between the mid
@@ -70,12 +72,22 @@ struct PlaneOffset: Sendable, Equatable {
 /// will be after the camera's own move (`goal - velocity * dt`), so while he walks at a steady speed the camera ends
 /// each step centred on him (no lag and no lead, so he stays steady on screen); only when he starts or stops does he
 /// drift a little off centre and the camera eases back. Reduce Motion: no lag, the camera sits on the king.
+///
+/// Build 3, lane 5 (the look-around, `LookAround`): `pan` slides the view from where the follow holds it (`baseX`),
+/// kept inside the world; `x`, and with it every plane, actor and touch, shows the slid view. Without a pan `x` is
+/// `baseX`.
 struct Camera: Sendable, Equatable {
     /// Spring stiffness of the follow (rad/s): settles in about a second.
     static let followOmega = 6.0
 
-    /// World x at the left screen edge.
-    private(set) var x: Double
+    /// World x at the left screen edge: the follow's edge slid by the look-around's pan, inside the world.
+    var x: Double {
+        pan == 0 ? baseX : Camera.clampedLeft(baseX + pan, viewWidth: viewWidth, worldWidth: worldWidth)
+    }
+    /// The follow's own left edge (without the look-around's pan).
+    private(set) var baseX: Double
+    /// Build 3, lane 5: how far the look-around slides the view from `baseX` (game px, + east); 0 everywhere else.
+    private(set) var pan: Double = 0
     /// Camera speed in game px/s.
     private(set) var velocity: Double = 0
     /// Visible game columns (`PixelScale.visibleColumns`).
@@ -95,7 +107,8 @@ struct Camera: Sendable, Equatable {
     init(focusX: Double, viewWidth: Double, worldWidth: Double = WorldLayout.width) {
         self.viewWidth = max(1, viewWidth)
         self.worldWidth = worldWidth
-        x = Camera.clampedLeft(focusX - max(1, viewWidth) / 2, viewWidth: max(1, viewWidth), worldWidth: worldWidth)
+        baseX = Camera.clampedLeft(focusX - max(1, viewWidth) / 2, viewWidth: max(1, viewWidth),
+                                   worldWidth: worldWidth)
     }
 
     /// A camera centred on `focusX` for a pixel scale.
@@ -115,10 +128,25 @@ struct Camera: Sendable, Equatable {
         return min(upper, max(0, left))
     }
 
-    /// Jumps to a focus at once (debug arguments, travel); the camera stands still afterwards.
+    /// Jumps to a focus at once (debug arguments, travel); the camera stands still afterwards. With a look-around pan
+    /// the slid view lands on the focus (the frame's shake moves the slid view).
     mutating func jump(toFocus focus: Double) {
-        x = Camera.clampedLeft(focus - viewWidth / 2, viewWidth: viewWidth, worldWidth: worldWidth)
+        baseX = Camera.clampedLeft(focus - viewWidth / 2 - pan, viewWidth: viewWidth, worldWidth: worldWidth)
         velocity = 0
+    }
+
+    // MARK: Build 3, lane 5: the look-around's pan
+
+    /// The pans that keep the view inside the world from where the follow holds it.
+    var panRange: ClosedRange<Double> {
+        let low = -baseX
+        return low...max(low, maxLeft - baseX)
+    }
+
+    /// Slides the view `value` game px from where the follow holds it (+ east), kept inside the world.
+    mutating func setPan(_ value: Double) {
+        let range = panRange
+        pan = min(range.upperBound, max(range.lowerBound, value))
     }
 
     /// One follow step of `dt` seconds toward the king at `targetX` moving at `targetVelocity` game px/s. Call it
@@ -128,21 +156,21 @@ struct Camera: Sendable, Equatable {
         let goal = Camera.clampedLeft(rawLeft, viewWidth: viewWidth, worldWidth: worldWidth)
         let pinned = goal != rawLeft
         if reduceMotion {
-            x = goal
+            baseX = goal
             velocity = pinned ? 0 : targetVelocity
             return
         }
         let feedVelocity = pinned ? 0 : targetVelocity
         let omega = Camera.followOmega
-        let spring = omega * omega * (goal - x - feedVelocity * dt)
+        let spring = omega * omega * (goal - baseX - feedVelocity * dt)
         let damping = 2 * omega * (feedVelocity - velocity)
         velocity += (spring + damping) * dt
-        x += velocity * dt
-        if x < 0 {
-            x = 0
+        baseX += velocity * dt
+        if baseX < 0 {
+            baseX = 0
             velocity = max(0, velocity)
-        } else if x > maxLeft {
-            x = maxLeft
+        } else if baseX > maxLeft {
+            baseX = maxLeft
             velocity = min(0, velocity)
         }
     }
@@ -153,6 +181,9 @@ struct Camera: Sendable, Equatable {
     /// lead toward its want, and follows the framing goal (the set pieces included) with its change fed forward, so
     /// a steady walk keeps the lord steady on screen. Reduce Motion: the leads and the goal are instant.
     mutating func frame(_ input: CameraFraming.Input, dt: Double, reduceMotion: Bool = false) {
+        // Build 3, lane 5: while the look-around slides the view and the lord stands, the follow holds still, so the
+        // realm stays under the finger (the danger lead would ease in as creatures come into the slid view).
+        if pan != 0 && input.velocity == 0 { return }
         let step = max(0, dt)
         let walking = input.velocity != 0
         // The lead holds once he has walked: it turns with him, it stays when he stops.
@@ -263,5 +294,126 @@ struct Camera: Sendable, Equatable {
     /// Render-target row of the ground line (objects standing on the ground end just above it).
     static func groundRow(targetHeight: Int) -> Int {
         targetHeight - WorldLayout.groundRowsBelow
+    }
+}
+
+/// Build 3, lane 5 (docs/HUD.md section 2; DIRECTOR.md, the director's ideas for build 3: the look-around): with the
+/// lantern up and the world still, a sideways drag slides the realm under the finger, one to one; letting go glides the
+/// view home to the lord, an ease-out of `glideSeconds` (Reduce Motion: home at once). `pan` is how far the view stands
+/// slid (game px, + east); the camera keeps it inside the world (`Camera.setPan`). Picture only, never saved.
+struct LookAround: Sendable, Equatable {
+    /// The glide home's length (s).
+    static let glideSeconds = 0.35
+
+    /// How far the view stands slid from the lord's view (game px, + east).
+    private(set) var pan: Double = 0
+    /// While a finger holds the view: its sideways travel (game px, + right) at the last step.
+    private(set) var finger: Double?
+    /// The glide home: the pan it set off from and its seconds so far.
+    private(set) var glideFrom: Double?
+    private(set) var glideTime = 0.0
+    /// The Debug pictures (`-GWLookAround <dx>:<slow>`): the glide home takes this many times its length.
+    var glideScale = 1.0
+
+    /// A finger holds the view.
+    var isHeld: Bool { finger != nil }
+    /// The view glides home.
+    var isGliding: Bool { glideFrom != nil }
+
+    /// A finger takes the view, its sideways travel at `travel` game px when the drag began: a glide stops where it is.
+    mutating func grab(travel: Double) {
+        finger = travel
+        glideFrom = nil
+        glideTime = 0
+    }
+
+    /// The finger travelled to `travel` game px (+ right): the view slides by the same amount the other way, so the
+    /// realm moves with the finger, kept inside `range`; at an end the view waits and turns back with the finger at once.
+    mutating func drag(travel: Double, range: ClosedRange<Double>) {
+        guard let last = finger else { return }
+        finger = travel
+        pan = min(range.upperBound, max(range.lowerBound, pan - (travel - last)))
+    }
+
+    /// The view stands at `value` at once, inside `range`, held by no finger (the Debug pictures).
+    mutating func place(_ value: Double, range: ClosedRange<Double>) {
+        pan = min(range.upperBound, max(range.lowerBound, value))
+        finger = nil
+        glideFrom = nil
+        glideTime = 0
+    }
+
+    /// The finger lets go, or the lantern goes down: the view glides home; with Reduce Motion it is home at once.
+    mutating func release(reduceMotion: Bool) {
+        finger = nil
+        guard pan != 0, !reduceMotion else {
+            home()
+            return
+        }
+        glideFrom = pan
+        glideTime = 0
+    }
+
+    /// The view is home at once (under a card, out of the world).
+    mutating func home() {
+        pan = 0
+        finger = nil
+        glideFrom = nil
+        glideTime = 0
+    }
+
+    /// One step of real time: the glide home goes on.
+    mutating func step(_ seconds: Double) {
+        guard let from = glideFrom else { return }
+        glideTime += max(0, seconds)
+        let t = min(1, glideTime / (LookAround.glideSeconds * max(1, glideScale)))
+        pan = from * LookAround.remaining(t)
+        if t >= 1 { home() }
+    }
+
+    /// The share of the pan still to go at `t` (0 ... 1) of the glide: a cubic ease-out, quick at first, settling soft.
+    static func remaining(_ t: Double) -> Double {
+        let left = 1 - min(1, max(0, t))
+        return left * left * left
+    }
+}
+
+/// `-GWLookAround <dx>[:<slow>]` (build 3, lane 5; the look-around's pictures, read only in a Debug build): each time
+/// the lantern moment opens on the world the view stands slid `dx` game px east (0: not slid), and the glide home takes
+/// `slow` times its length (1 ... 40), so a strip of frames can follow it. `dx` may start with `e` (east) or `w` (west):
+/// a launch argument that starts with a minus could be read as a key, so `w2000` slides 2000 px west. Step 5: a third
+/// part `hold<s>` (0.5 ... 30) has a finger hold the slid view for that many seconds of real time before it lets go,
+/// so the look-around's clean frame can be pictured (`e99999:4:hold4`).
+struct LookAroundDebug: Sendable, Equatable {
+    var pan: Double
+    var slow: Double
+    var hold: Double? = nil
+
+    static func parse(_ text: String?) -> LookAroundDebug? {
+        guard let trimmed = text?.trimmingCharacters(in: .whitespaces), !trimmed.isEmpty else { return nil }
+        let parts = trimmed.split(separator: ":", omittingEmptySubsequences: false)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+        var head = parts[0]
+        var sign = 1.0
+        if head.hasPrefix("w") {
+            sign = -1
+            head = String(head.dropFirst())
+        } else if head.hasPrefix("e") {
+            head = String(head.dropFirst())
+        }
+        guard let pan = Double(head), pan.isFinite else { return nil }
+        var slow = 1.0
+        if parts.count > 1 {
+            guard let value = Double(parts[1]), value.isFinite else { return nil }
+            slow = min(40, max(1, value))
+        }
+        var hold: Double?
+        if parts.count > 2 {
+            guard parts[2].hasPrefix("hold"), let value = Double(parts[2].dropFirst(4)), value.isFinite else {
+                return nil
+            }
+            hold = min(30, max(0.5, value))
+        }
+        return LookAroundDebug(pan: sign * pan, slow: slow, hold: hold)
     }
 }

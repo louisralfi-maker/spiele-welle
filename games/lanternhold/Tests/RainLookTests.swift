@@ -58,6 +58,18 @@ final class RainLookTests: XCTestCase {
         shot.desc.layer(plane).sprites.filter { $0.sprite == sprite }
     }
 
+    /// b3-lantern (lane 5 step 2b, suspect 6): the lane's x at which each of a shot's `sprite`s (of every rain depth)
+    /// decided its kind: its column in its plane's picture mapped to the lane (`FrameBuilder.rainLaneX`).
+    private func laneXs(_ shot: Shot, _ sprite: SpriteID) -> [Double] {
+        FrameBuilder.rainDepths.flatMap { entry -> [Double] in
+            let whole = Double(shot.desc.layer(entry.plane).offset.whole)
+            return sprites(shot, sprite, entry.plane).map {
+                FrameBuilder.rainLaneX(column: Double($0.rect.x) + whole, plane: entry.plane,
+                                       viewWidth: Double(shot.desc.targetWidth))
+            }
+        }
+    }
+
     func testTheSeamIsTheOutermostStandingWallAndTheBandIsSoft() {
         var s = GameFrameSupport.demoNight(hour: 23.2)
         let storm = weather(s, WeatherOverride(mode: .storm))
@@ -86,8 +98,11 @@ final class RainLookTests: XCTestCase {
     func testWaterFallsEastOfTheWallAndAshWestOfIt() {
         let s = GameFrameSupport.demoNight(hour: 23.2)
         let storm = weather(s, WeatherOverride(mode: .storm))
-        // The castle's side: the rain as it was, no ash.
-        let town = shot(s, focus: 1000, weather: storm)
+        // The castle's side: the rain as it was, no ash. b3-lantern (lane 5 step 2b, suspect 6): at 1100, because the
+        // near and the foreground depths decide at their own column mapped to the lane (`FrameBuilder.rainLaneX`),
+        // whose seam moves about 73 px with their parallax: at 1000 a near streak starting at the leeward edge could
+        // still decide in the band.
+        let town = shot(s, focus: 1100, weather: storm)
         XCTAssertEqual(sprites(town, .ashFlake).count, 0, "no ash where the light reaches")
         for (depth, entry) in FrameBuilder.rainDepths.enumerated() {
             XCTAssertEqual(sprites(town, .rainStreak, entry.plane).count, entry.count, "depth \(depth): all water")
@@ -99,12 +114,16 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThan(ash.count, 30, "ash falls in the gorge")
         XCTAssertLessThan(ash.count, FrameBuilder.ashDepths.map { $0.count }.reduce(0, +) + 1, "few")
         for flake in ash {
-            XCTAssertLessThan(Double(flake.rect.x) + gorge.lane, gorge.seam, "never east of the wall")
             XCTAssertLessThanOrEqual(flake.tint.w, FrameBuilder.ashAlphaCap + 1e-6, "under the ash's own cap")
         }
-        for streak in sprites(gorge, .rainStreak) {
-            XCTAssertGreaterThan(Double(streak.rect.x) + gorge.lane, gorge.seam - RainLook.band - 1,
-                                 "no water west of the band")
+        // b3-lantern (suspect 6): a flake decides and fades at its column mapped to the lane (`rainLaneX`).
+        for flake in laneXs(gorge, .ashFlake) {
+            XCTAssertLessThan(flake, gorge.seam, "never east of the wall")
+        }
+        // b3-lantern (lane 5 step 2b, suspect 6): each depth decides at its own column mapped to the lane
+        // (`FrameBuilder.rainLaneX`; on the lane's depth that is the lane's x under it, as before).
+        for streak in laneXs(gorge, .rainStreak) {
+            XCTAssertGreaterThan(streak, gorge.seam - RainLook.band - 1, "no water west of the band")
         }
         for splash in sprites(gorge, .rainSplash) {
             XCTAssertGreaterThan(Double(splash.rect.x) + gorge.lane, gorge.seam - RainLook.band - 1, "ash never splashes")
@@ -145,8 +164,8 @@ final class RainLookTests: XCTestCase {
         XCTAssertGreaterThan(sprites(fallen, .ashFlake).count, sprites(standing, .ashFlake).count + 10,
                              "the outer wall fell: the ash comes as far as the middle line")
         XCTAssertLessThan(sprites(fallen, .rainStreak).count, sprites(standing, .rainStreak).count)
-        for streak in sprites(fallen, .rainStreak) {
-            XCTAssertGreaterThan(Double(streak.rect.x) + fallen.lane, fallen.seam - RainLook.band - 1)
+        for streak in laneXs(fallen, .rainStreak) {
+            XCTAssertGreaterThan(streak, fallen.seam - RainLook.band - 1)
         }
     }
 
@@ -422,14 +441,22 @@ final class RainLookTests: XCTestCase {
             let scale = with.scale
             var found: [Int] = []
             var townBodies: [(x: Float, step: Int)] = []
-            for plane in [Plane.near, .world] {
-                let shift = with.layer(plane).offset.deviceShift
+            // b3-lantern (lane 5 step 2b, suspect 4): the keep's smoke stands in its carried picture (`CarriedPicture`),
+            // shown at the mist band's device shift.
+            var groups: [(sprites: [SpriteInstance], shift: Int, tag: Int)] = [Plane.near, .world].map {
+                (sprites: with.layer($0).sprites, shift: with.layer($0).offset.deviceShift, tag: $0.rawValue)
+            }
+            if let keep = with.carriedLayer(.keep) {
+                groups.append((sprites: keep.sprites, shift: keep.offset.deviceShift, tag: 100))
+            }
+            for group in groups {
+                let shift = group.shift
                 func luma(_ picture: Renderer.Snapshot, _ column: Int, _ row: Int) -> Float {
                     let c = picture.color(x: column * scale - shift + scale / 2,
                                           y: picture.height - (with.targetHeight - row) * scale + scale / 2)
                     return (0.2126 * c.x + 0.7152 * c.y + 0.0722 * c.z) * 255
                 }
-                let puffs = with.layer(plane).sprites.filter { $0.sprite == .smokePuff }
+                let puffs = group.sprites.filter { $0.sprite == .smokePuff }
                 for (index, puff) in puffs.enumerated()
                     where puff.tint.w >= 0.999 && puff.frame < CastleSmoke.frames && puff.frame != CastleSmoke.mouthFrame {
                     let column = Int(puff.rect.x) + body[puff.frame].0
@@ -452,7 +479,7 @@ final class RainLookTests: XCTestCase {
                     if town {
                         // Round lh-b3w-72: the back row's chimneys (the near plane) are the town's too; each plane's
                         // columns apart.
-                        townBodies.append((x: puff.rect.x + Float(plane.rawValue) * 10_000, step: Int(step.rounded())))
+                        townBodies.append((x: puff.rect.x + Float(group.tag) * 10_000, step: Int(step.rounded())))
                     }
                 }
             }

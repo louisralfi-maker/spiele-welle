@@ -37,7 +37,7 @@ struct LightPassUniforms: Sendable {
 }
 
 /// `BloomUniforms`: low-res and half-res sizes; shares of point light and sky glow, threshold, knee; the colour of the
-/// backdrop lights.
+/// backdrop lights (b3-smooth: and in its w the mask of look 2's bands, `EmissiveBands.mask`; 0 for none).
 struct BloomUniforms: Sendable {
     var size: SIMD4<Float>
     var params: SIMD4<Float>
@@ -76,10 +76,15 @@ struct CompositeUniforms: Sendable {
     var bounceColor: SIMD4<Float>
     var bandColor: SIMD4<Float>
     var rim: SIMD4<Float>
+    /// b3-lantern (build 3, lane 5 step 5): the lantern's own light (`LanternLight`): the glass's x and lift (world
+    /// px), the dim's strength (0: none), the circle's squash.
+    var lantern: SIMD4<Float>
 }
 
 /// `Look2Uniforms`: what look 2's composite needs on top of `CompositeUniforms` (see `Shaders.metal`).
 struct Look2Uniforms: Sendable {
+    /// The mist band's and the near plane's device shifts; b3-smooth (lane 5b step 1): z the mask of the bands and
+    /// carried pictures the frame holds (`EmissiveBands.mask`, set by the renderer).
     var shifts: SIMD4<Int32>
     var ambW: SIMD4<Float>
     var ambF: SIMD4<Float>

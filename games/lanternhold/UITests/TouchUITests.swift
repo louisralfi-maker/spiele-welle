@@ -55,8 +55,10 @@ final class TouchUITests: XCTestCase {
             attach(XCUIScreen.main.screenshot(), "160-lantern-moment-\(language)")
             // The join: the first household still holds 16 of the 60 (town-1, the taxes on foot).
             XCTAssertEqual(element(first, "hud-gold").value as? String, "44")
-            XCTAssertTrue(element(first, "hud-happiness").exists)
-            XCTAssertTrue(element(first, "hud-people").exists)
+            // b3-lantern (build 3, lane 5 step 4, decision 6): the mood and the people left the lord's row; they are
+            // the town's banner at the strip's town end, one element.
+            XCTAssertTrue(element(first, "hud-mood").exists)
+            // b3-lantern end
             let hour = sceneField(first, "hour:")
             pause(1.0)
             XCTAssertEqual(sceneField(first, "hour:"), hour, "the world stands still")

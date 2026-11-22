@@ -104,9 +104,11 @@ enum FrameBuilder {
             glowRects.append(item.rect)
         }
 
-        /// A sprite drawn now on `plane` hides the glow under its opaque pixels.
+        /// A sprite drawn now on `plane` hides the glow under its opaque pixels. (b3-lantern: the mist band's are the
+        /// keep's carried picture's, `CarriedPicture.keep`.)
         mutating func occlude(_ sprite: SpriteInstance, plane: Plane) {
-            guard plane == .mid || plane == .near || plane == .world || plane == .foreground else { return }
+            guard plane == .mid || plane == .near || plane == .world || plane == .foreground || plane == .mistBand
+            else { return }
             let r = sprite.rect
             let covers = glowRects.contains { g in
                 g.x < r.x + r.z && r.x < g.x + g.z && g.y < r.y + r.w && r.y < g.y + g.w
@@ -170,7 +172,10 @@ enum FrameBuilder {
             }
         }
 
-        var planeSprites: [[SpriteInstance]] = Array(repeating: [], count: Plane.allCases.count)
+        // b3-lantern (build 3, lane 5 step 2b, suspect 4): a slot per plane, then one per carried picture
+        // (`CarriedPicture`, look 2 only).
+        var planeSprites: [[SpriteInstance]] = Array(repeating: [],
+                                                     count: Plane.allCases.count + CarriedPicture.allCases.count)
         var glow = EmissiveList()
 
         // Back to front, so the emissive pass sees every sprite in draw order: the props of each plane (sorted by z,
@@ -183,10 +188,6 @@ enum FrameBuilder {
         let eyeScreens = options.look == .two ? EyeRules.screens(ordered) : []
         var next = 0
         for plane in Plane.allCases {
-            if plane == .mid && options.look == .two, let moon = wedgeMoon(ambient: ambient, geometry: geometry) {
-                // World-2 fix round 1: the moon on the sky, behind the cleft's rock (`wedgeMoon`).
-                glow.add(moon)
-            }
             if plane == .world {
                 let tiles = options.look == .two ? laneTiles(geometry: geometry) : groundTiles(geometry: geometry)
                 for tile in tiles {
@@ -217,10 +218,10 @@ enum FrameBuilder {
             }
             if (plane == .near || plane == .world) && options.look == .two && options.drawsSmoke {
                 // World rebuild, step world-2: the castle's chimneys smoke, the keep's in the near plane's picture
-                // (moving with the mist band), the bakehouse's on the world plane.
-                planeSprites[plane.rawValue] += castleSmoke(props: ordered, plane: plane, animTime: animTime,
-                                                            reduceMotion: options.reduceMotion, geometry: geometry,
-                                                            ambient: ambient, hour: hour, glow: &glow)
+                // (moving with the mist band; b3-lantern: in the keep's carried picture), the bakehouse's on the world
+                // plane.
+                castleSmoke(props: ordered, plane: plane, animTime: animTime, reduceMotion: options.reduceMotion,
+                            geometry: geometry, ambient: ambient, hour: hour, sprites: &planeSprites, glow: &glow)
             }
             if plane == .mid && options.look == .two {
                 // Fix round 1: the threads of water falling down the cleft wall, in front of it.
@@ -317,7 +318,9 @@ enum FrameBuilder {
                     }
                     // Fix round 2 (the critic: "a warm half disc sits cut off at the screen's left edge"): the world's
                     // end hides every glow inside its whole dark (the lord's lantern when he stands at the end).
-                    if let end = bankEndTile(geometry: geometry) {
+                    // b3-lantern (step 2b): where the dark stands, on fog B's offset, so no glow shows uncovered
+                    // between the two near the west end.
+                    if let end = bankEndTile(geometry: geometry, plane: .fogB) {
                         glow.occlude(end, plane: .world)
                     }
                 }
@@ -328,9 +331,13 @@ enum FrameBuilder {
         let cleftDusk = options.look == .two ? cleftDuskShare(focus: geometry.focusX, ambient: ambient) : 0
         var skyAmbient = ambient
         skyAmbient.starAlpha *= Float(1 - cleftDusk)
+        // World-2 fix round 1: the moon on the sky, behind the cleft's rock (`wedgeMoon`). Build 3, lane 5 step 2b (the
+        // smooth walk, suspect 3): in the sky pass, which the composite reads at the sky's place (it stood still on the
+        // screen only in the emissive pass's numbers: read on the world's grid it shook by the world's device shift).
+        let wedge = options.look == .two ? wedgeMoon(ambient: ambient, geometry: geometry) : nil
         var emissives = skyEmissives(ambient: skyAmbient, hour: hour, geometry: geometry,
                                      cleft: options.look == .two ? cleftShare(focus: geometry.focusX) : 0)
-            + glow.items
+            + (wedge.map { [$0] } ?? []) + glow.items
         // b3-horde (build 3, lane 4 step A, step 4; the director's call 8; one block for the join): the bank's and the
         // fog's eyes as single cold points at heights and spacing of their own, never pairs, rows or a grid
         // (`HordeLook.singleEyes`).
@@ -394,7 +401,7 @@ enum FrameBuilder {
                                                                      geometry: geometry)
             }
             // Fix round 1: where the world ends the dark is whole (the last 80 px, before everything).
-            if let end = bankEndTile(geometry: geometry) {
+            if let end = bankEndTile(geometry: geometry, plane: .fogB) {
                 planeSprites[Plane.fogB.rawValue].append(end)
             }
         }
@@ -408,6 +415,14 @@ enum FrameBuilder {
         var planes: [PlaneLayer] = []
         for plane in Plane.allCases {
             planes.append(PlaneLayer(offset: geometry.offsets[plane.rawValue], sprites: planeSprites[plane.rawValue]))
+        }
+        // b3-lantern (suspect 4): look 2's carried pictures, each with the offset of the plane it moves with.
+        var carried: [PlaneLayer] = []
+        if options.look == .two {
+            for picture in CarriedPicture.allCases {
+                carried.append(PlaneLayer(offset: geometry.offsets[picture.motion.rawValue],
+                                          sprites: planeSprites[Plane.allCases.count + picture.rawValue]))
+            }
         }
         let spriteCount = planeSprites.reduce(0) { $0 + $1.count }
         let counts = FrameCounts(sprites: spriteCount, actors: actors.count, emissives: emissives.count,
@@ -444,6 +459,7 @@ enum FrameBuilder {
                          debugLights: options.debugLights,
                          counts: counts)
         desc.look = options.look
+        desc.carried = carried
         if options.look == .two {
             desc.rooms = rooms(props: ordered, geometry: geometry)
             desc.rain = Float(weather.rain)
@@ -583,9 +599,120 @@ enum FrameBuilder {
         for chimney in townSmokers(props: props, hour: hour) {
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
             chimneyPuffs(at: chimney, whole: whole, plane: .world, town: true, fire: false, hearth: true,
-                         wind: wind, time: time, ambient: ambient, geometry: geometry, list: &list, glow: &glow)
+                         wind: wind, time: time, still: reduceMotion, ambient: ambient, geometry: geometry,
+                         list: &list, glow: &glow)
         }
         return list
+    }
+
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's M5): the calm column
+
+    // In calm air the keep's and the chimneys' columns read as a vertical string of equal pale beads (frames
+    // ci-out/director/b3/lantern/s3/05 and 06): a machine's row of dots. In a calm each column now wanders sideways by
+    // about a pixel as it rises, seeded by the chimney and the puff; high in the column a puff takes a billow beside it
+    // a size smaller, so the column widens with its rise and breaks into lumps; low in it a smaller puff fills the gap
+    // under each, a thin wavering stream out of the mouth (proven in python first: ci-out/director/b3/smooth/scratch,
+    // smokemock2.py, smoke5.png; trimmed from smoke4.png's to keep the frame's instances down). Every one is a
+    // function of the puff's rise and of seeds alone, never of a jump in time, and fades in and out by its alpha, so
+    // nothing pops; the wind fades all of it out (`calmShare`); under Reduce Motion the
+    // column is as before. Each added puff is placed as the others (by its plane's whole offset), so it keeps one offset
+    // to the plane it moves with in every frame of a walk.
+    // Round lh-b3s-11 (RainLookTests.testThePuffsHaveBodyOnTheDrawnPixel, the town at a calm noon: the median body of
+    // the fourth column fell from 51 to 36 off its backdrop, two columns of 40 left where three are asked): the
+    // billows and fillers were drawn over the whole puffs and hid their bodies, and the wander moved the whole puffs
+    // off the pixels they read on. Now a whole puff
+    // (the first 60 % of its life) stands where it stood before, with its body in front: a puff wanders only from
+    // `calmWanderFrom` of the column up, above every whole puff, as it thins (the fillers keep their wander from the
+    // mouth: a thin wavering stream behind the column), and every translucent puff of a calm column (the billows, the
+    // fillers, the thinning puffs) is drawn behind every whole one (`puffOrder`). Proven in python over the test's
+    // own measure (ci-out/director/b3/smooth/scratch/smoke6.png: today, M5, now).
+
+    /// The wander's two waves: the chimney's own (px), with a wavelength of `calmMeander` plus up to `calmMeanderSpread`
+    /// rows by the chimney, and the puff's own (px) over `calmPuffWave` rows; a filler's whole from `calmWanderRamp`
+    /// rows up (the column's own puffs': `calmWanderFrom`).
+    static let calmWander = (chimney: 0.8, puff: 0.6)
+    static let calmMeander = 14.0
+    static let calmMeanderSpread = 6.0
+    static let calmPuffWave = 9.0
+    static let calmWanderRamp = 6.0
+    /// The column's puffs wander from this share of it up, whole `calmWanderFull` of it higher (a whole puff, in any
+    /// calm, stands below 0.6: at most 0.592 of the column, the keep's at the calm's last lean).
+    static let calmWanderFrom = 0.6
+    static let calmWanderFull = 0.2
+    /// A billow from this share of the column up (the keep's, the town's), whole `calmBillowRise` of it higher, at this
+    /// share of its puff's alpha.
+    static let calmBillowFrom = (keep: 0.38, town: 0.42)
+    static let calmBillowRise = 0.15
+    static let calmBillowAlpha: Float = 0.9
+    /// A filler under each puff below this share of the column, from `calmFillFrom` rows up, `calmFillDrop` rows under it
+    /// (the town's `calmFillDropTown`), at this share of its alpha; it fades over `calmFillEdge` of the column at the top.
+    static let calmFillUnder = 0.36
+    static let calmFillFrom = 3.0
+    static let calmFillDrop = 2.0
+    static let calmFillDropTown = 1.5
+    static let calmFillAlpha: Float = 0.75
+    static let calmFillEdge = 0.08
+
+    /// How calm the air is for the column, 1 in a calm and below, 0 once the wind leans it past its wobble (as
+    /// `CastleSmoke.puffs` lets its wobble go).
+    static func calmShare(wind: Double) -> Double {
+        max(0, 1 - CastleSmoke.share(wind: wind) / CastleSmoke.wobbleUntil)
+    }
+
+    /// One chimney's puffs (`CastleSmoke.puffs`, in their order) with the calm's wander, billows and fillers.
+    static func calmPuffs(_ puffs: [CastleSmoke.Puff], chimneyX: Double, wind: Double, town: Bool) -> [CastleSmoke.Puff] {
+        let calm = calmShare(wind: wind)
+        guard calm > 0 else { return puffs }
+        let path = town ? CastleSmoke.townRise : CastleSmoke.rise
+        let seed = SeededRandom.hash(0x434C_4D53_4D4B, Int64(chimneyX.rounded()))
+        let meander = calmMeander + calmMeanderSpread * unit(SeededRandom.hash(seed, 1))
+        let start = unit(SeededRandom.hash(seed, 2))
+        let lowest = town ? CastleSmoke.townFrame : 0
+        let billowFrom = town ? calmBillowFrom.town : calmBillowFrom.keep
+        // `filler`: the fillers' wander rises from the mouth; the column's own puffs' from `calmWanderFrom` (no whole
+        // puff wanders).
+        func wander(_ rise: Double, _ index: Int, filler: Bool = false) -> Double {
+            let own = FrameBuilder.unit(SeededRandom.hash(seed, Int64(16 + index)))
+            let ramp = filler ? min(1, max(0, rise) / FrameBuilder.calmWanderRamp)
+                : min(1, max(0, (rise / path - FrameBuilder.calmWanderFrom) / FrameBuilder.calmWanderFull))
+            let wave = FrameBuilder.calmWander
+            return calm * ramp * (wave.chimney * sin(2 * Double.pi * (start + rise / meander))
+                                  + wave.puff * sin(2 * Double.pi * (own + rise / FrameBuilder.calmPuffWave)))
+        }
+        var list: [CastleSmoke.Puff] = []
+        for (index, puff) in puffs.enumerated() {
+            let share = puff.rise / path
+            var moved = puff
+            moved.dx += wander(puff.rise, index)
+            if share > billowFrom && puff.frame > lowest {
+                let grown = min(1, (share - billowFrom) / calmBillowRise)
+                let side: Double = unit(SeededRandom.hash(seed, Int64(32 + index))) < 0.5 ? 1 : -1
+                let spread = 1 + ((town ? 1.0 : 1.5) * share).rounded()
+                let up: Double = unit(SeededRandom.hash(seed, Int64(48 + index))) < 0.5 ? 1 : 0
+                list.append(CastleSmoke.Puff(dx: moved.dx + side * spread, rise: puff.rise + up, frame: puff.frame - 1,
+                                             alpha: puff.alpha * calmBillowAlpha * Float(grown * calm)))
+            }
+            list.append(moved)
+            if share < calmFillUnder && puff.rise > calmFillFrom {
+                let rise = puff.rise - (town ? calmFillDropTown : calmFillDrop)
+                let shown = min(1, (puff.rise - calmFillFrom) / 2) * min(1, (calmFillUnder - share) / calmFillEdge)
+                list.append(CastleSmoke.Puff(dx: puff.dx + wander(rise, index, filler: true), rise: rise,
+                                             frame: max(lowest, puff.frame - 1),
+                                             alpha: puff.alpha * calmFillAlpha * Float(shown * calm)))
+            }
+        }
+        return list
+    }
+
+    /// b3-smooth (round lh-b3s-11): one chimney's puffs in the order they are drawn: the oldest (the farthest from the
+    /// mouth) first, so the newer stand in front; in a calm column (`calm`) every translucent puff (a billow, a filler,
+    /// a thinning puff) behind every whole one, so no added puff covers a whole puff's body. Without the calm's added
+    /// puffs the order is the one before (the thinning puffs are the oldest).
+    static func puffOrder(_ puffs: [CastleSmoke.Puff], calm: Bool) -> [CastleSmoke.Puff] {
+        let sorted = puffs.filter { $0.alpha > 0.02 }
+            .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
+        guard calm else { return sorted }
+        return sorted.filter { $0.alpha < 1 } + sorted.filter { $0.alpha >= 1 }
     }
 
     /// b3-wind: build 3 step 7 (the director's call T2 of 16.11. 14:41): the town's chimneys that smoke at `hour`: every
@@ -614,16 +741,17 @@ enum FrameBuilder {
     /// `hiddenBy`: the rects (the plane's target pixels) of what stands in front of the chimney on its own plane; a puff
     /// that would overlap one is not drawn (round lh-b3w-61: the back row's smoke stood over the lindens before it,
     /// and its light shone through them).
+    /// b3-smooth: `still` (Reduce Motion) keeps the calm column as it was (`calmPuffs`).
     private static func chimneyPuffs(at chimney: (x: Double, y: Double), whole: Double, plane: Plane, town: Bool,
-                                     fire: Bool, hearth: Bool, wind: Double, time: Double, ambient: AmbientSample,
-                                     geometry: Geometry, hiddenBy: [SIMD4<Float>] = [],
+                                     fire: Bool, hearth: Bool, wind: Double, time: Double, still: Bool,
+                                     ambient: AmbientSample, geometry: Geometry, hiddenBy: [SIMD4<Float>] = [],
                                      list: inout [SpriteInstance], glow: inout EmissiveList) {
         let size = SpriteID.smokePuff.size
         // b3-wind (step 7, call T3): the town's grey puffs take their own tint and no pale day light.
         let tint = town ? CastleSmoke.townTint(ambient) : CastleSmoke.tint
-        let puffs = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
-            .filter { $0.alpha > 0.02 }
-            .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
+        let born = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
+        let calm = !still && calmShare(wind: wind) > 0
+        let puffs = puffOrder(calm ? calmPuffs(born, chimneyX: chimney.x, wind: wind, town: town) : born, calm: calm)
         for puff in puffs + [CastleSmoke.mouth(town: town)] {
             let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
@@ -665,12 +793,18 @@ enum FrameBuilder {
     /// chimneys smoke dimmer, slow to show and with no fire under them (`CastleSmoke.puffs(back:)`).
     /// b3-wind (step 6, calls S1 and S2): the puffs with body (`chimneyPuffs`); the back row smokes as the town's
     /// chimneys do, about half of them (`CastleSmoke.smokes`).
+    /// b3-lantern (build 3, lane 5 step 2b, suspect 4): the keep's smoke goes into its carried picture (`sprites`' slot
+    /// of `CarriedPicture.keep`), its glow with the mist band; look 2 only.
     private static func castleSmoke(props: [Prop], plane: Plane, animTime: Double, reduceMotion: Bool,
                                     geometry: Geometry, ambient: AmbientSample, hour: Double,
-                                    glow: inout EmissiveList) -> [SpriteInstance] {
+                                    sprites: inout [[SpriteInstance]], glow: inout EmissiveList) {
         let weather = geometry.weather
-        var list: [SpriteInstance] = []
         for prop in props where prop.plane == plane {
+            var list: [SpriteInstance] = []
+            let carried = CarriedPicture.of(picture: prop.plane, motion: prop.movesWith)
+            defer {
+                sprites[carried.map { Plane.allCases.count + $0.rawValue } ?? plane.rawValue] += list
+            }
             guard let chimney = SceneLayout.castleChimney(prop) else { continue }
             // b3-wind (step 5): the back row's smoke has no fire under it; step 6: it is the town's.
             let back = SceneLayout.townRowSprites.contains(prop.sprite)
@@ -686,18 +820,19 @@ enum FrameBuilder {
                 return SIMD4<Float>(Float(left), Float(geometry.top(y: tree.y, height: Double(tree.height))),
                                     Float(tree.width), Float(tree.height))
             }
-            chimneyPuffs(at: chimney, whole: whole, plane: plane, town: back, fire: prop.sprite == .bakehouse,
-                         hearth: !back, wind: wind, time: reduceMotion ? 0 : animTime, ambient: ambient,
-                         geometry: geometry, hiddenBy: before, list: &list, glow: &glow)
+            chimneyPuffs(at: chimney, whole: whole, plane: carried?.motion ?? plane, town: back,
+                         fire: prop.sprite == .bakehouse, hearth: !back, wind: wind,
+                         time: reduceMotion ? 0 : animTime, still: reduceMotion, ambient: ambient, geometry: geometry,
+                         hiddenBy: before, list: &list, glow: &glow)
         }
-        return list
     }
 
     /// Fix round 1 (the critic's high 10: "the moon moves at about half the camera and sits on the keep's roof line"):
     /// inside the walls the moon stands on the sky, still on the screen (factor 0), `wedgeMoonX` columns from its left
-    /// and `wedgeMoonTop` rows under its top (under the HUD). It goes into the emissive pass before the mid plane's
-    /// rock, so the cleft wall hides it but where a wedge of sky passes over it (the Throat's wedge, the camera about
-    /// 1600), clear of the keep, which stands far to its right there; at dusk it is not up yet.
+    /// and `wedgeMoonTop` rows under its top (under the HUD). The cleft wall hides it but where a wedge of sky passes
+    /// over it (the Throat's wedge, the camera about 1600), clear of the keep, which stands far to its right there; at
+    /// dusk it is not up yet. Build 3, lane 5 step 2b: on the sky plane (the sky pass, read at the sky's place, under
+    /// the mid plane's rock), so it stands still on the screen in every frame of a walk.
     /// How strong the keep's warm west rim is (fix round 1): by the hour's warmth (none at noon and at night, full from
     /// the golden hour to sunset, fading through the dusk) and gone once the moon is up.
     static func keepRimShare(_ ambient: AmbientSample) -> Float {
@@ -713,7 +848,7 @@ enum FrameBuilder {
         let rect = SIMD4<Float>(Float(wedgeMoonX) - Float(size.width / 2), Float(wedgeMoonTop), Float(size.width),
                                 Float(size.height))
         let moon = GamePalette.moon * share
-        return EmissiveInstance(sprite: .moon, plane: .mid, rect: rect, color: SIMD4<Float>(moon.x, moon.y, moon.z, 1))
+        return EmissiveInstance(sprite: .moon, plane: .sky, rect: rect, color: SIMD4<Float>(moon.x, moon.y, moon.z, 1))
     }
 
     /// Look 2: the cut-away rooms on screen (`SceneLayout.look2Interior`), at most two, each as x0, y0, x1, y1 in
@@ -828,9 +963,14 @@ enum FrameBuilder {
             prop.flipped = pose.flipped
             prop.x += pose.dx
         }
-        // A prop that moves with another plane is placed by that plane's whole offset (within a game pixel of its
-        // own sub-pixel shift) but drawn into its own plane's picture.
+        // A prop that moves with another plane is placed by that plane's whole offset. Look 1 draws it into its own
+        // plane's picture (within a game pixel of its sub-pixel shift). b3-lantern (build 3, lane 5 step 2b, suspect 4):
+        // look 2 draws it into its carried picture (`CarriedPicture`), shown at the device shift of the plane it moves
+        // with; its glows and occluders go with that plane.
         let left = prop.x - geometry.whole(prop.movesWith ?? prop.plane)
+        let carried = options.look == .two ? CarriedPicture.of(picture: prop.plane, motion: prop.movesWith) : nil
+        let slot = carried.map { Plane.allCases.count + $0.rawValue } ?? prop.plane.rawValue
+        let glowPlane = carried?.motion ?? prop.plane
         let width = Double(prop.width)
         let height = Double(prop.height)
         guard geometry.isVisible(left: left, width: width) else { return }
@@ -916,18 +1056,19 @@ enum FrameBuilder {
         let sprite = SpriteInstance(sprite: prop.sprite, frame: prop.frame, rect: rect, tint: tint,
                                     flipped: prop.flipped)
         if hidesGlow {
-            glow.occlude(sprite, plane: prop.plane)
+            glow.occlude(sprite, plane: glowPlane)
         }
         // The wind sways a tree's crown and the foreground's plants; the glow's occluder stays the whole sprite.
         let lean = hidesGlow ? swayLean(prop, animTime: animTime, options: options, geometry: geometry) : 0
-        sprites[prop.plane.rawValue] += sheared(sprite, offset: lean, bands: 6, bend: true)
+        sprites[slot] += sheared(sprite, offset: lean, bands: 6, bend: true)
 
         for part in prop.emissive {
             if part.isFire && !prop.isLit { continue }
             // Look 2: a fading sprite's glow fades with it (the far castle's pane over the valley).
-            if let emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
+            if var emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
                                                animTime: animTime, options: options, geometry: geometry,
                                                fade: options.look == .two ? alpha : 1) {
+                emissive.plane = glowPlane
                 glow.add(bentFlame(emissive, part: part, prop: prop, animTime: animTime, options: options,
                                    geometry: geometry))
             }
@@ -952,7 +1093,7 @@ enum FrameBuilder {
             let place = SIMD4<Float>(Float(left + dx), Float(maskTop), Float(mask.width), Float(mask.height))
             let source = SIMD4<Float>(Float(mask.dx), Float(height - mask.dy - Double(mask.height)),
                                       Float(mask.width), Float(mask.height))
-            glow.add(EmissiveInstance(sprite: prop.sprite, plane: prop.plane, rect: place,
+            glow.add(EmissiveInstance(sprite: prop.sprite, plane: glowPlane, rect: place,
                                       color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1), kind: .glass, source: source,
                                       flipped: prop.flipped, frame: prop.frame))
         }
@@ -1228,10 +1369,13 @@ enum FrameBuilder {
         return list
     }
 
-    /// Where the world ends (x 0) the dark is whole: `bankEnd` on fog B, drawn black (fix round 1).
-    private static func bankEndTile(geometry: Geometry) -> SpriteInstance? {
+    /// Where the world ends (x 0) the dark is whole: `bankEnd` on fog B, drawn black (fix round 1). b3-lantern (build 3,
+    /// lane 5 step 2b, the diagnosis's small ones): placed by the whole offset of the plane it is drawn on (`plane`: fog
+    /// B, for the dark and for its occluder in the emissive pass); on fog B by the world's it jumped up to 6
+    /// device px against the fog from one frame of a walk to the next near the world's west end.
+    private static func bankEndTile(geometry: Geometry, plane: Plane = .world) -> SpriteInstance? {
         let size = SpriteID.bankEnd.size
-        let left = -geometry.whole(.world)
+        let left = -geometry.whole(plane)
         guard geometry.isVisible(left: left, width: Double(size.width)) else { return nil }
         let top = geometry.top(y: bankSheetY, height: Double(size.height))
         let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
@@ -1608,6 +1752,20 @@ enum FrameBuilder {
     static func rainSlant(force: Double) -> Int {
         force < 0.2 ? 0 : (force < 0.6 ? 1 : 2)
     }
+    /// b3-lantern (build 3, lane 5 step 2b, the smooth walk, suspect 6): the lane's x by which a streak or a flake of a
+    /// rain's depth decides its kind (water or ash) and reads its wind: its own column in its plane's picture (`column`,
+    /// the target column plus the plane's whole offset, fixed while it falls), mapped to the lane where the camera puts
+    /// that column in the screen's middle. On the lane's own depth it is the column itself, as before. In front of and
+    /// behind the lane the lane under a streak moved with the camera (a quarter of its step on the near plane, three
+    /// tenths on the foreground), so a streak could take another slant in mid-fall while the lord walked and jump by a
+    /// fifth of the rows it had fallen, or blink between water and ash; at this x it cannot. The kind's seam on these
+    /// depths stands where the lane's does at the screen's middle and moves with their parallax.
+    static func rainLaneX(column: Double, plane: Plane, viewWidth: Double) -> Double {
+        let parallax = plane.parallax
+        guard parallax > 0, parallax != 1 else { return column }
+        let half = viewWidth / 2
+        return (column - half) / parallax + half
+    }
     /// How many of `full` fall in a rain of this strength: by its root, so a light rain (0.4) is still rain on a
     /// phone (round lh-l2-3a: at 0.6 a count in proportion read as a few stray streaks).
     static func rainCount(_ full: Int, rain: Double) -> Int {
@@ -1750,7 +1908,6 @@ enum FrameBuilder {
         let reach = abs(widest) * fall
         let span = Double(geometry.targetWidth) + reach
         let whole = geometry.whole(entry.plane)
-        let lane = geometry.whole(.world)
         let tint = rainStreakTint(depth: depth, ambient: ambient)
         // Step 4 (M1): the lane's streaks in the sky band a step denser by day.
         let skyAlpha = depth == 1 ? tint.w + (max(tint.w, rainSkyDayAlpha) - tint.w) * rainShade(ambient) : tint.w
@@ -1773,7 +1930,8 @@ enum FrameBuilder {
             // Decided once for the whole fall, at the column it starts from: water or ash (so no streak blinks out in
             // the band), and its lean by the wind of the moment it set off (a gust leans the streaks that start in it,
             // never one in mid-fall).
-            let start = x + lane
+            // b3-lantern (suspect 6): at its own column in its plane, mapped to the lane (`rainLaneX`).
+            let start = rainLaneX(column: x + whole, plane: entry.plane, viewWidth: Double(geometry.targetWidth))
             guard RainLook.isWater(unit(SeededRandom.hash(pick, 0x57)), x: start, seam: seam) else { continue }
             let born = (cycle - own) * fall / entry.speed
             let wind = Weather.wind(at: start, weather, time: born)
@@ -2068,6 +2226,10 @@ enum FrameBuilder {
         let life = byNight(emberLife, night)
         let big = byNight(emberBig, night)
         let key = SeededRandom.hash(weather.gustSeed ^ 0x41_5348, Int64(depth + 1))
+        // b3-smooth (build 3, lane 5b step 1, the critic's M3): how far a flake can drift from the column it starts
+        // from (game px, a bound: the steady wind over its whole fall at its slowest, the gust's lean and the sway).
+        let reach = max(0, abs(weather.mean) - ashCalm) * ashDrift * fall / (0.8 * entry.speed)
+            + 4 * ashGustReach + ashSway + 2
         var list: [SpriteInstance] = []
         var glow: [EmissiveInstance] = []
         for index in 0..<count {
@@ -2081,68 +2243,87 @@ enum FrameBuilder {
             let y = share * fall - Double(size.height)
             let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
             let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
-            var x = (unit(pick) * span - whole).truncatingRemainder(dividingBy: span)
-            if x < 0 { x += span }
-            // Ash or water, decided once at the column it starts from (no flake blinks out in mid-air); a flake that
-            // drifts toward the wall fades as the water's share grows, and is gone at the wall.
-            let start = x - margin + lane
-            guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: start, seam: seam) else { continue }
-            let wind = Weather.wind(at: start, weather, time: fallTime)
-            x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
-            x = (x.truncatingRemainder(dividingBy: span) + span).truncatingRemainder(dividingBy: span) - margin
-            if depth == 0 && x + lane < bankEdge + ashBankFace { continue }
-            var fade = Float(1 - RainLook.waterShare(x: x + lane, seam: seam))
-            guard fade > 0.02 else { continue }
-            if reduceMotion {
-                fade *= rainPulseAlpha(time: animTime, own: own)
-            }
-            let tumble = Int(min(1.0e15, falling * (ashTumble.still + ashTumble.wind * abs(wind)) + own * 4)
-                .rounded(.down)) % 4
-            let frame = entry.size * 4 + tumble
-            let flipped = own > 0.5
-            let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
-                                    Float(size.height))
-            var grey: Float = 1
-            if !reduceMotion && isEmber(key: key, index: index, night: night) && share < life {
-                let age = Float(share / life)
-                let large = Double(age) < big
-                // b3-wind (step 5): the 2 x 2 point in the torch's orange round its hot gold core.
-                let strength = (1 - age * age) * emberGlow * fade
-                let heat = large ? emberColor * strength : emberHeat(life: age) * (emberGlow * fade)
-                let shown = emberBodyAlpha(life: age) * fade * (entry.plane == .foreground ? day : 1)
-                if shown > 0.01 {
-                    list.append(SpriteInstance(sprite: .ashFlake,
-                                               frame: large ? emberFrames.bigBody : emberFrames.body, rect: rect,
-                                               tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z, shown),
-                                               flipped: false))
+            var home = (unit(pick) * span - whole).truncatingRemainder(dividingBy: span)
+            if home < 0 { home += span }
+            // b3-smooth (M3): the flake's copies stand `span` apart in its plane, each with its own start column (so
+            // its own kind and wind); every copy whose drifted place is on the screen is drawn. Before, the one copy
+            // whose start column was on the screen was drawn and its drift wrapped round the screen, so a flake that
+            // had drifted far popped out (or jumped) when its start column left the screen while the lord walked.
+            let first = Int(((-reach - home) / span).rounded(.up))
+            let last = Int(((span + reach - home) / span).rounded(.down))
+            for copy in min(first, 0)...max(last, 0) {
+                var x = home + Double(copy) * span
+                // Ash or water, decided once at the column it starts from (no flake blinks out in mid-air); a flake
+                // that drifts toward the wall fades as the water's share grows, and is gone at the wall. b3-lantern
+                // (suspect 6): at its own column in its plane, mapped to the lane (`rainLaneX`), so its drift's wind
+                // does not move with the camera either.
+                let start = rainLaneX(column: x - margin + whole, plane: entry.plane,
+                                      viewWidth: Double(geometry.targetWidth))
+                guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: start, seam: seam) else { continue }
+                let wind = Weather.wind(at: start, weather, time: fallTime)
+                x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
+                guard x >= 0 && x < span else { continue }
+                x -= margin
+                // The bank stands on the lane, so a near flake behind it is cut where the screen shows the bank (the
+                // lane's x under it).
+                if depth == 0 && x + lane < bankEdge + ashBankFace { continue }
+                // b3-lantern (suspect 6): the fade toward the wall is read at the same lane x as the kind (`rainLaneX`
+                // of the flake's column in its plane, after its drift), so a flake of the near or the foreground depth
+                // never fades or goes out in mid-fall while the lord walks.
+                let laneX = rainLaneX(column: x + whole, plane: entry.plane, viewWidth: Double(geometry.targetWidth))
+                var fade = Float(1 - RainLook.waterShare(x: laneX, seam: seam))
+                guard fade > 0.02 else { continue }
+                if reduceMotion {
+                    fade *= rainPulseAlpha(time: animTime, own: own)
                 }
-                glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                             color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), kind: .glass,
-                                             source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
-                                             frame: large ? emberFrames.bigPoint : emberFrames.point))
-                if large {
-                    let core = emberCoreAdd * strength
+                let tumble = Int(min(1.0e15, falling * (ashTumble.still + ashTumble.wind * abs(wind)) + own * 4)
+                    .rounded(.down)) % 4
+                let frame = entry.size * 4 + tumble
+                let flipped = own > 0.5
+                let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
+                                        Float(size.height))
+                var grey: Float = 1
+                if !reduceMotion && isEmber(key: key, index: index, night: night) && share < life {
+                    let age = Float(share / life)
+                    let large = Double(age) < big
+                    // b3-wind (step 5): the 2 x 2 point in the torch's orange round its hot gold core.
+                    let strength = (1 - age * age) * emberGlow * fade
+                    let heat = large ? emberColor * strength : emberHeat(life: age) * (emberGlow * fade)
+                    let shown = emberBodyAlpha(life: age) * fade * (entry.plane == .foreground ? day : 1)
+                    if shown > 0.01 {
+                        list.append(SpriteInstance(sprite: .ashFlake,
+                                                   frame: large ? emberFrames.bigBody : emberFrames.body, rect: rect,
+                                                   tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z, shown),
+                                                   flipped: false))
+                    }
                     glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                                 color: SIMD4<Float>(core.x, core.y, core.z, 1), kind: .glass,
+                                                 color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), kind: .glass,
                                                  source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
-                                                 frame: emberFrames.point))
+                                                 frame: large ? emberFrames.bigPoint : emberFrames.point))
+                    if large {
+                        let core = emberCoreAdd * strength
+                        glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                                     color: SIMD4<Float>(core.x, core.y, core.z, 1), kind: .glass,
+                                                     source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
+                                                     frame: emberFrames.point))
+                    }
+                    grey = max(0, (age - emberGreyFrom) / (1 - emberGreyFrom))
                 }
-                grey = max(0, (age - emberGreyFrom) / (1 - emberGreyFrom))
-            }
-            // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks into
-            // the list: the same flakes stand in the list from one moment to the next. A foreground flake that rests at
-            // night (`body` 0) is left out, so it costs no instance; `body` depends on the air alone, never on the
-            // time, so the list still holds from one moment to the next.
-            if body > 0.004 {
-                list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
-                                           tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
-                                           flipped: flipped))
-            }
-            if night * fade * grey > 0.01 && entry.plane != .foreground {
-                let ash = warm * (night * fade * grey)
-                glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                             color: SIMD4<Float>(ash.x, ash.y, ash.z, 1), flipped: flipped,
-                                             frame: frame))
+                // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks
+                // into the list: the same flakes stand in the list from one moment to the next. A foreground flake that
+                // rests at night (`body` 0) is left out, so it costs no instance; `body` depends on the air alone,
+                // never on the time, so the list still holds from one moment to the next.
+                if body > 0.004 {
+                    list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
+                                               tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
+                                               flipped: flipped))
+                }
+                if night * fade * grey > 0.01 && entry.plane != .foreground {
+                    let ash = warm * (night * fade * grey)
+                    glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                                 color: SIMD4<Float>(ash.x, ash.y, ash.z, 1), flipped: flipped,
+                                                 frame: frame))
+                }
             }
         }
         return (list, glow)

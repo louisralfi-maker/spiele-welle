@@ -765,7 +765,15 @@ extension GameModel {
         let shift = right ? boardRight - (lordX - blockHalf) : (lordX + blockHalf) - boardLeft
         if shift <= blockHalf { return (lordX + (right ? shift : -shift), 0) }
         let bottom = max(Double(HUDKit.lordHead + 8), board.top + 4)
-        return (lordX, bottom - Double(HUDKit.lordHead + HUDKit.purseAbove))
+        // b3-lantern (build 3, lane 5 step 2b, the diagnosis's small ones; one block for the join): no jump from beside
+        // the board to over it while the lord walks under it. Beside it the figure waits where it stood, rises there
+        // over his next 5 px of walk, then glides over him in 5 px more; never over the board below its top.
+        let lift = bottom - Double(HUDKit.lordHead + HUDKit.purseAbove)
+        let beside = right ? boardRight + blockHalf : boardLeft - blockHalf
+        let rise = min(1, (shift - blockHalf) / 5)
+        let over = min(1, max(0, (shift - blockHalf - 5) / 5))
+        return (beside + (lordX - beside) * over, lift * rise)
+        // b3-lantern end
     }
 
     // MARK: - Time

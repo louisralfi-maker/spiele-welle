@@ -461,3 +461,15 @@ extension DebugArgs {
     }
 }
 #endif
+
+// b3-lantern (build 3, lane 5 step 1; one block for the joiner): `-GWLookAround <dx>[:<slow>]`, the look-around's
+// pictures (`LookAroundDebug`): each time the lantern moment opens on the world the view stands slid `dx` game px east,
+// and the glide home takes `slow` times its length. Debug builds only, read here outside `keys`, so a Release build
+// never sees it.
+#if DEBUG
+extension DebugArgs {
+    static var lookAround: LookAroundDebug? {
+        LookAroundDebug.parse(UserDefaults.standard.string(forKey: "GWLookAround"))
+    }
+}
+#endif

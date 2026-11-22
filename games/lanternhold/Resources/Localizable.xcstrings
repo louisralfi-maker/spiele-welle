@@ -34,6 +34,9 @@
         }
       }
     },
+    "%@, %lld people" : {
+      "comment" : "VoiceOver: the town banner's value, the mood in words and the people's count, e.g. 'the town is grim, 14 people' (build 3, lane 5 step 4; English only until the store pass)."
+    },
     "%@, archer" : {
       "comment" : "Dawn report: a fallen archer.",
       "localizations" : {
@@ -713,6 +716,9 @@
     "Doors owing: %lld" : {
       "comment" : "VoiceOver: the realm strip's value while the town's doors still owe today (fix lane D, player-loop-1; English only in build 2)."
     },
+    "Double tap for the reason" : {
+      "comment" : "VoiceOver: the town banner's hint; it opens a slip with the main reason for the mood (build 3, lane 5 step 4; English only until the store pass)."
+    },
     "Double tap to go on" : {
       "comment" : "VoiceOver hint on the lantern moment (stage-3-interface): any touch lowers the lantern and the world runs on.",
       "localizations" : {
@@ -1327,6 +1333,9 @@
         }
       }
     },
+    "Mood of the town" : {
+      "comment" : "VoiceOver: the label of the town's banner at the realm strip's town end (build 3, lane 5 step 4; English only until the store pass)."
+    },
     "Next petitioner (%lld)" : {
       "comment" : "Audience card after a choice: the next petitioner walks up; the number still waiting.",
       "localizations" : {
@@ -1392,6 +1401,9 @@
           }
         }
       }
+    },
+    "No one fell in the night." : {
+      "comment" : "The town banner's slip: a night without losses brought the most happiness (build 3, lane 5 step 4; English only until the store pass)."
     },
     "No one fell tonight" : {
       "comment" : "Dawn report banner.",
@@ -1689,6 +1701,9 @@
           }
         }
       }
+    },
+    "Petitioners went home unheard." : {
+      "comment" : "The town banner's slip: unheard petitioners cost the most happiness (build 3, lane 5 step 4; English only until the store pass)."
     },
     "Previous site" : {
       "comment" : "Build card: accessibility label of the arrow to the previous plot.",
@@ -2108,6 +2123,9 @@
         }
       }
     },
+    "The Flame's blessing warms them." : {
+      "comment" : "The town banner's slip: the chapel's blessing brought the most happiness (build 3, lane 5 step 4; English only until the store pass)."
+    },
     "The Gloom reached the hearth on night %lld." : {
       "comment" : "Defeat card.",
       "localizations" : {
@@ -2436,6 +2454,30 @@
         }
       }
     },
+    "The tavern keeps them merry." : {
+      "comment" : "The town banner's slip: the tavern brought the most happiness (build 3, lane 5 step 4; English only until the store pass)."
+    },
+    "The tax is fair." : {
+      "comment" : "The town banner's slip: an old save's normal tax rate is the main reason (build 3, lane 5 step 4; English only until the store pass)."
+    },
+    "The tax is high." : {
+      "comment" : "The town banner's slip: an old save's high tax rate is the main reason (build 3, lane 5 step 4; English only until the store pass)."
+    },
+    "The tax is low." : {
+      "comment" : "The town banner's slip: an old save's low tax rate is the main reason (build 3, lane 5 step 4; English only until the store pass)."
+    },
+    "The town goes about its days." : {
+      "comment" : "The town banner's slip: no change of the mood to name, and the town is even; timeless, it can show on any day (build 3, lane 5 step 5; English only until the store pass)."
+    },
+    "The town is angry." : {
+      "comment" : "The town banner's slip: no change of the mood to name, and the town is in unrest; timeless, it can show on any day (build 3, lane 5 step 5; English only until the store pass)."
+    },
+    "The town is in good heart." : {
+      "comment" : "The town banner's slip: no change of the mood to name, and the town is glad; timeless, it can show on any day (build 3, lane 5 step 5; English only until the store pass)."
+    },
+    "The town is weary." : {
+      "comment" : "The town banner's slip: no change of the mood to name, and the town is grim; timeless, it can show on any day (build 3, lane 5 step 5; English only until the store pass)."
+    },
     "The valley" : {
       "comment" : "Dawn report section.",
       "localizations" : {
@@ -2470,6 +2512,9 @@
         }
       }
     },
+    "The war tax weighs on them." : {
+      "comment" : "The town banner's slip: an old save's war tax is the main reason (build 3, lane 5 step 4; English only until the store pass)."
+    },
     "The watch begins again on day 1. The Chronicle keeps its records." : {
       "comment" : "Pause sheet: the restart's explanation.",
       "localizations" : {
@@ -2480,6 +2525,9 @@
           }
         }
       }
+    },
+    "They mourn the fallen." : {
+      "comment" : "The town banner's slip: the soldiers who fell cost the most happiness (build 3, lane 5 step 4; English only until the store pass)."
     },
     "Tonight %@" : {
       "comment" : "Audience card: what a choice does to the coming night; %@ is a signed percentage of the attack or a signed number of creatures.",
@@ -2657,6 +2705,12 @@
         }
       }
     },
+    "You knocked at their doors." : {
+      "comment" : "The town banner's slip: the knocks at the town's doors cost the most happiness (build 3, lane 5 step 4; English only until the store pass)."
+    },
+    "You left their doors alone." : {
+      "comment" : "The town banner's slip: the houses left alone brought the most happiness (build 3, lane 5 step 4; English only until the store pass)."
+    },
     "Your name" : {
       "comment" : "Name entry: accessibility label of the name field.",
       "localizations" : {
@@ -2718,6 +2772,12 @@
           }
         }
       }
+    },
+    "the mood is falling" : {
+      "comment" : "VoiceOver: added to the town banner's value when the mood fell since the last dawn (build 3, lane 5 step 4; English only until the store pass)."
+    },
+    "the mood is rising" : {
+      "comment" : "VoiceOver: added to the town banner's value when the mood rose since the last dawn (build 3, lane 5 step 4; English only until the store pass)."
     },
     "the town is even" : {
       "comment" : "The town's mood in words for VoiceOver (the hood face even, happiness 30 to 59).",

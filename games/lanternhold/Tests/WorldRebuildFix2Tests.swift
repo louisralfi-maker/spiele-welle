@@ -153,7 +153,10 @@ final class WorldRebuildFix2Tests: XCTestCase {
         let ambient = AmbientRamp.sample(at: 19.2, look: .two)
         XCTAssertGreaterThan(dusk.skyTop.x - ambient.skyTop.x, 0.01, "the wedge's sky warmed toward the horizon")
         let night = frame(timeOfDay: 0.97, focus: 1800)
-        XCTAssertTrue(night.emissives.contains { $0.sprite == .moon && $0.plane == .mid })
+        XCTAssertTrue(night.emissives.contains {
+            $0.sprite == .moon && $0.plane == .sky
+                && $0.rect.x == Float(FrameBuilder.wedgeMoonX) - Float(SpriteID.moon.size.width / 2)
+        }, "the wedge's moon is back (build 3, lane 5 step 2b: on the sky plane)")
         XCTAssertGreaterThan(night.starAlpha, 0.1)
         let moor = frame(timeOfDay: 19.2 / 24, focus: 400)
         XCTAssertLessThan(abs(moor.skyTop.x - ambient.skyTop.x) + abs(moor.skyTop.z - ambient.skyTop.z), 0.004,

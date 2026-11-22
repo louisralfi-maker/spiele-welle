@@ -98,6 +98,18 @@ final class WorldSweepUITests: XCTestCase {
              + shots("walk-r-rm", noon + ["-GWWalk", "right", "-GWReduceMotion", "YES"], centres: [2800]))
     }
 
+    // b3-lantern: build 3, lane 5 step 2b (the smooth walk, suspect 4): the keep with its mist, smoke, flags and vane
+    /// at the open hall door in the world (`-GWStage world`) at noon, dusk and night, now drawn in their carried
+    /// pictures at the plane they move with: the frames that judge the look. `w-1830-keep-<noon|dusk|night>-en`.
+    /// (b3-smooth, lane 5b step 1: look 2 has no valley keep, so the two shots from 2700 are gone.)
+    func testKeepsInTheirPlanes() {
+        let world = ["-GWStage", "world"]
+        take(shots("keep-noon", ["-GWDay", "12", "-GWHour", "12"] + world, centres: [1830])
+             + shots("keep-dusk", ["-GWDay", "12", "-GWHour", "19.2"] + world, centres: [1830])
+             + shots("keep-night", ["-GWNight", "12", "-GWHour", "23.33"] + world, centres: [1830]))
+    }
+    // b3-lantern end
+
     // MARK: - Helpers
 
     /// One shot per camera centre, with the arguments a launch of its own carried before the speed kit.

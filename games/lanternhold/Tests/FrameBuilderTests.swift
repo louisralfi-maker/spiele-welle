@@ -882,8 +882,10 @@ extension FrameBuilderTests {
         var focus = focusStart
         while focus <= 2600 {
             let desc = frame(timeOfDay: timeOfDay, focus: focus, options: options, scene: world)
-            let mid = desc.layer(.mid).sprites
-            let nearer = desc.layer(.mistBand).sprites + desc.layer(.near).sprites + desc.layer(.world).sprites
+            // b3-lantern (build 3, lane 5 step 2b): the valley's keep and rock and the keep stand in carried pictures
+            // (`CarriedPicture`) at their pictures' depth.
+            let mid = desc.pictured(.mid)
+            let nearer = desc.layer(.mistBand).sprites + desc.pictured(.near) + desc.layer(.world).sprites
             if focus >= 1400 && focus <= 2300 {
                 XCTAssertTrue(desc.layer(.far).sprites.isEmpty, "the far plane shows inside the walls at \(focus)")
                 let cleft: Set<SpriteID> = [.throatStepC, .cleftWallA, .cleftWallB, .cleftWallC]

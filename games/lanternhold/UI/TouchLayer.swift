@@ -5,9 +5,11 @@ import SwiftUI
 /// thing he walks to it and does what it offers, on the ground he walks there); past 10 pt it is a drag, anywhere: he
 /// walks toward it and runs past 40 pt, and stops when the finger lifts. `GameModel+Touch.swift` decides; this view
 /// only passes the finger on. It says nothing to VoiceOver: the things have their own elements (`TouchSpotsView`).
+/// Build 3, lane 5: a lift while the scene is not active is never a tap (`touchEnded(active:)`).
 @MainActor
 struct TouchLayer: View {
     let model: GameModel
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         GeometryReader { geometry in
@@ -16,11 +18,14 @@ struct TouchLayer: View {
                 .gesture(
                     DragGesture(minimumDistance: 0, coordinateSpace: .local)
                         .onChanged { value in
+                            // Build 3, lane 5 step 4: a touch anywhere on the world shuts the town banner's slip.
+                            MoodSlip.shared.close()
                             model.touchChanged(start: value.startLocation, at: value.location,
                                                translation: value.translation, in: geometry.size)
                         }
                         .onEnded { value in
-                            model.touchEnded(at: value.location, translation: value.translation, in: geometry.size)
+                            model.touchEnded(at: value.location, translation: value.translation, in: geometry.size,
+                                             active: scenePhase == .active)
                         }
                 )
                 .onAppear { model.setTouchViewSize(geometry.size) }

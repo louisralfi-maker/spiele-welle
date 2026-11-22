@@ -79,6 +79,12 @@ final class RenderTargets {
     let planes: [any MTLTexture]
     let light: any MTLTexture
     let emissive: any MTLTexture
+    /// Build 3, lane 5 step 2b: look 2's glows of the planes behind the lane and of the foreground, a band per plane
+    /// (`EmissiveBands`), `rgba16Float`.
+    let back: any MTLTexture
+    /// b3-lantern (build 3, lane 5 step 2b, suspect 4): look 2's carried pictures, a band each (`CarriedPicture`),
+    /// `rgba8Unorm` like the planes.
+    let carried: any MTLTexture
     let bloomA: any MTLTexture
     let bloomB: any MTLTexture
 
@@ -102,6 +108,9 @@ final class RenderTargets {
         let halfHeight = (height + 1) / 2
         guard let light = make(.rgba16Float, width, height),
               let emissive = make(.rgba16Float, width, height),
+              let back = make(.rgba16Float, width, EmissiveBands.textureRows(targetHeight: height)),
+              let carried = make(.rgba8Unorm, width,
+                                 CarriedPicture.allCases.count * EmissiveBands.stride(targetHeight: height)),
               let bloomA = make(.rgba16Float, halfWidth, halfHeight),
               let bloomB = make(.rgba16Float, halfWidth, halfHeight) else {
             return nil
@@ -111,6 +120,8 @@ final class RenderTargets {
         self.planes = planes
         self.light = light
         self.emissive = emissive
+        self.back = back
+        self.carried = carried
         self.bloomA = bloomA
         self.bloomB = bloomB
     }
@@ -237,6 +248,10 @@ final class Renderer {
     private let inFlight = DispatchSemaphore(value: 0)
     private let gpuTimer = GPUTimer()
     private(set) var stats = RenderStats()
+    /// b3-smooth (build 3, lane 5b step 1, the critic's H2b): tests only. True reads every band and every carried
+    /// picture for every pixel, as step 2b did (d7748951), instead of what the frame's mask names
+    /// (`EmissiveBands.mask`): the same picture, at step 2b's cost.
+    var readsEveryBand = false
 
     private struct Batch {
         var offset = 0
@@ -247,6 +262,10 @@ final class Renderer {
         var planes: [Batch] = Array(repeating: Batch(), count: Plane.allCases.count)
         var sky = Batch()
         var emissive = Batch()
+        /// Build 3, lane 5 step 2b: the band texture's quads (`EmissiveBands`).
+        var back = Batch()
+        /// b3-lantern (suspect 4): the carried pictures' quads (`CarriedPicture`).
+        var carried = Batch()
         var lights = Batch()
         var actors = Batch()
         var instances = 0
@@ -407,6 +426,43 @@ final class Renderer {
                         targetHeight: targets.height, lightValues: light, bgra: outputFormat == .bgra8Unorm)
     }
 
+    /// b3-smooth (build 3, lane 5b step 1, the critic's H2c): tests only. Renders a frame into an offscreen texture of
+    /// its physical size without reading it back, and returns the GPU's time for it (the command buffer's start to
+    /// end, also left in `stats.gpuMilliseconds`) and the wall time from commit to completion, both in ms (the wall
+    /// time stands in where a runner's GPU reports no times).
+    func timeOffscreen(_ frame: FrameDesc, settings: RenderSettings) throws -> (gpu: Double, wall: Double) {
+        let width = max(1, frame.physicalWidth)
+        let height = max(1, frame.physicalHeight)
+        let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: outputFormat, width: width,
+                                                                  height: height, mipmapped: false)
+        descriptor.usage = [.renderTarget]
+        descriptor.storageMode = .private
+        guard let output = context.device.makeTexture(descriptor: descriptor),
+              let commands = context.queue.makeCommandBuffer() else {
+            throw RendererError.resources
+        }
+        let pass = MTLRenderPassDescriptor()
+        pass.colorAttachments[0].texture = output
+        pass.colorAttachments[0].loadAction = .dontCare
+        pass.colorAttachments[0].storeAction = .store
+        inFlight.wait()
+        encode(frame, settings: settings, commands: commands, output: pass)
+        let semaphore = inFlight
+        commands.addCompletedHandler { _ in
+            semaphore.signal()
+        }
+        let start = CACurrentMediaTime()
+        commands.commit()
+        commands.waitUntilCompleted()
+        let wall = (CACurrentMediaTime() - start) * 1000
+        if let error = commands.error {
+            throw RendererError.gpu(error.localizedDescription)
+        }
+        let gpu = max(0, commands.gpuEndTime - commands.gpuStartTime) * 1000
+        stats.gpuMilliseconds = gpu
+        return (gpu: gpu, wall: wall)
+    }
+
     // MARK: - Encoding
 
     private func ensureTargets(width: Int, height: Int) -> RenderTargets? {
@@ -431,6 +487,11 @@ final class Renderer {
         let size = SIMD4<Float>(Float(targets.width), Float(targets.height), 0, 0)
 
         let lookTwo = frame.look == .two
+        // b3-smooth (H2b): the bands and carried pictures the composite, the translucent actors and the bloom's
+        // prefilter read (`EmissiveBands.mask`).
+        let bandMask: UInt32 = !lookTwo ? 0
+            : (readsEveryBand ? EmissiveBands.everything
+                              : EmissiveBands.mask(frame, reducedEffects: settings.reducedEffects))
         for plane in Plane.allCases {
             // The mist band and the near plane exist in look 2 only.
             if !lookTwo && !Renderer.lookOnePlanes.contains(plane) { continue }
@@ -441,6 +502,15 @@ final class Renderer {
             } else {
                 draws += quadPass(commands, texture, planePipeline, buffer, [batches.planes[plane.rawValue]], size)
             }
+            passes += 1
+        }
+        // b3-lantern (build 3, lane 5 step 2b, suspect 4): look 2's carried pictures, a band each (`CarriedPicture`),
+        // cleared in every frame of look 2 (the hall has none).
+        if lookTwo {
+            let carriedSize = SIMD4<Float>(Float(targets.width),
+                                           Float(CarriedPicture.allCases.count
+                                                 * EmissiveBands.stride(targetHeight: targets.height)), 0, 0)
+            draws += quadPass(commands, targets.carried, planePipeline, buffer, [batches.carried], carriedSize)
             passes += 1
         }
 
@@ -475,11 +545,19 @@ final class Renderer {
         // Emissive parts and embers.
         draws += quadPass(commands, targets.emissive, emissivePipeline, buffer, [batches.emissive], size)
         passes += 1
+        // Build 3, lane 5 step 2b: look 2's glows of the planes behind the lane, a band each (`EmissiveBands`). Look 1
+        // has none and keeps its passes; neither its composite nor its bloom reads the texture.
+        if lookTwo {
+            let backSize = SIMD4<Float>(Float(targets.width),
+                                        Float(EmissiveBands.textureRows(targetHeight: targets.height)), 0, 0)
+            draws += quadPass(commands, targets.back, emissivePipeline, buffer, [batches.back], backSize)
+            passes += 1
+        }
 
         // Bloom.
         let bloomOn = frame.bloom && !settings.reducedEffects
         if bloomOn {
-            draws += encodeBloom(commands, targets: targets, frame: frame)
+            draws += encodeBloom(commands, targets: targets, frame: frame, bandMask: bandMask)
             passes += 3
         }
 
@@ -499,9 +577,14 @@ final class Renderer {
             if lookTwo {
                 let focus = frame.cameraX + Double(max(0, frame.targetWidth - 1)) / 2
                 var look2 = Look2.uniforms(frame, focus: focus)
+                look2.shifts.z = Int32(bitPattern: bandMask)   // b3-smooth (H2b)
                 encoder.setFragmentBytes(&look2, length: MemoryLayout<Look2Uniforms>.stride, index: 2)
                 encoder.setFragmentTexture(targets.planes[Plane.mistBand.rawValue], index: 12)
                 encoder.setFragmentTexture(targets.planes[Plane.near.rawValue], index: 13)
+                // Build 3, lane 5 step 2b: the glows of the planes behind the lane (`EmissiveBands`).
+                encoder.setFragmentTexture(targets.back, index: 14)
+                // b3-lantern (suspect 4): the carried pictures (`CarriedPicture`).
+                encoder.setFragmentTexture(targets.carried, index: 15)
             }
             encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
             draws += 1
@@ -544,8 +627,10 @@ final class Renderer {
         return draws
     }
 
-    /// Threshold at half resolution, then a horizontal and a vertical blur (result in `bloomA`).
-    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets, frame: FrameDesc) -> Int {
+    /// Threshold at half resolution, then a horizontal and a vertical blur (result in `bloomA`). b3-smooth (H2b): the
+    /// prefilter reads the bands `bandMask` names (none in look 1).
+    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets, frame: FrameDesc,
+                             bandMask: UInt32) -> Int {
         let halfWidth = Float(targets.bloomWidth)
         let halfHeight = Float(targets.bloomHeight)
         var draws = 0
@@ -554,7 +639,7 @@ final class Renderer {
             size: SIMD4<Float>(Float(targets.width), Float(targets.height), halfWidth, halfHeight),
             params: SIMD4<Float>(frame.look == .two ? Look2.bloomLightShare : Look.bloomLightShare,
                                  Look.bloomSkyShare, Look.bloomThreshold, Look.bloomKnee),
-            backdrop: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, 0))
+            backdrop: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, Float(bandMask & EmissiveBands.bandBits)))
         if let encoder = commands.makeRenderCommandEncoder(descriptor: Renderer.clearPass(targets.bloomA)) {
             encoder.label = "bloom threshold"
             encoder.setRenderPipelineState(prefilterPipeline)
@@ -562,6 +647,12 @@ final class Renderer {
             encoder.setFragmentTexture(targets.emissive, index: 0)
             encoder.setFragmentTexture(targets.light, index: 1)
             encoder.setFragmentTexture(targets.planes[Plane.sky.rawValue], index: 2)
+            // Build 3, lane 5 step 2b: the bands' glows feed the bloom too, hidden where the lane, the near plane and
+            // the mid plane stand opaque in front of them (read on the world's grid: the bloom is soft).
+            encoder.setFragmentTexture(targets.back, index: 3)
+            encoder.setFragmentTexture(targets.planes[Plane.mid.rawValue], index: 4)
+            encoder.setFragmentTexture(targets.planes[Plane.near.rawValue], index: 5)
+            encoder.setFragmentTexture(targets.planes[Plane.world.rawValue], index: 6)
             encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
             encoder.endEncoding()
             draws += 1
@@ -657,7 +748,19 @@ final class Renderer {
                                  Look.bandStrength(ambient, focus: focus)),
             bounceColor: SIMD4<Float>(bounce.x, bounce.y, bounce.z, 0),
             bandColor: SIMD4<Float>(bandColor.x, bandColor.y, bandColor.z, Look.bandHeight),
-            rim: SIMD4<Float>(rim.x, rim.y, rim.z, Look.rim))
+            rim: SIMD4<Float>(rim.x, rim.y, rim.z, Look.rim),
+            lantern: Renderer.lanternUniform(frame))
+    }
+
+    /// b3-lantern (build 3, lane 5 step 5): the lantern's own light for the composite and the actors (`LanternLight`,
+    /// `lh_lantern_dim`): the glass's x and lift in world px, the dim's strength and the circle's squash; strength 0
+    /// while the frame has none.
+    static func lanternUniform(_ frame: FrameDesc) -> SIMD4<Float> {
+        guard let glass = frame.lanternDim, glass.strength > 0 else {
+            return SIMD4<Float>(0, 0, 0, Float(LanternLight.squash))
+        }
+        return SIMD4<Float>(Float(glass.x), Float(glass.lift), Float(min(1, glass.strength)),
+                            Float(LanternLight.squash))
     }
 
     /// The colour of the frame's backdrop lights (lights of the far and mid planes, such as the warden statue's bowl
@@ -684,19 +787,46 @@ final class Renderer {
         }
         planeQuads[Plane.world.rawValue] += Particles.motes(frame, time: settings.time,
                                                             reduceMotion: settings.reduceMotion, white: layout.white)
+        let lookTwo = frame.look == .two
+        // b3-lantern (build 3, lane 5 step 2b, suspect 4): look 2's carried pictures, each cut to the target's rows and
+        // moved to its band (as the glows' bands, `EmissiveBands.placed`); the keep's mist (fog A's) goes with fog A
+        // under the thermal cut.
+        var carriedQuads: [SpriteQuad] = []
+        if lookTwo {
+            for (index, layer) in frame.carried.enumerated() {
+                if settings.reducedEffects && CarriedPicture(rawValue: index)?.picture == Plane.fogA { continue }
+                for sprite in layer.sprites {
+                    if let placed = EmissiveBands.placed(Renderer.quad(sprite, layout: layout), band: index,
+                                                         targetHeight: frame.targetHeight) {
+                        carriedQuads.append(placed)
+                    }
+                }
+            }
+        }
         var skyQuads: [SpriteQuad] = []
         var emissiveQuads: [SpriteQuad] = []
+        // Build 3, lane 5 step 2b (the smooth walk, suspect 3): look 2's glows of the planes behind the lane and of the
+        // foreground go into their plane's band, read at their own plane's column (`EmissiveBands`); an occluder of
+        // such a plane goes there and, as before, into the main texture.
+        var backQuads: [SpriteQuad] = []
         for emissive in frame.emissives {
             let quad = Renderer.quad(emissive, layout: layout)
             if emissive.plane == .sky {
                 skyQuads.append(quad)
-            } else {
-                emissiveQuads.append(quad)
+                continue
             }
+            if lookTwo, let band = EmissiveBands.band(of: emissive) {
+                if let placed = EmissiveBands.placed(quad, band: band, targetHeight: frame.targetHeight) {
+                    backQuads.append(placed)
+                }
+                if emissive.kind != .occluder {
+                    continue
+                }
+            }
+            emissiveQuads.append(quad)
         }
         emissiveQuads += Particles.embers(frame, time: settings.time, reduceMotion: settings.reduceMotion,
                                           white: layout.white)
-        let lookTwo = frame.look == .two
         let lightQuads = frame.lights.prefix(64).map { light in
             // A backdrop light carries a negative intensity: the light pass writes it to alpha only.
             let sign: Float = light.plane == .world ? 1 : -1
@@ -737,11 +867,14 @@ final class Renderer {
         }
         batches.sky = place(count: skyQuads.count, stride: quadStride)
         batches.emissive = place(count: emissiveQuads.count, stride: quadStride)
+        batches.back = place(count: backQuads.count, stride: quadStride)
+        batches.carried = place(count: carriedQuads.count, stride: quadStride)
         batches.lights = place(count: lightQuads.count, stride: MemoryLayout<LightQuad>.stride)
         batches.actors = place(count: actorQuads.count, stride: MemoryLayout<ActorQuad>.stride)
         let length = offset + 256
         let planeTotal = planeQuads.reduce(0) { $0 + $1.count }
-        batches.instances = planeTotal + skyQuads.count + emissiveQuads.count + actorQuads.count
+        batches.instances = planeTotal + skyQuads.count + emissiveQuads.count + backQuads.count + carriedQuads.count
+            + actorQuads.count
 
         slot = (slot + 1) % Renderer.framesInFlight
         if (buffers[slot]?.length ?? 0) < length {
@@ -754,6 +887,8 @@ final class Renderer {
         }
         Renderer.copy(skyQuads, to: contents, at: batches.sky.offset)
         Renderer.copy(emissiveQuads, to: contents, at: batches.emissive.offset)
+        Renderer.copy(backQuads, to: contents, at: batches.back.offset)
+        Renderer.copy(carriedQuads, to: contents, at: batches.carried.offset)
         Renderer.copy(Array(lightQuads), to: contents, at: batches.lights.offset)
         Renderer.copy(actorQuads, to: contents, at: batches.actors.offset)
         return (buffer, batches)
@@ -838,6 +973,15 @@ final class Renderer {
         // the actor stays the lord's.
         let painted = look == .two ? LordCloak.dressed(actor.sprite, PeopleCast.launchCloth) : actor.sprite
         let cell = layout.cell(painted, frame: actor.frame)
+        // b3-smooth (build 3, lane 5b step 1, the critic's M2): a touch rim round a person (`TouchRims.actors`): its
+        // rect is the figure's grown by a game pixel left, right and up, so its texels are the cell grown the same way
+        // (the atlas keeps 2 clear texels round every cell); flags.y < 0 sends it down the actor shader's rim path, in
+        // both looks.
+        if actor.moonRim < 0 {
+            let grown = AtlasCell(x: cell.x - 1, y: cell.y - 1, width: cell.width + 2, height: cell.height + 1)
+            return ActorQuad(rect: actor.rect, texel: grown.texels(flipped: actor.flipped), tint: actor.tint,
+                             flags: SIMD4<Float>(1, TouchRims.actorRim, 0, 0))
+        }
         var rect = actor.rect
         var texel = cell.texels(flipped: actor.flipped)
         // The hall stage (stage lane, fix round 2 of step stage-1): a strip cut off at its bottom (a petitioner sitting
@@ -847,11 +991,15 @@ final class Renderer {
             rect.w -= rect.w * rows / Float(cell.height)
             texel.w -= rows
         }
+        // b3-lantern (build 3, lane 5 step 5): flags.x carries the lantern's dim rule with the emissive mark: 0 lit,
+        // 1 emissive, 2 emissive and never dimmed (`ActorDim.kept`), 3 drawn over the finished picture
+        // (`ActorDim.over`, emissive by its nature). A lit actor is dimmed with the world whatever its rule says.
+        let emissive: Float = actor.dimRule == .over ? 3 : (actor.isEmissive ? (actor.dimRule == .kept ? 2 : 1) : 0)
         guard look == .two else {
             let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
             // b3-horde step 4: a small one's packed cap (`HordeLook.pack`) is a plain cap in look 1
             let cap = HordeLook.unpack(actor.lightCap)?.cap ?? actor.lightCap
-            let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, cap)
+            let flags = SIMD4<Float>(emissive, actor.moonRim, rim, cap)
             return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
         }
         let rim: Float = rimmed.contains(actor.sprite) ? Look2.rim
@@ -859,7 +1007,7 @@ final class Renderer {
         // b3-horde step 4 (the director's laws of 16.11.2026 06:15): look 2 keeps one cap for every figure; only a small
         // one hands its veil and its own cap through w (`HordeLook.pack`, read by `lh_actor2_fragment`).
         let horde: Float = actor.lightCap >= HordeLook.packBase ? actor.lightCap : 0
-        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, horde)
+        let flags = SIMD4<Float>(emissive, actor.moonRim, rim, horde)
         return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
     }
 

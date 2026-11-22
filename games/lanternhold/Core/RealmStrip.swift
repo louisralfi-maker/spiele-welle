@@ -61,6 +61,12 @@ struct RealmStrip: Sendable, Equatable {
     /// for the mornings on which they raise the strip once by themselves (`StripCall`).
     var owingDoors = 0
     var day = 0
+    /// Build 3, lane 5 step 4 (decision 6): the town's banner at the strip's town end (`MoodBanner`): the happiness,
+    /// the people, the mood's trend since the last dawn and the main reason for the slip.
+    var happiness = 0
+    var people = 0
+    var moodTrend = 0
+    var moodReason = MoodBanner.Reason.quiet
 
     /// Where the waiting petitioners and the Stranger are marked.
     static let hallPosition = fraction(Realm.throneX)
@@ -125,6 +131,10 @@ struct RealmStrip: Sendable, Equatable {
                                strangerAtGate: AudienceRules.gate(s, catalog: catalog) != nil)
         strip.owingDoors = doorsOwing(s, balance: balance)
         strip.day = s.day
+        strip.happiness = s.happiness
+        strip.people = s.citizens
+        strip.moodTrend = MoodBanner.trend(happiness: s.happiness, report: s.lastReport)
+        strip.moodReason = MoodBanner.reason(s, balance: balance)
         return strip
     }
 
