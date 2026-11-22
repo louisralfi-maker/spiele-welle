@@ -45,18 +45,30 @@ final class FilmDealsUITests: XCTestCase {
         waitForStill(app, timeout: 4)
         film.pause(0.3)
         if let again = waitForThing(app, "touch-plot-0", timeout: 3) {
+            // LANE-B: B2
+            // Polish B2 (round lh-rb-4): a slow runner outlasted the empty board's 5 s during burst a, so the board
+            // comes up again first; and the taps go to a fixed point of the screen, since the gate's element goes the
+            // moment the gate is paid and a tap resolved on it then failed the whole test.
+            if !film.scene(app).contains("count:touch-plot-0") {
+                touchThing(again)
+                film.wait(6) { film.scene(app).contains(":there") }
+                waitForStill(app, timeout: 4)
+                film.note("m05-b-again", "the board had gone before the burst; brought again: \(film.scene(app))")
+            }
+            let gatePoint = b2Fixed(app, again, CGVector(dx: 0.5, dy: 0.4))
             film.tappingAt("b", app, taps: 9, framesPerTap: 3, after: 20, what: "nine taps on the gate, one coin each "
                            + "(nine hollows): the coins, the last coin, the seal, the counter going",
-                           at: again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)))
+                           at: gatePoint)
             // A tap that did not land: the plain taps finish the count (unfilmed), so the work can be filmed.
             var more = 0
             while more < 9, !film.wait(1.5, { film.scene(app).contains("last:paid:touch-plot-0") }) {
                 more += 1
                 if film.scene(app).contains("count:touch-plot-0") {
-                    again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).tap()
+                    gatePoint.tap()
                 }
             }
             film.note("m05-b-plain-taps", "\(more) plain taps after the burst; scene: \(film.scene(app))")
+            // LANE-B end
         }
         let paid = film.wait(4) { film.scene(app).contains("last:paid:touch-plot-0") }
         film.note("m05-b-state", "paid: \(paid); scene: \(film.scene(app))")
@@ -103,7 +115,7 @@ final class FilmDealsUITests: XCTestCase {
             let lord = film.element(slow, "touch-lord")
             if lord.waitForExistence(timeout: 3) {
                 let toward: CGFloat = again.frame.midX >= lord.frame.midX ? 1 : -1
-                let middle = lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))
+                let middle = b2Fixed(slow, lord, CGVector(dx: 0.5, dy: 0.62))
                 // 1 game px = 2 pt on the runner's iPhone 17 Pro; from the near edge d px toward him is 10 - d px from
                 // his middle toward the board.
                 let near = [4.0, 6.0, 8.0].map { d in
@@ -112,7 +124,7 @@ final class FilmDealsUITests: XCTestCase {
                 b2Tapping(film, "e", slow, framesPerTap: [14, 6, 6, 6], what: "slowed: one tap on the gate, one coin "
                           + "from his hand to its hollow; then three taps on the lord's body 4, 6 and 8 game px toward "
                           + "him from the board's near edge (polish B2, H2: each a coin, the lantern stays down)",
-                          spots: [("the gate", again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)))]
+                          spots: [("the gate", b2Fixed(slow, again, CGVector(dx: 0.5, dy: 0.4)))]
                             + near.map { ("\(Int($0.0)) px from the board's near edge toward the lord", $0.1) })
                 let four = film.wait(8) { film.scene(slow).contains("count:touch-plot-0:4/9") }
                 let value = film.scene(slow)
@@ -152,8 +164,13 @@ final class FilmDealsUITests: XCTestCase {
         waitForStill(calm, timeout: 4)
         film.pause(0.3)
         if let again = waitForThing(calm, "touch-plot-0", timeout: 3) {
+            if !film.scene(calm).contains("count:touch-plot-0") {
+                touchThing(again)
+                film.wait(6) { film.scene(calm).contains(":there") }
+                film.note("m05-g-again", "the board had gone before the burst; brought again: \(film.scene(calm))")
+            }
             b2SlowTaps(film, "g", calm, taps: 4, apart: 2.4, every: 0.3, after: 4.2,
-                       at: again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)))
+                       at: b2Fixed(calm, again, CGVector(dx: 0.5, dy: 0.4)))
             let home = film.wait(6) { film.scene(calm).contains("last:letGo:touch-plot-0") }
             film.note("m05-g-state", "let go after the last tap: \(home); scene: \(film.scene(calm))")
             XCTAssertTrue(home, "m05-g: after the last tap the coins go home")
@@ -164,6 +181,15 @@ final class FilmDealsUITests: XCTestCase {
     }
 
     // LANE-B: B2
+    /// Polish B2: the point `offset` (0 ... 1) of `element` as it stands now, fixed on the world scene's coordinates, so a
+    /// tap there never looks the element up again (it may be gone by then: a paid gate offers nothing).
+    private func b2Fixed(_ app: XCUIApplication, _ element: XCUIElement, _ offset: CGVector) -> XCUICoordinate {
+        let frame = element.frame
+        let scene = app.descendants(matching: .any).matching(identifier: "world-scene").firstMatch
+        return scene.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: frame.minX + frame.width * offset.dx, dy: frame.minY + frame.height * offset.dy))
+    }
+
     /// Polish B2: frame 00, then for each spot a tap there sent without waiting (the plain tap where that path is not
     /// there) and `framesPerTap[i]` frames as fast as they come. The note gives each tap's place and time.
     private func b2Tapping(_ film: FilmReel, _ letter: String, _ app: XCUIApplication, framesPerTap: [Int], what: String,
