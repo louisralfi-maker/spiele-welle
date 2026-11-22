@@ -1,0 +1,93 @@
+2026-11-22 22:31:11.075234+0000 Lanternhold[12933:50390] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-22 22:31:11.939923+0000 Lanternhold[12933:51967] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:31:11.936972+0000 Lanternhold[12933:51962] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:31:11.958474+0000 Lanternhold[12933:51969] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:31:11.958504+0000 Lanternhold[12933:51962] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:31:12.089331+0000 Lanternhold[12933:51969] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-22 22:31:12.089545+0000 Lanternhold[12933:51969] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.GameScreensTests testReplayingTheDayStartsTheCourtAfresh]' passed (0.299 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheBarracksAndTheThrone]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheDawnBringsTheReportAndContinueStartsTheDay]' passed (0.521 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheDefeatCardsTwoWaysOut]' passed (0.111 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheHammerOpensTheBuildCardAndTheOrderGoesThroughTheSimulation]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheHornSendsTheWaitingPetitionersHome]' passed (0.143 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheNeighbourArrowAndClosing]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testThePauseSheetAndTheRestart]' passed (0.237 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testThePauseSheetSoundsTheHornByDay]' passed (0.165 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheSettingsAndTheSecondChanceSurviveARelaunch]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheStripTapAndTheSampleScreens]' passed (0.057 seconds).
+Test Case '-[LanternholdTests.NightOfferModelTests testABubbleClosedBetweenTheTouchesOnlyHearsHimAgain]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.NightOfferModelTests testAnUnheardLineOfHisOwnComesBeforeTheOffer]' passed (0.022 seconds).
+Test Case '-[LanternholdTests.NightOfferModelTests testBrannocksSecondTouchCallsTheNightAndADoubleTapDoesNot]' passed (0.131 seconds).
+Test Case '-[LanternholdTests.NightOfferModelTests testThePauseSheetPlaysTheSameDusk]' passed (0.124 seconds).
+Test Case '-[LanternholdTests.NightOfferModelTests testTheWordHoldsWhileHisLineStandsThoughTheOfferLapsed]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testBrannockCarriesTheMarkWhileTheOfferIsUnheard]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testNoOfferWhileADealWaits]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testNoOfferWhileSomethingCanBePaid]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testNoOfferWhileTheDaysCoinsWaitInTheTown]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testTheCallIsRefusedOutsideTheDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testTheCallPlaysTheDuskInFourSecondsAtSixtyAndTwentyFramesASecond]' passed (0.126 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testTheDuskWaitsWhileTheWorldIsHeldAndTheLordKeepsHisPace]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testTheOfferKeepsItsDays]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testTheOfferKeepsItsHours]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testTheOfferStandsOnDayOneAtElevenWithAnEmptyPurseAndNothingToBuy]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testThePlayedDuskEndsAsANaturalOneWithTheCollectorAndTheBuildersAtWork]' passed (0.785 seconds).
+Test Case '-[LanternholdTests.NightOfferTests testThePlayedDuskEndsExactlyAsADuskThatCameByItself]' passed (0.329 seconds).
+Test Case '-[LanternholdTests.TalkTests testTalkingAgainGoesOnThroughTheLines]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TalkTests testTheButtonOffersTalkingAndThePlaceWinsACloseCall]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TalkTests testTheNearestSpeakerInReachAndNobodyAtNight]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.TalkTests testTheSpeechMarkLeavesOnceTheKingHeardTheHint]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TalkTests testTheThroneOwnsTheDaisWhilePetitionersWait]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testABenchIsOneTarget]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testACancelledHoldOnTheLordAtNightRaisesNothing]' passed (0.063 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testACancelledTouchLeavesNoStaleFinger]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testAHoldOnTheLordAtNightRaisesTheLantern]' passed (0.047 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testALongPressOnTheLordByDayOpensTheLanternMoment]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testAPersonBeforeAWallWins]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testASecondTapMakesHimRun]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testATapOnASiteBringsItsBoardAndNoCard]' passed (0.084 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testATapOnTheGroundWalksHimThereAndADragCallsHimOff]' passed (0.214 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testAtMostFourMarksTheNearestFirstTwoSitesAndOneWall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testATouchOnMareksCartOpensHisCardWhileTheOfferIsOpen]' passed (0.143 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testClosingMareksCardKeepsTheWorldUnderALanternMoment]' passed (0.125 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testEveryTouchAreaIsAtLeast44PointsAtEveryScale]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTenPointsOrLessIsATap]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheAtlasStillFitsOnePage]' passed (2.350 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheErrandSlipFollowsItsThingInEveryFrameOfAWalk]' passed (0.304 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheGermanSlipsFit]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheHallDoorChangesTheStage]' passed (0.165 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheMarksAreDrawnAndTheSpotsPlaced]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheMarksAtNightAreDarkerAndWarm]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheNearerCentreWins]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheNightOffersColdBraziersAndDamagedWalls]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testThePace]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testThePetitionerHasTheFloorAlone]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheSceneValueCarriesTheLordAndTheErrand]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheThroneHoldsTheAudienceAndABenchSpeaks]' passed (0.157 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheWorldOffersSitesTheBarracksAndTheDoorByDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testAKnockBringsAtLeastOneCoin]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testBigHousesHoldMoreTaxpayers]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testDoubleTaxesMakeEveryPaymentOfTheDayCountTwice]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testEachHouseLeftAloneIsWorthOneAndAllOfThemAtMostThree]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TownTests testEveryHouseKnockedOnceIsAboutTheOldHighTaxAndTwiceTheOldWarTax]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testEveryTownTextIsInEnglishAndGermanAndFits]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.TownTests testHowTheHouseholdTossesAndHowManyCoinsFly]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheBotsHabits]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheDawnReportTellsOfYesterday]' passed (0.127 seconds).
+Test Case '-[LanternholdTests.TownTests testTheDawnSplitsTheDaysTaxesOverThePayingPlaces]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheDayEightDawnOpensTheWarLevyWithAndWithoutTheRefusal]' passed (0.664 seconds).
+Test Case '-[LanternholdTests.TownTests testTheFirstMorningIsMetOnTheWayToEveryGoalOfDayOne]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.TownTests testTheFirstMorningsCoinsWaitAtTheFirstHouse]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testTheGoldComesOnFootNotAtDawn]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheKnock]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testThePartsAlwaysAddUpToTheDaysTaxes]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.TownTests testTheSplitByLargestRemainder]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.TownTests testTheTownIsSavedAndAnOldSaveLoads]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.TownTests testTheTownsEventsForTheScreen]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheWarLevyIsASecondKnockFromStoryDayEight]' passed (0.529 seconds).
+Test Case '-[LanternholdTests.TownTests testUnrestAtDawnShutsEveryDoor]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testUnrestByDayShutsTheDoorsUntilItLifts]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testWalkingPastADoorCollects]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testWhatNobodyCameForByTheHornThePeopleKeep]' passed (0.001 seconds).
+exit=0
+screenshots: 0

@@ -1,0 +1,42 @@
+m13-c: the second touch on Brannock calls the night: the dusk in 4.0 s, then the horn; the condition: the horn's banner stands or the hour 19.0
+real time; as fast as the frames come (a rolling burst)
+the cause (the second touch on Brannock calls the night: the dusk in 4.0 s, then the horn; the condition: the horn's banner stands or the hour 19.0) was sent at +0.000 s and returned at +0.166 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +4.744 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 1545
+
+frame  seconds since the burst began  (scene where read)
+01  +0.349 s  
+02  +0.504 s  day:1 hour:12.29 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+03  +0.810 s  
+04  +0.937 s  day:1 hour:13.07 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+05  +1.232 s  
+06  +1.354 s  day:1 hour:13.80 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+07  +1.573 s  
+08  +1.704 s  day:1 hour:14.61 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+09  +1.957 s  
+10  +2.089 s  day:1 hour:15.43 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+11  +2.309 s  
+12  +2.440 s  day:1 hour:15.79 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+13  +2.653 s  
+14  +2.780 s  day:1 hour:16.51 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+15  +2.990 s  
+16  +3.113 s  day:1 hour:17.23 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+17  +3.336 s  
+18  +3.463 s  day:1 hour:17.87 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+19  +3.684 s  
+20  +3.808 s  day:1 hour:18.32 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+21  +4.038 s  
+22  +4.161 s  day:1 hour:18.99 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none
+23  +4.448 s  
+24  +4.598 s  day:1 hour:19.02 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none lantern:ready  <- the condition holds
+25  +4.871 s  
+26  +4.997 s  
+27  +5.129 s  
+28  +5.251 s  
+29  +5.372 s  
+30  +5.501 s  
+31  +5.622 s  
+32  +5.744 s  
+33  +5.868 s  
+34  +5.995 s  day:1 hour:19.14 alive:0 seen:0 shots:0 kx:1525 stage:world lx:1525 gold:9 hud:none cam:1260 tap:touch-talk-brannock count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.171 s over 33 gaps
