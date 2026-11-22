@@ -10,15 +10,34 @@ final class NightOfferTests: XCTestCase {
     private let balance = Balance.standard
 
     /// A realm on `day` at `hour` whose petitioners were heard (as a player's first audience) and whose purse holds
-    /// `gold`; no gift waits.
+    /// `gold`; no gift waits. The first morning's coins were taken (E1 gate, B1: coins waiting in the town hold the
+    /// offer back).
     private func doneDay(day: Int = 1, hour: Double = 11, gold: Int = 9) -> GameState {
         var s = GameState.newRealm(seed: 1, balance: balance)
+        Town.collectAll(&s, balance: balance)
         s.day = day
         s.hour = hour
         PetitionEngine.holdAudience(&s, catalog: .standard, balance: balance)
         s.court?.queue = []
         s.flags.removeAll { $0 == Build.brazierGiftFlag }
         s.gold = gold
+        return s
+    }
+
+    /// E1 gate (B1, M1): the morning of `day` after its dawn (the lord took the first morning's coins on day 1): the
+    /// dawn's ledger owes (four cottages), the collector walks it when `hire`; petitioners heard, 9 gold, no gift.
+    private func dawnDay(day: Int = 2, hour: Double = 9, hire: Bool = false) -> GameState {
+        var s = GameState.newRealm(seed: 1, balance: balance)
+        Town.collectAll(&s, balance: balance)
+        if hire { Town.setCollector(&s, hired: true) }
+        s.day = day
+        s.hour = 6
+        Economy.dawn(&s, fallen: 0, balance: balance)
+        s.hour = hour
+        PetitionEngine.holdAudience(&s, catalog: .standard, balance: balance)
+        s.court?.queue = []
+        s.flags.removeAll { $0 == Build.brazierGiftFlag }
+        s.gold = 9
         return s
     }
 
@@ -80,6 +99,60 @@ final class NightOfferTests: XCTestCase {
         XCTAssertFalse(NightOffer.stands(s, balance: balance), "not while a petitioner waits")
     }
 
+    /// E1 gate (B1, P1): "Nothing more to build today" is false while the day's coins still wait in the town, and the
+    /// horn would let the people keep them; so no offer until they are taken, or the doors are shut (unrest).
+    func testNoOfferWhileTheDaysCoinsWaitInTheTown() throws {
+        // Day 1: the first morning's 16 still wait with the chandler's household.
+        var first = GameState.newRealm(seed: 1, balance: balance)
+        first.hour = 11
+        PetitionEngine.holdAudience(&first, catalog: .standard, balance: balance)
+        first.court?.queue = []
+        first.flags.removeAll { $0 == Build.brazierGiftFlag }
+        first.gold = 9
+        XCTAssertFalse(NightOffer.payable(first, balance: balance), "9 gold in the purse buys nothing")
+        XCTAssertTrue(NightOffer.coinsWait(first, balance: balance), "the first morning's 16 wait")
+        XCTAssertFalse(NightOffer.stands(first, balance: balance), "no offer while the 16 wait")
+        Town.collectAll(&first, balance: balance)
+        first.gold = 9
+        XCTAssertFalse(NightOffer.coinsWait(first, balance: balance))
+        XCTAssertTrue(NightOffer.stands(first, balance: balance), "taken (and spent): the offer stands")
+
+        // Day 2 at 09:00: the dawn's ledger owes and nobody has walked to the town.
+        let owing = dawnDay()
+        XCTAssertGreaterThan(try XCTUnwrap(owing.town?.today).owing, 0, "the dawn's taxes wait at the doors")
+        XCTAssertFalse(NightOffer.payable(owing, balance: balance))
+        XCTAssertTrue(NightOffer.coinsWait(owing, balance: balance))
+        XCTAssertFalse(NightOffer.stands(owing, balance: balance), "day 2, 09:00, the town owes: no offer")
+        var taken = owing
+        Town.collectAll(&taken, balance: balance)
+        taken.gold = 9
+        XCTAssertTrue(NightOffer.stands(taken, balance: balance), "the taxes taken (and spent): the offer stands")
+        var shut = owing
+        shut.happiness = balance.unrestBelow - 1
+        XCTAssertFalse(NightOffer.coinsWait(shut, balance: balance), "unrest: the doors are shut, nobody pays")
+        XCTAssertTrue(NightOffer.stands(shut, balance: balance))
+        var horned = owing
+        Town.horn(&horned, balance: balance)
+        XCTAssertFalse(NightOffer.coinsWait(horned, balance: balance), "after the horn nothing waits")
+
+        // The collector: no offer while his doors owe, nor while he walks home with his box.
+        var walking = dawnDay(hire: true)
+        XCTAssertEqual(walking.town?.today?.collectorOut, true, "he walks today")
+        XCTAssertFalse(NightOffer.stands(walking, balance: balance), "his doors still owe")
+        var day = try XCTUnwrap(walking.town?.today)
+        for index in day.places.indices where day.places[index].owes {
+            day.places[index].collected = true
+            day.places[index].collectorGold = day.places[index].owed
+        }
+        walking.town?.today = day
+        XCTAssertTrue(Town.waiting(walking, balance: balance).isEmpty, "every door paid him")
+        XCTAssertTrue(NightOffer.coinsWait(walking, balance: balance), "his box is on its way home")
+        XCTAssertFalse(NightOffer.stands(walking, balance: balance))
+        Town.bringCollectorBack(&walking, balance: balance)
+        walking.gold = 9
+        XCTAssertTrue(NightOffer.stands(walking, balance: balance), "he is back (the purse spent): the offer stands")
+    }
+
     func testBrannockCarriesTheMarkWhileTheOfferIsUnheard() throws {
         let figure = try brannock()
         let s = doneDay()
@@ -89,6 +162,10 @@ final class NightOfferTests: XCTestCase {
         }
         XCTAssertEqual(mark(s, ["brannock"]), true, "heard today, but the offer is new: marked")
         XCTAssertEqual(mark(s, ["brannock", NightOffer.heardKey]), false, "the offer heard: the mark goes")
+        // E1 gate (P3): an answer line of his own still unheard keeps the mark after the offer was heard; his own line
+        // comes first (`GameModel.nightOfferTakesTouch`), the offer after it.
+        XCTAssertEqual(mark(s, [NightOffer.heardKey]), true, "his own line still unheard: the mark stays for it")
+        XCTAssertEqual(mark(dawnDay(), ["brannock"]), false, "coins wait in the town: no offer, no mark")
         XCTAssertEqual(mark(doneDay(gold: 200), ["brannock"]), false, "something to buy: no offer, no mark")
         XCTAssertEqual(mark(doneDay(day: 4), ["brannock"]), false, "day 4: no offer")
     }
@@ -116,7 +193,7 @@ final class NightOfferTests: XCTestCase {
                 if !heard { XCTAssertLessThan(driver.state.hour, 19, "no horn before its time (dt \(dt))") }
             }
             XCTAssertTrue(heard, "the horn (dt \(dt))")
-            XCTAssertEqual(t, SimDriver.duskSeconds, accuracy: dt + 0.03, "the dusk takes 4.0 s (dt \(dt))")
+            XCTAssertEqual(t, 4.0, accuracy: dt + 0.03, "the dusk takes 4.0 s (dt \(dt))")
             // The time of day runs linearly over the dusk (law 1): halfway through the quick part, half the hours.
             let ramp = SimDriver.duskSeconds - SimDriver.duskLastMinute
             let expected = 11 + (SimDriver.hornCallHour - 11) * (1.9 / ramp)
@@ -128,8 +205,39 @@ final class NightOfferTests: XCTestCase {
     }
 
     func testThePlayedDuskEndsExactlyAsADuskThatCameByItself() throws {
+        try assertTheSameEnd(doneDay(), "day 1, 11:00")
+    }
+
+    /// E1 gate (M1): the same comparison on a day that works during the dusk: day 2 from 06:15 with the dawn's ledger
+    /// owing, the collector hired and out on his round, a brazier ordered at the call.
+    func testThePlayedDuskEndsAsANaturalOneWithTheCollectorAndTheBuildersAtWork() throws {
+        var start = dawnDay(hour: 6.25, hire: true)
+        start.gold = 200
+        let plot = try XCTUnwrap(Realm.brazierPlots.first { plot in
+            plot < start.plots.count && start.isUnlocked(plot: plot)
+                && Build.options(start, plot: plot, balance: balance).contains { $0.item == .brazier }
+        }, "a brazier plot that offers a brazier")
+        var ignored: [SimEvent] = []
+        _ = Build.order(&start, plot: plot, item: .brazier, balance: balance, events: &ignored)
+        XCTAssertNotNil(start.plots[plot].job, "a brazier ordered at the call")
+        start.gold = 9
+        XCTAssertGreaterThan(try XCTUnwrap(start.town?.today).owing, 0, "the dawn's ledger owes")
+        let ends = try assertTheSameEnd(start, "day 2, 06:15, collector and builders")
+        for end in ends {
+            XCTAssertNotEqual(end.plots[plot], start.plots[plot], "the builders worked during the day")
+            let day = try XCTUnwrap(end.town?.today)
+            XCTAssertEqual(day.collectorBack, true, "the collector came home")
+            XCTAssertGreaterThan(day.collectorBox, 0, "he walked his round and took the doors' coins")
+            XCTAssertTrue(day.closed, "the horn closed the ledger")
+        }
+    }
+
+    /// Plays `start` to the horn twice, once by itself and once called (dt 1/60 and 1/20), and compares both realms
+    /// a second past the horn. Returns the played ends.
+    @discardableResult
+    private func assertTheSameEnd(_ start: GameState, _ label: String) throws -> [GameState] {
+        var ends: [GameState] = []
         for dt in [1.0 / 60, 1.0 / 20] {
-            let start = doneDay()
             var natural = SimDriver(state: start, balance: balance)
             var played = SimDriver(state: start, balance: balance)
             var events: [SimEvent] = []
@@ -139,7 +247,7 @@ final class NightOfferTests: XCTestCase {
                 events.removeAll(keepingCapacity: true)
                 natural.advance(by: 1.0 / 60, events: &events)
             }
-            XCTAssertTrue(horn(events), "the natural horn")
+            XCTAssertTrue(horn(events), "the natural horn (\(label))")
             XCTAssertTrue(played.callTheNight())
             events.removeAll()
             guardSteps = 0
@@ -149,7 +257,7 @@ final class NightOfferTests: XCTestCase {
                 played.advance(by: dt, events: &events)
                 played.playDusk(seconds: dt, events: &events)
             }
-            XCTAssertTrue(horn(events), "the played horn (dt \(dt))")
+            XCTAssertTrue(horn(events), "the played horn (\(label), dt \(dt))")
             // The same number of the same 1/60 s steps: both realms at one step a second past the horn.
             let target = max(natural.steps, played.steps) + 60
             for index in 0..<2 {
@@ -171,14 +279,19 @@ final class NightOfferTests: XCTestCase {
             XCTAssertEqual(played.state.town, natural.state.town, "the same collector and town (dt \(dt))")
             XCTAssertEqual(played.state.plots, natural.state.plots, "the builders did the same work (dt \(dt))")
             XCTAssertEqual(played.state.records, natural.state.records)
-            XCTAssertEqual(played.state, natural.state, "the whole realm (dt \(dt))")
+            XCTAssertEqual(played.state, natural.state, "the whole realm (\(label), dt \(dt))")
             // The same save: the dawn the save writes, and back from its bytes.
             XCTAssertEqual(played.dawnSnapshot, natural.dawnSnapshot)
             XCTAssertEqual(played.dawnRing.dawns, natural.dawnRing.dawns)
             let data = try SaveGame(state: played.dawnSnapshot, dawns: played.dawnRing).encoded()
-            guard case .loaded(let loaded) = SaveGame.decode(data) else { return XCTFail("save") }
+            guard case .loaded(let loaded) = SaveGame.decode(data) else {
+                XCTFail("save (\(label))")
+                return ends
+            }
             XCTAssertEqual(loaded.state, natural.dawnSnapshot)
+            ends.append(played.state)
         }
+        return ends
     }
 
     func testTheDuskWaitsWhileTheWorldIsHeldAndTheLordKeepsHisPace() {
@@ -268,7 +381,7 @@ final class NightOfferModelTests: XCTestCase {
             seconds += 1.0 / 60
         }
         XCTAssertEqual(game.hornNight, 1, "the horn")
-        XCTAssertEqual(seconds, SimDriver.duskSeconds, accuracy: 0.06, "4.0 s from the word")
+        XCTAssertEqual(seconds, 4.0, accuracy: 0.06, "4.0 s from the word")
         XCTAssertNil(game.duskShare)
     }
 
@@ -281,6 +394,35 @@ final class NightOfferModelTests: XCTestCase {
         game.talk(to: "brannock")
         XCTAssertFalse(game.driver?.playsDusk ?? true, "after a closed bubble the touch says the line again")
         XCTAssertEqual(game.talkBubble?.textKey, NightOffer.lineKey)
+    }
+
+    /// E1 gate (P3): an answer line of his own, still unheard today (his talk mark's reason), is said first; the next
+    /// touch brings the offer, and only a touch after that is the word.
+    func testAnUnheardLineOfHisOwnComesBeforeTheOffer() throws {
+        let game = doneDay()
+        XCTAssertTrue(game.nightOfferStands)
+        game.touch.hinted.insert(NightOffer.speaker)
+        game.talk(to: "brannock")
+        XCTAssertNotNil(game.talkBubble, "he speaks")
+        XCTAssertNotEqual(game.talkBubble?.textKey, NightOffer.lineKey, "his own line first")
+        for _ in 0..<4 { game.advance(by: 0.25) }
+        game.talk(to: "brannock")
+        XCTAssertFalse(game.driver?.playsDusk ?? true, "the touch after his own line is not the word")
+        XCTAssertEqual(game.talkBubble?.textKey, NightOffer.lineKey, "the next touch brings the offer")
+    }
+
+    /// E1 gate (M3, P8): once his line stands, the word is honoured while the night can be called, even if the offer
+    /// lapsed meanwhile (here a purse that can pay again; 17:30 passing is the same case).
+    func testTheWordHoldsWhileHisLineStandsThoughTheOfferLapsed() throws {
+        let game = doneDay()
+        game.talk(to: "brannock")
+        XCTAssertEqual(game.talkBubble?.textKey, NightOffer.lineKey)
+        for _ in 0..<3 { game.advance(by: 0.25) }
+        _ = game.withDriver { $0.state.gold = 200 }
+        XCTAssertFalse(game.nightOfferStands, "the offer lapsed: something can be paid")
+        XCTAssertEqual(game.talkBubble?.textKey, NightOffer.lineKey, "his line still stands")
+        game.talk(to: "brannock")
+        XCTAssertTrue(game.driver?.playsDusk ?? false, "his line promised it: the touch is the word")
     }
 
     func testThePauseSheetPlaysTheSameDusk() throws {
@@ -298,6 +440,6 @@ final class NightOfferModelTests: XCTestCase {
             seconds += 1.0 / 60
         }
         XCTAssertEqual(game.hornNight, 1)
-        XCTAssertEqual(seconds, SimDriver.duskSeconds, accuracy: 0.06, "the same 4.0 s")
+        XCTAssertEqual(seconds, 4.0, accuracy: 0.06, "the same 4.0 s")
     }
 }
