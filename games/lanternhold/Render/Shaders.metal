@@ -787,6 +787,14 @@ static float lh_lantern_dim(PlaneCoords c, constant CompositeUniforms &u) {
     return kLanternLevels[4] * strength;
 }
 
+// Whether a pixel of a fading `ActorDim.over` sign at opacity `alpha` is left out: a 2 x 2 ordered dither on the world's
+// grid, so one game pixel is whole or gone and the picture behind it stays as it was drawn.
+static inline bool lh_over_thinned(PlaneCoords c, constant CompositeUniforms &u, float alpha) {
+    int x = int(u.target.w) + int(c.world.x);
+    int y = int(u.target.z) - 1 - int(c.row);
+    return alpha < kLanternOrder[(y & 1) * 2 + (x & 1)];
+}
+
 // A colour under the lantern's dim `d`.
 static inline float3 lh_lantern_dark(float3 color, float d) {
     return mix(color, kLanternInk, d);
@@ -988,18 +996,13 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     PlaneCoords c = lh_coords(p, u);
     PixelLight info = lh_pixel_light(c, u, lightTex);
     // b3-lantern (build 3, lane 5 step 5): drawn over the finished picture, after the grade and the lantern's dim, in
-    // its own colours (`ActorDim.over`: the moment's row, the hint's glint, the raise's flare); while it fades it lies
-    // over the picture behind it.
+    // its own colours (`ActorDim.over`: the moment's row, the hint's glint, the raise's flare); while it fades it thins
+    // in a 2 x 2 ordered dither on the world's grid and keeps whatever was drawn behind it (a person under the row).
     if (in.flags.x > 2.5f) {
-        float3 over = texel.rgb * in.tint.rgb;
-        if (in.tint.a < 0.999f) {
-            float overMid = 0.0f;
-            float3 under = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex,
-                                   overMid);
-            under = lh_top(under, c, info, u, fogBTex, fgTex, bloomTex, overMid);
-            over = mix(lh_lantern_world(under, c, u, emissiveTex), over, saturate(in.tint.a));
+        if (in.tint.a < 0.999f && lh_over_thinned(c, u, in.tint.a)) {
+            discard_fragment();
         }
-        return float4(saturate(over), 1.0f);
+        return float4(saturate(texel.rgb * in.tint.rgb), 1.0f);
     }
     // The stack behind the actor matters only where it shows through (the probe's translucent creatures); every game
     // actor is opaque, so the composite of the planes behind it is skipped (the A12's GPU budget, M2b review).
@@ -1709,17 +1712,13 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     float midVisible = 0.0f;
     float fogCover = 0.0f;
     // b3-lantern (build 3, lane 5 step 5): drawn over the finished picture, after the grade and the lantern's dim, in
-    // its own colours (`ActorDim.over`: the moment's row, the hint's glint, the raise's flare); while it fades it lies
-    // over the picture behind it.
+    // its own colours (`ActorDim.over`: the moment's row, the hint's glint, the raise's flare); while it fades it thins
+    // in a 2 x 2 ordered dither on the world's grid and keeps whatever was drawn behind it (a person under the row).
     if (in.flags.x > 2.5f) {
-        float3 over = texel.rgb * in.tint.rgb;
-        if (in.tint.a < 0.999f) {
-            float3 under = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex,
-                                    fogATex, worldTex, emissiveTex, midVisible, fogCover, backTex, carriedTex);
-            under = lh2_top(under, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
-            over = mix(lh_lantern_world(under, c, u, emissiveTex), over, saturate(in.tint.a));
+        if (in.tint.a < 0.999f && lh_over_thinned(c, u, in.tint.a)) {
+            discard_fragment();
         }
-        return float4(saturate(over), 1.0f);
+        return float4(saturate(texel.rgb * in.tint.rgb), 1.0f);
     }
     float3 base = float3(0.0f);
     if (in.tint.a < 0.999f) {
