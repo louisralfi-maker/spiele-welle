@@ -208,4 +208,46 @@ final class CountHandTests: XCTestCase {
         XCTAssertNil(game.lanternMoment)
         XCTAssertEqual(game.driver?.state.gold, 50 - Balance.standard.patchCost, "paid once")
     }
+
+    /// H9: at the warning the rocking coin sinks back into the lord's hand (drawn on the coins' way home, then gone)
+    /// with one soft tick of `countWarnTick` through the hub; under Reduce Motion it is gone at once (a plain swap) and
+    /// the tick stays.
+    func testTheWarningSinksTheRockingCoinUnderReduceMotionASwap() throws {
+        for still in [false, true] {
+            var values = ["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+                          "GWGold": "200"]
+            if still { values["GWReduceMotion"] = "YES" }
+            let game = model(values)
+            let hub = SilentFeedback()
+            game.feedback = hub
+            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            _ = try atTheBoard(game)
+            var count = try XCTUnwrap(game.touch.count)
+            count.tap()
+            game.touch.count = count
+            run(game, seconds: 1)
+            XCTAssertEqual(game.touch.count?.placed, 1, "still \(still): one coin laid")
+            func coins() throws -> Int {
+                let state = try XCTUnwrap(game.driver?.state)
+                let framing = try XCTUnwrap(game.touch.framing)
+                var layer = EntityLayer()
+                game.countWorld(&layer, state: state, framing: framing)
+                return layer.actors.filter { $0.sprite == .hudCoinTen }.count
+            }
+            let rocking = try coins()
+            XCTAssertGreaterThanOrEqual(rocking, 1, "still \(still): the next coin rocks over its hollow")
+            XCTAssertFalse(hub.ticks.contains(GameModel.countWarnTick), "still \(still): no warning yet")
+            run(game, seconds: 3) { game.touch.count?.sinkShare != nil }
+            XCTAssertNotNil(game.touch.count?.sinkShare, "still \(still): the warning")
+            XCTAssertEqual(game.touch.count?.isOpen, true)
+            XCTAssertTrue(game.countWord.contains(":there:warned"), game.countWord)
+            XCTAssertEqual(hub.ticks.filter { $0 == GameModel.countWarnTick }.count, 1, "still \(still): one soft tick")
+            XCTAssertEqual(try coins(), still ? rocking - 1 : rocking,
+                           still ? "Reduce Motion: the rocking coin is gone at once" : "the coin on its way home")
+            run(game, seconds: PayCount.sinkSeconds + 0.1)
+            XCTAssertEqual(game.touch.count?.sinkShare ?? 0, 1, accuracy: 1e-9)
+            XCTAssertEqual(try coins(), rocking - 1, "still \(still): in his hand, gone from the board")
+            XCTAssertEqual(game.touch.count?.placed, 1, "still \(still): the laid coin stays until 3.0 s")
+        }
+    }
 }
