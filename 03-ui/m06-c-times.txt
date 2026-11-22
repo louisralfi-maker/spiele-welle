@@ -1,0 +1,23 @@
+m06-c: counsel: Odile's line comes
+real time; as fast as the frames come
+the tap was sent without waiting at +0.465 s (point 361.0, 336.8; interface orientation 3 (the app's)); the runner answered at +0.760 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+scene after: frame:1970 ready day:3 hour:12.89 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.745 s  
+02  +1.059 s  
+03  +1.394 s  
+04  +1.698 s  
+05  +2.090 s  
+06  +2.447 s  
+07  +2.850 s  
+08  +3.234 s  
+09  +3.559 s  
+10  +3.822 s  
+11  +4.207 s  
+12  +4.503 s  
+13  +4.769 s  
+14  +5.005 s  
+mean spacing 0.328 s over 13 gaps

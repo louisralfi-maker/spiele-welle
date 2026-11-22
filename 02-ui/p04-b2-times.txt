@@ -1,0 +1,17 @@
+p04-b2: Resume: the sheet goes (0.15 s ease-in, in place)
+real time; as fast as the frames come
+the tap was sent without waiting at +1.097 s (point 289.7, 340.5; interface orientation 3 (the app's)); the runner answered at +1.391 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWWeather clear
+scene after: frame:1830 ready day:2 hour:11.29 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:strip cam:1128 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +1.444 s  
+02  +1.796 s  
+03  +2.144 s  
+04  +2.408 s  
+05  +2.772 s  
+06  +3.497 s  
+07  +3.794 s  
+08  +4.075 s  
+mean spacing 0.376 s over 7 gaps

@@ -1,0 +1,25 @@
+m06-f: leave: the slide goes, the hall again
+real time; as fast as the frames come
+the tap was sent without waiting at +0.452 s (point 50.0, 776.0; interface orientation 3 (the app's)); the runner answered at +0.734 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+scene after: frame:2930 ready day:3 hour:13.17 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.738 s  
+02  +1.037 s  
+03  +1.248 s  
+04  +1.463 s  
+05  +1.745 s  
+06  +1.994 s  
+07  +2.189 s  
+08  +2.379 s  
+09  +2.546 s  
+10  +2.777 s  
+11  +2.956 s  
+12  +3.175 s  
+13  +3.379 s  
+14  +3.584 s  
+15  +3.838 s  
+16  +4.031 s  
+mean spacing 0.220 s over 15 gaps
