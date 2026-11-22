@@ -1323,3 +1323,12 @@ schneller geht."
     - the red notes sign fades in the clean frame;
     - one unused member goes.
   - One Opus agent does this as step 5b (round lh-b3l-43 with the whole unit suite). Usage 16 % all models, 8 % Fable.
+
+- **Lane 5: the lantern's fix step 5b is green and pushed; the lantern lane is closed for build 3 (22.11.2026, 10:20).**
+  - `claude/lh-b3-lantern` 2c727f29, round lh-b3l-43 ALL PASSED with the whole unit suite.
+  - The count beside the banner stands in single ink edges again (ruling M1); the strip's red call tag is its own
+    layer and fades with the banner and the gear while a finger holds the map; proof frames show the glint's 7 px
+    peak and the flare with its four rays. Ruling on those frames: no further halo step.
+  - For the join: the lantern's head is 2c727f29; tagged `// b3-lantern` blocks in Core/RealmMapPixels.swift are
+    accepted; the unused `LanternFlare.band` goes in the join's tidy.
+  - Still running: the drill yard's polish (step 4). Then the wave 2 join and a TestFlight round.
