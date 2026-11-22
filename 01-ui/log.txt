@@ -1,0 +1,12 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FilmDealsUITests.swift:132: error: -[LanternholdUITests.FilmDealsUITests testM05APurchase] : XCTAssertTrue failed - m05-e: the three near taps set three coins: day:3 hour:10.57 alive:0 seen:0 shots:0 kx:1260 stage:world lx:1260 gold:200 hud:moment cam:1106 tap:moment count:none last:letGo:touch-plot-0 lanterns:0 yard:none drill:none
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FilmDealsUITests.swift:133: error: -[LanternholdUITests.FilmDealsUITests testM05APurchase] : XCTAssertFalse failed - m05-e: no purse, strip or gear
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FilmDealsUITests.swift:134: error: -[LanternholdUITests.FilmDealsUITests testM05APurchase] : XCTAssertTrue failed - m05-e: the count stays open
+Test Case '-[LanternholdUITests.FilmDealsUITests testM05APurchase]' failed (196.518 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM06TheHall]' passed (138.595 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM07TheTaxesOnFoot]' passed (85.276 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM11TheDrillYard]' passed (137.213 seconds).
+Test Suite 'FilmDealsUITests' failed at 2026-11-22 22:01:42.467.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-22 22:01:42.470.
+Test Suite 'Selected tests' failed at 2026-11-22 22:01:42.471.
+exit=65
+screenshots: 768

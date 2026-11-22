@@ -1,0 +1,1 @@
+0 plain taps after the burst; scene: frame:1380 ready day:3 hour:12.42 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1371 lord:lord stage:world lx:1371 errand:none door:1830 gold:110 hud:none cam:1145 tap:ground hint:off0 count:none last:paid:touch-plot-0 lanterns:1 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none

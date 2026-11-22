@@ -1,0 +1,44 @@
+m05-e: slowed: one tap on the gate, one coin from his hand to its hollow; then three taps on the lord's body 4, 6 and 8 game px toward him from the board's near edge (polish B2, H2: each a coin, the lantern stays down)
+slowed: -GWTimeScale 0.25
+tap 1 at +0.351 s on the gate: sent without waiting (point 124.0, 507.7; interface orientation 3 (the app's))
+tap 2 at +4.522 s on 4 px from the board's near edge toward the lord: sent without waiting (point 74.8, 319.3; interface orientation 3 (the app's))
+tap 3 at +7.365 s on 6 px from the board's near edge toward the lord: sent without waiting (point 74.8, 315.3; interface orientation 3 (the app's))
+tap 4 at +10.291 s on 8 px from the board's near edge toward the lord: sent without waiting (point 74.8, 311.3; interface orientation 3 (the app's))
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200 -GWTimeScale 0.25
+scene before: frame:830 ready day:3 hour:10.40 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:none cam:1106 tap:touch-plot-0 hint:off0 count:touch-plot-0:0/9:there last:letGo:touch-plot-0 lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:1380 ready day:3 hour:10.57 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:moment cam:1106 tap:moment hint:off0 count:none last:letGo:touch-plot-0 lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the first tap
+01  +0.990 s  first frame after tap 1
+02  +1.223 s  
+03  +1.545 s  
+04  +1.767 s  
+05  +2.067 s  
+06  +2.293 s  
+07  +2.606 s  
+08  +2.866 s  
+09  +3.147 s  
+10  +3.350 s  
+11  +3.635 s  
+12  +3.898 s  
+13  +4.180 s  
+14  +4.522 s  
+15  +5.944 s  first frame after tap 2
+16  +6.187 s  
+17  +6.472 s  
+18  +6.787 s  
+19  +7.100 s  
+20  +7.365 s  
+21  +8.576 s  first frame after tap 3
+22  +8.956 s  
+23  +9.269 s  
+24  +9.607 s  
+25  +9.942 s  
+26  +10.291 s  
+27  +12.031 s  first frame after tap 4
+28  +12.781 s  
+29  +13.088 s  
+30  +13.557 s  
+31  +13.769 s  
+32  +14.164 s  
