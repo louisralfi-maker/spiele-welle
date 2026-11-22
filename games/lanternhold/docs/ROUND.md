@@ -170,7 +170,11 @@ Where two laws touch, the numbers below are the agreed ones. Reduce Motion (RM) 
 2. At every moment one thing in view says "next" (the mark of the day: drawn first, pool x 1.4); one person with an
    unheard line says "why".
 3. Never more than 20 s of real time without a deed or a coming threat. When the day is done, the world offers its
-   end: Brannock and the horn (days 1-3, 09:00-17:30), the dusk played in 4.0 s (RM: a 0.6 s cross-fade).
+   end: Brannock and the horn (days 1-3, 09:00-17:30), the dusk played in 4.0 s.
+   The director's calls after step E1 (22.11.): the called dusk eases out (it runs fast through the afternoon and slow
+   into the horn, so the sky answers the touch within a second); under Reduce Motion the 4.0 s stay, since it is time
+   passing, shown by the world, with no shake and no flare; the 4.0 s hold from any hour (no cap on the pace); the
+   offer is a standing offer, so Brannock keeps his mark until the night is called.
 4. What is bought appears at once (dust, settle; a recruit at the head of the file at +0.8 s after the seal) and acts
    in plain sight the first night.
 5. Every night leaves a trace the next day: rubble, a gap in the file, the hearth's row in wax red.

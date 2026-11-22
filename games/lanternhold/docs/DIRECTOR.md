@@ -1421,3 +1421,9 @@ schneller geht."
     further half of the hearing distance, and one touch gives one tick (a pane cue right after a plaque press has no
     haptic; the old card cues go quiet in the hub). Steps C1 (one pane family) and D1 (the night's weight for the ear)
     went out from 696eec4a. Nothing of the sound path has been heard on a phone yet.
+
+  - Step E1 is in the join branch (22.11., 23:55): `claude/lh-round` 8c88e44d = 0a + 0b + E1 (round lh-rnd-8 green).
+    Brannock offers the horn when the day is done (days 1-3, 09:00-17:30, nothing payable, no deal, no coins waiting
+    in the town); a second touch calls the night; the dusk plays in 4.0 s; the pause sheet takes the same road. The
+    director's calls after it are in ROUND.md's law 3 point 3 (the dusk eases out, the offer keeps its mark). Step E1b
+    went out from 8c88e44d: the far goal said twice (Louis' answer 4), the standing mark, the eased dusk.
