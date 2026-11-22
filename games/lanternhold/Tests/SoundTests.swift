@@ -203,6 +203,13 @@ final class SoundTests: XCTestCase {
         s.plots[0].hp = full * 0.4
         XCTAssertEqual(watch.cues(s, balance: .standard, moving: false).map { $0.cue }, [.wallHit],
                        "once a wall and night")
+        // D1 gate M3: a replayed night (the same day, `reset`) cracks the wall again.
+        watch.reset()
+        s.plots[0].hp = full * 0.8
+        XCTAssertTrue(watch.cues(s, balance: .standard, moving: false).isEmpty, "after a reset the frame only primes")
+        s.plots[0].hp = full * 0.4
+        XCTAssertEqual(watch.cues(s, balance: .standard, moving: false).map { $0.cue }, [.wallHit, .wallCracked],
+                       "a replayed night cracks again")
         s.day += 1
         s.plots[0].hp = full
         _ = watch.cues(s, balance: .standard, moving: false)
