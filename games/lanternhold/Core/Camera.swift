@@ -381,10 +381,13 @@ struct LookAround: Sendable, Equatable {
 /// `-GWLookAround <dx>[:<slow>]` (build 3, lane 5; the look-around's pictures, read only in a Debug build): each time
 /// the lantern moment opens on the world the view stands slid `dx` game px east (0: not slid), and the glide home takes
 /// `slow` times its length (1 ... 40), so a strip of frames can follow it. `dx` may start with `e` (east) or `w` (west):
-/// a launch argument that starts with a minus could be read as a key, so `w2000` slides 2000 px west.
+/// a launch argument that starts with a minus could be read as a key, so `w2000` slides 2000 px west. Step 5: a third
+/// part `hold<s>` (0.5 ... 30) has a finger hold the slid view for that many seconds of real time before it lets go,
+/// so the look-around's clean frame can be pictured (`e99999:4:hold4`).
 struct LookAroundDebug: Sendable, Equatable {
     var pan: Double
     var slow: Double
+    var hold: Double? = nil
 
     static func parse(_ text: String?) -> LookAroundDebug? {
         guard let trimmed = text?.trimmingCharacters(in: .whitespaces), !trimmed.isEmpty else { return nil }
@@ -404,6 +407,13 @@ struct LookAroundDebug: Sendable, Equatable {
             guard let value = Double(parts[1]), value.isFinite else { return nil }
             slow = min(40, max(1, value))
         }
-        return LookAroundDebug(pan: sign * pan, slow: slow)
+        var hold: Double?
+        if parts.count > 2 {
+            guard parts[2].hasPrefix("hold"), let value = Double(parts[2].dropFirst(4)), value.isFinite else {
+                return nil
+            }
+            hold = min(30, max(0.5, value))
+        }
+        return LookAroundDebug(pan: sign * pan, slow: slow, hold: hold)
     }
 }

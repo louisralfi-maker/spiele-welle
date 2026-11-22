@@ -84,6 +84,11 @@ extension GameModel {
         if let look = DebugArgs.lookAround, stage == .world, let view = camera {
             touch.look.glideScale = look.slow
             if look.pan != 0 { touch.look.place(look.pan, range: view.panRange) }
+            // Step 5 (`:hold<s>`): a finger holds the slid view that long, then lets go (the clean frame's pictures).
+            if let hold = look.hold, touch.look.pan != 0 {
+                touch.look.grab(travel: 0)
+                touch.lookHoldUntil = clock.elapsed + hold
+            }
         }
         #endif
         stripCalling = false
@@ -130,6 +135,8 @@ extension GameModel {
     func grabLookAround(translation: CGSize, in size: CGSize) {
         touch.panning = true
         touch.look.grab(travel: lookTravel(translation, in: size))
+        // Step 5 (the clean frame): the town banner's slip shuts when the pan starts.
+        MoodSlip.shared.close()
     }
 
     /// The finger moved: the realm slides with it, one to one, inside the world.
@@ -148,6 +155,13 @@ extension GameModel {
     /// slid after the lantern went down another way (a card, the gear, the strip, the hall) goes home: at once under a
     /// card or out of the world, else gliding.
     func stepLookAround(_ seconds: Double) {
+        #if DEBUG
+        // b3-lantern step 5: the Debug finger of `-GWLookAround <dx>:<slow>:hold<s>` lets go.
+        if let until = touch.lookHoldUntil, clock.elapsed >= until || lanternMoment == nil {
+            touch.lookHoldUntil = nil
+            if touch.look.isHeld && !touch.panning { touch.look.release(reduceMotion: reduceMotion) }
+        }
+        #endif
         if !canLookAround, touch.look.pan != 0 || touch.look.isHeld {
             touch.panning = false
             if overlay != nil || stage != .world {
@@ -157,9 +171,13 @@ extension GameModel {
             }
         }
         touch.look.step(seconds)
-        // Build 3, lane 5 step 5: the lantern's own light comes and goes with the moment (`LanternVeil`), on the game's
-        // time (`-GWTimeScale` slows it for its pictures; 1 in a Release build).
-        touch.veil.step(seconds * args.timeScale, raised: lanternMoment != nil, reduceMotion: reduceMotion)
+        // Build 3, lane 5 step 5: the lantern's own light comes and goes with the moment, and a held pan makes the
+        // frame clean (`LanternVeil`), on the game's time (`-GWTimeScale` slows them for their pictures; 1 in a Release
+        // build). The SwiftUI signs read the clean frame from `MomentFade`.
+        touch.veil.step(seconds * args.timeScale, raised: lanternMoment != nil, held: touch.look.isHeld,
+                        pan: touch.look.pan, reduceMotion: reduceMotion,
+                        voiceOver: UIAccessibility.isVoiceOverRunning)
+        MomentFade.shared.set(touch.veil.clean)
     }
 
     // MARK: - The lantern's own light (build 3, lane 5 step 5)
@@ -277,8 +295,10 @@ extension GameModel {
         // Build 3, lane 5 step 4 (the step 2b critic's H1): while the lantern is up the moment's block (the purse and
         // the day line) is drawn here, in the world's own frame, as the walking row is; it rides the look-around's pan
         // with the world and never trails it.
+        // Step 5 (the clean frame): it fades while a finger holds the look-around's pan (`LanternVeil.signs`).
         if let show = lanternMoment, let blockX = show.blockX {
-            layer.actors += HUDKitActors.moment(show.block, left: blockX, groundLift: 0, framing: framing)
+            layer.actors += HUDKitActors.moment(show.block, left: blockX, groundLift: 0, framing: framing,
+                                                alpha: Float(touch.veil.signs))
         }
         let block = lordNotesBlock
         if !block.pieces.isEmpty {

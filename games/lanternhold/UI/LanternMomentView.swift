@@ -1,4 +1,20 @@
+import Observation
 import SwiftUI
+
+/// Build 3, lane 5 step 5 (the clean frame): how far the moment's own signs in SwiftUI (the town's banner, the gear)
+/// are faded while a finger holds the look-around's pan (`LanternVeil.clean`: 0 whole, 1 gone), set by the model as it
+/// steps. While it is over 0 they take no touch and are no VoiceOver element (with VoiceOver running it stays 0).
+@MainActor
+@Observable
+final class MomentFade {
+    static let shared = MomentFade()
+
+    private(set) var clean = 0.0
+
+    func set(_ value: Double) {
+        if value != clean { clean = value }
+    }
+}
 
 /// The kit's pieces composed into one picture (stage-3-interface): every piece cut from the atlas at its place, on whole
 /// game pixels; the last block is kept.
@@ -48,17 +64,23 @@ struct LanternMomentView: View {
     let show: LanternMomentShow
 
     var body: some View {
-        ZStack {
+        // Build 3, lane 5 step 5 (the clean frame): while a finger holds the look-around's pan the town's banner and
+        // the gear fade with the lord's row; the strip and its bracket stay as they are.
+        let clean = MomentFade.shared.clean
+        return ZStack {
             world
             // The strip at the top and the gear in the corner keep inside the safe area (the display's corners).
             if let strip = model.strip {
-                RealmStripView(strip: strip, reduceMotion: model.reduceMotion) { fraction in
+                RealmStripView(strip: strip, reduceMotion: model.reduceMotion, bannerClean: clean) { fraction in
                     model.travelFromLantern(toFraction: fraction)
                 }
                 .padding(.top, 4)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
             GearButton { model.openPauseFromLantern() }
+                .opacity(1 - clean)
+                .allowsHitTesting(clean == 0)
+                .accessibilityHidden(clean > 0)
                 .padding(.top, 2)
                 .padding(.trailing, 4)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)

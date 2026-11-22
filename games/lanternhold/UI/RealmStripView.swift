@@ -31,11 +31,16 @@ struct RealmStripView: View {
 
     let strip: RealmStrip
     let reduceMotion: Bool
+    /// Build 3, lane 5 step 5 (the clean frame): how far the town's banner is faded while a finger holds the
+    /// look-around's pan (`MomentFade`: 0 whole, 1 gone); the strip and its bracket never fade.
+    let bannerClean: Double
     let onTap: @MainActor (Double) -> Void
 
-    init(strip: RealmStrip, reduceMotion: Bool, onTap: @escaping @MainActor (Double) -> Void) {
+    init(strip: RealmStrip, reduceMotion: Bool, bannerClean: Double = 0,
+         onTap: @escaping @MainActor (Double) -> Void) {
         self.strip = strip
         self.reduceMotion = reduceMotion
+        self.bannerClean = bannerClean
         self.onTap = onTap
     }
 
@@ -67,6 +72,9 @@ struct RealmStripView: View {
         .overlay(alignment: .topLeading) {
             MoodBannerView(strip: snapshot)
                 .frame(width: RealmStripView.width, height: MoodBannerView.height, alignment: .topLeading)
+                .opacity(1 - bannerClean)
+                .allowsHitTesting(bannerClean == 0)
+                .accessibilityHidden(bannerClean > 0)
                 .offset(y: RealmStripView.height)
         }
     }

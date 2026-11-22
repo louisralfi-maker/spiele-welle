@@ -121,8 +121,10 @@ struct TouchState: Sendable {
     /// The look-around's view (`LookAround`), and the strip's column of the view's left edge it last showed.
     var look = LookAround()
     var lookColumn = -1
-    /// Build 3, lane 5 step 5: the lantern's own light (`LanternVeil`).
+    /// Build 3, lane 5 step 5: the lantern's own light and the look-around's clean frame (`LanternVeil`), and the
+    /// clock's second the Debug finger of `-GWLookAround <dx>:<slow>:hold<s>` lets go (Debug builds only).
     var veil = LanternVeil()
+    var lookHoldUntil: Double?
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger

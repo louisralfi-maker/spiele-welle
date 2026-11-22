@@ -1104,4 +1104,72 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertEqual(game.touch.veil.dim, 0, "down with it")
         XCTAssertNil(game.lanternDimNow, "no light on the frame once it is gone")
     }
+
+    // MARK: - Lane 5 step 5: the clean frame during the look-around
+
+    /// `LanternVeil.clean` walked by the fixed sim step: below 6 game px of held pan nothing fades; past it the value
+    /// reaches 1 in 0.15 s and the dim lifts to 40 % of its strength; on release it is back at 0 within 0.15 s; Reduce
+    /// Motion jumps; with VoiceOver running nothing fades; the lantern lowered in mid pan clears it at once.
+    func testTheCleanFrameFadesTheMomentsSignsWhileAPanIsHeld() {
+        let step = GameModel.step
+        var veil = LanternVeil()
+        veil.step(1, raised: true, reduceMotion: false)
+        XCTAssertEqual(veil.dim, 1)
+        for _ in 0..<30 { veil.step(step, raised: true, held: true, pan: 6, reduceMotion: false) }
+        XCTAssertEqual(veil.clean, 0, "a pan of 6 px fades nothing")
+        for _ in 0..<30 { veil.step(step, raised: true, held: false, pan: 300, reduceMotion: false) }
+        XCTAssertEqual(veil.clean, 0, "a view slid by no finger fades nothing")
+        veil.step(step, raised: true, held: true, pan: -6.5, reduceMotion: false)
+        XCTAssertEqual(veil.clean, step / LanternVeil.cleanSeconds, accuracy: 1e-9, "past 6 px it starts, both ways")
+        for _ in 1..<9 { veil.step(step, raised: true, held: true, pan: 40, reduceMotion: false) }
+        XCTAssertEqual(veil.clean, 1, "gone in 0.15 s")
+        XCTAssertEqual(veil.signs, 0)
+        XCTAssertEqual(veil.dim, 0.4, accuracy: 1e-9, "the dim lifts to 40 % of its strength")
+        for _ in 0..<9 { veil.step(step, raised: true, held: false, pan: 40, reduceMotion: false) }
+        XCTAssertEqual(veil.clean, 0, "back within 0.15 s of the release, before the 0.35 s glide is home")
+        XCTAssertEqual(veil.dim, 1, "the dim returns")
+        var still = LanternVeil()
+        still.step(step, raised: true, held: true, pan: 50, reduceMotion: true)
+        XCTAssertEqual(still.clean, 1, "Reduce Motion: no fade, a switch")
+        still.step(step, raised: true, held: false, pan: 50, reduceMotion: true)
+        XCTAssertEqual(still.clean, 0)
+        var heard = LanternVeil()
+        for _ in 0..<20 { heard.step(step, raised: true, held: true, pan: 50, reduceMotion: false, voiceOver: true) }
+        XCTAssertEqual(heard.clean, 0, "with VoiceOver running nothing fades")
+        XCTAssertEqual(heard.dim, 1)
+        for _ in 0..<9 { veil.step(step, raised: true, held: true, pan: 40, reduceMotion: false) }
+        XCTAssertEqual(veil.clean, 1)
+        veil.step(step, raised: false, held: true, pan: 40, reduceMotion: false)
+        XCTAssertEqual(veil.clean, 0, "the lantern lowered in mid pan clears it")
+    }
+
+    /// Through the model: a held drag past 6 px shuts the banner's slip, fades the lord's row (its alpha) and the
+    /// SwiftUI signs (`MomentFade`) and lifts the frame's dim to 40 %; the release brings them back within 0.15 s.
+    func testAHeldPanCleansTheFrameAndTheReleaseBringsItBack() throws {
+        let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        MoodSlip.shared.open("You left their doors alone.")
+        let start = CGPoint(x: 600, y: 250)
+        game.touchChanged(start: start, at: start, translation: .zero, in: proPoints)
+        drag(game, from: start, dx: -20)
+        XCTAssertNil(MoodSlip.shared.text, "the slip shuts when the pan starts")
+        drag(game, from: start, dx: -120)
+        run(game, seconds: 0.3)
+        XCTAssertTrue(game.touch.look.isHeld)
+        XCTAssertEqual(game.touch.veil.clean, 1, "a held pan cleans the frame")
+        XCTAssertEqual(MomentFade.shared.clean, 1, "the banner and the gear read it")
+        var frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        game.lanternLight(&frame)
+        XCTAssertEqual(try XCTUnwrap(frame.lanternDim?.strength), 0.4, accuracy: 1e-9, "the dim lifts to 40 %")
+        let faded = try XCTUnwrap(frame.actors.first { $0.sprite == .hudCoin }, "the row's coin")
+        XCTAssertEqual(faded.tint.w, 0, accuracy: 1e-6, "the lord's row is gone")
+        game.touchEnded(at: CGPoint(x: start.x - 120, y: start.y), translation: CGSize(width: -120, height: 0),
+                        in: proPoints)
+        XCTAssertNotNil(game.lanternMoment, "the lantern stays up")
+        run(game, seconds: 0.16)
+        XCTAssertEqual(game.touch.veil.clean, 0, "back within 0.15 s of the release")
+        XCTAssertEqual(MomentFade.shared.clean, 0)
+        let back = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertEqual(try XCTUnwrap(back.actors.first { $0.sprite == .hudCoin }).tint.w, 1, accuracy: 1e-6)
+        XCTAssertNotEqual(try XCTUnwrap(game.camera?.pan), 0, "the glide home is still on its way")
+    }
 }

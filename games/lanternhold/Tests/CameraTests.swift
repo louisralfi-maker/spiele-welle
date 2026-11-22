@@ -229,6 +229,10 @@ final class CameraTests: XCTestCase {
         XCTAssertEqual(LookAroundDebug.parse("150:99")?.slow, 40)
         XCTAssertEqual(LookAroundDebug.parse("w2000"), LookAroundDebug(pan: -2000, slow: 1))
         XCTAssertEqual(LookAroundDebug.parse("e500:4"), LookAroundDebug(pan: 500, slow: 4))
+        // b3-lantern step 5: a Debug finger that holds the slid view (the clean frame's pictures).
+        XCTAssertEqual(LookAroundDebug.parse("e99999:4:hold4"), LookAroundDebug(pan: 99999, slow: 4, hold: 4))
+        XCTAssertEqual(LookAroundDebug.parse("e300:1:hold99")?.hold, 30)
+        XCTAssertNil(LookAroundDebug.parse("e300:1:wait"))
         XCTAssertNil(LookAroundDebug.parse("east"))
         XCTAssertNil(LookAroundDebug.parse(""))
         XCTAssertNil(LookAroundDebug.parse(nil))

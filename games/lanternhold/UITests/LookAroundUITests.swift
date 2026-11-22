@@ -13,6 +13,8 @@ import XCTest
 /// the east and the west end of the world (`-GWLookAround e99999` and `w99999`), the strip's bracket at its ends.
 /// Step 4: 260 to 264 the town's banner under the strip (by day, at night, at dusk, its four moods, its slip), 265a to
 /// 265h the lord's hint glinting, 266a to 266c the raise's flare slowed (their halo, the step 2b critic's M1).
+/// Step 5: 270 the clean frame of a held pan at the east end, 271a to 271c the signs coming back after the release
+/// (`-GWTimeScale 0.25`), 272 home again with the banner and the gear back.
 /// English only (the director's notes of 15.11., item 4).
 @MainActor
 final class LookAroundUITests: XCTestCase {
@@ -255,6 +257,78 @@ final class LookAroundUITests: XCTestCase {
         }
         note("266-look-flare", "lantern \(sceneField(town, "lantern:") ?? "?")")
         town.terminate()
+    }
+
+    // MARK: - Step 5: the clean frame
+
+    /// Step 5 (the clean frame): a pan held at the east end by the Debug key `-GWLookAround e99999:4:hold5` (a finger
+    /// holds the view slid east for 5 s of real time, then lets go; the glide home four times as long) at
+    /// `-GWTimeScale 0.25` (the fade's 0.15 s take 0.6 s of real time). While it is held the town's banner (`hud-mood`)
+    /// and the gear take no touch and the strip stays: 270, the held frame. The release glides home and brings them
+    /// back: 271a to 271c as fast as the shots come after the glide set off (the filmstrip of the fade); 272 home,
+    /// both hittable again.
+    func testTheCleanFrame() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = LookAroundUITests.base + ["-GWCameraX", "1830", "-GWLookAround", "e99999:4:hold5",
+                                                        "-GWTimeScale", "0.25"]
+        app.launch()
+        guard waitUntilReady(app, name: "270-look-clean") else { return }
+        waitForStill(app, timeout: 4)
+        waitForCamera(app, timeout: 4)
+        guard let home = camera(app) else {
+            XCTFail("no camera in the scene's value")
+            return
+        }
+        XCTAssertTrue(openLantern(app), "a touch on the lord raises the lantern")
+        let opened = Date()
+        let banner = element(app, "hud-mood")
+        let gear = element(app, "hud-pause")
+        let started = Date()
+        var end = home
+        while Date().timeIntervalSince(started) < 3 {
+            end = camera(app) ?? end
+            if end > home + 400 { break }
+            pause(0.1)
+        }
+        XCTAssertGreaterThan(end, home + 400, "the view stands slid far east, held (\(home) to \(end))")
+        pause(1.0)
+        XCTAssertTrue(element(app, "lantern-moment").exists, "the lantern is up")
+        XCTAssertTrue(element(app, "realm-strip").exists, "the strip stays")
+        XCTAssertFalse(banner.exists && banner.isHittable, "held: the town's banner takes no touch")
+        XCTAssertFalse(gear.exists && gear.isHittable, "held: the gear takes no touch")
+        attach(XCUIScreen.main.screenshot(), "270-look-clean-held-east-\(language)")
+        note("270-look-clean-held-east", String(format: "%.2f s after the raise; home cam \(home), cam \(end); ",
+                                                 Date().timeIntervalSince(opened)) + "scene: \(sceneValue(app))")
+        // The release: as soon as the glide sets off, three shots of the signs coming back.
+        var released = false
+        while Date().timeIntervalSince(opened) < 10 {
+            if let now = camera(app), now < end - 3 {
+                released = true
+                break
+            }
+            pause(0.05)
+        }
+        XCTAssertTrue(released, "the held finger let go and the view glides home")
+        let letGo = Date()
+        var shots: [(String, XCUIScreenshot, Double)] = []
+        for name in ["271a", "271b", "271c"] {
+            shots.append((name, XCUIScreen.main.screenshot(), Date().timeIntervalSince(letGo)))
+            pause(0.15)
+        }
+        for (name, shot, real) in shots {
+            attach(shot, "\(name)-look-clean-back-\(language)")
+            note("\(name)-look-clean-back", String(format: "%.2f s of real time after the glide set off (the fade "
+                                                    + "back takes 0.6 s at this time scale)", real))
+        }
+        XCTAssertTrue(waitForCamera(app, near: home, timeout: 8), "home at the end of the glide")
+        pause(0.8)
+        XCTAssertTrue(banner.waitForExistence(timeout: 3), "after the release the town's banner is back")
+        XCTAssertTrue(banner.exists && banner.isHittable, "and takes a touch")
+        XCTAssertTrue(gear.exists && gear.isHittable, "the gear is back")
+        XCTAssertTrue(element(app, "lantern-moment").exists, "the lantern is still up")
+        attach(XCUIScreen.main.screenshot(), "272-look-clean-home-\(language)")
+        app.terminate()
     }
 
     // MARK: - Helpers

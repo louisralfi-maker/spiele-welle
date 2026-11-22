@@ -591,22 +591,39 @@ enum LanternLight {
     }
 }
 
-/// The lantern moment's light as one value (build 3, lane 5 step 5), stepped by the frame's seconds: `light` comes in
-/// over 0.15 s as the lantern goes up and leaves in 0.1 s as it comes down, in even steps (no ease); under Reduce
-/// Motion it is there and gone at once, as the moment is. `dim` is the strength of `LanternLight`'s rings. Picture
-/// only, never saved.
+/// The lantern moment's two motions, one value each (build 3, lane 5 step 5), stepped by the frame's seconds:
+/// - `light`, the lantern's own light: it comes in over 0.15 s as the lantern goes up and leaves in 0.1 s as it comes
+///   down, in even steps (no ease);
+/// - `clean`, the clean frame of the look-around: while a finger holds a pan of more than 6 game px from home, the
+///   moment's own signs (the lord's row, the town's banner, the gear; never the people of the world) fade out in
+///   0.15 s and the dim lifts to 40 % of its strength; when the finger lets go and the glide home starts (0.35 s)
+///   they come back in 0.15 s, whole before he is home. The lantern going down clears it at once.
+/// Under Reduce Motion both are there and gone at once; with VoiceOver running nothing fades. `dim` is the strength of
+/// `LanternLight`'s rings, `signs` the share the moment's signs show at. Picture only, never saved.
 struct LanternVeil: Sendable, Equatable {
     /// 0 ... 1: the lantern's own light.
     private(set) var light = 0.0
+    /// 0 ... 1: the clean frame (0: the moment's signs whole, 1: gone).
+    private(set) var clean = 0.0
 
     static let upSeconds = 0.15
     static let downSeconds = 0.1
+    /// The clean frame's fade, out and back.
+    static let cleanSeconds = 0.15
+    /// A held pan fades the signs past this many game px from home.
+    static let cleanFrom = 6.0
+    /// The dim's share while the frame is clean.
+    static let heldDim = 0.4
 
     /// The strength of the rings' dim now.
-    var dim: Double { light }
+    var dim: Double { light * (1 - (1 - LanternVeil.heldDim) * clean) }
+    /// The share the moment's own signs show at (1 whole, 0 gone).
+    var signs: Double { 1 - clean }
 
-    /// One step of `seconds`: `raised` while the lantern is up.
-    mutating func step(_ seconds: Double, raised: Bool, reduceMotion: Bool) {
+    /// One step of `seconds`: `raised` while the lantern is up, `held` while a finger holds the look-around's view,
+    /// `pan` how far it stands slid (game px).
+    mutating func step(_ seconds: Double, raised: Bool, held: Bool = false, pan: Double = 0, reduceMotion: Bool,
+                       voiceOver: Bool = false) {
         let dt = max(0, seconds)
         let target = raised ? 1.0 : 0.0
         if reduceMotion {
@@ -615,6 +632,12 @@ struct LanternVeil: Sendable, Equatable {
             light = LanternVeil.toward(light, target, by: dt / LanternVeil.upSeconds)
         } else if light > target {
             light = LanternVeil.toward(light, target, by: dt / LanternVeil.downSeconds)
+        }
+        let wanted = raised && held && abs(pan) > LanternVeil.cleanFrom && !voiceOver ? 1.0 : 0.0
+        if !raised || voiceOver || reduceMotion {
+            clean = wanted
+        } else if clean != wanted {
+            clean = LanternVeil.toward(clean, wanted, by: dt / LanternVeil.cleanSeconds)
         }
     }
 
