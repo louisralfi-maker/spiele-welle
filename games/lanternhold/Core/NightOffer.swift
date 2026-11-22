@@ -1,9 +1,10 @@
 /// Brannock offers the horn (the polish audit's thing 6, step E1; law 3.3, "the thread of the run": when the day is
 /// done, the world offers its end; critic-run R1). On days 1 to 3, from 09:00 to 17:30, once nothing the purse can pay
-/// is left and no deal waits, Brannock carries his talk mark again and his line says the day may end: "Nothing more to
-/// build today. Say the word and I sound the horn." A second touch on him while that line stands calls the night
-/// (`SimDriver.callTheNight`, the dusk played in 4.0 s). Pure: derived from the realm's state every frame, nothing is
-/// saved. Whether the line was heard today is the talk log's (UI state, never saved: `heardKey`).
+/// is left, no deal waits and no coins wait in the town, Brannock carries his talk mark again and his line says the
+/// day may end: "Nothing more to build today. Say the word and I sound the horn." A second touch on him while that line
+/// stands calls the night (`SimDriver.callTheNight`, the dusk played in 4.0 s). Pure: derived from the realm's state
+/// every frame, nothing is saved. Whether the line was heard today is the talk log's (UI state, never saved:
+/// `heardKey`).
 enum NightOffer {
     /// Who offers the horn.
     static let speaker = "brannock"
@@ -23,14 +24,24 @@ enum NightOffer {
 
     /// True when the day's work is done and the offer stands (critic-run R1: "while no plot, recruit or yard offer is
     /// affordable and no order is open"): by day on days 1 to 3 between 09:00 and 17:30, nothing the purse can pay
-    /// (`payable`) and no deal waiting (`dealWaits`). The count's own open order (a board up) is the model's to add
-    /// (`GameModel.nightOfferStands`).
+    /// (`payable`), no deal waiting (`dealWaits`) and no coins of the day still waiting in the town (`coinsWait`).
+    /// The count's own open order (a board up) is the model's to add (`GameModel.nightOfferStands`).
     static func stands(_ s: GameState, balance: Balance) -> Bool {
         guard !s.defeated, days.contains(s.day), DayClock.phase(at: s.hour) == .day,
               s.hour >= fromHour - 1e-9, s.hour <= untilHour + 1e-9, s.hour < SimDriver.hornCallHour else {
             return false
         }
-        return !payable(s, balance: balance) && !dealWaits(s)
+        return !payable(s, balance: balance) && !dealWaits(s) && !coinsWait(s, balance: balance)
+    }
+
+    /// E1 gate (B1, P1): the day's coins still wait in the town, so "nothing more to build" would be false and the
+    /// horn would let the people keep them (`Town.horn`): a household still owes with its door open (the first
+    /// morning's 16 included, a field's too: the farmer pays only the lord), or the collector is on his way home with
+    /// coins in his box. With the doors shut (unrest) nobody pays, so nothing waits; after the horn nothing does.
+    static func coinsWait(_ s: GameState, balance: Balance) -> Bool {
+        guard let day = s.town?.today, !day.closed else { return false }
+        if !Town.waiting(s, balance: balance).isEmpty { return true }
+        return day.collectorOut == true && day.collectorBack != true && day.collectorBox > 0
     }
 
     /// True while the purse can pay something now: a plot's offer (a free gift included), a recruit, the yard. The
