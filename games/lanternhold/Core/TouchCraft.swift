@@ -206,6 +206,17 @@ enum TouchRims {
             let part = EmissivePart(sprite: .hallMote, dx: 0, dy: 0, color: SIMD3<Float>(color.x, color.y, color.z),
                                     intensity: 1, flickerSeed: nil, fadesByDay: false, isFire: false, rim: true)
             for index in props.indices where standsOn(props[index], x: mark.rimX ?? mark.poolX, half: mark.half) {
+                // b3-yard (build 3, wave 2, lane 2, step 4; the critic's H2; one tagged block for the join, the smooth
+                // lane's file): the yard's things stand on the barracks' two recruit halves, and a recruit mark's rim
+                // outlined the butts at night ("the targets are for sale"). A recruit mark never rims a yard thing;
+                // the barracks keep their rim.
+                if mark.kind == .recruit {
+                    switch props[index].sprite {
+                    case .yardButt, .yardPell, .yardKettle, .yardGround, .yardSite: continue
+                    default: break
+                    }
+                }
+                // b3-yard end
                 props[index].emissive.append(part)
             }
         }

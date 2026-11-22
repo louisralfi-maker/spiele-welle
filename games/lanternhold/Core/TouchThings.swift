@@ -103,7 +103,11 @@ enum TouchThings {
             let recruit = TouchThing(id: archer ? "touch-recruit-archer" : "touch-recruit-guard", kind: .recruit,
                                      act: .recruit, x: x, standX: x, halfWidth: TouchThings.recruitHalf,
                                      top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit),
-                                     price: option.price, marked: option.canRecruit, soldier: option.kind)
+                                     price: option.price, marked: option.canRecruit,
+                                     // b3-yard (step 4, the critic's H2): the rim on the bunkhouse itself (its middle);
+                                     // each half's middle lies 16 px off it, beyond its 14 px, so since the count's
+                                     // halves the barracks lost their rim and the yard's things standing there took it
+                                     rimX: KingTargets.barracksX, soldier: option.kind)
             list.append(recruit)
         }
         list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallRules.doorX,

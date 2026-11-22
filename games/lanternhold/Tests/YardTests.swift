@@ -1246,4 +1246,41 @@ final class YardPolishTests: XCTestCase {
         }
         XCTAssertGreaterThanOrEqual(west, 20, "the shoulder still stands against the tower's face")
     }
+
+    // MARK: - B (H2): no gold rim on a yard thing
+
+    /// The barracks' two recruit marks put their gold rim on the bunkhouse, never on a thing of the yard (the butts,
+    /// the pell, the kettle's tripod, the sand, the site): with the yard standing, with and without the kettle, by day
+    /// and by night; and as before the yard stood.
+    func testARecruitMarkNeverRimsAYardThing() {
+        let yardThings: Set<SpriteID> = [.yardButt, .yardPell, .yardKettle, .yardGround, .yardSite]
+        func rims(_ s: GameState) -> (yard: Int, barracks: Int, marks: Int) {
+            var list = EntityFrames.PropList()
+            list.add(.barracks, x: EntityFrames.barracksLeft, z: -1)
+            EntityFrames.yardProps(s, balance: balance, props: &list)
+            let recruits = TouchThings.world(s, balance: balance, figures: [], talked: []).filter { $0.kind == .recruit }
+            let marks = TouchMarks.marks(recruits, pressed: nil)
+            var props = list.props
+            TouchRims.mark(&props, marks: marks, night: s.hour > 18 || s.hour < 6 ? 1 : 0)
+            let yard = props.filter { yardThings.contains($0.sprite) }.map { $0.emissive.filter(\.rim).count }
+            let barracks = props.filter { $0.sprite == .barracks }.map { $0.emissive.filter(\.rim).count }
+            return (yard: yard.reduce(0, +), barracks: barracks.reduce(0, +), marks: marks.count)
+        }
+        for hour in [10.0, 22] {
+            var s = realm(day: 5, hour: hour)
+            s.gold = 1_000
+            let before = rims(s)
+            XCTAssertEqual(before.marks, 2, "both recruit halves at \(hour)")
+            XCTAssertEqual(before.yard, 0, "the site's day, \(hour): no rim on the site")
+            XCTAssertEqual(before.barracks, 2, "\(hour): each recruit mark rims the bunkhouse")
+            for kettle in [false, true] {
+                var standing = s
+                Yard.proof(&standing, stage: 2, kettle: kettle, trained: false, balance: balance)
+                let now = rims(standing)
+                XCTAssertEqual(now.marks, 2, "both recruit halves with the yard, kettle \(kettle), \(hour)")
+                XCTAssertEqual(now.yard, 0, "no rim on a yard thing, kettle \(kettle), \(hour)")
+                XCTAssertEqual(now.barracks, before.barracks, "the barracks keep their rim, kettle \(kettle), \(hour)")
+            }
+        }
+    }
 }
