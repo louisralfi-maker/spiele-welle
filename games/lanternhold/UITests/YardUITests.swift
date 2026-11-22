@@ -113,6 +113,45 @@ final class YardUITests: XCTestCase {
         app.terminate()
     }
 
+    /// Fix step 4b (the director's R1): the noon drill with the kettle bought (`-GWYard 2,kettle`): the cold kettle on
+    /// its tripod by day, standing free on the apron past the fence's corner post (1464). The frame without the kettle
+    /// (303) stays for the offer.
+    func testTheNoonDrillWithTheKettle() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "12", "-GWCameraX", YardUITests.beside,
+                                                  "-GWGold", "200", "-GWYard", "2,kettle", "-GWFreezeTime", "YES"]
+        app.launch()
+        guard waitUntilReady(app, name: "yard-noon-kettle") else { return }
+        pause(1.0)
+        let word = sceneField(app, "yard:") ?? "?"
+        note("312-yard-state", word)
+        XCTAssertTrue(word.contains("drill"), "noon: they drill: \(word)")
+        XCTAssertTrue(word.contains("k:u"), "the kettle is in use: \(word)")
+        attach(XCUIScreen.main.screenshot(), "312-yard-noon-drill-kettle-\(language)")
+        app.terminate()
+    }
+
+    /// Fix step 4b (the director's R3 and R8): the gate rock's yard frames at the castle's fixed tiers (`-GWCastle`):
+    /// tier 2 on day 4 with the site marked out (the rock's stepped tail and its loose stones bare, no fence before
+    /// them), and tier 3 at the noon drill with the yard and the kettle (frame 2, the drum's foot).
+    func testTheGateRockAtTiersTwoAndThree() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        for (tier, extra, shot) in [("2", ["-GWDay", "4", "-GWClock", "10"], "313-yard-rock-tier2-site"),
+                                    ("3", ["-GWDay", "5", "-GWClock", "12", "-GWYard", "2,kettle"],
+                                     "314-yard-rock-tier3-yard")] {
+            let app = XCUIApplication()
+            app.launchArguments = YardUITests.base + extra + ["-GWCameraX", YardUITests.beside, "-GWGold", "200",
+                                                              "-GWCastle", tier, "-GWFreezeTime", "YES"]
+            app.launch()
+            guard waitUntilReady(app, name: "yard-rock-tier\(tier)") else { return }
+            pause(1.0)
+            note("\(shot)-state", sceneField(app, "yard:") ?? "?")
+            attach(XCUIScreen.main.screenshot(), "\(shot)-\(language)")
+            app.terminate()
+        }
+    }
+
     /// A night with the pitch kettle in use and every soldier trained (the archers' every third arrow burns).
     func testANightWithTheKettle() {
         XCUIDevice.shared.orientation = .landscapeLeft
@@ -242,8 +281,10 @@ final class YardUITests: XCTestCase {
         let lead = 0.04
         var archerWindows: [(name: String, from: Double, until: Double)] = [
             // Round lh-b3y-42: "hit" opened at 2.41 and caught the arrow 0.1 s before it lands (2.55); it opens at 2.48
-            // now, with the arrow at the butt, and "fall" a little later on the way down.
-            ("loose", 2.0, 2.1), ("climb", 2.1, 2.2), ("top", 2.2, 2.33), ("fall", 2.38, 2.5), ("hit", 2.52, 2.65),
+            // now, with the arrow at the butt, and "fall" a little later on the way down. Fix step 4b (R2; round
+            // lh-b3y-43 still read 2.483 for it, before the landing): the real hit is the landing (2.55) and the straw
+            // puff's 0.1 s after it (to 2.65, over the round's end at 2.6); "hit" opens on a reading of 2.555 to 2.598.
+            ("loose", 2.0, 2.1), ("climb", 2.1, 2.2), ("top", 2.2, 2.33), ("fall", 2.38, 2.5), ("hit", 2.595, 2.638),
             ("stuck", 1.2, 1.8),
         ]
         var guardWindows: [(name: String, from: Double, until: Double)] = [("stand", 0.2, 0.5), ("lean", 0.8, 0.92)]

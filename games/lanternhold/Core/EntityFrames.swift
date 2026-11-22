@@ -1566,6 +1566,11 @@ enum EntityFrames {
                         let half = Double(SpriteID.arrow.size.height) / 2
                         add(.arrow, frame: flight.frame, x: flight.x, y: flight.y - half)
                     }
+                    // Fix step 4b (R2): as it lands, a straw puff off the butt's face for 0.1 s (drawn only, lit as
+                    // the straw is; none under Reduce Motion).
+                    for bit in YardLook.strawPuff(index: archersAtDrill, time: drillTime, reduceMotion: reduceMotion) {
+                        add(.hallMote, frame: 0, x: bit.x, y: bit.y, tint: YardLook.puffTint)
+                    }
                     archersAtDrill += 1
                 } else {
                     guard guardsAtDrill < YardLook.guardSpots.count else { continue }

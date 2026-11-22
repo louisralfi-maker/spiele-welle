@@ -57,8 +57,11 @@ enum YardLook {
     /// Step 4 (the critic's M4: the guards waiting west of the gate at night read as one dark clump): the kettle's light
     /// reaches them, its pool widened westward to about 1420 in two more rings (each pool's lit edge is a step on the
     /// world grid), dimmer as they go, light only and never east of the kettle's own pool (world x of their middles).
+    /// Fix step 4b (the director's R4: the file still read as four dark ghosts): the ring at 1437 at 0.28 (was 0.16)
+    /// and a third ring at 1422 (radius 14, 0.18), so the light reaches the file's west end (about 1408).
     static let kettleSpill: [(x: Double, y: Double, radius: Double, intensity: Double)] = [
-        (x: 1449, y: 9, radius: 29, intensity: 0.3), (x: 1437, y: 10, radius: 19, intensity: 0.16),
+        (x: 1449, y: 9, radius: 29, intensity: 0.3), (x: 1437, y: 10, radius: 19, intensity: 0.28),
+        (x: 1422, y: 10, radius: 14, intensity: 0.18),
     ]
     static let kettleFrameEmpty = 0
     static let kettleFrameCold = 1
@@ -119,6 +122,29 @@ enum YardLook {
     static func arrowStuck(index: Int, time: Double, reduceMotion: Bool) -> Bool {
         if reduceMotion { return true }
         return arrow(index: index, time: time, reduceMotion: false) == nil
+    }
+
+    /// Fix step 4b (the director's R2: the hit had no beat on the phone): as the arrow lands, three pale straw pixels fly
+    /// off the butt's face westward for `puffSeconds`, drawn only (no light), on the drill's clock; never under Reduce
+    /// Motion. Each flies out from the heart along its direction (`puffFlight`, game px: x to the west, y up and down)
+    /// in three steps.
+    static let puffSeconds = 0.1
+    static let puffFlight: [(dx: Double, dy: Double)] = [(-1, 1), (-1, 0), (-1, -1)]
+    /// The puff's pale straw (strawLight, tools/palette.txt #C4A872), lit by the hour as the butt's own straw is.
+    static let puffTint = SIMD4<Float>(196.0 / 255, 168.0 / 255, 114.0 / 255, 1)
+
+    /// The straw puff's pixels (world x of the pixel's left edge, y of its bottom over the walk line) of the archer at
+    /// place `index` at `time`: three from the landing for `puffSeconds`, else none; none under Reduce Motion.
+    static func strawPuff(index: Int, time: Double, reduceMotion: Bool) -> [(x: Double, y: Double)] {
+        guard !reduceMotion, index >= 0, index < archerSpots.count else { return [] }
+        // The landing (2.55 s) lies 0.05 s before the round's end: the puff runs on over the wrap.
+        var t = wrapped(time + Double(index) * 1.1, round: archerRound) - (looseAt + arrowSeconds)
+        if t < 0 { t += archerRound }
+        guard t >= 0, t < puffSeconds else { return [] }
+        let step = min(2, (t / puffSeconds * 3).rounded(.down))
+        return puffFlight.map { flight in
+            (x: buttHeart.x + flight.dx * (3 + 2 * step), y: buttHeart.y + flight.dy * (2 + step))
+        }
     }
 
     /// Step 4 (the critic's H4: the pell never answered the strike): the guard's blow lands at the start of his strike
@@ -307,6 +333,18 @@ enum YardLook {
     static let rockYardFrameTier3 = 2
     static let rockEdgeX = 1468.0
     static let rockRubble = 8.0
+    /// Fix step 4b (the director's R7): in the yard's frame (tier 1 and 2) the pale curtain stone the cut bared (world
+    /// 1475 to 1481, 12 to 17 px up) is laid over in the wall's mid stone, no pixel lighter (tools/w3f3art.py
+    /// `YARD_WALL_PATCH`, `YARD_WALL_NIB`): wall, never rock, so the 8 px rule east of 1468 does not count it. Columns of
+    /// the rock's sprite, heights over its bottom row.
+    static let rockWallPatch = (columns: 39...45, heights: 13...17)
+    static let rockWallNib = (column: 44, height: 12)
+
+    /// True for a pixel of the yard frame's wall patch (`rockWallPatch`, `rockWallNib`).
+    static func inRockWallPatch(column: Int, height: Int) -> Bool {
+        (rockWallPatch.columns.contains(column) && rockWallPatch.heights.contains(height))
+            || (column == rockWallNib.column && height == rockWallNib.height)
+    }
 
     /// The rock's frame for the realm: the yard's one while the site shows or the yard stands (as `EntityFrames
     /// .yardProps` draws them), else today's (0). `tier` is the castle's drawn tier (`CastleStage.tier`, as
@@ -326,6 +364,16 @@ enum YardLook {
         }
     }
 
+    // MARK: - The site's lantern (fix step 4b, the director's R8)
+
+    /// By day the yard's site lantern shows no glow disc, only its lit glass: its warm pool (`siteHalo` frame 1, the
+    /// count's `countPoolAlpha`) lay as a flat beige smear over the gate's trestle models. Its glow comes from dusk
+    /// (the count's night halo). Every other site's lantern keeps its pool by day (the lantern lane's call 3).
+    static func siteLanternPoolsByDay(_ offer: PayOffer) -> Bool {
+        if case .yard = offer { return false }
+        return true
+    }
+
     // MARK: - At night
 
     /// While the yard stands the guards waiting behind the gate stand in file toward it from here (each
@@ -335,10 +383,17 @@ enum YardLook {
     /// Step 4 (the critic's M4): 10 px apart (step 3: 7, half their 14 px bodies overlapped into one dark clump), in the
     /// kettle's light (`kettleSpill`).
     static let waitingGuardSpacing = 10.0
+    /// Fix step 4b (the director's R4, look only): the first four stand at 1434, 1424, 1413 and 1404 (gaps 10, 11, 9),
+    /// never a ruled row; the rest 10 apart beyond them.
+    static let waitingGuardFile: [Double] = [0, 10, 21, 30]
 
     /// The drawn x of the `index`-th waiting guard (their rule place is `Realm.courtyardX` for all of them).
     static func waitingGuard(_ index: Int, yardStands: Bool) -> Double {
-        yardStands ? waitingGuardX - waitingGuardSpacing * Double(index) : Realm.courtyardX + 7 * Double(index)
+        guard yardStands else { return Realm.courtyardX + 7 * Double(index) }
+        let file = waitingGuardFile
+        let back = index < file.count ? file[max(0, index)]
+            : (file.last ?? 0) + waitingGuardSpacing * Double(index - file.count + 1)
+        return waitingGuardX - back
     }
 
     // MARK: - The count

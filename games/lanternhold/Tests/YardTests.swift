@@ -1232,6 +1232,9 @@ final class YardPolishTests: XCTestCase {
             var top = 0.0
             for x in 0..<size.width where at.x + Double(x) >= edge {
                 for y in 0..<size.height where strip[frame * size.width + x, y].a > 0 {
+                    // Fix step 4b (R7): the bared wall stone laid over in the wall's mid stone is wall, not rock.
+                    if frame == YardLook.rockYardFrame
+                        && YardLook.inRockWallPatch(column: x, height: size.height - 1 - y) { continue }
                     top = max(top, at.y + Double(size.height - y))
                 }
             }
@@ -1247,6 +1250,23 @@ final class YardPolishTests: XCTestCase {
             }
         }
         XCTAssertGreaterThanOrEqual(west, 20, "the shoulder still stands against the tower's face")
+
+        // Fix step 4b (R7): the pale curtain stone the cut bared (world 1475 to 1481, 12 to 17 px up) is laid over in
+        // the yard's frame in the wall's mid stone (stone, #5E6170), no pixel of it lighter; frames 0 and 2 leave it.
+        let midStone = RGBA(r: 0x5E, g: 0x61, b: 0x70)
+        XCTAssertEqual(rock.x + Double(YardLook.rockWallPatch.columns.lowerBound), 1475, "over the curtain's first block")
+        var patch = 0
+        for x in 0..<size.width {
+            for height in 0..<size.height where YardLook.inRockWallPatch(column: x, height: height) {
+                let c = strip[YardLook.rockYardFrame * size.width + x, size.height - 1 - height]
+                XCTAssertGreaterThan(c.a, 0, "the patch covers the pale stone at \(x), \(height)")
+                XCTAssertLessThanOrEqual(Int(c.r) + Int(c.g) + Int(c.b),
+                                         Int(midStone.r) + Int(midStone.g) + Int(midStone.b),
+                                         "no pixel of it lighter than the wall's mid stone")
+                patch += 1
+            }
+        }
+        XCTAssertEqual(patch, 7 * 5 + 1, "the block and its nib")
 
         // Review: at tier 3 the drums and the rock stand 12 px further east; frame 2 keeps world 1468 the limit.
         XCTAssertEqual(YardLook.rockFrame(s, balance: balance, tier: 3), YardLook.rockYardFrameTier3)
@@ -1351,7 +1371,7 @@ final class YardPolishTests: XCTestCase {
                                RGBA(r: 200, g: 174, b: 132)]
         func faceWidth(_ frame: Int) -> Int {
             var widest = 0
-            for y in 0..<12 {
+            for y in 0..<size.height {  // fix step 4b (R2): the frame grew six rows upward (was 0..<12)
                 var row = 0
                 for x in 3..<size.width where face.contains(strip[frame * size.width + x, y]) { row += 1 }
                 widest = max(widest, row)
@@ -1556,6 +1576,81 @@ final class YardPolishTests: XCTestCase {
         XCTAssertEqual(Set(seen.map { $0.x }), Set(drawn.map { $0.x } + [Yard.fenceX]))
     }
 
+    // MARK: - Fix step 4b
+
+    /// R2: as the arrow lands, three pale straw pixels fly off the front butt's face westward for 0.1 s, on the drill's
+    /// clock, drawn only; never before the landing, never after, never under Reduce Motion. The layer draws them.
+    func testAStrawPuffFliesOffTheFaceAtTheHit() {
+        let round = YardLook.archerRound
+        let landing = 40 * round + YardLook.looseAt + YardLook.arrowSeconds
+        XCTAssertEqual(YardLook.strawPuff(index: 0, time: landing + 0.01, reduceMotion: false).count, 3, "at the hit")
+        XCTAssertEqual(YardLook.strawPuff(index: 0, time: landing + 0.08, reduceMotion: false).count, 3,
+                       "on over the round's end")
+        XCTAssertTrue(YardLook.strawPuff(index: 0, time: landing - 0.01, reduceMotion: false).isEmpty, "not before")
+        XCTAssertTrue(YardLook.strawPuff(index: 0, time: landing + 0.11, reduceMotion: false).isEmpty, "gone at 0.1 s")
+        XCTAssertTrue(YardLook.strawPuff(index: 0, time: landing + 0.01, reduceMotion: true).isEmpty,
+                      "never under Reduce Motion")
+        var shown = 0
+        var t = 0.0
+        while t < round {
+            if !YardLook.strawPuff(index: 0, time: t, reduceMotion: false).isEmpty { shown += 1 }
+            XCTAssertTrue(YardLook.strawPuff(index: 0, time: t, reduceMotion: true).isEmpty)
+            t += 0.001
+        }
+        XCTAssertEqual(Double(shown) * 0.001, YardLook.puffSeconds, accuracy: 0.003, "0.1 s in each round")
+        for bit in YardLook.strawPuff(index: 0, time: landing + 0.09, reduceMotion: false) {
+            XCTAssertLessThan(bit.x, YardLook.buttHeart.x, "westward, off the face toward the archers")
+            XCTAssertGreaterThan(bit.y, 4, "over the ground")
+        }
+
+        let s = drill()
+        func puffs(at time: Double, reduceMotion: Bool) -> Int {
+            var options = FrameOptions(flickerTime: time)
+            options.reduceMotion = reduceMotion
+            let screen = GameFrameSupport.pro
+            let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
+            let scene = SceneFilter.gameScene(GameFrameSupport.world, state: s)
+            let layer = EntityFrames.layer(state: s, balance: balance, scene: scene,
+                                           camera: Camera(focusX: 1490, pixelScale: pixelScale),
+                                           pixelScale: pixelScale, options: options, animTime: time,
+                                           drill: YardLook.Drill(time: time, held: false))
+            return layer.actors.filter { $0.sprite == .hallMote && $0.tint == YardLook.puffTint }.count
+        }
+        XCTAssertEqual(puffs(at: landing + 0.02, reduceMotion: false), 3, "the layer draws the puff at the hit")
+        XCTAssertEqual(puffs(at: landing + 0.02, reduceMotion: true), 0, "and none under Reduce Motion")
+        XCTAssertEqual(puffs(at: landing - 0.2, reduceMotion: false), 0, "none while the arrow flies")
+    }
+
+    /// R2: the stuck arrow reads: in the front butt's stuck frame its shaft stands clear of the butt over the boss
+    /// (yardButt.png read back: pixels over the boss's top that frame 0 does not have), the frame six rows taller than
+    /// step 4's with the feet on its bottom row.
+    func testTheStuckArrowStandsClearOfTheButt() throws {
+        let size = SpriteID.yardButt.size
+        XCTAssertEqual(size.height, 26, "fix step 4b: six rows up (step 4: 20)")
+        let url = try XCTUnwrap(AtlasBuilder.artURL(for: .yardButt, bundle: .main))
+        let strip = try XCTUnwrap(PNGDecoder.load(url: url))
+        XCTAssertEqual(strip.height, size.height)
+        var clear = 0
+        for y in 0..<6 {
+            for x in 0..<size.width {
+                let stuck = strip[YardLook.buttFrameStuck * size.width + x, y]
+                if stuck.a > 0 && strip[YardLook.buttFrameFront * size.width + x, y].a == 0 { clear += 1 }
+            }
+        }
+        XCTAssertGreaterThanOrEqual(clear, 6, "four shaft pixels with their ink edges and the fletch over the boss")
+        var feet = 0
+        for x in 0..<size.width where strip[x, size.height - 1].a > 0 { feet += 1 }
+        XCTAssertGreaterThan(feet, 0, "the feet stay on the bottom row")
+    }
+
+    /// R8: by day the yard's site lantern shows no warm pool (only its lit glass); every other site's lantern keeps it.
+    func testTheYardsSiteLanternHasNoPoolByDay() {
+        XCTAssertFalse(YardLook.siteLanternPoolsByDay(.yard(.stage(2))))
+        XCTAssertFalse(YardLook.siteLanternPoolsByDay(.yard(.kettle)))
+        XCTAssertTrue(YardLook.siteLanternPoolsByDay(.patch(plot: 0)))
+        XCTAssertTrue(YardLook.siteLanternPoolsByDay(.recruit(.archer)))
+    }
+
     // MARK: - E: the small ones
 
     /// E2 (the critic's M3): the bunkhouse's painted spear rack no longer sticks out of the pell's head as three spikes.
@@ -1599,8 +1694,10 @@ final class YardPolishTests: XCTestCase {
         let main = try XCTUnwrap(list.lights.first)
         XCTAssertEqual(list.lights.count, 1 + YardLook.kettleSpill.count)
         let west = list.lights.map { $0.x - $0.radius }.min() ?? .infinity
-        XCTAssertLessThanOrEqual(west, 1422, "the pool reaches about 1420")
-        XCTAssertGreaterThanOrEqual(west, 1414, "and no further")
+        // Fix step 4b (R4): a third ring at 1422 (radius 14) takes the light to the file's west end (step 4: about 1420).
+        XCTAssertLessThanOrEqual(west, 1410, "the pool reaches the file's west end (about 1408)")
+        XCTAssertGreaterThanOrEqual(west, 1404, "and no further")
+        XCTAssertEqual(YardLook.kettleSpill.count, 3)
         for light in list.lights.dropFirst() {
             XCTAssertLessThan(light.x, main.x, "the spill lies west of the kettle")
             XCTAssertLessThanOrEqual(light.x + light.radius, main.x + main.radius, "light only westward")
@@ -1609,7 +1706,9 @@ final class YardPolishTests: XCTestCase {
         }
         XCTAssertEqual(YardLook.waitingGuardX, 1434, "the file starts where it did")
         XCTAssertEqual(YardLook.waitingGuard(1, yardStands: true) - YardLook.waitingGuard(0, yardStands: true), -10)
-        for index in 0..<2 {
+        // Fix step 4b (R4, look only): drawn at 1434, 1424, 1413 and 1404 (gaps 10, 11, 9), then 10 apart.
+        XCTAssertEqual((0..<5).map { YardLook.waitingGuard($0, yardStands: true) }, [1434, 1424, 1413, 1404, 1394])
+        for index in 0..<3 {
             let x = YardLook.waitingGuard(index, yardStands: true)
             XCTAssertTrue(list.lights.contains { abs($0.x - x) < $0.radius - 4 }, "guard \(index) at \(x) in its light")
         }

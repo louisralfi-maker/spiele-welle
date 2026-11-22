@@ -477,9 +477,18 @@ LEDGE_TOP = (50, 47, 55, 255)          # under the ledge's lift it lands on the 
 # ledge is 1 to 3 columns wide and drops 1 to 5 px, never a straight cut. The passes of `gate_rock` (the granite remap,
 # no lit edge, the ledge's lift) run on it after the cut, so the new edge reads as the rock's own.
 YARD_ROCK_EDGE = 32
-YARD_ROCK_CAP = {28: 21, 29: 20, 30: 16, 31: 11, 32: 7, 33: 6, 34: 6, 35: 5, 36: 4, 37: 4, 38: 3, 39: 2, 40: 1}
-# Loose stones beyond the rubble: (first column, width, height) of the rock's own pixels kept as islands.
-YARD_ROCK_STONES = ((42, 3, 2), (46, 2, 1), (49, 2, 2), (53, 1, 1))
+# Fix step 4b (the director's R3): the tail steps unevenly, in ledges of 2 and 3 columns (7, 4, 1), never one pixel a
+# column (step 4's 6, 6, 5, 4, 4, 3, 2, 1 read as a ruled diagonal).
+YARD_ROCK_CAP = {28: 21, 29: 20, 30: 16, 31: 11, 32: 7, 33: 7, 34: 4, 35: 4, 36: 4, 37: 1, 38: 1}
+# Loose stones at its foot: (first column, width, height) of the rock's own pixels kept as islands, at most 2 px (R3).
+YARD_ROCK_STONES = ((40, 2, 2), (43, 1, 1), (45, 2, 1))
+# Fix step 4b (the director's R7): with the rock cut back, a pale curtain stone was bared (curtainA's first block,
+# world 1475 to 1481, 12 to 17 px up; the curtain starts at 1474): a flat light block that read as a blank sign. The
+# yard's frame (tier 1 and 2 only; at tier 3 the east drum covers it) lays that block over in the wall's mid stone
+# (`stone`), no pixel lighter; the world lane's wall art is not touched. (first column, last column, lowest height,
+# highest height) in the rock's own columns (world 1436 + column), and the block's nib under its lower right.
+YARD_WALL_PATCH = (39, 45, 13, 17)
+YARD_WALL_NIB = (44, 12)
 # Tier 3 (the great gate): the drums and the rock with them stand 12 px further east (world 1448), so the same cut lies
 # 12 columns further west (frame 2), and world 1468 stays the limit.
 YARD_ROCK_T3_SHIFT = 12
@@ -509,6 +518,13 @@ def gate_rock_r_strip():
     frames = [gate_rock("gateRockR"), gate_rock("gateRockR", cut=yard_rock_cut),
               gate_rock("gateRockR", cut=lambda im: yard_rock_cut(im, YARD_ROCK_T3_SHIFT))]
     w, h = frames[0].w, frames[0].h
+    # Fix step 4b (R7): the bared pale wall stone toned to the wall's mid stone in the yard's frame (tier 1 and 2).
+    x0, x1, lo, hi = YARD_WALL_PATCH
+    mid = col("stone")
+    for x in range(x0, x1 + 1):
+        for hh in range(lo, hi + 1):
+            frames[1].set(x, h - 1 - hh, mid)
+    frames[1].set(YARD_WALL_NIB[0], h - 1 - YARD_WALL_NIB[1], mid)
     out = PA.Image(w * len(frames), h)
     for i, frame in enumerate(frames):
         for y in range(h):
