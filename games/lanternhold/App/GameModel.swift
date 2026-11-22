@@ -192,6 +192,9 @@ final class GameModel {
 
     // The court (M3 step 3, `GameModel+Court.swift`): the rooms cut away, the audience, talking.
     @ObservationIgnored var court = CourtScene(rooms: RoomFades(kingX: 0))
+    /// b3-yard (build 3, wave 2, lane 2, step 3; the critic's H4): the drilling archer's own clock, held at the draw
+    /// while someone stands where his arrow is still low (`YardLook.DrillClock`, `yardDrill(_:balance:)`). Picture only.
+    @ObservationIgnored var yardDrillClock = YardLook.DrillClock()
     @ObservationIgnored var talkLog = TalkLog()
     // The taxes on foot (town-2, `GameModel+Town.swift`): the walk to a door and the cues' clock; the doors on screen
     // for VoiceOver and the UI tests; the town's state for the UI tests.
@@ -1149,7 +1152,7 @@ final class GameModel {
             }
             var layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
                                            pixelScale: pixelScale, options: options, animTime: animationTime,
-                                           effects: effects)
+                                           effects: effects, drill: yardDrill(state, balance: game.balance))
             // M3: the court, the rooms cut away, the castle's world changes (`CourtFrames`).
             CourtFrames.apply(&layer, state: state, catalog: .standard, scene: court,
                               view: EntityFrames.ActorView(camera: view, pixelScale: pixelScale,
@@ -1194,6 +1197,32 @@ final class GameModel {
             if kind == .world { refreshGameStatus() }
         }
         return frame
+    }
+
+    /// b3-yard (build 3, wave 2, lane 2, step 3; the director's pick of 21.11.2026, 17:31, the critic's H4): while they
+    /// drill, the archer's clock for this frame and whether he holds at the draw because someone stands where his arrow
+    /// is still low: the lord (his raised lantern inside his frame), the court and today's guests as drawn, the
+    /// builders. Nil outside the drill (the clock starts afresh at the next one).
+    func yardDrill(_ state: GameState, balance: Balance) -> YardLook.Drill? {
+        guard Yard.drilling(state, balance: balance) else {
+            yardDrillClock = YardLook.DrillClock()
+            return nil
+        }
+        var figures: [(x: Double, width: Int, height: Int)] = []
+        let lord = state.lordOrDefault.body.size
+        figures.append((x: state.king.x, width: lord.width, height: lord.height))
+        for figure in CourtFrames.figures(state: state, catalog: .standard, scene: court, animTime: animationTime)
+        where figure.alpha > 0.5 {
+            let size = figure.sprite.size
+            figures.append((x: figure.x, width: size.width, height: size.height))
+        }
+        let builder = SpriteID.builder.size
+        for one in state.builders {
+            figures.append((x: one.x, width: builder.width, height: builder.height))
+        }
+        let held = YardLook.archerHolds(figures: figures)
+        yardDrillClock.step(to: state.simTime, held: held)
+        return YardLook.Drill(time: yardDrillClock.time, held: held)
     }
 
     /// Where the game's camera aims relative to the king: at night in front of the castle, `nightLead` toward the

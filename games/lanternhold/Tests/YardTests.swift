@@ -684,9 +684,6 @@ final class YardLookTests: XCTestCase {
         XCTAssertTrue(props(s).props.isEmpty)
     }
 
-    /// Step 3 (layout A): the drillers stand on the yard, out of the lord's lane and the bunkhouse door (step 2's
-    /// "clear of the barracks and Marek's cart" went: the bunkhouse's front is the yard now, the cart moves to the
-    /// back gate).
     /// Step 3 (the critic's H3), on the drawn pixels of yardKettle.png: frames 1 and 2 carry an iron pot 7 px wide with
     /// a pale lit rim; frame 2's underside and lower flank are in the fire's warm ramp (two rows), frame 1's are not.
     func testTheKettleReadsAsAPotOverItsFire() throws {
@@ -727,6 +724,9 @@ final class YardLookTests: XCTestCase {
         }
     }
 
+    /// Step 3 (layout A): the drillers stand on the yard, out of the lord's lane and the bunkhouse door (step 2's
+    /// "clear of the barracks and Marek's cart" went: the bunkhouse's front is the yard now, the cart moves to the
+    /// back gate).
     func testTheDrillStandsOutOfTheLaneAndTheDoor() {
         var boxes: [(name: String, left: Double, right: Double)] = []
         for x in YardLook.archerSpots {
@@ -779,6 +779,156 @@ final class YardLookTests: XCTestCase {
         XCTAssertGreaterThan(flights, 0, "an arrow flies every round")
         XCTAssertNotEqual(YardLook.archerFrame(index: 0, time: 2.1, reduceMotion: false),
                           YardLook.archerFrame(index: 1, time: 2.1, reduceMotion: false), "out of step")
+    }
+
+    /// Step 3 (the director's pick of 21.11.2026, 17:31; the critic's H4): the arrow flies one high arc from the bow
+    /// into the front butt's heart, its arc between 40 and 60. Every drawn pixel of it (arrow.png read back, the sprite
+    /// placed as the actors place it, the screen's half pixel either way) passes at least `arrowClearance` px over the
+    /// guard at his pell, over Brannock at every stop he has, and over the lord or the lady anywhere at the fence (the
+    /// middle 1460 to 1476, the raised lantern inside the 30 px frame): so the drill goes on there. With someone in the
+    /// lane's west part (the gate's count spot 1455, the site's middle) or before the butts, the archer holds.
+    func testTheArrowFliesOneHighArcOverEveryone() throws {
+        XCTAssertGreaterThanOrEqual(YardLook.arrowArc, 40)
+        XCTAssertLessThanOrEqual(YardLook.arrowArc, 60)
+        let sprite = SpriteID.arrow
+        let url = try XCTUnwrap(AtlasBuilder.artURL(for: sprite, bundle: .main), "arrow.png is in the bundle")
+        let strip = try XCTUnwrap(PNGDecoder.load(url: url))
+        let size = sprite.size
+        var lowest: [[Int]] = []
+        for frame in 0..<3 {
+            var rows: [Int] = []
+            for x in 0..<size.width {
+                var low = size.height
+                for y in 0..<size.height where strip[frame * size.width + x, y].a > 0 {
+                    low = min(low, size.height - 1 - y)
+                }
+                rows.append(low)
+            }
+            lowest.append(rows)
+        }
+        XCTAssertEqual(lowest, YardLook.arrowLowestRows, "the table is arrow.png as drawn")
+
+        var flight: [(x: Double, y: Double, frame: Int)] = []
+        var t = YardLook.looseAt
+        while t < YardLook.looseAt + YardLook.arrowSeconds {
+            if let arrow = YardLook.arrow(index: 0, time: t, reduceMotion: false) { flight.append(arrow) }
+            t += 0.0005
+        }
+        XCTAssertGreaterThan(flight.count, 500, "it flies for \(YardLook.arrowSeconds) s")
+        // One arc: rising, level, falling, never back; high over the bunkhouse's roof; from the bow into the heart.
+        let frames = flight.map(\.frame)
+        XCTAssertEqual(frames, frames.sorted(), "rising, level, falling, in that order")
+        XCTAssertEqual(Set(frames), [0, 1, 2])
+        let top = flight.map(\.y).max() ?? 0
+        XCTAssertGreaterThan(top, Double(SpriteID.barracks.size.height) + 10, "a high arc: its top at \(top)")
+        XCTAssertEqual(flight.first?.x ?? 0, YardLook.archerSpots[0] + YardLook.bowReach, accuracy: 0.5, "from the bow")
+        XCTAssertEqual((flight.last?.x ?? 0) + 3, YardLook.buttHeart.x, accuracy: 0.5, "its tip in the heart")
+        XCTAssertEqual(flight.last?.y ?? 0, YardLook.buttHeart.y, accuracy: 0.6)
+
+        // The least height of the drawn arrow over a figure's box (`left` its left edge as the actors draw it).
+        func gap(left: Double, width: Int, height: Int) -> Double {
+            var least = Double.infinity
+            let right = left + Double(width)
+            for arrow in flight {
+                let rows = lowest[arrow.frame]
+                let bottom = arrow.y - Double(size.height) / 2 - 0.5
+                for slack in [-0.5, 0, 0.5] {
+                    let spriteLeft = arrow.x - Double(size.width / 2) + slack
+                    for (column, row) in rows.enumerated()
+                    where spriteLeft + Double(column) + 1 > left && spriteLeft + Double(column) < right {
+                        least = min(least, bottom + Double(row) - Double(height))
+                    }
+                }
+            }
+            return least
+        }
+        func figureGap(_ sprite: SpriteID, at x: Double) -> Double {
+            gap(left: x - Double(sprite.size.width / 2), width: sprite.size.width, height: sprite.size.height)
+        }
+        var seen: [String] = []
+        for spot in YardLook.guardSpots {
+            let clear = figureGap(.guardsman, at: spot.x)
+            seen.append("guard \(spot.x): \(clear)")
+            XCTAssertGreaterThanOrEqual(clear, YardLook.arrowClearance, "over the guard at \(spot.x)")
+        }
+        let brannock = try XCTUnwrap(CourtLayout.routines["brannock"])
+        for stop in Set(brannock.stops + [brannock.night]) {
+            let clear = figureGap(.brannock, at: stop)
+            seen.append("Brannock \(stop): \(clear)")
+            XCTAssertGreaterThanOrEqual(clear, YardLook.arrowClearance, "over Brannock at \(stop)")
+        }
+        var leastLord = Double.infinity
+        var x = Yard.fenceX - tuning.fenceReach
+        while x <= Yard.fenceX + tuning.fenceReach {
+            for body in [SpriteID.king, .lady] {
+                let clear = figureGap(body, at: x)
+                leastLord = min(leastLord, clear)
+                XCTAssertGreaterThanOrEqual(clear, YardLook.arrowClearance, "over \(body) at the fence, \(x)")
+                XCTAssertFalse(YardLook.archerHolds(figures: [(x: x, width: body.size.width,
+                                                              height: body.size.height)]),
+                               "the drill goes on with \(body) at \(x)")
+            }
+            x += 0.25
+        }
+        seen.append("the lord at the fence: \(leastLord)")
+        print("b3-yard arrow: arc \(YardLook.arrowArc), top \(top); least gaps: \(seen.joined(separator: "; "))")
+        // The rule the frame uses agrees with the measure here.
+        for spot in YardLook.guardSpots {
+            XCTAssertGreaterThanOrEqual(YardLook.arrowGap(overFigureAt: spot.x, width: SpriteID.guardsman.size.width,
+                                                          height: SpriteID.guardsman.size.height),
+                                        YardLook.arrowClearance)
+        }
+        let him = SpriteID.brannock.size
+        XCTAssertFalse(YardLook.archerHolds(figures: brannock.stops.map { (x: $0, width: him.width, height: him.height) }),
+                       "Brannock in his door never holds the drill")
+        // Where the arrow is still low, or comes down before the butts, the archer holds.
+        let lord = SpriteID.king.size
+        for spot in [1450.0, 1455, Yard.plotX, 1459, 1528, 1540] {
+            XCTAssertTrue(YardLook.archerHolds(figures: [(x: spot, width: lord.width, height: lord.height)]),
+                          "the lord at \(spot): the archer holds")
+            XCTAssertLessThan(figureGap(.king, at: spot), YardLook.arrowClearance, "the measure agrees at \(spot)")
+        }
+    }
+
+    /// Step 3 (the critic's H4): while someone stands where the arrow is low the archer holds at the full draw and no
+    /// arrow flies; once the place is free he looses at once. Archer (2.6 s) and guard (1.6 s) never move in lockstep.
+    func testTheArcherHoldsAtTheDrawAndLoosesWhenThePlaceIsFree() {
+        var clock = YardLook.DrillClock()
+        var sim = 100.0
+        clock.step(to: sim, held: false)
+        XCTAssertEqual(clock.time, sim, "a first step takes the simulation's time")
+        for _ in 0..<(60 * 8) {
+            sim += 1.0 / 60
+            clock.step(to: sim, held: true)
+        }
+        XCTAssertEqual(YardLook.archerFrame(index: 0, time: clock.time, reduceMotion: false), 3, "held at the draw")
+        XCTAssertNil(YardLook.arrow(index: 0, time: clock.time, reduceMotion: false), "no arrow while he holds")
+        let heldAt = clock.time
+        for _ in 0..<60 {
+            sim += 1.0 / 60
+            clock.step(to: sim, held: true)
+        }
+        XCTAssertEqual(clock.time, heldAt, accuracy: 1e-9, "the clock stands while he holds")
+        var loosed = false
+        for _ in 0..<3 {
+            sim += 1.0 / 60
+            clock.step(to: sim, held: false)
+            if YardLook.arrow(index: 0, time: clock.time, reduceMotion: false) != nil { loosed = true }
+        }
+        XCTAssertTrue(loosed, "he looses within a few frames of the place coming free")
+        // A jump (a load, a new day) takes the simulation's time.
+        clock.step(to: sim + 50, held: false)
+        XCTAssertEqual(clock.time, sim + 50)
+        // Never in lockstep: over their common period (20.8 s) the guard is at a different point of his round at each
+        // of the archer's looses.
+        var phases = Set<Int>()
+        var time = 0.0
+        while time < 20.8 {
+            let phase = time.truncatingRemainder(dividingBy: YardLook.guardRound)
+            phases.insert(Int((phase * 10).rounded()))
+            time += YardLook.archerRound
+        }
+        XCTAssertGreaterThanOrEqual(phases.count, 7, "the guard's point of his round at each loose: \(phases.sorted())")
     }
 
     func testTheGuardsWaitClearOfTheYardAtNight() {

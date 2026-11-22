@@ -60,14 +60,29 @@ enum YardLook {
     /// One archer's round: rest, draw, full draw, loose (the arrow flies), rest; each man out of step by his place.
     static let archerRound = 2.6
     static let archerPhases: [(until: Double, frame: Int)] = [(0.9, 0), (1.4, 2), (2.0, 3), (2.3, 4), (2.6, 1)]
-    /// The arrow flies from the loose for this long, from the bow to the butt's heart.
+    /// The arrow flies from the loose for this long, from the bow to the butt's heart. Step 3 (the critic's H4): one
+    /// high arc across the whole yard (the director's pick: "arrows fly along the screen"), slow enough to be followed
+    /// (0.55 s, was 0.3), landing before the round's end (2.6).
     static let looseAt = 2.0
-    static let arrowSeconds = 0.3
-    static let bowLift = 17.0
-    static let bowReach = 6.0
-    /// The arrow's flight is lofted this high over the straight line at its middle, so it passes over the guard's
-    /// head (28 px) into the butt (step 2's review: straight, it flew through him).
-    static let arrowArc = 18.0
+    static let arrowSeconds = 0.55
+    /// Where the arrow leaves the bow: 4 px before the archer's middle (the shaft over the bow, its nock at his string
+    /// hand) and 21 px up, at the bow's upper limb, as a high loose leaves it (step 2: 6 and 17).
+    static let bowLift = 21.0
+    static let bowReach = 4.0
+    /// The arrow's flight is lofted this high over the straight line at its middle (step 3, the director's pick of
+    /// 21.11.2026, 17:31: between 40 and 60). 58 is the lowest whole arc that keeps every drawn pixel of the arrow
+    /// `arrowClearance` px over the lord's box anywhere at the fence (his middle 1460 to 1476, the raised lantern in his
+    /// 30 px frame), over Brannock in the bunkhouse door and over the guard at his pell, with the half pixel the screen
+    /// may round either way (YardLookTests measure it); its top stands about 75 px up, over the bunkhouse's roof.
+    static let arrowArc = 58.0
+    /// Every drawn pixel of the flying arrow passes at least this high over every figure's sprite box (the archer's
+    /// own excepted); where it would not, the archer holds at the draw (`archerHolds`, `DrillClock`).
+    static let arrowClearance = 4.0
+    /// The drawn arrow may stand this far off its path either way (the screen's whole pixels).
+    static let arrowSlack = 0.5
+    /// The arrow's lowest drawn pixel in each of its 7 columns (rows over its sprite's bottom) for its frames 0
+    /// (rising), 1 (level) and 2 (falling): arrow.png as drawn (YardLookTests reads the file back).
+    static let arrowLowestRows: [[Int]] = [[0, 0, 1, 2, 3, 3, 4], [1, 1, 2, 2, 2, 2, 2], [3, 3, 3, 2, 1, 0, 0]]
     /// One guard's round at his pell: rest, strike (frames 6, 7, 8), rest.
     static let guardRound = 1.6
     static let guardPhases: [(until: Double, frame: Int)] = [(0.6, 0), (0.8, 6), (1.0, 7), (1.2, 8), (1.6, 1)]
@@ -91,13 +106,111 @@ enum YardLook {
         guard !reduceMotion, index >= 0, index < archerSpots.count else { return nil }
         let t = wrapped(time + Double(index) * 1.1, round: archerRound) - looseAt
         guard t >= 0, t < arrowSeconds else { return nil }
-        let share = t / arrowSeconds
-        let fromX = archerSpots[index] + bowReach
+        return arrowPath(index: index, share: t / arrowSeconds)
+    }
+
+    /// The arrow's place on its one arc at `share` (0 at the bow, 1 with its tip in the butt's heart): its middle (x, y
+    /// over the walk line) and its frame by the slope. x runs evenly with the time, y is a parabola, so the flight is a
+    /// thrown one.
+    static func arrowPath(index: Int, share: Double) -> (x: Double, y: Double, frame: Int) {
+        let fromX = archerSpots[max(0, min(index, archerSpots.count - 1))] + bowReach
         let toX = buttHeart.x - 3
         let x = fromX + (toX - fromX) * share
         let y = bowLift + (buttHeart.y - bowLift) * share + 4 * arrowArc * share * (1 - share)
         let slope = ((buttHeart.y - bowLift) + 4 * arrowArc * (1 - 2 * share)) / max(1, toX - fromX)
         return (x: x, y: y, frame: slope > 0.3 ? 0 : (slope < -0.3 ? 2 : 1))
+    }
+
+    // MARK: - The arrow's clearance (step 3, the director's pick of 21.11.2026, 17:31; the critic's H4)
+
+    /// The first world column of `arrowFloor`.
+    static let arrowFloorLeft = 1420
+    /// The lowest the drawn arrow ever comes over each whole world column from `arrowFloorLeft` (game px over the walk
+    /// line; infinity where it never flies): the flight sampled finely, the sprite placed as the actors place it (left
+    /// edge x − 3, bottom y − 2.5), each of its 7 columns at its lowest drawn pixel, moved `arrowSlack` either way.
+    static let arrowFloor: [Double] = floorOfTheFlight()
+
+    private static func floorOfTheFlight() -> [Double] {
+        var floor = [Double](repeating: .infinity, count: 150)
+        guard !archerSpots.isEmpty else { return floor }
+        let size = SpriteID.arrow.size
+        let half = Double(size.width / 2)
+        let lift = Double(size.height) / 2
+        let samples = 2400
+        for step in 0...samples {
+            let place = arrowPath(index: 0, share: Double(step) / Double(samples))
+            let rows = arrowLowestRows[max(0, min(place.frame, arrowLowestRows.count - 1))]
+            let bottom = place.y - lift - arrowSlack
+            for slack in [-arrowSlack, 0, arrowSlack] {
+                let left = place.x - half + slack
+                for (column, row) in rows.enumerated() {
+                    let from = left + Double(column)
+                    var k = Int(from.rounded(.down))
+                    while Double(k) < from + 1 {
+                        let index = k - arrowFloorLeft
+                        if index >= 0 && index < floor.count { floor[index] = min(floor[index], bottom + Double(row)) }
+                        k += 1
+                    }
+                }
+            }
+        }
+        return floor
+    }
+
+    /// The least height (game px) by which the drawn arrow passes over a figure standing at `x` (its sprite `width`
+    /// wide and `height` high, anchored at its bottom middle as the actors are; the slack is in `arrowFloor`);
+    /// infinity where the arrow never flies over him.
+    static func arrowGap(overFigureAt x: Double, width: Int, height: Int) -> Double {
+        let left = x - Double(width / 2)
+        let first = Int(left.rounded(.down))
+        let last = Int((left + Double(width)).rounded(.up)) - 1
+        var gap = Double.infinity
+        guard first <= last else { return gap }
+        for k in first...last {
+            let index = k - arrowFloorLeft
+            guard index >= 0 && index < arrowFloor.count else { continue }
+            gap = min(gap, arrowFloor[index] - Double(height))
+        }
+        return gap
+    }
+
+    /// True while someone stands where the arrow would pass less than `arrowClearance` px over him (in the lane's west
+    /// part, where it is still low, or before the butts, where it comes down): the archer holds at the draw and looses
+    /// when the place is free. `figures`: every figure in the courtyard but the drillers (x, sprite width, height).
+    static func archerHolds(figures: [(x: Double, width: Int, height: Int)]) -> Bool {
+        figures.contains { arrowGap(overFigureAt: $0.x, width: $0.width, height: $0.height) < arrowClearance }
+    }
+
+    /// The drill's own clock and whether the archer holds now, handed to `EntityFrames.layer` (nil: the simulation's
+    /// time, nobody in the way).
+    struct Drill: Sendable, Equatable {
+        var time: Double
+        var held: Bool
+    }
+
+    /// The archer's clock: it runs with the simulation's, except while he holds, when it stops at his full draw (just
+    /// before the loose) and runs on from there once the place is free, so he looses then. An arrow already in the air
+    /// when someone steps in is not drawn (`EntityFrames.actors`), so it never crosses him. Picture only, never saved.
+    struct DrillClock: Sendable, Equatable {
+        private(set) var time = 0.0
+        private var last: Double?
+
+        /// The clock at the simulation's `simTime`, held or not. A first step, a jump back or one longer than a second
+        /// (a load, a new day) takes the simulation's time as it is.
+        mutating func step(to simTime: Double, held: Bool) {
+            defer { last = simTime }
+            guard let last, simTime >= last, simTime - last <= 1 else {
+                time = simTime
+                return
+            }
+            let dt = simTime - last
+            let phase = YardLook.wrapped(time, round: YardLook.archerRound)
+            if held && phase < YardLook.looseAt {
+                time += min(dt, max(0, YardLook.looseAt - 0.01 - phase))
+            } else {
+                time += dt
+            }
+        }
     }
 
     private static func wrapped(_ time: Double, round: Double) -> Double {

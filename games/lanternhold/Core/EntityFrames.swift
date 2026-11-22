@@ -140,7 +140,7 @@ enum EntityFrames {
     /// Everything the simulation adds to the frame of `state` seen by `camera`.
     static func layer(state s: GameState, balance: Balance, scene: PlaceholderScene, camera: Camera,
                       pixelScale: PixelScale, options: FrameOptions, animTime: Double,
-                      effects: BattleEffects = BattleEffects()) -> EntityLayer {
+                      effects: BattleEffects = BattleEffects(), drill: YardLook.Drill? = nil) -> EntityLayer {
         var layer = EntityLayer()
         var props = PropList()
         let ambient = AmbientRamp.sample(at: s.hour, look: options.look)
@@ -214,7 +214,8 @@ enum EntityFrames {
         let gloom = options.look == .two && options.effects.fog ? options.gloom : nil
         layer.actors = actors(s, balance: balance, layouts: layouts, origins: origins, view: view, ambient: ambient,
                               isDay: isDay, animTime: animTime, effects: effects, look: options.look,
-                              reduceMotion: options.reduceMotion, gloom: gloom, weather: options.weather, lifts: lifts)
+                              reduceMotion: options.reduceMotion, gloom: gloom, weather: options.weather, lifts: lifts,
+                              drill: drill)
         #if DEBUG
         // b3-horde: the runner's clip waits until the horde is on screen (`HordeProof.probe`, a `dark` proof only).
         if HordeProof.probing { HordeProof.probe(layer.actors, state: s) }
@@ -1197,7 +1198,8 @@ enum EntityFrames {
                                ambient: AmbientSample, isDay: Bool, animTime: Double,
                                effects: BattleEffects, look: LookVersion = .one,
                                reduceMotion: Bool = false, gloom: GloomFog? = nil,
-                               weather: WeatherSample = .clear, lifts: [Int: Double]? = nil) -> [ActorInstance] {
+                               weather: WeatherSample = .clear, lifts: [Int: Double]? = nil,
+                               drill: YardLook.Drill? = nil) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let time = s.simTime
         func add(_ sprite: SpriteID, frame: Int, x: Double, y: Double, flipped: Bool = false,
@@ -1523,16 +1525,21 @@ enum EntityFrames {
         // 16:00, the yard standing) an archer shoots at the butt from the fence's gate (draw, loose, the arrow flies
         // lofted over the guard and sticks) and a guard strikes the pell; the others are in the bunkhouse.
         // The frames are the ones they have. Reduce Motion: they stand still (the bow drawn), no arrow flies.
+        // Step 3 (the critic's H4): one high arc over everyone; the archer runs on the drill's own clock (`drill`), held
+        // at the draw while someone stands where the arrow is still low, and no arrow is drawn while he holds.
         if Yard.drilling(s, balance: balance) {
             var archersAtDrill = 0
             var guardsAtDrill = 0
+            let drillTime = drill?.time ?? time
+            let held = drill?.held ?? false
             for soldier in s.soldiers where soldier.state == .reserve {
                 if soldier.kind == .archer {
                     guard archersAtDrill < YardLook.archerSpots.count else { continue }
                     let x = YardLook.archerSpots[archersAtDrill]
-                    add(.archer, frame: YardLook.archerFrame(index: archersAtDrill, time: time,
+                    add(.archer, frame: YardLook.archerFrame(index: archersAtDrill, time: drillTime,
                                                              reduceMotion: reduceMotion), x: x, y: 0)
-                    if let flight = YardLook.arrow(index: archersAtDrill, time: time, reduceMotion: reduceMotion) {
+                    if !held, let flight = YardLook.arrow(index: archersAtDrill, time: drillTime,
+                                                          reduceMotion: reduceMotion) {
                         let half = Double(SpriteID.arrow.size.height) / 2
                         add(.arrow, frame: flight.frame, x: flight.x, y: flight.y - half)
                     }
