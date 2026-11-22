@@ -401,19 +401,23 @@ enum HUDKitActors {
 /// oben eine Anzeige, wie die Buerger drauf sind"): the town's mood stands at the realm strip's town end as the
 /// town's banner, so caring for the people is never out of sight while the strip shows (the lantern moment, a call).
 /// It hangs on two cords under the strip's town end: a short pole, the cloth in the mood's colour with a swallowtail,
-/// the hood face sewn on it in the kit's four moods, and in its hem three quiet marks (in which third of its mood's
-/// band the happiness stands). Beside it the people, their count and the mood's trend since the last dawn. A touch on
+/// the hood face sewn on it in the kit's four moods (step 5: the hem's marks are gone; the arrow is the only sign of
+/// the trend). Beside it the people, their count and the mood's trend since the last dawn, one group with one shared
+/// ink edge (step 5, `MoodBannerArt.sticker`). A touch on
 /// it gives one slip with the main reason, read from what the dawn report knows of the day's happiness changes and
 /// the knocks at the doors. No rule or number of the happiness changes here: the bands are the face's
 /// (`HUDKit.faceFrame`). The picture is `Resources/Art/moodBanner.png` (tools/hudart.py), drawn by SwiftUI under the
 /// strip (`MoodBannerView`), never by the renderer. Pure.
 enum MoodBanner {
-    /// One frame of the banner's picture: pole, cords, cloth, face and hem (game px).
+    /// One frame of the banner's picture: pole, cords, cloth and face (game px).
     static let size = PixelSize(width: 21, height: 25)
-    /// Its frames: mood x 4 + marks (0 a plain hem, 1 to 3 that many marks lit), the moods in the face's order.
-    static let frameCount = 16
-    /// Whether the hem's marks are shown (false: the plain hem; one line to take them out).
-    static let showsMarks = true
+    /// Its frames: one per mood, in the face's order (step 5: the hem's marks and their twelve frames are gone).
+    static let frameCount = 4
+    /// The cloth's depth under the pole and the whole picture's with the cords and the pole (game px).
+    static let clothDepth = 21
+    static let depth = 25
+    /// The people group's shared ink edge beyond its joint bounds (game px; `MoodBannerArt.sticker`).
+    static let stickerEdge = 1
     /// The banner's left edge under the strip, in the strip's columns (its pole spans 128 to 148 of 150, under the
     /// strip's town end; the people and their count stand beyond the strip's end).
     static let column = 128
@@ -430,27 +434,9 @@ enum MoodBanner {
         HUDKit.faceFrame(happiness: happiness)
     }
 
-    /// The band of a mood (its lowest and highest happiness).
-    static func band(mood: Int) -> ClosedRange<Int> {
-        switch mood {
-        case 0: return 60...100
-        case 1: return 30...59
-        case 2: return 15...29
-        default: return 0...14
-        }
-    }
-
-    /// The hem's marks: in which third of its mood's band the happiness stands (1 the lowest, 3 the highest).
-    static func marks(happiness: Int) -> Int {
-        let value = min(100, max(0, happiness))
-        let range = band(mood: mood(happiness: value))
-        let span = range.upperBound - range.lowerBound + 1
-        return min(3, 1 + 3 * (value - range.lowerBound) / span)
-    }
-
-    /// The banner's frame in its picture.
+    /// The banner's frame in its picture: its mood.
     static func frame(happiness: Int) -> Int {
-        mood(happiness: happiness) * 4 + (showsMarks ? marks(happiness: happiness) : 0)
+        mood(happiness: happiness)
     }
 
     /// The mood's trend: +1 rising, -1 falling, 0 even, against the happiness before the last dawn (0 without one).
@@ -476,7 +462,7 @@ enum MoodBanner {
         case dawn(HappinessReason)
         /// The knocks at the town's doors, today and yesterday (each cost happiness at once).
         case knocked
-        /// Nothing has moved them yet (the first day).
+        /// Nothing has moved them (no change to name): the slip names the mood itself (step 5).
         case quiet
     }
 
@@ -645,5 +631,64 @@ struct LanternVeil: Sendable, Equatable {
     static func toward(_ value: Double, _ target: Double, by amount: Double) -> Double {
         let next = value < target ? min(target, value + amount) : max(target, value - amount)
         return abs(next - target) < 1e-9 ? target : next
+    }
+}
+
+/// The hint's glint and the raise's flare as light (build 3, lane 5 step 5; the step-4 critic's M3, the director's
+/// ruling): whole game px round the lord's glass (`dx` right of its column, `dy` up from its row), opaque, in their own
+/// colours, drawn over the finished picture (`ActorDim.over`), stepping instead of fading so they read at phone size.
+/// Their soft halo is the world's glow at the glass (`GameModel.lanternHalo`). Nothing under Reduce Motion. Pure.
+enum LanternSparkle {
+    struct Spot: Sendable, Equatable {
+        var dx: Int
+        var dy: Int
+        var color: SIMD3<Float>
+    }
+
+    /// The glint: its centre 255,250,235, its arms 240,220,170.
+    static let glintCentre = SIMD3<Float>(255.0 / 255, 250.0 / 255, 235.0 / 255)
+    static let glintArm = SIMD3<Float>(240.0 / 255, 220.0 / 255, 170.0 / 255)
+    /// The flare: a white centre, a ring and rays of fire gold 255,200,96.
+    static let flareCentre = SIMD3<Float>(1, 1, 1)
+    static let flareGold = SIMD3<Float>(255.0 / 255, 200.0 / 255, 96.0 / 255)
+
+    /// The pulse (0 ... 1) from which the glint's centre shows, and from which each arm is 1, 2, 3 px long.
+    static let glintFrom = 0.12
+    static let armFrom: [Double] = [0.3, 0.55, 0.8]
+
+    /// The glint at `pulse`: a cross of 7 px at its peak (the centre and four arms of 3 px), growing and shrinking a
+    /// pixel at a time with the pulse.
+    static func glint(pulse: Double) -> [Spot] {
+        guard pulse > glintFrom else { return [] }
+        var spots = [Spot(dx: 0, dy: 0, color: glintCentre)]
+        for (index, from) in armFrom.enumerated() where pulse > from {
+            let k = index + 1
+            spots += [Spot(dx: -k, dy: 0, color: glintArm), Spot(dx: k, dy: 0, color: glintArm),
+                      Spot(dx: 0, dy: -k, color: glintArm), Spot(dx: 0, dy: k, color: glintArm)]
+        }
+        return spots
+    }
+
+    /// The flare at `strength` (1 at the raise, 0 after `LanternFlare.seconds`): the white centre, the ring of fire
+    /// gold round it (its eight neighbours) while it is strong, and four diagonal rays of 4 px from the ring, a pixel
+    /// shorter at each quarter of its strength.
+    static func flare(strength: Double) -> [Spot] {
+        guard strength > 0.02 else { return [] }
+        var spots = [Spot(dx: 0, dy: 0, color: flareCentre)]
+        if strength > 0.25 {
+            for dy in -1...1 {
+                for dx in -1...1 where dx != 0 || dy != 0 {
+                    spots.append(Spot(dx: dx, dy: dy, color: flareGold))
+                }
+            }
+        }
+        let rays = min(4, Int((strength * 4).rounded(.up)))
+        for k in 0..<rays {
+            let d = 2 + k
+            for (sx, sy) in [(-1, -1), (1, -1), (-1, 1), (1, 1)] {
+                spots.append(Spot(dx: sx * d, dy: sy * d, color: flareGold))
+            }
+        }
+        return spots
     }
 }

@@ -335,17 +335,28 @@ extension GameModel {
                                             strength: GameModel.hintHaloStrength * pulse) {
             layer.glows.append(halo)
         }
-        let warm = GamePalette.fireWhite
-        let k = Float(pulse) * 1.3
-        for (dx, dy, share) in [(0.0, 0.0, 1.0), (-1.0, 0.0, 0.5), (1.0, 0.0, 0.5), (0.0, 1.0, 0.5), (0.0, -1.0, 0.5),
-                                (2.0, 2.0, 0.6)] {
-            // b3-lantern (step 2b): on the lord's own columns (`lanternPixel`), no longer a glow on the ground's grid.
-            if let pixel = GameModel.lanternPixel(kingX: state.king.x, facing: state.king.facing, dx: dx,
-                                                  row: glassY + dy, rgb: warm * (k * Float(share)),
-                                                  framing: framing) {
-                layer.actors.append(pixel)
-            }
+        // b3-lantern (step 5, the step-4 critic's M3): a cross of 7 px at the pulse's peak, in its own colours over the
+        // finished picture, on the lord's own columns (`lanternMark`).
+        for spot in LanternSparkle.glint(pulse: pulse) {
+            layer.actors.append(GameModel.lanternMark(kingX: state.king.x, facing: state.king.facing, dx: spot.dx,
+                                                      row: glassY + Double(spot.dy), color: spot.color,
+                                                      framing: framing))
         }
+    }
+
+    /// Build 3, lane 5 step 5 (the step-4 critic's M3): one opaque pixel of the glint or the flare in `color`, `dx`
+    /// game px right of the lord's glass column and on `row` over the walk line, on the lord's own columns (as
+    /// `lanternPixel` places it), drawn over the finished picture in its own colour (`ActorDim.over`).
+    static func lanternMark(kingX: Double, facing: Int, dx: Int, row: Double, color: SIMD3<Float>,
+                            framing: TouchFraming) -> ActorInstance {
+        let left = raiseFlameLeft(kingX: kingX + Double(dx), facing: facing, framing: framing)
+        let top = framing.deviceY(lift: row.rounded(.down) + 1)
+        let side = Float(framing.scale)
+        var pixel = ActorInstance(sprite: .hallMote, frame: 0, rect: SIMD4<Float>(Float(left), Float(top), side, side),
+                                  tint: SIMD4<Float>(color.x, color.y, color.z, 1), flipped: false, isEmissive: true,
+                                  isLit: true)
+        pixel.dimRule = .over
+        return pixel
     }
 
     /// Build 3, lane 5 step 2b (the smooth walk; what step 2a left): one warm pixel at the lord's lantern (the hint's
@@ -390,9 +401,10 @@ extension GameModel {
     }
 
     /// The hint's halo at the glint's peak and the raise's at the flare's start (the glow's strength; `siteHalo`, the
-    /// count's dithered halo, falls off from 0.6 in its middle).
-    static let hintHaloStrength = 0.5
-    static let raiseHaloStrength = 0.8
+    /// count's dithered halo, falls off from 0.6 in its middle in stepped rings, 12 px round). Step 5 (the step-4
+    /// critic's M3): 0.8 at the glint's peak, 1.0 at the raise falling to 0 over the flare's 0.45 s.
+    static let hintHaloStrength = 0.8
+    static let raiseHaloStrength = 1.0
 
     /// A soft warm halo round the lord's glass (`siteHalo` frame 0, 25 x 25, centred on the glass's column and `row`):
     /// a glow of the world, so it feeds the bloom as the old glows did; it is soft, so standing on the world's grid

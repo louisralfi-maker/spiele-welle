@@ -637,7 +637,9 @@ final class LanternMomentTests: XCTestCase {
     /// Lane 5 step 2b (what step 2a left): the hint's glint and the raise's flare and sparks are emissive actors on the
     /// lord's own columns (`GameModel.lanternPixel`): over a 120-step walk with the camera following, each keeps one
     /// device distance to his anchor, the glass's column plus its own whole game px. As world glows they stood on the
-    /// ground's grid. A faint one is not drawn; under 1 its strength is its share, over 1 it brightens.
+    /// ground's grid. A faint one is not drawn; under 1 its strength is its share, over 1 it brightens. Step 5: the
+    /// glint and the flare are opaque marks now (`GameModel.lanternMark`, pinned on the same columns in
+    /// `testTheGlintAndTheFlareReadAsLight`); the sparks keep `lanternPixel`, never dimmed by the lantern's light.
     func testTheLanternsPixelsKeepTheirDistanceToTheWalkingLord() throws {
         for facing in [1, -1] {
             for dx in [-2.0, -1.3, 0, 1, 2.6] {
@@ -671,24 +673,10 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertEqual(bright.tint.x, 1.4, accuracy: 1e-5, "over 1 it brightens")
         XCTAssertEqual(Double(bright.rect.w), Double(pro.scale), "one game px")
         XCTAssertEqual(Double(bright.rect.y), framing.deviceY(lift: 31), "its row over the walk line")
+        XCTAssertEqual(bright.dimRule, .kept, "the lantern's own pixels are never dimmed")
     }
 
     // MARK: - Lane 5 step 4: the town's banner at the strip's town end (decision 6, form C)
-
-    /// The hem's marks tell in which third of its mood's band the happiness stands; the frame is mood x 4 + marks.
-    func testTheBannersMarksTellTheThirdOfTheMoodsBand() {
-        let thirds: [(Int, Int)] = [(100, 3), (88, 3), (87, 2), (74, 2), (73, 1), (60, 1), (59, 3), (50, 3), (49, 2),
-                                    (40, 2), (39, 1), (30, 1), (29, 3), (25, 3), (24, 2), (20, 2), (19, 1), (15, 1),
-                                    (14, 3), (10, 3), (9, 2), (5, 2), (4, 1), (0, 1), (-3, 1), (130, 3)]
-        for (happiness, marks) in thirds {
-            XCTAssertEqual(MoodBanner.marks(happiness: happiness), marks, "happiness \(happiness)")
-        }
-        XCTAssertEqual(MoodBanner.mood(happiness: 70), HUDKit.faceFrame(happiness: 70), "the face's bands")
-        XCTAssertEqual(MoodBanner.frame(happiness: 95), 0 * 4 + 3, "glad, high in its band")
-        XCTAssertEqual(MoodBanner.frame(happiness: 45), 1 * 4 + 2, "even, its middle")
-        XCTAssertEqual(MoodBanner.frame(happiness: 20), 2 * 4 + 2, "grim")
-        XCTAssertEqual(MoodBanner.frame(happiness: 8), 3 * 4 + 2, "unrest")
-    }
 
     /// Beside the banner: the people, their count and the mood's trend since the last dawn as the kit's arrow.
     func testTheBannersPeopleCountAndTrend() {
@@ -739,45 +727,70 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertEqual(strip.moodTrend, -1, "20 under the 64 before the dawn")
         XCTAssertEqual(strip.moodReason, .dawn(.fallen))
         // The words, English, one short line each.
-        XCTAssertEqual(MoodBannerView.reasonText(.dawn(.fallen)), "They mourn the fallen.")
-        XCTAssertEqual(MoodBannerView.reasonText(.knocked), "You knocked at their doors.")
+        XCTAssertEqual(MoodBannerView.reasonText(.dawn(.fallen), happiness: 20), "They mourn the fallen.")
+        XCTAssertEqual(MoodBannerView.reasonText(.knocked, happiness: 10), "You knocked at their doors.")
+        // Step 5 (the step-4 critic's M4, the director's words): with nothing to name the slip names the mood.
+        XCTAssertEqual(MoodBannerView.reasonText(.quiet, happiness: 80), "The town is in good heart.")
+        XCTAssertEqual(MoodBannerView.reasonText(.quiet, happiness: 45), "The town goes about its days.")
+        XCTAssertEqual(MoodBannerView.reasonText(.quiet, happiness: 20), "The town is weary.")
+        XCTAssertEqual(MoodBannerView.reasonText(.quiet, happiness: 8), "The town is angry.")
+        XCTAssertEqual(MoodBannerView.reasonText(.quiet, happiness: 60), "The town is in good heart.",
+                       "the face's bands")
+        XCTAssertEqual(MoodBannerView.reasonText(.quiet, happiness: 59), "The town goes about its days.")
         for reason in [MoodBanner.Reason.quiet, .knocked, .dawn(.leftAlone), .dawn(.tavern), .dawn(.chapel),
                        .dawn(.noLosses), .dawn(.fallen), .dawn(.unheard), .dawn(.lowTax), .dawn(.normalTax),
                        .dawn(.highTax), .dawn(.warTax)] {
-            XCTAssertLessThanOrEqual(MoodBannerView.reasonText(reason).count, 36, "\(reason): one short line")
+            for happiness in [80, 45, 20, 8] {
+                XCTAssertLessThanOrEqual(MoodBannerView.reasonText(reason, happiness: happiness).count, 36,
+                                         "\(reason), happiness \(happiness): one short line")
+            }
         }
         XCTAssertEqual(MoodBannerView.voiceValue(strip), "the town is grim, \(s.citizens) people, the mood is falling")
     }
 
-    /// The banner's picture (tools/hudart.py `moodBanner`): 16 frames of 21 x 25, the cloth in the mood's colour inside
-    /// an ink edge, at most 21 px deep under the pole, the hem's lit marks in pale bone, and frame 0 of each mood a
-    /// plain hem.
+    /// The banner's picture (tools/hudart.py `moodBanner`): 4 frames of 21 x 25 (one per mood), the cloth in the mood's
+    /// colour inside an ink edge. Step 5: the hem's marks are gone (the step-4 critic's M2): under the face the coat
+    /// line in the hood's colour, then the cloth's own colour; the even cloth's lower third is a step darker,
+    /// 200,186,156 (L4); each cord has 1 px of bone on its light side (M1).
     func testTheBannersPictureCarriesTheMoodsColour() throws {
         let frames = MoodBannerArt.frames()
         XCTAssertEqual(frames.count, MoodBanner.frameCount)
+        XCTAssertEqual(MoodBanner.frameCount, 4, "one frame per mood")
+        XCTAssertEqual(MoodBanner.frame(happiness: 95), 0, "glad")
+        XCTAssertEqual(MoodBanner.frame(happiness: 45), 1, "even")
+        XCTAssertEqual(MoodBanner.frame(happiness: 20), 2, "grim")
+        XCTAssertEqual(MoodBanner.frame(happiness: 8), 3, "unrest")
+        XCTAssertEqual(MoodBanner.mood(happiness: 70), HUDKit.faceFrame(happiness: 70), "the face's bands")
         let ink = RGBA(r: 42, g: 34, b: 48)
         let bone = RGBA(r: 222, g: 210, b: 184)
-        let cloth = [RGBA(r: 224, g: 174, b: 72), bone, RGBA(r: 126, g: 137, b: 182), RGBA(r: 184, g: 72, b: 58)]
+        let evenLow = RGBA(r: 200, g: 186, b: 156)
+        let tail = [RGBA(r: 224, g: 174, b: 72), evenLow, RGBA(r: 126, g: 137, b: 182), RGBA(r: 184, g: 72, b: 58)]
+        // The hood's colour (palette woodLight, plaster, mistDark, crimson): the coat line under the face.
+        let coat = [RGBA(r: 138, g: 99, b: 64), RGBA(r: 200, g: 174, b: 132), RGBA(r: 106, g: 115, b: 147),
+                    RGBA(r: 142, g: 43, b: 42)]
         for mood in 0..<4 {
-            let full = frames[mood * 4 + 3]
+            let full = frames[mood]
             XCTAssertEqual(full.width, 21)
             XCTAssertEqual(full.height, 25)
-            XCTAssertEqual(full[4, 21], cloth[mood], "mood \(mood): the cloth's colour on its tail")
+            XCTAssertEqual(full[4, 21], tail[mood], "mood \(mood): the cloth's colour on its tail")
             XCTAssertEqual(full[2, 21], ink, "mood \(mood): its ink edge")
             XCTAssertEqual(full[2, 4], ink, "the cloth's top edge under the pole")
             XCTAssertTrue((0..<21).contains { full[$0, 24].a > 0 }, "the cloth's foot on the last row")
             XCTAssertEqual(full[10, 24].a, 0, "the swallowtail's notch stays open")
-            for k in 0..<3 {
-                XCTAssertEqual(full[5 + 4 * k, 19], bone, "mood \(mood): mark \(k + 1) lit")
+            for x in 4...16 {
+                XCTAssertEqual(full[x, 19], coat[mood], "mood \(mood): the coat line under the face at \(x), no mark")
+                XCTAssertEqual(full[x, 20], tail[mood], "mood \(mood): the cloth's own colour at \(x), no mark")
             }
-            let one = frames[mood * 4 + 1]
-            XCTAssertEqual(one[5, 19], bone, "one mark lit")
-            XCTAssertNotEqual(one[9, 19], bone, "the second unlit")
-            XCTAssertNotEqual(frames[mood * 4][5, 19], bone, "a plain hem")
+            for cord in [6, 14] {
+                for y in 0...1 {
+                    XCTAssertEqual(full[cord, y], ink, "mood \(mood): the cord at \(cord), \(y)")
+                    XCTAssertEqual(full[cord - 1, y], bone, "mood \(mood): its bone on the light side")
+                }
+            }
         }
-        // Composed with the people beside it.
-        let pixels = try XCTUnwrap(MoodBannerArt.pixels(frame: 6, people: MoodBanner.people(14, trend: 1)))
-        XCTAssertEqual(pixels.width, MoodBanner.peopleX + 36)
+        // Composed with the people beside it, inside their ink edge (one column more).
+        let pixels = try XCTUnwrap(MoodBannerArt.pixels(frame: 2, people: MoodBanner.people(14, trend: 1)))
+        XCTAssertEqual(pixels.width, MoodBanner.peopleX + 36 + MoodBanner.stickerEdge)
         XCTAssertEqual(pixels.height, 25)
         // The banner with its people is a 44 pt target at the strip's 2 pt a game px.
         XCTAssertGreaterThanOrEqual(CGFloat(pixels.width) * RealmStripView.unit, 44)
@@ -863,8 +876,14 @@ final class LanternMomentTests: XCTestCase {
 
     /// Step 4 (the step 2b critic's M1): the glint and the raise's flare get back a soft halo at the glass, a glow of
     /// the world that feeds the bloom (their pixels are emissive actors since step 2b, which the bloom never sees):
-    /// centred on the glass, while the flare burns, never under Reduce Motion, none when too faint.
+    /// centred on the glass, while the flare burns, never under Reduce Motion, none when too faint. Step 5 (the step-4
+    /// critic's M3): it peaks at 0.8 at the glint's peak and at 1.0 at the raise.
     func testTheGlintAndTheFlareHaveTheirHaloBack() throws {
+        XCTAssertEqual(GameModel.hintHaloStrength, 0.8, "the glint's halo at its peak")
+        XCTAssertEqual(GameModel.raiseHaloStrength, 1.0, "the flare's at the raise")
+        let raise = try XCTUnwrap(GameModel.lanternHalo(kingX: 1000.4, facing: 1, row: 22,
+                                                        strength: GameModel.raiseHaloStrength))
+        XCTAssertEqual(Double(raise.color.x), Double(GamePalette.fireGold.x), accuracy: 1e-5, "whole at the raise")
         let halo = try XCTUnwrap(GameModel.lanternHalo(kingX: 1000.4, facing: 1, row: 22, strength: 0.8))
         XCTAssertEqual(halo.sprite, .siteHalo)
         XCTAssertEqual(halo.x + 12, 1000.4 + EntityFrames.kingGlass.dx, accuracy: 1e-9, "centred on the glass")
@@ -1171,5 +1190,147 @@ final class LanternMomentTests: XCTestCase {
         let back = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         XCTAssertEqual(try XCTUnwrap(back.actors.first { $0.sprite == .hudCoin }).tint.w, 1, accuracy: 1e-6)
         XCTAssertNotEqual(try XCTUnwrap(game.camera?.pan), 0, "the glide home is still on its way")
+    }
+
+    // MARK: - Lane 5 step 5: the banner critic's fixes
+
+    /// C1 (the step-4 critic's M1): the people, the count and the arrow are one group with one shared ink edge: no
+    /// clear pixel inside the group's bounds but its outer edge row, the dark there the one ink 42,34,48, every light
+    /// pixel of the figures at least 3 px from a clear one (its own edge and the shared one), and an outline that
+    /// follows the shapes (notched between the figures, clear at the corners), no box.
+    func testThePeopleCountAndArrowShareOneInkEdge() throws {
+        let ink = RGBA(r: 42, g: 34, b: 48)
+        for (count, trend) in [(17, 1), (7, -1), (128, 0), (14, 1)] {
+            let people = MoodBanner.people(count, trend: trend)
+            let pixels = try XCTUnwrap(MoodBannerArt.pixels(frame: 0, people: people))
+            let left = MoodBanner.peopleX
+            let top = MoodBanner.peopleY
+            let right = left + people.width
+            let bottom = top + HUDKit.rowHeight
+            var clear: [String] = []
+            for y in (top + 1)..<(bottom - 1) {
+                for x in (left + 1)..<(right - 1) where pixels[x, y].a == 0 { clear.append("\(x),\(y)") }
+            }
+            XCTAssertEqual(clear, [], "\(count) \(trend): no clear pixel inside the group")
+            // The dark inside the group is the one ink; a light pixel of the figures never stands within 2 px of a
+            // clear one (the world never touches the figures' own edge).
+            var gapsInk = true
+            var nearest = Int.max
+            var edgeClear = 0
+            for y in (top - 2)...(bottom + 1) {
+                for x in (left - 2)...(right + 1) {
+                    let texel = pixels[x, y]
+                    let inside = x >= left && x < right && y >= top && y < bottom
+                    if inside && texel.a > 0 && texel.r < 60 && texel.g < 60 && texel != ink { gapsInk = false }
+                    guard texel.a == 0 else { continue }
+                    if !inside && y >= top - 1 && y <= bottom && x >= left - 1 && x <= right { edgeClear += 1 }
+                    for dy in -2...2 {
+                        for dx in -2...2 {
+                            let nx = x + dx
+                            let ny = y + dy
+                            guard nx >= left, nx < right, ny >= top, ny < bottom else { continue }
+                            let near = pixels[nx, ny]
+                            if near.a > 0 && near != ink { nearest = min(nearest, max(abs(dx), abs(dy))) }
+                        }
+                    }
+                }
+            }
+            XCTAssertTrue(gapsInk, "\(count) \(trend): the dark inside the group is the one ink")
+            XCTAssertEqual(nearest, Int.max, "\(count) \(trend): two px of ink round every light pixel (\(nearest))")
+            XCTAssertGreaterThan(edgeClear, 0, "\(count) \(trend): the edge follows the shapes, no box")
+            XCTAssertEqual(pixels[left - 1, top - 1].a, 0, "\(count) \(trend): the edge's corner stays clear")
+            let ring = (left...right).filter { pixels[$0, top - 1].a > 0 }
+            if let first = ring.first, let last = ring.last {
+                XCTAssertTrue((first...last).contains { pixels[$0, top - 1].a == 0 },
+                              "\(count) \(trend): the top edge is notched between the figures, not a ruled line")
+            }
+        }
+    }
+
+    /// C6: the banner's depth, which step 4 left unpinned: the cloth 21 px under the pole (its top ink edge on row 4,
+    /// its foot on row 24), 25 px with the cords and the pole (the cords from row 0); the people's ink edge inside it.
+    func testTheBannersDepthIsTwentyOneUnderThePoleAndTwentyFiveWithCordsAndPole() throws {
+        XCTAssertEqual(MoodBanner.clothDepth, 21)
+        XCTAssertEqual(MoodBanner.depth, 25)
+        XCTAssertEqual(MoodBanner.size.height, MoodBanner.depth)
+        XCTAssertEqual(MoodBannerView.height, CGFloat(MoodBanner.depth) * RealmStripView.unit, "50 pt under the strip")
+        let ink = RGBA(r: 42, g: 34, b: 48)
+        for (mood, frame) in MoodBannerArt.frames().enumerated() {
+            let rows = (0..<frame.height).filter { y in (0..<frame.width).contains { frame[$0, y].a > 0 } }
+            XCTAssertEqual(rows.first, 0, "mood \(mood): the cords start on the top row")
+            XCTAssertEqual(rows.last, MoodBanner.depth - 1, "mood \(mood): 25 px with the cords and the pole")
+            let clothTop = (0..<frame.height).first { frame[MoodBanner.clothLeft, $0] == ink }
+            XCTAssertEqual(clothTop, 4, "mood \(mood): the cloth's top ink edge under the pole")
+            XCTAssertEqual(MoodBanner.depth - (clothTop ?? 0), MoodBanner.clothDepth, "mood \(mood): 21 px of cloth")
+        }
+        let pixels = try XCTUnwrap(MoodBannerArt.pixels(frame: 1, people: MoodBanner.people(128, trend: -1)))
+        XCTAssertEqual(pixels.height, MoodBanner.depth, "the people's edge never makes it deeper")
+    }
+
+    /// C3 (the step-4 critic's M3): the glint is a cross of 7 px at its peak (centre 255,250,235, arms 240,220,170);
+    /// the flare a white centre, a ring of fire gold 255,200,96 and four rays of 4 px, shortening as it burns down;
+    /// both opaque over the finished picture on the lord's own columns, and none under Reduce Motion. The halos: 0.8 at
+    /// the glint's peak, 1.0 falling to 0 over the flare's 0.45 s, at least 6 game px round.
+    func testTheGlintAndTheFlareReadAsLight() throws {
+        let peak = LanternSparkle.glint(pulse: 1)
+        XCTAssertEqual(peak.count, 13, "a centre and four arms of 3 px")
+        XCTAssertEqual(peak.map(\.dx).min(), -3)
+        XCTAssertEqual(peak.map(\.dx).max(), 3, "7 px across")
+        XCTAssertEqual(peak.map(\.dy).max(), 3, "7 px high")
+        XCTAssertEqual(peak.first { $0.dx == 0 && $0.dy == 0 }?.color, SIMD3<Float>(255, 250, 235) / 255)
+        let arm = SIMD3<Float>(240, 220, 170) / 255
+        XCTAssertTrue(peak.filter { $0.dx != 0 || $0.dy != 0 }.allSatisfy { $0.color == arm }, "the arms' colour")
+        XCTAssertTrue(LanternSparkle.glint(pulse: 0.1).isEmpty, "nothing at the pulse's foot")
+        XCTAssertEqual(LanternSparkle.glint(pulse: 0.5).count, 5, "it grows a pixel at a time")
+        let flare = LanternSparkle.flare(strength: 1)
+        let gold = SIMD3<Float>(255, 200, 96) / 255
+        XCTAssertEqual(flare.first { $0.dx == 0 && $0.dy == 0 }?.color, SIMD3<Float>(1, 1, 1), "a white centre")
+        XCTAssertEqual(flare.filter { abs($0.dx) <= 1 && abs($0.dy) <= 1 && ($0.dx != 0 || $0.dy != 0) }.count, 8,
+                       "a ring round it")
+        let rays = flare.filter { abs($0.dx) >= 2 }
+        XCTAssertEqual(rays.count, 16, "four rays of 4 px")
+        XCTAssertTrue(rays.allSatisfy { abs($0.dx) == abs($0.dy) && abs($0.dx) <= 5 && $0.color == gold })
+        XCTAssertEqual(LanternSparkle.flare(strength: 0.3).filter { abs($0.dx) >= 2 }.count, 8, "shorter as it fades")
+        XCTAssertTrue(LanternSparkle.flare(strength: 0.01).isEmpty)
+        XCTAssertEqual(GameModel.hintHaloStrength, 0.8)
+        XCTAssertEqual(GameModel.raiseHaloStrength, 1.0)
+        let layout = AtlasLayout.shared
+        let halo = layout.cell(.siteHalo, frame: 0)
+        XCTAssertGreaterThan(layout.image[halo.x + halo.width / 2 + 6, halo.y + halo.height / 2].a, 0,
+                             "the halo reaches 6 game px from the glass")
+        // On the lord's own columns over a walk, opaque, in its own colour, over the finished picture.
+        for facing in [1, -1] {
+            var gaps: Set<Double> = []
+            for step in 0..<120 {
+                let lordX = 1000.3 + 0.6 * Double(step * facing)
+                let camera = Camera(focusX: lordX, pixelScale: pro)
+                let framing = TouchFraming.world(camera: camera, pixelScale: pro)
+                let mark = GameModel.lanternMark(kingX: lordX, facing: facing, dx: -2, row: 24, color: gold,
+                                                 framing: framing)
+                gaps.insert(Double(mark.rect.x) - Double(camera.deviceX(worldX: lordX, scale: pro.scale,
+                                                                        mode: .smooth)))
+                XCTAssertEqual(mark.tint, SIMD4<Float>(gold.x, gold.y, gold.z, 1))
+                XCTAssertEqual(mark.dimRule, .over)
+            }
+            XCTAssertEqual(gaps.count, 1, "facing \(facing): one distance in every frame: \(gaps.sorted())")
+            let glass = (EntityFrames.kingGlass.dx * Double(facing)).rounded(.down)
+            XCTAssertEqual(gaps.first ?? 0, (glass - 2) * Double(pro.scale), accuracy: 0.001, "on its column")
+        }
+        // Through the model: the flare's pixels while it burns, none under Reduce Motion.
+        for reduce in [false, true] {
+            var values = ["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"]
+            if reduce { values["GWReduceMotion"] = "YES" }
+            let game = model(values)
+            run(game, seconds: 0.3)
+            game.withDriver { $0.state.king.lanternSince = 0.05 }
+            let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let marks = frame.actors.filter { $0.sprite == .hallMote && $0.dimRule == .over }
+            if reduce {
+                XCTAssertTrue(marks.isEmpty, "Reduce Motion: no flare")
+            } else {
+                XCTAssertGreaterThanOrEqual(marks.count, 20, "the flare burns: \(marks.count) pixels")
+                XCTAssertTrue(marks.contains { $0.tint == SIMD4<Float>(1, 1, 1, 1) }, "its white centre")
+            }
+        }
     }
 }

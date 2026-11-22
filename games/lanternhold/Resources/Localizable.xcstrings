@@ -1460,9 +1460,6 @@
         }
       }
     },
-    "Nothing has stirred the town yet." : {
-      "comment" : "The town banner's slip: no change of the mood to name yet (the first day) (build 3, lane 5 step 4; English only until the store pass)."
-    },
     "Nothing more to build here." : {
       "comment" : "Build card without options.",
       "localizations" : {
@@ -2468,6 +2465,18 @@
     },
     "The tax is low." : {
       "comment" : "The town banner's slip: an old save's low tax rate is the main reason (build 3, lane 5 step 4; English only until the store pass)."
+    },
+    "The town goes about its days." : {
+      "comment" : "The town banner's slip: no change of the mood to name, and the town is even; timeless, it can show on any day (build 3, lane 5 step 5; English only until the store pass)."
+    },
+    "The town is angry." : {
+      "comment" : "The town banner's slip: no change of the mood to name, and the town is in unrest; timeless, it can show on any day (build 3, lane 5 step 5; English only until the store pass)."
+    },
+    "The town is in good heart." : {
+      "comment" : "The town banner's slip: no change of the mood to name, and the town is glad; timeless, it can show on any day (build 3, lane 5 step 5; English only until the store pass)."
+    },
+    "The town is weary." : {
+      "comment" : "The town banner's slip: no change of the mood to name, and the town is grim; timeless, it can show on any day (build 3, lane 5 step 5; English only until the store pass)."
     },
     "The valley" : {
       "comment" : "Dawn report section.",

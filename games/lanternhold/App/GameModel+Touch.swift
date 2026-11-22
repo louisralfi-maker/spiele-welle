@@ -930,16 +930,22 @@ extension GameModel {
             layer.lights[index].source.y += lift
         }
         guard flare > 0.01 else { return }
-        // b3-lantern (build 3, lane 5 step 2b): the flare and its sparks on the lord's own columns
-        // (`GameModel.lanternPixel`), no longer glows on the ground's grid.
+        // b3-lantern (build 3, lane 5 step 5, the step-4 critic's M3): while the flare burns his own light pixels (the
+        // night's glow strip on his sprite) burn a step brighter, a plain tint for those frames.
+        for index in layer.actors.indices where layer.actors[index].sprite == lord.glow {
+            let lifted = Float(1 + 0.35 * flare)
+            layer.actors[index].tint.x *= lifted
+            layer.actors[index].tint.y *= lifted
+            layer.actors[index].tint.z *= lifted
+        }
+        // b3-lantern (build 3, lane 5 step 2b): the flare and its sparks on the lord's own columns, no longer glows on
+        // the ground's grid. Step 5 (M3): the flare is a white centre, a ring of fire gold and four rays of 4 px, in
+        // its own colours over the finished picture (`LanternSparkle.flare`, `lanternMark`).
         let glassY = (EntityFrames.kingGlass.dy + lift).rounded(.down)
-        let warm = GamePalette.fireWhite
-        for spot in LanternFlare.flare {
-            let k = Float(flare * spot.share) * 1.4
-            if let pixel = GameModel.lanternPixel(kingX: state.king.x, facing: state.king.facing, dx: spot.dx,
-                                                  row: glassY + spot.dy, rgb: warm * k, framing: framing) {
-                layer.actors.append(pixel)
-            }
+        for spot in LanternSparkle.flare(strength: flare) {
+            layer.actors.append(GameModel.lanternMark(kingX: state.king.x, facing: state.king.facing, dx: spot.dx,
+                                                      row: glassY + Double(spot.dy), color: spot.color,
+                                                      framing: framing))
         }
         // Stage-3-interface (stage-2 critic look 2, high 1): no ring. The wave is the light itself, growing on the
         // lane and the figures; the lift reads as a short burst of sparks rising from the glass.
