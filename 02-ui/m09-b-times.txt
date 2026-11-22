@@ -1,0 +1,36 @@
+m09-b: the first death on screen or off it; the condition: fewer alive than at the check before
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +2.807 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWNight 1 -GWSeed 1 -GWCameraX 1330 -GWHour 22.5
+
+frame  seconds since the burst began  (scene where read)
+01  +0.155 s  
+02  +0.346 s  day:1 hour:0.16 alive:12 seen:1 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+03  +0.640 s  
+04  +0.818 s  day:1 hour:0.21 alive:12 seen:2 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+05  +1.036 s  
+06  +1.187 s  day:1 hour:0.24 alive:12 seen:3 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+07  +1.471 s  
+08  +1.677 s  day:1 hour:0.27 alive:12 seen:3 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+09  +1.950 s  
+10  +2.136 s  day:1 hour:0.32 alive:12 seen:4 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+11  +2.512 s  
+12  +2.718 s  day:1 hour:0.36 alive:11 seen:3 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready  <- the condition holds
+13  +2.982 s  
+14  +3.160 s  
+15  +3.343 s  
+16  +3.612 s  
+17  +3.789 s  
+18  +3.974 s  
+19  +4.154 s  
+20  +4.334 s  
+21  +4.528 s  
+22  +4.707 s  
+23  +4.882 s  
+24  +5.053 s  
+25  +5.230 s  
+26  +5.410 s  
+27  +5.668 s  
+28  +5.915 s  day:1 hour:0.63 alive:8 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.213 s over 27 gaps

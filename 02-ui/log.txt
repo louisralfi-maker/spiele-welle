@@ -1,0 +1,14 @@
+<unknown>:0: error: -[LanternholdUITests.FilmDealsUITests testM05APurchase] : Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"touch-plot-0" IN identifiers'`, given input App element pid: 15787
+Test Case '-[LanternholdUITests.FilmDealsUITests testM05APurchase]' failed (47.120 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM06TheHall]' passed (143.461 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM07TheTaxesOnFoot]' passed (83.770 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM11TheDrillYard]' passed (126.558 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM08DuskAndTheHorn]' passed (48.550 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM09TheFirstAttack]' passed (101.672 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawn]' passed (29.574 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM12AnAdOfferAndTheEndCard]' passed (92.686 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP01MareksCardIsOneOfThePanes]' passed (34.115 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP02APaneClosesByOpacityUnderReduceMotion]' passed (27.728 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP03ThePauseSheetsSwitchAndItsSwap]' passed (36.528 seconds).
+exit=65
+screenshots: 1132

@@ -1,0 +1,38 @@
+m07-a: a touch on the chandler's door: he walks up, her household tosses its coins into his palm, the purse; the condition: the town's state lists her as paid
+real time; as fast as the frames come (a rolling burst)
+the cause (a touch on the chandler's door: he walks up, her household tosses its coins into his palm, the purse; the condition: the town's state lists her as paid) was sent at +0.000 s and returned at +0.788 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +2.017 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWTown owed -GWClock 14 -GWHappiness 66 -GWCameraX 2400
+
+frame  seconds since the burst began  (scene where read)
+01  +1.039 s  
+02  +1.305 s  day:2 hour:14.64 alive:0 seen:0 shots:0 kx:2464 stage:world lx:2464 gold:21 hud:none cam:2209 tap:door count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+03  +2.219 s  
+04  +2.434 s  
+05  +2.648 s  
+06  +2.847 s  
+07  +3.036 s  
+08  +3.214 s  
+09  +3.412 s  
+10  +3.691 s  
+11  +3.890 s  
+12  +4.089 s  
+13  +4.287 s  
+14  +4.514 s  
+15  +4.766 s  
+16  +4.953 s  
+17  +5.158 s  
+18  +5.338 s  
+19  +5.561 s  
+20  +5.859 s  
+21  +6.090 s  
+22  +6.303 s  
+23  +6.490 s  
+24  +6.668 s  
+25  +6.952 s  
+26  +7.152 s  
+27  +7.354 s  
+28  +7.564 s  
+29  +7.781 s  
+30  +8.003 s  day:2 hour:15.17 alive:0 seen:0 shots:0 kx:2493 stage:world lx:2493 gold:37 hud:none cam:2278 tap:door count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.240 s over 29 gaps
