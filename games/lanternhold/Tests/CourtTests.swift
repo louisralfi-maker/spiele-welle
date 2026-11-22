@@ -47,7 +47,9 @@ final class CourtTests: XCTestCase {
             XCTAssertNil(member(list, "seren"), "not let in")
         }
         let marekDay = CourtLayout.figures(day: 3, hour: 10, flags: [], queue: [], catalog: Self.sample)
-        XCTAssertEqual(member(marekDay, "marek")?.room, .courtyard, "every third day")
+        // b3-yard (build 3, wave 2, lane 2, step 3): his cart stands by the back gate now (2218), he before its east half.
+        XCTAssertEqual(member(marekDay, "marek")?.room, .backGate, "every third day, by his cart at the back gate")
+        XCTAssertTrue((2242.0...2266.0).contains(member(marekDay, "marek")?.x ?? 0), "before the cart's east half")
         let brings = CourtLayout.figures(day: 4, hour: 10, flags: [], queue: queue(["deal"]), catalog: Self.sample)
         XCTAssertNotNil(member(brings, "marek"), "and the day he brings a petition")
     }

@@ -624,6 +624,7 @@ final class YardCountTests: XCTestCase {
 /// own place and the site's mark beside the barracks'.
 final class YardLookTests: XCTestCase {
     private let balance = Balance.standard
+    private var tuning: YardTuning { balance.yard }
 
     private func props(_ s: GameState) -> EntityFrames.PropList {
         var list = EntityFrames.PropList()
