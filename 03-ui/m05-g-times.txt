@@ -1,0 +1,52 @@
+m05-g: real time, 4 taps on the gate 2.4 s apart, a frame every 0.3 s, then 4.2 s after the last tap (polish B2, H9: the warning at 2.0 s, the coins kept by the next tap, home at 3.0 s after the last)
+tap 1 at +0.000 s: sent without waiting
+before tap 2 (+2.309 s): count:touch-plot-0:1/9:there
+tap 2 at +2.401 s: sent without waiting
+before tap 3 (+4.768 s): count:touch-plot-0:2/9:there
+tap 3 at +4.807 s: sent without waiting
+before tap 4 (+7.549 s): count:touch-plot-0:3/9:there:warned
+tap 4 at +7.549 s: sent without waiting
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200
+scene after: frame:1120 ready day:3 hour:11.69 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:notes cam:1106 tap:touch-plot-0 hint:off0 count:none last:letGo:touch-plot-0 lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the first tap
+01  +0.182 s  first frame after tap 1
+02  +0.428 s  
+03  +0.720 s  
+04  +1.026 s  
+05  +1.486 s  
+06  +1.670 s  
+07  +1.917 s  
+08  +2.261 s  
+09  +2.598 s  first frame after tap 2
+10  +2.872 s  
+11  +3.124 s  
+12  +3.431 s  
+13  +3.823 s  
+14  +4.146 s  
+15  +4.404 s  
+16  +4.688 s  
+17  +5.078 s  first frame after tap 3
+18  +5.260 s  
+19  +5.543 s  
+20  +5.873 s  
+21  +6.180 s  
+22  +6.476 s  
+23  +6.819 s  
+24  +7.076 s  
+25  +7.923 s  first frame after tap 4
+26  +8.097 s  
+27  +8.267 s  
+28  +8.445 s  
+29  +8.612 s  
+30  +8.848 s  
+31  +9.185 s  
+32  +9.434 s  
+33  +9.724 s  
+34  +10.043 s  
+35  +10.330 s  
+36  +10.632 s  
+37  +10.926 s  
+38  +11.245 s  
+39  +11.559 s  

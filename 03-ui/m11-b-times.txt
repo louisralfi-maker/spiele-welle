@@ -1,0 +1,38 @@
+m11-b: a hold of 2.2 s pays the yard; frames start after the finger lifted: the seal, the counter going, the site lantern
+real time; as fast as the frames come
+the cause (a hold of 2.2 s pays the yard; frames start after the finger lifted: the seal, the counter going, the site lantern) was sent at +0.229 s and returned at +3.825 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWDay 4 -GWClock 10 -GWCameraX 1600 -GWGold 200
+scene before: frame:730 ready day:4 hour:11.13 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1491 lord:lord stage:world lx:1491 errand:none door:1830 gold:200 hud:none cam:1208 tap:touch-yard hint:off0 count:touch-yard:0/7:there last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:1250 ready day:4 hour:11.94 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1491 lord:lord stage:world lx:1491 errand:none door:1830 gold:130 hud:none cam:1208 tap:touch-yard hint:off0 count:none last:paid:touch-yard lanterns:1 models:4:ballista,catapult;10:ballista,catapult yard:1+2,t:0/7,d:0 drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +4.028 s  
+02  +4.209 s  
+03  +4.395 s  
+04  +4.570 s  
+05  +4.867 s  
+06  +5.067 s  
+07  +5.250 s  
+08  +5.445 s  
+09  +5.613 s  
+10  +5.878 s  
+11  +6.090 s  
+12  +6.287 s  
+13  +6.495 s  
+14  +6.741 s  
+15  +6.972 s  
+16  +7.209 s  
+17  +7.457 s  
+18  +7.657 s  
+19  +7.904 s  
+20  +8.137 s  
+21  +8.357 s  
+22  +8.577 s  
+23  +8.800 s  
+24  +9.024 s  
+25  +9.221 s  
+26  +9.447 s  
+27  +9.645 s  
+28  +9.846 s  
+mean spacing 0.215 s over 27 gaps
