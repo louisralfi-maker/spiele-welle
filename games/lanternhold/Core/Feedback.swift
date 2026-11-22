@@ -32,7 +32,8 @@ import Foundation
 //   (-17.5; law 4's kills' chain, +1 semitone a kill to +7 with its hand soft growing 0.35 to 1, is NOT built: a
 //   player's rate stretches time and keeps the pitch, so it would quicken the kills; D1 gate M2, the director's call),
 //   wallBroken step 4 wall_break 1.0 (-11.4, heavy, heavy again 0.12 s later, the beds x 0.25 held 1.5 s and back
-//   over 2 s). Beyond its hearing a positional cue fades from 0.35 to nothing over a further half of it.
+//   over 2 s). Beyond its hearing a positional cue fades from 0.35 to nothing over a further half of it, and gives
+//   no haptic and no answer duck there (D1 gate M5). A blow (hit, manHit) is heard 440 px far (D1 gate M1).
 // - D1, the battle duck: the hub notes every placed blow, fall, crack and kill; one heard within 300 px of the lord in
 //   the last 1.2 s ducks the beds x 0.6 (`FightNear`, `BedDucks.battleNear`); the deepest duck still wins.
 // - D1, the soldiers' grunts sit behind one switch, `FeedbackCue.soldierGrunts` (Louis, 22.11.: out again if they
