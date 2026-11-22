@@ -1,0 +1,26 @@
+m01-f: a tap on the slide: the next slide comes
+real time; as fast as the frames come
+the cause (a tap on the slide: the next slide comes) was sent at +0.139 s and returned at +0.931 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: frame:530 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+scene after: frame:680 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.263 s  
+02  +1.671 s  
+03  +2.079 s  
+04  +2.482 s  
+05  +2.913 s  
+06  +3.328 s  
+07  +3.897 s  
+08  +4.353 s  
+09  +4.818 s  
+10  +5.261 s  
+11  +5.627 s  
+12  +6.044 s  
+13  +6.553 s  
+14  +6.994 s  
+15  +7.375 s  
+16  +7.847 s  
+mean spacing 0.439 s over 15 gaps

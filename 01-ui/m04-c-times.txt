@@ -1,0 +1,26 @@
+m04-c: a touch on the dim, low at the left: the lantern lowers, the interface goes, the world moves again
+real time; as fast as the frames come
+the cause (a touch on the dim, low at the left: the lantern lowers, the interface goes, the world moves again) was sent at +0.072 s and returned at +0.620 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830
+scene before: frame:1540 ready day:1 hour:10.17 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:moment cam:1612 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:1740 ready day:1 hour:10.42 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1730 lord:lord stage:world lx:1730 errand:none door:1830 gold:44 hud:none cam:1567 tap:touch-plot-20 hint:off0 count:touch-plot-20:0/6:there last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.787 s  
+02  +0.931 s  
+03  +1.085 s  
+04  +1.266 s  
+05  +1.417 s  
+06  +1.602 s  
+07  +1.776 s  
+08  +1.930 s  
+09  +2.106 s  
+10  +2.267 s  
+11  +2.437 s  
+12  +2.668 s  
+13  +2.896 s  
+14  +3.069 s  
+15  +3.235 s  
+16  +3.391 s  
+mean spacing 0.174 s over 15 gaps

@@ -1,0 +1,34 @@
+m11-c: a hold of 1.2 s pays an archer at the barracks; frames start after the finger lifted: the recruit
+real time; as fast as the frames come
+the cause (a hold of 1.2 s pays an archer at the barracks; frames start after the finger lifted: the recruit) was sent at +0.098 s and returned at +2.813 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWDay 5 -GWClock 11.5 -GWCameraX 1600 -GWGold 200 -GWYard 2
+scene before: frame:620 ready day:5 hour:12.56 alive:0 seen:0 lit:0 shots:0 aim:1 kx:1453 lord:lord stage:world lx:1453 errand:none door:1830 gold:200 hud:none cam:1177 tap:touch-recruit-archer hint:off0 count:touch-recruit-archer:0/1:there last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:2,t:0/8,d:0,drill drill:a1.990,g0.017
+scene after: frame:1000 ready day:5 hour:13.31 alive:0 seen:0 lit:0 shots:0 aim:1 kx:1453 lord:lord stage:world lx:1453 errand:none door:1830 gold:190 hud:none cam:1177 tap:touch-recruit-archer hint:off0 count:none last:paid:touch-recruit-archer lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:2,t:0/9,d:0,drill drill:a1.990,g1.000
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +3.678 s  
+02  +4.338 s  
+03  +4.607 s  
+04  +4.834 s  
+05  +5.106 s  
+06  +5.280 s  
+07  +5.499 s  
+08  +5.695 s  
+09  +5.881 s  
+10  +6.073 s  
+11  +6.253 s  
+12  +6.419 s  
+13  +6.715 s  
+14  +6.918 s  
+15  +7.110 s  
+16  +7.349 s  
+17  +7.750 s  
+18  +8.050 s  
+19  +8.310 s  
+20  +8.643 s  
+21  +8.859 s  
+22  +9.130 s  
+23  +9.358 s  
+24  +9.577 s  
+mean spacing 0.256 s over 23 gaps

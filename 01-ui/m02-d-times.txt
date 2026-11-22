@@ -1,0 +1,33 @@
+m02-d: a second tap at 25 % while he walks right: he turns back mid-stride
+real time; as fast as the frames come
+the cause (a second tap at 25 % while he walks right: he turns back mid-stride) was sent at +0.070 s and returned at +0.901 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500
+scene before: frame:2010 ready day:1 hour:12.21 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1522 lord:lord stage:world lx:1522 errand:none door:1830 gold:44 hud:none cam:1305 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:2390 ready day:1 hour:12.78 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1474 lord:lord stage:world lx:1474 errand:none door:1830 gold:44 hud:strip cam:1188 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+01  +1.280 s  
+02  +1.684 s  
+03  +1.969 s  
+04  +2.259 s  
+05  +2.463 s  
+06  +2.646 s  
+07  +2.868 s  
+08  +3.084 s  
+09  +3.386 s  
+10  +3.567 s  
+11  +3.773 s  
+12  +3.972 s  
+13  +4.252 s  
+14  +4.561 s  
+15  +4.842 s  
+16  +5.084 s  
+17  +5.350 s  
+18  +5.593 s  
+19  +5.854 s  
+20  +6.102 s  
+21  +6.307 s  
+22  +6.474 s  
+23  +6.631 s  
+24  +6.804 s  
+mean spacing 0.240 s over 23 gaps

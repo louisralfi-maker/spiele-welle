@@ -1,0 +1,24 @@
+m06-i: a tap on Pip's offer: its slip opens
+real time; as fast as the frames come
+the cause (a tap on Pip's offer: its slip opens) was sent at +0.075 s and returned at +0.790 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWScreen table
+scene before: frame:350 ready day:2 hour:9.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:560 ready day:2 hour:9.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.044 s  
+02  +1.251 s  
+03  +1.432 s  
+04  +1.658 s  
+05  +1.816 s  
+06  +2.115 s  
+07  +2.308 s  
+08  +2.543 s  
+09  +2.802 s  
+10  +3.144 s  
+11  +3.358 s  
+12  +3.584 s  
+13  +3.849 s  
+14  +4.177 s  
+mean spacing 0.241 s over 13 gaps

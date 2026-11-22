@@ -1,0 +1,14 @@
+m02-c: a tap at 85 %: he sets off right (burst d follows at once)
+real time; as fast as the frames come
+the cause (a tap at 85 %: he sets off right (burst d follows at once)) was sent at +0.176 s and returned at +3.514 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500
+scene before: frame:1770 ready day:1 hour:11.85 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1489 lord:lord stage:world lx:1489 errand:none door:1830 gold:44 hud:none cam:1205 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:2010 ready day:1 hour:12.21 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1522 lord:lord stage:world lx:1522 errand:none door:1830 gold:44 hud:none cam:1305 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +3.782 s  
+02  +3.929 s  
+03  +4.093 s  
+04  +4.268 s  
+mean spacing 0.162 s over 3 gaps

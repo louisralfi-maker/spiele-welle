@@ -1,0 +1,42 @@
+m02-b: a tap on the ground at 20 % of the width: he turns and walks back
+real time; as fast as the frames come
+the cause (a tap on the ground at 20 % of the width: he turns and walks back) was sent at +0.061 s and returned at +0.611 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500
+scene before: frame:1210 ready day:1 hour:10.97 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1588 lord:lord stage:world lx:1588 errand:none door:1830 gold:44 hud:none cam:1401 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:1620 ready day:1 hour:11.57 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1489 lord:lord stage:world lx:1489 errand:none door:1830 gold:44 hud:none cam:1205 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.804 s  
+02  +0.988 s  
+03  +1.206 s  
+04  +1.388 s  
+05  +1.617 s  
+06  +1.825 s  
+07  +2.020 s  
+08  +2.189 s  
+09  +2.353 s  
+10  +2.620 s  
+11  +2.830 s  
+12  +3.017 s  
+13  +3.203 s  
+14  +3.361 s  
+15  +3.514 s  
+16  +3.680 s  
+17  +3.846 s  
+18  +4.027 s  
+19  +4.173 s  
+20  +4.314 s  
+21  +4.461 s  
+22  +4.660 s  
+23  +4.892 s  
+24  +5.205 s  
+25  +5.641 s  
+26  +5.928 s  
+27  +6.193 s  
+28  +6.455 s  
+29  +6.652 s  
+30  +6.911 s  
+31  +7.123 s  
+32  +7.342 s  
+mean spacing 0.211 s over 31 gaps

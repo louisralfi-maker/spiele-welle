@@ -1,0 +1,26 @@
+m06-j: Back: the table goes
+real time; as fast as the frames come
+the cause (Back: the table goes) was sent at +0.208 s and returned at +0.926 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWScreen table
+scene before: frame:640 ready day:2 hour:9.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:830 ready day:2 hour:9.25 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:notes cam:1128 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.109 s  
+02  +1.270 s  
+03  +1.485 s  
+04  +1.666 s  
+05  +1.826 s  
+06  +1.984 s  
+07  +2.145 s  
+08  +2.304 s  
+09  +2.528 s  
+10  +2.685 s  
+11  +2.855 s  
+12  +3.042 s  
+13  +3.220 s  
+14  +3.376 s  
+15  +3.583 s  
+16  +3.748 s  
+mean spacing 0.176 s over 15 gaps

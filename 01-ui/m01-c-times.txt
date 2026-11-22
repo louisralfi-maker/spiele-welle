@@ -1,0 +1,30 @@
+m01-c: a touch on the title: it goes, the name entry comes
+real time; as fast as the frames come
+the cause (a touch on the title: it goes, the name entry comes) was sent at +0.107 s and returned at +0.961 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: 
+scene after: frame:40 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.114 s  
+02  +1.260 s  
+03  +1.419 s  
+04  +1.585 s  
+05  +1.723 s  
+06  +1.852 s  
+07  +1.992 s  
+08  +2.250 s  
+09  +2.953 s  
+10  +3.109 s  
+11  +3.250 s  
+12  +3.393 s  
+13  +3.550 s  
+14  +3.705 s  
+15  +3.876 s  
+16  +4.029 s  
+17  +4.187 s  
+18  +4.336 s  
+19  +4.486 s  
+20  +4.665 s  
+mean spacing 0.187 s over 19 gaps

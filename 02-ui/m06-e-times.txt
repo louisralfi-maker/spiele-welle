@@ -1,0 +1,26 @@
+m06-e: next: the reaction goes, the next petitioner comes
+real time; as fast as the frames come
+the cause (next: the reaction goes, the next petitioner comes) was sent at +0.066 s and returned at +0.574 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+scene before: frame:2400 ready day:3 hour:12.34 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:2610 ready day:3 hour:12.34 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.780 s  
+02  +0.960 s  
+03  +1.147 s  
+04  +1.365 s  
+05  +1.537 s  
+06  +1.708 s  
+07  +1.900 s  
+08  +2.083 s  
+09  +2.270 s  
+10  +2.495 s  
+11  +2.758 s  
+12  +2.955 s  
+13  +3.144 s  
+14  +3.402 s  
+15  +3.600 s  
+16  +3.839 s  
+mean spacing 0.204 s over 15 gaps

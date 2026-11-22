@@ -1,0 +1,26 @@
+m06-f: leave: the slide goes, the hall again
+real time; as fast as the frames come
+the cause (leave: the slide goes, the hall again) was sent at +0.075 s and returned at +0.653 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+scene before: frame:2750 ready day:3 hour:12.34 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:2980 ready day:3 hour:12.64 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.876 s  
+02  +1.078 s  
+03  +1.309 s  
+04  +1.633 s  
+05  +1.853 s  
+06  +2.103 s  
+07  +2.291 s  
+08  +2.498 s  
+09  +2.743 s  
+10  +2.963 s  
+11  +3.181 s  
+12  +3.392 s  
+13  +3.577 s  
+14  +3.803 s  
+15  +3.999 s  
+16  +4.204 s  
+mean spacing 0.222 s over 15 gaps

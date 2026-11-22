@@ -1,0 +1,42 @@
+m01-g: Skip: the prologue goes, day 1 comes (the step into the world)
+real time; as fast as the frames come
+the cause (Skip: the prologue goes, day 1 comes (the step into the world)) was sent at +0.104 s and returned at +0.645 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: frame:710 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+scene after: frame:1060 ready day:1 hour:6.47 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.013 s  
+02  +1.258 s  
+03  +1.401 s  
+04  +1.533 s  
+05  +1.665 s  
+06  +1.806 s  
+07  +1.939 s  
+08  +2.083 s  
+09  +2.224 s  
+10  +2.369 s  
+11  +2.530 s  
+12  +2.739 s  
+13  +2.910 s  
+14  +3.080 s  
+15  +3.247 s  
+16  +3.431 s  
+17  +3.579 s  
+18  +3.778 s  
+19  +3.934 s  
+20  +4.110 s  
+21  +4.299 s  
+22  +4.521 s  
+23  +4.707 s  
+24  +4.903 s  
+25  +5.060 s  
+26  +5.224 s  
+27  +5.389 s  
+28  +5.555 s  
+29  +5.716 s  
+30  +5.863 s  
+31  +6.044 s  
+32  +6.202 s  
+mean spacing 0.167 s over 31 gaps

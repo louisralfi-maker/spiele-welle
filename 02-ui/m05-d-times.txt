@@ -1,0 +1,34 @@
+m05-d: slowed: a touch on the gate's site: the counter comes up
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the cause (slowed: a touch on the gate's site: the counter comes up) was sent at +0.095 s and returned at +1.023 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200 -GWTimeScale 0.25
+scene before: frame:240 ready day:3 hour:10.11 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1240 lord:lord stage:world lx:1240 errand:none door:1830 gold:200 hud:strip cam:1078 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:600 ready day:3 hour:10.25 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:none cam:1106 tap:touch-plot-0 hint:off0 count:touch-plot-0:0/9:there last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.254 s  
+02  +1.457 s  
+03  +1.664 s  
+04  +1.892 s  
+05  +2.104 s  
+06  +2.300 s  
+07  +2.532 s  
+08  +2.721 s  
+09  +2.975 s  
+10  +3.183 s  
+11  +3.404 s  
+12  +3.619 s  
+13  +3.811 s  
+14  +4.054 s  
+15  +4.297 s  
+16  +4.505 s  
+17  +4.713 s  
+18  +5.005 s  
+19  +5.233 s  
+20  +5.496 s  
+21  +5.770 s  
+22  +6.086 s  
+23  +6.340 s  
+24  +6.616 s  
+mean spacing 0.233 s over 23 gaps

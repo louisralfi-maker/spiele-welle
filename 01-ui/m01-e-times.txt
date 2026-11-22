@@ -1,0 +1,34 @@
+m01-e: Begin on the name entry: it goes, the prologue's first slide comes
+real time; as fast as the frames come
+the cause (Begin on the name entry: it goes, the prologue's first slide comes) was sent at +1.069 s and returned at +3.571 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: frame:170 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+scene after: frame:440 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +3.765 s  
+02  +3.956 s  
+03  +4.503 s  
+04  +5.158 s  
+05  +5.942 s  
+06  +6.402 s  
+07  +6.900 s  
+08  +7.315 s  
+09  +8.011 s  
+10  +8.750 s  
+11  +9.665 s  
+12  +10.339 s  
+13  +10.927 s  
+14  +11.367 s  
+15  +11.731 s  
+16  +12.223 s  
+17  +13.406 s  
+18  +13.942 s  
+19  +14.434 s  
+20  +15.066 s  
+21  +15.685 s  
+22  +16.261 s  
+23  +16.875 s  
+24  +17.337 s  
+mean spacing 0.590 s over 23 gaps

@@ -1,0 +1,26 @@
+m04-a: a tap on the lord: the lantern rises, the world stills, the interface comes
+real time; as fast as the frames come
+the cause (a tap on the lord: the lantern rises, the world stills, the interface comes) was sent at +0.161 s and returned at +1.137 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830
+scene before: frame:690 ready day:1 hour:10.09 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:none cam:1612 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:930 ready day:1 hour:10.17 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:moment cam:1612 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.475 s  
+02  +1.831 s  
+03  +2.128 s  
+04  +2.366 s  
+05  +2.645 s  
+06  +2.881 s  
+07  +3.142 s  
+08  +3.313 s  
+09  +3.488 s  
+10  +3.658 s  
+11  +3.818 s  
+12  +4.061 s  
+13  +4.239 s  
+14  +4.416 s  
+15  +4.603 s  
+16  +4.866 s  
+mean spacing 0.226 s over 15 gaps
