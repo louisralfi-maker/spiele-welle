@@ -1350,3 +1350,19 @@ schneller geht."
   - The joiner's stage 2 runs on f9f48fba without 4b (it looked before 4b was pushed). The director's merge commit
     be33de3c (f9f48fba + aa7b9ea0, clean) is under proof in round lh-b3j-20 (build, whole unit, ui Yard FirstDay Touch,
     ui Count Lord Audience, release). Green on both sides: fast-forward `claude/lh-b3join`, push, then tf-lh-4.
+
+- **Wave 2 is joined: `claude/lh-b3join` be33de3c, on its way to TestFlight as round tf-lh-4 (22.11.2026, 15:09).**
+  - The joiner's head f9f48fba (lane 6 e8452fac, the drill yard 04bbd941, the lantern 2c727f29, the join items; L6b:
+    one `GameModel.worldHeld` for everything that stills the world) passed five rounds, each checked by the director:
+    lh-b3j-10 (the whole unit suite, 1267 tests), -11, -12, -13 (the Release launch reads no debug key), -14 (release).
+  - The yard's fix step 4b (aa7b9ea0) landed after the joiner had looked, so the director merged it himself: be33de3c,
+    a clean merge of 14 yard files. Proof rounds lh-b3j-20 and lh-b3j-21 on be33de3c: build, the whole unit suite,
+    ui Yard FirstDay Touch, ui Count Lord and the Release build passed.
+  - **Known and ruled:** `AudienceUITests.testAudience` failed in 2 of 4 runs on be33de3c, both at the kitchen with the
+    lord next to Tamsin (once the touch on the lord did her talk, once the touch on her raised the lantern). 4b holds
+    nothing about touches. Ruling: the build goes to TestFlight with this known; the cause is found and fixed as join
+    item 9 on top (one Opus agent, labels lh-b3j-22 to -25, rulings D1 to D4 in the desk's notes: the touch rule of
+    `prefersLord` stays unless the code differs from its comment; a lord who ends a talk on the person's spot is a game
+    bug; the test helpers try again without hiding a bug).
+  - For the phone review: the touch on the lord with a person on or next to him; the pause after an ad, the table and
+    the end card (L6b); the yard's open points (the straw puff, the two dark night guards, the pell, the fletch).
