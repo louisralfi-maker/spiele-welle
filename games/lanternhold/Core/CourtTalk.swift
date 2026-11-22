@@ -58,19 +58,36 @@ enum CourtTalk {
         return best
     }
 
-    /// The line the king hears now from `who` (the next one of today's list).
+    /// What `who` says today, in the order the king hears it: the book's lines (`CourtLineBook.lines(for:state:)`),
+    /// with Mother Hesper's far-goal line placed on the first days (polish E1b, `FarGoal.place`).
+    static func todaysLines(_ who: String, state: GameState, lines: CourtLineBook) -> [CourtLine] {
+        FarGoal.place(lines.lines(for: who, state: state), who: who, day: state.day)
+    }
+
+    /// The line the king hears now from `who` (the next one of today's list; talking again goes round again).
     static func line(_ who: String, state: GameState, lines: CourtLineBook, log: TalkLog) -> CourtLine? {
-        lines.line(for: who, state: state, nth: log.count(who, day: state.day))
+        let list = todaysLines(who, state: state, lines: lines)
+        guard !list.isEmpty else { return nil }
+        let nth = log.count(who, day: state.day)
+        return list[((nth % list.count) + list.count) % list.count]
+    }
+
+    /// True when `who`'s first line today is worth a mark: a hint about one of today's waiting petitions, an answer to
+    /// what the king decided (`CourtLineBook.hasHint`), or Hesper's far goal on day 1 (polish E1b, `FarGoal.marks`).
+    static func hasMarkedLine(_ who: String, state: GameState, lines: CourtLineBook) -> Bool {
+        guard let first = todaysLines(who, state: state, lines: lines).first else { return false }
+        return first.about != nil || first.isAnswer || FarGoal.marks(first, day: state.day)
     }
 
     /// The speech mark (SPRITES.md `speakerMark`): over a court member or guest who has a hint about one of today's
-    /// waiting petitions, until the king has talked to him today. By day only.
+    /// waiting petitions, an answer, or (Hesper, day 1) the far goal, until the king has talked to him today. By day
+    /// only.
     static func marks(_ s: GameState, figures: [CourtFigure], lines: CourtLineBook, log: TalkLog) -> Set<String> {
         guard DayClock.phase(at: s.hour) == .day, !s.defeated else { return [] }
         var marked = Set<String>()
         for figure in figures where Speakers.canTalk(figure.who) && !marked.contains(figure.who) {
             if figure.who == "seren" && figure.petition != nil { continue }
-            if log.count(figure.who, day: s.day) == 0 && lines.hasHint(for: figure.who, state: s) {
+            if log.count(figure.who, day: s.day) == 0 && hasMarkedLine(figure.who, state: s, lines: lines) {
                 marked.insert(figure.who)
             }
         }
