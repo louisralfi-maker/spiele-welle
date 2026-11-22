@@ -13,10 +13,11 @@ randomness, so a run reproduces its files byte for byte. Every pass starts from 
         the dish's right lip and the ash
   gateRockL, gateRockR       the gate rocks (blocker 2): no lit edge on the slope at all; the shadow pockets in the
         cliff's own granite, one step under the lit face and a little bluer (no navy-black nightDeep, no slate)
-        b3-yard (build 3, wave 2, lane 2, step 4; the critic's H1): gateRockR is a strip of two frames since; frame 0
+        b3-yard (build 3, wave 2, lane 2, step 4; the critic's H1): gateRockR is a strip of three frames since; frame 0
         is the rock as before, frame 1 the same rock taken back to the east tower's face while the drill yard's site
-        shows or the yard stands (`YardLook.rockGivesWay`): nothing of it east of world 1468 (its column 32 at tier 1)
-        over 7 px, its new east edge stepped down in ledges of 1 to 3 px, a few loose stones at its foot
+        shows or the yard stands (`YardLook.rockFrame`): nothing of it east of world 1468 (its column 32 at tier 1)
+        over 7 px, its new east edge stepped down in ledges of 1 to 3 px, a few loose stones at its foot; frame 2 the
+        same cut 12 columns further west for tier 3, where the rock stands 12 px further east
   oldWall1          84x60    the first line's rubble (high 1): the porcelain stone ramp down onto the granite ramp, the
         lit tops at most rockLight, the moss a step darker in shadow
   castleFront3, castleFront3Build   the gate banners' lantern emblems (high 6): a dull gold thread one step over the
@@ -479,18 +480,23 @@ YARD_ROCK_EDGE = 32
 YARD_ROCK_CAP = {28: 21, 29: 20, 30: 16, 31: 11, 32: 7, 33: 6, 34: 6, 35: 5, 36: 4, 37: 4, 38: 3, 39: 2, 40: 1}
 # Loose stones beyond the rubble: (first column, width, height) of the rock's own pixels kept as islands.
 YARD_ROCK_STONES = ((42, 3, 2), (46, 2, 1), (49, 2, 2), (53, 1, 1))
+# Tier 3 (the great gate): the drums and the rock with them stand 12 px further east (world 1448), so the same cut lies
+# 12 columns further west (frame 2), and world 1468 stays the limit.
+YARD_ROCK_T3_SHIFT = 12
 
 
-def yard_rock_cut(im):
+def yard_rock_cut(im, shift=0):
     out = copy(im)
     h = im.h
+    caps = {k - shift: v for k, v in YARD_ROCK_CAP.items()}
+    stones = tuple((x - shift, w, sh) for x, w, sh in YARD_ROCK_STONES)
     for x in range(im.w):
-        cap = YARD_ROCK_CAP.get(x)
+        cap = caps.get(x)
         if cap is None:
-            if x < min(YARD_ROCK_CAP):
+            if x < min(caps):
                 continue
             cap = 0
-        stone = next((s for s in YARD_ROCK_STONES if s[0] <= x < s[0] + s[1]), None)
+        stone = next((s for s in stones if s[0] <= x < s[0] + s[1]), None)
         if stone is not None:
             cap = max(cap, stone[2])
         for y in range(h - cap):
@@ -499,8 +505,9 @@ def yard_rock_cut(im):
 
 
 def gate_rock_r_strip():
-    """gateRockR: frame 0 as before, frame 1 the yard's (`YARD_ROCK_CAP`)."""
-    frames = [gate_rock("gateRockR"), gate_rock("gateRockR", cut=yard_rock_cut)]
+    """gateRockR: frame 0 as before, frame 1 the yard's (`YARD_ROCK_CAP`), frame 2 the yard's at tier 3."""
+    frames = [gate_rock("gateRockR"), gate_rock("gateRockR", cut=yard_rock_cut),
+              gate_rock("gateRockR", cut=lambda im: yard_rock_cut(im, YARD_ROCK_T3_SHIFT))]
     w, h = frames[0].w, frames[0].h
     out = PA.Image(w * len(frames), h)
     for i, frame in enumerate(frames):
@@ -594,7 +601,7 @@ BUILDERS = {
     "beaconBaseRim": lambda: stage_rim("beaconBase"),
     "greatBeaconRim": lambda: stage_rim("greatBeacon"),
     "gateRockL": lambda: gate_rock("gateRockL"),
-    "gateRockR": gate_rock_r_strip,   # b3-yard (step 4, H1): two frames, the yard's second
+    "gateRockR": gate_rock_r_strip,   # b3-yard (step 4, H1): three frames, the yard's second and third (tier 3)
     "oldWall1": old_wall_one,
     "bakehouse": bakehouse,
     "castleFront3": lambda: castle_front3("castleFront3"),

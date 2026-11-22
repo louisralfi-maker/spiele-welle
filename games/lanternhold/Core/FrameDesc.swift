@@ -661,8 +661,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         // b3-yard step 4 (H3, H4): the front butt, the one behind, the front one with the drill's arrow in its heart.
         case .yardButt: return 3
         // b3-yard (step 4, the critic's H1): the east gate rock as it was, and taken back to the tower's face while the
-        // drill yard's site shows or the yard stands (`YardLook.rockFrame`).
-        case .gateRockR: return 2
+        // drill yard's site shows or the yard stands (`YardLook.rockFrame`), and so at tier 3, where it stands 12 px
+        // further east.
+        case .gateRockR: return 3
         default: return 1
         }
     }

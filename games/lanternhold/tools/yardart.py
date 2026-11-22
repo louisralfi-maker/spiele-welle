@@ -22,7 +22,7 @@ It runs on its own (no tools/build-art*.sh calls it yet); its PNGs are committed
                           Step 4 (the critic's M3): the bundle wraps the post's head as high as a man, so the
                           bunkhouse's painted spear rack behind it (its tips at world 1495, 1497 and 1499, 23 px up)
                           no longer sticks out of the pell's top as three spikes; the barracks' art is not changed
-  yardButt     17x20 x 2  the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
+  yardButt     17x20 x 3  the archery butt: a coiled straw boss, its face (a red ring on bone round a red heart)
                           turned to the archers on its left, two arrows in it, on a timber A-frame; step 4 (the
                           critic's H3, two butts set behind each other were one sprite twice): frame 1 the butt
                           behind, turned further from the viewer (its face a narrow oval, the boss a pixel smaller,

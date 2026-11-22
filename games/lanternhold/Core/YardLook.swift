@@ -302,16 +302,21 @@ enum YardLook {
     /// nothing of it east of `rockEdgeX` higher than `rockRubble` px, its new east edge stepped down in ledges. A realm
     /// without a site keeps the rock as it was.
     static let rockYardFrame = 1
+    /// At tier 3 the drums, and the rock with them, stand 12 px further east (`look2GateRock`): the same cut 12 columns
+    /// further west, so world 1468 stays the limit (the step-4 review).
+    static let rockYardFrameTier3 = 2
     static let rockEdgeX = 1468.0
     static let rockRubble = 8.0
 
     /// The rock's frame for the realm: the yard's one while the site shows or the yard stands (as `EntityFrames
-    /// .yardProps` draws them), else today's (0).
-    static func rockFrame(_ s: GameState, balance: Balance) -> Int {
+    /// .yardProps` draws them), else today's (0). `tier` is the castle's drawn tier (`CastleStage.tier`, as
+    /// `look2GateRock` places the rock).
+    static func rockFrame(_ s: GameState, balance: Balance, tier: Int = 1) -> Int {
         guard !s.defeated else { return 0 }
         let yard = s.yard ?? YardState()
         let shows = yard.stands || yard.orderedStage != nil || s.day >= balance.yard.stageDay
-        return shows ? rockYardFrame : 0
+        guard shows else { return 0 }
+        return tier == 3 ? rockYardFrameTier3 : rockYardFrame
     }
 
     /// Sets the east gate rock's drawn frame in `scene` (the game's filtered scene; picture only).

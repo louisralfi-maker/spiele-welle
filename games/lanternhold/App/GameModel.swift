@@ -1142,7 +1142,7 @@ final class GameModel {
             let built = SceneFilter.beaconBuilt(state)
             let rooms = CastleRooms.sceneKey(state: state, rooms: court.rooms)
             // b3-yard (step 4, the critic's H1): the gate rock gives way to the drill yard's site and the yard.
-            let rock = YardLook.rockFrame(state, balance: game.balance)
+            let rock = YardLook.rockFrame(state, balance: game.balance, tier: castleStage.tier)
             var filtered: PlaceholderScene
             if let cached = filteredScene, cached.built == built, cached.rooms == rooms, cached.rock == rock {
                 filtered = cached.scene

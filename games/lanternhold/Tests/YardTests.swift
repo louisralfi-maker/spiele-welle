@@ -1199,7 +1199,7 @@ final class YardPolishTests: XCTestCase {
     /// nothing of it east of world 1468 stands 8 px or more over the walk line (gateRockR.png's frame 1 read back,
     /// placed where the scene places the rock). A realm without a site keeps today's rock, and the scene is not touched.
     func testTheGateRockGivesWayToTheYardsSiteAndTheYard() throws {
-        XCTAssertEqual(SpriteID.gateRockR.frameCount, 2, "today's rock and the yard's")
+        XCTAssertEqual(SpriteID.gateRockR.frameCount, 3, "today's rock, the yard's, and the yard's at tier 3")
         let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 1))
         let rock = try XCTUnwrap(world.props.first { $0.sprite == .gateRockR && $0.plane == .world })
         XCTAssertEqual(rock.frame, 0, "the scene lays the rock out as it was")
@@ -1226,12 +1226,13 @@ final class YardPolishTests: XCTestCase {
         let url = try XCTUnwrap(AtlasBuilder.artURL(for: .gateRockR, bundle: .main), "gateRockR.png is in the bundle")
         let strip = try XCTUnwrap(PNGDecoder.load(url: url))
         let size = SpriteID.gateRockR.size
-        XCTAssertEqual(strip.width, size.width * 2)
-        func highest(frame: Int, eastOf edge: Double) -> Double {
+        XCTAssertEqual(strip.width, size.width * 3)
+        func highest(frame: Int, eastOf edge: Double, at place: Prop? = nil) -> Double {
+            let at = place ?? rock
             var top = 0.0
-            for x in 0..<size.width where rock.x + Double(x) >= edge {
+            for x in 0..<size.width where at.x + Double(x) >= edge {
                 for y in 0..<size.height where strip[frame * size.width + x, y].a > 0 {
-                    top = max(top, rock.y + Double(size.height - y))
+                    top = max(top, at.y + Double(size.height - y))
                 }
             }
             return top
@@ -1246,6 +1247,20 @@ final class YardPolishTests: XCTestCase {
             }
         }
         XCTAssertGreaterThanOrEqual(west, 20, "the shoulder still stands against the tower's face")
+
+        // Review: at tier 3 the drums and the rock stand 12 px further east; frame 2 keeps world 1468 the limit.
+        XCTAssertEqual(YardLook.rockFrame(s, balance: balance, tier: 3), YardLook.rockYardFrameTier3)
+        XCTAssertEqual(YardLook.rockFrame(s, balance: balance, tier: 2), YardLook.rockYardFrame)
+        XCTAssertEqual(YardLook.rockFrame(realm(day: 3), balance: balance, tier: 3), 0, "no site: today's rock")
+        let great = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let greatRock = try XCTUnwrap(great.props.first { $0.sprite == .gateRockR && $0.plane == .world })
+        XCTAssertEqual(greatRock.x, rock.x + 12, "tier 3 places the rock 12 px further east")
+        XCTAssertGreaterThan(highest(frame: YardLook.rockYardFrame, eastOf: YardLook.rockEdgeX, at: greatRock), 20,
+                             "tier 1's yard frame would stand high over 1468 at tier 3")
+        XCTAssertLessThan(highest(frame: YardLook.rockYardFrameTier3, eastOf: YardLook.rockEdgeX, at: greatRock),
+                          YardLook.rockRubble, "tier 3's yard rock: nothing east of 1468 as high as 8 px")
+        XCTAssertGreaterThan(highest(frame: YardLook.rockYardFrameTier3, eastOf: 0, at: greatRock), 12,
+                             "tier 3's yard rock still stands west of the limit")
     }
 
     // MARK: - B (H2): no gold rim on a yard thing
