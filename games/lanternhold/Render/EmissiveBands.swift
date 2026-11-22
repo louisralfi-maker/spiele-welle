@@ -58,10 +58,9 @@ enum EmissiveBands {
         let rows = Float(max(1, targetHeight))
         var rect = quad.rect
         var texel = quad.texel
-        guard rect.w > 0 else { return nil }
+        guard lands(rect, targetHeight: targetHeight) else { return nil }
         let above = max(0, -rect.y)
         let below = max(0, rect.y + rect.w - rows)
-        guard above + below < rect.w else { return nil }
         let span = texel.w - texel.y
         texel.y += span * above / rect.w
         texel.w -= span * below / rect.w
@@ -69,5 +68,69 @@ enum EmissiveBands {
         rect.w -= above + below
         rect.y += Float(band * stride(targetHeight: targetHeight))
         return SpriteQuad(rect: rect, texel: texel, tint: quad.tint)
+    }
+
+    /// True when something of a quad with this rect lies on the target's rows (`placed` keeps it).
+    static func lands(_ rect: SIMD4<Float>, targetHeight: Int) -> Bool {
+        let rows = Float(max(1, targetHeight))
+        guard rect.w > 0 else { return false }
+        let above = max(0, -rect.y)
+        let below = max(0, rect.y + rect.w - rows)
+        return above + below < rect.w
+    }
+
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's H2b): skip what is empty
+
+    // Step 2b read all six bands and the three carried pictures for every device pixel of look 2's composite (and
+    // again for every translucent actor's pixel, and the bands with three alphas for every texel of the bloom's
+    // prefilter), even by day when they are black: up to nine more texture reads per pixel, and a dropped frame is
+    // jitter too. The mask names what a frame's bands and carried pictures hold; the shaders read only that. What
+    // they skip counts as the cleared texel they would have read, so the picture is the same pixel for pixel
+    // (`Look2FrameTests`).
+
+    /// The mask's bit of a carried picture: `carriedBase + picture.rawValue` (the bands take bits 0 to 5).
+    static let carriedBase = 8
+
+    /// The bit of band `band`.
+    static func bit(band: Int) -> UInt32 {
+        UInt32(1) << UInt32(band)
+    }
+
+    /// The bit of a carried picture.
+    static func bit(_ picture: CarriedPicture) -> UInt32 {
+        UInt32(1) << UInt32(carriedBase + picture.rawValue)
+    }
+
+    /// The bits of the bands alone (the bloom's prefilter reads no carried picture).
+    static var bandBits: UInt32 {
+        (0..<count).reduce(UInt32(0)) { $0 | bit(band: $1) }
+    }
+
+    /// Every band and every carried picture: what step 2b read for every pixel (`Renderer.readsEveryBand`).
+    static var everything: UInt32 {
+        CarriedPicture.allCases.reduce(bandBits) { $0 | bit($1) }
+    }
+
+    /// The mask of a frame: the bit of each band that holds a glow on the target's rows (an occluder alone leaves its
+    /// band black, so it does not count) and of each carried picture that holds a sprite there (under the thermal cut
+    /// the keep's mist is not drawn, `reducedEffects`). 0 for look 1, whose composite reads neither.
+    static func mask(_ frame: FrameDesc, reducedEffects: Bool = false) -> UInt32 {
+        guard frame.look == .two else { return 0 }
+        var bits: UInt32 = 0
+        for emissive in frame.emissives where emissive.kind != .occluder {
+            guard let index = EmissiveBands.band(of: emissive),
+                  EmissiveBands.lands(emissive.rect, targetHeight: frame.targetHeight) else {
+                continue
+            }
+            bits |= EmissiveBands.bit(band: index)
+        }
+        for (index, layer) in frame.carried.enumerated() {
+            guard let picture = CarriedPicture(rawValue: index) else { continue }
+            if reducedEffects && picture.picture == .fogA { continue }
+            if layer.sprites.contains(where: { EmissiveBands.lands($0.rect, targetHeight: frame.targetHeight) }) {
+                bits |= EmissiveBands.bit(picture)
+            }
+        }
+        return bits
     }
 }

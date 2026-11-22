@@ -248,6 +248,10 @@ final class Renderer {
     private let inFlight = DispatchSemaphore(value: 0)
     private let gpuTimer = GPUTimer()
     private(set) var stats = RenderStats()
+    /// b3-smooth (build 3, lane 5b step 1, the critic's H2b): tests only. True reads every band and every carried
+    /// picture for every pixel, as step 2b did (d7748951), instead of what the frame's mask names
+    /// (`EmissiveBands.mask`): the same picture, at step 2b's cost.
+    var readsEveryBand = false
 
     private struct Batch {
         var offset = 0
@@ -422,6 +426,43 @@ final class Renderer {
                         targetHeight: targets.height, lightValues: light, bgra: outputFormat == .bgra8Unorm)
     }
 
+    /// b3-smooth (build 3, lane 5b step 1, the critic's H2c): tests only. Renders a frame into an offscreen texture of
+    /// its physical size without reading it back, and returns the GPU's time for it (the command buffer's start to
+    /// end, also left in `stats.gpuMilliseconds`) and the wall time from commit to completion, both in ms (the wall
+    /// time stands in where a runner's GPU reports no times).
+    func timeOffscreen(_ frame: FrameDesc, settings: RenderSettings) throws -> (gpu: Double, wall: Double) {
+        let width = max(1, frame.physicalWidth)
+        let height = max(1, frame.physicalHeight)
+        let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: outputFormat, width: width,
+                                                                  height: height, mipmapped: false)
+        descriptor.usage = [.renderTarget]
+        descriptor.storageMode = .private
+        guard let output = context.device.makeTexture(descriptor: descriptor),
+              let commands = context.queue.makeCommandBuffer() else {
+            throw RendererError.resources
+        }
+        let pass = MTLRenderPassDescriptor()
+        pass.colorAttachments[0].texture = output
+        pass.colorAttachments[0].loadAction = .dontCare
+        pass.colorAttachments[0].storeAction = .store
+        inFlight.wait()
+        encode(frame, settings: settings, commands: commands, output: pass)
+        let semaphore = inFlight
+        commands.addCompletedHandler { _ in
+            semaphore.signal()
+        }
+        let start = CACurrentMediaTime()
+        commands.commit()
+        commands.waitUntilCompleted()
+        let wall = (CACurrentMediaTime() - start) * 1000
+        if let error = commands.error {
+            throw RendererError.gpu(error.localizedDescription)
+        }
+        let gpu = max(0, commands.gpuEndTime - commands.gpuStartTime) * 1000
+        stats.gpuMilliseconds = gpu
+        return (gpu: gpu, wall: wall)
+    }
+
     // MARK: - Encoding
 
     private func ensureTargets(width: Int, height: Int) -> RenderTargets? {
@@ -446,6 +487,11 @@ final class Renderer {
         let size = SIMD4<Float>(Float(targets.width), Float(targets.height), 0, 0)
 
         let lookTwo = frame.look == .two
+        // b3-smooth (H2b): the bands and carried pictures the composite, the translucent actors and the bloom's
+        // prefilter read (`EmissiveBands.mask`).
+        let bandMask: UInt32 = !lookTwo ? 0
+            : (readsEveryBand ? EmissiveBands.everything
+                              : EmissiveBands.mask(frame, reducedEffects: settings.reducedEffects))
         for plane in Plane.allCases {
             // The mist band and the near plane exist in look 2 only.
             if !lookTwo && !Renderer.lookOnePlanes.contains(plane) { continue }
@@ -511,7 +557,7 @@ final class Renderer {
         // Bloom.
         let bloomOn = frame.bloom && !settings.reducedEffects
         if bloomOn {
-            draws += encodeBloom(commands, targets: targets, frame: frame)
+            draws += encodeBloom(commands, targets: targets, frame: frame, bandMask: bandMask)
             passes += 3
         }
 
@@ -531,6 +577,7 @@ final class Renderer {
             if lookTwo {
                 let focus = frame.cameraX + Double(max(0, frame.targetWidth - 1)) / 2
                 var look2 = Look2.uniforms(frame, focus: focus)
+                look2.shifts.z = Int32(bitPattern: bandMask)   // b3-smooth (H2b)
                 encoder.setFragmentBytes(&look2, length: MemoryLayout<Look2Uniforms>.stride, index: 2)
                 encoder.setFragmentTexture(targets.planes[Plane.mistBand.rawValue], index: 12)
                 encoder.setFragmentTexture(targets.planes[Plane.near.rawValue], index: 13)
@@ -580,8 +627,10 @@ final class Renderer {
         return draws
     }
 
-    /// Threshold at half resolution, then a horizontal and a vertical blur (result in `bloomA`).
-    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets, frame: FrameDesc) -> Int {
+    /// Threshold at half resolution, then a horizontal and a vertical blur (result in `bloomA`). b3-smooth (H2b): the
+    /// prefilter reads the bands `bandMask` names (none in look 1).
+    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets, frame: FrameDesc,
+                             bandMask: UInt32) -> Int {
         let halfWidth = Float(targets.bloomWidth)
         let halfHeight = Float(targets.bloomHeight)
         var draws = 0
@@ -590,7 +639,7 @@ final class Renderer {
             size: SIMD4<Float>(Float(targets.width), Float(targets.height), halfWidth, halfHeight),
             params: SIMD4<Float>(frame.look == .two ? Look2.bloomLightShare : Look.bloomLightShare,
                                  Look.bloomSkyShare, Look.bloomThreshold, Look.bloomKnee),
-            backdrop: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, frame.look == .two ? 1 : 0))
+            backdrop: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, Float(bandMask & EmissiveBands.bandBits)))
         if let encoder = commands.makeRenderCommandEncoder(descriptor: Renderer.clearPass(targets.bloomA)) {
             encoder.label = "bloom threshold"
             encoder.setRenderPipelineState(prefilterPipeline)
@@ -912,6 +961,15 @@ final class Renderer {
         // the actor stays the lord's.
         let painted = look == .two ? LordCloak.dressed(actor.sprite, PeopleCast.launchCloth) : actor.sprite
         let cell = layout.cell(painted, frame: actor.frame)
+        // b3-smooth (build 3, lane 5b step 1, the critic's M2): a touch rim round a person (`TouchRims.actors`): its
+        // rect is the figure's grown by a game pixel left, right and up, so its texels are the cell grown the same way
+        // (the atlas keeps 2 clear texels round every cell); flags.y < 0 sends it down the actor shader's rim path, in
+        // both looks.
+        if actor.moonRim < 0 {
+            let grown = AtlasCell(x: cell.x - 1, y: cell.y - 1, width: cell.width + 2, height: cell.height + 1)
+            return ActorQuad(rect: actor.rect, texel: grown.texels(flipped: actor.flipped), tint: actor.tint,
+                             flags: SIMD4<Float>(1, TouchRims.actorRim, 0, 0))
+        }
         var rect = actor.rect
         var texel = cell.texels(flipped: actor.flipped)
         // The hall stage (stage lane, fix round 2 of step stage-1): a strip cut off at its bottom (a petitioner sitting

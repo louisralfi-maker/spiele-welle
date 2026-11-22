@@ -90,8 +90,8 @@ final class SmoothWalkTests: XCTestCase {
     /// band's offset puts it (`6 × (x − p × camera)`), and the keep's flags, vane, smoke and mist keep one device offset
     /// to it. Drawn into the near plane's picture they stepped by up to 6 device px against it, and now and then
     /// backward. The valley's keep (look 1's, moving with the far plane) is not drawn in look 2
-    /// (`SceneLayout.look2DroppedMid`): its carried picture stays empty.
-    func testTheKeepAndTheValleyKeepMoveWithTheirPlaneInEveryFrameOfAWalk() throws {
+    /// (`SceneLayout.look2DroppedMid`), so it has no carried picture (b3-smooth: the empty one step 2b kept is gone).
+    func testTheKeepMovesWithItsPlaneInEveryFrameOfAWalk() throws {
         let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
         var company: [String: Set<Double>] = [:]
         for step in 0..<SmoothWalkTests.frames {
@@ -128,9 +128,10 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertFalse(dusk.layer(.near).sprites.contains { $0.sprite == .smokePuff }, "none left in the near picture")
 
         XCTAssertFalse(world.props.contains { $0.plane == .mid && $0.movesWith == .far }, "no valley keep in look 2")
-        let valley = frame(world, hour: 12, focus: 2700)
-        XCTAssertEqual(valley.carriedLayer(.valley)?.plane, .far)
-        XCTAssertEqual(valley.carriedLayer(.valley)?.sprites.isEmpty, true, "the valley's carried picture is empty")
+        // b3-smooth (lane 5b step 1, the critic's H2a): so there is no carried picture for it either.
+        XCTAssertNil(CarriedPicture.of(picture: .mid, motion: .far), "no valley picture")
+        XCTAssertEqual(CarriedPicture.allCases.map(\.picture), [.near, .fogA], "the keep's and its mist's")
+        XCTAssertEqual(frame(world, hour: 12, focus: 2700).carried.count, CarriedPicture.allCases.count)
     }
 
     /// A carried picture is composited just behind the picture it belongs to, so it keeps its old depth only if nothing
@@ -158,8 +159,8 @@ final class SmoothWalkTests: XCTestCase {
                 }
             }
             XCTAssertGreaterThan(seen, 20, "the keep in view at tier \(tier)")
-            // Look 2 draws no valley keep (`SceneLayout.look2DroppedMid`), so the mid plane's carried picture is empty
-            // and its depth cannot change; should one come back, it must stand behind every other prop of the mid plane.
+            // Look 2 draws no valley keep (`SceneLayout.look2DroppedMid`), so the mid plane has no carried picture
+            // (b3-smooth); should one come back, it needs one again, behind every other prop of the mid plane.
             let valley = world.props.filter { $0.plane == .mid && $0.movesWith == .far }
             XCTAssertTrue(valley.isEmpty, "no valley keep in look 2 at tier \(tier)")
             if let valleyZ = valley.map(\.z).max() {
@@ -227,8 +228,8 @@ final class SmoothWalkTests: XCTestCase {
     /// to the next each flake that stays on the screen (the same column of its plane, row and side) keeps its frame and
     /// its alpha. Before, a near or a foreground flake faded by the lane's x under it on the screen, which moved with the
     /// camera, so it dimmed in mid-fall in the band. Walked from the gorge across the band, starting where the day's bank
-    /// (resting at 200) has left the screen, since a near flake is cut where the screen shows the bank. (Not asserted:
-    /// a flake that drifted far from its start goes when its start column leaves the screen, round lh-b3l-31; open.)
+    /// (resting at 200) has left the screen, since a near flake is cut where the screen shows the bank. (b3-smooth: that
+    /// no flake goes out or comes in while the lord walks is `testNoAshFlakePopsOutOrInWhileTheLordWalksEastOrWest`.)
     func testNoAshFlakeFadesOrGoesOutInMidFallWhileTheLordWalks() {
         let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
         let time = 7.0
@@ -268,6 +269,57 @@ final class SmoothWalkTests: XCTestCase {
             }
         }
         XCTAssertGreaterThan(checked, 1000, "flakes were followed")
+    }
+
+    /// b3-smooth (build 3, lane 5b step 1, the critic's M3; found in round lh-b3l-31, in both builds): with the clock
+    /// held, a walk east and one west change no ash flake on any depth: from one frame to the next each flake well inside
+    /// the screen stands at the same column of its plane, row, side, frame and alpha in the other frame. Before, a flake
+    /// that had drifted far from the column it started from went out (or jumped to another place) when its start column
+    /// left the screen, since its one copy was chosen by its start column on the screen and its drift wrapped round the
+    /// screen. In a gusty wind the steady drift carries the near flakes up to some hundred px from their start.
+    func testNoAshFlakePopsOutOrInWhileTheLordWalksEastOrWest() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let time = 7.0
+        let gusty = Weather.sample(seed: 3, day: 12, hour: 12, time: time,
+                                   override: WeatherOverride(mode: .gusty, rain: 1))
+        XCTAssertGreaterThan(abs(gusty.mean) - FrameBuilder.ashCalm, 0.2, "a steady wind carries the ash far")
+        typealias Flake = (plane: Plane, column: Float, y: Float, frame: Int, flipped: Bool, alpha: Float)
+        func flakes(_ desc: FrameDesc, inner margin: Float) -> [Flake] {
+            [Plane.near, .world, .foreground].flatMap { plane -> [Flake] in
+                let whole = Float(desc.layer(plane).offset.whole)
+                return desc.layer(plane).sprites.filter {
+                    $0.sprite == .ashFlake && $0.rect.x >= 30 + margin
+                        && $0.rect.x <= Float(desc.targetWidth) - 60 - margin
+                }.map { (plane: plane, column: $0.rect.x + whole, y: $0.rect.y, frame: $0.frame,
+                         flipped: $0.flipped, alpha: $0.tint.w) }
+            }
+        }
+        func same(_ a: Flake, _ b: Flake) -> Bool {
+            a.plane == b.plane && a.column == b.column && a.y == b.y && a.flipped == b.flipped && a.frame == b.frame
+                && abs(a.alpha - b.alpha) < 1e-4
+        }
+        var checked = 0
+        for (start, step) in [(420.0, SmoothWalkTests.walkStep), (660.0, -SmoothWalkTests.walkStep)] {
+            var last: FrameDesc?
+            for index in 0..<400 {
+                let desc = frame(world, hour: 12, focus: start + Double(index) * step, weather: gusty, time: time)
+                if let last {
+                    let before = flakes(last, inner: 0)
+                    for flake in flakes(desc, inner: 1) {
+                        checked += 1
+                        XCTAssertTrue(before.contains { same($0, flake) },
+                                      "walk from \(start), frame \(index): a flake of the \(flake.plane) came in or jumped")
+                    }
+                    let after = flakes(desc, inner: 0)
+                    for flake in flakes(last, inner: 1) {
+                        XCTAssertTrue(after.contains { same($0, flake) },
+                                      "walk from \(start), frame \(index): a flake of the \(flake.plane) went out or jumped")
+                    }
+                }
+                last = desc
+            }
+        }
+        XCTAssertGreaterThan(checked, 2000, "flakes were followed both ways")
     }
 
     /// `FrameBuilder.rainLaneX`: on the lane's depth the column is the lane's x; in front of and behind it the column the
@@ -339,5 +391,283 @@ final class SmoothWalkTests: XCTestCase {
         let above = SpriteQuad(rect: SIMD4<Float>(0, -9, 4, 8), texel: SIMD4<Float>(0, 0, 4, 8), tint: white)
         XCTAssertNil(EmissiveBands.placed(above, band: 1, targetHeight: height))
         XCTAssertEqual(EmissiveBands.textureRows(targetHeight: height), EmissiveBands.count * (height + 2))
+    }
+
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's M5): the calm column
+
+    /// In a calm a chimney's column is no string of equal beads (`FrameBuilder.calmPuffs`): it wanders sideways with
+    /// its rise (seeded by the chimney and the puff), high up its puffs take billows a size smaller beside them, low
+    /// down fillers close the gaps; every addition starts at nothing where it starts (no pop: the wander at the mouth,
+    /// a billow's and a filler's alpha at their thresholds), and two chimneys wander apart. In a wind the column is
+    /// `CastleSmoke.puffs`' own.
+    func testTheCalmColumnWandersAndBillowsAndNothingPops() {
+        let keepX = 1180.0
+        var spread = (today: 0.0, calm: 0.0)
+        var billows = 0
+        var additions = 0
+        for step in 0..<24 {
+            let time = Double(step) * 0.25
+            let born = CastleSmoke.puffs(time: time, wind: 0.04, seed: Int(keepX))
+            let calm = FrameBuilder.calmPuffs(born, chimneyX: keepX, wind: 0.04, town: false)
+            billows += calm.filter { puff in !born.contains { $0.frame == puff.frame && $0.rise == puff.rise }
+                                         && puff.rise > CastleSmoke.rise * FrameBuilder.calmBillowFrom.keep }.count
+            additions += calm.count - born.count
+            func width(_ puffs: [CastleSmoke.Puff]) -> Double {
+                let high = puffs.filter { $0.alpha > 0.3 && $0.rise > CastleSmoke.rise * 0.5 }.map { $0.dx.rounded() }
+                return (high.max() ?? 0) - (high.min() ?? 0)
+            }
+            spread.today += width(born) / 24
+            spread.calm += width(calm) / 24
+            XCTAssertEqual(FrameBuilder.calmPuffs(born, chimneyX: keepX, wind: 0.04, town: false), calm,
+                           "a function of its inputs")
+            XCTAssertEqual(FrameBuilder.calmPuffs(CastleSmoke.puffs(time: time, wind: 0.6, seed: Int(keepX)),
+                                                  chimneyX: keepX, wind: 0.6, town: false),
+                           CastleSmoke.puffs(time: time, wind: 0.6, seed: Int(keepX)), "in a wind as before")
+        }
+        XCTAssertGreaterThan(billows, 20, "billows high in the column")
+        XCTAssertGreaterThan(additions, billows, "and fillers low in it")
+        XCTAssertGreaterThan(spread.calm, spread.today + 0.5, "high up the column is wider than a bead: \(spread)")
+
+        // Nothing pops: at the mouth no wander, at its threshold a billow or a filler has no alpha.
+        let path = CastleSmoke.rise
+        func added(_ rise: Double, frame: Int = 3) -> [CastleSmoke.Puff] {
+            let puff = CastleSmoke.Puff(dx: 0, rise: rise, frame: frame, alpha: 1)
+            return FrameBuilder.calmPuffs([puff], chimneyX: keepX, wind: 0, town: false)
+        }
+        XCTAssertEqual(added(0).map(\.dx), [0], "no wander at the mouth")
+        let atBillow = added(path * FrameBuilder.calmBillowFrom.keep + 1e-6)
+        XCTAssertEqual(atBillow.count, 2, "a billow and its puff")
+        XCTAssertLessThan(atBillow.first?.alpha ?? 1, 1e-3, "a billow fades in from nothing")
+        let atFill = added(FrameBuilder.calmFillFrom + 1e-6, frame: 0)
+        XCTAssertEqual(atFill.count, 2)
+        XCTAssertLessThan(atFill.last?.alpha ?? 1, 1e-3, "a filler fades in from nothing")
+        let topFill = added(path * FrameBuilder.calmFillUnder - 1e-6, frame: 1)
+        XCTAssertLessThan(topFill.last?.alpha ?? 1, 1e-3, "and out at the top of the stream")
+        let half = FrameBuilder.calmPuffs([CastleSmoke.Puff(dx: 0, rise: 20, frame: 3, alpha: 1)], chimneyX: keepX,
+                                          wind: 0.1 + 0.05 * (CastleSmoke.leanTo - CastleSmoke.leanFrom), town: false)
+        XCTAssertEqual(FrameBuilder.calmShare(wind: 0.1 + 0.05 * (CastleSmoke.leanTo - CastleSmoke.leanFrom)), 0.5,
+                       accuracy: 1e-9)
+        XCTAssertEqual(half.count, 2, "half calm: half a billow")
+        // Two chimneys wander apart.
+        let a = FrameBuilder.calmPuffs(CastleSmoke.puffs(time: 2, wind: 0, seed: 2600), chimneyX: 2600, wind: 0,
+                                       town: true)
+        let b = FrameBuilder.calmPuffs(CastleSmoke.puffs(time: 2, wind: 0, seed: 2600), chimneyX: 2731, wind: 0,
+                                       town: true)
+        XCTAssertNotEqual(a.map(\.dx), b.map(\.dx), "each chimney its own wander")
+    }
+
+    /// Round lh-b3s-11 (`RainLookTests.testThePuffsHaveBodyOnTheDrawnPixel`: in a calm the billows and fillers covered
+    /// the whole puffs' bodies and the wander moved them off the pixels they read on): the calm column keeps the body
+    /// of its whole puffs. In every calm (still air to the calm's last lean, both ways), at every moment, over the
+    /// keep's and the town's chimneys: the whole puffs (the first 60 % of a puff's life) of `calmPuffs` are those of
+    /// `CastleSmoke.puffs`, in their places and order (none wanders, no billow or filler is whole); in the drawn order
+    /// (`FrameBuilder.puffOrder`) every translucent puff stands behind every whole one, and the whole ones keep the
+    /// order they had. High up, as the puffs thin, the column still wanders.
+    func testTheCalmColumnKeepsItsWholePuffsInTheirPlacesAndInFront() {
+        var wandered = 0
+        for town in [false, true] {
+            let path = town ? CastleSmoke.townRise : CastleSmoke.rise
+            for chimneyX in [1180.0, 1245.5, 2600, 2731, 2918.5] {
+                for wind in [0.0, 0.04, 0.08, -0.08, 0.15, -0.17] {
+                    XCTAssertGreaterThan(FrameBuilder.calmShare(wind: wind), 0, "a calm at \(wind)")
+                    for step in 0..<32 {
+                        let time = Double(step) * 0.37
+                        let born = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimneyX), town: town)
+                        let calm = FrameBuilder.calmPuffs(born, chimneyX: chimneyX, wind: wind, town: town)
+                        let name = "\(town ? "town" : "keep") \(chimneyX), wind \(wind), time \(time)"
+                        XCTAssertEqual(calm.filter { $0.alpha >= 1 }, born.filter { $0.alpha >= 1 },
+                                       "\(name): the whole puffs stand where they stood")
+                        let drawn = FrameBuilder.puffOrder(calm, calm: true)
+                        let front = Array(drawn.drop { $0.alpha < 1 })
+                        XCTAssertTrue(front.allSatisfy { $0.alpha >= 1 }, "\(name): every thin puff behind the whole")
+                        XCTAssertEqual(front, FrameBuilder.puffOrder(born, calm: false).filter { $0.alpha >= 1 },
+                                       "\(name): the whole puffs in their order")
+                        wandered += calm.filter { puff in
+                            puff.rise > path * 0.7 && !born.contains(puff)
+                                && born.contains { $0.rise == puff.rise && $0.frame == puff.frame }
+                        }.count
+                    }
+                }
+            }
+        }
+        XCTAssertGreaterThan(wandered, 100, "high up the column wanders")
+    }
+
+    /// The rule of step 2b holds for the calm column: with the clock held, in every frame of a walk each puff of the
+    /// keep's smoke (its carried picture, with the mist band), of the town's chimneys (the lane) and of the back row
+    /// (the near plane), the billows and fillers included, stands at the same column of the picture it moves with, the
+    /// same row, frame and alpha.
+    func testEverySmokePuffKeepsItsPlaceOnItsPlaneInEveryFrameOfAWalk() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let time = 2.5
+        let calm = Weather.sample(seed: 3, day: 12, hour: 12, time: time,
+                                  override: WeatherOverride(mode: .clear, wind: 0.04))
+        XCTAssertEqual(FrameBuilder.calmShare(wind: calm.mean), 1, "a calm")
+        typealias Puff = (picture: Int, column: Float, y: Float, frame: Int, alpha: Float)
+        func puffs(_ desc: FrameDesc, inner margin: Float) -> [Puff] {
+            var layers: [(layer: PlaneLayer, tag: Int)] = desc.planes.map { (layer: $0, tag: $0.plane.rawValue) }
+            for (index, layer) in desc.carried.enumerated() {
+                layers.append((layer: layer, tag: 100 + index))
+            }
+            return layers.flatMap { item -> [Puff] in
+                let whole = Float(item.layer.offset.whole)
+                return item.layer.sprites.filter {
+                    $0.sprite == .smokePuff && $0.rect.x >= 20 + margin
+                        && $0.rect.x <= Float(desc.targetWidth) - 30 - margin
+                }.map { (picture: item.tag, column: $0.rect.x + whole, y: $0.rect.y, frame: $0.frame, alpha: $0.tint.w) }
+            }
+        }
+        func same(_ a: Puff, _ b: Puff) -> Bool {
+            a.picture == b.picture && a.column == b.column && a.y == b.y && a.frame == b.frame
+                && abs(a.alpha - b.alpha) < 1e-5
+        }
+        var checked = 0
+        for (start, step) in [(SceneLayout.castleHallDoorX, SmoothWalkTests.walkStep), (2800.0, -SmoothWalkTests.walkStep)] {
+            var last: FrameDesc?
+            for index in 0..<SmoothWalkTests.frames {
+                let desc = frame(world, hour: 12, focus: start + Double(index) * step, weather: calm, time: time)
+                if let last {
+                    let before = puffs(last, inner: 0)
+                    for puff in puffs(desc, inner: 1) {
+                        checked += 1
+                        XCTAssertTrue(before.contains { same($0, puff) },
+                                      "walk from \(start), frame \(index): a puff of picture \(puff.picture) moved")
+                    }
+                    let after = puffs(desc, inner: 0)
+                    for puff in puffs(last, inner: 1) {
+                        XCTAssertTrue(after.contains { same($0, puff) },
+                                      "walk from \(start), frame \(index): a puff of picture \(puff.picture) went")
+                    }
+                }
+                last = desc
+            }
+        }
+        XCTAssertGreaterThan(checked, 1500, "puffs were followed")
+    }
+
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's M2): the gold rim round a marked person
+
+    /// The gold rim round a marked person (`TouchRims.actors`) is an actor on the figure's own rect, grown by a game
+    /// pixel left, right and up: over a walk at 1/60 s, with the camera following the lord and the figure walking on its
+    /// own, its offset to the figure's actor (placed as `CourtFrames` places it, through the same view) is one value in
+    /// every frame. The old rim, a glow at whole game px on the world's grid, stepped against the walking figure. A
+    /// figure that stands at a whole x keeps the rim it had, to the device pixel (the rect of the old glow's quad), in
+    /// the same colour by day and at night, pressed or not.
+    func testTheGoldRimRidesItsFigureInEveryFrameOfAWalk() throws {
+        var options = FrameOptions(flickerTime: 2.5)
+        options.look = .two
+        let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        let s = Float(pixelScale.scale)
+        let groundRow = Camera.groundRow(targetHeight: pixelScale.targetHeight)
+        func person(at x: Double, step: Int) -> DrawnFigure {
+            DrawnFigure(who: "tamsin", key: "tamsin", body: SpeakerBody.court(.petitionerD), x: x, y: 0, facing: -1,
+                        frame: step / 8 % 2, alpha: 1, look: nil, petition: nil, talking: false)
+        }
+        let talk = TouchMark(sprite: .tapTalk, x: 0, lift: 33, pressed: false, poolX: 0, kind: .talk, who: "tamsin",
+                             half: 4, footing: nil)
+        func oldRim(_ mark: TouchMark, _ figure: DrawnFigure, night: Double, camera: Camera) throws -> EmissiveInstance {
+            var layer = EntityLayer()
+            layer.glows = TouchRims.world([mark], figures: [figure], night: night)
+            let world = camera.offset(for: .world, scale: pixelScale.scale)
+            return try XCTUnwrap(layer.emissives(worldWhole: Double(world.whole), groundRow: groundRow,
+                                                 targetWidth: pixelScale.targetWidth).first, "the old rim")
+        }
+        var riding: Set<[Float]> = []
+        var gridded: Set<Float> = []
+        for step in 0..<SmoothWalkTests.frames {
+            let camera = Camera(focusX: 1700 + Double(step) * SmoothWalkTests.walkStep, pixelScale: pixelScale)
+            let view = EntityFrames.ActorView(camera: camera, pixelScale: pixelScale, mode: .smooth)
+            let walker = person(at: 1712.3 + Double(step) * 0.37, step: step)
+            let own = view.rect(walker.sprite, x: walker.x, y: walker.y)
+            let rim = try XCTUnwrap(TouchRims.actors([talk], figures: [walker], night: 0, view: view).first,
+                                    "the rim at step \(step)")
+            XCTAssertEqual(rim.sprite, walker.sprite)
+            XCTAssertEqual(rim.frame, walker.frame)
+            XCTAssertTrue(rim.flipped)
+            XCTAssertTrue(rim.isEmissive)
+            XCTAssertEqual(rim.moonRim, TouchRims.actorRim, "the actor shader's rim path")
+            riding.insert([rim.rect.x - own.x, rim.rect.y - own.y, rim.rect.z - own.z, rim.rect.w - own.w])
+            let world = camera.offset(for: .world, scale: pixelScale.scale)
+            let old = try oldRim(talk, walker, night: 0, camera: camera)
+            gridded.insert(s * old.rect.x - Float(world.deviceShift) - own.x)
+        }
+        XCTAssertEqual(riding, [[-s, -s, 2 * s, s]], "one offset to its figure in every frame")
+        XCTAssertGreaterThan(gridded.count, 1, "on the world's grid it stepped against the figure: \(gridded.sorted())")
+
+        for (pressed, night) in [(false, 0.0), (true, 0.0), (false, 1.0), (true, 1.0)] {
+            var mark = talk
+            mark.pressed = pressed
+            for step in stride(from: 0, to: SmoothWalkTests.frames, by: 7) {
+                let camera = Camera(focusX: 1700 + Double(step) * SmoothWalkTests.walkStep, pixelScale: pixelScale)
+                let view = EntityFrames.ActorView(camera: camera, pixelScale: pixelScale, mode: .smooth)
+                let still = person(at: 1750, step: 0)
+                let rim = try XCTUnwrap(TouchRims.actors([mark], figures: [still], night: night, view: view).first)
+                let old = try oldRim(mark, still, night: night, camera: camera)
+                let world = camera.offset(for: .world, scale: pixelScale.scale)
+                let top = Float(pixelScale.physicalHeight) - s * (Float(pixelScale.targetHeight) - old.rect.y)
+                XCTAssertEqual(rim.rect, SIMD4<Float>(s * old.rect.x - Float(world.deviceShift), top, s * old.rect.z,
+                                                      s * old.rect.w),
+                               "standing still, pressed \(pressed), night \(night): the rim where it was")
+                XCTAssertEqual(rim.tint, old.color, "its colour as before")
+            }
+        }
+    }
+
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's H2b): the composite reads only what holds anything
+
+    /// The mask of a frame (`EmissiveBands.mask`) names the bands with a glow and the carried pictures with a sprite;
+    /// the composite, the translucent actors and the bloom's prefilter read nothing else. By day at the hall door no
+    /// glow stands behind the lane but the keep's smoke in its pale day light (on the mist band), and the keep is read
+    /// in its carried picture; at night the keep's panes light the mist band; in the town at night the back row's
+    /// windows light the near band. Step 2b read all of it for every pixel. The lines `BAND-MASK` go to the report.
+    func testTheMaskNamesOnlyTheBandsAndPicturesThatHoldSomething() {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3))
+        let door = SceneLayout.castleHallDoorX
+        let far = EmissiveBands.bit(band: 0)
+        let mid = EmissiveBands.bit(band: 1)
+        let mist = EmissiveBands.bit(band: 2)
+        let near = EmissiveBands.bit(band: 3)
+        let front = EmissiveBands.bit(band: 4)
+        let streak = EmissiveBands.bit(band: EmissiveBands.overLane)
+        let keep = EmissiveBands.bit(.keep)
+        func report(_ name: String, _ desc: FrameDesc) -> UInt32 {
+            let mask = EmissiveBands.mask(desc)
+            XCTAssertEqual(mask & ~EmissiveBands.everything, 0, name)
+            let bands = (0..<EmissiveBands.count).filter { mask & EmissiveBands.bit(band: $0) != 0 }
+            let pictures = CarriedPicture.allCases.filter { mask & EmissiveBands.bit($0) != 0 }
+            print("BAND-MASK \(name) 0x\(String(mask, radix: 16)) bands \(bands) carried \(pictures.map { "\($0)" }) "
+                  + "reads per pixel \(bands.count + pictures.count) (step 2b: \(EmissiveBands.count + 2))")
+            return mask
+        }
+
+        let day = frame(world, hour: 12, focus: door)
+        let dayMask = report("day-door", day)
+        XCTAssertEqual(dayMask & (far | mid | near | front | streak), 0, "by day no window, fire or rim behind the lane")
+        XCTAssertTrue(day.emissives.filter { $0.plane == .mistBand && $0.kind != .occluder }
+                        .allSatisfy { $0.sprite == .smokePuff }, "by day the mist band holds the keep's smoke alone")
+        XCTAssertNotEqual(dayMask & keep, 0, "the keep stands at the hall door")
+
+        let night = frame(world, hour: 23, focus: door)
+        let nightMask = report("night-door", night)
+        XCTAssertNotEqual(nightMask & mist, 0, "the keep's panes")
+        XCTAssertNotEqual(nightMask & keep, 0, "the keep")
+
+        let town = frame(world, hour: 23, focus: 2800)
+        let townMask = report("night-town", town)
+        XCTAssertNotEqual(townMask & near, 0, "the back row's windows")
+        XCTAssertEqual(townMask & keep != 0, !(town.carriedLayer(.keep)?.sprites.isEmpty ?? true),
+                       "the keep's picture is read only while the keep is in view")
+
+        var options = FrameOptions(flickerTime: 2.5)
+        options.look = .one
+        var clock = DayClock(hour: 23, day: 12)
+        clock.isFrozen = true
+        let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        let one = FrameBuilder.build(scene: PlaceholderScene.world(look: .one), clock: clock,
+                                     camera: Camera(focusX: door, pixelScale: pixelScale), pixelScale: pixelScale,
+                                     options: options)
+        XCTAssertEqual(EmissiveBands.mask(one), 0, "look 1 reads no band")
+        XCTAssertEqual(EmissiveBands.mask(night, reducedEffects: true) & EmissiveBands.bit(.keepMist), 0,
+                       "under the thermal cut the keep's mist is not drawn, so not read")
     }
 }

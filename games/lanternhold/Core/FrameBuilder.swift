@@ -599,9 +599,120 @@ enum FrameBuilder {
         for chimney in townSmokers(props: props, hour: hour) {
             let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
             chimneyPuffs(at: chimney, whole: whole, plane: .world, town: true, fire: false, hearth: true,
-                         wind: wind, time: time, ambient: ambient, geometry: geometry, list: &list, glow: &glow)
+                         wind: wind, time: time, still: reduceMotion, ambient: ambient, geometry: geometry,
+                         list: &list, glow: &glow)
         }
         return list
+    }
+
+    // MARK: b3-smooth (build 3, lane 5b step 1, the critic's M5): the calm column
+
+    // In calm air the keep's and the chimneys' columns read as a vertical string of equal pale beads (frames
+    // ci-out/director/b3/lantern/s3/05 and 06): a machine's row of dots. In a calm each column now wanders sideways by
+    // about a pixel as it rises, seeded by the chimney and the puff; high in the column a puff takes a billow beside it
+    // a size smaller, so the column widens with its rise and breaks into lumps; low in it a smaller puff fills the gap
+    // under each, a thin wavering stream out of the mouth (proven in python first: ci-out/director/b3/smooth/scratch,
+    // smokemock2.py, smoke5.png; trimmed from smoke4.png's to keep the frame's instances down). Every one is a
+    // function of the puff's rise and of seeds alone, never of a jump in time, and fades in and out by its alpha, so
+    // nothing pops; the wind fades all of it out (`calmShare`); under Reduce Motion the
+    // column is as before. Each added puff is placed as the others (by its plane's whole offset), so it keeps one offset
+    // to the plane it moves with in every frame of a walk.
+    // Round lh-b3s-11 (RainLookTests.testThePuffsHaveBodyOnTheDrawnPixel, the town at a calm noon: the median body of
+    // the fourth column fell from 51 to 36 off its backdrop, two columns of 40 left where three are asked): the
+    // billows and fillers were drawn over the whole puffs and hid their bodies, and the wander moved the whole puffs
+    // off the pixels they read on. Now a whole puff
+    // (the first 60 % of its life) stands where it stood before, with its body in front: a puff wanders only from
+    // `calmWanderFrom` of the column up, above every whole puff, as it thins (the fillers keep their wander from the
+    // mouth: a thin wavering stream behind the column), and every translucent puff of a calm column (the billows, the
+    // fillers, the thinning puffs) is drawn behind every whole one (`puffOrder`). Proven in python over the test's
+    // own measure (ci-out/director/b3/smooth/scratch/smoke6.png: today, M5, now).
+
+    /// The wander's two waves: the chimney's own (px), with a wavelength of `calmMeander` plus up to `calmMeanderSpread`
+    /// rows by the chimney, and the puff's own (px) over `calmPuffWave` rows; a filler's whole from `calmWanderRamp`
+    /// rows up (the column's own puffs': `calmWanderFrom`).
+    static let calmWander = (chimney: 0.8, puff: 0.6)
+    static let calmMeander = 14.0
+    static let calmMeanderSpread = 6.0
+    static let calmPuffWave = 9.0
+    static let calmWanderRamp = 6.0
+    /// The column's puffs wander from this share of it up, whole `calmWanderFull` of it higher (a whole puff, in any
+    /// calm, stands below 0.6: at most 0.592 of the column, the keep's at the calm's last lean).
+    static let calmWanderFrom = 0.6
+    static let calmWanderFull = 0.2
+    /// A billow from this share of the column up (the keep's, the town's), whole `calmBillowRise` of it higher, at this
+    /// share of its puff's alpha.
+    static let calmBillowFrom = (keep: 0.38, town: 0.42)
+    static let calmBillowRise = 0.15
+    static let calmBillowAlpha: Float = 0.9
+    /// A filler under each puff below this share of the column, from `calmFillFrom` rows up, `calmFillDrop` rows under it
+    /// (the town's `calmFillDropTown`), at this share of its alpha; it fades over `calmFillEdge` of the column at the top.
+    static let calmFillUnder = 0.36
+    static let calmFillFrom = 3.0
+    static let calmFillDrop = 2.0
+    static let calmFillDropTown = 1.5
+    static let calmFillAlpha: Float = 0.75
+    static let calmFillEdge = 0.08
+
+    /// How calm the air is for the column, 1 in a calm and below, 0 once the wind leans it past its wobble (as
+    /// `CastleSmoke.puffs` lets its wobble go).
+    static func calmShare(wind: Double) -> Double {
+        max(0, 1 - CastleSmoke.share(wind: wind) / CastleSmoke.wobbleUntil)
+    }
+
+    /// One chimney's puffs (`CastleSmoke.puffs`, in their order) with the calm's wander, billows and fillers.
+    static func calmPuffs(_ puffs: [CastleSmoke.Puff], chimneyX: Double, wind: Double, town: Bool) -> [CastleSmoke.Puff] {
+        let calm = calmShare(wind: wind)
+        guard calm > 0 else { return puffs }
+        let path = town ? CastleSmoke.townRise : CastleSmoke.rise
+        let seed = SeededRandom.hash(0x434C_4D53_4D4B, Int64(chimneyX.rounded()))
+        let meander = calmMeander + calmMeanderSpread * unit(SeededRandom.hash(seed, 1))
+        let start = unit(SeededRandom.hash(seed, 2))
+        let lowest = town ? CastleSmoke.townFrame : 0
+        let billowFrom = town ? calmBillowFrom.town : calmBillowFrom.keep
+        // `filler`: the fillers' wander rises from the mouth; the column's own puffs' from `calmWanderFrom` (no whole
+        // puff wanders).
+        func wander(_ rise: Double, _ index: Int, filler: Bool = false) -> Double {
+            let own = FrameBuilder.unit(SeededRandom.hash(seed, Int64(16 + index)))
+            let ramp = filler ? min(1, max(0, rise) / FrameBuilder.calmWanderRamp)
+                : min(1, max(0, (rise / path - FrameBuilder.calmWanderFrom) / FrameBuilder.calmWanderFull))
+            let wave = FrameBuilder.calmWander
+            return calm * ramp * (wave.chimney * sin(2 * Double.pi * (start + rise / meander))
+                                  + wave.puff * sin(2 * Double.pi * (own + rise / FrameBuilder.calmPuffWave)))
+        }
+        var list: [CastleSmoke.Puff] = []
+        for (index, puff) in puffs.enumerated() {
+            let share = puff.rise / path
+            var moved = puff
+            moved.dx += wander(puff.rise, index)
+            if share > billowFrom && puff.frame > lowest {
+                let grown = min(1, (share - billowFrom) / calmBillowRise)
+                let side: Double = unit(SeededRandom.hash(seed, Int64(32 + index))) < 0.5 ? 1 : -1
+                let spread = 1 + ((town ? 1.0 : 1.5) * share).rounded()
+                let up: Double = unit(SeededRandom.hash(seed, Int64(48 + index))) < 0.5 ? 1 : 0
+                list.append(CastleSmoke.Puff(dx: moved.dx + side * spread, rise: puff.rise + up, frame: puff.frame - 1,
+                                             alpha: puff.alpha * calmBillowAlpha * Float(grown * calm)))
+            }
+            list.append(moved)
+            if share < calmFillUnder && puff.rise > calmFillFrom {
+                let rise = puff.rise - (town ? calmFillDropTown : calmFillDrop)
+                let shown = min(1, (puff.rise - calmFillFrom) / 2) * min(1, (calmFillUnder - share) / calmFillEdge)
+                list.append(CastleSmoke.Puff(dx: puff.dx + wander(rise, index, filler: true), rise: rise,
+                                             frame: max(lowest, puff.frame - 1),
+                                             alpha: puff.alpha * calmFillAlpha * Float(shown * calm)))
+            }
+        }
+        return list
+    }
+
+    /// b3-smooth (round lh-b3s-11): one chimney's puffs in the order they are drawn: the oldest (the farthest from the
+    /// mouth) first, so the newer stand in front; in a calm column (`calm`) every translucent puff (a billow, a filler,
+    /// a thinning puff) behind every whole one, so no added puff covers a whole puff's body. Without the calm's added
+    /// puffs the order is the one before (the thinning puffs are the oldest).
+    static func puffOrder(_ puffs: [CastleSmoke.Puff], calm: Bool) -> [CastleSmoke.Puff] {
+        let sorted = puffs.filter { $0.alpha > 0.02 }
+            .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
+        guard calm else { return sorted }
+        return sorted.filter { $0.alpha < 1 } + sorted.filter { $0.alpha >= 1 }
     }
 
     /// b3-wind: build 3 step 7 (the director's call T2 of 16.11. 14:41): the town's chimneys that smoke at `hour`: every
@@ -630,16 +741,17 @@ enum FrameBuilder {
     /// `hiddenBy`: the rects (the plane's target pixels) of what stands in front of the chimney on its own plane; a puff
     /// that would overlap one is not drawn (round lh-b3w-61: the back row's smoke stood over the lindens before it,
     /// and its light shone through them).
+    /// b3-smooth: `still` (Reduce Motion) keeps the calm column as it was (`calmPuffs`).
     private static func chimneyPuffs(at chimney: (x: Double, y: Double), whole: Double, plane: Plane, town: Bool,
-                                     fire: Bool, hearth: Bool, wind: Double, time: Double, ambient: AmbientSample,
-                                     geometry: Geometry, hiddenBy: [SIMD4<Float>] = [],
+                                     fire: Bool, hearth: Bool, wind: Double, time: Double, still: Bool,
+                                     ambient: AmbientSample, geometry: Geometry, hiddenBy: [SIMD4<Float>] = [],
                                      list: inout [SpriteInstance], glow: inout EmissiveList) {
         let size = SpriteID.smokePuff.size
         // b3-wind (step 7, call T3): the town's grey puffs take their own tint and no pale day light.
         let tint = town ? CastleSmoke.townTint(ambient) : CastleSmoke.tint
-        let puffs = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
-            .filter { $0.alpha > 0.02 }
-            .sorted { $0.dx * $0.dx + $0.rise * $0.rise > $1.dx * $1.dx + $1.rise * $1.rise }
+        let born = CastleSmoke.puffs(time: time, wind: wind, seed: Int(chimney.x), town: town)
+        let calm = !still && calmShare(wind: wind) > 0
+        let puffs = puffOrder(calm ? calmPuffs(born, chimneyX: chimney.x, wind: wind, town: town) : born, calm: calm)
         for puff in puffs + [CastleSmoke.mouth(town: town)] {
             let left = (chimney.x + puff.dx - Double(size.width) / 2 - whole).rounded()
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
@@ -710,8 +822,8 @@ enum FrameBuilder {
             }
             chimneyPuffs(at: chimney, whole: whole, plane: carried?.motion ?? plane, town: back,
                          fire: prop.sprite == .bakehouse, hearth: !back, wind: wind,
-                         time: reduceMotion ? 0 : animTime, ambient: ambient, geometry: geometry, hiddenBy: before,
-                         list: &list, glow: &glow)
+                         time: reduceMotion ? 0 : animTime, still: reduceMotion, ambient: ambient, geometry: geometry,
+                         hiddenBy: before, list: &list, glow: &glow)
         }
     }
 
@@ -2114,6 +2226,10 @@ enum FrameBuilder {
         let life = byNight(emberLife, night)
         let big = byNight(emberBig, night)
         let key = SeededRandom.hash(weather.gustSeed ^ 0x41_5348, Int64(depth + 1))
+        // b3-smooth (build 3, lane 5b step 1, the critic's M3): how far a flake can drift from the column it starts
+        // from (game px, a bound: the steady wind over its whole fall at its slowest, the gust's lean and the sway).
+        let reach = max(0, abs(weather.mean) - ashCalm) * ashDrift * fall / (0.8 * entry.speed)
+            + 4 * ashGustReach + ashSway + 2
         var list: [SpriteInstance] = []
         var glow: [EmissiveInstance] = []
         for index in 0..<count {
@@ -2127,77 +2243,87 @@ enum FrameBuilder {
             let y = share * fall - Double(size.height)
             let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
             let pick = SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))
-            var x = (unit(pick) * span - whole).truncatingRemainder(dividingBy: span)
-            if x < 0 { x += span }
-            // Ash or water, decided once at the column it starts from (no flake blinks out in mid-air); a flake that
-            // drifts toward the wall fades as the water's share grows, and is gone at the wall.
-            // b3-lantern (suspect 6): at its own column in its plane, mapped to the lane (`rainLaneX`), so its drift's
-            // wind does not move with the camera either.
-            let start = rainLaneX(column: x - margin + whole, plane: entry.plane,
-                                  viewWidth: Double(geometry.targetWidth))
-            guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: start, seam: seam) else { continue }
-            let wind = Weather.wind(at: start, weather, time: fallTime)
-            x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
-            x = (x.truncatingRemainder(dividingBy: span) + span).truncatingRemainder(dividingBy: span) - margin
-            // The bank stands on the lane, so a near flake behind it is cut where the screen shows the bank (the
-            // lane's x under it).
-            if depth == 0 && x + lane < bankEdge + ashBankFace { continue }
-            // b3-lantern (suspect 6): the fade toward the wall is read at the same lane x as the kind (`rainLaneX` of
-            // the flake's column in its plane, after its drift), so a flake of the near or the foreground depth never
-            // fades or goes out in mid-fall while the lord walks.
-            let laneX = rainLaneX(column: x + whole, plane: entry.plane, viewWidth: Double(geometry.targetWidth))
-            var fade = Float(1 - RainLook.waterShare(x: laneX, seam: seam))
-            guard fade > 0.02 else { continue }
-            if reduceMotion {
-                fade *= rainPulseAlpha(time: animTime, own: own)
-            }
-            let tumble = Int(min(1.0e15, falling * (ashTumble.still + ashTumble.wind * abs(wind)) + own * 4)
-                .rounded(.down)) % 4
-            let frame = entry.size * 4 + tumble
-            let flipped = own > 0.5
-            let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
-                                    Float(size.height))
-            var grey: Float = 1
-            if !reduceMotion && isEmber(key: key, index: index, night: night) && share < life {
-                let age = Float(share / life)
-                let large = Double(age) < big
-                // b3-wind (step 5): the 2 x 2 point in the torch's orange round its hot gold core.
-                let strength = (1 - age * age) * emberGlow * fade
-                let heat = large ? emberColor * strength : emberHeat(life: age) * (emberGlow * fade)
-                let shown = emberBodyAlpha(life: age) * fade * (entry.plane == .foreground ? day : 1)
-                if shown > 0.01 {
-                    list.append(SpriteInstance(sprite: .ashFlake,
-                                               frame: large ? emberFrames.bigBody : emberFrames.body, rect: rect,
-                                               tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z, shown),
-                                               flipped: false))
+            var home = (unit(pick) * span - whole).truncatingRemainder(dividingBy: span)
+            if home < 0 { home += span }
+            // b3-smooth (M3): the flake's copies stand `span` apart in its plane, each with its own start column (so
+            // its own kind and wind); every copy whose drifted place is on the screen is drawn. Before, the one copy
+            // whose start column was on the screen was drawn and its drift wrapped round the screen, so a flake that
+            // had drifted far popped out (or jumped) when its start column left the screen while the lord walked.
+            let first = Int(((-reach - home) / span).rounded(.up))
+            let last = Int(((span + reach - home) / span).rounded(.down))
+            for copy in min(first, 0)...max(last, 0) {
+                var x = home + Double(copy) * span
+                // Ash or water, decided once at the column it starts from (no flake blinks out in mid-air); a flake
+                // that drifts toward the wall fades as the water's share grows, and is gone at the wall. b3-lantern
+                // (suspect 6): at its own column in its plane, mapped to the lane (`rainLaneX`), so its drift's wind
+                // does not move with the camera either.
+                let start = rainLaneX(column: x - margin + whole, plane: entry.plane,
+                                      viewWidth: Double(geometry.targetWidth))
+                guard !RainLook.isWater(unit(SeededRandom.hash(pick, 0x41)), x: start, seam: seam) else { continue }
+                let wind = Weather.wind(at: start, weather, time: fallTime)
+                x += ashSideways(falling: falling, own: own, wind: wind, mean: weather.mean)
+                guard x >= 0 && x < span else { continue }
+                x -= margin
+                // The bank stands on the lane, so a near flake behind it is cut where the screen shows the bank (the
+                // lane's x under it).
+                if depth == 0 && x + lane < bankEdge + ashBankFace { continue }
+                // b3-lantern (suspect 6): the fade toward the wall is read at the same lane x as the kind (`rainLaneX`
+                // of the flake's column in its plane, after its drift), so a flake of the near or the foreground depth
+                // never fades or goes out in mid-fall while the lord walks.
+                let laneX = rainLaneX(column: x + whole, plane: entry.plane, viewWidth: Double(geometry.targetWidth))
+                var fade = Float(1 - RainLook.waterShare(x: laneX, seam: seam))
+                guard fade > 0.02 else { continue }
+                if reduceMotion {
+                    fade *= rainPulseAlpha(time: animTime, own: own)
                 }
-                glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                             color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), kind: .glass,
-                                             source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
-                                             frame: large ? emberFrames.bigPoint : emberFrames.point))
-                if large {
-                    let core = emberCoreAdd * strength
+                let tumble = Int(min(1.0e15, falling * (ashTumble.still + ashTumble.wind * abs(wind)) + own * 4)
+                    .rounded(.down)) % 4
+                let frame = entry.size * 4 + tumble
+                let flipped = own > 0.5
+                let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
+                                        Float(size.height))
+                var grey: Float = 1
+                if !reduceMotion && isEmber(key: key, index: index, night: night) && share < life {
+                    let age = Float(share / life)
+                    let large = Double(age) < big
+                    // b3-wind (step 5): the 2 x 2 point in the torch's orange round its hot gold core.
+                    let strength = (1 - age * age) * emberGlow * fade
+                    let heat = large ? emberColor * strength : emberHeat(life: age) * (emberGlow * fade)
+                    let shown = emberBodyAlpha(life: age) * fade * (entry.plane == .foreground ? day : 1)
+                    if shown > 0.01 {
+                        list.append(SpriteInstance(sprite: .ashFlake,
+                                                   frame: large ? emberFrames.bigBody : emberFrames.body, rect: rect,
+                                                   tint: SIMD4<Float>(emberBody.x, emberBody.y, emberBody.z, shown),
+                                                   flipped: false))
+                    }
                     glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                                 color: SIMD4<Float>(core.x, core.y, core.z, 1), kind: .glass,
+                                                 color: SIMD4<Float>(heat.x, heat.y, heat.z, 1), kind: .glass,
                                                  source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
-                                                 frame: emberFrames.point))
+                                                 frame: large ? emberFrames.bigPoint : emberFrames.point))
+                    if large {
+                        let core = emberCoreAdd * strength
+                        glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                                     color: SIMD4<Float>(core.x, core.y, core.z, 1), kind: .glass,
+                                                     source: SIMD4<Float>(0, 0, Float(size.width), Float(size.height)),
+                                                     frame: emberFrames.point))
+                    }
+                    grey = max(0, (age - emberGreyFrom) / (1 - emberGreyFrom))
                 }
-                grey = max(0, (age - emberGreyFrom) / (1 - emberGreyFrom))
-            }
-            // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks into
-            // the list: the same flakes stand in the list from one moment to the next. A foreground flake that rests at
-            // night (`body` 0) is left out, so it costs no instance; `body` depends on the air alone, never on the
-            // time, so the list still holds from one moment to the next.
-            if body > 0.004 {
-                list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
-                                           tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
-                                           flipped: flipped))
-            }
-            if night * fade * grey > 0.01 && entry.plane != .foreground {
-                let ash = warm * (night * fade * grey)
-                glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
-                                             color: SIMD4<Float>(ash.x, ash.y, ash.z, 1), flipped: flipped,
-                                             frame: frame))
+                // An ember's grey flake is drawn from its first moment (faint while it burns), so a flake never blinks
+                // into the list: the same flakes stand in the list from one moment to the next. A foreground flake that
+                // rests at night (`body` 0) is left out, so it costs no instance; `body` depends on the air alone,
+                // never on the time, so the list still holds from one moment to the next.
+                if body > 0.004 {
+                    list.append(SpriteInstance(sprite: .ashFlake, frame: frame, rect: rect,
+                                               tint: SIMD4<Float>(tint.x, tint.y, tint.z, tint.w * fade * grey * body),
+                                               flipped: flipped))
+                }
+                if night * fade * grey > 0.01 && entry.plane != .foreground {
+                    let ash = warm * (night * fade * grey)
+                    glow.append(EmissiveInstance(sprite: .ashFlake, plane: entry.plane, rect: rect,
+                                                 color: SIMD4<Float>(ash.x, ash.y, ash.z, 1), flipped: flipped,
+                                                 frame: frame))
+                }
             }
         }
         return (list, glow)
