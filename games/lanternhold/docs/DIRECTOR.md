@@ -1414,3 +1414,10 @@ schneller geht."
     lh-rc-3 green. Every later step takes its durations and curves from there. C1 proves `.lhPane()` on film (0a proved
     it only by compiling). Step E1 (the end of an empty day, Brannock at the horn, the dusk in 4.0 s) went out in lane E
     at about 22:02. The far goal ("of 20") gets its own small step after E1.
+  - Step 0b is in the join branch (22.11., 22:46): `claude/lh-round` 696eec4a = 0a + 0b (round lh-rnd-7 green). 0b gives
+    the cue contract (the table at the top of `Core/Feedback.swift`: 14 cues on stand-in sounds, who calls each and
+    which old call it retires), `SoundSpace`, the one duck rule (`BedDucks`, `DuckFollower`), `AnswerChain`,
+    `AnswerSize` and the title's beds. Two calls of the director went into law 4: the edge of hearing fades out over a
+    further half of the hearing distance, and one touch gives one tick (a pane cue right after a plaque press has no
+    haptic; the old card cues go quiet in the hub). Steps C1 (one pane family) and D1 (the night's weight for the ear)
+    went out from 696eec4a. Nothing of the sound path has been heard on a phone yet.

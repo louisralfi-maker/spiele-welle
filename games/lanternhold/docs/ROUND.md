@@ -194,6 +194,11 @@ Every deed answers at once for ear, hand and eye, at its size and never larger. 
   Lantern moment and screens x 0.5 (exists); battle within 300 px of the lord x 0.6; step 3 x 0.7 for 0.7 s; step 4
   x 0.25, back over 2 s from 1.5 s; the horn x 0.3 from 0.6 s before it.
 - Space: positional cues at volume x max(0.35, 1 - d / hearing), pan clamp((x - lordX) / 320, -0.7, 0.7).
+  Beyond hearing a cue does not cut: it falls from 0.35 to nothing over a further half of the hearing distance (the
+  director's call on step 0b's M3, 22.11.; built in D1).
+- One touch, one tick (the director's call, 22.11.; built in D1): a pane cue within 0.25 s after a plaque press plays
+  its sound and no haptic. `paneOpen` / `paneClose` (played from `OverlayView` on the overlay's change, C1) replace
+  `cardOpened` / `cardClosed`, which go quiet in the hub, so no call site in another lane's file changes.
 - No event baked into a loop; silence on purpose only before the horn, after a breach and on the defeat card.
 - Pane pair (law 2 meets law 4): pane come = `tap.wav` 0.55 at the start of the 0.25 s; pane go = `tap.wav` 0.45,
   rate 0.85; bubble close = `tap.wav` 0.3, rate 0.85. Lantern: `lantern_up` 0.55 and soft 0.5 at the touch, under the
