@@ -305,10 +305,4 @@ enum LanternFlare {
 
     /// The ring's band: its crest at the light's edge and two fainter pixels behind it (inset, share).
     static let band: [(inset: Double, share: Double)] = [(0, 0.6), (1, 0.32), (2, 0.14)]
-
-    /// The flare on the glass: its middle and the pixels round it (offsets and shares).
-    static let flare: [(dx: Double, dy: Double, share: Double)] = [
-        (0, 0, 1), (-1, 0, 0.55), (1, 0, 0.55), (0, -1, 0.55), (0, 1, 0.55), (-2, 0, 0.2), (2, 0, 0.2),
-        (0, 2, 0.2), (0, -2, 0.2),
-    ]
 }
