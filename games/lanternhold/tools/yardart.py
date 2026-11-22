@@ -346,7 +346,8 @@ CORNER_POST = 99
 def ground():
     c = C(GW, GH)
     # The sand: the lane's top five rows (rows h 0 to 4 are under the walk line), raked along, its ends ragged; trodden
-    # darker where the archer stands and loosens his feet (columns 0 to 3) and round the pell (the drill's own wear).
+    # darker where the archer stands and loosens his feet (columns 0 to 3) and round the guard and his pell (columns 39 to
+    # 60, 1481 to 1502; the drill's own wear).
     for hh in range(0, SAND):
         for x in range(GW):
             end = min(x, GW - 1 - x)
@@ -360,7 +361,7 @@ def ground():
                 name = "plasterDim"          # the rake's furrows
             if h01(13, x, hh) < 0.05:
                 name = "soilLight"           # a footprint, a pebble
-            if hh >= SAND - 2 and (x < 4 or 40 <= x < 56) and h01(23, x, hh) < 0.45:
+            if hh >= SAND - 2 and (x < 4 or 39 <= x < 61) and h01(23, x, hh) < 0.45:
                 name = "plasterDim"          # trodden
             c.seth(x, hh, name)
     # The fence along the apron: posts on the walk line and two rails between them, a low fence about ten rows high. No

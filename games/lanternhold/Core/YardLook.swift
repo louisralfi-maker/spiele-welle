@@ -23,8 +23,10 @@ enum YardLook {
     /// the apron to the barracks' east wall, a low fence only along the apron and a corner post at its far end (1541).
     static let groundLeft = 1442.0
     static let groundY = -5.0
-    /// The pell (9 px sprite; the post's middle 4 px in).
-    static let pellLefts: [Double] = [1482]
+    /// The pell (9 px sprite; the post's middle 4 px in). Step 3 (the critic's H2): 1494, before the bunkhouse's west
+    /// wall right of the guard who strikes it (layout A had it at 1482 with the guard at 1497, right under the archer
+    /// recruit's mark); its foot a pixel clear of Brannock in the door (1503).
+    static let pellLefts: [Double] = [1494]
     /// The two archery butts set behind each other at the yard's far end (17 px each; the boss's middle 9 px in), their
     /// faces to the archers: the first drawn first, behind, a shade darker (`buttBehindShade`); the second in front, the
     /// one the arrow flies into. Step 3: the card had the front one at 1519 and the arrow's end at 1526; with Brannock
@@ -55,8 +57,10 @@ enum YardLook {
     /// The archer at the fence's gate, west of the lord's lane, facing the butts across the whole yard, clear of the
     /// gate's trestles (to about 1434); at most this many are drawn (one, so nobody stands over another).
     static let archerSpots: [Double] = [1438]
-    /// The guard at the pell, striking it from its right (his front at the pell's edge), facing left.
-    static let guardSpots: [(x: Double, faceLeft: Bool)] = [(1497, true)]
+    /// The guard at the pell, striking it from its left (his front at the pell's edge), facing the butts. Step 3 (the
+    /// critic's H2: no mark over a person): 1488, 9 px from the archer recruit's mark (1497; layout A's 1497 stood
+    /// right under it), clear of the tripod (to 1478), the lord's lane and the door; the arrow passes 42 px over him.
+    static let guardSpots: [(x: Double, faceLeft: Bool)] = [(1488, false)]
     /// One archer's round: rest, draw, full draw, loose (the arrow flies), rest; each man out of step by his place.
     static let archerRound = 2.6
     static let archerPhases: [(until: Double, frame: Int)] = [(0.9, 0), (1.4, 2), (2.0, 3), (2.3, 4), (2.6, 1)]

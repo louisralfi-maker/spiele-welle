@@ -773,6 +773,60 @@ final class YardLookTests: XCTestCase {
         }
     }
 
+    /// Step 3 (the critic's H2: the hammer mark sat on a person's head): no mark over a person. The yard's marks (its
+    /// site's on day 4, the kettle's place's once the yard stands) and the barracks' two recruit marks keep more than
+    /// 8 px from the archer's spot, the guard's spot and every stop of Brannock's. The guard moved for it (layout A's
+    /// 1497 lay under the archer recruit's mark); no rule place moved.
+    func testNoMarkStandsOverADrillerOrBrannock() throws {
+        var s = realm(day: 4)
+        var marks: [(id: String, x: Double)] = []
+        func collect() {
+            for thing in TouchThings.world(s, balance: balance, figures: [], talked: [])
+            where thing.id.hasPrefix("touch-yard") || thing.kind == .recruit {
+                marks.append((id: thing.id, x: thing.markX))
+            }
+        }
+        collect()
+        Yard.proof(&s, stage: 2, kettle: false, trained: false, balance: balance)
+        collect()
+        let ids = Set(marks.map(\.id))
+        XCTAssertTrue(ids.isSuperset(of: ["touch-yard", "touch-yard-kettle", "touch-recruit-archer",
+                                          "touch-recruit-guard"]), "every mark looked at: \(ids.sorted())")
+        let brannock = try XCTUnwrap(CourtLayout.routines["brannock"])
+        var spots: [(name: String, x: Double)] = YardLook.archerSpots.map { (name: "the archer", x: $0) }
+        spots += YardLook.guardSpots.map { (name: "the guard", x: $0.x) }
+        spots += (brannock.stops + [brannock.night]).map { (name: "Brannock", x: $0) }
+        for mark in marks {
+            for spot in spots {
+                XCTAssertGreaterThan(abs(mark.x - spot.x), 8, "\(mark.id) at \(mark.x) over \(spot.name) at \(spot.x)")
+            }
+        }
+    }
+
+    /// Step 3: the barracks' two recruit halves still take their touches with the yard standing and Brannock in the
+    /// bunkhouse door (low and high on the wall, where FirstDayUITests and CountUITests tap: the half's middle, high),
+    /// and a touch on Brannock still finds him.
+    func testTheRecruitHalvesTakeTheirTouchesWithBrannockInTheDoor() throws {
+        var s = realm(day: 5)
+        Yard.proof(&s, stage: 2, kettle: false, trained: false, balance: balance)
+        let body = try XCTUnwrap(Speakers.speaker("brannock")).body
+        let door = try XCTUnwrap(CourtLayout.routines["brannock"]?.stops.first)
+        let figure = DrawnFigure(who: "brannock", key: "brannock", body: body, x: door, y: 0, facing: -1, frame: 0,
+                                 alpha: 1, look: nil, petition: nil, talking: false)
+        let person = TouchThings.person(figure, act: .talk(who: "brannock"), lordX: 1600, court: true, marked: true)
+        var things = TouchThings.world(s, balance: balance, figures: [figure], talked: [])
+        if !things.contains(where: { $0.id == person.id }) { things.append(person) }
+        for id in ["touch-recruit-archer", "touch-recruit-guard"] {
+            let half = try XCTUnwrap(things.first { $0.id == id }, "\(id) offered with the yard standing")
+            for lift in [4.0, 20, 36] {
+                XCTAssertEqual(TouchRules.pick(x: half.x, lift: lift, things: things, minimum: 22)?.id, id,
+                               "\(id): its middle at lift \(lift) is still its own")
+            }
+        }
+        XCTAssertEqual(TouchRules.pick(x: door, lift: 14, things: things, minimum: 22)?.id, person.id,
+                       "a touch on Brannock in the door finds him")
+    }
+
     func testTheDrillMovesAndStandsStillUnderReduceMotion() {
         var archerFrames = Set<Int>()
         var guardFrames = Set<Int>()
