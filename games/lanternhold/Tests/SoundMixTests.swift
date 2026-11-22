@@ -336,6 +336,21 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(quiet.answer(.manFell, soundOn: true, hapticsOn: true, now: 2).duck, .triumph)
         XCTAssertNil(quiet.answer(.hit, soundOn: true, hapticsOn: true, now: 3).duck, "step 2 lays none")
         XCTAssertEqual(quiet.answer(.wallCracked, soundOn: true, hapticsOn: false, now: 4).duck, .triumph)
+        // D1 gate M5: at the edge of hearing (beyond it) a fall, a crack or a breach-sized cue is only its faded sound:
+        // no haptic, no echo, no duck; the near one after it still has its full answer (no throttle was spent).
+        var edge = FeedbackGate()
+        for (k, cue) in [FeedbackCue.manFell, .wallCracked, .wallHit].enumerated() {
+            let far = edge.answer(cue, soundOn: true, hapticsOn: true, now: 20 + Double(k), near: false)
+            XCTAssertNotNil(far.sound, "\(cue): heard, faded")
+            XCTAssertNil(far.haptic, "\(cue): no hand at the edge")
+            XCTAssertNil(far.echo, "\(cue)")
+            XCTAssertNil(far.duck, "\(cue): no duck at the edge")
+        }
+        XCTAssertEqual(edge.answer(.manFell, soundOn: true, hapticsOn: true, now: 20.1, near: true).haptic, .heavy,
+                       "a near fall right after a far one keeps its heavy")
+        let nearCrack = edge.answer(.wallCracked, soundOn: true, hapticsOn: true, now: 30, near: true)
+        XCTAssertEqual(nearCrack.haptic, .medium)
+        XCTAssertEqual(nearCrack.duck, .triumph)
     }
 
     /// Polish D1: a man struck grunts at most once every 0.5 s, grunt_1 and grunt_2 in turn among those that play.

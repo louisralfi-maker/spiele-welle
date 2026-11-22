@@ -50,6 +50,8 @@ final class SoundDirectorTests: XCTestCase {
         }
         director.play(placed: (cue: .manFell, x: 1300), listenerX: 1500)
         director.play(placed: (cue: .wallCracked, x: 940), listenerX: 1500)
+        // D1 gate M5: a crack at the edge of hearing (beyond 900 px): the faded sound only.
+        director.play(placed: (cue: .wallCracked, x: 2700), listenerX: 1500)
         director.play(placed: (cue: .horn, x: 400), listenerX: 1500)
         director.play(placed: (cue: .manFell, x: nil), listenerX: 1500)
         director.play(.wallBroken)

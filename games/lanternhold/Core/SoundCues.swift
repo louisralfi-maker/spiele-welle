@@ -388,15 +388,16 @@ struct FeedbackGate: Sendable, Equatable {
         hapticsOn ? cue.haptic : nil
     }
 
-    /// What the hub plays for `cue` at `now`. `near`: the cue happens within its hearing of the lord (a kill there
-    /// climbs the kills' chain; beyond, at the edge of hearing, it does not).
+    /// What the hub plays for `cue` at `now`. `near`: the cue happens within its hearing of the lord. Beyond it, at
+    /// the edge of hearing, only the faded sound comes: no haptic and no answer duck (D1 gate M5, law 4: at its size
+    /// and never larger), and a kill climbs no chain.
     mutating func answer(_ cue: FeedbackCue, soundOn: Bool, hapticsOn: Bool, now: Double, near: Bool = true) -> CueAnswer {
         var answer = CueAnswer(haptic: nil, hapticStrength: cue.hapticStrength, sound: nil, jitter: false)
         // One touch, one tick: the press's own tick stands for the pane it opens or closes.
         var afterPress = false
         if FeedbackGate.isPane(cue), let at = pressAt, now >= at, now - at <= FeedbackGate.oneTouch { afterPress = true }
         if cue == .plaquePress { pressAt = now }
-        if !afterPress, let haptic = FeedbackGate.haptic(cue, hapticsOn: hapticsOn),
+        if !afterPress, near, let haptic = FeedbackGate.haptic(cue, hapticsOn: hapticsOn),
            haptics.allow(cue.rawValue, gap: cue.hapticGap, now: now) {
             answer.haptic = haptic
             answer.echo = cue.hapticEcho
@@ -424,7 +425,7 @@ struct FeedbackGate: Sendable, Equatable {
         }
         answer.sound = sound
         answer.jitter = !chained && sound.id.varies && (cue.answerSize?.jitters ?? true)
-        if let size = cue.answerSize, size >= .triumph { answer.duck = size }
+        if near, let size = cue.answerSize, size >= .triumph { answer.duck = size }
         return answer
     }
 }
