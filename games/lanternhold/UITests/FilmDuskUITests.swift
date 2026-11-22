@@ -98,4 +98,44 @@ final class FilmDuskUITests: XCTestCase {
         film.note("m13-route-end", film.scene(second))
         second.terminate()
     }
+
+    /// E1 gate (P7): the same dusk under Reduce Motion, with the lord in the town (its people step at the dusk's pace):
+    /// the pause sheet's route, frames across the 4.0 s (g) and after the horn (h).
+    func testM13TheDuskUnderReduceMotionInTheTown() {
+        let film = FilmReel(self, "m13")
+        var arguments = launch
+        if let index = arguments.firstIndex(of: "-GWCameraX") { arguments[index + 1] = "2600" }
+        arguments += ["-GWReduceMotion", "YES"]
+        let app = film.launch(arguments)
+        guard film.ready(app) else {
+            XCTFail("m13 g: the scene never stood")
+            return
+        }
+        waitForStill(app, timeout: 4)
+        film.note("m13-g-start", film.scene(app))
+        XCTAssertTrue(openLantern(app), "the lantern rises")
+        let gear = film.element(app, "hud-pause")
+        XCTAssertTrue(gear.waitForExistence(timeout: 4), "the gear")
+        gear.tap()
+        let call = film.element(app, "pause-horn")
+        XCTAssertTrue(call.waitForExistence(timeout: 6), "Sound the horn")
+        call.tap()
+        let confirm = film.element(app, "pause-horn-confirm")
+        XCTAssertTrue(confirm.waitForExistence(timeout: 6), "the confirmation")
+        let horn = film.element(app, "horn-banner")
+        let point = confirm.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        let what = "Reduce Motion, the lord in the town: the pause sheet's Sound the horn, confirmed: the dusk in "
+            + "4.0 s, then the horn"
+        let held = film.rolling("g", app, keepBefore: 70, after: 10, timeout: 14, what: what, checkEvery: 2, cause: {
+            let result = film.sendWithoutWaiting(point, app, FilmAnswer())
+            if !result.ok { point.tap() }
+        }) { value in
+            horn.exists || self.hour(value) >= 19.0
+        }
+        XCTAssertTrue(held, "the horn came under Reduce Motion")
+        film.burst("h", app, count: 6, what: "after the horn under Reduce Motion, one frame every 0.5 s",
+                   before: false, every: 0.5)
+        film.note("m13-g-end", film.scene(app))
+        app.terminate()
+    }
 }
