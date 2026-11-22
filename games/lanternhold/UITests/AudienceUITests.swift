@@ -82,7 +82,9 @@ final class AudienceUITests: XCTestCase {
         if let tamsin = waitForThing(app, "touch-talk-tamsin", timeout: 15) {
             checkTarget(tamsin, "talk")
             XCTAssertTrue(tamsin.label.contains("Tamsin"), "the act first: \(tamsin.label)")
-            touchThing(tamsin)
+            // Join item 9: she walks her round; the helper waits until she stands, tries again if the tap raised the
+            // lantern (kept `extra-try-talk` notes).
+            touchPerson(app, tamsin)
         } else {
             XCTFail("Tamsin offers no word")
         }
