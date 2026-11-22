@@ -7,7 +7,10 @@ import XCTest
 /// until its dawn (302). With the Debug-only `-GWYard <stage>[,kettle]` and `-GWTrained YES|dawn`: the noon drill on day
 /// 5 with the yard standing and the kettle's place offered (303), a night with the kettle burning and every soldier
 /// trained (304), step 2: the yard at dusk with the kettle lit (305) and the dawn card naming the men trained at that
-/// dawn (306). English only (the director's notes of 15.11., item 4). Saves `<nn>-yard-<what>-<lang>`.
+/// dawn (306). Step 3 (layout A, the whole yard 1432 to 1550 in every picture, the lord at 1600 outside it unless he
+/// pays): the drill as a filmstrip of seven frames 0.4 s apart over one archer round (307-0 to 307-6) and one frame
+/// under Reduce Motion (308); Marek's cart by the back gate on his day with Marek before it (309). English only (the
+/// director's notes of 15.11., item 4). Saves `<nn>-yard-<what>-<lang>`.
 @MainActor
 final class YardUITests: XCTestCase {
     override func setUp() async throws {
@@ -20,12 +23,15 @@ final class YardUITests: XCTestCase {
 
     private static let base = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWSeed", "2",
                                "-GWStage", "world"]
+    /// Step 3: the lord stands here (and the camera with him), east of the yard by the smithy, so the whole yard (1432
+    /// to 1550) is in the picture and he is not standing in it.
+    private static let beside = "1600"
 
     /// Day 4: the yard's site, its counter, the hold that pays it.
     func testDayFourTheYardIsPaidAtItsCounter() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = YardUITests.base + ["-GWDay", "4", "-GWClock", "10", "-GWCameraX", "1500",
+        app.launchArguments = YardUITests.base + ["-GWDay", "4", "-GWClock", "10", "-GWCameraX", YardUITests.beside,
                                                   "-GWGold", "200"]
         app.launch()
         guard waitUntilReady(app, name: "yard-day4") else { return }
@@ -41,8 +47,8 @@ final class YardUITests: XCTestCase {
         checkTarget(site, "the yard's site")
         XCTAssertTrue(site.value.map { "\($0)" }?.contains("70") == true, "its element says the price")
         touchThing(site)
-        // Brannock's walk between his day stops crosses the site's middle now and then (a person takes the touch from
-        // a site): once more when the board did not come.
+        // Once more when the board did not come (step 2: Brannock's walk crossed the site's middle; step 3 he stands
+        // in the bunkhouse door, so this is only a guard against a slow first touch).
         if !waitForField(app, "count:touch-yard:0/7", timeout: 3), let again = waitForThing(app, "touch-yard", timeout: 2) {
             touchThing(again)
         }
@@ -67,6 +73,11 @@ final class YardUITests: XCTestCase {
         XCTAssertTrue(waitForField(app, "count:none", timeout: 4), "the board has gone")
         pause(1.0)
         XCTAssertEqual(sceneField(app, "lanterns:"), "1", "the site lantern burns on")
+        // Step 3: he walks off the yard to the smithy's side, so the paid site and its lantern are seen whole.
+        tapRealmStrip(app, worldX: 1620)
+        waitForStill(app)
+        pause(0.6)
+        XCTAssertEqual(sceneField(app, "lanterns:"), "1", "the site lantern still burns")
         attach(XCUIScreen.main.screenshot(), "302-yard-paid-lantern-\(language)")
         app.terminate()
     }
@@ -75,7 +86,7 @@ final class YardUITests: XCTestCase {
     func testTheNoonDrill() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "12", "-GWCameraX", "1500",
+        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "12", "-GWCameraX", YardUITests.beside,
                                                   "-GWGold", "200", "-GWYard", "2", "-GWFreezeTime", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "yard-noon") else { return }
@@ -93,8 +104,9 @@ final class YardUITests: XCTestCase {
     func testANightWithTheKettle() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        // Step 2: the camera on the yard (1300 showed it at the screen's right edge).
-        app.launchArguments = YardUITests.base + ["-GWNight", "6", "-GWHour", "22", "-GWCameraX", "1440",
+        // Step 2: the camera on the yard (1300 showed it at the screen's right edge). Step 3: the lord by the smithy,
+        // out of the waiting guards' file; the night's lead toward the Gloom keeps the yard in the picture.
+        app.launchArguments = YardUITests.base + ["-GWNight", "6", "-GWHour", "22", "-GWCameraX", YardUITests.beside,
                                                   "-GWYard", "2,kettle", "-GWTrained", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "yard-night") else { return }
@@ -119,7 +131,7 @@ final class YardUITests: XCTestCase {
     func testTheYardAtDusk() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "18.97", "-GWCameraX", "1450",
+        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "18.97", "-GWCameraX", YardUITests.beside,
                                                   "-GWYard", "2,kettle", "-GWFreezeTime", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "yard-dusk") else { return }
@@ -159,6 +171,55 @@ final class YardUITests: XCTestCase {
             pause(0.6)
         }
         attach(XCUIScreen.main.screenshot(), "306-yard-dawn-card-\(language)")
+        app.terminate()
+    }
+
+    /// Step 3 (the critic's H4; the director's notes of 15.11., decision 10): the drill at noon as a filmstrip, seven
+    /// frames 0.4 s apart over one archer round (2.6 s), time running; then one frame under Reduce Motion (still
+    /// figures, no arrow). The intervals as taken are noted beside them.
+    func testTheDrillAsAFilmstrip() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "12", "-GWCameraX", YardUITests.beside,
+                                                  "-GWGold", "200", "-GWYard", "2"]
+        app.launch()
+        guard waitUntilReady(app, name: "yard-strip") else { return }
+        pause(1.2)
+        let word = sceneField(app, "yard:") ?? "?"
+        XCTAssertTrue(word.contains("drill"), "noon: they drill: \(word)")
+        let started = Date()
+        var taken: [String] = []
+        for index in 0..<7 {
+            let due = Double(index) * 0.4
+            let wait = due - Date().timeIntervalSince(started)
+            if wait > 0.01 { pause(wait) }
+            taken.append(String(format: "%.2f", Date().timeIntervalSince(started)))
+            attach(XCUIScreen.main.screenshot(), "307-yard-drill-strip-\(index)-\(language)")
+        }
+        note("307-yard-drill-strip-times", taken.joined(separator: " "))
+        app.terminate()
+
+        let still = XCUIApplication()
+        still.launchArguments = YardUITests.base + ["-GWDay", "5", "-GWClock", "12", "-GWCameraX", YardUITests.beside,
+                                                    "-GWGold", "200", "-GWYard", "2", "-GWReduceMotion", "YES"]
+        still.launch()
+        guard waitUntilReady(still, name: "yard-still") else { return }
+        pause(1.5)
+        attach(XCUIScreen.main.screenshot(), "308-yard-drill-reduce-motion-\(language)")
+        still.terminate()
+    }
+
+    /// Step 3 (the director's pick of 21.11.2026, 17:31): on one of Marek's days (day 3) his cart stands by the back
+    /// gate, flush with the bakehouse's east wall, Marek before its east half; by day.
+    func testMareksCartByTheBackGate() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = YardUITests.base + ["-GWDay", "3", "-GWClock", "10", "-GWCameraX", "2170",
+                                                  "-GWFreezeTime", "YES"]
+        app.launch()
+        guard waitUntilReady(app, name: "yard-cart") else { return }
+        pause(1.2)
+        attach(XCUIScreen.main.screenshot(), "309-yard-marek-cart-backgate-\(language)")
         app.terminate()
     }
 
