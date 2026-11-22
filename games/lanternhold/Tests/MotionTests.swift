@@ -290,8 +290,11 @@ final class MotionTests: XCTestCase {
         XCTAssertEqual(MotionStyle.dim, 0.40)
         XCTAssertEqual(MotionStyle.pointsPerPixel, 2)
         XCTAssertEqual(MotionStyle.mode(game: nil, system: true), .reduced)
-        XCTAssertEqual(MotionStyle.mode(game: false, system: true), .full)
+        // A game flag of false never turns the system's Reduce Motion off (gate M2).
+        XCTAssertEqual(MotionStyle.mode(game: false, system: true), .reduced)
         XCTAssertEqual(MotionStyle.mode(game: true, system: false), .reduced)
+        XCTAssertEqual(MotionStyle.mode(game: false, system: false), .full)
+        XCTAssertEqual(MotionStyle.mode(game: nil, system: false), .full)
     }
 
     @MainActor

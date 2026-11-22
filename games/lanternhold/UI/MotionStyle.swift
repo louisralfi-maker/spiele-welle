@@ -34,9 +34,10 @@ enum MotionStyle {
         return Double(Motion.rise(alpha: shown)) * pointsPerPixel
     }
 
-    /// The game's mode: the game's own flag when the root set one (`lhReduceMotion`), else the system's.
+    /// The game's mode: Reduce Motion when the game's own flag (`lhReduceMotion`, `-GWReduceMotion` or the system's)
+    /// or the system's switch says so. A game flag of false never turns the system's Reduce Motion off.
     static func mode(game: Bool?, system: Bool) -> MotionMode {
-        MotionMode(reduceMotion: game ?? system)
+        MotionMode(reduceMotion: (game ?? false) || system)
     }
 }
 
@@ -73,7 +74,8 @@ private struct LHReduceMotionKey: EnvironmentKey {
 
 extension EnvironmentValues {
     /// The game's Reduce Motion (`GameModel.reduceMotion`: the system's switch or `-GWReduceMotion`), set once at the
-    /// root with `.lhReduceMotion(_:)`. Nil: the motion views read the system's `accessibilityReduceMotion`.
+    /// root with `.lhReduceMotion(_:)`. The motion views take Reduce Motion when it or the system's
+    /// `accessibilityReduceMotion` is on; nil counts as off.
     var lhReduceMotion: Bool? {
         get { self[LHReduceMotionKey.self] }
         set { self[LHReduceMotionKey.self] = newValue }
@@ -90,7 +92,7 @@ extension View {
     /// `.quick`): it comes in the token's in seconds on ease-out, rising 2, 1, 0 whole game px with no scale; it goes in
     /// the token's out seconds on ease-in, in place. Under Reduce Motion it is opacity only, at quick. The animations
     /// ride on the transition, so the container needs no `.animation` of its own for it. `reduceMotion` overrides
-    /// the environment's switch.
+    /// the environment's flag (the system's switch still counts).
     func lhPane(_ token: MotionToken = .normal, reduceMotion: Bool? = nil) -> some View {
         modifier(LHPaneModifier(token: token, rises: true, reduceMotion: reduceMotion))
     }
