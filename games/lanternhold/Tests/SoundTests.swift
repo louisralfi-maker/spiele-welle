@@ -12,7 +12,9 @@ final class SoundTests: XCTestCase {
         XCTAssertEqual(FeedbackCue.firstLight.sound?.id, .bell)
         XCTAssertEqual(FeedbackCue.volley.sound?.id, .bow)
         XCTAssertEqual(FeedbackCue.arrowHit.sound?.id, .arrowHit)
-        XCTAssertEqual(FeedbackCue.creatureHit.sound?.id, .creatureHit)
+        // Polish D1: `hit` plays the creature's blow; the old `creatureHit` is retired (silent, never played).
+        XCTAssertEqual(FeedbackCue.hit.sound?.id, .creatureHit)
+        XCTAssertNil(FeedbackCue.creatureHit.sound)
         XCTAssertEqual(FeedbackCue.creatureDissolved.sound?.id, .dissolve)
         XCTAssertEqual(FeedbackCue.wallHit.sound?.id, .wallHit)
         XCTAssertEqual(FeedbackCue.wallBroken.sound?.id, .wallBreak)
@@ -25,7 +27,12 @@ final class SoundTests: XCTestCase {
         XCTAssertEqual(FeedbackCue.brazierLit.sound?.id, .lantern)
         XCTAssertEqual(FeedbackCue.step.sound?.id, .step1)
         XCTAssertEqual(FeedbackCue.audienceOpened.sound?.id, .parchment)
-        XCTAssertEqual(FeedbackCue.cardOpened.sound?.id, .tap)
+        // Polish D1: the old card pair is quiet in the hub; the panes' own pair plays the tap.
+        XCTAssertEqual(FeedbackCue.paneOpen.sound?.id, .tap)
+        XCTAssertNil(FeedbackCue.cardOpened.sound)
+        XCTAssertEqual(FeedbackCue.manFell.sound?.id, .manFall)
+        XCTAssertEqual(FeedbackCue.manHit.sound?.id, FeedbackCue.soldierGrunts ? .grunt1 : .arrowHit)
+        XCTAssertEqual(FeedbackCue.wallCracked.sound?.id, .wallCrack)
         XCTAssertEqual(FeedbackCue.choiceMade.sound?.id, .seal)
         XCTAssertEqual(FeedbackCue.refused.sound?.id, .decline)
         for cue in FeedbackCue.allCases {
@@ -36,8 +43,10 @@ final class SoundTests: XCTestCase {
             XCTAssertTrue((0.5...2).contains(sound.rate), "\(cue)")
         }
         let used = Set(FeedbackCue.allCases.compactMap { $0.sound?.id })
-        // The count's clink steps are played by `FeedbackHub.countCoin` (build 3, b3-count), not by a cue.
-        for id in SoundID.allCases where !id.isLoop && id != .step2 && !SoundID.coinSteps.contains(id) {
+        // The count's clink steps are played by `FeedbackHub.countCoin` (build 3, b3-count), not by a cue; step_2 and
+        // grunt_2 are their first file's partners in turn (`FeedbackGate`).
+        let partners: Set<SoundID> = FeedbackCue.soldierGrunts ? [.step2, .grunt2] : [.step2, .grunt1, .grunt2]
+        for id in SoundID.allCases where !id.isLoop && !partners.contains(id) && !SoundID.coinSteps.contains(id) {
             XCTAssertTrue(used.contains(id), "\(id.rawValue) is played by some cue")
         }
     }
@@ -105,13 +114,106 @@ final class SoundTests: XCTestCase {
         let hit = watch.cues(s, balance: .standard, moving: true)
         XCTAssertEqual(hit.map { $0.cue }, [.wallHit])
         XCTAssertEqual(hit.first?.x, Realm.plots[0].x)
+        // Polish D1: a blow on a creature is the contract's `hit`, at the creature's x (the old `creatureHit` retired).
         s.creatures[0].hp = 6
         s.creatures[0].lastHit = .archer
-        XCTAssertEqual(watch.cues(s, balance: .standard, moving: true).map { $0.cue }, [.arrowHit, .creatureHit])
+        let arrow = watch.cues(s, balance: .standard, moving: true)
+        XCTAssertEqual(arrow.map { $0.cue }, [.arrowHit, .hit])
+        XCTAssertEqual(arrow.last?.x, 660)
         s.creatures[0].hp = 4
         s.creatures[0].lastHit = .guards
-        XCTAssertEqual(watch.cues(s, balance: .standard, moving: true).map { $0.cue }, [.creatureHit])
+        XCTAssertEqual(watch.cues(s, balance: .standard, moving: true).map { $0.cue }, [.hit])
         XCTAssertTrue(watch.cues(s, balance: .standard, moving: true).isEmpty, "nothing changed, nothing heard")
+    }
+
+    /// Polish D1: a blow on a soldier is `manHit` at his x, a soldier fallen (a new name on tonight's fallen, gone from
+    /// the file) is `manFell` at the x the last frame saw him; the old `creatureHit` and `soldierFell` never come.
+    func testTheWatchHearsAManStruckAndAManFallen() throws {
+        var watch = SoundWatch()
+        var s = GameState.newRealm(seed: 3)
+        s.hour = 22
+        s.soldiers.removeAll()
+        s.addSoldier(.guardsman, balance: .standard)
+        s.addSoldier(.archer, balance: .standard)
+        s.soldiers[0].x = 900
+        s.soldiers[1].x = 1010
+        XCTAssertTrue(watch.cues(s, balance: .standard, moving: false).isEmpty, "the first frame only primes")
+        s.soldiers[0].hp -= 2
+        let struck = watch.cues(s, balance: .standard, moving: false)
+        XCTAssertEqual(struck.map { $0.cue }, [.manHit])
+        XCTAssertEqual(struck.first?.x, 900)
+        XCTAssertTrue(watch.cues(s, balance: .standard, moving: false).isEmpty, "no blow, no grunt")
+        s.soldiers[1].x = 1004
+        s.soldiers[1].hp += 1
+        XCTAssertTrue(watch.cues(s, balance: .standard, moving: false).isEmpty, "a man healed is no blow")
+        // The guardsman falls: the battle takes him off the file and writes his name on tonight's fallen.
+        let fallen = s.soldiers.removeFirst()
+        s.night.fallen.append(FallenSoldier(name: fallen.name, kind: fallen.kind))
+        let fall = watch.cues(s, balance: .standard, moving: false)
+        XCTAssertEqual(fall.map { $0.cue }, [.manFell])
+        XCTAssertEqual(fall.first?.x, 900, "at his last place")
+        XCTAssertTrue(watch.cues(s, balance: .standard, moving: false).isEmpty, "a man falls once")
+        // A soldier sent away (no name on the fallen) is no fall.
+        s.soldiers.removeAll()
+        XCTAssertTrue(watch.cues(s, balance: .standard, moving: false).isEmpty)
+        // Through the thinner the frame's cues keep their places; the old cues never come.
+        var thinner = FeedbackThinner()
+        let placed = thinner.placedCues(for: [.soldierFell(name: fallen.name)], extra: fall + struck, time: 1,
+                                        listenerX: 950)
+        XCTAssertEqual(placed.map { $0.cue }, [.manFell, .manHit])
+        XCTAssertEqual(placed.first?.x, 900)
+        XCTAssertNil(FeedbackThinner.cue(for: .soldierFell(name: fallen.name)), "the event plays nothing itself")
+        for cue in placed.map({ $0.cue }) + arrowAndBlow() {
+            XCTAssertNotEqual(cue, .creatureHit)
+            XCTAssertNotEqual(cue, .soldierFell)
+        }
+    }
+
+    private func arrowAndBlow() -> [FeedbackCue] {
+        var watch = SoundWatch()
+        var s = GameState.newRealm(seed: 5)
+        s.creatures = [Creature(id: 3, kind: .sootling, x: 700, hp: 10, maxHP: 10)]
+        _ = watch.cues(s, balance: .standard, moving: false)
+        s.creatures[0].hp = 3
+        s.creatures[0].lastHit = .ballista
+        return watch.cues(s, balance: .standard, moving: false).map { $0.cue }
+    }
+
+    /// Polish D1 (F11): a wall that falls below half cracks once a wall and night, at its plot's x; a blow above half
+    /// or a second fall below it the same night is only a blow.
+    func testTheWatchHearsAWallCrackOnceANight() {
+        var watch = SoundWatch()
+        var s = GameState.newRealm(seed: 3)
+        s.hour = 22
+        s.plots[0].item = .palisade
+        s.plots[0].isRubble = false
+        let full = Build.maxHP(.palisade, balance: .standard)
+        s.plots[0].hp = full
+        _ = watch.cues(s, balance: .standard, moving: false)
+        s.plots[0].hp = full * 0.6
+        XCTAssertEqual(watch.cues(s, balance: .standard, moving: false).map { $0.cue }, [.wallHit])
+        s.plots[0].hp = full * 0.45
+        let crack = watch.cues(s, balance: .standard, moving: false)
+        XCTAssertEqual(crack.map { $0.cue }, [.wallHit, .wallCracked])
+        XCTAssertEqual(crack.last?.x, Realm.plots[0].x)
+        s.plots[0].hp = full * 0.3
+        XCTAssertEqual(watch.cues(s, balance: .standard, moving: false).map { $0.cue }, [.wallHit])
+        s.plots[0].hp = full * 0.8
+        _ = watch.cues(s, balance: .standard, moving: false)
+        s.plots[0].hp = full * 0.4
+        XCTAssertEqual(watch.cues(s, balance: .standard, moving: false).map { $0.cue }, [.wallHit],
+                       "once a wall and night")
+        s.day += 1
+        s.plots[0].hp = full
+        _ = watch.cues(s, balance: .standard, moving: false)
+        s.plots[0].hp = full * 0.2
+        XCTAssertEqual(watch.cues(s, balance: .standard, moving: false).map { $0.cue }, [.wallHit, .wallCracked],
+                       "the next night it cracks again")
+        s.plots[0].hp = 0
+        s.plots[0].isRubble = true
+        XCTAssertTrue(watch.cues(s, balance: .standard, moving: false).isEmpty, "a breach is the wall's own cue")
+        XCTAssertEqual(FeedbackCue.wallCracked.haptic, .medium)
+        XCTAssertEqual(FeedbackCue.wallCracked.answerSize, .triumph)
     }
 
     func testTheGateShutsAtNightfall() {
@@ -266,8 +368,10 @@ final class SoundTests: XCTestCase {
         XCTAssertNil(DebugArgs(values: [:]).sound)
     }
 
-    /// Step 0b: every cue, the contract's too, plays a file that is in the app and in MANIFEST.txt; only the two mood
-    /// cues stay silent (their crowd sounds are D4's).
+    /// Step 0b: every cue, the contract's too, plays a file that is in the app and in MANIFEST.txt; the two mood cues
+    /// stay silent (their crowd sounds are D4's). Polish D1 retired four on purpose, named here: `cardOpened` and
+    /// `cardClosed` (quiet in the hub; lane C's `paneOpen` / `paneClose` answer the overlay), `creatureHit` (`hit`
+    /// plays the blow) and `soldierFell` (`manFell` plays the fall at the man's place).
     func testEveryCuePlaysAFileThatShipsAndIsInTheManifest() throws {
         let folder = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         let manifestURL = folder.appendingPathComponent("Resources/Sound/MANIFEST.txt")
@@ -277,7 +381,20 @@ final class SoundTests: XCTestCase {
         }
         let text = try XCTUnwrap(found, "MANIFEST.txt is found")
         let listed = Set(text.split(separator: "\n").compactMap { $0.split(separator: " ").first.map(String.init) })
-        let silentOnPurpose: Set<FeedbackCue> = [.happinessUp, .happinessDown]
+        // Polish D1: the new files and the re-made breach are in the manifest, with their size and sha256.
+        for id in [SoundID.manFall, .grunt1, .grunt2, .wallCrack, .wallBreak] {
+            XCTAssertTrue(listed.contains(id.rawValue), "\(id.rawValue) is in MANIFEST.txt")
+            let line = text.split(separator: "\n").first { $0.hasPrefix(id.rawValue + " ") }.map(String.init) ?? ""
+            let parts = line.split(separator: " ")
+            XCTAssertEqual(parts.count, 3, line)
+            XCTAssertEqual(parts.last?.count, 64, "\(id.rawValue): a sha256")
+        }
+        let retired: Set<FeedbackCue> = [.cardOpened, .cardClosed, .creatureHit, .soldierFell]
+        let silentOnPurpose: Set<FeedbackCue> = Set([.happinessUp, .happinessDown]).union(retired)
+        for cue in retired {
+            XCTAssertNil(cue.sound, "\(cue) is retired")
+            XCTAssertNil(cue.haptic, "\(cue) is retired")
+        }
         for cue in FeedbackCue.allCases where !silentOnPurpose.contains(cue) {
             let sound = try XCTUnwrap(cue.sound, "\(cue) is not silent")
             XCTAssertGreaterThan(sound.volume, 0, "\(cue)")
@@ -288,7 +405,7 @@ final class SoundTests: XCTestCase {
         }
         let contract: [FeedbackCue] = [.lanternUp, .lanternDown, .paneOpen, .paneClose, .bubbleClose, .plaquePress,
                                        .boardSet, .hit, .manHit, .dawnGate, .buildStood, .manFell, .dawnHeld,
-                                       .dawnToll]
+                                       .dawnToll, .wallCracked]
         for cue in contract {
             XCTAssertNotNil(cue.answerSize, "\(cue) has its step on the ladder")
             XCTAssertNotNil(cue.sound, "\(cue)")
@@ -313,7 +430,13 @@ final class SoundTests: XCTestCase {
             XCTAssertEqual(rate, 22050, id.rawValue)
             XCTAssertEqual(bits, 16, id.rawValue)
         }
-        // Stage-3-interface (M12) added the four places' beds (1.1 MB): the budget is 4 MB now.
+        // Stage-3-interface (M12) added the four places' beds (1.1 MB): the budget is 4 MB now. Polish D1's four new files
+        // (man_fall, grunt_1, grunt_2, wall_crack) fit because the re-made wall_break is 1.52 s instead of 1.7 s.
         XCTAssertLessThan(total, 4_000_000, "all sounds together stay under 4 MB")
+        for id in [SoundID.manFall, .grunt1, .grunt2, .wallCrack, .wallBreak] {
+            let url = Bundle.main.url(forResource: id.rawValue, withExtension: "wav", subdirectory: "Sound")
+                ?? Bundle.main.url(forResource: id.rawValue, withExtension: "wav")
+            XCTAssertNotNil(url, "\(id.rawValue).wav ships")
+        }
     }
 }

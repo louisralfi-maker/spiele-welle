@@ -130,7 +130,8 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(SoundSpace.gain(distance: 120, hearing: 240), 0.5, accuracy: 1e-12)
         XCTAssertEqual(SoundSpace.gain(distance: -120, hearing: 240), 0.5, accuracy: 1e-12)
         XCTAssertEqual(SoundSpace.gain(distance: 240, hearing: 240), 0.35, accuracy: 1e-12, "0.35 at the hearing")
-        XCTAssertEqual(SoundSpace.gain(distance: 900, hearing: 240), 0.35, accuracy: 1e-12, "and beyond it")
+        // Polish D1 rewrote this line (the edge of hearing): far beyond the hearing a cue is gone, not held at 0.35.
+        XCTAssertEqual(SoundSpace.gain(distance: 900, hearing: 240), 0, "far beyond it: nothing")
         XCTAssertEqual(SoundSpace.gain(distance: 900, hearing: .infinity), 1, "an everywhere cue is not faded")
         let lord = 1500.0
         XCTAssertEqual(SoundSpace.pan(x: lord, listenerX: lord), 0)
@@ -142,10 +143,76 @@ final class SoundMixTests: XCTestCase {
         let near = try XCTUnwrap(SoundSpace.place(.hit, x: lord + 100, listenerX: lord))
         XCTAssertEqual(near.gain, 1 - 100.0 / 240, accuracy: 1e-12)
         XCTAssertEqual(near.pan, 100.0 / 320, accuracy: 1e-12)
-        XCTAssertNil(SoundSpace.place(.hit, x: lord + 241, listenerX: lord), "beyond its hearing: not played")
+        // Polish D1 rewrote these lines: beyond its hearing a cue fades over the edge and is gone at 1.5 x (it was cut
+        // at once); a cue that is not positional plays as made, never panned (0b's L4; it was panned to -0.7).
+        XCTAssertNotNil(SoundSpace.place(.hit, x: lord + 241, listenerX: lord), "just beyond its hearing: still heard")
+        XCTAssertNil(SoundSpace.place(.hit, x: lord + 360, listenerX: lord), "at 1.5 x its hearing: not played")
         XCTAssertEqual(SoundSpace.place(.buildStood, x: lord - 3000, listenerX: lord)?.gain, 1)
-        XCTAssertEqual(SoundSpace.place(.buildStood, x: lord - 3000, listenerX: lord)?.pan, -0.7)
+        XCTAssertEqual(SoundSpace.place(.buildStood, x: lord - 3000, listenerX: lord)?.pan, 0)
         XCTAssertTrue(FeedbackCue.hit.isPositional && FeedbackCue.manHit.isPositional)
+    }
+
+    /// Polish D1, law 4's edge of hearing (the director's call on 0b's M3): 0.35 at the hearing distance, half of that
+    /// a quarter of it further out, nothing at 1.5 x; the thinner lets a cue through to the edge's end.
+    func testTheEdgeOfHearing() throws {
+        let hearing = 240.0
+        XCTAssertEqual(SoundSpace.edge, 0.5)
+        XCTAssertEqual(SoundSpace.gain(distance: hearing, hearing: hearing), 0.35, accuracy: 1e-12)
+        XCTAssertEqual(SoundSpace.gain(distance: hearing * 1.25, hearing: hearing), 0.175, accuracy: 1e-12,
+                       "half of 0.35 a quarter further out")
+        XCTAssertEqual(SoundSpace.gain(distance: -hearing * 1.25, hearing: hearing), 0.175, accuracy: 1e-12)
+        XCTAssertEqual(SoundSpace.gain(distance: hearing * 1.5, hearing: hearing), 0, "nothing at 1.5 x")
+        XCTAssertEqual(SoundSpace.gain(distance: hearing * 2, hearing: hearing), 0)
+        var last = 1.0
+        for k in 0...150 {
+            let g = SoundSpace.gain(distance: Double(k) * hearing / 100, hearing: hearing)
+            XCTAssertLessThanOrEqual(g, last + 1e-12, "never louder farther out (\(k) %)")
+            last = g
+        }
+        XCTAssertTrue(SoundSpace.heard(distance: hearing * 1.49, hearing: hearing))
+        XCTAssertFalse(SoundSpace.heard(distance: hearing * 1.5, hearing: hearing))
+        XCTAssertTrue(SoundSpace.near(distance: hearing, hearing: hearing))
+        XCTAssertFalse(SoundSpace.near(distance: hearing + 1, hearing: hearing))
+        let lord = 1500.0
+        let edge = try XCTUnwrap(SoundSpace.place(.hit, x: lord + 300, listenerX: lord))
+        XCTAssertEqual(edge.gain, 0.175, accuracy: 1e-12)
+        XCTAssertEqual(edge.pan, 0.7, "clamped")
+        var thinner = FeedbackThinner()
+        XCTAssertEqual(thinner.cues(for: [], extra: [(.hit, lord - 335)], time: 1, listenerX: lord), [.hit],
+                       "inside the edge: through")
+        XCTAssertEqual(thinner.cues(for: [], extra: [(.hit, lord - 360)], time: 2, listenerX: lord), [],
+                       "past the edge: dropped")
+        XCTAssertTrue(FeedbackCue.manFell.isPositional && FeedbackCue.wallCracked.isPositional)
+        XCTAssertEqual(FeedbackCue.manFell.hearing, 900)
+    }
+
+    /// 0b's L4: a cue that is not positional is never panned or faded, whatever x it comes with; the placed play sends a
+    /// positional cue through space and every other one as made.
+    @MainActor
+    func testOnlyPositionalCuesArePlaced() {
+        let silent = SilentFeedback()
+        silent.play(placed: (cue: .hit, x: 1400), listenerX: 1500)
+        silent.play(placed: (cue: .horn, x: 1400), listenerX: 1500)
+        silent.play(placed: (cue: .manFell, x: nil), listenerX: 1500)
+        XCTAssertEqual(silent.played, [.hit, .horn, .manFell])
+        XCTAssertEqual(silent.placed.map { $0.cue }, [.hit], "only the positional cue with an x is placed")
+        XCTAssertEqual(silent.placed.first?.x, 1400)
+        for cue in FeedbackCue.allCases where !cue.isPositional {
+            let place = SoundSpace.place(cue, x: 5000, listenerX: 100)
+            XCTAssertEqual(place?.gain, 1, "\(cue)")
+            XCTAssertEqual(place?.pan, 0, "\(cue)")
+        }
+    }
+
+    /// 0b's L6: a hub that knows only the requirements from before step 0b still builds and plays a placed cue.
+    @MainActor
+    func testAnOlderHubStillBuilds() {
+        let hub = OlderHub()
+        hub.play(.hit, at: 900, listenerX: 800)
+        hub.startTitleBeds()
+        hub.stopTitleBeds()
+        hub.play(placed: (cue: .wallHit, x: 700), listenerX: 800)
+        XCTAssertEqual(hub.played, [.hit, .wallHit])
     }
 
     @MainActor
@@ -196,7 +263,215 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(mix.heard(.ambNight), mix.night * 0.5, accuracy: 1e-12)
     }
 
-    func testTheBedsDuckAtQuickAndComeBackOverTheSettleTime() {
+    /// Polish D1, the battle duck: a blow, a fall, a crack or a kill heard within 300 px of the lord keeps the beds at
+    /// x 0.6 for 1.2 s after the last one (`FightNear`); alone it is 0.6, under a deeper duck the deeper one wins.
+    func testTheBattleDuckAloneAndUnderADeeperOne() {
+        var fight = FightNear()
+        XCTAssertFalse(fight.near(at: 0))
+        fight.note(.volley, distance: 0, now: 1)
+        XCTAssertFalse(fight.near(at: 1.1), "an arrow leaving the wall is no fight")
+        fight.note(.hit, distance: 301, now: 1)
+        XCTAssertFalse(fight.near(at: 1.1), "a blow 301 px away is not near")
+        fight.note(.hit, distance: -300, now: 2)
+        XCTAssertTrue(fight.near(at: 2))
+        XCTAssertTrue(fight.near(at: 3.19))
+        XCTAssertFalse(fight.near(at: 3.2), "1.2 s after the last near blow it lifts")
+        for cue in [FeedbackCue.manHit, .manFell, .wallHit, .wallCracked, .creatureDissolved, .arrowHit, .stomp] {
+            var f = FightNear()
+            f.note(cue, distance: 100, now: 5)
+            XCTAssertTrue(f.near(at: 5.5), "\(cue)")
+        }
+        XCTAssertEqual(BedDucks(battleNear: true).depth, 0.6, accuracy: 1e-12, "alone: x 0.6")
+        XCTAssertEqual(BedDucks(screen: true, battleNear: true).depth, 0.5, accuracy: 1e-12, "the lantern is deeper")
+        XCTAssertEqual(BedDucks(battleNear: true, answer3Age: 0.3).depth, 0.6, accuracy: 1e-12,
+                       "a fall's 0.7 is shallower than the fight")
+        XCTAssertEqual(BedDucks(battleNear: true, answer4Age: 1).depth, 0.25, accuracy: 1e-12, "a breach is deeper")
+        XCTAssertEqual(BedDucks(battleNear: true, answer4Age: 3.2).depth, 0.6, accuracy: 1e-12,
+                       "the breach's return stops at the fight's duck")
+        XCTAssertEqual(BedDucks(battleNear: true, hornIn: 0.2).depth, 0.3, accuracy: 1e-12)
+        // L5: the frame's depth builds no array and always agrees with the record of active ducks.
+        for screen in [false, true] {
+            for battle in [false, true] {
+                for age3 in [nil, 0.3, 0.9] as [Double?] {
+                    for age4 in [nil, 0.5, 2.4, 4] as [Double?] {
+                        let ducks = BedDucks(screen: screen, battleNear: battle, answer3Age: age3, answer4Age: age4)
+                        XCTAssertEqual(ducks.depth, ducks.active.min() ?? 1, accuracy: 1e-12)
+                    }
+                }
+            }
+        }
+    }
+
+    /// Polish D1, the breach (law 4's step 4): heavy, heavy again after 0.12 s, and the beds x 0.25, held 1.5 s, back
+    /// over 2 s. 0b's L1: the duck is laid only when the sound really plays.
+    func testTheStepFourDuckHoldsAndReturns() {
+        var gate = FeedbackGate()
+        let breach = gate.answer(.wallBroken, soundOn: true, hapticsOn: true, now: 10)
+        XCTAssertEqual(breach.haptic, .heavy)
+        XCTAssertEqual(breach.echo, 0.12)
+        XCTAssertEqual(breach.duck, .realm)
+        XCTAssertEqual(breach.sound?.id, .wallBreak)
+        XCTAssertFalse(breach.jitter, "step 4 is never randomised")
+        XCTAssertEqual(FeedbackCue.wallBroken.answerSize, .realm)
+        XCTAssertNil(FeedbackCue.horn.hapticEcho, "the horn and the defeat wait for D2")
+        XCTAssertEqual(BedDucks(answer4Age: 0).depth, 0.25)
+        XCTAssertEqual(BedDucks(answer4Age: 1.49).depth, 0.25, "held")
+        XCTAssertEqual(BedDucks(answer4Age: 1.5).depth, 0.25, accuracy: 1e-12, "the return begins at 1.5 s")
+        XCTAssertEqual(BedDucks(answer4Age: 2.5).depth, 0.625, accuracy: 1e-12, "half way 1 s later")
+        XCTAssertEqual(BedDucks(answer4Age: 3.49).depth, 0.25 + 0.75 * 1.99 / 2, accuracy: 1e-9)
+        XCTAssertEqual(BedDucks(answer4Age: 3.5).depth, 1, "back over 2 s")
+        // L1: thrown away by the throttle, or with Sound off, no duck (the haptic still comes with Sound off).
+        let throttled = gate.answer(.wallBroken, soundOn: true, hapticsOn: true, now: 10.1)
+        XCTAssertNil(throttled.sound)
+        XCTAssertNil(throttled.duck, "a throttled breach lays no duck")
+        var quiet = FeedbackGate()
+        let off = quiet.answer(.manFell, soundOn: false, hapticsOn: true, now: 1)
+        XCTAssertEqual(off.haptic, .heavy)
+        XCTAssertNil(off.duck, "Sound off: no duck")
+        XCTAssertEqual(quiet.answer(.manFell, soundOn: true, hapticsOn: true, now: 2).duck, .triumph)
+        XCTAssertNil(quiet.answer(.hit, soundOn: true, hapticsOn: true, now: 3).duck, "step 2 lays none")
+        XCTAssertEqual(quiet.answer(.wallCracked, soundOn: true, hapticsOn: false, now: 4).duck, .triumph)
+    }
+
+    /// Polish D1: a man struck grunts at most once every 0.5 s, grunt_1 and grunt_2 in turn among those that play.
+    func testTheGruntsKeepHalfASecondApart() {
+        guard FeedbackCue.soldierGrunts else { return }
+        var gate = FeedbackGate()
+        let times = [1.0, 1.2, 1.49, 1.5, 1.7, 2.0, 2.3, 2.6]
+        let heard = times.map { gate.answer(.manHit, soundOn: true, hapticsOn: true, now: $0).sound?.id }
+        XCTAssertEqual(heard, [.grunt1, nil, nil, .grunt2, nil, .grunt1, nil, .grunt2])
+        XCTAssertEqual(SoundID.grunt1.throttleKey, SoundID.grunt2.throttleKey, "one throttle for both files")
+        XCTAssertEqual(FeedbackGate.gruntSpacing, 0.5)
+        XCTAssertNil(FeedbackCue.manHit.haptic, "no haptic for every blow")
+        XCTAssertTrue(gate.answer(.manHit, soundOn: true, hapticsOn: true, now: 5).jitter, "step 2: +-4 %")
+    }
+
+    /// Polish D1, one touch, one tick (law 4, the director's call of 22.11.): a pane cue within 0.25 s after a plaque
+    /// press plays its sound and no haptic; later, or without a press, it keeps its own tick.
+    func testOneTouchOneTick() {
+        var gate = FeedbackGate()
+        let press = gate.answer(.plaquePress, soundOn: true, hapticsOn: true, now: 1)
+        XCTAssertEqual(press.haptic, .selection)
+        XCTAssertEqual(press.sound?.id, .tap)
+        let open = gate.answer(.paneOpen, soundOn: true, hapticsOn: true, now: 1.016)
+        XCTAssertNil(open.haptic, "the press's tick stands for the pane")
+        XCTAssertEqual(open.sound?.id, .tap, "the pane's sound plays (inside tap.wav's throttle too)")
+        let close = gate.answer(.paneClose, soundOn: true, hapticsOn: true, now: 1.25)
+        XCTAssertNil(close.haptic, "0.25 s after the press: still one touch")
+        XCTAssertNotNil(close.sound)
+        XCTAssertEqual(gate.answer(.paneOpen, soundOn: true, hapticsOn: true, now: 1.6).haptic, .soft, "later: its own")
+        var bare = FeedbackGate()
+        XCTAssertEqual(bare.answer(.paneOpen, soundOn: true, hapticsOn: true, now: 3).haptic, .soft, "no press: its own")
+        XCTAssertNil(bare.answer(.lanternUp, soundOn: true, hapticsOn: true, now: 3.01).sound, "tap's throttle holds")
+        var haptics = FeedbackGate()
+        _ = haptics.answer(.plaquePress, soundOn: true, hapticsOn: false, now: 1)
+        XCTAssertNil(haptics.answer(.paneClose, soundOn: true, hapticsOn: true, now: 1.1).haptic,
+                     "a press with Haptics off still makes it one touch")
+    }
+
+    /// Polish D1: the old card pair, `creatureHit` and `soldierFell` are silent in sound and hand.
+    @MainActor
+    func testTheRetiredCuesAreSilentInSoundAndHand() {
+        var gate = FeedbackGate()
+        for (k, cue) in [FeedbackCue.cardOpened, .cardClosed, .creatureHit, .soldierFell].enumerated() {
+            let answer = gate.answer(cue, soundOn: true, hapticsOn: true, now: Double(k))
+            XCTAssertNil(answer.sound, "\(cue)")
+            XCTAssertNil(answer.haptic, "\(cue)")
+            XCTAssertNil(answer.duck, "\(cue)")
+        }
+        let silent = SilentFeedback()
+        silent.play(.cardOpened)
+        silent.play(.cardClosed)
+        XCTAssertEqual(silent.played, [.cardOpened, .cardClosed], "the call sites still reach the hub")
+        XCTAssertTrue(silent.felt.isEmpty, "no tick in the hand")
+        XCTAssertNil(FeedbackThinner.cue(for: .soldierFell(name: "Aldo")))
+    }
+
+    /// Polish D1: kills near the lord climb a semitone a kill to +7 (`AnswerChain`), back to the root after 1.5 s
+    /// without one; a kill at the edge of hearing climbs nothing; a chained kill never jitters.
+    func testAKillChainsRatesAndCap() {
+        var gate = FeedbackGate()
+        var rates: [Double] = []
+        for k in 0..<10 {
+            let answer = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: Double(k) * 0.3)
+            rates.append(answer.sound?.rate ?? 0)
+            XCTAssertFalse(answer.jitter, "a chain climbs clean")
+        }
+        let expected = [0, 1, 2, 3, 4, 5, 6, 7, 7, 7].map { AnswerChain.rate(step: $0) }
+        for (got, want) in zip(rates, expected) { XCTAssertEqual(got, want, accuracy: 1e-12) }
+        XCTAssertEqual(rates.last ?? 0, pow(2, 7.0 / 12), accuracy: 1e-12, "the cap: +7")
+        let far = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: 3.2, near: false)
+        XCTAssertEqual(far.sound?.rate, 1, "at the edge: no step")
+        let next = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: 3.4)
+        XCTAssertEqual(next.sound?.rate ?? 0, AnswerChain.rate(step: 7), accuracy: 1e-12, "the far kill broke nothing")
+        let after = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: 3.4 + 1.5)
+        XCTAssertEqual(after.sound?.rate, 1, "1.5 s without a kill: back to the root")
+        XCTAssertEqual(FeedbackCue.creatureDissolved.answerSize, .deed)
+        XCTAssertTrue((0.5...2).contains(AnswerChain.rate(step: AnswerChain.killCap)), "inside the player's rates")
+    }
+
+    /// 0b's L2: after a shallower duck the beds come back over 1.2 s from it, not at the pace a deeper duck before it
+    /// set.
+    func testTheReturnAfterAShallowerDuckTakesTheSettleTime() {
+        let frame = 1.0 / 60
+        var duck = DuckFollower()
+        for _ in 0..<30 { duck.step(toward: 0.25, dt: frame) }
+        for _ in 0..<24 { duck.step(toward: 1, dt: frame) }
+        XCTAssertEqual(duck.value, 0.25 + 24 * frame * 0.75 / 1.2, accuracy: 1e-9, "on its way back from 0.25")
+        for _ in 0..<30 { duck.step(toward: 0.6, dt: frame) }
+        XCTAssertEqual(duck.value, 0.6, accuracy: 1e-9, "held at the fight's 0.6")
+        var frames = 0
+        while duck.value < 1 && frames < 600 {
+            duck.step(toward: 1, dt: frame)
+            frames += 1
+        }
+        XCTAssertEqual(Double(frames) * frame, DuckFollower.settle, accuracy: frame + 1e-9,
+                       "from 0.6 back over the settle time")
+        // Step 4's own return (a goal that moves every frame) is still followed, not slowed.
+        var step4 = DuckFollower()
+        for k in 0..<240 {
+            let age = Double(k) * frame
+            step4.step(toward: BedDucks(answer4Age: age).depth, dt: frame)
+            // From the end of the 0.15 s attack on, the follower sits on the moving goal.
+            if k >= 10 {
+                XCTAssertEqual(step4.value, BedDucks(answer4Age: age).depth, accuracy: 0.02, "at \(age) s")
+            }
+        }
+    }
+
+    // MARK: - D1's levels
+
+    /// Polish D1: the night's cues on law 4's ladder (inventory.md's measure, the file's whole RMS + 20 log10 volume),
+    /// and the blows at least 3 dB over the night bed in the gorge under the battle duck.
+    func testTheNightsCuesSitOnTheirSteps() throws {
+        let night: [FeedbackCue] = [.hit, .manHit, .arrowHit, .wallHit, .creatureDissolved, .manFell, .wallCracked,
+                                    .wallBroken]
+        var levels: [FeedbackCue: Double] = [:]
+        for cue in night {
+            let sound = try XCTUnwrap(cue.sound, "\(cue)")
+            let size = try XCTUnwrap(cue.answerSize, "\(cue)")
+            let level = AnswerSize.level(fileRMS: try Self.fileRMS(sound.id), volume: sound.volume)
+            levels[cue] = level
+            XCTAssertGreaterThanOrEqual(level, size.band.lowerBound - 0.1, "\(cue) at \(level) dBFS")
+            XCTAssertLessThanOrEqual(level, size.band.upperBound + 0.1, "\(cue) at \(level) dBFS")
+        }
+        if FeedbackCue.soldierGrunts {
+            let other = AnswerSize.level(fileRMS: try Self.fileRMS(.grunt2), volume: FeedbackCue.manHit.sound?.volume ?? 0)
+            XCTAssertTrue(AnswerSize.deed.band.contains(other), "grunt_2 at \(other) dBFS")
+        }
+        // The night bed in the gorge (no fire): amb_night and amb_throat as the mix plays them, summed by power,
+        // under the battle duck.
+        let mix = AmbienceMix.target(hour: 23, rain: 0, place: .outside, fire: 0, x: 900)
+        var power = 0.0
+        for id in [SoundID.ambNight, .ambThroat] {
+            power += pow(10, AnswerSize.level(fileRMS: try Self.fileRMS(id), volume: mix.level(id)) / 10)
+        }
+        let bed = 10 * log10(power)
+        let ducked = bed + 20 * log10(BedDucks.battleDepth)
+        for cue in [FeedbackCue.hit, .manHit] {
+            XCTAssertGreaterThanOrEqual(try XCTUnwrap(levels[cue]) - ducked, 3, "\(cue) over the ducked bed \(ducked)")
+        }
+    }
         let frame = 1.0 / 60
         var duck = DuckFollower()
         for _ in 0..<9 { duck.step(toward: 0.5, dt: frame) }
@@ -286,6 +561,19 @@ final class SoundMixTests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    /// A hub as another lane may still write it: only the requirements from before step 0b (0b's L6).
+    @MainActor
+    private final class OlderHub: FeedbackHub {
+        var soundOn = true
+        var hapticsOn = true
+        var played: [FeedbackCue] = []
+        func play(_ cue: FeedbackCue) { played.append(cue) }
+        func countCoin(rate: Double, strength: Double) {}
+        func countTick(strength: Double) {}
+        func countWarm() {}
+        func ambience(_ mix: AmbienceMix) {}
+    }
 
     /// A wav's whole RMS in dBFS (16 bit PCM mono, as `tools/soundsynth.py` writes them), read from the app's bundle.
     private static func fileRMS(_ id: SoundID) throws -> Double {
