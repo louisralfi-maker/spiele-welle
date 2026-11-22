@@ -262,8 +262,9 @@ extension GameModel {
         // Build 2 review, app-ui-3: Marek's cart stands before the barracks; while his offer is open a touch on it opens
         // his gift card, else it is the barracks' touch as before.
         // b3-yard (build 3, wave 2, lane 2, step 3): the cart stands by the back gate now, on free ground: a touch on it
-        // opens his card while his offer is open, unless the finger is on a person (Marek before his cart's east half).
-        if stage == .world, picked?.isPerson != true, isOnMarekCart(place), merchantTouch?() == true {
+        // opens his card while his offer is open, unless the finger is on a person (Marek before his cart's east half
+        // only while he carries his mark: `cartTakesTouch`).
+        if stage == .world, GameModel.cartTakesTouch(from: picked), isOnMarekCart(place), merchantTouch?() == true {
             // Build 3 (PAY.md 4): his card cuts a count off; it pays nothing.
             cutCount()
             touch.lastTap = "merchant"
@@ -323,6 +324,15 @@ extension GameModel {
         // fell half a pixel nearer the site's middle and opened its card): on his body the lord wins unless the
         // finger is clearly nearer the thing (3 px); the rest of the site's wide area still opens the site.
         return abs(x - stageLordX) <= abs(x - thing.x) + 3
+    }
+
+    // b3-yard (build 3, wave 2, lane 2, step 3; a registration block for the join): whether a touch on Marek's cart
+    // while his offer is open is the cart's (his card) rather than `picked`'s. A person keeps his touch; Marek himself
+    // stands before the cart's east half and his 44 pt area covers most of it, so he keeps it only while he carries
+    // his mark (something new to say); otherwise the seller opens his stall and the whole cart stays one target.
+    static func cartTakesTouch(from picked: TouchThing?) -> Bool {
+        guard let picked, picked.isPerson else { return true }
+        return picked.who == "marek" && !picked.marked
     }
 
     /// True for a point on Marek's cart as drawn (`CourtLayout.marekCartX` its left edge, its sprite's size).

@@ -399,8 +399,8 @@ final class TouchWorldTests: XCTestCase {
     /// Build 2 review, app-ui-3: while Marek's offer is open a touch on his cart opens his gift card (no debug argument,
     /// so in Release too). b3-yard (build 3, wave 2, lane 2, step 3): the cart stands by the back gate now (2218), on
     /// free ground: with no offer open a touch there walks the lord, as on any ground; a touch on Marek himself before
-    /// the cart's east half finds him. (A card cutting a count off is PayCountTests' "a card cuts it off"; the cart no
-    /// longer stands over a thing that is bought.)
+    /// the cart's east half opens his card while he has no mark. (A card cutting a count off is PayCountTests' "a card
+    /// cuts it off"; the cart no longer stands over a thing that is bought.)
     func testATouchOnMareksCartOpensHisCardWhileTheOfferIsOpen() throws {
         let game = model(["GWDay": "3", "GWStage": "world", "GWCameraX": "2200"])
         let stub = StubAdProvider()
@@ -429,18 +429,28 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertFalse(ads.merchantCardOpen)
         XCTAssertEqual(game.touch.lastTap, "ground", "free ground by the back gate")
         XCTAssertNil(game.touch.count, "nothing is counted at the cart")
-        // Marek before his cart's east half is a person: with the offer open again a touch on him is not the cart's.
+        // Marek before his cart's east half is a person (his 44 pt area covers most of the cart). The review: heard
+        // today (no mark), a touch on him is the seller's stall, his card, so the whole cart stays one target; with his
+        // mark up his word comes first (`GameModel.cartTakesTouch`).
         stub.rewardedReady = true
         XCTAssertNotNil(ads.merchantOffer)
+        game.talkLog.note("marek", day: 3)
         run(game, seconds: 0.1)
         let now = try XCTUnwrap(game.touch.framing)
-        if let marek = game.touch.things.first(where: { $0.who == "marek" }) {
-            let on = CGPoint(x: now.deviceX(stageX: marek.x) / 3, y: now.deviceY(lift: 14) / 3)
-            XCTAssertEqual(game.thingAt(on, in: proPoints)?.id, marek.id, "a touch on Marek finds him")
-            game.touchChanged(start: on, at: on, translation: .zero, in: proPoints)
-            game.touchEnded(at: on, translation: .zero, in: proPoints)
-            XCTAssertFalse(ads.merchantCardOpen, "his card opens from the cart, not from him")
-        }
+        let marek = try XCTUnwrap(game.touch.things.first(where: { $0.who == "marek" }),
+                                  "Marek before his cart is a person with a word on day 3")
+        XCTAssertFalse(marek.marked, "heard today: no mark over him")
+        let on = CGPoint(x: now.deviceX(stageX: marek.x) / 3, y: now.deviceY(lift: 14) / 3)
+        XCTAssertEqual(game.thingAt(on, in: proPoints)?.id, marek.id, "a touch on Marek finds him")
+        game.touchChanged(start: on, at: on, translation: .zero, in: proPoints)
+        game.touchEnded(at: on, translation: .zero, in: proPoints)
+        XCTAssertTrue(ads.merchantCardOpen, "without his mark the seller opens his stall: his card")
+        XCTAssertEqual(game.touch.lastTap, "merchant")
+        ads.closeMerchantCard()
+        var hinted = marek
+        hinted.marked = true
+        XCTAssertFalse(GameModel.cartTakesTouch(from: hinted), "with his mark up, his word first")
+        XCTAssertTrue(GameModel.cartTakesTouch(from: nil), "the bare cart is the cart's")
     }
 
     /// Build 2 fix A's review: the background under Marek's card raises the lantern moment behind it; closing the card
