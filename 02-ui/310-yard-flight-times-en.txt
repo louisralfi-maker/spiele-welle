@@ -1,0 +1,8 @@
+stuck 0.16 s: archer 1.317 to 1.350
+loose 2.88 s: archer 1.983 to 1.983
+pell-stand 3.05 s: guard 0.200 to 0.250
+climb 3.27 s: archer 2.083 to 2.083
+top 3.66 s: archer 2.200 to 2.200
+fall 4.45 s: archer 2.383 to 2.383
+hit 5.21 s: archer 2.583 to 2.583
+pell-lean 5.38 s: guard 0.783 to 0.817
