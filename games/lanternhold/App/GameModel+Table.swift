@@ -15,6 +15,7 @@ extension GameModel {
     func openTable() {
         guard kind == .world else { return }
         let catalog = tableCatalog
+        tableOpen = true
         withDriver { game in
             game.isPaused = true
             game.setDrag(offset: nil)
@@ -26,7 +27,8 @@ extension GameModel {
     /// The table screen closes: the clock runs again unless another screen is open. A sending can no longer be
     /// called back once the clock moves.
     func closeTable() {
-        let covered = overlay != nil
+        tableOpen = false
+        let covered = worldHeld
         withDriver { $0.isPaused = covered }
         refreshHUD()
     }

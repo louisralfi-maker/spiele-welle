@@ -130,6 +130,10 @@ final class AdDirector {
         model.merchantOpen = { [weak self] in
             self?.merchantOffer != nil
         }
+        // Build 3 join (L6b): the ads' part of the one hold (`GameModel.worldHeld`).
+        model.adsHoldWorld = { [weak self] in
+            self?.holdsWorld ?? false
+        }
         consent?.refreshAtLaunch()
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "GWMerchant") { openMerchantCard() }
@@ -334,9 +338,13 @@ final class AdDirector {
     /// hold it already), and under a lantern moment raised behind them (as `GameModel.setOverlay`) or the slide stage.
     private func holdWorld() {
         guard let model else { return }
-        let hold = formShowing || merchantCardOpen || provider.isShowingAd || model.overlay != nil
-            || model.lanternMoment != nil || model.slides.coversWorld
+        let hold = model.worldHeld
         model.withDriver { $0.isPaused = hold }
+    }
+
+    /// What of the world's hold is the ads' own (`GameModel.adsHoldWorld`, part of `GameModel.worldHeld`).
+    private var holdsWorld: Bool {
+        formShowing || merchantCardOpen || provider.isShowingAd
     }
 
     // MARK: - Showing a rewarded video

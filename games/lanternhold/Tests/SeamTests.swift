@@ -46,6 +46,29 @@ final class SeamTests: XCTestCase {
         XCTAssertEqual(game.townRun.walk?.plot, plot)
     }
 
+    /// The join's L6b: one hold (`GameModel.worldHeld`). Closing the table under Marek's card leaves the world still,
+    /// and closing his card over the open table does too; the world runs once neither holds it.
+    func testOneHoldNeverLetsTheWorldRunUnderAnother() throws {
+        let game = GameModel(args: DebugArgs(values: ["GWReset": "YES", "GWSkipOnboarding": "YES", "GWDay": "3",
+                                                      "GWBuild": "demo", "GWClock": "10"]),
+                             kind: .world, store: SaveStore(directory: directory))
+        let ads = AdDirector(mode: .stub, provider: StubAdProvider(), clock: CountedClock())
+        ads.attach(game)
+        XCTAssertFalse(game.worldHeld, "the open world")
+        game.openTable()
+        ads.openMerchantCard()
+        XCTAssertTrue(ads.merchantCardOpen, "his cart stands on day 3")
+        game.closeTable()
+        XCTAssertTrue(game.isPaused, "the table closed under his card: the world stays still")
+        game.openTable()
+        ads.closeMerchantCard()
+        XCTAssertTrue(game.isPaused, "his card closed over the open table: the world stays still")
+        XCTAssertTrue(game.doorsHeld)
+        game.closeTable()
+        XCTAssertFalse(game.isPaused, "nothing holds it: the world runs")
+        XCTAssertFalse(game.worldHeld)
+    }
+
     // MARK: - The old save is never written over
 
     func testAnOldSaveThatCannotMoveAsideIsNeverWrittenOver() throws {

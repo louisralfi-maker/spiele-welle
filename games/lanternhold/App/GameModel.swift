@@ -129,6 +129,11 @@ final class GameModel {
     /// Build 3, the count: true while Marek's offer is open (`Ads/AdDirector.attach`), asked without opening his card,
     /// so a touch on his cart is left to `tap(at:)` and never starts a count.
     @ObservationIgnored var merchantOpen: (@MainActor () -> Bool)?
+    /// Build 3 join (L6b): true while the ads hold the world with no card of the model's (`Ads/AdDirector.attach`):
+    /// Marek's card, the consent form, an ad on screen. Part of `worldHeld`.
+    @ObservationIgnored var adsHoldWorld: (@MainActor () -> Bool)?
+    /// Build 3 join (L6b): the Lantern Table's screen is open (`openTable` ... `closeTable`). Part of `worldHeld`.
+    @ObservationIgnored var tableOpen = false
     @ObservationIgnored private var events: [SimEvent] = []
     @ObservationIgnored private var shake = ScreenShake()
     @ObservationIgnored private var thinner = FeedbackThinner()
@@ -742,7 +747,7 @@ final class GameModel {
         // The lantern moment (stage-3-interface) goes down under any card.
         if next != nil && lanternMoment != nil { lanternMoment = nil }
         if overlay != next { overlay = next }
-        driver?.isPaused = next != nil || lanternMoment != nil
+        driver?.isPaused = worldHeld
         if next != nil { driver?.setDrag(offset: nil) }
         refreshHUD()
     }

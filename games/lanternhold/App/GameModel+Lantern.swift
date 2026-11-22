@@ -107,7 +107,8 @@ extension GameModel {
             touch.panning = false
             touch.look.release(reduceMotion: reduceMotion)
         }
-        withDriver { $0.isPaused = overlay != nil }
+        let held = worldHeld
+        withDriver { $0.isPaused = held }
         refreshHUD()
     }
 

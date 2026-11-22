@@ -19,13 +19,13 @@ extension GameModel {
         }
         let started = slides.present(show, lord: lord) { [weak self] in
             guard let self else { return }
-            let covered = self.overlay != nil
+            let covered = self.worldHeld
             self.withDriver { $0.isPaused = covered }
             self.refreshHUD()
             then?()
         }
         if !started {
-            let covered = overlay != nil
+            let covered = worldHeld
             withDriver { $0.isPaused = covered }
             then?()
         }

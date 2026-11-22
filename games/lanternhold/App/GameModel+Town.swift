@@ -149,7 +149,15 @@ extension GameModel {
     /// screen, the slides, the table). No door under the finger, no knock, no door for VoiceOver. The lantern moment
     /// holds the world too, but a tap lowers it before a door is asked, so it leaves the doors as they were.
     var doorsHeld: Bool {
-        overlay != nil || (isPaused && lanternMoment == nil)
+        overlay != nil || slides.coversWorld || tableOpen || adsHoldWorld?() == true
+    }
+
+    /// Build 3 join (L6b): whether the world stands still now: everything that holds the doors, and the lantern moment.
+    /// The one formula behind every write of the driver's pause that may let the world run again (`setOverlay`,
+    /// `lowerLanternMoment`, `closeTable`, the slides' end, `AdDirector.holdWorld`), so none of them lets it run under a
+    /// hold of another (Marek's card, the form, an ad, the slides, the end card, the table).
+    var worldHeld: Bool {
+        doorsHeld || lanternMoment != nil
     }
 
     /// Sends the lord to the door of `plot` (the touch, or VoiceOver's action on the door): by day only.
