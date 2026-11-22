@@ -1389,3 +1389,19 @@ schneller geht."
   6c173054 (build 429's game plus join item 9's sturdier test helpers); labels lh-rnd-1 to -9. `claude/lh-polish` is
   an older lane and is not used. Join item 9's proof round lh-b3j-22 on 6c173054 is ALL PASSED (the audience test four
   times in a row).
+
+- **The audit's result and the make-it-round pass (22.11.2026, 21:01).**
+  - Result: 5 blockers and 22 highs hold; scores of 10: motion 4, handling 4.5, run 4, feel 4. The seam: every system
+    is finished inside, and every hand-over between them is a one-frame cut, a silent beat or a word on glass.
+  - The backlog is `docs/ROUND.md`: the ten things, the four laws (motion vocabulary; grammar of touch and panes; the
+    thread of the run; the ladder of answers and the sounds), the fix lanes A to E with one owner per file, wave A and
+    wave B, what is left on purpose and what was refuted. The laws bind every later step, new content included.
+  - Base and join branch: `claude/lh-round` 73203d77 (build 429's game, join item 9, the film tests). Lanes:
+    `claude/lh-r-a` (figures and the world's beats), `-b` (the hand), `-c` (panes and the title), `-d` (sound), `-e`
+    (the thread of the day); labels lh-ra-N to lh-re-N. Each step is one run of the step workflow (a builder, the code
+    and player lenses, a gate that tries to refute); its report's first line is GREEN or RED.
+  - The director's calls: a count by taps waits 3 s and warns at 2 s (into B2; PAY.md follows when it lands); the
+    first wave's timing and the collector's pace stay; the hearth rule stays off.
+  - Wave A's first fan-out went out at about 20:50: 0a (Motion), 0b (the cue contract and the mix), A1 (the walk and
+    the breath), B2 (the count keeps the hand). After wave A comes the TestFlight round tf-lh-5.
+  - Four questions are Louis' to answer: the drag, voices, the end of an empty day, the far goal.
