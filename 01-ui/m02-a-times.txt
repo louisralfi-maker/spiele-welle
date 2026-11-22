@@ -1,0 +1,42 @@
+m02-a: a tap on the ground at 80 % of the width, below the walk line: he starts, walks, stops; the camera follows
+real time; as fast as the frames come
+the cause (a tap on the ground at 80 % of the width, below the walk line: he starts, walks, stops; the camera follows) was sent at +0.068 s and returned at +0.717 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500
+scene before: frame:670 ready day:1 hour:10.03 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1500 lord:lord stage:world lx:1500 errand:none door:1830 gold:44 hud:none cam:1238 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:1150 ready day:1 hour:10.72 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1588 lord:lord stage:world lx:1588 errand:none door:1830 gold:44 hud:none cam:1401 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.938 s  
+02  +1.174 s  
+03  +1.429 s  
+04  +1.744 s  
+05  +1.964 s  
+06  +2.230 s  
+07  +2.459 s  
+08  +2.660 s  
+09  +2.887 s  
+10  +3.102 s  
+11  +3.318 s  
+12  +3.542 s  
+13  +3.815 s  
+14  +4.015 s  
+15  +4.253 s  
+16  +4.440 s  
+17  +4.661 s  
+18  +4.858 s  
+19  +5.070 s  
+20  +5.306 s  
+21  +5.508 s  
+22  +5.753 s  
+23  +6.072 s  
+24  +6.353 s  
+25  +6.567 s  
+26  +6.802 s  
+27  +7.035 s  
+28  +7.264 s  
+29  +7.520 s  
+30  +7.800 s  
+31  +8.061 s  
+32  +8.269 s  
+mean spacing 0.237 s over 31 gaps

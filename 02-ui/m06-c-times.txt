@@ -1,0 +1,24 @@
+m06-c: counsel: Odile's line comes
+real time; as fast as the frames come
+the cause (counsel: Odile's line comes) was sent at +0.200 s and returned at +1.115 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+scene before: frame:1810 ready day:3 hour:12.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:2030 ready day:3 hour:12.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.429 s  
+02  +1.683 s  
+03  +1.971 s  
+04  +2.247 s  
+05  +2.563 s  
+06  +2.865 s  
+07  +3.207 s  
+08  +3.512 s  
+09  +3.778 s  
+10  +4.073 s  
+11  +4.315 s  
+12  +4.602 s  
+13  +4.889 s  
+14  +5.189 s  
+mean spacing 0.289 s over 13 gaps

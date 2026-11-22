@@ -1,0 +1,65 @@
+m05-b: nine taps on the gate, one coin each (nine hollows): the coins, the last coin, the seal, the counter going
+real time; 3 frames after each tap as fast as they come, then 20 more
+tap 1 sent at +0.068 s, returned at +1.316 s
+tap 2 sent at +2.338 s, returned at +3.868 s
+tap 3 sent at +4.721 s, returned at +5.772 s
+tap 4 sent at +6.495 s, returned at +7.172 s
+tap 5 sent at +7.799 s, returned at +8.776 s
+tap 6 sent at +9.411 s, returned at +10.060 s
+tap 7 sent at +10.697 s, returned at +11.701 s
+tap 8 sent at +12.669 s, returned at +13.616 s
+tap 9 sent at +14.175 s, returned at +15.045 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200
+scene before: frame:710 ready day:3 hour:11.12 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:none cam:1106 tap:touch-plot-0 hint:off0 count:none last:letGo:touch-plot-0 lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:1620 ready day:3 hour:12.78 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:110 hud:none cam:1106 tap:touch-plot-0 hint:off0 count:none last:paid:touch-plot-0 lanterns:1 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the first tap
+01  +1.708 s  first frame after tap 1
+02  +1.993 s  
+03  +2.338 s  
+04  +4.203 s  first frame after tap 2
+05  +4.479 s  
+06  +4.721 s  
+07  +6.044 s  first frame after tap 3
+08  +6.272 s  
+09  +6.495 s  
+10  +7.395 s  first frame after tap 4
+11  +7.609 s  
+12  +7.799 s  
+13  +8.936 s  first frame after tap 5
+14  +9.144 s  
+15  +9.411 s  
+16  +10.264 s  first frame after tap 6
+17  +10.512 s  
+18  +10.697 s  
+19  +12.048 s  first frame after tap 7
+20  +12.352 s  
+21  +12.669 s  
+22  +13.799 s  first frame after tap 8
+23  +13.968 s  
+24  +14.175 s  
+25  +15.260 s  first frame after tap 9
+26  +15.452 s  
+27  +15.625 s  
+28  +15.796 s  
+29  +15.974 s  
+30  +16.176 s  
+31  +16.396 s  
+32  +16.604 s  
+33  +16.821 s  
+34  +17.081 s  
+35  +17.326 s  
+36  +17.526 s  
+37  +17.778 s  
+38  +18.037 s  
+39  +18.213 s  
+40  +18.412 s  
+41  +18.640 s  
+42  +18.831 s  
+43  +19.079 s  
+44  +19.295 s  
+45  +19.509 s  
+46  +19.714 s  
+47  +19.928 s  
+mean spacing 0.396 s over 46 gaps

@@ -1,0 +1,26 @@
+m06-f: leave: the slide goes, the hall again
+real time; as fast as the frames come
+the cause (leave: the slide goes, the hall again) was sent at +0.289 s and returned at +0.999 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+scene before: frame:2850 ready day:3 hour:12.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:3100 ready day:3 hour:12.62 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.238 s  
+02  +1.515 s  
+03  +1.785 s  
+04  +2.037 s  
+05  +2.315 s  
+06  +2.554 s  
+07  +2.767 s  
+08  +3.067 s  
+09  +3.269 s  
+10  +3.564 s  
+11  +3.765 s  
+12  +3.997 s  
+13  +4.253 s  
+14  +4.464 s  
+15  +4.662 s  
+16  +4.852 s  
+mean spacing 0.241 s over 15 gaps

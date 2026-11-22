@@ -1,0 +1,26 @@
+m01-f: a tap on the slide: the next slide comes
+real time; as fast as the frames come
+the cause (a tap on the slide: the next slide comes) was sent at +0.146 s and returned at +1.065 s
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: frame:450 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+scene after: frame:600 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.486 s  
+02  +2.015 s  
+03  +2.475 s  
+04  +3.090 s  
+05  +3.675 s  
+06  +4.161 s  
+07  +4.629 s  
+08  +5.314 s  
+09  +6.640 s  
+10  +7.437 s  
+11  +8.064 s  
+12  +8.590 s  
+13  +9.054 s  
+14  +9.610 s  
+15  +10.136 s  
+16  +10.675 s  
+mean spacing 0.613 s over 15 gaps

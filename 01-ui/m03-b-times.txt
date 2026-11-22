@@ -1,0 +1,26 @@
+m03-b: a tap on the bubble: the next line or the bubble closing
+real time; as fast as the frames come
+the cause (a tap on the bubble: the next line or the bubble closing) was sent at +0.265 s and returned at +2.107 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 2120
+scene before: frame:1040 ready day:3 hour:11.88 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2196 lord:lord stage:world lx:2196 errand:none door:1830 gold:91 hud:none cam:2041 tap:touch-talk-tamsin hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:1290 ready day:3 hour:12.53 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2196 lord:lord stage:world lx:2196 errand:none door:1830 gold:91 hud:none cam:2041 tap:touch-talk-tamsin hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +2.385 s  
+02  +2.731 s  
+03  +3.043 s  
+04  +3.601 s  
+05  +4.130 s  
+06  +4.431 s  
+07  +4.741 s  
+08  +5.050 s  
+09  +5.450 s  
+10  +5.776 s  
+11  +6.093 s  
+12  +6.394 s  
+13  +6.718 s  
+14  +7.089 s  
+15  +7.389 s  
+16  +7.738 s  
+mean spacing 0.357 s over 15 gaps

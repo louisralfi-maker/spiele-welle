@@ -1,0 +1,30 @@
+m05-a: a touch on the gate's site: its counter comes up, he steps to it
+real time; as fast as the frames come
+the cause (a touch on the gate's site: its counter comes up, he steps to it) was sent at +0.082 s and returned at +0.947 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200
+scene before: frame:290 ready day:3 hour:10.46 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1240 lord:lord stage:world lx:1240 errand:none door:1830 gold:200 hud:strip cam:1078 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:550 ready day:3 hour:10.86 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:none cam:1106 tap:touch-plot-0 hint:off0 count:touch-plot-0:0/9:there last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.158 s  
+02  +1.393 s  
+03  +1.574 s  
+04  +1.767 s  
+05  +2.055 s  
+06  +2.220 s  
+07  +2.459 s  
+08  +2.636 s  
+09  +2.812 s  
+10  +2.976 s  
+11  +3.160 s  
+12  +3.356 s  
+13  +3.530 s  
+14  +3.704 s  
+15  +3.872 s  
+16  +4.034 s  
+17  +4.219 s  
+18  +4.400 s  
+19  +4.704 s  
+20  +4.874 s  
+mean spacing 0.196 s over 19 gaps

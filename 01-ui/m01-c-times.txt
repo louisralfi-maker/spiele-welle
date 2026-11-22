@@ -1,0 +1,30 @@
+m01-c: a touch on the title: it goes, the name entry comes
+real time; as fast as the frames come
+the cause (a touch on the title: it goes, the name entry comes) was sent at +0.099 s and returned at +1.157 s
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: 
+scene after: frame:60 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.374 s  
+02  +1.585 s  
+03  +1.764 s  
+04  +1.975 s  
+05  +2.177 s  
+06  +2.389 s  
+07  +2.676 s  
+08  +3.564 s  
+09  +3.790 s  
+10  +4.015 s  
+11  +4.223 s  
+12  +4.428 s  
+13  +4.623 s  
+14  +4.840 s  
+15  +5.056 s  
+16  +5.276 s  
+17  +5.483 s  
+18  +5.814 s  
+19  +6.017 s  
+20  +6.661 s  
+mean spacing 0.278 s over 19 gaps

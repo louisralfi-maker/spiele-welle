@@ -1,0 +1,26 @@
+m04-c: a touch on the dim, low at the left: the lantern lowers, the interface goes, the world moves again
+real time; as fast as the frames come
+the cause (a touch on the dim, low at the left: the lantern lowers, the interface goes, the world moves again) was sent at +0.122 s and returned at +0.786 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830
+scene before: frame:1480 ready day:1 hour:10.23 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:moment cam:1612 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:1700 ready day:1 hour:10.52 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1730 lord:lord stage:world lx:1730 errand:none door:1830 gold:44 hud:none cam:1568 tap:touch-plot-20 hint:off0 count:touch-plot-20:0/6:there last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.988 s  
+02  +1.192 s  
+03  +1.386 s  
+04  +1.594 s  
+05  +1.807 s  
+06  +2.027 s  
+07  +2.234 s  
+08  +2.444 s  
+09  +2.752 s  
+10  +2.995 s  
+11  +3.205 s  
+12  +3.368 s  
+13  +3.565 s  
+14  +3.780 s  
+15  +4.001 s  
+16  +4.187 s  
+mean spacing 0.213 s over 15 gaps

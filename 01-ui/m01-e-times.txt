@@ -1,0 +1,34 @@
+m01-e: Begin on the name entry: it goes, the prologue's first slide comes
+real time; as fast as the frames come
+the cause (Begin on the name entry: it goes, the prologue's first slide comes) was sent at +0.187 s and returned at +1.257 s
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: frame:160 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+scene after: frame:370 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.585 s  
+02  +2.322 s  
+03  +3.034 s  
+04  +3.538 s  
+05  +3.954 s  
+06  +4.418 s  
+07  +4.797 s  
+08  +5.154 s  
+09  +5.557 s  
+10  +5.876 s  
+11  +6.329 s  
+12  +6.679 s  
+13  +7.070 s  
+14  +7.433 s  
+15  +7.937 s  
+16  +8.350 s  
+17  +8.804 s  
+18  +9.198 s  
+19  +9.751 s  
+20  +10.322 s  
+21  +10.791 s  
+22  +11.403 s  
+23  +11.963 s  
+24  +12.619 s  
+mean spacing 0.480 s over 23 gaps

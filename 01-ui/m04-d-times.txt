@@ -1,0 +1,30 @@
+m04-d: at night a hold of 0.4 s before him raises his lantern (the flare)
+real time; as fast as the frames come
+the cause (at night a hold of 0.4 s before him raises his lantern (the flare)) was sent at +0.099 s and returned at +1.054 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWStage world -GWNight 2 -GWSeed 2 -GWHour 22 -GWCameraX 2600
+scene before: frame:210 ready day:2 hour:22.32 alive:9 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:30 hud:none cam:2382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none lantern:ready
+scene after: frame:530 ready day:2 hour:22.81 alive:9 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:30 hud:none cam:2382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none lantern:guttering
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.211 s  
+02  +1.437 s  
+03  +1.656 s  
+04  +1.894 s  
+05  +2.169 s  
+06  +2.413 s  
+07  +2.614 s  
+08  +2.836 s  
+09  +3.096 s  
+10  +3.442 s  
+11  +3.653 s  
+12  +3.874 s  
+13  +4.093 s  
+14  +4.312 s  
+15  +4.594 s  
+16  +4.778 s  
+17  +5.040 s  
+18  +5.254 s  
+19  +5.586 s  
+20  +5.836 s  
+mean spacing 0.243 s over 19 gaps

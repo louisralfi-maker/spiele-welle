@@ -1,0 +1,34 @@
+m11-h: Continue: the report goes, the day begins by the yard
+real time; as fast as the frames come
+the cause (Continue: the report goes, the day begins by the yard) was sent at +0.028 s and returned at +0.546 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWNight 8 -GWBuild demo -GWHour 5.9 -GWCameraX 1600 -GWYard 2 -GWTrained dawn
+scene before: frame:140 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1600 lord:lord stage:world lx:1600 errand:none door:1830 gold:10 hud:none cam:1382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:2,t:18/18,d:54 drill:none
+scene after: frame:390 ready day:9 hour:6.33 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1600 lord:lord stage:world lx:1600 errand:none door:1830 gold:10 hud:strip cam:1382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:2,t:18/18,d:54 drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.699 s  
+02  +0.826 s  
+03  +0.952 s  
+04  +1.078 s  
+05  +1.203 s  
+06  +1.333 s  
+07  +1.496 s  
+08  +1.691 s  
+09  +1.838 s  
+10  +1.988 s  
+11  +2.160 s  
+12  +2.297 s  
+13  +2.445 s  
+14  +2.613 s  
+15  +2.779 s  
+16  +2.948 s  
+17  +3.117 s  
+18  +3.297 s  
+19  +3.494 s  
+20  +3.705 s  
+21  +3.844 s  
+22  +4.001 s  
+23  +4.165 s  
+24  +4.315 s  
+mean spacing 0.157 s over 23 gaps

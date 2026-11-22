@@ -1,0 +1,26 @@
+m06-e: next: the reaction goes, the next petitioner comes
+real time; as fast as the frames come
+the cause (next: the reaction goes, the next petitioner comes) was sent at +0.065 s and returned at +0.705 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+scene before: frame:2500 ready day:3 hour:12.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:2730 ready day:3 hour:12.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.032 s  
+02  +1.280 s  
+03  +1.485 s  
+04  +1.697 s  
+05  +1.909 s  
+06  +2.140 s  
+07  +2.437 s  
+08  +2.774 s  
+09  +3.119 s  
+10  +3.471 s  
+11  +3.885 s  
+12  +4.186 s  
+13  +4.439 s  
+14  +4.709 s  
+15  +5.037 s  
+16  +5.267 s  
+mean spacing 0.282 s over 15 gaps

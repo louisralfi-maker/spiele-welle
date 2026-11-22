@@ -1,0 +1,14 @@
+m02-c: a tap at 85 %: he sets off right (burst d follows at once)
+real time; as fast as the frames come
+the cause (a tap at 85 %: he sets off right (burst d follows at once)) was sent at +0.143 s and returned at +0.963 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500
+scene before: frame:1840 ready day:1 hour:11.79 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1489 lord:lord stage:world lx:1489 errand:none door:1830 gold:44 hud:none cam:1205 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:1910 ready day:1 hour:11.92 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1517 lord:lord stage:world lx:1517 errand:none door:1830 gold:44 hud:none cam:1296 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.139 s  
+02  +1.310 s  
+03  +1.476 s  
+04  +1.637 s  
+mean spacing 0.166 s over 3 gaps

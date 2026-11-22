@@ -1,0 +1,33 @@
+m02-d: a second tap at 25 % while he walks right: he turns back mid-stride
+real time; as fast as the frames come
+the cause (a second tap at 25 % while he walks right: he turns back mid-stride) was sent at +0.124 s and returned at +0.788 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500
+scene before: frame:1920 ready day:1 hour:11.93 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1525 lord:lord stage:world lx:1525 errand:none door:1830 gold:44 hud:none cam:1312 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:2170 ready day:1 hour:12.30 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1463 lord:lord stage:world lx:1463 errand:none door:1830 gold:44 hud:none cam:1179 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+01  +0.949 s  
+02  +1.115 s  
+03  +1.307 s  
+04  +1.576 s  
+05  +1.790 s  
+06  +2.108 s  
+07  +2.281 s  
+08  +2.428 s  
+09  +2.557 s  
+10  +2.686 s  
+11  +2.813 s  
+12  +2.946 s  
+13  +3.075 s  
+14  +3.207 s  
+15  +3.338 s  
+16  +3.465 s  
+17  +3.590 s  
+18  +3.719 s  
+19  +3.847 s  
+20  +3.973 s  
+21  +4.103 s  
+22  +4.227 s  
+23  +4.360 s  
+24  +4.494 s  
+mean spacing 0.154 s over 23 gaps

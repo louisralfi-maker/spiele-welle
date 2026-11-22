@@ -1,0 +1,30 @@
+m04-b: a drag 40 % of the width to the left, held 0.8 s, let go: frames start after the finger lifted (the glide home, the signs coming back)
+real time; as fast as the frames come
+the cause (a drag 40 % of the width to the left, held 0.8 s, let go: frames start after the finger lifted (the glide home, the signs coming back)) was sent at +0.166 s and returned at +3.368 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830
+scene before: frame:1020 ready day:1 hour:10.23 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:moment cam:1612 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:1390 ready day:1 hour:10.23 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:moment cam:1612 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +3.561 s  
+02  +3.818 s  
+03  +4.014 s  
+04  +4.172 s  
+05  +4.367 s  
+06  +4.607 s  
+07  +4.795 s  
+08  +4.982 s  
+09  +5.164 s  
+10  +5.334 s  
+11  +5.501 s  
+12  +5.718 s  
+13  +5.906 s  
+14  +6.090 s  
+15  +6.304 s  
+16  +6.464 s  
+17  +6.627 s  
+18  +6.798 s  
+19  +6.987 s  
+20  +7.191 s  
+mean spacing 0.191 s over 19 gaps

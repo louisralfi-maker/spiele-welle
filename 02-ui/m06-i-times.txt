@@ -1,0 +1,24 @@
+m06-i: a tap on Pip's offer: its slip opens
+real time; as fast as the frames come
+the cause (a tap on Pip's offer: its slip opens) was sent at +0.066 s and returned at +0.949 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWScreen table
+scene before: frame:370 ready day:2 hour:9.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:550 ready day:2 hour:9.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.188 s  
+02  +1.392 s  
+03  +1.587 s  
+04  +1.739 s  
+05  +1.884 s  
+06  +2.027 s  
+07  +2.179 s  
+08  +2.337 s  
+09  +2.489 s  
+10  +2.694 s  
+11  +2.852 s  
+12  +3.035 s  
+13  +3.290 s  
+14  +3.516 s  
+mean spacing 0.179 s over 13 gaps

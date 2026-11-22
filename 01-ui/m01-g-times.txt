@@ -1,0 +1,42 @@
+m01-g: Skip: the prologue goes, day 1 comes (the step into the world)
+real time; as fast as the frames come
+the cause (Skip: the prologue goes, day 1 comes (the step into the world)) was sent at +0.506 s and returned at +1.816 s
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: frame:660 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+scene after: frame:1170 ready day:1 hour:6.82 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +2.411 s  
+02  +2.706 s  
+03  +3.021 s  
+04  +3.284 s  
+05  +3.567 s  
+06  +3.935 s  
+07  +4.211 s  
+08  +4.458 s  
+09  +4.828 s  
+10  +5.148 s  
+11  +5.420 s  
+12  +5.687 s  
+13  +6.055 s  
+14  +6.521 s  
+15  +6.882 s  
+16  +7.125 s  
+17  +7.500 s  
+18  +7.766 s  
+19  +8.143 s  
+20  +8.555 s  
+21  +8.791 s  
+22  +9.114 s  
+23  +9.375 s  
+24  +9.672 s  
+25  +9.901 s  
+26  +10.124 s  
+27  +10.347 s  
+28  +10.554 s  
+29  +10.780 s  
+30  +10.993 s  
+31  +11.206 s  
+32  +11.410 s  
+mean spacing 0.290 s over 31 gaps

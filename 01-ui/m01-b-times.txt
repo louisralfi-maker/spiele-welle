@@ -1,0 +1,21 @@
+m01-b: the title after burst a, one frame every 0.4 s
+real time; one frame every 0.40 s
+no cause: the burst only watches
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: 
+scene after: 
+
+frame  seconds since the burst began  (scene where read)
+01  +0.283 s  
+02  +0.576 s  
+03  +0.961 s  
+04  +1.377 s  
+05  +1.759 s  
+06  +2.184 s  
+07  +2.610 s  
+08  +2.956 s  
+09  +3.337 s  
+10  +3.802 s  
+11  +4.202 s  
+12  +4.589 s  
+mean spacing 0.391 s over 11 gaps
