@@ -409,9 +409,10 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertNotNil(ads.merchantOffer, "his cart stands on day 3")
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let framing = try XCTUnwrap(game.touch.framing)
-        let cart = CGPoint(x: framing.deviceX(stageX: CourtLayout.marekCartX + 14) / 3,
+        // Between Tamsin at her oven (2208) and Marek before the cart's east half, each with a 44 pt touch area.
+        let cart = CGPoint(x: framing.deviceX(stageX: CourtLayout.marekCartX + 11) / 3,
                            y: framing.deviceY(lift: 12) / 3)
-        XCTAssertNil(game.thingAt(cart, in: proPoints), "nothing that is bought stands at the cart's west half")
+        XCTAssertNil(game.thingAt(cart, in: proPoints), "nobody and nothing that is bought at the cart's west half")
         // Build 3: through the finger's own path (down, then lift).
         game.touchChanged(start: cart, at: cart, translation: .zero, in: proPoints)
         XCTAssertNil(game.touch.count, "no count starts on his cart")

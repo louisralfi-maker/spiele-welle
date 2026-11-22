@@ -795,7 +795,7 @@ final class YardLookTests: XCTestCase {
         collect()
         Yard.proof(&s, stage: 2, kettle: false, trained: false, balance: balance)
         collect()
-        let ids = Set(marks.map(\.id))
+        let ids = Set(marks.map { $0.id })
         XCTAssertTrue(ids.isSuperset(of: ["touch-yard", "touch-yard-kettle", "touch-recruit-archer",
                                           "touch-recruit-guard"]), "every mark looked at: \(ids.sorted())")
         let brannock = try XCTUnwrap(CourtLayout.routines["brannock"])
@@ -822,15 +822,18 @@ final class YardLookTests: XCTestCase {
         let person = TouchThings.person(figure, act: .talk(who: "brannock"), lordX: 1600, court: true, marked: true)
         var things = TouchThings.world(s, balance: balance, figures: [figure], talked: [])
         if !things.contains(where: { $0.id == person.id }) { things.append(person) }
-        for id in ["touch-recruit-archer", "touch-recruit-guard"] {
-            let half = try XCTUnwrap(things.first { $0.id == id }, "\(id) offered with the yard standing")
-            for lift in [4.0, 20, 36] {
-                XCTAssertEqual(TouchRules.pick(x: half.x, lift: lift, things: things, minimum: 22)?.id, id,
-                               "\(id): its middle at lift \(lift) is still its own")
+        // 22 px is 44 pt at 2 pt a pixel; 33 px at the phone's 1.37 pt a pixel.
+        for minimum in [22.0, 33.0] {
+            for id in ["touch-recruit-archer", "touch-recruit-guard"] {
+                let half = try XCTUnwrap(things.first { $0.id == id }, "\(id) offered with the yard standing")
+                for lift in [4.0, 20, 36] {
+                    XCTAssertEqual(TouchRules.pick(x: half.x, lift: lift, things: things, minimum: minimum)?.id, id,
+                                   "\(id): its middle at lift \(lift) is still its own (minimum \(minimum))")
+                }
             }
+            XCTAssertEqual(TouchRules.pick(x: door, lift: 14, things: things, minimum: minimum)?.id, person.id,
+                           "a touch on Brannock in the door finds him (minimum \(minimum))")
         }
-        XCTAssertEqual(TouchRules.pick(x: door, lift: 14, things: things, minimum: 22)?.id, person.id,
-                       "a touch on Brannock in the door finds him")
     }
 
     func testTheDrillMovesAndStandsStillUnderReduceMotion() {
@@ -897,10 +900,10 @@ final class YardLookTests: XCTestCase {
         }
         XCTAssertGreaterThan(flight.count, 500, "it flies for \(YardLook.arrowSeconds) s")
         // One arc: rising, level, falling, never back; high over the bunkhouse's roof; from the bow into the heart.
-        let frames = flight.map(\.frame)
+        let frames = flight.map { $0.frame }
         XCTAssertEqual(frames, frames.sorted(), "rising, level, falling, in that order")
         XCTAssertEqual(Set(frames), [0, 1, 2])
-        let top = flight.map(\.y).max() ?? 0
+        let top = flight.map { $0.y }.max() ?? 0
         XCTAssertGreaterThan(top, Double(SpriteID.barracks.size.height) + 10, "a high arc: its top at \(top)")
         XCTAssertEqual(flight.first?.x ?? 0, YardLook.archerSpots[0] + YardLook.bowReach, accuracy: 0.5, "from the bow")
         XCTAssertEqual((flight.last?.x ?? 0) + 3, YardLook.buttHeart.x, accuracy: 0.5, "its tip in the heart")

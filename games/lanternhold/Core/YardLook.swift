@@ -203,11 +203,11 @@ enum YardLook {
         /// (a load, a new day) takes the simulation's time as it is.
         mutating func step(to simTime: Double, held: Bool) {
             defer { last = simTime }
-            guard let last, simTime >= last, simTime - last <= 1 else {
+            guard let previous = last, simTime >= previous, simTime - previous <= 1 else {
                 time = simTime
                 return
             }
-            let dt = simTime - last
+            let dt = simTime - previous
             let phase = YardLook.wrapped(time, round: YardLook.archerRound)
             if held && phase < YardLook.looseAt {
                 time += min(dt, max(0, YardLook.looseAt - 0.01 - phase))
