@@ -1,0 +1,30 @@
+m12-d: Continue on a real dawn without the video: the stub's interstitial (it ends at once), the day
+real time; as fast as the frames come
+the cause (Continue on a real dawn without the video: the stub's interstitial (it ends at once), the day) was sent at +0.064 s and returned at +0.673 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.9 -GWCameraX 1100
+scene before: frame:90 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:none cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:360 ready day:9 hour:6.40 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:strip cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.978 s  
+02  +1.202 s  
+03  +1.387 s  
+04  +1.593 s  
+05  +1.826 s  
+06  +2.053 s  
+07  +2.260 s  
+08  +2.468 s  
+09  +2.704 s  
+10  +2.902 s  
+11  +3.098 s  
+12  +3.300 s  
+13  +3.518 s  
+14  +3.828 s  
+15  +4.085 s  
+16  +4.348 s  
+17  +4.583 s  
+18  +4.876 s  
+19  +5.088 s  
+20  +5.273 s  
+mean spacing 0.226 s over 19 gaps

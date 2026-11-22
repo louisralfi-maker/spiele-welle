@@ -1,0 +1,26 @@
+m12-c: Continue after the video: no interstitial, the day
+real time; as fast as the frames come
+the cause (Continue after the video: no interstitial, the day) was sent at +0.095 s and returned at +0.713 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.9 -GWCameraX 1100
+scene before: frame:280 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:none cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:500 ready day:9 hour:6.31 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:strip cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.957 s  
+02  +1.158 s  
+03  +1.350 s  
+04  +1.611 s  
+05  +1.797 s  
+06  +1.986 s  
+07  +2.234 s  
+08  +2.445 s  
+09  +2.698 s  
+10  +2.954 s  
+11  +3.242 s  
+12  +3.426 s  
+13  +3.652 s  
+14  +3.828 s  
+15  +3.985 s  
+16  +4.150 s  
+mean spacing 0.213 s over 15 gaps

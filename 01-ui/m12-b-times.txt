@@ -1,0 +1,30 @@
+m12-b: a tap on the offer (the stub's video ends at once): the offer goes, the note comes
+real time; as fast as the frames come
+the cause (a tap on the offer (the stub's video ends at once): the offer goes, the note comes) was sent at +0.046 s and returned at +0.607 s
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.9 -GWCameraX 1100
+scene before: frame:160 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:none cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+scene after: frame:240 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:none cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.807 s  
+02  +0.986 s  
+03  +1.179 s  
+04  +1.358 s  
+05  +1.522 s  
+06  +1.717 s  
+07  +1.907 s  
+08  +2.074 s  
+09  +2.237 s  
+10  +2.396 s  
+11  +2.537 s  
+12  +2.753 s  
+13  +2.907 s  
+14  +3.060 s  
+15  +3.227 s  
+16  +3.394 s  
+17  +3.568 s  
+18  +3.853 s  
+19  +4.032 s  
+20  +4.228 s  
+mean spacing 0.180 s over 19 gaps

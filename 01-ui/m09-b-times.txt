@@ -1,0 +1,30 @@
+m09-b: the first death on screen or off it; the condition: fewer alive than at the check before
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +1.503 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWNight 1 -GWSeed 1 -GWCameraX 1330 -GWHour 22.5
+
+frame  seconds since the burst began  (scene where read)
+01  +0.219 s  
+02  +0.404 s  day:1 hour:0.31 alive:12 seen:4 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+03  +0.674 s  
+04  +0.843 s  day:1 hour:0.34 alive:12 seen:4 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+05  +1.154 s  
+06  +1.397 s  day:1 hour:0.39 alive:11 seen:3 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready  <- the condition holds
+07  +1.701 s  
+08  +1.902 s  
+09  +2.202 s  
+10  +2.398 s  
+11  +2.561 s  
+12  +2.766 s  
+13  +2.956 s  
+14  +3.230 s  
+15  +3.486 s  
+16  +3.759 s  
+17  +3.961 s  
+18  +4.227 s  
+19  +4.407 s  
+20  +4.583 s  
+21  +4.768 s  
+22  +4.949 s  day:1 hour:0.69 alive:8 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.225 s over 21 gaps
