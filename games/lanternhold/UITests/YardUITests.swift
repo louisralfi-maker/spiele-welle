@@ -80,25 +80,13 @@ final class YardUITests: XCTestCase {
         pause(1.0)
         XCTAssertEqual(sceneField(app, "lanterns:"), "1", "the site lantern burns on")
         // Step 3: he walks off the yard to the smithy's side, so the paid site and its lantern are seen whole. Step 4
-        // (E1, the critic's M1): back to where shot 300 stood (1600) and the camera settled on him there, so the site,
-        // its lantern and the delivered timber are in view (step 3's walk to 1620 left the camera aimed east).
-        tapRealmStrip(app, worldX: 1600)
+        // (E1, the critic's M1): shot 300's camera, so the site, its lantern and the delivered timber are in view.
+        // -GWCameraX put the camera's middle on him at 1600; walking, the camera leads him by 32 px on his facing
+        // (`CameraFraming.walkLead`; rounds lh-b3y-41/42: cam:1414 facing east at 1600, cam:1318 facing west at 1568).
+        // So he walks east from the board to 1568, and the camera's middle comes to rest on 1600 again.
+        tapRealmStrip(app, worldX: 1568)
         waitForStill(app)
         waitForCamera(app, timeout: 8)
-        if let want = firstCamera, let camera = sceneField(app, "cam:").flatMap({ Double($0) }), abs(camera - want) > 3 {
-            // The strip's columns are coarse: one touch on the open sky over the ground walks him the rest (the view
-            // is twice the distance from shot 300's left edge to its middle, 1600). Round lh-b3y-41: the camera frames
-            // him a little east of where -GWCameraX put it (1414 against 1382 with him at 1600), so he walks the
-            // camera's difference west of where he stands, and the touch lands there (it touched his own feet before).
-            let view = 2 * (1600 - want)
-            let lord = sceneField(app, "lx:").flatMap { Double($0) } ?? 1600
-            if view > 50 {
-                let share = min(0.95, max(0.05, (lord - (camera - want) - camera) / view))
-                element(app, "world-scene").coordinate(withNormalizedOffset: CGVector(dx: share, dy: 0.22)).tap()
-                waitForStill(app)
-                waitForCamera(app, timeout: 8)
-            }
-        }
         pause(0.4)
         note("302-yard-camera", "shot 300 cam:\(firstCamera.map { String(Int($0)) } ?? "?") now cam:"
              + (sceneField(app, "cam:") ?? "?") + " lx:" + (sceneField(app, "lx:") ?? "?"))
@@ -253,7 +241,9 @@ final class YardUITests: XCTestCase {
         // the game's), so each window opens a little early.
         let lead = 0.04
         var archerWindows: [(name: String, from: Double, until: Double)] = [
-            ("loose", 2.0, 2.1), ("climb", 2.1, 2.2), ("top", 2.2, 2.33), ("fall", 2.33, 2.45), ("hit", 2.45, 2.6),
+            // Round lh-b3y-42: "hit" opened at 2.41 and caught the arrow 0.1 s before it lands (2.55); it opens at 2.48
+            // now, with the arrow at the butt, and "fall" a little later on the way down.
+            ("loose", 2.0, 2.1), ("climb", 2.1, 2.2), ("top", 2.2, 2.33), ("fall", 2.38, 2.5), ("hit", 2.52, 2.65),
             ("stuck", 1.2, 1.8),
         ]
         var guardWindows: [(name: String, from: Double, until: Double)] = [("stand", 0.2, 0.5), ("lean", 0.8, 0.92)]
