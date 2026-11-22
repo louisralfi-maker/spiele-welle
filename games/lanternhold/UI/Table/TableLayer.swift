@@ -44,8 +44,13 @@ struct TableDebugLayer: View {
 enum TableStage {
     @MainActor private static var done = false
 
-    static var returnsAtDawn: Bool { UserDefaults.standard.bool(forKey: "GWTableReturn") }
-    static var name: String? { UserDefaults.standard.string(forKey: "GWTableStage") }
+    // Build 3 join (lane 6's gate): a Release build reads neither (`DebugArgs.launchHooksOpen`).
+    static var returnsAtDawn: Bool {
+        DebugArgs.launchHooksOpen && UserDefaults.standard.bool(forKey: "GWTableReturn")
+    }
+    static var name: String? {
+        DebugArgs.launchHooksOpen ? UserDefaults.standard.string(forKey: "GWTableStage") : nil
+    }
 
     @MainActor
     static func apply(_ model: GameModel) {

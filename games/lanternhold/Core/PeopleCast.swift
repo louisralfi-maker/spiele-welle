@@ -125,6 +125,8 @@ enum PeopleCast {
     /// `-GWCloth village|town` (screenshots and UI tests): the cloth the town's people wear until the join passes the
     /// realm's standing (docs/lanes/people.md, "the hooks"). Read once; the hamlet without the argument.
     static let launchCloth: ClothState = {
+        // Build 3 join (lane 6's gate): a Release build reads no launch argument (`DebugArgs.launchHooksOpen`).
+        guard DebugArgs.launchHooksOpen else { return .hamlet }
         switch UserDefaults.standard.string(forKey: "GWCloth")?.lowercased() {
         case "village": return .village
         case "town": return .town

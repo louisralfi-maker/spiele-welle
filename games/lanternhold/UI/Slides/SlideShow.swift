@@ -174,6 +174,8 @@ struct SlideArgs: Sendable, Equatable {
     }
 
     static func fromProcess() -> SlideArgs {
+        // Build 3 join (lane 6's gate): a Release build reads no launch argument, so it plays as a plain launch.
+        guard DebugArgs.launchHooksOpen else { return SlideArgs(values: [:]) }
         var values: [String: String] = [:]
         for key in keys {
             if let value = UserDefaults.standard.string(forKey: key) { values[key] = value }

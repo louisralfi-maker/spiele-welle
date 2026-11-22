@@ -41,12 +41,15 @@ enum TownLife {
     }
 
     /// `-GWCollector YES` (screenshots and UI tests until the join wires the town lane's collector): he walks today.
-    static let launchCollector: Bool = UserDefaults.standard.bool(forKey: "GWCollector")
+    /// Build 3 join (lane 6's gate): this and `launchCoach` read nothing in a Release build
+    /// (`DebugArgs.launchHooksOpen`).
+    static let launchCollector: Bool = DebugArgs.launchHooksOpen && UserDefaults.standard.bool(forKey: "GWCollector")
     /// `-GWCoach YES` (screenshots): the noble's coach stands at the gate whatever the court's queue says; `-GWCoach NO`
     /// keeps it away (the demo realm has a noble due on day 12, so the shots of an ordinary day need it); nil without
     /// the argument (the court's queue decides).
     static let launchCoach: Bool? = {
-        guard let value = UserDefaults.standard.string(forKey: "GWCoach")?.lowercased() else { return nil }
+        guard DebugArgs.launchHooksOpen,
+              let value = UserDefaults.standard.string(forKey: "GWCoach")?.lowercased() else { return nil }
         return ["yes", "true", "1"].contains(value)
     }()
 
