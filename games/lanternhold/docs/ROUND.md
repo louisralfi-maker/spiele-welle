@@ -414,3 +414,14 @@ the spot; C3 the answer lands; A6 the soldiers' day (then E4's gap); E3 night 1'
 4. **The far goal.** Nothing says there are 20 nights until day 11. a) the horn ribbon says "Night 3 of 20"; b)
    Hesper says it once on days 1-3 ("Twenty nights, the old songs say, and then the King comes"); c) both; d) keep it
    hidden.
+
+
+## LOUIS' ANSWERS (22.11.2026, 21:03; interviewed, he took the director's pick four times)
+
+1. **The drag stays as it is.** A drag walks the lord; with the lantern up a drag looks around. (B4 builds on this.)
+2. **Voices: wordless sounds for crowds and soldiers only** (cheers, a grunt on a hit, an "aye" from a recruit). No
+   speech, no hum per person. If a sound reads as artificial it is taken out again. (D1's grunts and D4 may go ahead.)
+3. **The end of an empty day: Brannock offers the horn.** When the day's work is done he waits at the horn; a touch
+   calls the night and the dusk plays in 4 s. The day does not run faster by itself. (E1 as written.)
+4. **The far goal is said twice:** Mother Hesper says it once in the first days, and the horn's ribbon reads
+   "Night 3 of 20". (Lane E; the ribbon is a pane, so the rule against words on the walked world holds.)

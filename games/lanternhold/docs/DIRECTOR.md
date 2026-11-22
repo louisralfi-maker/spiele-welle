@@ -1405,3 +1405,6 @@ schneller geht."
   - Wave A's first fan-out went out at about 20:50: 0a (Motion), 0b (the cue contract and the mix), A1 (the walk and
     the breath), B2 (the count keeps the hand). After wave A comes the TestFlight round tf-lh-5.
   - Four questions are Louis' to answer: the drag, voices, the end of an empty day, the far goal.
+  - Louis' answers (21:03, the director's pick four times): the drag stays; wordless sounds for crowds and soldiers
+    only; an empty day ends with Brannock offering the horn; the far goal is said by Hesper once and on the horn's
+    ribbon ("Night 3 of 20"). They stand at the end of `docs/ROUND.md`.
