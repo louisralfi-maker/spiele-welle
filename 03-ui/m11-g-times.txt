@@ -1,0 +1,28 @@
+m11-g: the dawn that trains them: the report coming
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +5.553 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWNight 8 -GWBuild demo -GWHour 5.6 -GWCameraX 1600 -GWYard 2 -GWTrained dawn
+
+frame  seconds since the burst began  (scene where read)
+01  +0.500 s  
+02  +1.046 s  day:8 hour:5.86 alive:0 seen:0 shots:0 kx:1600 stage:world lx:1600 gold:10 hud:none cam:1382 tap:none count:none last:none lanterns:0 yard:2,t:0/18,d:54 drill:none lantern:ready
+03  +3.727 s  
+04  +4.023 s  day:8 hour:5.97 alive:0 seen:0 shots:0 kx:1600 stage:world lx:1600 gold:10 hud:none cam:1382 tap:none count:none last:none lanterns:0 yard:2,t:0/18,d:54 drill:none lantern:ready  <- the condition holds
+05  +5.766 s  
+06  +6.106 s  
+07  +6.318 s  
+08  +6.582 s  
+09  +6.845 s  
+10  +7.068 s  
+11  +7.299 s  
+12  +7.516 s  
+13  +7.750 s  
+14  +8.007 s  
+15  +8.221 s  
+16  +8.444 s  
+17  +8.668 s  
+18  +8.999 s  
+19  +9.216 s  
+20  +9.479 s  day:9 hour:6.00 alive:0 seen:0 shots:0 kx:1600 stage:world lx:1600 gold:10 hud:none cam:1382 tap:none count:none last:none lanterns:0 yard:2,t:18/18,d:54 drill:none
+mean spacing 0.473 s over 19 gaps
