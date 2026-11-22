@@ -472,6 +472,8 @@ final class SoundMixTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(try XCTUnwrap(levels[cue]) - ducked, 3, "\(cue) over the ducked bed \(ducked)")
         }
     }
+
+    func testTheBedsDuckAtQuickAndComeBackOverTheSettleTime() {
         let frame = 1.0 / 60
         var duck = DuckFollower()
         for _ in 0..<9 { duck.step(toward: 0.5, dt: frame) }
