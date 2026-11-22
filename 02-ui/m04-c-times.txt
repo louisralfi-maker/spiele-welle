@@ -1,0 +1,25 @@
+m04-c: a touch on the dim, low at the left: the lantern lowers, the interface goes, the world moves again
+real time; as fast as the frames come
+the tap was sent without waiting at +0.088 s (point 40.2, 69.9; interface orientation 3 (the app's)); the runner answered at +0.372 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830
+scene after: frame:1560 ready day:1 hour:10.32 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1754 lord:lord stage:world lx:1754 errand:touch-plot-20 door:1830 gold:44 hud:none cam:1589 tap:touch-plot-20 hint:off0 count:touch-plot-20:0/6:open last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.238 s  
+02  +0.387 s  
+03  +0.519 s  
+04  +0.645 s  
+05  +0.776 s  
+06  +0.913 s  
+07  +1.053 s  
+08  +1.183 s  
+09  +1.316 s  
+10  +1.446 s  
+11  +1.576 s  
+12  +1.711 s  
+13  +1.843 s  
+14  +2.034 s  
+15  +2.184 s  
+16  +2.332 s  
+mean spacing 0.140 s over 15 gaps
