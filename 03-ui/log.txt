@@ -1,0 +1,16 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (160.084 seconds).
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (20.676 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (29.402 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (73.833 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (23.957 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (62.493 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (21.003 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (131.112 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (19.582 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (20.955 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (20.041 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (46.843 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (96.804 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (82.300 seconds).
+exit=0
+screenshots: 61

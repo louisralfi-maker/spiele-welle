@@ -1,0 +1,6 @@
+fr (4): touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+es (4): touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+it (4): touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+pt-BR (4): touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+ja (4): touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
+zh-Hans (4): touch.bench.far, touch.bench.sit, touch.bench.wait, touch.first
