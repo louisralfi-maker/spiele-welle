@@ -127,4 +127,53 @@ final class FilmPanesUITests: XCTestCase {
         }
         app.terminate()
     }
+
+    /// p04: the pause sheet coming (a0 to a2: the gear under the lantern, the world already still) and going (b0 to
+    /// b2: Resume) three times, so the 0.25 s come and the 0.15 s go fall between frames at least once; once, a tap on
+    /// the dim beside it (g: the sheet stays, Resume's line glints).
+    func testP04ThePauseSheetComesGoesAndGlints() {
+        let film = FilmReel(self, "p04")
+        let app = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "2", "-GWSeed", "1",
+                               "-GWClock", "9", "-GWWeather", "clear"])
+        guard film.ready(app) else {
+            XCTFail("p04: the scene never stood")
+            return
+        }
+        film.pause(1.0)
+        let sheet = film.element(app, "pause-sheet")
+        let resume = film.element(app, "pause-resume")
+        let window = app.windows.firstMatch
+        for round in 0..<3 {
+            guard openLantern(app) else {
+                film.note("p04-a\(round)-missing", "the lantern did not rise")
+                XCTFail("p04: the lantern did not rise (\(round))")
+                return
+            }
+            film.pause(0.5)
+            let gear = film.element(app, "hud-pause")
+            guard gear.exists else {
+                XCTFail("p04: no gear (\(round))")
+                return
+            }
+            film.tapBurst("a\(round)", app, count: 8, what: "the gear: the pause sheet comes (0.25 s ease-out, a 2 game "
+                          + "px rise, no scale; the dim with it)",
+                          at: gear.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { sheet.exists }
+            guard sheet.waitForExistence(timeout: 4) else {
+                XCTFail("p04: no pause sheet (\(round))")
+                return
+            }
+            film.pause(0.8)
+            if round == 0 {
+                film.tapBurst("g", app, count: 8, what: "a tap on the dim beside the sheet: it stays, Resume's line "
+                              + "glints (0.15 s up, 0.10 s down)",
+                              at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.55))) { sheet.exists }
+                film.pause(0.8)
+                XCTAssertTrue(sheet.exists, "p04: a tap beside the pause sheet does not close it")
+            }
+            film.tapBurst("b\(round)", app, count: 8, what: "Resume: the sheet goes (0.15 s ease-in, in place)",
+                          at: resume.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !sheet.exists }
+            film.pause(1.2)
+        }
+        app.terminate()
+    }
 }
