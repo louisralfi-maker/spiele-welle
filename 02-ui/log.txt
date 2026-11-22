@@ -1,0 +1,16 @@
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (288.356 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testATapUnderTheLanternDoesTheDeed]' passed (26.276 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/LookAroundUITests.swift:298: error: -[LanternholdUITests.LookAroundUITests testTheCleanFrame] : XCTAssertFalse failed - held: the town's banner takes no touch
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/LookAroundUITests.swift:299: error: -[LanternholdUITests.LookAroundUITests testTheCleanFrame] : XCTAssertFalse failed - held: the gear takes no touch
+Test Case '-[LanternholdUITests.LookAroundUITests testTheCleanFrame]' failed (26.520 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheGlideHomeFilmstrip]' passed (30.617 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheGlintAndTheFlare]' passed (30.954 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheLookAround]' passed (22.105 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheTownsBanner]' passed (145.652 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheTwoEnds]' passed (39.493 seconds).
+Test Suite 'LookAroundUITests' failed at 2026-11-22 06:32:57.790.
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (78.906 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-22 06:34:16.697.
+Test Suite 'Selected tests' failed at 2026-11-22 06:34:16.698.
+exit=65
+screenshots: 67

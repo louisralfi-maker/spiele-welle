@@ -1,0 +1,1 @@
+1.37 s of real time after the raise (about 0.34 s of game time)
