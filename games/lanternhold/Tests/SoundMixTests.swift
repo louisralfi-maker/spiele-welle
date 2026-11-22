@@ -230,6 +230,11 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(placed.map { $0.cue }, [.coin, .wallHit])
         XCTAssertEqual(placed.first { $0.cue == .wallHit }?.x, 640)
         XCTAssertNil(placed.first { $0.cue == .coin }?.x)
+        // D1 gate M4: a cue heard twice in a frame keeps its nearest place, not its first.
+        var twice = FeedbackThinner()
+        let blows = twice.placedCues(for: [], extra: [(.hit, 1000), (.hit, 610), (.hit, 400)], time: 1, listenerX: 600)
+        XCTAssertEqual(blows.map { $0.cue }, [.hit])
+        XCTAssertEqual(blows.first?.x, 610, "the blow at his feet, not the faint one at the edge")
     }
 
     // MARK: - The one duck rule

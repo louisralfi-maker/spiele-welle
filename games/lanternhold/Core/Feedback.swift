@@ -218,8 +218,8 @@ struct FeedbackThinner: Sendable, Equatable {
         placedCues(for: events, extra: extra, time: time, listenerX: listenerX).map { $0.cue }
     }
 
-    /// Step 0b: the same cues with the place each came from (the first of the frame for a cue heard twice; nil:
-    /// everywhere), so a positional cue can be played with law 4's fall-off and pan (`FeedbackHub.play(placed:listenerX:)`;
+    /// Step 0b: the same cues with the place each came from (the nearest of the frame for a cue heard twice, D1 gate
+    /// M4; nil: everywhere, kept when the first came with none), so a positional cue can be played with law 4's fall-off and pan (`FeedbackHub.play(placed:listenerX:)`;
     /// D1 switched `GameModel.playCues` to it, in a `LANE-D: D1` block).
     mutating func placedCues(for events: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], time: Double,
                              listenerX: Double) -> [(cue: FeedbackCue, x: Double?)] {
@@ -236,6 +236,9 @@ struct FeedbackThinner: Sendable, Equatable {
             if !wanted.contains(cue) {
                 wanted.append(cue)
                 if let x { places[cue] = x }
+            } else if let x, let kept = places[cue], abs(x - listenerX) < abs(kept - listenerX) {
+                // D1 gate M4: the nearest place of the frame, so a faint blow at the edge never takes a near one's slot.
+                places[cue] = x
             }
         }
         if wanted.contains(.taxesCounted) { wanted.removeAll { $0 == .coin } }
