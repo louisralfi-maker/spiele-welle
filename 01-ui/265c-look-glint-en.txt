@@ -1,0 +1,1 @@
+3.18 s of real time after the first of the run; 108 sampled px of the arm colour; the pulse's peak
