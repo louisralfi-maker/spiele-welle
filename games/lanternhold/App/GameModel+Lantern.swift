@@ -365,7 +365,8 @@ extension GameModel {
     /// walk line), so it keeps its distance to him in device px in every frame of a walk. As glows of the world plane
     /// they stood on the ground's grid and wobbled up to 3 device px against him. Its colour as the emissive pass tints
     /// a glow (40 % of the hue of `rgb`); its strength (`rgb`'s peak) over 1 brightens it, under 1 is its share over the
-    /// picture behind it. Nil when it is too faint to see.
+    /// picture behind it. Nil when it is too faint to see. Step 5: the raise's sparks only (the glint and the flare are
+    /// opaque marks, `lanternMark`); never dimmed by the lantern's light (`ActorDim.kept`).
     static func lanternPixel(kingX: Double, facing: Int, dx: Double, row: Double, rgb: SIMD3<Float>,
                              framing: TouchFraming) -> ActorInstance? {
         let peak = max(rgb.x, max(rgb.y, rgb.z))
