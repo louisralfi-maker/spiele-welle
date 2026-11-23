@@ -1,0 +1,40 @@
+m06-a: a touch on the hall's door: he walks to it, the door, the dark, inside
+real time; as fast as the frames come (a rolling burst)
+the cause (a touch on the hall's door: he walks to it, the door, the dark, inside) was sent at +0.000 s and returned at +2.455 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +6.652 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+
+frame  seconds since the burst began  (scene where read)
+01  +2.662 s  
+02  +2.884 s  day:3 hour:10.64 alive:0 seen:0 shots:0 kx:1882 stage:world lx:1882 gold:91 hud:none cam:1627 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+03  +3.630 s  
+04  +3.883 s  day:3 hour:10.71 alive:0 seen:0 shots:0 kx:1848 stage:world lx:1848 gold:91 hud:none cam:1617 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+05  +4.612 s  
+06  +4.914 s  day:3 hour:10.79 alive:0 seen:0 shots:0 kx:1830 stage:world lx:1830 gold:91 hud:none cam:1612 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+07  +5.569 s  
+08  +5.790 s  day:3 hour:10.84 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:68 gold:91 hud:none cam:0 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+09  +6.838 s  
+10  +7.014 s  
+11  +7.196 s  
+12  +7.376 s  
+13  +7.563 s  
+14  +7.739 s  
+15  +7.939 s  
+16  +8.248 s  
+17  +8.496 s  
+18  +8.734 s  
+19  +8.960 s  
+20  +9.162 s  
+21  +9.423 s  
+22  +9.729 s  
+23  +9.958 s  
+24  +10.261 s  
+25  +10.494 s  
+26  +10.729 s  
+27  +10.976 s  
+28  +11.207 s  
+29  +11.589 s  
+30  +11.828 s  
+31  +12.037 s  
+32  +12.294 s  day:3 hour:11.35 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:68 gold:91 hud:none cam:0 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.311 s over 31 gaps

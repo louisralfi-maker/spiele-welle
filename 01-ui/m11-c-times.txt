@@ -1,0 +1,34 @@
+m11-c: a hold of 1.2 s pays an archer at the barracks; frames start after the finger lifted: the recruit
+real time; as fast as the frames come
+the cause (a hold of 1.2 s pays an archer at the barracks; frames start after the finger lifted: the recruit) was sent at +0.114 s and returned at +2.328 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWDay 5 -GWClock 11.5 -GWCameraX 1600 -GWGold 200 -GWYard 2
+scene before: frame:590 ready day:5 hour:12.55 alive:0 seen:0 lit:0 shots:0 aim:1 kx:1453 lord:lord stage:world lx:1453 errand:none door:1830 gold:200 hud:none cam:1177 tap:touch-recruit-archer hint:off0 count:touch-recruit-archer:0/1:there last:none lanterns:0 cstand:1453 chold:y cidle:2.9 models:4:ballista,catapult;10:ballista,catapult yard:2,t:0/8,d:0,drill offer:none dusk:none talkmarks:brannock,collector,pip,tamsin drill:a1.990,g1.533 kv:0.00 kxf:1453.00 kf:6 kd:1 kcx:1177.44
+scene after: frame:970 ready day:5 hour:13.17 alive:0 seen:0 lit:0 shots:0 aim:1 kx:1453 lord:lord stage:world lx:1453 errand:none door:1830 gold:190 hud:none cam:1177 tap:touch-recruit-archer hint:off0 count:none last:paid:touch-recruit-archer lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:2,t:0/9,d:0,drill offer:none dusk:none talkmarks:brannock,collector,pip,tamsin drill:a1.990,g0.917 kv:0.00 kxf:1453.00 kf:6 kd:1 kcx:1177.44
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +2.493 s  
+02  +2.663 s  
+03  +2.846 s  
+04  +3.029 s  
+05  +3.205 s  
+06  +3.393 s  
+07  +3.579 s  
+08  +3.756 s  
+09  +3.982 s  
+10  +4.187 s  
+11  +4.421 s  
+12  +4.695 s  
+13  +4.908 s  
+14  +5.137 s  
+15  +5.374 s  
+16  +5.621 s  
+17  +5.893 s  
+18  +6.089 s  
+19  +6.292 s  
+20  +6.509 s  
+21  +6.720 s  
+22  +6.968 s  
+23  +7.268 s  
+24  +7.536 s  
+mean spacing 0.219 s over 23 gaps

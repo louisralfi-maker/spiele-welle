@@ -1,0 +1,25 @@
+b3h-a: in the hall a tap on the lord: the lantern rises
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the tap was sent without waiting at +0.351 s (point 87.3, 437.2; interface orientation 3 (the app's)); the runner answered at +0.643 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage hall -GWHallX 280 -GWTimeScale 0.25
+scene after: frame:860 ready day:3 hour:10.25 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:280 lx:280 errand:none gold:91 hud:moment cam:93 tap:moment hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:92.71
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.521 s  
+02  +0.688 s  
+03  +0.998 s  
+04  +1.329 s  
+05  +1.528 s  
+06  +1.727 s  
+07  +1.967 s  
+08  +2.173 s  
+09  +2.372 s  
+10  +2.581 s  
+11  +2.770 s  
+12  +3.006 s  
+13  +3.241 s  
+14  +3.427 s  
+15  +3.651 s  
+16  +3.900 s  
+mean spacing 0.225 s over 15 gaps

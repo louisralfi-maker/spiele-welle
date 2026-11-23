@@ -1,0 +1,21 @@
+Test Case '-[LanternholdUITests.FilmDealsUITests testA2ItStands]' passed (490.277 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM05APurchase]' passed (139.707 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM06TheHall]' passed (133.608 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM07TheTaxesOnFoot]' passed (81.065 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM11TheDrillYard]' passed (124.641 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1bTheStopTheDragAndTheCamera]' passed (132.942 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1TheWalkSlowed]' passed (85.076 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testB3bTheHallsMoment]' passed (31.046 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM01TheFirstSeconds]' passed (73.224 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM01TheStepInUnderReduceMotion]' passed (22.026 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM02TheFirstSteps]' passed (99.924 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM03ATalk]' passed (34.624 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM04TheLanternMoment]' passed (139.195 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (19.699 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (42.378 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (104.676 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (42.345 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (237.963 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (46.296 seconds).
+exit=0
+screenshots: 1814

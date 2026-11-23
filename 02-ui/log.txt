@@ -1,0 +1,20 @@
+Test Case '-[LanternholdUITests.FilmPanesUITests testP01MareksCardIsOneOfThePanes]' passed (47.479 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP02APaneClosesByOpacityUnderReduceMotion]' passed (23.980 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP03ThePauseSheetsSwitchAndItsSwap]' passed (42.379 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP04ThePauseSheetComesGoesAndGlints]' passed (75.334 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP05ThePauseSheetUnderReduceMotion]' passed (66.389 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP06TheHallsChoiceUnderAQuickTap]' passed (37.503 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP07ATapBesideMareksCardNeverReachesTheWorld]' passed (22.673 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testATapUnderTheLanternDoesTheDeed]' passed (22.616 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheCleanFrame]' passed (26.979 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheGlideHomeFilmstrip]' passed (32.930 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheGlintAndTheFlare]' passed (36.983 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheLookAround]' passed (21.337 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheTownsBanner]' passed (155.726 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheTwoEnds]' passed (42.413 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testLeavingAtTheTitleRaisesNothing]' passed (25.999 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testTheFirstLight]' passed (21.562 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testTheRevealAndStepInWithoutTheFilm]' passed (23.820 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testTheTitlesStates]' passed (71.541 seconds).
+exit=0
+screenshots: 303

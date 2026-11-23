@@ -1,0 +1,1 @@
+the gear's probe (ms from the lantern moment's going): down:0 set:2 appear:35 free:52

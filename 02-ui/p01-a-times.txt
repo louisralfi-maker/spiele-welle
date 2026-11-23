@@ -1,0 +1,22 @@
+p01-a: Marek's card coming (0.25 s ease-out, a 2 game px rise, no scale); the condition: the card stands
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +2.763 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWDay 6 -GWHour 7 -GWMerchant YES -GWCameraX 1500
+
+frame  seconds since the burst began  (scene where read)
+01  +0.368 s  
+02  +0.611 s  day:6 hour:7.00 alive:0 seen:0 shots:0 kx:1500 stage:world lx:1500 gold:10 hud:none cam:1238 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+03  +3.112 s  
+04  +3.526 s  
+05  +3.870 s  
+06  +4.279 s  
+07  +4.636 s  
+08  +4.971 s  
+09  +5.333 s  
+10  +5.693 s  
+11  +6.068 s  
+12  +6.328 s  
+13  +6.621 s  
+14  +6.934 s  day:6 hour:7.00 alive:0 seen:0 shots:0 kx:1500 stage:world lx:1500 gold:10 hud:none cam:1238 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.505 s over 13 gaps

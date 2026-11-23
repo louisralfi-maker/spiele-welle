@@ -1,0 +1,1 @@
+frame:1180 ready day:3 hour:11.93 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2196 lord:lord stage:world lx:2196 errand:none door:1830 gold:91 hud:none cam:2041 tap:touch-talk-tamsin hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:2196.00 kf:6 kd:1 kcx:2041.11

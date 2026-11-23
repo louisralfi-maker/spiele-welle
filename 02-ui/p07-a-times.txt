@@ -1,0 +1,1 @@
+taps beside Marek's card at [(0.15, 0.6), (0.12, 0.92), (0.88, 0.92), (0.9, 0.25)]; scene fields ["lx:", "errand:", "tap:", "count:", "stage:"] before ["1500", "none", "none", "none", "world"], after ["1500", "none", "none", "none", "world"]; the dim's taps (merchant-glint) before 0, after 4
