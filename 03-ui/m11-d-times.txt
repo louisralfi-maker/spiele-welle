@@ -1,0 +1,25 @@
+m11-d: after burst c: the recruit, one frame every 0.5 s
+real time; one frame every 0.50 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWDay 5 -GWClock 11.5 -GWCameraX 1600 -GWGold 200 -GWYard 2
+scene before: frame:1080 ready day:5 hour:13.21 alive:0 seen:0 lit:0 shots:0 aim:1 kx:1453 lord:lord stage:world lx:1453 errand:none door:1830 gold:190 hud:none cam:1177 tap:touch-recruit-archer hint:off0 count:none last:paid:touch-recruit-archer lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:2,t:0/9,d:0,drill drill:a1.990,g1.400
+scene after: frame:1510 ready day:5 hour:13.84 alive:0 seen:0 lit:0 shots:0 aim:1 kx:1453 lord:lord stage:world lx:1453 errand:none door:1830 gold:190 hud:none cam:1177 tap:touch-recruit-archer hint:off0 count:none last:paid:touch-recruit-archer lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:2,t:0/9,d:0,drill drill:a1.990,g1.017
+
+frame  seconds since the burst began  (scene where read)
+01  +0.545 s  
+02  +0.724 s  
+03  +1.153 s  
+04  +1.650 s  
+05  +2.166 s  
+06  +2.658 s  
+07  +3.205 s  
+08  +3.626 s  
+09  +4.155 s  
+10  +4.628 s  
+11  +5.250 s  
+12  +5.656 s  
+13  +6.185 s  
+14  +6.851 s  
+15  +7.160 s  
+16  +7.664 s  
+mean spacing 0.475 s over 15 gaps

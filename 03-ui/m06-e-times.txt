@@ -1,0 +1,25 @@
+m06-e: next: the reaction goes, the next petitioner comes
+real time; as fast as the frames come
+the tap was sent without waiting at +0.289 s (point 50.0, 700.7; interface orientation 3 (the app's)); the runner answered at +0.603 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+scene after: frame:2530 ready day:3 hour:12.39 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:91 hud:none cam:225 tap:touch-throne hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.567 s  
+02  +0.808 s  
+03  +1.005 s  
+04  +1.226 s  
+05  +1.414 s  
+06  +1.658 s  
+07  +1.905 s  
+08  +2.117 s  
+09  +2.360 s  
+10  +2.612 s  
+11  +2.856 s  
+12  +3.086 s  
+13  +3.351 s  
+14  +3.609 s  
+15  +3.835 s  
+16  +4.054 s  
+mean spacing 0.232 s over 15 gaps

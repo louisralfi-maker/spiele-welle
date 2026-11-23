@@ -1,0 +1,60 @@
+m07-b: slowed: a touch on the chandler's door: he walks up, her household tosses its coins into his palm, the purse; the condition: the town's state lists her as paid
+slowed: -GWTimeScale 0.25; as fast as the frames come (a rolling burst)
+the cause (slowed: a touch on the chandler's door: he walks up, her household tosses its coins into his palm, the purse; the condition: the town's state lists her as paid) was sent at +0.000 s and returned at +0.609 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +4.934 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWTown owed -GWClock 14 -GWHappiness 66 -GWCameraX 2400 -GWTimeScale 0.25
+
+frame  seconds since the burst began  (scene where read)
+01  +0.827 s  
+02  +0.994 s  day:2 hour:14.15 alive:0 seen:0 shots:0 kx:2411 stage:world lx:2411 gold:21 hud:none cam:2135 tap:door count:none last:none lanterns:0 yard:none drill:none
+03  +1.693 s  
+04  +2.012 s  day:2 hour:14.17 alive:0 seen:0 shots:0 kx:2433 stage:world lx:2433 gold:21 hud:none cam:2155 tap:door count:none last:none lanterns:0 yard:none drill:none
+05  +2.868 s  
+06  +3.053 s  day:2 hour:14.19 alive:0 seen:0 shots:0 kx:2449 stage:world lx:2449 gold:21 hud:none cam:2180 tap:door count:none last:none lanterns:0 yard:none drill:none
+07  +3.564 s  
+08  +3.741 s  day:2 hour:14.20 alive:0 seen:0 shots:0 kx:2464 stage:world lx:2464 gold:21 hud:none cam:2209 tap:door count:none last:none lanterns:0 yard:none drill:none
+09  +4.121 s  
+10  +4.296 s  day:2 hour:14.21 alive:0 seen:0 shots:0 kx:2473 stage:world lx:2473 gold:21 hud:none cam:2230 tap:door count:none last:none lanterns:0 yard:none drill:none
+11  +4.587 s  
+12  +4.775 s  day:2 hour:14.22 alive:0 seen:0 shots:0 kx:2487 stage:world lx:2487 gold:37 hud:none cam:2261 tap:door count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+13  +5.124 s  
+14  +5.294 s  
+15  +5.480 s  
+16  +5.637 s  
+17  +5.816 s  
+18  +5.987 s  
+19  +6.263 s  
+20  +6.429 s  
+21  +6.624 s  
+22  +6.800 s  
+23  +7.033 s  
+24  +7.272 s  
+25  +7.453 s  
+26  +7.685 s  
+27  +7.915 s  
+28  +8.133 s  
+29  +8.369 s  
+30  +8.620 s  
+31  +8.925 s  
+32  +9.132 s  
+33  +9.396 s  
+34  +9.649 s  
+35  +9.936 s  
+36  +10.134 s  
+37  +10.379 s  
+38  +10.552 s  
+39  +10.746 s  
+40  +10.920 s  
+41  +11.114 s  
+42  +11.315 s  
+43  +11.478 s  
+44  +11.668 s  
+45  +11.816 s  
+46  +11.998 s  
+47  +12.236 s  
+48  +12.489 s  
+49  +12.660 s  
+50  +12.847 s  
+51  +13.028 s  
+52  +13.200 s  day:2 hour:14.40 alive:0 seen:0 shots:0 kx:2493 stage:world lx:2493 gold:37 hud:none cam:2278 tap:door count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.243 s over 51 gaps
