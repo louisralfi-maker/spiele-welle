@@ -213,6 +213,8 @@ struct TitleView: View {
     @State private var stepBeat: BeatBox? = nil
     /// Polish C2: a touch before the picture stands is kept and acts when the reveal ends.
     @State private var pendingTouch = false
+    /// Polish C2b (P6): the reveal's second of a touch during the swell, which finishes the swell from there in 0.25 s.
+    @State private var revealTouchAt: Double? = nil
     @State private var shown = Date()
     /// `ready` as state: the sequence's task holds the view value it started with, so it reads this live copy
     /// (lh-rj-9: reading `ready` there kept the lantern lit forever, the model was made after the task began).
@@ -256,7 +258,7 @@ struct TitleView: View {
                     } else if revealing {
                         let elapsed = revealBeat.map { $0.elapsed(now) } ?? 0
                         let radius = holdHalf ? (TitleTempo.revealFrom + end) / 2
-                            : TitleTempo.revealRadius(at: elapsed, to: end, mode: mode)
+                            : TitleTempo.revealRadius(at: elapsed, to: end, touchedAt: revealTouchAt, mode: mode)
                         // Polish C2b (P3): the lettering lies inside the light as well (it catches the light last), so
                         // nothing appears outside the glow at the swell's first frame.
                         ZStack(alignment: .topLeading) {
@@ -471,7 +473,8 @@ struct TitleView: View {
     }
 
     /// The reveal (polish C2, M9): one calm swell of 1.6 s with a stepped edge (`TitleTempo`, `TitleMask`); a touch
-    /// kept from before acts as it ends; then the lettering lights. Reduce Motion: the picture stands at once.
+    /// kept from before acts as it ends; a touch during it finishes it in 0.25 s and then acts (polish C2b, P6); then
+    /// the lettering lights. Reduce Motion: the picture stands at once.
     private func reveal() async {
         guard !revealing else { return }
         if mode.reduceMotion {
@@ -484,9 +487,11 @@ struct TitleView: View {
         let beat = BeatBox()
         revealBeat = beat
         revealing = true
-        // The beat's clock: a hitch (the hall's view is built under the title as the game turns ready) delays the
-        // swell, it never cuts it short.
-        await beat.wait(until: TitleTempo.revealSeconds)
+        // The beat's clock: a hitch of the main thread delays the swell, it never cuts it short. The end moves up when
+        // a touch comes during the swell (read every 8 ms, as `BeatBox.wait` does).
+        while beat.elapsed() < TitleTempo.revealEnds(touchedAt: revealTouchAt) {
+            try? await Task.sleep(nanoseconds: 8_000_000)
+        }
         revealDone = true
         #if DEBUG
         revealProbe = String(format: "reveal lost:%.3f longest:%.3f", beat.lost, beat.longestGap)
@@ -500,10 +505,19 @@ struct TitleView: View {
 
     /// A touch: once the picture stands the lord raises his lantern and the game begins; before (the loading, the
     /// reveal) it is kept and acts when the reveal ends (polish C2; before, a touch during the reveal cut the picture
-    /// to its end and a second touch started, and one before the game was ready was lost).
+    /// to its end and a second touch started, and one before the game was ready was lost). Polish C2b (P6): a touch
+    /// while the swell runs is answered at once: the light opens under the finger, the swell finishing from where it
+    /// stands in 0.25 s; a second touch changes nothing. A touch before the swell starts waits for its whole 1.6 s.
     private func touched() {
         guard !started else { return }
-        if revealDone { begin() } else { pendingTouch = true }
+        if revealDone {
+            begin()
+            return
+        }
+        if revealing, !holdHalf, revealTouchAt == nil, let revealBeat {
+            revealTouchAt = revealBeat.elapsed()
+        }
+        pendingTouch = true
     }
 
     /// The step into the game begins (t = 0 of `StepIn`): the lantern raise is heard, the hint goes, the root takes it.

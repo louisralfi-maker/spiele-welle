@@ -366,6 +366,7 @@ final class MotionTests: XCTestCase {
         XCTAssertNotEqual(TitleTempo.revealCurve, MotionCurve.leave)
         XCTAssertEqual(TitleTempo.revealFrom, 93)
         XCTAssertEqual(TitleTempo.glowOutSeconds, MotionToken.quick.inSeconds)
+        XCTAssertEqual(TitleTempo.finishSeconds, MotionToken.normal.inSeconds)
         XCTAssertEqual(StepIn.raiseFrames, 3)
         XCTAssertEqual(StepIn.raiseFrameSeconds, 0.1)
         XCTAssertEqual(StepIn.closeFrom, 0.15)

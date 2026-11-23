@@ -290,13 +290,31 @@ enum TitleTempo {
     /// At the reveal's start the glow (its step 6 and the flame over it) stays drawn over the picture and goes out by
     /// opacity alone at law 1's quick tempo (0.15 s, the leave curve), while the stepped edge takes over (C2b, P3).
     static let glowOutSeconds = MotionToken.quick.inSeconds
+    /// A touch while the swell runs finishes it from where it stands over law 1's normal tempo (0.25 s), on the enter
+    /// curve (ease-out), and the step into the game begins after it (C2b, P6).
+    static let finishSeconds = MotionToken.normal.inSeconds
+
+    /// When the reveal ends, measured from its start: at 1.6 s, or 0.25 s after a touch during the swell. A touch in
+    /// the swell's last 0.25 s never lengthens it.
+    static func revealEnds(touchedAt touch: Double?) -> Double {
+        guard let touch else { return revealSeconds }
+        return min(revealSeconds, max(0, touch) + finishSeconds)
+    }
 
     /// The mask's radius `seconds` after the reveal began, from `revealFrom` to `end` (the window's covering radius):
-    /// whole game px, never shrinking. Reduce Motion: the picture stands at once.
-    static func revealRadius(at seconds: Double, to end: Int, mode: MotionMode) -> Int {
+    /// whole game px, never shrinking. After a touch at `touchedAt` (seconds into the swell) the rest of the way runs
+    /// from where it stood in `finishSeconds`, ease-out, unless the swell would end sooner on its own. Reduce Motion:
+    /// the picture stands at once.
+    static func revealRadius(at seconds: Double, to end: Int, touchedAt touch: Double? = nil,
+                             mode: MotionMode) -> Int {
         guard !mode.reduceMotion else { return max(end, revealFrom) }
         let span = Double(max(end, revealFrom) - revealFrom)
-        let share = revealCurve.value(seconds / revealSeconds)
+        var share = revealCurve.value(seconds / revealSeconds)
+        if let touch, revealEnds(touchedAt: touch) < revealSeconds, seconds > max(0, touch) {
+            let start = max(0, touch)
+            let from = revealCurve.value(start / revealSeconds)
+            share = max(share, from + (1 - from) * MotionCurve.enter.value((seconds - start) / finishSeconds))
+        }
         return revealFrom + Int((span * share).rounded())
     }
 

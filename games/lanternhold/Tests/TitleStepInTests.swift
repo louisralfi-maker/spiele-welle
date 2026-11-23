@@ -125,6 +125,44 @@ final class TitleStepInTests: XCTestCase {
         XCTAssertEqual(TitleTempo.glowOpacity(at: 0, mode: reduced), 0, "Reduce Motion: no glow over the picture")
     }
 
+    /// Polish C2b (P6): a touch while the swell runs finishes it from where it stands in 0.25 s (law 1's normal tempo,
+    /// ease-out): the radius never goes back, reaches the end 0.25 s after the touch and stays there; a touch in the
+    /// swell's last 0.25 s does not lengthen it (nor change it). Reduce Motion: no swell to finish.
+    func testATouchFinishesTheSwellFromWhereItStands() {
+        let end = 281
+        XCTAssertEqual(TitleTempo.finishSeconds, 0.25)
+        XCTAssertEqual(TitleTempo.revealEnds(touchedAt: nil), 1.6)
+        for touch in [0.0, 0.1, 0.4, 0.8, 1.2, 1.349] {
+            XCTAssertEqual(TitleTempo.revealEnds(touchedAt: touch), touch + 0.25, accuracy: 1e-9, "touch \(touch)")
+            var last = 0
+            for step in 0...1700 {
+                let t = Double(step) / 1000
+                let radius = TitleTempo.revealRadius(at: t, to: end, touchedAt: touch, mode: full)
+                XCTAssertGreaterThanOrEqual(radius, last, "touch \(touch): never back at \(step) ms")
+                XCTAssertGreaterThanOrEqual(radius, TitleTempo.revealRadius(at: t, to: end, mode: full),
+                                            "touch \(touch): never behind the swell at \(step) ms")
+                if t <= touch {
+                    XCTAssertEqual(radius, TitleTempo.revealRadius(at: t, to: end, mode: full), "before the touch")
+                }
+                if t >= touch + 0.25 { XCTAssertEqual(radius, end, "touch \(touch): the end at \(step) ms") }
+                last = radius
+            }
+            if touch <= 0.8 {
+                XCTAssertLessThan(TitleTempo.revealRadius(at: touch + 0.2, to: end, touchedAt: touch, mode: full), end,
+                                  "touch \(touch): it runs its 0.25 s, no cut")
+            }
+        }
+        for touch in [1.35, 1.45, 1.59, 1.6, 2.0] {
+            XCTAssertEqual(TitleTempo.revealEnds(touchedAt: touch), 1.6, "touch \(touch) lengthens nothing")
+            for step in 0...1700 {
+                let t = Double(step) / 1000
+                XCTAssertEqual(TitleTempo.revealRadius(at: t, to: end, touchedAt: touch, mode: full),
+                               TitleTempo.revealRadius(at: t, to: end, mode: full), "touch \(touch) at \(step) ms")
+            }
+        }
+        XCTAssertEqual(TitleTempo.revealRadius(at: 0, to: end, touchedAt: 0, mode: reduced), end)
+    }
+
     /// The mask is whole game px rows; at 315 it opens every pixel of the whole 520 x 201 picture (the old 300 left
     /// the corners closed). Polish C2b (P4): the swell ends at the window's covering radius, 281 for picture x 41 ..< 478
     /// (the widest phone's 437 px of 201), so taking the mask away changes no pixel on the screen.
