@@ -1,0 +1,18 @@
+m02-y: a drag on the walk pad held 2.6 s, slowed: walk frame 0 and the pace growing, then let go: the brake over at most 4 px, the landing, the held pose
+slowed: -GWTimeScale 0.25; frames back to back, the scene read after each
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500 -GWTimeScale 0.25
+the cause at +0.000 s: a drag from 24.1, 262.2 by 30 pt, lifted at 2.62 s (synthesized)
+frame  seconds since the burst began  scene
+00  -0.010 s  before: hour:9.96 kv:0.00 kxf:1498.00 kf:6 kd:1 kcx:1251.65
+01  +0.240 s  hour:9.96 kv:0.00 kxf:1498.00 kf:6 kd:1 kcx:1251.65
+02  +0.463 s  hour:9.97 kv:0.00 kxf:1498.00 kf:6 kd:1 kcx:1251.65
+03  +0.704 s  hour:9.97 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+04  +0.964 s  hour:9.98 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+05  +1.235 s  hour:9.99 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+06  +1.554 s  hour:9.99 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+07  +1.846 s  hour:10.00 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+08  +2.102 s  hour:10.01 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+09  +2.394 s  hour:10.01 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+10  +2.652 s  hour:10.02 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+11  +2.894 s  hour:10.02 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+12  +3.124 s  hour:10.02 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
