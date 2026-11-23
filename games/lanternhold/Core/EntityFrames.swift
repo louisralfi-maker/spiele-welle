@@ -1862,45 +1862,52 @@ enum EntityFrames {
                     add(.shard, k % 2, x, y, side < 0, SIMD4<Float>(0.8, 0.76, 0.72, 1), false, true)
                 }
             case .standDust:
-                // Step A2: dust spread over the work's whole width at its foot from the event; it grows (eased out) to
-                // its fullest at the swap, 0.12 s, and covers the foot as the new sprite stands, then drifts outward and
-                // up and thins to nothing by 1.1 s. The broken wall's shards are soot-black: on round lh-ra-10's film
-                // they did not read at all on the day's ground, so the dust is made of existing pictures tinted to pale
-                // stone dust (no new art): round puffs (the chimney's `smokePuff`) and two motes over them (the grey
-                // `sootFlake`, `BattleEffects.standDustTint`), a shade each. The gate of A2 (A2-P1, M1, M2; round
-                // lh-ra-13's film: 3 to 5 puffs of 2 px at the swap left most of the foot open): one puff per 4.5 px,
-                // their size from the rise only, so all reach the largest frame (5 px) in the swap's frame and overlap
-                // into one band, every other one 3 px higher; held low (1 or 4 px) until the swap; after it only their
-                // drift and alpha change, so the cover (area x alpha) peaks at the swap. The keep's dust stands on the
+                // Step A2: the dust at a finished work's foot, fullest at the swap (0.12 s), gone by 1.1 s, on the
+                // standings' clock. Step A2b (the director's brief: A2's even row of equal, nearly white puffs read as
+                // a string of pearls): uneven clumps of the chimney's puffs (`smokePuff`, no new art) in two ground
+                // tones, laid out by the plot's seed (`BattleEffects.standDust`). Each piece starts on the foot line
+                // part of its way out from the work's middle, bursts outward and up on law 1's ease-out and grows from
+                // the 2 px frame to its own size, so every piece has its place, size and peak alpha in the swap's frame;
+                // after it a piece drifts at most 3 px, mostly up, and thins on the ease-in to its own end (0.7 to
+                // 1.1 s) at its own size (the gate of A2b, P2 and P4: a frame less in its last 40 % turned the lumps
+                // back into discs and hopped a pixel), so the cloud breaks up raggedly. The keep's dust stands on the
                 // mistBand plane: placed with the camera as that plane moves.
                 let seconds = max(0, effects.standClock - effect.start)
                 let peak = BattleEffects.standSwap
-                let rise = Motion.enter(min(1, seconds / peak))
+                // (whole at the swap, so every piece has its full size in the swap's frame and not one frame before)
+                let rise = seconds >= peak - 1e-9 ? 1 : Motion.enter(seconds / peak)
                 let after = max(0, seconds - peak)
-                let thin = Float(1 - min(1, after / max(0.01, effect.lifetime - peak)))
                 let centre = effect.plane == .world ? effect.x : effect.x + cameraX * (1 - effect.plane.parallax)
-                let count = BattleEffects.standDustCount(width: effect.width)
-                let puffs = BattleEffects.standPuffCount(width: effect.width)
-                let size = min(CastleSmoke.sizes - 1, Int((rise * Double(CastleSmoke.sizes - 1)).rounded()))
-                for k in 0..<puffs {
+                let most = effect.plane == .world ? BattleEffects.standClumpsMost : BattleEffects.standKeepClumps
+                let key = BattleEffects.standKey(x: effect.x, width: effect.width)
+                let light = BattleEffects.standDustLight
+                for piece in BattleEffects.standDust(width: effect.width, key: key, clumpsMost: most) {
+                    let gone = min(1, after / max(0.01, piece.life - peak))
+                    guard gone < 1 else { continue }
                     guard spend() else { return }
-                    let side = (Double(k) + 0.5 + (unit(k, 11) - 0.5) * 0.2) / Double(puffs) - 0.5
-                    let x = centre + side * effect.width + (side < 0 ? -1 : 1) * after * (4 + 5 * unit(k, 12))
-                    let y = effect.y + rise * Double(1 + 3 * (k % 2)) + after * (3 + 4 * unit(k, 14))
-                    let shade = Float(0.92 + 0.12 * unit(k, 15))
-                    let tint = BattleEffects.standPuffTint * shade
-                    add(.smokePuff, size, x.rounded(), y.rounded(), false, SIMD4<Float>(tint.x, tint.y, tint.z, thin),
-                        false, true)
-                }
-                for k in 0..<(count - puffs) {
-                    guard spend() else { return }
-                    let side = (Double(k) + unit(k, 5)) / Double(count - puffs) - 0.5
-                    let x = centre + side * effect.width + (side < 0 ? -1 : 1) * after * (6 + 8 * unit(k, 7))
-                    let y = effect.y + rise * (2 + 7 * unit(k, 6)) + after * (2 + 5 * unit(k, 8))
-                    let shade = Float(0.85 + 0.3 * unit(k, 10))
-                    let tint = BattleEffects.standDustTint * shade
-                    add(.sootFlake, Int(unit(k, 9) * Double(HordeLook.flakeShapes)) % HordeLook.flakeShapes,
-                        x.rounded(), y.rounded(), side < 0, SIMD4<Float>(tint.x, tint.y, tint.z, thin), false, true)
+                    let drift = Motion.enter(gone)
+                    let alpha = piece.alpha * Float(1 - Motion.leave(gone))
+                    let way = piece.start + (1 - piece.start) * rise
+                    let lift = (piece.bottom * rise + piece.driftY * drift).rounded()
+                    if piece.size == 0 {
+                        let out: Double = piece.left < 0 ? -1 : 1
+                        let x = (piece.left * way + out * piece.driftX * drift).rounded()
+                        let tint = BattleEffects.standDustTint
+                        add(.sootFlake, piece.shape, (centre + x).rounded(), effect.y + lift, out < 0,
+                            SIMD4<Float>(tint.x, tint.y, tint.z, alpha), false, true)
+                        continue
+                    }
+                    let middle = piece.left + Double(piece.size) / 2
+                    let out: Double = middle < 0 ? -1 : 1
+                    let final = piece.size - 2
+                    let frame = min(final, Int(rise * Double(final)))
+                    let side = Double(CastleSmoke.side(frame: frame))
+                    let body = (middle * way + out * piece.driftX * drift - side / 2).rounded()
+                    // the cell (8 px) holds the body centred, an odd size half a pixel left; its anchor is its middle
+                    let cellCentre = body - Double((8 - Int(side)) / 2) + Double(SpriteID.smokePuff.size.width) / 2
+                    let tone = piece.light ? light : light * BattleEffects.standDustDark
+                    add(.smokePuff, frame, (centre + cellCentre).rounded(), effect.y + lift, false,
+                        SIMD4<Float>(tone.x, tone.y, tone.z, alpha), false, true)
                 }
             case .fall:
                 // b3-horde: the fall strip and its orphan thread are drawn with the creatures; here the puff. Step 3

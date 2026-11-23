@@ -4,7 +4,8 @@ import XCTest
 /// The first light (item 12 of the join, `TitleView`): on a real launch (here `-GWTitle YES`) the house's lantern
 /// catches on the night's darkest colour, its light uncovers the title, a touch makes the lord raise his lantern, and
 /// a new realm then asks for its lord (the name entry), as the first launch's order says: title, name, prologue, day 1.
-/// Saves `00a-title-loading`, `00b-title-half`, `00c-title-lit`, `00d-title-hint`, `00e-title-name-entry` (`-<lang>`).
+/// Saves `00a-title-loading`, `00b-title-half`, `00g-title-glow`, `00c-title-lit`, `00d-title-hint`,
+/// `00e-title-name-entry` (`-<lang>`).
 @MainActor
 final class TitleUITests: XCTestCase {
     override func setUp() async throws {
@@ -21,8 +22,10 @@ final class TitleUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         // render-1: "half", "lit" and "hint" wait for the game's ready, which now includes the warm-up (about 3 s in
         // Debug on the runner); each hold stays in its state, so the longer waits only make sure it has been reached.
+        // Polish C2b: "glow" holds the swell's first moments, the glow half gone over the picture at the glow's reach.
         for (hold, name, wait) in [("loading", "00a-title-loading", 2.0), ("half", "00b-title-half", 8.0),
-                                   ("lit", "00c-title-lit", 10.0), ("hint", "00d-title-hint", 10.5)] {
+                                   ("glow", "00g-title-glow", 8.0), ("lit", "00c-title-lit", 10.0),
+                                   ("hint", "00d-title-hint", 10.5)] {
             let app = XCUIApplication()
             app.launchArguments = ["-GWTitle", "YES", "-GWTitleHold", hold, "-GWReset", "YES", "-GWSeed", "1"]
             app.launch()
@@ -106,6 +109,35 @@ final class TitleUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "pause-sheet").firstMatch.exists,
                        "no pause sheet set under the title")
         attach(XCUIScreen.main.screenshot(), "00f-title-after-home-\(language)")
+        app.terminate()
+    }
+
+    /// Polish C2b (P5, and part 5's marks): the reveal and the step in without the film. One launch with no screenshot
+    /// and no query of the app between the lantern's catching and the reveal's end, then the reveal's probe (the hitches
+    /// its beat did not count, its longest gap); then one touch, and with no screenshot until the name card stands, the
+    /// step's probe (the black, the hall whole, the card's first frame). Notes `m01-q-reveal` and `m01-q-probe`; no
+    /// frame is kept.
+    func testTheRevealAndStepInWithoutTheFilm() {
+        let film = FilmReel(self, "m01")
+        let app = film.launch(["-GWTitle", "YES", "-GWReset", "YES", "-GWSeed", "1"])
+        let title = film.element(app, "title-root")
+        XCTAssertTrue(title.waitForExistence(timeout: 30), "the title stands first")
+        // The catch (1.2 s), the warm-up (about 3 s in Debug on the runner), the hall's warm frames (0.5 s), the swell
+        // (1.6 s, at most 2.0 s after the warm-up plus 0.35 s for the breath's high step) and the lettering: nothing is
+        // asked of the app for 11 s.
+        film.pause(11)
+        let reveal = (title.value as? String) ?? "none"
+        film.note("m01-q-reveal", "the reveal's beat without the film (hitches it did not count, its longest gap): "
+                  + reveal)
+        XCTAssertTrue(reveal.hasPrefix("reveal lost:"), "the reveal ran within 11 s: \(reveal)")
+        title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
+        // The step in (1.55 s to the card) and the card's first frame, unasked.
+        film.pause(4)
+        let entry = film.element(app, "lord-entry-root")
+        XCTAssertTrue(entry.waitForExistence(timeout: 20), "the name card after the title")
+        film.note("m01-q-probe", "the step's beat without the film (hitches it did not count, its longest gap, wall "
+                  + "seconds of each phase and of the card's first frame): "
+                  + ((film.element(app, "stepin-probe").value as? String) ?? "none"))
         app.terminate()
     }
 

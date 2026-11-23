@@ -149,9 +149,10 @@ final class StandingTests: XCTestCase {
 
     // MARK: - The dust
 
-    /// The dust starts at the event at the work's foot over its whole width (the chimney's puffs and two grey flakes
-    /// tinted to pale stone dust: the broken wall's soot shards did not read on the day's ground), is fullest at the
-    /// swap (every particle in, at full alpha, risen 1 to 9 px over the foot), then thins and is gone by 1.1 s. Its own kind (`standDust`); the broken wall's dust stays as it was.
+    /// The dust starts at the event at the work's foot (the chimney's puffs tinted to ground dust: the broken wall's
+    /// soot shards did not read on the day's ground), is fullest at the swap (every piece in, at its own peak alpha of
+    /// 0.6 to 0.9, standing 0 to 8 px over the foot; step A2b, was every piece at alpha 1 and 1 to 9 px up), then thins
+    /// and is gone by 1.1 s. Its own kind (`standDust`); the broken wall's dust stays as it was.
     func testTheDustRisesOverTheWorksWidthAndPeaksAtTheSwap() throws {
         let plot = Realm.lines[1].wall
         let (before, after, events) = finishing(plot, from: .palisade, to: .stoneWall)
@@ -185,8 +186,9 @@ final class StandingTests: XCTestCase {
         run(&effects, to: BattleEffects.standSwap, state: after)
         let peak = shards(after, effects: effects, focus: focus)
         XCTAssertEqual(peak.count, count)
-        XCTAssertTrue(peak.allSatisfy { $0.tint.w == 1 }, "fullest at the swap")
-        XCTAssertTrue(lifts(peak).allSatisfy { $0 >= 1 * scale && $0 <= 9 * scale }, "risen over the foot: \(lifts(peak))")
+        XCTAssertTrue(peak.allSatisfy { $0.tint.w >= 0.6 - 1e-6 && $0.tint.w <= 0.9 + 1e-6 },
+                      "each piece at its own peak at the swap: \(peak.map(\.tint.w))")
+        XCTAssertTrue(lifts(peak).allSatisfy { $0 >= 0 && $0 <= 8 * scale }, "at the foot and over it: \(lifts(peak))")
         XCTAssertEqual(peak.filter { $0.sprite == .smokePuff }.count, BattleEffects.standPuffCount(width: dust.width),
                        "round puffs")
         let left = camera.deviceX(worldX: dust.x - dust.width / 2 - 2, scale: scale, mode: .smooth)
@@ -208,48 +210,186 @@ final class StandingTests: XCTestCase {
         XCTAssertEqual(broken.items.map(\.kind), [.wallDust])
     }
 
-    /// The gate of A2 (A2-P1, M1, M2): in the swap's frame the puffs are all at their largest frame and together cover
-    /// at least nine tenths of the work's width at its foot; their cover (area x alpha) is greater there than halfway
-    /// up the rise (0.06 s) and than after it (0.3 s).
-    func testTheDustCoversTheFootAtTheSwap() throws {
-        let plot = Realm.lines[1].wall
-        let (before, after, events) = finishing(plot, from: .palisade, to: .stoneWall)
+    /// A work's dust from its event to its end: the puffs of every frame (`step` seconds a frame), with the clock.
+    private func dustFrames(_ finish: (before: GameState, after: GameState, events: [SimEvent]), step seconds: Double,
+                            until end: Double = 1.15) -> (dust: VisualEffect?, frames: [(at: Double, puffs: [ActorInstance])]) {
         var effects = BattleEffects()
-        step(&effects, events, before: before.plots, state: after)
-        let dust = try XCTUnwrap(effects.items.first { $0.kind == .standDust })
-        let focus = 960.0
-        let camera = Camera(focusX: focus, pixelScale: pro)
+        step(&effects, finish.events, before: finish.before.plots, state: finish.after, seconds: 0, castleGrows: false)
+        guard let dust = effects.items.first(where: { $0.kind == .standDust && $0.plane == .world }) else { return (nil, []) }
+        var frames: [(at: Double, puffs: [ActorInstance])] = []
+        while true {
+            let at = effects.standClock - dust.start
+            frames.append((at, GameFrameSupport.frame(finish.after, focus: dust.x, effects: effects).layer.actors
+                .filter { $0.sprite == .smokePuff }))
+            guard at < end - 1e-9 else { break }
+            step(&effects, state: finish.after, seconds: min(seconds, end - at), castleGrows: false)
+        }
+        return (dust, frames)
+    }
+
+    /// The device columns of the work's foot a frame's puffs cover, and the work's columns.
+    private func coverage(_ puffs: [ActorInstance], dust: VisualEffect) -> (covered: Int, columns: Int) {
+        let camera = Camera(focusX: dust.x, pixelScale: pro)
         let scale = Float(pro.scale)
         let cell = Float(SpriteID.smokePuff.size.width)
-        func puffs() -> [ActorInstance] {
-            GameFrameSupport.frame(after, focus: focus, effects: effects).layer.actors.filter { $0.sprite == .smokePuff }
-        }
-        func cover(_ list: [ActorInstance]) -> Float {
-            list.reduce(0) { sum, puff in
-                let side = Float(CastleSmoke.side(frame: puff.frame))
-                return sum + side * side * puff.tint.w
-            }
-        }
-        run(&effects, to: 0.06, state: after)
-        let rising = cover(puffs())
-        run(&effects, to: BattleEffects.standSwap, state: after)
-        let peak = puffs()
-        XCTAssertEqual(peak.count, BattleEffects.standPuffCount(width: dust.width))
-        XCTAssertTrue(peak.allSatisfy { $0.frame == CastleSmoke.sizes - 1 }, "the largest frame at the swap")
         let left = camera.deviceX(worldX: dust.x - dust.width / 2, scale: pro.scale, mode: .smooth)
         let right = camera.deviceX(worldX: dust.x + dust.width / 2, scale: pro.scale, mode: .smooth)
         var covered = Set<Int>()
-        for puff in peak {
+        for puff in puffs {
             let side = Float(CastleSmoke.side(frame: puff.frame))
             let x0 = Int(puff.rect.x + ((cell - side) / 2).rounded(.down) * scale)
             for column in x0..<(x0 + Int(side * scale)) where column >= left && column < right { covered.insert(column) }
         }
-        XCTAssertGreaterThanOrEqual(Double(covered.count), 0.9 * Double(right - left), "the foot covered")
-        let full = cover(peak)
-        run(&effects, to: 0.3, state: after)
-        let later = cover(puffs())
-        XCTAssertGreaterThan(full, rising, "growing to the swap")
-        XCTAssertGreaterThan(full, later, "thinning after it")
+        return (covered.count, right - left)
+    }
+
+    /// The puffs' cover (area x alpha).
+    private func cover(_ puffs: [ActorInstance]) -> Float {
+        puffs.reduce(0) { sum, puff in
+            let side = Float(CastleSmoke.side(frame: puff.frame))
+            return sum + side * side * puff.tint.w
+        }
+    }
+
+    /// Step A2b (rewritten from the gate of A2's test, which pinned every puff at the largest frame and 90 % of the
+    /// foot; the brief changes the rule): in the swap's frame the puffs cover at least 70 % of the work's foot (the
+    /// line's stone wall, a new palisade, the gate, a house's next tier, the big house of 72 px), and their cover
+    /// (area x alpha) peaks in that frame: never more in any frame of the dust at 60 frames a second.
+    func testTheDustCoversTheFootAtTheSwap() throws {
+        let wall = Realm.lines[1].wall
+        let works = [
+            ("stone wall", finishing(wall, from: .palisade, to: .stoneWall)),
+            ("new palisade", finishing(wall, from: nil, to: .palisade)),
+            ("gate", finishing(Realm.lines[0].wall, from: .gate, to: .ironGate)),
+            ("big house", finishing(Realm.townPlots[2], from: .house, to: .bigHouse)),
+        ]
+        for (name, finish) in works {
+            let (found, frames) = dustFrames(finish, step: frame)
+            let dust = try XCTUnwrap(found, name)
+            let swap = try XCTUnwrap(frames.first { $0.at >= BattleEffects.standSwap - 1e-9 }, name)
+            let (covered, columns) = coverage(swap.puffs, dust: dust)
+            XCTAssertGreaterThanOrEqual(Double(covered), 0.7 * Double(columns),
+                                        "\(name) (\(dust.width) px): \(covered) of \(columns) columns")
+            let peak = cover(swap.puffs)
+            for other in frames where abs(other.at - swap.at) > 1e-9 {
+                XCTAssertLessThanOrEqual(cover(other.puffs), peak + 1e-4, "\(name): more cover at \(other.at) s")
+            }
+            let rising = try XCTUnwrap(frames.first { $0.at >= 0.06 - 1e-9 }, name)
+            let later = try XCTUnwrap(frames.first { $0.at >= 0.3 - 1e-9 }, name)
+            XCTAssertGreaterThan(peak, cover(rising.puffs), "\(name): growing to the swap")
+            XCTAssertGreaterThan(peak, cover(later.puffs), "\(name): thinning after it")
+        }
+    }
+
+    /// Step A2b: the dust is clumps, not a row. In the swap's frame of the stone wall's and the big house's dust the
+    /// puffs (in x order) are not evenly spaced, stand at more than two heights, and no two neighbours stand at one
+    /// height; they show both sizes (4 and 5 px); they hold exactly two tones, the darker 15 % below the lighter, none
+    /// brighter than the dust's light tone (under the lit stone and plaster); the top edge stands 4 to 10 px over the
+    /// foot. The layout keeps the brief's numbers for every width a work can have: at most 12 pieces, 3 to 5 clumps
+    /// (the keep up to 6), peak alpha 0.6 to 0.9, an end 0.7 to 1.1 s after the event, a drift of at most 3 px.
+    /// The gate of A2b: no gap between the clumps wider than 4 px on any width (P3: on wide works they grew to 6 to
+    /// 12 px); after the swap every puff keeps its size to its end (P2, P4: a frame less late in its life turned the
+    /// lumps back into discs and hopped a pixel) and drifts 0 to 1 px outward and 2 to 2.8 px up, the light pieces
+    /// rising more than the dark (P2: 1 to 2 px each way left the thinning dust in the foot band as a row).
+    func testTheDustGathersInClumpsNotARow() throws {
+        let scale = pro.scale
+        let ground = Camera.groundDeviceY(physicalHeight: pro.physicalHeight, scale: scale)
+        let works = [
+            ("stone wall", finishing(Realm.lines[1].wall, from: .palisade, to: .stoneWall)),
+            ("big house", finishing(Realm.townPlots[2], from: .house, to: .bigHouse)),
+        ]
+        for (name, finish) in works {
+            let (_, frames) = dustFrames(finish, step: frame, until: BattleEffects.standSwap + 0.01)
+            let puffs = try XCTUnwrap(frames.last, name).puffs.sorted { $0.rect.x < $1.rect.x }
+            XCTAssertGreaterThanOrEqual(puffs.count, 6, name)
+            let lefts = puffs.map { Int($0.rect.x) / scale }
+            let spacings = zip(lefts, lefts.dropFirst()).map { $1 - $0 }
+            XCTAssertGreaterThan(Set(spacings).count, 1, "\(name): not an even row: \(spacings)")
+            let bottoms = puffs.map { (ground - Int($0.rect.y + $0.rect.w)) / scale }
+            XCTAssertGreaterThan(Set(bottoms).count, 2, "\(name): more than two heights: \(bottoms)")
+            for k in bottoms.indices.dropFirst() {
+                XCTAssertNotEqual(bottoms[k], bottoms[k - 1], "\(name): neighbours \(k - 1), \(k) at one height")
+            }
+            let sides = puffs.map { CastleSmoke.side(frame: $0.frame) }
+            XCTAssertEqual(Set(sides), [4, 5], "\(name): both sizes")
+            let tops = zip(bottoms, sides).map { $0 + $1 }
+            XCTAssertTrue(tops.allSatisfy { $0 >= 4 && $0 <= 10 }, "\(name): the top edge \(tops)")
+            XCTAssertGreaterThan(Set(tops).count, 2, "\(name): a ragged top \(tops)")
+            let tones = Set(puffs.map { [$0.tint.x, $0.tint.y, $0.tint.z] })
+            XCTAssertEqual(tones.count, 2, "\(name): two tones")
+            let light = BattleEffects.standDustLight
+            for tone in tones {
+                XCTAssertTrue(tone[0] <= light.x + 1e-6 && tone[1] <= light.y + 1e-6 && tone[2] <= light.z + 1e-6,
+                              "\(name): no tone above the light one: \(tone)")
+            }
+            let values = tones.map { $0[0] }.sorted()
+            XCTAssertEqual(values[0] / values[1], BattleEffects.standDustDark, accuracy: 1e-4, "\(name): 15 % apart")
+            let (_, whole) = dustFrames(finish, step: frame)
+            for later in whole where later.at > BattleEffects.standSwap + 1e-9 {
+                let kept = Set(later.puffs.map { CastleSmoke.side(frame: $0.frame) })
+                XCTAssertTrue(kept.isSubset(of: [4, 5]), "\(name): each puff keeps its size at \(later.at) s: \(kept)")
+            }
+        }
+        for width in stride(from: 8.0, through: 130, by: 1) {
+            let pieces = BattleEffects.standDust(width: width, key: BattleEffects.standKey(x: 1000, width: width))
+            XCTAssertLessThanOrEqual(pieces.count, BattleEffects.standPieces, "\(width) px")
+            XCTAssertEqual(pieces.count, BattleEffects.standDustCount(width: width), "\(width) px")
+            let puffs = pieces.filter { $0.size > 0 }
+            XCTAssertTrue(puffs.allSatisfy { $0.size == 4 || $0.size == 5 }, "\(width) px")
+            XCTAssertTrue(pieces.allSatisfy { $0.alpha >= 0.6 && $0.alpha <= 0.9 }, "\(width) px")
+            XCTAssertTrue(pieces.allSatisfy { $0.life >= 0.7 - 1e-9 && $0.life <= BattleEffects.standDustSeconds + 1e-9 })
+            XCTAssertTrue(pieces.allSatisfy { ($0.driftX * $0.driftX + $0.driftY * $0.driftY).squareRoot() <= 3 })
+            XCTAssertTrue(pieces.allSatisfy { $0.driftX >= 0 && $0.driftX <= 1 && $0.driftY >= 2 && $0.driftY <= 2.8 },
+                          "\(width) px: mostly up")
+            let lightRise = puffs.filter(\.light).map(\.driftY)
+            let darkRise = puffs.filter { !$0.light }.map(\.driftY)
+            if let least = lightRise.min(), let most = darkRise.max() {
+                XCTAssertGreaterThanOrEqual(least, most, "\(width) px: the light pieces rise more than the dark")
+            }
+            var reach = -Double.infinity
+            for puff in puffs.sorted(by: { $0.left < $1.left }) {
+                if reach > -Double.infinity && puff.left > reach {
+                    XCTAssertLessThanOrEqual(puff.left - reach, BattleEffects.standGapMost, "\(width) px: a gap")
+                }
+                reach = max(reach, puff.left + Double(puff.size))
+            }
+            XCTAssertTrue(pieces.allSatisfy { $0.bottom >= 0 && $0.bottom + Double(max($0.size, 3)) <= 10 })
+            XCTAssertTrue(pieces.allSatisfy { $0.left == $0.left.rounded() && $0.bottom == $0.bottom.rounded() },
+                          "whole game px")
+            XCTAssertGreaterThan(Set(pieces.map(\.life)).count, 1, "each its own end")
+        }
+    }
+
+    /// Step A2b: the same pieces everywhere. Two builds of the same standing give the same puffs in every frame; a
+    /// standing after other effects (the effects' counter moved on) gives the same dust as a fresh one, since it is
+    /// placed by the plot; at 30 frames a second the dust at a shared moment is the one at 60.
+    func testTheDustIsTheSameOnEveryBuild() throws {
+        let finish = finishing(Realm.lines[1].wall, from: .palisade, to: .stoneWall)
+        func key(_ list: [ActorInstance]) -> [String] {
+            list.map { "\($0.frame) \($0.rect) \($0.tint)" }
+        }
+        let first = dustFrames(finish, step: frame)
+        let second = dustFrames(finish, step: frame)
+        XCTAssertEqual(first.frames.count, second.frames.count)
+        for (a, b) in zip(first.frames, second.frames) { XCTAssertEqual(key(a.puffs), key(b.puffs), "at \(a.at) s") }
+        var moved = BattleEffects()
+        moved.note([.creatureKilled(kind: .shadehound, x: 500), .creatureKilled(kind: .shadehound, x: 520)],
+                   state: finish.after, balance: balance, time: 0)
+        step(&moved, finish.events, before: finish.before.plots, state: finish.after, seconds: 0)
+        let dust = try XCTUnwrap(moved.items.first { $0.kind == .standDust })
+        run(&moved, to: 0.3, state: finish.after)
+        let swap = try XCTUnwrap(first.frames.first { abs($0.at - 0.3) < 1e-6 })
+        let movedPuffs = GameFrameSupport.frame(finish.after, focus: dust.x, effects: moved).layer.actors
+            .filter { $0.sprite == .smokePuff }
+        XCTAssertEqual(key(movedPuffs), key(swap.puffs), "placed by the plot, not by the effects before it")
+        let slow = dustFrames(finish, step: 1.0 / 30)
+        for moment in [0.0, 0.2, 0.3, 0.6] {
+            let a = try XCTUnwrap(first.frames.first { abs($0.at - moment) < 1e-6 }, "\(moment)")
+            let b = try XCTUnwrap(slow.frames.first { abs($0.at - moment) < 1e-6 }, "\(moment)")
+            XCTAssertEqual(a.puffs.map { "\($0.frame) \($0.rect)" }, b.puffs.map { "\($0.frame) \($0.rect)" },
+                           "the same at 30 and 60 frames a second at \(moment) s")
+            for (p, q) in zip(a.puffs, b.puffs) { XCTAssertEqual(p.tint.w, q.tint.w, accuracy: 1e-5) }
+        }
     }
 
     /// The gate raised a tier (look 2's castle grows with it): the keep gets a second dust at its own foot on the

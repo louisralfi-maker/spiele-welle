@@ -32,6 +32,8 @@ enum TitleLayout {
     static let flame = CGPoint(x: 259, y: 76)
     /// The house's lantern (`lantern0` ... `lantern7`, 13 x 18) on the beacon.
     static let beacon = CGRect(x: 253, y: 66, width: 13, height: 18)
+    /// The lantern's glow (`lanternGlow1` ... `lanternGlow7`, 437 x 201, transparent outside its rings) over the window.
+    static let glowFrame = CGRect(x: 41, y: 0, width: 437, height: 201)
     /// The lettering's box and each letter's box, L A N T E R N H O L D.
     static let lettering = CGRect(x: 143, y: 19, width: 232, height: 40)
     static let letters: [CGRect] = [
@@ -54,12 +56,28 @@ enum TitleLayout {
         ("titleSentryA", CGRect(x: 223, y: 119, width: 7, height: 14)),
         ("titleSentryB", CGRect(x: 321, y: 119, width: 7, height: 14)),
     ]
-    // Polish C2: the reveal's numbers (116 to 340 game px over 1.6 s, its curve, the stepped mask) are `TitleTempo`'s
-    // and `TitleMask`'s in Core/Motion.swift; the step into the game is `StepIn`'s.
+    // Polish C2: the reveal's numbers (its start, 1.6 s, its curve, the stepped mask) are `TitleTempo`'s and
+    // `TitleMask`'s in Core/Motion.swift; the step into the game is `StepIn`'s. Polish C2b: the swell's end is computed
+    // from the window the view shows (`visible(in:)`, `TitleMask.endRadius`).
     /// The slow sway (game px at its peak, period 40 s): the castle and the light are the pivot.
     static let drift: [String: CGFloat] = ["sky": -3, "far": -2, "rock": -1, "castle": 0, "fog": 8]
     /// The launch's colour, the night's darkest (`#0A1124`).
     static let night = Color(red: 10 / 255, green: 17 / 255, blue: 36 / 255)
+
+    /// The picture's left edge on the screen for a view of `size`, in points: the window (x 41 ... 477) centred.
+    static func left(in size: CGSize) -> CGFloat {
+        let scale = size.height / picture.height
+        return (size.width - windowWidth * scale) / 2 - windowX * scale
+    }
+
+    /// The picture's columns a view of `size` shows, in game px (polish C2b, P4: the mask's end covers them). A size
+    /// not laid out yet: the whole picture.
+    static func visible(in size: CGSize) -> (from: Double, to: Double) {
+        let scale = size.height / picture.height
+        guard scale > 0, size.width > 0 else { return (0, Double(picture.width)) }
+        let left = left(in: size)
+        return (Double(-left / scale), Double((size.width - left) / scale))
+    }
 }
 
 /// The title's PNGs, nearest neighbour, read once from Resources/Title.
@@ -67,6 +85,7 @@ enum TitleLayout {
 final class TitleArt {
     static let shared = TitleArt()
     private var cache: [String: UIImage] = [:]
+    private var decoded: Set<String> = []
 
     func image(_ name: String) -> UIImage? {
         if let hit = cache[name] { return hit }
@@ -76,6 +95,23 @@ final class TitleArt {
         cache[name] = image
         return image
     }
+
+    /// Polish C2b (P5): reads and decodes `names` now, in the breathing wait, so the swell's first frame reads and
+    /// decodes no new image (a read PNG is decoded at its first draw otherwise).
+    func preload(_ names: [String]) {
+        for name in names {
+            guard !decoded.contains(name), let image = image(name) else { continue }
+            decoded.insert(name)
+            cache[name] = image.preparingForDisplay() ?? image
+        }
+    }
+
+    /// The picture's PNGs the reveal draws first (the layers, the figures, the lettering, the flame and its glow).
+    static let revealImages: [String] = ["title1Sky", "title2Far", "title3Rock", "title4Castle", "title4Parapet",
+                                         "title5Fog", "titleSentryA", "titleSentryB", "titleLord0", "titleLord1",
+                                         "titleLord2", "titleLord3", "titleLordLight0", "titleLordLight1",
+                                         "titleLordLight2", "titleLordLight3", "letteringUnlit", "letteringLit",
+                                         "lantern6", "lantern7", "lanternGlow6"]
 }
 
 /// The title's sounds (polish C2, F2; lane D built the sound side in steps 0b and D2, this only calls it). The beds
@@ -144,6 +180,8 @@ final class BeatBox {
     /// The hitches the beat did not count, and its longest gap (the step's Debug probe).
     var lost: Double { clock.lost }
     var longestGap: Double { clock.longestGap }
+    /// Debug: the beat's seconds where its longest gap ended.
+    var longestAt: Double { clock.longestAt }
 
     /// Waits until the beat has run `seconds` (read every 8 ms, so the wait itself counts the frames it sees).
     func wait(until seconds: Double) async {
@@ -154,14 +192,15 @@ final class BeatBox {
 }
 
 /// The title's mask (polish C2, M9): the open runs of `TitleMask` as whole game px rects, so the edge is stepped on the
-/// picture's own grid. The rect is the picture's frame (520 x 201 game px at its scale).
+/// picture's own grid. The rect is the picture's frame (520 x 201 game px at its scale). The runs of each radius are
+/// built once (polish C2b, L5).
 struct TitleMaskShape: Shape {
     let radius: Int
 
     func path(in rect: CGRect) -> Path {
         let scale = rect.height / CGFloat(TitleMask.pictureHeight)
         var path = Path()
-        for run in TitleMask.runs(radius: radius) {
+        for run in TitleMask.rows(radius: radius) {
             path.addRect(CGRect(x: rect.minX + CGFloat(run.from) * scale, y: rect.minY + CGFloat(run.y) * scale,
                                 width: CGFloat(run.to - run.from) * scale, height: scale))
         }
@@ -171,7 +210,8 @@ struct TitleMaskShape: Shape {
 
 @MainActor
 struct TitleView: View {
-    /// The game is ready behind the light (the model is made); the lantern's last step waits for it.
+    /// The game is ready behind the light (the model made, the renderer warm, and since polish C2b the hall under the
+    /// title warm and still, or the root's ceiling passed); the lantern's last step waits for it.
     let ready: Bool
     /// The game's own Reduce Motion (`-GWReduceMotion`); the system's switch counts too.
     var reduceMotionArgument = false
@@ -186,13 +226,18 @@ struct TitleView: View {
     /// Polish C2: the reveal's beat, and when the sixth step was reached (the breath's clock).
     @State private var revealBeat: BeatBox? = nil
     @State private var caughtAt: Date? = nil
-    @State private var holdRadius: Int? = nil
+    /// `-GWTitleHold half`: the mask stands halfway between its start and the window's end.
+    @State private var holdHalf = false
+    /// `-GWTitleHold glow` (polish C2b): the reveal stands at this second of its beat (the glow half gone).
+    @State private var holdBeat: Double? = nil
     @State private var lit: Set<Int> = []
     @State private var started = false
     /// Polish C2: the beat of the step into the game, from the touch (t = 0 of `StepIn`).
     @State private var stepBeat: BeatBox? = nil
     /// Polish C2: a touch before the picture stands is kept and acts when the reveal ends.
     @State private var pendingTouch = false
+    /// Polish C2b (P6): the reveal's second of a touch during the swell, which finishes the swell from there in 0.25 s.
+    @State private var revealTouchAt: Double? = nil
     @State private var shown = Date()
     /// `ready` as state: the sequence's task holds the view value it started with, so it reads this live copy
     /// (lh-rj-9: reading `ready` there kept the lantern lit forever, the model was made after the task began).
@@ -204,7 +249,7 @@ struct TitleView: View {
     /// Debug: the reveal's beat (hitches it did not count, its longest gap), the title's accessibility value.
     @State private var revealProbe = ""
 
-    /// `-GWTitleHold loading|half|lit|hint` (Debug only): the sequence holds at that state for the proof frames.
+    /// `-GWTitleHold loading|half|glow|lit|hint` (Debug only): the sequence holds at that state for the proof frames.
     private static let hold: String? = {
         #if DEBUG
         return UserDefaults.standard.string(forKey: "GWTitleHold")?.lowercased()
@@ -219,33 +264,50 @@ struct TitleView: View {
         let mode = self.mode
         GeometryReader { geometry in
             let scale = geometry.size.height / TitleLayout.picture.height
-            let left = (geometry.size.width - TitleLayout.windowWidth * scale) / 2 - TitleLayout.windowX * scale
+            let left = TitleLayout.left(in: geometry.size)
+            // Polish C2b (P4): the swell ends, and the close starts, at the least radius that covers this window.
+            let window = TitleLayout.visible(in: geometry.size)
+            let end = TitleMask.endRadius(visibleFrom: window.from, visibleTo: window.to)
             // Under Reduce Motion nothing moves until the step into the game, which fades by the clock.
             TimelineView(.animation(paused: mode.reduceMotion && stepBeat == nil)) { timeline in
                 let now = timeline.date
                 let t = now.timeIntervalSince(shown)
                 ZStack(alignment: .topLeading) {
                     if let stepBeat {
-                        stepIn(StepIn.picture(at: stepBeat.elapsed(now), mode: mode), scale: scale, t: t)
+                        stepIn(StepIn.picture(at: stepBeat.elapsed(now), mode: mode, end: end), scale: scale, t: t)
                     } else if revealDone {
                         picture(scale: scale, t: t, lordFrame: 0)
                         lettering(scale: scale)
                     } else if revealing {
-                        let radius = holdRadius ?? revealBeat.map {
-                            TitleTempo.revealRadius(at: $0.elapsed(now), mode: mode)
-                        } ?? TitleTempo.revealFrom
-                        picture(scale: scale, t: t, lordFrame: 0)
-                            .mask(alignment: .topLeading) { TitleMaskShape(radius: radius) }
-                        lettering(scale: scale)
+                        let elapsed = holdBeat ?? revealBeat.map { $0.elapsed(now) } ?? 0
+                        let radius = holdHalf ? (TitleTempo.revealFrom + end) / 2
+                            : TitleTempo.revealRadius(at: elapsed, to: end, touchedAt: revealTouchAt, mode: mode)
+                        // Polish C2b (P3): the lettering lies inside the light as well (it catches the light last), so
+                        // nothing appears outside the glow at the swell's first frame.
+                        ZStack(alignment: .topLeading) {
+                            picture(scale: scale, t: t, lordFrame: 0)
+                            lettering(scale: scale)
+                        }
+                        .mask(alignment: .topLeading) { TitleMaskShape(radius: radius) }
+                        // Polish C2b (P3): the light grows out of the glow. The swell starts at the glow's own reach
+                        // on its high step; the rings and the flame stay drawn over the picture and go out by opacity
+                        // at quick while the stepped edge takes over.
+                        let glow = holdHalf ? 0 : TitleTempo.glowOpacity(at: elapsed, mode: mode)
+                        if glow > 0 {
+                            ZStack(alignment: .topLeading) {
+                                sprite("lanternGlow\(TitleTempo.breathSteps.high)", TitleLayout.glowFrame, scale)
+                                flame(scale: scale, t: t)
+                            }
+                            .compositingGroup()
+                            .opacity(glow)
+                        }
                     } else {
                         // The loading: the house's lantern catching, step by step, with its glow; while the game is
                         // still made the glow breathes between its steps 6 and 5 (polish C2, M9).
                         let shownStep = step < TitleTempo.catchSteps ? step
                             : TitleTempo.breathStep(since: caughtAt.map { now.timeIntervalSince($0) } ?? 0, mode: mode)
                         if shownStep > 0 {
-                            sprite("lanternGlow\(shownStep)", CGRect(x: TitleLayout.windowX, y: 0,
-                                                                    width: TitleLayout.windowWidth,
-                                                                    height: TitleLayout.picture.height), scale)
+                            sprite("lanternGlow\(shownStep)", TitleLayout.glowFrame, scale)
                         }
                         sprite("lantern\(shownStep)", TitleLayout.beacon, scale)
                     }
@@ -414,10 +476,22 @@ struct TitleView: View {
             cues.lanternStep()
             if TitleView.hold == "loading" && next == 3 { return }
         }
-        caughtAt = Date()
+        let caught = Date()
+        caughtAt = caught
+        // Polish C2b (P5): the picture is read and decoded while the flame breathes, not in the swell's first frame.
+        TitleArt.shared.preload(TitleArt.revealImages)
         while !gameReady { try? await Task.sleep(nanoseconds: 50_000_000) }
         if TitleView.hold == "half" {
-            holdRadius = (TitleTempo.revealFrom + TitleTempo.revealTo) / 2
+            holdHalf = true
+            revealing = true
+            return
+        }
+        // Polish C2b (P3): the swell starts on the breath's high step, whose glow it grows out of (at most 0.35 s on).
+        while TitleTempo.breathStep(since: Date().timeIntervalSince(caught), mode: mode) != TitleTempo.breathSteps.high {
+            try? await Task.sleep(nanoseconds: 8_000_000)
+        }
+        if TitleView.hold == "glow" {
+            holdBeat = TitleTempo.glowOutSeconds / 2
             revealing = true
             return
         }
@@ -429,7 +503,8 @@ struct TitleView: View {
     }
 
     /// The reveal (polish C2, M9): one calm swell of 1.6 s with a stepped edge (`TitleTempo`, `TitleMask`); a touch
-    /// kept from before acts as it ends; then the lettering lights. Reduce Motion: the picture stands at once.
+    /// kept from before acts as it ends; a touch during it finishes it in 0.25 s and then acts (polish C2b, P6); then
+    /// the lettering lights. Reduce Motion: the picture stands at once.
     private func reveal() async {
         guard !revealing else { return }
         if mode.reduceMotion {
@@ -442,12 +517,15 @@ struct TitleView: View {
         let beat = BeatBox()
         revealBeat = beat
         revealing = true
-        // The beat's clock: a hitch (the hall's view is built under the title as the game turns ready) delays the
-        // swell, it never cuts it short.
-        await beat.wait(until: TitleTempo.revealSeconds)
+        // The beat's clock: a hitch of the main thread delays the swell, it never cuts it short. The end moves up when
+        // a touch comes during the swell (read every 8 ms, as `BeatBox.wait` does).
+        while beat.elapsed() < TitleTempo.revealEnds(touchedAt: revealTouchAt) {
+            try? await Task.sleep(nanoseconds: 8_000_000)
+        }
         revealDone = true
         #if DEBUG
-        revealProbe = String(format: "reveal lost:%.3f longest:%.3f", beat.lost, beat.longestGap)
+        revealProbe = String(format: "reveal lost:%.3f longest:%.3f at:%.3f", beat.lost, beat.longestGap,
+                             beat.longestAt)
         #endif
         if pendingTouch { begin() }
         for group in TitleLayout.lightOrder {
@@ -458,10 +536,19 @@ struct TitleView: View {
 
     /// A touch: once the picture stands the lord raises his lantern and the game begins; before (the loading, the
     /// reveal) it is kept and acts when the reveal ends (polish C2; before, a touch during the reveal cut the picture
-    /// to its end and a second touch started, and one before the game was ready was lost).
+    /// to its end and a second touch started, and one before the game was ready was lost). Polish C2b (P6): a touch
+    /// while the swell runs is answered at once: the light opens under the finger, the swell finishing from where it
+    /// stands in 0.25 s; a second touch changes nothing. A touch before the swell starts waits for its whole 1.6 s.
     private func touched() {
         guard !started else { return }
-        if revealDone { begin() } else { pendingTouch = true }
+        if revealDone {
+            begin()
+            return
+        }
+        if revealing, !holdHalf, holdBeat == nil, revealTouchAt == nil, let revealBeat {
+            revealTouchAt = revealBeat.elapsed()
+        }
+        pendingTouch = true
     }
 
     /// The step into the game begins (t = 0 of `StepIn`): the lantern raise is heard, the hint goes, the root takes it.
