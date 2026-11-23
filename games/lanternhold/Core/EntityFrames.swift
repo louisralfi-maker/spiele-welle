@@ -1868,9 +1868,10 @@ enum EntityFrames {
                 // tones, laid out by the plot's seed (`BattleEffects.standDust`). Each piece starts on the foot line
                 // part of its way out from the work's middle, bursts outward and up on law 1's ease-out and grows from
                 // the 2 px frame to its own size, so every piece has its place, size and peak alpha in the swap's frame;
-                // after it a piece drifts at most 2.8 px outward and up, thins on the ease-in to its own end (0.7 to
-                // 1.1 s) and falls a frame in its last 40 %, so the cloud breaks up raggedly. The keep's dust stands on
-                // the mistBand plane: placed with the camera as that plane moves.
+                // after it a piece drifts at most 3 px, mostly up, and thins on the ease-in to its own end (0.7 to
+                // 1.1 s) at its own size (the gate of A2b, P2 and P4: a frame less in its last 40 % turned the lumps
+                // back into discs and hopped a pixel), so the cloud breaks up raggedly. The keep's dust stands on the
+                // mistBand plane: placed with the camera as that plane moves.
                 let seconds = max(0, effects.standClock - effect.start)
                 let peak = BattleEffects.standSwap
                 // (whole at the swap, so every piece has its full size in the swap's frame and not one frame before)
@@ -1899,8 +1900,7 @@ enum EntityFrames {
                     let middle = piece.left + Double(piece.size) / 2
                     let out: Double = middle < 0 ? -1 : 1
                     let final = piece.size - 2
-                    var frame = min(final, Int(rise * Double(final)))
-                    if gone > 0.6 { frame = max(0, frame - 1) }
+                    let frame = min(final, Int(rise * Double(final)))
                     let side = Double(CastleSmoke.side(frame: frame))
                     let body = (middle * way + out * piece.driftX * drift - side / 2).rounded()
                     // the cell (8 px) holds the body centred, an odd size half a pixel left; its anchor is its middle

@@ -288,7 +288,9 @@ final class StandingTests: XCTestCase {
     /// foot. The layout keeps the brief's numbers for every width a work can have: at most 12 pieces, 3 to 5 clumps
     /// (the keep up to 6), peak alpha 0.6 to 0.9, an end 0.7 to 1.1 s after the event, a drift of at most 3 px.
     /// The gate of A2b: no gap between the clumps wider than 4 px on any width (P3: on wide works they grew to 6 to
-    /// 12 px).
+    /// 12 px); after the swap every puff keeps its size to its end (P2, P4: a frame less late in its life turned the
+    /// lumps back into discs and hopped a pixel) and drifts 0 to 1 px outward and 2 to 2.8 px up, the light pieces
+    /// rising more than the dark (P2: 1 to 2 px each way left the thinning dust in the foot band as a row).
     func testTheDustGathersInClumpsNotARow() throws {
         let scale = pro.scale
         let ground = Camera.groundDeviceY(physicalHeight: pro.physicalHeight, scale: scale)
@@ -322,6 +324,11 @@ final class StandingTests: XCTestCase {
             }
             let values = tones.map { $0[0] }.sorted()
             XCTAssertEqual(values[0] / values[1], BattleEffects.standDustDark, accuracy: 1e-4, "\(name): 15 % apart")
+            let (_, whole) = dustFrames(finish, step: frame)
+            for later in whole where later.at > BattleEffects.standSwap + 1e-9 {
+                let kept = Set(later.puffs.map { CastleSmoke.side(frame: $0.frame) })
+                XCTAssertTrue(kept.isSubset(of: [4, 5]), "\(name): each puff keeps its size at \(later.at) s: \(kept)")
+            }
         }
         for width in stride(from: 8.0, through: 130, by: 1) {
             let pieces = BattleEffects.standDust(width: width, key: BattleEffects.standKey(x: 1000, width: width))
@@ -332,6 +339,13 @@ final class StandingTests: XCTestCase {
             XCTAssertTrue(pieces.allSatisfy { $0.alpha >= 0.6 && $0.alpha <= 0.9 }, "\(width) px")
             XCTAssertTrue(pieces.allSatisfy { $0.life >= 0.7 - 1e-9 && $0.life <= BattleEffects.standDustSeconds + 1e-9 })
             XCTAssertTrue(pieces.allSatisfy { ($0.driftX * $0.driftX + $0.driftY * $0.driftY).squareRoot() <= 3 })
+            XCTAssertTrue(pieces.allSatisfy { $0.driftX >= 0 && $0.driftX <= 1 && $0.driftY >= 2 && $0.driftY <= 2.8 },
+                          "\(width) px: mostly up")
+            let lightRise = puffs.filter(\.light).map(\.driftY)
+            let darkRise = puffs.filter { !$0.light }.map(\.driftY)
+            if let least = lightRise.min(), let most = darkRise.max() {
+                XCTAssertGreaterThanOrEqual(least, most, "\(width) px: the light pieces rise more than the dark")
+            }
             var reach = -Double.infinity
             for puff in puffs.sorted(by: { $0.left < $1.left }) {
                 if reach > -Double.infinity && puff.left > reach {

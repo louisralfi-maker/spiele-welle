@@ -311,9 +311,12 @@ extension BattleEffects {
     /// Each piece's own end, 0.7 to 1.1 s after the event (law 4's step 3), so the cloud breaks up raggedly; the last
     /// is gone by `standDustSeconds`.
     static let standLifeShortest = 0.7
-    /// After the swap a piece drifts 1 to 2 px outward and 1 to 2 px up (at most 2.8 px) on law 1's ease-out.
-    static let standDriftLeast = 1.0
-    static let standDriftMost = 2.0
+    /// After the swap a piece drifts 0 to 1 px outward and 2 to 2.8 px up (at most 3 px) on law 1's ease-out, the
+    /// light pieces (the clumps' tops) rising more than the dark (the gate of A2b, P2: drifting 1 to 2 px out and up,
+    /// the pieces stayed in the foot band and the thinning dust read as a row of discs again).
+    static let standDriftOut: ClosedRange<Double> = 0...1
+    static let standRiseDark: ClosedRange<Double> = 2...2.4
+    static let standRiseLight: ClosedRange<Double> = 2.4...2.8
     /// Where a piece starts on the foot line: 25 to 50 % of its way out from the work's middle (the burst).
     static let standStartLeast = 0.25
     static let standStartMost = 0.5
@@ -430,12 +433,13 @@ extension BattleEffects {
                 let k = member.index
                 let light = k == top || (joint > 0 && unit(k, 8) < 0.5)
                 let range = light ? standLightAlpha : standDarkAlpha
+                let rise = light ? standRiseLight : standRiseDark
                 let piece = StandPiece(
                     left: member.left, bottom: member.bottom, size: member.size, light: light,
                     alpha: range.lowerBound + (range.upperBound - range.lowerBound) * Float(unit(k, 9)),
                     life: standLifeShortest + (standDustSeconds - standLifeShortest) * unit(k, 10),
-                    driftX: standDriftLeast + (standDriftMost - standDriftLeast) * unit(k, 11),
-                    driftY: standDriftLeast + (standDriftMost - standDriftLeast) * unit(k, 12),
+                    driftX: standDriftOut.lowerBound + (standDriftOut.upperBound - standDriftOut.lowerBound) * unit(k, 11),
+                    driftY: rise.lowerBound + (rise.upperBound - rise.lowerBound) * unit(k, 12),
                     start: standStartLeast + (standStartMost - standStartLeast) * unit(k, 13))
                 if light { lighter.append(piece) } else { darker.append(piece) }
             }
@@ -450,8 +454,9 @@ extension BattleEffects {
                 alpha: standLightAlpha.lowerBound
                     + (standLightAlpha.upperBound - standLightAlpha.lowerBound) * Float(unit(k, 9)),
                 life: standLifeShortest + (standDustSeconds - standLifeShortest) * unit(k, 10),
-                driftX: standDriftLeast + (standDriftMost - standDriftLeast) * unit(k, 11),
-                driftY: standDriftLeast + (standDriftMost - standDriftLeast) * unit(k, 12),
+                driftX: standDriftOut.lowerBound + (standDriftOut.upperBound - standDriftOut.lowerBound) * unit(k, 11),
+                driftY: standRiseLight.lowerBound
+                    + (standRiseLight.upperBound - standRiseLight.lowerBound) * unit(k, 12),
                 start: standStartLeast + (standStartMost - standStartLeast) * unit(k, 13),
                 shape: Int(unit(k, 16) * Double(HordeLook.flakeShapes)) % HordeLook.flakeShapes))
         }
