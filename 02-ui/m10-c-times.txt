@@ -1,0 +1,49 @@
+m10-c: the night's last second, the dawn, the gate open and the card's 0.6 s wait, then the card (E2), one frame every 0.15 s
+real time; one frame every 0.15 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWNight 1 -GWSeed 1 -GWHour 5.3 -GWCameraX 1330
+scene before: frame:320 ready day:1 hour:5.88 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1330 lord:lord stage:world lx:1330 errand:none door:1830 gold:21 hud:none cam:1133 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:1330.00 kf:6 kd:-1 lantern:ready
+scene after: frame:530 ready day:2 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1330 lord:lord stage:world lx:1330 errand:none door:1830 gold:21 hud:none cam:1133 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector,tamsin drill:none kv:0.00 kxf:1330.00 kf:6 kd:-1
+
+frame  seconds since the burst began  (scene where read)
+01  +0.218 s  
+02  +0.477 s  
+03  +0.667 s  
+04  +0.932 s  
+05  +1.138 s  
+06  +1.320 s  
+07  +1.494 s  
+08  +1.641 s  
+09  +1.837 s  
+10  +2.067 s  
+11  +2.219 s  
+12  +2.388 s  
+13  +2.591 s  
+14  +2.742 s  
+15  +2.928 s  
+16  +3.086 s  
+17  +3.264 s  
+18  +3.411 s  
+19  +3.566 s  
+20  +3.715 s  
+21  +3.883 s  
+22  +4.045 s  
+23  +4.215 s  
+24  +4.386 s  
+25  +4.560 s  
+26  +4.724 s  
+27  +4.897 s  
+28  +5.060 s  
+29  +5.253 s  
+30  +5.474 s  
+31  +5.650 s  
+32  +5.845 s  
+33  +6.106 s  
+34  +6.266 s  
+35  +6.428 s  
+36  +6.671 s  
+37  +6.967 s  
+38  +7.332 s  
+39  +7.533 s  
+40  +7.746 s  
+mean spacing 0.193 s over 39 gaps

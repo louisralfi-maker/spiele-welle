@@ -1,0 +1,65 @@
+2026-11-23 02:54:12.098064+0000 Lanternhold[21666:74229] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-23 02:54:13.447225+0000 Lanternhold[21666:74918] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:54:13.447480+0000 Lanternhold[21666:74924] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:54:13.449477+0000 Lanternhold[21666:74918] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:54:13.449707+0000 Lanternhold[21666:74917] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:54:13.655606+0000 Lanternhold[21666:74918] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:54:13.678417+0000 Lanternhold[21666:74918] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.AdDirectorTests testADeclinedTrackingAnswerStillWarmsAndAnAnswerAgainstAdsNever]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testAFailedLoadWaitsLongerEachTime]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testAnAdEndingUnderTheSlidesLeavesTheWorldStill]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testAnAdOnScreenHoldsTheWorld]' passed (0.162 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testASecondChanceClosedEarlyKeepsTheDefeatCard]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testAVideoClosedEarlyGivesNothingAndHoldsTheInterstitial]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testDoubleTaxesSetTheTownsFlagAndBankNoGold]' passed (0.844 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testMareksGiftClosedEarlyGivesNothing]' passed (0.174 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testMareksGiftLandsOnHisDay]' passed (0.454 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testNoDoubleTaxesOnAStoryDawn]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testNoVideoNoOffer]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testPassingTheDoubleTaxesWaitsTwoDawns]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testTheConsentFlowsOrder]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testTheFirstVideoIsReadyByTheFirstEligibleDawnAndNothingLoadsBeforeConsent]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testTheInterstitialComesOnContinueByTheRules]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testThePayoffWaitsForTheVideoToGo]' passed (1.169 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testTheSecondChanceComesThroughTheVideo]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testWithoutAdsTheReportClosesAtOnceAndNothingIsNoted]' passed (0.050 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testAHeldNightRingsTheBellOnceAndNoToll]' passed (0.145 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testFiveFallenTollThreeTimesOneSecondApart]' passed (0.098 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testOneFallenTollsOnce]' passed (0.092 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheCardComesAfterAPauseOfTheApp]' passed (0.743 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheCardComesAfterLoadingADawnSave]' passed (0.122 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheCardComesSixTenthsOfASecondAfterTheGateWithTheInputClosed]' passed (0.809 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheGatesCuePlaysOnceAtTheDawn]' passed (0.565 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheTollsStopWhenTheCardIsClosed]' passed (0.111 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testUnderReduceMotionTheWaitIsTheSame]' passed (0.756 seconds).
+Test Case '-[LanternholdTests.FarGoalTests testAHintAboutTodaysPetitionStillComesFirst]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FarGoalTests testFromDayFourHerLineIsNoLongerSaid]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FarGoalTests testHerLineReadsTrueAndFitsTheValidator]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FarGoalTests testNIsTheLightlessKingsNight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FarGoalTests testOnDayOneHerLineComesRightAfterHerGreetingAndCarriesTheMarkUntilHeard]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FarGoalTests testOnDaysTwoAndThreeHerLineStillComesUnmarkedAfterHerNewerLines]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FarGoalTests testTheDawnCardsHeadSaysTheNightAsTheRibbonDid]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.FarGoalTests testTheRibbonCountsTheNightsOfTheRun]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testReplayingTheDayStartsTheCourtAfresh]' passed (0.119 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheBarracksAndTheThrone]' passed (0.026 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheDawnBringsTheReportAndContinueStartsTheDay]' passed (0.663 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheDefeatCardsTwoWaysOut]' passed (0.131 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheHammerOpensTheBuildCardAndTheOrderGoesThroughTheSimulation]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheHornSendsTheWaitingPetitionersHome]' passed (0.180 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheNeighbourArrowAndClosing]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testThePauseSheetAndTheRestart]' passed (0.231 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testThePauseSheetSoundsTheHornByDay]' passed (0.228 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheSettingsAndTheSecondChanceSurviveARelaunch]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheStripTapAndTheSampleScreens]' passed (0.097 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testAfterNightTwentyTheKingsBannerComesFirst]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testARealNightBecomesTheCard]' passed (0.117 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testASecondChanceBringsADawnWithItsBanner]' passed (0.309 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testNothingOwedReadsCalm]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testOneDoorAndTheTownsLineAfterYesterday]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheFinaleQuotesTheSpeech]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheHearthAndTheUnlocksAreWorded]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheLineForwardTakesTheFirstThatApplies]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheRowSaysWhatTheDoorsOweTodayWithYesterdayInTheDetail]' passed (0.120 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheSampleShowsAWallLostAFallenArcherAndAnUnlock]' passed (0.003 seconds).
+exit=0
+screenshots: 0
