@@ -1,0 +1,2 @@
+::error::Homebrew's files could not be checked inside the macOS sandbox.%0ACheck Homebrew's sandbox setup and temporary directory permissions,%0Athen rerun `brew doctor`.
+scripts/ci/run-check.sh: line 59: xcodegen: command not found
