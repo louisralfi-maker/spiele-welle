@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.FilmOpeningUITests testB3bTheHallsMoment]' passed (44.046 seconds).
+exit=0
+screenshots: 34
