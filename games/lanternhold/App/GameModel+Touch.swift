@@ -404,6 +404,9 @@ extension GameModel {
         if underLantern { return }
         touch.lastTap = "ground"
         cancelErrand()
+        // B2 gate (F3): sent away from an open board, its coins keep today's wait (`PayCount.slideAfter` after the last
+        // touch) with no warning in the hand for a choice already made.
+        if touch.count?.isOpen == true { touch.count?.walkAway() }
         feedback.play(.touched)
         walk(to: groundX(place.x), run: false)
     }

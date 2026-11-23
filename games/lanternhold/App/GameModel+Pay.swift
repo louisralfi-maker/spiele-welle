@@ -435,7 +435,9 @@ extension GameModel {
         guard stage == .world, let count = touch.count else { return nil }
         if count.isOpen {
             if let thing = countBoardThing(place) { return .coin(thing) }
-            guard isOnLordsBody(place) || isOnLord(place) else { return nil }
+            // B2 gate (H-1): his body is the count's only while he stands at its board or walks to it; walked away
+            // (a tap on the ground), a tap on him is his again (the lantern moment), never a coin flying after him.
+            guard countHoldsLord(count), isOnLordsBody(place) || isOnLord(place) else { return nil }
             guard let thing = touch.things.first(where: { $0.id == count.thing }) else { return nil }
             return .coin(thing)
         }
@@ -444,16 +446,25 @@ extension GameModel {
         return .nothing
     }
 
-    /// Polish B2 (H2): true for a touch on the lord beside an open board, off the board's own planks, while a hold on
-    /// him raises the lantern at night (`LanternRaise.canRaise`): the touch is his as before the fix; a lift before the
-    /// hold raised anything is a coin.
+    /// Polish B2 (H2): true for a touch on the lord beside an open board, off the board's own planks: the touch is his
+    /// as before the fix, so a hold on him never streams coins; at night with the lantern ready the hold raises it
+    /// (`stepTouch`), and a lift before the hold raised anything is one coin (`tap(at:)`). B2 gate (F5): at every hour,
+    /// not only while `LanternRaise.canRaise` (by day the thumb resting on him streamed and could seal the purchase).
     func countLordHold(_ place: (x: Double, lift: Double, minimum: Double)) -> Bool {
         guard stage == .world, let count = touch.count, count.isOpen, let board = touch.countBoard,
-              let state = driver?.state, LanternRaise.canRaise(state), isOnLord(place) else { return false }
+              countHoldsLord(count), isOnLord(place) else { return false }
         let half = max(Double(board.layout.width) / 2, place.minimum / 2)
         let top = board.counter ? board.top : board.top + 14
         let onPlanks = abs(place.x - board.x) <= half && place.lift >= -TouchRules.footRoom && place.lift <= top
         return !onPlanks
+    }
+
+    /// B2 gate (H-1): the open count holds the lord's body only while he stands at its board (stopped up to
+    /// `TouchRules.arrival` off his stand, 2 px to spare; also while the board still rises) or walks there for it.
+    func countHoldsLord(_ count: PayCount) -> Bool {
+        guard let board = touch.countBoard else { return false }
+        if abs(stageLordX - board.stand) <= TouchRules.arrival + 2 { return true }
+        return !count.ready && touch.errand?.id == count.thing
     }
 
     /// A press on the open board's thing (or its chosen model: step 5): the hold.
@@ -1260,7 +1271,9 @@ extension GameModel {
                     homing.append((coin: hollow.coin, face: PayBoardLayout.face(of: next), share: sink, x: x,
                                    lift: max(rock, inHollow)))
                 }
-            } else {
+            } else if !count.sunk {
+                // B2 gate (F4): a touch takes the warning back, yet the sunk coin stays in his hand until the next coin
+                // leaves it (never back over its hollow for the frames before).
                 put(hollow.coin.sprite, PayBoardLayout.face(of: next), x, max(rock, inHollow))
             }
         }

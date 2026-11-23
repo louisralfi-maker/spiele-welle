@@ -66,6 +66,17 @@ final class CountHandTests: XCTestCase {
         return CGPoint(x: framing.deviceX(stageX: x) / 3, y: framing.deviceY(lift: lift) / 3)
     }
 
+    /// Empty ground low on the lane, 40 to 120 px from the lord on the side away from the board.
+    private func groundAway(_ game: GameModel, lord: Double, toward: Double) throws -> CGPoint {
+        for dx in stride(from: 40.0, through: 120, by: 4) {
+            let p = try point(game, x: lord - dx * toward, lift: -3)
+            if game.thingAt(p, in: proPoints) == nil, game.modelAt(try XCTUnwrap(game.stagePoint(p, in: proPoints))) == nil {
+                return p
+            }
+        }
+        return try XCTUnwrap(nil as CGPoint?, "empty ground away from the board")
+    }
+
     /// A finger down and up at `p` (a tap through the touch layer's path).
     private func tap(_ game: GameModel, _ p: CGPoint) {
         game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
@@ -95,6 +106,7 @@ final class CountHandTests: XCTestCase {
             placed = game.touch.count?.placed ?? placed
         }
         XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid before the board is full")
+        XCTAssertEqual(GameModel.countNearReach, 20, "B2 gate (L-2): the law's 20 px")
         // The board's area itself reaches `countNearReach` past its near edge toward him (low, under his body's lift).
         let reach = try point(game, x: nearEdge - (GameModel.countNearReach - 0.5) * toward, lift: 2)
         let place = try XCTUnwrap(game.stagePoint(reach, in: proPoints))
@@ -130,8 +142,34 @@ final class CountHandTests: XCTestCase {
     }
 
     /// H2: the player leaves an open count as before, by a tap on the ground away from the board: he walks off, and the
-    /// coins go home once the board has waited (a tapped coin: `PayCount.tapWait`).
+    /// coins go home once the board has waited. B2 gate (F3, rewritten to pin it): today's wait, `PayCount.slideAfter`
+    /// after the last coin, with no warning in the hand (not the tap count's 3.0 s).
     func testATapOnTheGroundAwayFromTheBoardStillLeavesTheCount() throws {
+        let game = gateGame()
+        let hub = SilentFeedback()
+        game.feedback = hub
+        let board = try atTheBoard(game)
+        let lord = game.stageLordX
+        let toward: Double = board.x >= lord ? 1 : -1
+        tap(game, try point(game, x: board.x, lift: board.top - 6))
+        run(game, seconds: 0.4)
+        XCTAssertEqual(game.touch.count?.placed, 1, "a coin on the board")
+        let away = try groundAway(game, lord: lord, toward: toward)
+        let place = try XCTUnwrap(game.stagePoint(away, in: proPoints))
+        XCTAssertFalse(game.isOnLord(place))
+        tap(game, away)
+        XCTAssertEqual(game.touch.lastTap, "ground", "the tap is the ground's")
+        XCTAssertNotNil(game.driver?.travelTarget, "he walks away from the board")
+        XCTAssertNil(game.lanternMoment)
+        run(game, seconds: PayCount.slideAfter + 0.2) { game.touch.countLast.hasPrefix("letGo") }
+        XCTAssertEqual(game.touch.countLast, "letGo:touch-plot-0", "the coins go home 2.0 s after the coin, as before")
+        XCTAssertFalse(hub.ticks.contains(GameModel.countWarnTick), "no warning for a choice already made")
+        XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid")
+    }
+
+    /// B2 gate (H-1): walked away from the open board by a tap on the ground, the lord's body is his again: a tap on
+    /// him opens the lantern moment and sets no coin (no coin flies after him to the board).
+    func testATapOnTheLordWalkingAwayFromTheBoardIsHisAgain() throws {
         let game = gateGame()
         let board = try atTheBoard(game)
         let lord = game.stageLordX
@@ -139,25 +177,39 @@ final class CountHandTests: XCTestCase {
         tap(game, try point(game, x: board.x, lift: board.top - 6))
         run(game, seconds: 0.4)
         XCTAssertEqual(game.touch.count?.placed, 1, "a coin on the board")
-        // Empty ground low on the lane, 40 to 120 px from him on the side away from the board.
-        var found: CGPoint?
-        for dx in stride(from: 40.0, through: 120, by: 4) {
-            let p = try point(game, x: lord - dx * toward, lift: -3)
-            if game.thingAt(p, in: proPoints) == nil, game.modelAt(try XCTUnwrap(game.stagePoint(p, in: proPoints))) == nil {
-                found = p
-                break
-            }
-        }
-        let away = try XCTUnwrap(found, "empty ground away from the board")
-        let place = try XCTUnwrap(game.stagePoint(away, in: proPoints))
-        XCTAssertFalse(game.isOnLord(place))
-        tap(game, away)
+        tap(game, try groundAway(game, lord: lord, toward: toward))
         XCTAssertEqual(game.touch.lastTap, "ground", "the tap is the ground's")
-        XCTAssertNotNil(game.driver?.travelTarget, "he walks away from the board")
-        XCTAssertNil(game.lanternMoment)
-        run(game, seconds: PayCount.tapWait + 1) { game.touch.countLast.hasPrefix("letGo") }
-        XCTAssertEqual(game.touch.countLast, "letGo:touch-plot-0", "the coins go home")
-        XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid")
+        run(game, seconds: 1.2) { abs(game.stageLordX - board.stand) >= 14 }
+        XCTAssertGreaterThanOrEqual(abs(game.stageLordX - board.stand), 14, "he walks away")
+        XCTAssertEqual(game.touch.count?.isOpen, true, "the board still waits")
+        let far = try point(game, x: game.stageLordX - 3 * toward, lift: 14)
+        let place = try XCTUnwrap(game.stagePoint(far, in: proPoints))
+        XCTAssertNil(game.countBoardThing(place), "he has left the board's area")
+        XCTAssertTrue(game.isOnLordsBody(place), "on his body")
+        XCTAssertFalse(game.countLordHold(place))
+        tap(game, far)
+        XCTAssertEqual(game.touch.lastTap, "moment", "the tap is his, never a coin")
+        XCTAssertNotNil(game.lanternMoment, "the lantern moment")
+        XCTAssertEqual(game.touch.count?.placed, 1, "no coin set")
+    }
+
+    /// B2 gate (F5): by day a hold on the lord beside the open board streams no coin (the touch is his, as before the
+    /// fix); its lift is one coin, with no lantern moment.
+    func testByDayAHoldOnTheLordBesideTheBoardStreamsNothing() throws {
+        let game = gateGame()
+        _ = try atTheBoard(game)
+        let p = try point(game, x: game.stageLordX, lift: 14)
+        let place = try XCTUnwrap(game.stagePoint(p, in: proPoints))
+        XCTAssertEqual(game.countBoardThing(place)?.id, "touch-plot-0", "the board's widened area covers him")
+        XCTAssertTrue(game.countLordHold(place), "by day too his touch is his")
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        run(game, seconds: 0.8)
+        XCTAssertEqual(game.touch.count?.placed, 0, "a hold on him streams no coin")
+        game.touchEnded(at: p, translation: .zero, in: proPoints)
+        run(game, seconds: 0.4)
+        XCTAssertEqual(game.touch.count?.placed, 1, "its lift is one coin")
+        XCTAssertEqual(game.touch.count?.isOpen, true)
+        XCTAssertNil(game.lanternMoment, "no lantern moment")
     }
 
     /// H2, the rule kept: at night a hold on the lord beside an open board still raises the lantern against the dark
@@ -198,11 +250,13 @@ final class CountHandTests: XCTestCase {
         XCTAssertEqual(game.touch.count?.placed, 0, "its lift set no coin")
         XCTAssertEqual(game.touch.count?.isOpen, true, "the count stays open")
         XCTAssertNil(game.lanternMoment, "no lantern moment")
-        // The lantern raised (not ready): a quick tap on him is the board's coin, which pays the repair.
-        XCTAssertFalse(game.countLordHold(place))
+        // The lantern raised (not ready): his touch is still his (B2 gate F5: a press on him never streams), and a quick
+        // tap on him is the board's coin through `tap(at:)`, which pays the repair.
+        XCTAssertTrue(game.countLordHold(place))
         game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
         run(game, seconds: 0.1)
         game.touchEnded(at: p, translation: .zero, in: proPoints)
+        XCTAssertEqual(game.touch.lastTap, repair.id, "the lift is a coin (tap(at:))")
         run(game, seconds: 1) { game.touch.countLast.hasPrefix("paid") }
         XCTAssertEqual(game.touch.countLast, "paid:\(repair.id)", "a quick tap on him is the coin")
         XCTAssertNil(game.lanternMoment)
@@ -248,6 +302,16 @@ final class CountHandTests: XCTestCase {
             XCTAssertEqual(game.touch.count?.sinkShare ?? 0, 1, accuracy: 1e-9)
             XCTAssertEqual(try coins(), rocking - 1, "still \(still): in his hand, gone from the board")
             XCTAssertEqual(game.touch.count?.placed, 1, "still \(still): the laid coin stays until 3.0 s")
+            // B2 gate (F1): the purse's figure stays while the board is open, past its 2.0 s linger.
+            run(game, seconds: 0.4)
+            XCTAssertEqual(game.touch.count?.isOpen, true, "still \(still): open at about 2.7 s")
+            XCTAssertNotNil(game.purse.shown, "still \(still): the purse's figure stays while the board is open")
+            // B2 gate (F4): a touch takes the warning back, yet the sunk coin stays in his hand until a coin leaves it.
+            var pressed = try XCTUnwrap(game.touch.count)
+            pressed.press()
+            game.touch.count = pressed
+            XCTAssertNil(game.touch.count?.sinkShare, "still \(still): the warning taken back")
+            XCTAssertEqual(try coins(), rocking - 1, "still \(still): the sunk coin does not pop back over its hollow")
         }
     }
 }
