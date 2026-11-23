@@ -226,13 +226,32 @@ extension XCTestCase {
         return false
     }
 
-    /// Any other touch lowers the lantern: a touch on the dim, low at the left.
+    /// Polish B1 (Part 5; the refuter's missed point 3): where the lowering tap lands, as a share of the screen: low at
+    /// the left, about 12 game px below the walk line (26 game px over the screen's foot, `WorldLayout.groundRowsBelow`,
+    /// 6 device px each on the 17 Pro), where no thing, door, board, model or the lord answers (their areas end 6 px
+    /// below it, `TouchRules.footRoom`), in the world and in the hall. The old spot (0.08, 0.9) lay 5.9 px below the
+    /// walk line, inside the things' foot room, and under the decided rule could start a deed.
+    static let emptyWorld = CGVector(dx: 0.08, dy: 0.93)
+
+    /// Any other touch lowers the lantern: a touch on the empty world (`emptyWorld`). Polish B1: the scene must read
+    /// `tap:lowered` after it and no deed may have begun (no new errand; a kept one may go on or end on arrival).
     func lowerLantern(_ app: XCUIApplication) {
         let moment = app.descendants(matching: .any).matching(identifier: "lantern-moment").firstMatch
         guard moment.exists else { return }
-        moment.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.9)).tap()
+        let errand = sceneField(app, "errand:") ?? "none"
+        moment.coordinate(withNormalizedOffset: XCTestCase.emptyWorld).tap()
         let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: moment)
         _ = XCTWaiter().wait(for: [gone], timeout: 4)
+        // The scene's value is published every tenth frame: give it a moment to show the tap.
+        let started = Date()
+        while sceneField(app, "tap:") != "lowered" && Date().timeIntervalSince(started) < 1.5 {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        let tap = sceneField(app, "tap:") ?? "?"
+        let after = sceneField(app, "errand:") ?? "none"
+        XCTAssertEqual(tap, "lowered", "the lowering tap only lowers (errand before \(errand), after \(after))")
+        XCTAssertTrue(after == "none" || after == errand,
+                      "the lowering tap began no deed (errand before \(errand), after \(after), tap \(tap))")
     }
 
     /// Walks the lord to world x by the realm strip of the lantern moment. The map spans columns 3 ... 146 of the
