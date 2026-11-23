@@ -1,0 +1,25 @@
+m12-c: Continue after the video: no interstitial, the day
+real time; as fast as the frames come
+the tap was sent without waiting at +0.164 s (point 92.3, 671.0; interface orientation 3 (the app's)); the runner answered at +0.456 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.6 -GWCameraX 1100
+scene after: frame:600 ready day:9 hour:6.23 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:strip cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1100.00 kf:7 kd:-1
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.354 s  
+02  +0.579 s  
+03  +0.726 s  
+04  +0.895 s  
+05  +1.099 s  
+06  +1.286 s  
+07  +1.491 s  
+08  +1.729 s  
+09  +1.937 s  
+10  +2.137 s  
+11  +2.300 s  
+12  +2.440 s  
+13  +2.572 s  
+14  +2.744 s  
+15  +2.882 s  
+16  +3.074 s  
+mean spacing 0.181 s over 15 gaps

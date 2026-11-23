@@ -1,0 +1,6 @@
+sootlingB frame 0: per pixel 7.18 : 1 (333 px); means body 0.0196 ground 0.0837 4.26 : 1; top contour 0.52 : 1 (63 px, body over ground); navy 0.09 : 1
+sootlingB frame 0: top contour over its navy 2.25 : 1 with the flare term (0.0768 over 0.0063)
+sootling frame 4: per pixel 12.11 : 1 (630 px); means body 0.0154 ground 0.1117 7.23 : 1; top contour 0.60 : 1 (81 px, body over ground); navy 0.06 : 1
+sootling frame 4: top contour over its navy 2.24 : 1 with the flare term (0.0764 over 0.0065)
+sootling frame 0: per pixel 9.09 : 1 (540 px); means body 0.0153 ground 0.0896 5.84 : 1; top contour 0.66 : 1 (72 px, body over ground); navy 0.07 : 1
+sootling frame 0: top contour over its navy 2.24 : 1 with the flare term (0.0755 over 0.0061)

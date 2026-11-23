@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13HesperSaysTheFarGoalOnDayOne]' passed (36.612 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheDuskUnderReduceMotionInTheTown]' passed (33.153 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheEndOfAnEmptyDay]' passed (71.200 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheRibbonReadsTheNight]' passed (28.297 seconds).
+exit=0
+screenshots: 133

@@ -1,0 +1,40 @@
+m12-a: the dawn report of day 9 and its offer coming; the condition: the offer stands
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +4.882 s (4 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.6 -GWCameraX 1100
+
+frame  seconds since the burst began  (scene where read)
+01  +0.929 s  
+02  +1.075 s  day:8 hour:5.77 alive:0 seen:0 shots:0 kx:1100 dawn:0.00 stage:world lx:1100 gold:34 hud:none cam:882 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+03  +1.336 s  
+04  +1.487 s  day:8 hour:5.81 alive:0 seen:0 shots:0 kx:1100 stage:world lx:1100 gold:34 hud:none cam:882 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+05  +1.772 s  
+06  +1.944 s  day:8 hour:5.84 alive:0 seen:0 shots:0 kx:1100 stage:world lx:1100 gold:34 hud:none cam:882 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+07  +2.199 s  
+08  +2.359 s  day:8 hour:5.87 alive:0 seen:0 shots:0 kx:1100 stage:world lx:1100 gold:34 hud:none cam:882 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+09  +2.583 s  
+10  +2.742 s  day:8 hour:5.91 alive:0 seen:0 shots:0 kx:1100 stage:world lx:1100 gold:34 hud:none cam:882 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+11  +2.975 s  
+12  +3.141 s  day:8 hour:5.94 alive:0 seen:0 shots:0 kx:1100 stage:world lx:1100 gold:34 hud:none cam:882 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+13  +3.645 s  
+14  +3.862 s  day:8 hour:5.98 alive:0 seen:0 shots:0 kx:1100 stage:world lx:1100 gold:34 hud:none cam:882 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+15  +4.234 s  
+16  +4.378 s  day:9 hour:6.00 alive:0 seen:0 shots:0 kx:1100 stage:world lx:1100 gold:34 hud:none cam:882 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+17  +5.123 s  
+18  +5.272 s  
+19  +5.405 s  
+20  +5.571 s  
+21  +5.775 s  
+22  +5.920 s  
+23  +6.052 s  
+24  +6.196 s  
+25  +6.334 s  
+26  +6.461 s  
+27  +6.618 s  
+28  +6.786 s  
+29  +6.929 s  
+30  +7.103 s  
+31  +7.247 s  
+32  +7.422 s  day:9 hour:6.00 alive:0 seen:0 shots:0 kx:1100 stage:world lx:1100 gold:34 hud:none cam:882 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.209 s over 31 gaps
