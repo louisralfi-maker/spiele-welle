@@ -1,0 +1,42 @@
+m08-a: Silas Moth lights the first street lantern by the postern (TownLamps: it takes the flame at 17:58); the condition: the hour 17.975
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +3.044 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 17.5 -GWStage world -GWCameraX 2300
+
+frame  seconds since the burst began  (scene where read)
+01  +0.231 s  
+02  +0.445 s  day:3 hour:17.79 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+03  +0.748 s  
+04  +1.011 s  day:3 hour:17.84 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+05  +1.264 s  
+06  +1.523 s  day:3 hour:17.88 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+07  +1.952 s  
+08  +2.212 s  day:3 hour:17.94 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+09  +2.724 s  
+10  +2.952 s  day:3 hour:18.00 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+11  +3.252 s  
+12  +3.533 s  
+13  +3.732 s  
+14  +3.935 s  
+15  +4.115 s  
+16  +4.322 s  
+17  +4.640 s  
+18  +4.923 s  
+19  +5.143 s  
+20  +5.351 s  
+21  +5.732 s  
+22  +6.052 s  
+23  +6.296 s  
+24  +6.648 s  
+25  +6.901 s  
+26  +7.244 s  
+27  +7.520 s  
+28  +7.954 s  
+29  +8.573 s  
+30  +9.275 s  
+31  +9.756 s  
+32  +10.051 s  
+33  +10.384 s  
+34  +10.756 s  day:3 hour:18.64 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.319 s over 33 gaps

@@ -1,0 +1,29 @@
+m12-b: a tap on the offer (the stub's video ends at once): the offer goes, the note comes
+real time; as fast as the frames come
+the tap was sent without waiting at +0.218 s (point 92.3, 479.7; interface orientation 3 (the app's)); the runner answered at +0.510 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.6 -GWCameraX 1100
+scene after: frame:400 ready day:9 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:none cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1100.00 kf:6 kd:-1 kcx:881.50
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.405 s  
+02  +0.605 s  
+03  +0.783 s  
+04  +0.978 s  
+05  +1.159 s  
+06  +1.357 s  
+07  +1.520 s  
+08  +1.696 s  
+09  +1.899 s  
+10  +2.079 s  
+11  +2.243 s  
+12  +2.414 s  
+13  +2.590 s  
+14  +2.770 s  
+15  +2.941 s  
+16  +3.108 s  
+17  +3.286 s  
+18  +3.464 s  
+19  +3.648 s  
+20  +3.804 s  
+mean spacing 0.179 s over 19 gaps

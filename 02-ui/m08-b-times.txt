@@ -1,0 +1,46 @@
+m08-b: the horn at 19:00; the condition: the horn's banner stands (or the hour 19.0)
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +4.382 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 17.5 -GWStage world -GWCameraX 2300
+
+frame  seconds since the burst began  (scene where read)
+01  +0.182 s  
+02  +0.394 s  day:3 hour:18.69 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+03  +0.849 s  
+04  +1.056 s  day:3 hour:18.75 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+05  +1.527 s  
+06  +2.103 s  day:3 hour:18.84 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+07  +2.881 s  
+08  +3.273 s  day:3 hour:18.94 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+09  +3.871 s  
+10  +4.134 s  day:3 hour:19.02 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready  <- the condition holds
+11  +4.568 s  
+12  +4.819 s  
+13  +5.050 s  
+14  +5.240 s  
+15  +5.524 s  
+16  +5.718 s  
+17  +5.946 s  
+18  +6.279 s  
+19  +6.508 s  
+20  +6.798 s  
+21  +7.060 s  
+22  +7.262 s  
+23  +7.507 s  
+24  +7.766 s  
+25  +8.067 s  
+26  +8.266 s  
+27  +8.473 s  
+28  +8.691 s  
+29  +9.078 s  
+30  +9.306 s  
+31  +9.519 s  
+32  +9.706 s  
+33  +9.896 s  
+34  +10.096 s  
+35  +10.314 s  
+36  +10.594 s  
+37  +10.843 s  
+38  +11.089 s  day:3 hour:19.59 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.295 s over 37 gaps

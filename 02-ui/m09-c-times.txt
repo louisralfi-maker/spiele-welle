@@ -1,0 +1,41 @@
+m09-c: after burst b: the fight goes on
+real time; as fast as the frames come
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWNight 1 -GWSeed 1 -GWCameraX 1330 -GWHour 22.5
+scene before: frame:1460 ready day:1 hour:0.77 alive:8 seen:0 lit:0 shots:0 aim:0 kx:1330 lord:lord stage:world lx:1330 errand:none door:1830 gold:21 hud:none cam:1133 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:1330.00 kf:6 kd:-1 kcx:1132.50 lantern:ready
+scene after: frame:1930 ready day:1 hour:1.50 alive:8 seen:0 lit:0 shots:0 aim:0 kx:1330 lord:lord stage:world lx:1330 errand:none door:1830 gold:21 hud:none cam:1133 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:1330.00 kf:7 kd:-1 kcx:1132.50 lantern:ready
+
+frame  seconds since the burst began  (scene where read)
+01  +0.559 s  
+02  +0.923 s  
+03  +1.175 s  
+04  +1.430 s  
+05  +1.721 s  
+06  +1.946 s  
+07  +2.184 s  
+08  +2.512 s  
+09  +2.740 s  
+10  +2.975 s  
+11  +3.191 s  
+12  +3.520 s  
+13  +3.764 s  
+14  +4.071 s  
+15  +4.338 s  
+16  +4.590 s  
+17  +4.924 s  
+18  +5.174 s  
+19  +5.467 s  
+20  +5.708 s  
+21  +5.920 s  
+22  +6.156 s  
+23  +6.352 s  
+24  +6.571 s  
+25  +6.772 s  
+26  +6.946 s  
+27  +7.171 s  
+28  +7.408 s  
+29  +7.635 s  
+30  +7.847 s  
+31  +8.040 s  
+32  +8.299 s  
+mean spacing 0.250 s over 31 gaps
