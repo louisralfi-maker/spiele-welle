@@ -26,7 +26,7 @@ final class SoundDirector: FeedbackHub {
     private var voices: [SoundID: [AVAudioPlayer]] = [:]
     private var loops: [SoundID: AVAudioPlayer] = [:]
     private var levels: [SoundID: Double] = [:]
-    /// Step 0b: the throttles, the steps' alternation and the no-jitter rule (`FeedbackGate`, pure).
+    /// Step 0b: the throttles, the taps' and steps' rotation and the no-jitter rule (`FeedbackGate`, pure).
     private var gate = FeedbackGate()
     private var lastAmbience: Double?
     /// After a loop could not start (an interruption, a call), it is tried again from this time on.
@@ -41,6 +41,9 @@ final class SoundDirector: FeedbackHub {
     private var titleSince: Double?
     /// D1: the battle duck's caller, from the placed blows (`FightNear`).
     private var fight = FightNear()
+    /// D2 part 6: the beds wait for the hall door's latch (`BedLatch`); the last mix the game asked for before a creak.
+    private var latch = BedLatch()
+    private var lastMix: AmbienceMix?
 
     private let lightImpact: UIImpactFeedbackGenerator
     private let softImpact: UIImpactFeedbackGenerator
@@ -91,17 +94,21 @@ final class SoundDirector: FeedbackHub {
         let answer = gate.answer(cue, soundOn: soundOn, hapticsOn: hapticsOn, now: now, near: near)
         if let haptic = answer.haptic {
             fire(haptic, strength: answer.hapticStrength)
-            // D1, law 4's step 4: the same haptic again (the breach: heavy, then heavy 0.12 s later).
+            // D1, law 4's step 4: the same haptic again (the breach: heavy, then heavy 0.12 s later). D2: or the echo's
+            // own (a building standing: success, then light).
             if let echo = answer.echo {
                 let strength = answer.hapticStrength
+                let second = answer.echoHaptic ?? haptic
                 Task { [weak self] in
                     try? await Task.sleep(nanoseconds: UInt64(echo * 1_000_000_000))
                     guard let self, self.hapticsOn else { return }
-                    self.fire(haptic, strength: strength)
+                    self.fire(second, strength: strength)
                 }
             }
         }
         guard let sound = answer.sound, let player = voice(sound.id) else { return }
+        // D2 part 6: the hall door's creak holds the beds' place until the latch.
+        if cue == .doorOpened { latch.creak(at: now, before: lastMix) }
         // Step 0b, D1 (0b's L1): an answer of step 3 or 4 ducks the beds only when its sound really plays (not when
         // it was throttled away, Sound is off, or its file is missing).
         switch answer.duck {
@@ -155,8 +162,11 @@ final class SoundDirector: FeedbackHub {
     }
     // end b3-count
 
-    func ambience(_ mix: AmbienceMix) {
+    func ambience(_ asked: AmbienceMix) {
         let now = CACurrentMediaTime()
+        // D2 part 6: through a door's creak the beds keep the place they had before it (`BedLatch`).
+        let mix = latch.mix(asked, now: now)
+        lastMix = asked
         let dt = min(0.25, max(0, now - (lastAmbience ?? now)))
         lastAmbience = now
         // Step 0b, law 4's one duck rule: the deepest active duck wins (`BedDucks.depth`), followed on this clock and
@@ -170,7 +180,8 @@ final class SoundDirector: FeedbackHub {
         for id in SoundID.loops {
             // Under the title its beds are its own (`startTitleBeds`); the other loops rest.
             if titleSince != nil && AmbienceMix.titleBeds.contains(where: { $0.id == id }) { continue }
-            let target = soundOn && titleSince == nil ? mix.level(id) : 0
+            // D2 0f: the beds under their ceiling (`AmbienceMix.bed`): together never louder than -24.5 dBFS undecked.
+            let target = soundOn && titleSince == nil ? mix.bed(id) : 0
             let level = AmbienceMix.approach(levels[id] ?? 0, target, dt: dt)
             levels[id] = level
             let heard = level * ducked

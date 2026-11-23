@@ -385,8 +385,9 @@ final class EntityFramesTests: XCTestCase {
     // MARK: - Polish step A1: the walk and the breath (law 1, figures)
 
     /// The driver's walk from standing: every step's frame is the walk frame of the distance this walk has come (one
-    /// per 4 px stride, walk frame 0 first, so the feet do not slide through the ramp and the brake); after the stop the
-    /// standing pose holds 0.25 s, then the breath begins with frame A.
+    /// per 4 px stride, walk frame 0 first, so the feet do not slide through the ramp); step A1b rewrote the brake's
+    /// part: inside the last 4 px the stride closes (the last walk frame has the legs closed) and the landing step
+    /// draws the standing pose; after the stop the standing pose holds 0.25 s, then the breath begins with frame A.
     func testTheKingsFrameFollowsTheDistanceOfHisWalkAndHolds() {
         var s = GameState.newRealm(seed: 6)
         s.hour = 10
@@ -396,33 +397,207 @@ final class EntityFramesTests: XCTestCase {
         driver.travel(to: 2731, speed: balance.kingWalkSpeed)
         var walked = 0.0
         var first = true
+        var frames: [Int] = []
         while driver.travelTarget != nil {
             let x = driver.state.king.x
             driver.advance(by: SimDriver.step, events: &events)
             walked += abs(driver.state.king.x - x)
             let frame = EntityFrames.kingFrame(driver.state.king, balance: balance, time: driver.state.simTime,
                                                gait: driver.gait)
+            frames.append(frame)
             if first {
                 XCTAssertEqual(frame, 0, "the first frame after the tap is walk frame 0")
                 first = false
             }
-            XCTAssertEqual(frame, Int(walked / FigureMotion.lordStride) % 6, "walk frame by distance at \(walked)")
+            if 30.6 - walked >= FigureMotion.brakePixels {
+                XCTAssertEqual(frame, Int(walked / FigureMotion.lordStride) % 6, "walk frame by distance at \(walked)")
+            }
         }
         XCTAssertEqual(walked, 30.6, accuracy: 1e-9)
+        XCTAssertEqual(frames.last, 6, "the landing step draws the standing pose")
+        XCTAssertTrue(FigureMotion.lordClosedFrames.contains(frames[frames.count - 2]),
+                      "the last walk frame has the legs closed: \(frames.suffix(8))")
         var standing: [Int] = []
         for _ in 0..<100 {
             driver.advance(by: SimDriver.step, events: &events)
             standing.append(EntityFrames.kingFrame(driver.state.king, balance: balance, time: driver.state.simTime,
                                                    gait: driver.gait))
         }
-        XCTAssertTrue(standing[0..<15].allSatisfy { $0 == 6 }, "the standing pose held 0.25 s: \(standing)")
-        XCTAssertTrue(standing[15..<80].allSatisfy { $0 == 6 }, "then frame A of the breath")
+        XCTAssertTrue(standing[0..<14].allSatisfy { $0 == 6 }, "the standing pose held 0.25 s: \(standing)")
+        XCTAssertTrue(standing[14..<80].allSatisfy { $0 == 6 }, "then frame A of the breath")
         XCTAssertEqual(standing[90], 7, "frame B after 1.4 s")
         // Command frames still win.
         var lighting = driver.state.king
         lighting.lightingPlot = 2
         XCTAssertTrue((8...9).contains(EntityFrames.kingFrame(lighting, balance: balance, time: 0.3,
                                                              gait: driver.gait)))
+    }
+
+    /// Step A1b (the stop closes the stride; A1's F3 and A1-C9): for every landing phase of the cycle (0 to 23.5 px in
+    /// half pixels, after walks of two and four strides and more, at the walk, the hurry and the run), the frames
+    /// through the brake never draw a wide stride directly before the standing pose, the landing step draws the
+    /// standing pose, no new wide stride begins inside the brake, the walk frames only go forward, the closed legs
+    /// stand for more than one step at the walk and the hurry, and the feet slide at most 2 px where the art allows it
+    /// (the landing within 2 px of a passing frame of the stride the brake began in) and never more than one frame, the
+    /// closing px and one step.
+    func testTheStopClosesTheStrideForEveryLandingPhase() {
+        let wide: Set<Int> = [0, 1, 3, 4]
+        for pace in [balance.kingWalkSpeed, TouchRules.hurrySpeed, balance.kingRunSpeed] {
+            for base in [24.0, 48.0, 96.0] {
+                for half in 0..<48 {
+                    let landing = Double(half) / 2
+                    let label = "\(base + landing) px at \(pace)"
+                    var s = GameState.newRealm(seed: 6)
+                    s.hour = 10
+                    s.king.x = 2600
+                    s.king.facing = 1
+                    var driver = SimDriver(state: s, balance: balance)
+                    var events: [SimEvent] = []
+                    driver.travel(to: 2600 + base + landing, speed: pace)
+                    var frames: [Int] = []
+                    var braking: [Bool] = []
+                    var slide = 0.0
+                    var steps = 0
+                    while driver.travelTarget != nil && steps < 2000 {
+                        driver.advance(by: SimDriver.step, events: &events)
+                        frames.append(driver.gait.frame)
+                        braking.append(driver.gait.brakes)
+                        if driver.gait.brakes { slide = max(slide, abs(driver.gait.phase - driver.gait.walked)) }
+                        steps += 1
+                    }
+                    XCTAssertEqual(driver.state.king.x, 2600 + base + landing, "\(label): on the spot")
+                    XCTAssertEqual(frames.last, FigureMotion.lordIdleFrame, "\(label): the landing step stands")
+                    let last = frames[frames.count - 2]
+                    XCTAssertFalse(wide.contains(last), "\(label): a wide stride before the standing pose \(frames.suffix(8))")
+                    XCTAssertTrue(FigureMotion.lordClosedFrames.contains(last), "\(label): legs closed")
+                    for index in 1..<(frames.count - 1) where braking[index] {
+                        let before = frames[index - 1]
+                        let now = frames[index]
+                        XCTAssertFalse(now != before && (now == 0 || now == 3), "\(label): a new stride in the brake")
+                        XCTAssertTrue(now == before || now == (before + 1) % 6, "\(label): forward only")
+                    }
+                    let phase = landing.truncatingRemainder(dividingBy: 12)
+                    if phase <= 2 || phase >= 7 {
+                        XCTAssertLessThanOrEqual(slide, 2.5, "\(label): the feet slide at most 2 px here")
+                    }
+                    XCTAssertLessThanOrEqual(slide, 4 + FigureMotion.lordClosingPixels + pace * SimDriver.step + 1e-9,
+                                             "\(label): at most a frame, the closing px and a step")
+                    // The closed legs stand for more than the step before the landing at the walk and the hurry.
+                    if pace < balance.kingRunSpeed {
+                        let held = frames.dropLast().reversed().prefix { $0 == last }.count
+                        XCTAssertGreaterThanOrEqual(held, 2, "\(label): the closed legs held \(held) steps")
+                    }
+                }
+            }
+        }
+        // A drag let go closes its stride too.
+        for after in [20, 31, 47, 60] {
+            var s = GameState.newRealm(seed: 6)
+            s.hour = 10
+            s.king.x = 2600
+            var driver = SimDriver(state: s, balance: balance)
+            var events: [SimEvent] = []
+            driver.setDrag(offset: 60)
+            for _ in 0..<after { driver.advance(by: SimDriver.step, events: &events) }
+            driver.setDrag(offset: nil)
+            var frames: [Int] = []
+            while driver.state.king.velocity != 0 {
+                driver.advance(by: SimDriver.step, events: &events)
+                frames.append(driver.gait.frame)
+            }
+            XCTAssertEqual(frames.last, FigureMotion.lordIdleFrame, "drag after \(after): stands on landing")
+            XCTAssertTrue(FigureMotion.lordClosedFrames.contains(frames[frames.count - 2]),
+                          "drag after \(after): legs closed \(frames)")
+        }
+    }
+
+    /// Step A1b (A1-C5, A1-C6): the hall's standing lord and the wall guards breathe on the one breath, out of phase
+    /// with their neighbours (the lord on his gait's clock, id 0; the guards by their ids).
+    func testTheHallsLordAndTheWallGuardsAreOnTheOneBreath() {
+        var walker = HallWalker(x: 300, facing: 1)
+        walker.walk(to: 320, speed: KingState.walkSpeed)
+        for _ in 0..<120 { walker.step(dt: 1.0 / 60) }
+        XCTAssertEqual(walker.x, 320)
+        var frames: [Int] = []
+        for _ in 0..<240 {
+            walker.rest(dt: 1.0 / 60)
+            frames.append(walker.gait.frame)
+        }
+        // He landed well inside the 120 steps and stands: frame A 1.15 s and frame B 0.85 s after the 0.25 s hold.
+        XCTAssertEqual(Set(frames), [6, 7], "he breathes in the hall: \(frames)")
+        var runs: [Int] = [1]
+        for index in 1..<frames.count {
+            if frames[index] == frames[index - 1] { runs[runs.count - 1] += 1 } else { runs.append(1) }
+        }
+        XCTAssertGreaterThanOrEqual(runs.count, 3, "he breathes: \(runs)")
+        for run in runs.dropFirst().dropLast() {
+            XCTAssertGreaterThanOrEqual(run, 50, "each half of the breath 1.15 s or 0.85 s, never the old 2 fps: \(runs)")
+        }
+        // The wall guards: the one breath, each with his own phase, out of step with each other and with the lord.
+        XCTAssertEqual(CourtFrames.wallGuardIDs.count, 2)
+        var differ = 0
+        var lordDiffer = 0
+        for index in 0..<2000 {
+            let time = Double(index) * 0.01
+            let a = FigureMotion.breath(time: time, id: CourtFrames.wallGuardIDs[0])
+            let b = FigureMotion.breath(time: time, id: CourtFrames.wallGuardIDs[1])
+            if a != b { differ += 1 }
+            if a != FigureMotion.breath(time: time, id: 0) { lordDiffer += 1 }
+        }
+        XCTAssertGreaterThan(differ, 500, "the two wall guards breathe out of step")
+        XCTAssertGreaterThan(lordDiffer, 500, "and out of step with the lord")
+    }
+
+    /// The A1b gate (F4): the drawn frames, not only the clocks: the hall's frame draws the standing lord on his gait's
+    /// breath whatever the animation clock says (before, the old 2 fps idle on that clock), and the court layer draws
+    /// the two wall guards on the one breath with their ids' phases (before, a symmetric clock of their own).
+    func testTheDrawnHallLordAndWallGuardsBreatheTheOneBreath() throws {
+        var s = GameState.newRealm(seed: 5)
+        s.day = 2
+        s.hour = 10
+        PetitionEngine.prepare(&s, catalog: .standard)
+        s.king.x = 1500
+        // The hall: he walks 20 px, lands, and stands; every tenth step the hall's frame is built.
+        let options = FrameOptions(flickerTime: 1.5)
+        let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        var walker = HallWalker(x: 300, facing: 1)
+        walker.walk(to: 320, speed: KingState.walkSpeed)
+        for _ in 0..<120 { walker.step(dt: 1.0 / 60) }
+        XCTAssertEqual(walker.x, 320)
+        var drawn = Set<Int>()
+        for index in 0..<240 {
+            walker.rest(dt: 1.0 / 60)
+            guard index % 10 == 0 else { continue }
+            var scene = HallScene(walker: walker)
+            let walkWidth = HallFraming.viewWidth(pixelScale, scale: Double(HallFraming.scales(pixelScale).walk))
+            scene.camera = Camera(focusX: walker.x, viewWidth: walkWidth, worldWidth: HallLayout.width)
+            let input = HallFrameInput(state: s, balance: .standard, scene: scene,
+                                       court: CourtScene(rooms: RoomFades(kingX: s.king.x)), figures: [], specs: [],
+                                       lord: s.lordOrDefault, pixelScale: pixelScale, options: options,
+                                       ambient: AmbientRamp.sample(at: s.hour), weather: .clear,
+                                       animTime: 0.1 + Double(index) * 0.029)
+            let desc = HallFrames.build(input)
+            let lord = try XCTUnwrap(desc.actors.last { $0.sprite == s.lordOrDefault.body }, "the hall's lord")
+            XCTAssertEqual(lord.frame, walker.gait.frame, "the hall draws his gait's breath (rest step \(index))")
+            drawn.insert(lord.frame)
+        }
+        XCTAssertEqual(drawn, [6, 7], "the drawn lord breathes in the hall")
+        // The court layer: the two wall guards on the wall walk, by their ids' phases.
+        var court = s.court ?? CourtState()
+        court.world = ["castle.guards.wall"]
+        s.court = court
+        var differ = 0
+        for time in [0.0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.9, 3.6] {
+            let frame = CastleRoomsTests.frame(s, focus: 1500, court: CourtScene(rooms: RoomFades(kingX: 1500)),
+                                               time: time)
+            let guards = frame.desc.actors.filter { $0.sprite == .guardsman && $0.rect.y < 600 }
+                .sorted { $0.rect.x < $1.rect.x }
+            XCTAssertEqual(guards.count, 2, "two guards on the wall walk at \(time)")
+            let expected = CourtFrames.wallGuardIDs.map { FigureMotion.breath(time: time, id: $0) }
+            XCTAssertEqual(guards.map(\.frame), expected, "the drawn wall guards breathe the one breath at \(time)")
+            if expected[0] != expected[1] { differ += 1 }
+        }
+        XCTAssertGreaterThan(differ, 0, "the samples include the two guards out of step")
     }
 
     /// One breath for every person (law 1: frame A 1.15 s, frame B 0.85 s, phase id × 0.37 s): two figures with

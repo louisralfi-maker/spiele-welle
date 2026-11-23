@@ -223,11 +223,19 @@ struct PauseSheetView: View {
     let model: GameModel
     @State private var confirming = false
     @State private var callingTheNight = false
+    /// The sheet's face (its words and buttons) during a swap to or from a confirmation (polish C1, M16).
+    @State private var faceShown = 1.0
 
     var body: some View {
         GeometryReader { geometry in
             CardScroll {
                 content
+                    // C1 gate (C1-1): each face is its own view and comes without a transition of its own; only the
+                    // face's opacity moves, so a swap never blends two faces.
+                    .id(callingTheNight ? 2 : (confirming ? 1 : 0))
+                    .transition(.identity)
+                    .opacity(faceShown)
+                    .allowsHitTesting(faceShown == 1)
             }
             .frame(width: min(420, geometry.size.width - 24))
             .background(NightBackground())
@@ -236,6 +244,24 @@ struct PauseSheetView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("pause-sheet")
+    }
+
+    /// A swap inside the pane (law 2, M16: the confirmations cut before): the face goes at the normal token's out
+    /// (0.15 s ease-in), then `change` cuts while the face is empty (no animation: the old and the new face never show
+    /// at once, law 1 "never a blend"; the sheet takes the new face's size in the same cut), and the new face comes
+    /// alone at its in (0.25 s ease-out); opacity only, at quick under Reduce Motion. No touch lands while it goes.
+    private func swap(_ change: @escaping @MainActor () -> Void) {
+        let mode = MotionMode(reduceMotion: model.reduceMotion)
+        withAnimation(.lhLeave(.normal, mode: mode)) { faceShown = 0 }
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: UInt64(mode.outSeconds(.normal) * 1_000_000_000))
+            // C1 gate (C1-1, F1): the change inside the face's fade-in gave the `if` branches SwiftUI's default
+            // opacity transition, a double exposure over a sheet changing its size (film p03-b 03, p03-c 03).
+            var cut = Transaction()
+            cut.disablesAnimations = true
+            withTransaction(cut) { change() }
+            withAnimation(.lhEnter(.normal, mode: mode)) { faceShown = 1 }
+        }
     }
 
     @ViewBuilder private var content: some View {
@@ -271,7 +297,7 @@ struct PauseSheetView: View {
                 }
                 HStack(spacing: 10) {
                     Button {
-                        callingTheNight = false
+                        swap { callingTheNight = false }
                     } label: {
                         Text("Not yet").frame(maxWidth: .infinity)
                     }
@@ -302,7 +328,7 @@ struct PauseSheetView: View {
                 // that wipes it is quiet with wax-red words and rule.
                 HStack(spacing: 10) {
                     Button {
-                        confirming = false
+                        swap { confirming = false }
                     } label: {
                         Text("Cancel").frame(maxWidth: .infinity)
                     }
@@ -336,7 +362,7 @@ struct PauseSheetView: View {
                     // M2b review: by day the night can be called at once (day 1 left minutes with nothing to do).
                     if model.canCallTheNight {
                         Button {
-                            callingTheNight = true
+                            swap { callingTheNight = true }
                         } label: {
                             // Fix round 2 (the director's 16:06 rule): the horn in words only; three drawn horns read as a crescent, a key
                             // and a teapot, and words alone beat a wrong picture.
@@ -365,16 +391,16 @@ struct PauseSheetView: View {
                         .foregroundStyle(NightGlass.mist)
                     GlassRule()
                     Button {
-                        confirming = true
+                        swap { confirming = true }
                     } label: {
+                        // Polish C1: a quiet inset plaque (one button style), its words in mist at rest.
                         GlyphLabel("Restart chapter", glyph: .replay, spacing: 6)
                             .font(Theme.italic(.subheadline))
-                            .foregroundStyle(NightGlass.mist)
-                            .padding(.horizontal, 4)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 10)
                             .frame(minWidth: 44, minHeight: 44, alignment: .leading)
-                            .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(GlassPlaqueStyle(inside: true))
                     .accessibilityIdentifier("pause-restart")
                     // The join (item 10): Google's privacy choices, where they are required, as quiet words too.
                     if AdDirector.shared.privacyOptionsRequired {
@@ -387,12 +413,11 @@ struct PauseSheetView: View {
                                 Image(systemName: "hand.raised")
                             }
                             .font(Theme.italic(.subheadline))
-                            .foregroundStyle(NightGlass.mist)
-                            .padding(.horizontal, 4)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 10)
                             .frame(minWidth: 44, minHeight: 44, alignment: .leading)
-                            .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(GlassPlaqueStyle(inside: true))
                         .accessibilityIdentifier("settings-privacy")
                     }
                 }
@@ -418,17 +443,15 @@ struct SettingRow: View {
             HStack {
                 Text(verbatim: title)
                     .font(Theme.caps(.headline))
-                    .foregroundStyle(Theme.bone)
                 Spacer(minLength: 8)
                 // Night glass (stage-3-interface): a pixel slot with a square knob, no wax.
                 GlassSwitchFace(isOn: isOn)
             }
             .padding(.horizontal, 14)
             .frame(minHeight: 50)
-            .background(GlassPlaqueBackground(inside: true))
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        // Polish C1: the row is a plaque like every button (amber under the finger, the plaque's cue).
+        .buttonStyle(GlassPlaqueStyle(inside: true))
         .accessibilityValue(isOn ? Text("On") : Text("Off"))
         .accessibilityAddTraits(.isToggle)
         .accessibilityIdentifier(identifier)

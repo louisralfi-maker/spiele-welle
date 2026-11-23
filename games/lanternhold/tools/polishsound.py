@@ -11,6 +11,18 @@ D1's files:
 - grunt_1, grunt_2: a soldier struck, a short wordless "hff", 0.12 s: a breath and a body, no tune (a man hit; step 2).
 - wall_crack: stone splitting at 3 kHz, then grit, 0.5 s (a wall below half; step 3).
 The re-made wall_break (its 55 Hz sub thud) stays in soundsynth.py, where the old one was.
+
+D2's files ("deeds at their size"; law 4 0g: a player's rate stretches time and keeps the pitch, so every higher or
+lower sound the law names is rendered here at its pitch and played at rate 1):
+- tap_2, tap_3: the tap at +3.5 % and -3.4 % of its pitch (the touch's three variants with tap.wav, in rotation).
+- step_3: the third step (`soundsynth.step_variant`; step_1 and step_2 are re-made there, where the old ones were).
+- tap_low: the tap at 0.85 of its pitch (a pane or a bubble closing; was tap.wav at a rate of 0.85).
+- knock_low: the knock at 0.62 of its pitch, cut to 0.3 s (the count's board set on its post; was knock at 0.62).
+- lantern_high: the lantern at 1.45 of its pitch, cut to 0.45 s (Silas lights a street lamp; was lantern at 1.45).
+- lantern_raise: the lantern at 1.3 of its pitch (the night raise against the dark; was lantern at a rate of 1.3).
+- lantern_up, lantern_down: the lantern moment's own voice (F7), raised and lowered.
+- toll: the dawn's toll for a fallen man (F6): one stroke of the bell rendered low and damped, 1.4 s.
+The re-made build_done (F4: a 70 Hz body and a gravel tail) stays in soundsynth.py, where the old one was.
 """
 import math
 import os
@@ -20,6 +32,7 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import soundsynth as ss  # noqa: E402
+import taxsound  # noqa: E402
 
 
 def thump(n, f0, f1, tau, sweep=0.05):
@@ -107,6 +120,102 @@ def wall_crack():
 
 
 SOUNDS = [("man_fall", man_fall), ("grunt_1", grunt_1), ("grunt_2", grunt_2), ("wall_crack", wall_crack)]
+
+
+# ----------------------------------------------------------------------------------------------------------------
+# Polish step D2
+
+def tap_2():
+    return ss.resample(ss.tap(), 1.035)
+
+
+def tap_3():
+    return ss.resample(ss.tap(), 1.0 / 1.035)
+
+
+def step_3():
+    return ss.step_variant(2)
+
+
+def tap_low():
+    """A pane or a bubble closing: the tap at 0.85 of its pitch (and so 1/0.85 as long), played as made."""
+    return ss.fade(ss.resample(ss.tap(), 0.85), 0.0, 0.02)
+
+
+def knock_low():
+    """The count's board set on its post (F16): the knock at 0.62 of its pitch, its tail cut at 0.3 s (law 4's touch
+    step is at most 0.3 s long)."""
+    x = ss.resample(taxsound.knock(), 0.62)[:ss.secs(0.3)]
+    return ss.fade(ss.normalize(x, 0.86), 0.0, 0.06)
+
+
+def lantern_high():
+    """Silas lights a street lamp (F17): the lantern's wick catching at 1.45 of its pitch, higher and shorter, cut at
+    0.45 s (law 4's deed step is at most 0.45 s long)."""
+    x = ss.resample(ss.lantern(), 1.45)[:ss.secs(0.45)]
+    return ss.fade(x, 0.0, 0.08)
+
+
+def lantern_raise():
+    """The lantern raised against the dark at night (the hold): the lantern at 1.3 of its pitch, as the law's rate meant
+    it (a rate only stretched it in time)."""
+    return ss.fade(ss.resample(ss.lantern(), 1.3), 0.0, 0.05)
+
+
+def lantern_up():
+    """The lantern moment opens (F7): a glass knock (a grain at 2.6 kHz, tau 0.04 s, with a glassy upper partial and a
+    dry tick), then the flame swelling under it: a breath of fire through a low band whose pitch rises 5 % over 0.2 s;
+    0.30 s, no tune."""
+    rng = ss.Rng(441)
+    x = ss.zeros(ss.secs(0.30))
+    m = ss.secs(0.14)
+    ss.add_into(x, ss.grain(m, 2600, 0.04, rng, noisy=0.12), 0, 0.62)
+    ss.add_into(x, ss.grain(m, 2600 * 2.76, 0.014), 0, 0.2)
+    tick = ss.highpass([rng.bipolar() * math.exp(-i / (0.0006 * ss.SR)) for i in range(ss.secs(0.006))], 2500)
+    ss.add_into(x, tick, 0, 0.25)
+    n = ss.secs(0.27)
+    breath = ss.biquad(ss.noise(n, rng), "bp", lambda t: 520 * (1 + 0.05 * min(1.0, t / 0.2)), 1.3)
+    body = ss.biquad(ss.noise(n, rng), "lp", lambda t: 300 * (1 + 0.05 * min(1.0, t / 0.2)), 0.8)
+    env = [math.sin(0.5 * math.pi * min(1.0, i / (0.11 * ss.SR))) ** 2 * math.exp(-max(0.0, i / ss.SR - 0.11) / 0.07)
+           for i in range(n)]
+    ss.add_into(x, ss.mul([a + 0.8 * b for a, b in zip(breath, body)], env), ss.secs(0.025), 1.5)
+    return ss.fade(ss.normalize(ss.soft(ss.lowpass(x, 8000), 1.3)), 0.0008, 0.05)
+
+
+def lantern_down():
+    """The lantern moment closes (F7): the flame settling, a breath of fire through a low pass falling from 900 to
+    300 Hz over 0.2 s, no glass; 0.20 s."""
+    rng = ss.Rng(451)
+    n = ss.secs(0.2)
+    cut = lambda t: 900 - 600 * min(1.0, t / 0.2)  # noqa: E731
+    y = ss.biquad(ss.biquad(ss.noise(n, rng), "lp", cut, 0.8), "lp", cut, 0.7)
+    env = [min(1.0, i / (0.015 * ss.SR)) * (1.0 - i / n) ** 1.3 for i in range(n)]
+    return ss.fade(ss.normalize(ss.soft(ss.mul(y, env), 1.4)), 0.002, 0.04)
+
+
+def toll():
+    """The dawn's toll for a fallen man (F6): one stroke of the chapel bell rendered low (the bell's partials at 0.55
+    of their pitch, its hum near 121 Hz) and damped (each partial dies in at most 0.6 s, the high ones first), its
+    tail gone by 1.4 s; a soft strike, no second stroke. One bell, one stroke: never a tune."""
+    rng = ss.Rng(431)
+    x = ss.zeros(ss.secs(1.4))
+    n = ss.secs(1.4)
+    hum = 220.0 * 0.55
+    partials = ((0.5, 0.6, 0.6), (1.0, 1.0, 0.5), (1.19, 0.5, 0.36), (1.5, 0.3, 0.28), (2.0, 0.45, 0.24),
+                (2.51, 0.16, 0.14), (3.01, 0.1, 0.1))
+    for ratio, a, tau in partials:
+        f = hum * 2 * ratio
+        ss.add_into(x, ss.grain(n, f, tau), 0, a * 0.5)
+        ss.add_into(x, ss.grain(n, f + 0.45, tau), 0, a * 0.5)
+    clang = ss.lowpass([rng.bipolar() * math.exp(-i / (0.004 * ss.SR)) for i in range(ss.secs(0.03))], 1800)
+    ss.add_into(x, clang, 0, 0.35)
+    x = ss.reverb(ss.lowpass(x, 3200), wet=0.22, size=1.2)
+    return ss.fade(ss.normalize(ss.soft(x, 1.6)), 0.001, 0.35)
+
+
+SOUNDS += [("tap_2", tap_2), ("tap_3", tap_3), ("step_3", step_3), ("tap_low", tap_low), ("knock_low", knock_low),
+           ("lantern_high", lantern_high), ("lantern_raise", lantern_raise), ("lantern_up", lantern_up),
+           ("lantern_down", lantern_down), ("toll", toll)]
 
 
 def main(argv):
