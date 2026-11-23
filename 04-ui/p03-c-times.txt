@@ -1,0 +1,21 @@
+p03-c: Cancel: the confirmation goes, the sheet's face comes back
+real time; as fast as the frames come
+the tap was sent without waiting at +0.182 s (point 164.0, 340.5; interface orientation 3 (the app's)); the runner answered at +0.474 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWWeather clear
+scene after: frame:710 ready day:2 hour:9.67 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector,tamsin drill:none kv:0.00 kxf:1314.00 kf:7 kd:-1 kcx:1127.70
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.418 s  
+02  +0.637 s  
+03  +0.885 s  
+04  +1.112 s  
+05  +1.326 s  
+06  +1.545 s  
+07  +1.770 s  
+08  +1.992 s  
+09  +2.191 s  
+10  +2.396 s  
+11  +2.603 s  
+12  +2.793 s  
+mean spacing 0.216 s over 11 gaps

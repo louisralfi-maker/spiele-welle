@@ -1,0 +1,17 @@
+p04-a2: the gear: the pause sheet comes (0.25 s ease-out, a 2 game px rise, no scale; the dim with it)
+real time; as fast as the frames come
+the tap was sent without waiting at +0.517 s (point 376.0, 784.0; interface orientation 3 (the app's)); the runner answered at +0.814 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWWeather clear
+scene after: frame:1840 ready day:2 hour:11.22 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector,tamsin drill:none kv:0.00 kxf:1314.00 kf:6 kd:-1 kcx:1127.70
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.784 s  
+02  +1.127 s  
+03  +1.444 s  
+04  +1.939 s  
+05  +2.321 s  
+06  +2.858 s  
+07  +3.305 s  
+08  +3.794 s  
+mean spacing 0.430 s over 7 gaps

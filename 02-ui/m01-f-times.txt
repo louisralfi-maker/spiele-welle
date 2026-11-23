@@ -1,0 +1,25 @@
+m01-f: a tap on the slide: the next slide comes
+real time; as fast as the frames come
+the tap was sent without waiting at +0.306 s (point 210.0, 437.0; interface orientation 3 (the app's)); the runner answered at +0.620 s; its effect holds
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene after: frame:430 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:224.71
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.722 s  
+02  +1.010 s  
+03  +1.395 s  
+04  +1.642 s  
+05  +1.876 s  
+06  +2.134 s  
+07  +2.428 s  
+08  +2.825 s  
+09  +3.111 s  
+10  +3.370 s  
+11  +3.638 s  
+12  +3.937 s  
+13  +4.274 s  
+14  +4.625 s  
+15  +4.988 s  
+16  +5.395 s  
+mean spacing 0.312 s over 15 gaps

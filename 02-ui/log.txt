@@ -1,0 +1,8 @@
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1bTheStopTheDragAndTheCamera]' passed (153.780 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1TheWalkSlowed]' passed (84.294 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM01TheFirstSeconds]' passed (73.246 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM02TheFirstSteps]' passed (76.713 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM03ATalk]' passed (36.495 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM04TheLanternMoment]' passed (128.910 seconds).
+exit=0
+screenshots: 676
