@@ -161,11 +161,18 @@ final class CollectorTouchTests: XCTestCase {
         game.refreshTouchSpots()
         XCTAssertEqual(game.touchSpots.first { $0.id == CollectorTouch.id }?.label,
                        CollectorTouch.label(state, waiting: true))
+        // B3 gate (M1): a tap on his bubble while the deed waits keeps it (the slip stayed until the second touch).
+        game.tapTalkBubble(try XCTUnwrap(game.talkBubble))
+        XCTAssertNotNil(game.talkBubble, "a tap keeps the bubble while the deed waits")
+        XCTAssertEqual(game.touch.errand?.waiting, true, "and the second touch still waits")
+        XCTAssertNotNil(game.collectorDeed(try XCTUnwrap(game.talkBubble)), "with the deed on it")
         // The second touch takes him on; the deed goes with the wait.
         let again = try XCTUnwrap(game.touch.things.first { $0.id == CollectorTouch.id })
         game.touchThing(again)
         XCTAssertTrue(Town.collectorHired(try XCTUnwrap(game.driver?.state)), "taken on")
         let answer = try XCTUnwrap(game.talkBubble)
         XCTAssertNil(game.collectorDeed(answer), "his answer carries no deed")
+        game.tapTalkBubble(answer)
+        XCTAssertNil(game.talkBubble, "his answer closes on a tap")
     }
 }

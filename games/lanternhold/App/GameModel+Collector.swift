@@ -57,6 +57,14 @@ extension GameModel {
         return CollectorTouch.label(state, waiting: true)
     }
 
+    /// Polish B3 gate (M1, P1): a tap on a talk bubble closes it, except over Saul while the second touch waits: then the
+    /// bubble carries the deed the errand slip carried, and like the slip it stays until that touch, walking away
+    /// (`stepCourt`) or a card. What a touch on Saul does is unchanged.
+    func tapTalkBubble(_ bubble: TalkBubble) {
+        guard collectorDeed(bubble) == nil else { return }
+        closeTalk()
+    }
+
     /// While his errand runs, the bubble stands above his mark: its lower edge 2 game px over the mark's top (the
     /// director's note of 14:22 gave that rule over the slip; polish B3 keeps it over the mark that replaced the slip,
     /// at the mark's place whether it is drawn or not). `fallback` is the head's height otherwise.
