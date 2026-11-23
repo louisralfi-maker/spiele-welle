@@ -29,8 +29,8 @@ import Foundation
 //   the dawn verdict's outcome rides on its two cases (`DawnVerdict.cues(fallen:)` picks and spaces them).
 // - D1, the night's other blows on the ladder (not new cues; their files stay): arrowHit step 2 arrow_hit 0.75
 //   (-19.7), wallHit step 2 wall_hit 0.6 (-18.5, medium at most every 0.3 s), creatureDissolved step 2 dissolve 1.0
-//   (-17.5; law 4's kills' chain, +1 semitone a kill to +7 with its hand soft growing 0.35 to 1, is NOT built: a
-//   player's rate stretches time and keeps the pitch, so it would quicken the kills; D1 gate M2, the director's call),
+//   (-17.5; kills do not chain, the director's call after D1 (D2 0c): a kill plays as made and varies like any step 2
+//   answer; law 4's chain is for the coins, the count to +12 and the taxes to +7, both with pitched files),
 //   wallBroken step 4 wall_break 1.0 (-11.4, heavy, heavy again 0.12 s later, the beds x 0.25 held 1.5 s and back
 //   over 2 s). Beyond its hearing a positional cue fades from 0.35 to nothing over a further half of it, and gives
 //   no haptic and no answer duck there (D1 gate M5). A blow (hit, manHit) is heard 440 px far (D1 gate M1).

@@ -129,7 +129,7 @@ extension FeedbackCue {
         case .fireArrow: return SoundPlay(id: .bow, volume: 0.5, rate: 0.92)
         case .ballista: return SoundPlay(id: .engine, volume: 0.7)
         case .catapult: return SoundPlay(id: .engine, volume: 0.8, rate: 0.85)
-        // D1 (law 4, step 2): a kill at -17.5 dBFS (was 0.55, -22.7); the kills' chain is not built (`FeedbackGate`).
+        // D1 (law 4, step 2): a kill at -17.5 dBFS (was 0.55, -22.7); kills do not chain (D2 0c, `FeedbackGate`).
         case .creatureDissolved: return SoundPlay(id: .dissolve, volume: 1)
         case .glancedOff: return SoundPlay(id: .arrowHit, volume: 0.5, rate: 1.3)
         case .stomp: return SoundPlay(id: .wallHit, volume: 0.8, rate: 0.7)
@@ -456,9 +456,8 @@ struct FeedbackGate: Sendable, Equatable {
             gruntFlip.toggle()
             if !gruntFlip { sound.id = .grunt2 }
         }
-        // D1 gate M2: law 4's kills' chain (+1 semitone a kill to +7, its hand soft growing 0.35 to 1) is not built. A
-        // player's rate only stretches time (the note at `coinP01`), so a chained rate would quicken the kills, not raise
-        // them; a true climb needs pitched dissolve files or a varispeed node (the director's call; `AnswerChain` waits).
+        // D2 0c (the director's call after D1): kills do not chain. A kill plays as made and varies like any step 2
+        // answer; law 4's chain is for the coins (the count to +12, the taxes to +7, both with pitched files).
         answer.sound = sound
         answer.jitter = sound.id.varies && (cue.answerSize?.jitters ?? true)
         if near, let size = cue.answerSize, size >= .triumph { answer.duck = size }
@@ -660,16 +659,16 @@ struct FightNear: Sendable, Equatable {
     }
 }
 
-/// Law 4's chain for answers that repeat (the count's coins, the taxes' coins, kills near the lord): each repeat one
-/// semitone higher (rate 2^(n/12)), up to the caller's cap, back to the root after 1.5 s without a repeat. Generalised
-/// from the count's climbing coin (`PayCount.rate`, `SoundID.coinStep`), which lane B moves onto it later.
+/// Law 4's chain for coins that repeat (the count's coins, the taxes' coins; kills do not chain, D2 0c): each repeat one
+/// semitone higher (rate 2^(n/12), played as the pitched coin file of that step, `SoundID.coinSteps`), up to the
+/// caller's cap, back to the root after 1.5 s without a repeat. Generalised from the count's climbing coin
+/// (`PayCount.rate`, `SoundID.coinStep`), which lane B moves onto it later.
 struct AnswerChain: Sendable, Equatable {
     /// Seconds without a repeat that bring the chain back to its root.
     static let resetAfter = 1.5
-    /// The caps of law 4: the count to +12, the taxes and the kills to +7.
+    /// The caps of law 4: the count to +12, the taxes to +7.
     static let countCap = 12
     static let taxCap = 7
-    static let killCap = 7
 
     let cap: Int
     private(set) var step = 0

@@ -463,22 +463,21 @@ final class SoundMixTests: XCTestCase {
         XCTAssertNil(bubble.answer(.cardOpened, soundOn: false, hapticsOn: true, now: 8).sound, "Sound off: silent")
     }
 
-    /// Polish D1 gate M2 rewrote this test (it pinned the chain's rates): the kills' chain is not built, since a
-    /// player's rate stretches time and keeps the pitch. Every kill plays dissolve as made at rate 1, near or at the
-    /// edge, and varies a little like any step 2 answer. `AnswerChain` keeps its own rates and caps for pitched files.
-    func testKillsPlayAsMadeTheChainIsNotBuilt() {
+    /// Polish D1 gate M2 rewrote this test (it pinned the chain's rates); D2 0c renamed it: kills do not chain (the
+    /// director's call after D1). Every kill plays dissolve as made at rate 1, near or at the edge, and varies a little
+    /// like any step 2 answer. `AnswerChain` is for the coins.
+    func testKillsDoNotChain() {
         var gate = FeedbackGate()
         for k in 0..<10 {
             let answer = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: Double(k) * 0.3)
             XCTAssertEqual(answer.sound?.id, .dissolve)
             XCTAssertEqual(answer.sound?.rate, 1, "kill \(k): no stretched chain")
             XCTAssertTrue(answer.jitter, "step 2: +-4 %")
-            XCTAssertNil(answer.haptic, "the chain's hand is not built either")
+            XCTAssertNil(answer.haptic, "no chain, no growing hand")
         }
         let far = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: 3.2, near: false)
         XCTAssertEqual(far.sound?.rate, 1, "at the edge: as made")
         XCTAssertEqual(FeedbackCue.creatureDissolved.answerSize, .deed)
-        XCTAssertEqual(AnswerChain.killCap, 7, "the law's cap waits for pitched files")
     }
 
     /// 0b's L2: after a shallower duck the beds come back over 1.2 s from it, not at the pace a deeper duck before it
@@ -594,7 +593,6 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(AnswerChain.rate(step: 12), 2, accuracy: 1e-12)
         XCTAssertEqual(AnswerChain.countCap, 12)
         XCTAssertEqual(AnswerChain.taxCap, 7)
-        XCTAssertEqual(AnswerChain.killCap, 7)
         var chain = AnswerChain(cap: AnswerChain.taxCap)
         var steps: [Int] = []
         for k in 0..<10 { steps.append(chain.next(at: Double(k) * 0.3)) }
