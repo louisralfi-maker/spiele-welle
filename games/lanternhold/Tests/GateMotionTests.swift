@@ -222,6 +222,73 @@ final class GateMotionTests: XCTestCase {
                        "its open moment moves on with the lost time")
     }
 
+    // MARK: - The cue's lead (gate review A5-P1)
+
+    func testACuedOpeningHoldsItsLeadAndItsLastRowLandsOnTheCuesHit() throws {
+        XCTAssertEqual(GateMotion.cueHit, 0.95, "gate.wav's one audible part, the hit")
+        XCTAssertEqual(GateMotion.cueLead, 0.2)
+        XCTAssertEqual(GateMotion.reducedCueLead, GateMotion.cueHit - GateMotion.reducedSeconds, accuracy: 1e-12)
+        var gate = GateMotion()
+        gate.note(open: false, time: 9, reduceMotion: false)
+        XCTAssertEqual(gate.note(open: true, time: 10, reduceMotion: false, cued: true), .opens)
+        XCTAssertTrue(gate.isMoving, "the lead is part of the opening")
+        XCTAssertEqual(gate.standsOpenAt ?? 0, 10 + GateMotion.cueLead + GateMotion.openSeconds, accuracy: 1e-9)
+        var t = 10.0
+        var last = 0
+        var landed: Double?
+        while t < 11.2 {
+            t += 1.0 / 60
+            gate.note(open: true, time: t, reduceMotion: false)
+            let rows = gate.look!.rows
+            if t < 10 + GateMotion.cueLead - 1e-9 { XCTAssertEqual(rows, 0, "the door holds its lead (t \(t))") }
+            XCTAssertGreaterThanOrEqual(rows, last, "never back on the way up (t \(t))")
+            XCTAssertLessThanOrEqual(rows - last, 6, "whole rows, a few a frame at most (t \(t))")
+            if landed == nil && rows == GateMotion.fullRows { landed = t }
+            last = rows
+        }
+        let top = try XCTUnwrap(landed)
+        XCTAssertEqual(top - 10, GateMotion.cueHit, accuracy: 1.0 / 60 + 1e-9, "the last row moves on the cue's hit")
+        XCTAssertFalse(gate.isMoving)
+        // Uncued (creatures gone by day: no cue), and closing: no lead.
+        var plain = GateMotion()
+        plain.note(open: false, time: 9, reduceMotion: false)
+        plain.note(open: true, time: 10, reduceMotion: false)
+        XCTAssertEqual(plain.standsOpenAt ?? 0, 10 + GateMotion.openSeconds, accuracy: 1e-9, "no lead without the cue")
+        var falling = GateMotion()
+        falling.note(open: true, time: 9, reduceMotion: false)
+        XCTAssertEqual(falling.note(open: false, time: 10, reduceMotion: false, cued: true), .closes)
+        XCTAssertEqual(falling.travelled, 0, "a closing never holds a lead")
+        XCTAssertEqual(falling.remaining, GateMotion.closeSeconds, accuracy: 1e-9)
+    }
+
+    func testUnderReduceMotionACuedOpeningFadesOnTheCuesHit() {
+        var gate = GateMotion()
+        gate.note(open: false, time: 9, reduceMotion: true)
+        gate.note(open: true, time: 10, reduceMotion: true, cued: true)
+        XCTAssertEqual(gate.standsOpenAt ?? 0, 10 + GateMotion.cueHit, accuracy: 1e-9, "the fade ends on the hit")
+        var t = 10.0
+        while t < 11.1 {
+            t += 1.0 / 60
+            gate.note(open: true, time: t, reduceMotion: true)
+            let look = gate.look!
+            XCTAssertEqual(look.rows, 0, "no shifted row (t \(t))")
+            if t < 10 + GateMotion.reducedCueLead - 1e-9 { XCTAssertEqual(look.openAlpha, 0, "held (t \(t))") }
+            if t >= 10 + GateMotion.cueHit + 1.0 / 120 { XCTAssertEqual(look.share, 1, "open (t \(t))") }
+        }
+    }
+
+    func testAFlipDuringTheLeadStandsShutAtOnce() {
+        var gate = GateMotion()
+        gate.note(open: false, time: 9, reduceMotion: false)
+        gate.note(open: true, time: 10, reduceMotion: false, cued: true)
+        gate.note(open: true, time: 10.1, reduceMotion: false)
+        XCTAssertEqual(gate.look?.rows, 0, "still in its lead")
+        gate.note(open: false, time: 10.1, reduceMotion: false)
+        XCTAssertEqual(gate.look, .shut, "not a row had moved: it stands shut, no jump")
+        XCTAssertFalse(gate.isMoving)
+        XCTAssertNil(gate.standsOpenAt)
+    }
+
     // MARK: - The frame
 
     /// The model's effects with the gate opening since `start` and noted at `at`.

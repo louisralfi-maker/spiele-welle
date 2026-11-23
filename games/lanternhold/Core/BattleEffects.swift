@@ -515,14 +515,15 @@ extension BattleEffects {
 
     /// Polish step A5: notes line 1's gate's target for the frame (from the realm as the picture shows it, `drawn`,
     /// with the frame's own day rule) at `time` on the picture's wall clock; `seen` while the world stage shows.
-    /// Returns what the note started (`.opens` in the frame the gate begins to rise).
+    /// Returns what the note started (`.opens` in the frame the gate begins to rise). `cued`: the frame plays the
+    /// gate's cue with a change (the dawn), so an opening holds the cue's lead (`GateMotion.lead`).
     @discardableResult
     mutating func stepGate(_ state: GameState, balance: Balance, time: Double, reduceMotion: Bool,
-                           seen: Bool) -> GateMotion.Change {
+                           seen: Bool, cued: Bool = false) -> GateMotion.Change {
         let shown = drawn(state)
         let isDay = DayClock.phase(at: shown.hour) == .day
         let target = EntityFrames.gateTarget(shown, balance: balance, isDay: isDay)
-        return gate.note(open: target?.open, time: time, reduceMotion: reduceMotion, seen: seen)
+        return gate.note(open: target?.open, time: time, reduceMotion: reduceMotion, seen: seen, cued: cued)
     }
 
     /// True once `standing`'s swap has come (by the standings' clock).

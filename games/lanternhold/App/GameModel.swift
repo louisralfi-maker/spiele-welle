@@ -488,9 +488,11 @@ final class GameModel {
         // LANE-A: A5 (the gate moves: line 1's gate follows the rule's target on the picture's wall clock, standing at
         // once on the first frame back on the world stage; the dawn's gate cue starts with the door, once, in the frame
         // the gate begins to rise at a dawn, and a dawn at which no gate moves plays none)
+        // (Gate review A5-P1: the dawn's opening holds the cue's lead, so the door lands on the cue's hit.)
+        let dawnFrame = events.contains(where: { if case .dawn = $0 { return true } else { return false } })
         let gateChange = effects.stepGate(game.state, balance: game.balance, time: clock.elapsed,
-                                          reduceMotion: reduceMotion, seen: stage == .world)
-        if gateChange == .opens, events.contains(where: { if case .dawn = $0 { return true } else { return false } }) {
+                                          reduceMotion: reduceMotion, seen: stage == .world, cued: dawnFrame)
+        if gateChange == .opens, dawnFrame {
             feedback.play(.dawnGate)
         }
         // LANE-A end

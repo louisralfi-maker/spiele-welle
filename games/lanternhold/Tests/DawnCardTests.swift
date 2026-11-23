@@ -85,7 +85,9 @@ final class DawnCardModelTests: XCTestCase {
     // LANE-A: A5 (the gate moves: the card's 0.6 s count from the gate standing open, `gateStandsOpenAt`, which is the
     // end of its opening, GateMotion.openSeconds after the dawn, or GateMotion.reducedSeconds under Reduce Motion; the
     // dawn itself when no gate moves. The first two tests and the last one of this block were E2's pins of the card
-    // 0.6 s after the dawn's own frame, rewritten to wait through the gate's opening first; the others are A5's own.)
+    // 0.6 s after the dawn's own frame, rewritten to wait through the gate's opening first; the others are A5's own.
+    // Gate review A5-P1: the dawn's opening holds the cue's lead first, GateMotion.lead, so the door lands on the
+    // cue's hit at 0.95 s: the card comes 1.6 s after the dawn, 1.55 s under Reduce Motion.)
     /// Advances in frames of 1/60 s (the gate's travel takes at most `GateMotion.longestStep` a frame) until the
     /// clock reaches `time` (the card still waiting all the way).
     private func advance(_ game: GameModel, until time: Double) {
@@ -117,11 +119,11 @@ final class DawnCardModelTests: XCTestCase {
         XCTAssertNil(game.lanternMoment, "no lantern")
         XCTAssertNil(game.touch.errand, "no errand")
 
-        // A5: the gate rises first, over its opening's 0.8 s; the 0.6 s count from the moment it stands open.
+        // A5: the gate rises first, its lead and its opening's 0.8 s; the 0.6 s count from the moment it stands open.
         let dawnAt = game.clock.elapsed
         let open = game.gateStandsOpenAt(dawnAt: dawnAt)
-        XCTAssertEqual(open - dawnAt, GateMotion.openSeconds, accuracy: 1e-9,
-                       "the gate stands open 0.8 s after the dawn")
+        XCTAssertEqual(open - dawnAt, GateMotion.cueLead + GateMotion.openSeconds, accuracy: 1e-9,
+                       "the gate stands open 1.0 s after the dawn, on the cue's hit")
         advance(game, until: open)
         XCTAssertEqual(game.effects.gate.look?.rows, GateMotion.fullRows, "the gate stands open")
 
@@ -158,7 +160,8 @@ final class DawnCardModelTests: XCTestCase {
         XCTAssertTrue(game.dawnCardWaits)
         let dawnAt = game.clock.elapsed
         let open = game.gateStandsOpenAt(dawnAt: dawnAt)
-        XCTAssertEqual(open - dawnAt, GateMotion.reducedSeconds, accuracy: 1e-9, "the fade's 0.15 s")
+        XCTAssertEqual(open - dawnAt, GateMotion.reducedCueLead + GateMotion.reducedSeconds, accuracy: 1e-9,
+                       "the fade's 0.15 s, ending on the cue's hit")
         advance(game, until: open)
         game.advance(by: 0.25)
         game.advance(by: 0.25)
@@ -169,7 +172,7 @@ final class DawnCardModelTests: XCTestCase {
     }
 
     /// A5: at the dawn the gate begins to rise in the dawn's own frame (no row up yet), and the card is due
-    /// `dawnCardDelay` after `gateStandsOpenAt`, which reads the gate's motion: dawn + 0.8.
+    /// `dawnCardDelay` after `gateStandsOpenAt`, which reads the gate's motion: dawn + 0.2 (the cue's lead) + 0.8.
     func testTheGateBeginsToRiseAtTheDawnAndTheCardIsDueAfterIt() throws {
         let game = try atTheDawn()
         let dawnAt = game.clock.elapsed
@@ -177,13 +180,14 @@ final class DawnCardModelTests: XCTestCase {
         XCTAssertEqual(gate.target, true, "the gate's target is open at the dawn")
         XCTAssertTrue(gate.isMoving, "it travels")
         XCTAssertEqual(gate.look?.rows, 0, "no row up in the dawn's frame")
-        XCTAssertEqual(gate.standsOpenAt ?? 0, dawnAt + GateMotion.openSeconds, accuracy: 1e-9)
-        XCTAssertEqual(game.gateStandsOpenAt(dawnAt: dawnAt), dawnAt + GateMotion.openSeconds, accuracy: 1e-9)
-        XCTAssertEqual(count(.dawnGate, game), 1, "the gate's cue with the door's first frame")
-        advance(game, until: dawnAt + GateMotion.openSeconds + GameModel.dawnCardDelay - 0.05)
-        XCTAssertNil(game.overlay, "1.35 s after the dawn: no card")
+        let opening = GateMotion.cueLead + GateMotion.openSeconds
+        XCTAssertEqual(gate.standsOpenAt ?? 0, dawnAt + opening, accuracy: 1e-9)
+        XCTAssertEqual(game.gateStandsOpenAt(dawnAt: dawnAt), dawnAt + opening, accuracy: 1e-9)
+        XCTAssertEqual(count(.dawnGate, game), 1, "the gate's cue in the dawn's frame, its hit on the door's arrival")
+        advance(game, until: dawnAt + opening + GameModel.dawnCardDelay - 0.05)
+        XCTAssertNil(game.overlay, "1.55 s after the dawn: no card")
         game.advance(by: 0.05)
-        XCTAssertNotNil(game.reportCard, "1.4 s after the dawn (0.8 s gate, 0.6 s wait): the card")
+        XCTAssertNotNil(game.reportCard, "1.6 s after the dawn (0.2 s lead, 0.8 s gate, 0.6 s wait): the card")
         XCTAssertEqual(count(.dawnGate, game), 1, "once")
     }
 
@@ -250,8 +254,8 @@ final class DawnCardModelTests: XCTestCase {
         XCTAssertEqual(game.effects.gate.look?.rows, 0, "nor does the gate rise there")
         game.setActive(true)
         let back = game.clock.elapsed
-        advance(game, until: back + GateMotion.openSeconds + GameModel.dawnCardDelay - 0.05)
-        XCTAssertNil(game.overlay, "not before the gate's 0.8 s and the 0.6 s wait")
+        advance(game, until: back + GateMotion.cueLead + GateMotion.openSeconds + GameModel.dawnCardDelay - 0.05)
+        XCTAssertNil(game.overlay, "not before the gate's lead and 0.8 s and the 0.6 s wait")
         game.advance(by: 0.05)
         XCTAssertNotNil(game.reportCard, "back from the background, the card comes")
     }

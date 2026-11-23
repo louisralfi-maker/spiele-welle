@@ -69,11 +69,26 @@ struct GateMotion: Sendable, Equatable {
     /// travel at the same time.
     static let longestStep = 0.05
 
+    /// The dawn's gate cue (`dawnGate`, Resources/Sound/gate.wav) is near silence (below -36 dBFS) for its first
+    /// 0.90 s; its one audible part is the hit at `cueHit`. A door that began to rise with the cue stood still before
+    /// the hit (the gate's player review, A5-P1). So an opening that starts with the cue (`note(cued: true)`, from shut)
+    /// holds a lead first and lands on the hit: one event, one answer.
+    static let cueHit = 0.95
+    /// The full form's lead: the opening's last row (59 to 60, at 0.745 s of its 0.8 s on the enter curve) moves at
+    /// 0.945 s, on the hit.
+    static let cueLead = 0.2
+    /// Under Reduce Motion the 0.15 s fade ends on the hit (sound never changes under Reduce Motion, so the picture
+    /// meets it).
+    static let reducedCueLead = cueHit - reducedSeconds
+
+    /// The lead of a cued opening in either form.
+    static func lead(reduceMotion: Bool) -> Double { reduceMotion ? reducedCueLead : cueLead }
+
     /// The rule's target as last noted (true: open); nil while there is no gate to move (rubble, none) or before the
     /// first note.
     private(set) var target: Bool?
     /// The share the current travel started from, how long it takes, how much of it is done (seconds, each note's
-    /// step capped at `longestStep`) and in which form.
+    /// step capped at `longestStep`; below 0 while a cued opening holds its lead) and in which form.
     private(set) var from = 0.0
     private(set) var seconds = 0.0
     private(set) var travelled = 0.0
@@ -89,8 +104,11 @@ struct GateMotion: Sendable, Equatable {
     /// stage and a gate that comes back after rubble stand in the target at once; a change starts a travel from the
     /// share where the gate stands, the rest of the way taking its share of the full time. Off the world stage the gate
     /// still follows its target (a dawn still begins its opening there), and on the first frame back it stands.
+    /// `cued`: the change comes with the gate's cue (the dawn); an opening from shut then holds `lead` before it
+    /// travels, so it lands on the cue's hit.
     @discardableResult
-    mutating func note(open wanted: Bool?, time: Double, reduceMotion: Bool, seen onStage: Bool = true) -> Change {
+    mutating func note(open wanted: Bool?, time: Double, reduceMotion: Bool, seen onStage: Bool = true,
+                       cued: Bool = false) -> Change {
         let step = min(GateMotion.longestStep, max(0, time - now))
         if seconds > 0 { travelled = min(seconds, travelled + step) }
         let current = share
@@ -111,9 +129,10 @@ struct GateMotion: Sendable, Equatable {
             : (wanted ? GateMotion.openSeconds : GateMotion.closeSeconds)
         target = wanted
         from = standing
-        travelled = 0
         reduced = reduceMotion
         seconds = full * abs(to - standing)
+        // Gate review (A5-P1): a cued opening from shut holds its lead (travelled below 0) and lands on the cue's hit.
+        travelled = wanted && cued && standing == 0 && seconds > 0 ? -GateMotion.lead(reduceMotion: reduceMotion) : 0
         return wanted ? .opens : .closes
     }
 
@@ -131,7 +150,7 @@ struct GateMotion: Sendable, Equatable {
         let to = target ? 1.0 : 0.0
         guard seconds > 0 else { return to }
         let curve = reduced ? GateMotion.reducedCurve : (target ? GateMotion.openCurve : GateMotion.closeCurve)
-        let progress = curve.value(travelled / seconds)
+        let progress = curve.value(max(0, travelled) / seconds)
         guard progress < 1 else { return to }
         return from + (to - from) * progress
     }
@@ -142,7 +161,7 @@ struct GateMotion: Sendable, Equatable {
     /// True while a travel runs.
     var isMoving: Bool { target != nil && seconds > 0 && travelled < seconds }
 
-    /// The seconds of travel left.
+    /// The seconds of travel left (a cued opening's lead included).
     var remaining: Double { target == nil ? 0 : max(0, seconds - travelled) }
 
     /// When the gate stands open, from the last note: its time plus the opening's time left (the note's own time once
