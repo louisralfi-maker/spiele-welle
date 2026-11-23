@@ -357,8 +357,8 @@ final class GameModel {
         }
         // Panels lane: a realm saved at the finale's dawn that never chose how to go on gets its ending again.
         resumeChapterEndAtLaunch()
-        // Polish E2: a realm saved at its dawn gets that dawn's card again (the save is the dawn snapshot).
-        resumeDawnCardAtLaunch()
+        // Polish E2b (M2; the audit's director's call 18): a continued launch brings no dawn card, no verdict cue and no
+        // ads' gate. The save is always the dawn snapshot, so a card "after a dawn save" would stand before every launch.
         // The lantern moment (stage-3-interface): the purse and the notes start from the realm as it is.
         resetLanternHUD()
         refreshHUD()
@@ -827,16 +827,6 @@ final class GameModel {
         feedback.play(DawnVerdict.cue(fallen: fallen))
         let tolls = fallen > 0 ? min(DawnVerdict.maxTolls, fallen) : 0
         dawnTollsDue = tolls > 1 ? (1..<tolls).map { clock.elapsed + Double($0) * GameModel.dawnTollGap } : []
-    }
-
-    /// A launch on a realm saved at its dawn (the save always holds the dawn snapshot) brings that dawn's card again,
-    /// after the same wait; a launch with debug arguments, a realm that fell, the name entry and the finale's ending
-    /// (`resumeChapterEndAtLaunch`) do not.
-    private func resumeDawnCardAtLaunch() {
-        guard kind == .world, !args.hasArguments, overlay == nil, !slides.coversWorld, let state = driver?.state,
-              !state.defeated, let report = state.lastReport, report.day == state.day,
-              abs(state.hour - ClockEvent.dawnReport.hour) < 0.05 else { return }
-        awaitDawnCard(report)
     }
 
     // MARK: - The screens (DESIGN.md "Screens")

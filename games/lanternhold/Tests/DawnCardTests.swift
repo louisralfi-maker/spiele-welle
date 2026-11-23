@@ -3,8 +3,8 @@ import XCTest
 @testable import Lanternhold
 
 /// Polish E2 (ROUND.md thing 10, law 3.6; the audit's M7, R3, F6): the dawn card comes `GameModel.dawnCardDelay` after
-/// the gate stands open, with the input closed and the realm held in between; it comes after a pause of the app and
-/// after a launch on a dawn save; the verdict lands for ear and hand through the hub (`dawnHeld` once, or a toll per
+/// the gate stands open, with the input closed and the realm held in between; it comes after a pause of the app, never
+/// at a continued launch (E2b); the verdict lands for ear and hand through the hub (`dawnHeld` once, or a toll per
 /// fallen man, at most three, 1.0 s apart, stopped when the card closes); the gate's cue plays once at the dawn.
 /// A hub that remembers every cue that reached it, uncapped (a whole night's cues pass `SilentFeedback`'s 512), and
 /// the haptic each gives through the hub's own rule (`FeedbackGate`).
@@ -149,21 +149,33 @@ final class DawnCardModelTests: XCTestCase {
         XCTAssertNotNil(game.reportCard, "back from the background, the card comes")
     }
 
-    func testTheCardComesAfterLoadingADawnSave() throws {
+    /// Polish E2b (M2; the audit's director's call 18): a continued launch on a dawn save (the save is always the
+    /// dawn snapshot) starts the day as build 429 did: no card, no wait, none of the three dawn cues, so no ads' gate
+    /// behind a Continue either. (Was E2's pin that the card came after loading a dawn save; turned round.)
+    func testAContinuedLaunchBringsNoDawnCard() throws {
         var state = GameState.newRealm(seed: 4, balance: .standard)
         state.lord = LordIdentity(name: "Mira", form: .lady)
         var bot = Autoplay.reference()
         let report = try XCTUnwrap(Sim.runToDawn(&state, balance: .standard, bot: &bot))
+        XCTAssertEqual(report.day, state.day, "the save holds that dawn's report")
         try SaveStore(directory: directory).write(SaveGame(state: state))
         let game = GameModel(args: DebugArgs(values: [:]), kind: .world, store: SaveStore(directory: directory))
+        let hub = RecordingFeedback()
+        game.feedback = hub
         XCTAssertEqual(game.driver?.state.day, 2)
-        XCTAssertTrue(game.dawnCardWaits, "a launch on a dawn save: the card waits")
-        XCTAssertTrue(game.isPaused)
-        for _ in 0..<3 { game.advance(by: 0.25) }
-        guard case .report(let shown)? = game.overlay else { return XCTFail("the dawn's card comes") }
-        XCTAssertEqual(shown, report)
+        XCTAssertFalse(game.dawnCardWaits, "a continued launch: no card waits")
+        XCTAssertNil(game.overlay)
+        let start = game.clock.elapsed
+        while game.clock.elapsed - start < 2.0 - 1e-9 { game.advance(by: 0.25) }
+        XCTAssertGreaterThanOrEqual(game.clock.elapsed - start, 2.0 - 1e-9)
+        XCTAssertFalse(game.dawnCardWaits, "2 s after the launch: no card waits")
+        XCTAssertNil(game.overlay, "2 s after the launch: no overlay, no dawn card")
+        XCTAssertNil(game.reportCard)
+        for cue in [FeedbackCue.dawnGate, .dawnHeld, .dawnToll] {
+            XCTAssertEqual(hub.count(cue), 0, "no \(cue) at a continued launch")
+        }
 
-        // A launch with debug arguments brings no card of its own.
+        // A launch with debug arguments brings none either.
         let debug = GameModel(args: DebugArgs(values: ["GWSkipOnboarding": "YES"]), kind: .world,
                               store: SaveStore(directory: directory))
         XCTAssertFalse(debug.dawnCardWaits)
