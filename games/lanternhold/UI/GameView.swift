@@ -60,9 +60,14 @@ struct GameView: View {
                 // Polish B1 (M3, law 1 "one event, one driver"): its opacity is the lantern's light (`LanternVeil`,
                 // 0.15 s up and 0.10 s down, linear, the same under Reduce Motion), the value the dim and the Metal
                 // block read; after the lowering the last moment stays until the light is gone.
+                // The B1 gate (M1 of the player's lens): a card opened from the moment (the gear) takes the lantern
+                // down with it; the layer then leaves with the light under the card's dim, as the Metal block does,
+                // instead of being cut in the card's first frame.
                 let fade = MomentFade.shared
-                if model.overlay == nil, let show = model.lanternMoment ?? (fade.light > 0 ? fade.show : nil) {
-                    LanternMomentView(model: model, show: show, lowering: model.lanternMoment == nil)
+                let raisedShow = model.overlay == nil ? model.lanternMoment : nil
+                let leavingShow = model.lanternMoment == nil && fade.light > 0 ? fade.show : nil
+                if let show = raisedShow ?? leavingShow {
+                    LanternMomentView(model: model, show: show, lowering: raisedShow == nil)
                         .opacity(fade.light)
                 }
                 OverlayView(model: model)
