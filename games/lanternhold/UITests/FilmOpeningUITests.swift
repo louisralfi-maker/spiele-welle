@@ -164,6 +164,15 @@ final class FilmOpeningUITests: XCTestCase {
                       at: scene.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.94)))
         film.tapBurst("d", app, count: 24, what: "a second tap at 25 % while he walks right: he turns back mid-stride",
                       at: scene.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.94)))
+        // LANE-B: B3 (the marks on a long walk: a tap at 95 % of the width, he walks east past the courtyard's things;
+        // the marks must come and go by the presence rule and never blink inside the 12 px memory)
+        waitForStill(app, timeout: 8)
+        waitForCamera(app, timeout: 4)
+        film.pause(0.5)
+        film.tapBurst("e", app, count: 44, what: "a tap on the ground at 95 % of the width: a long walk east past the "
+                      + "courtyard's things (the marks as he passes them)",
+                      at: scene.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.94)))
+        // LANE-B end
         film.note("m02-scene-end", film.scene(app))
         app.terminate()
     }
