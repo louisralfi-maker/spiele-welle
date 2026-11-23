@@ -1673,4 +1673,76 @@ final class LanternMomentTests: XCTestCase {
         game.refreshTouchSpots()
         XCTAssertTrue(game.touchSpots.contains { $0.id == "touch-door-hall" }, "VoiceOver reaches the door")
     }
+
+    /// Polish B3 (part 4, found at the join of C2 and B1): leaving the app while the world stands still under the title
+    /// raises no lantern moment (so neither `lanternUp` nor, on return, `lanternDown` sounds there); in the game the
+    /// background raises it as before (HUD.md). A phone check stays: the root's lowering on return, heard at the title.
+    func testLeavingTheAppUnderTheTitleRaisesNothing() throws {
+        XCTAssertTrue(GameView.raisesMomentOnLeaving(background: true, worldStill: false), "in the game: raised")
+        XCTAssertFalse(GameView.raisesMomentOnLeaving(background: true, worldStill: true), "under the title: nothing")
+        XCTAssertFalse(GameView.raisesMomentOnLeaving(background: false, worldStill: false), "not gone: nothing")
+        XCTAssertFalse(GameView.raisesMomentOnLeaving(background: false, worldStill: true))
+        // What the handler does in each case, through the model: raised in the game with `lanternUp`; under the title
+        // the handler does not call it, so nothing is raised and nothing sounds.
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        let hub = SilentFeedback()
+        game.feedback = hub
+        run(game, seconds: 0.3)
+        if GameView.raisesMomentOnLeaving(background: true, worldStill: true) { game.pauseForBackground() }
+        XCTAssertNil(game.lanternMoment, "under the title the lantern stays down")
+        XCTAssertFalse(hub.played.contains(.lanternUp), "and lanternUp never sounds")
+        if GameView.raisesMomentOnLeaving(background: true, worldStill: false) { game.pauseForBackground() }
+        XCTAssertNotNil(game.lanternMoment, "in the game the background raises it")
+        XCTAssertEqual(hub.played.filter { $0 == .lanternUp }.count, 1)
+    }
+
+    /// Polish B3 (M2; law 1 quick): the walking row's purse figure and the mood and people arrows come in 0.15 s rising
+    /// 2 whole game px and go in 0.10 s in place, keeping the last value while they go; under Reduce Motion alpha only.
+    func testThePurseFigureAndTheArrowsComeAndGoByThePresenceRule() {
+        var show = LordNotesShow()
+        let step = 1.0 / 60
+        XCTAssertTrue(show.groups(happiness: 50).isEmpty)
+        var rises: [Int] = []
+        for _ in 0..<9 {
+            show.step(step, purse: 21, mood: true, crowd: nil, mode: .full)
+            let groups = show.groups(happiness: 50)
+            XCTAssertEqual(groups.count, 2, "the purse and the face")
+            rises.append(groups[0].rise)
+        }
+        XCTAssertEqual(rises.first, 2, "2 px low as it begins")
+        XCTAssertEqual(rises.last, 0)
+        XCTAssertEqual(show.groups(happiness: 50).first?.alpha ?? 0, 1, accuracy: 1e-9, "whole after 0.15 s")
+        var going: [Double] = []
+        for _ in 0..<6 {
+            show.step(step, purse: nil, mood: true, crowd: nil, mode: .full)
+            if let purse = show.groups(happiness: 50).first(where: { $0.block.pieces.first?.sprite == .hudCoin }) {
+                XCTAssertEqual(purse.rise, 0, "it goes in place")
+                XCTAssertEqual(purse.block, HUDKit.group(sign: .hudCoin, number: 21), "with its last figure")
+                going.append(purse.alpha)
+            }
+        }
+        XCTAssertEqual(going.count, 5, "it fades over 0.10 s, never in one frame")
+        XCTAssertEqual(going, going.sorted(by: >))
+        XCTAssertEqual(show.groups(happiness: 50).count, 1, "the face stays")
+        // The row's groups at their shares and rises, laid out as the old block.
+        let framing = TouchFraming(stage: .world, whole: 0, deviceShift: 0, scale: 6, groundY: 1000,
+                                   physicalWidth: 2622, physicalHeight: 1206)
+        let whole = [LordNotesShow.Group(block: HUDKit.group(sign: .hudCoin, number: 21), alpha: 1, rise: 0)]
+        XCTAssertEqual(HUDKitActors.walking(whole, lordX: 200, groundLift: 0, framing: framing),
+                       HUDKitActors.actors(LordNotes.block(purse: 21, happiness: 50, mood: nil, crowd: nil),
+                                           lordX: 200, groundLift: 0, framing: framing),
+                       "whole, the row stands where the old block stood")
+        let low = [LordNotesShow.Group(block: HUDKit.group(sign: .hudCoin, number: 21), alpha: 0.4, rise: 2)]
+        let lowActors = HUDKitActors.walking(low, lordX: 200, groundLift: 0, framing: framing)
+        let wholeActors = HUDKitActors.walking(whole, lordX: 200, groundLift: 0, framing: framing)
+        XCTAssertEqual(lowActors.first?.rect.y ?? 0, (wholeActors.first?.rect.y ?? 0) + 12, "2 game px lower")
+        XCTAssertEqual(lowActors.first?.tint.w ?? 0, 0.4, accuracy: 1e-6, "at its share")
+        // Reduce Motion: alpha only.
+        var reduced = LordNotesShow()
+        for _ in 0..<9 {
+            reduced.step(step, purse: 5, mood: nil, crowd: nil, mode: .reduced)
+            XCTAssertEqual(reduced.groups(happiness: 50).first?.rise ?? 0, 0, "no rise under Reduce Motion")
+        }
+        XCTAssertEqual(reduced.groups(happiness: 50).first?.alpha ?? 0, 1, accuracy: 1e-9)
+    }
 }

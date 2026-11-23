@@ -268,6 +268,61 @@ enum LordNotes {
     }
 }
 
+/// Polish B3 (M2 "the purse figure and the mood arrows appear and vanish in one frame"; law 1 quick): the walking row's
+/// three groups (the coin and its figure, the face and its arrow, the people and their arrow) each come and go by the
+/// presence rule: quick in rising 2 whole game px to its place, quick out in place; opacity only under Reduce Motion. A
+/// group that goes keeps the last value it showed. Picture state: never saved. Pure.
+struct LordNotesShow: Sendable, Equatable {
+    var purse = Presence(token: .quick)
+    var mood = Presence(token: .quick)
+    var crowd = Presence(token: .quick)
+    /// The last values shown (a group that goes shows its last).
+    var lastPurse: Int?
+    var lastMood: Bool?
+    var lastCrowd: Bool?
+
+    /// One group on screen: its pieces, its share and its rise (whole game px below its place).
+    struct Group: Sendable, Equatable {
+        var block: HUDKit.Block
+        var alpha: Double
+        var rise: Int
+    }
+
+    /// One step of `seconds`: each group toward whole while the frame asks for it (a value), else toward gone.
+    mutating func step(_ seconds: Double, purse wantedPurse: Int?, mood wantedMood: Bool?, crowd wantedCrowd: Bool?,
+                       mode: MotionMode) {
+        if let wantedPurse { lastPurse = wantedPurse }
+        if let wantedMood { lastMood = wantedMood }
+        if let wantedCrowd { lastCrowd = wantedCrowd }
+        purse.step(seconds, shown: wantedPurse != nil, mode: mode)
+        mood.step(seconds, shown: wantedMood != nil, mode: mode)
+        crowd.step(seconds, shown: wantedCrowd != nil, mode: mode)
+    }
+
+    /// The groups to draw, left to right as `LordNotes.block` lays them, each with its share and rise; a group that is
+    /// gone is left out.
+    func groups(happiness: Int) -> [Group] {
+        var list: [Group] = []
+        if let value = lastPurse, purse.alpha > MarkPresence.faintest {
+            list.append(Group(block: HUDKit.group(sign: .hudCoin, number: value), alpha: purse.alpha, rise: purse.rise))
+        }
+        if let up = lastMood, mood.alpha > MarkPresence.faintest {
+            list.append(Group(block: HUDKit.group(sign: .hudFace, frame: HUDKit.faceFrame(happiness: happiness),
+                                                  arrowUp: up), alpha: mood.alpha, rise: mood.rise))
+        }
+        if let up = lastCrowd, crowd.alpha > MarkPresence.faintest {
+            list.append(Group(block: HUDKit.group(sign: .hudPeople, arrowUp: up), alpha: crowd.alpha,
+                              rise: crowd.rise))
+        }
+        return list
+    }
+
+    /// The row's width in game px (as `HUDKit.row` lays the groups).
+    static func width(_ groups: [Group]) -> Int {
+        HUDKit.row(groups.map(\.block)).width
+    }
+}
+
 /// When the realm strip comes by itself (HUD.md section 3): a call (petitioners wait in the hall, the Stranger at the
 /// gate, a wall below half at night) brings it up with its tag. It stands for `seconds` when a call begins or grows and
 /// again every `again` seconds while the call is open (round lh-s3-3: once a game hour kept it up half the time), so
@@ -360,6 +415,27 @@ enum HUDKitActors {
         let left = min(max(lordX - Double(block.width) / 2, viewLeft), viewRight - Double(block.width))
         let top = groundLift + Double(HUDKit.lordHead + HUDKit.purseAbove + block.height)
         return placed(block, left: left, top: top, framing: framing)
+    }
+
+    /// Polish B3: the walking row by groups (`LordNotesShow`), laid out as `actors` lays one block over the lord at
+    /// `lordX`, each group at its own share (the actor's alpha) and standing its rise lower (whole game px).
+    static func walking(_ groups: [LordNotesShow.Group], lordX: Double, groundLift: Double,
+                        framing: TouchFraming) -> [ActorInstance] {
+        guard !groups.isEmpty else { return [] }
+        let width = Double(LordNotesShow.width(groups))
+        let viewLeft = framing.viewLeft.rounded(.up) + 2
+        let viewRight = framing.viewRight.rounded(.down) - 2
+        let left = min(max(lordX - width / 2, viewLeft), viewRight - width)
+        let top = groundLift + Double(HUDKit.lordHead + HUDKit.purseAbove + HUDKit.rowHeight)
+        var list: [ActorInstance] = []
+        var x = 0
+        for (index, group) in groups.enumerated() {
+            if index > 0 { x += HUDKit.space }
+            list += placed(group.block, left: left + Double(x), top: top - Double(group.rise), framing: framing,
+                           alpha: Float(min(1, group.alpha)))
+            x += group.block.width
+        }
+        return list
     }
 
     /// Build 3, lane 5 step 4 (the step 2b critic's H1): the lantern moment's block (the purse and the day line) in the

@@ -39,20 +39,32 @@ struct GameView: View {
             HUDView(model: model)
             if model.kind == .world {
                 // Touch the world: the things in view for VoiceOver and the tests (after the HUD in the order), the
-                // slip above the thing he walks to, the first minute's slip.
+                // lord's hint and the first minute's slip. Polish B3 (H4, law 2): no slip over an errand's thing (its
+                // own mark is its sign); the two teaching slips stand only while he stands and the lantern is down.
+                // Every sign on the world comes and goes by one presence rule (law 1 quick: 0.15 s in, rising 2 game
+                // px, 0.10 s out in place; opacity only under Reduce Motion): also when a card opens over it.
                 TouchSpotsView(model: model)
                     .accessibilitySortPriority(-1)
-                if let slip = model.errandSlip, model.overlay == nil {
+                let walking = WalkSigns.shared.lordWalks
+                if let slip = model.errandSlip,
+                   WalkSigns.slipDrawn(due: true, card: model.overlay != nil, lantern: model.lanternMoment != nil,
+                                       walking: walking) {
                     ErrandSlipView(slip: slip)
+                        .lhPane(.quick)
                 }
-                if model.firstTouchSlip, model.overlay == nil {
+                if WalkSigns.slipDrawn(due: model.firstTouchSlip, card: model.overlay != nil,
+                                       lantern: model.lanternMoment != nil, walking: walking) {
                     FirstTouchSlipView(text: model.story("touch.first"))
+                        .lhPane(.quick)
                 }
-                // M3: a court member's line in a bubble over him.
+                // M3: a court member's line in a bubble over him. Polish B3: a new speaker's bubble comes as its own
+                // (the last one goes), the next line of the same speaker swaps in place.
                 if let bubble = model.talkBubble, model.overlay == nil {
                     // Build 3, lane 5: under the lantern the bubble takes no finger (the touch lowers it first).
                     TalkBubbleView(bubble: bubble, model: model)
                         .allowsHitTesting(model.lanternMoment == nil)
+                        .lhPane(.quick)
+                        .id(bubble.who)
                 }
                 // The hall stage: the horn's slip over the hall's door.
                 if let slip = model.hornSlip, model.overlay == nil, model.stage == .hall {
