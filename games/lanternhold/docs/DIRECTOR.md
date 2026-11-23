@@ -1533,3 +1533,10 @@ schneller geht."
   - 23.11. 08:55: round lh-rnd-25 is green on 4a42da26 (the join with C2 and E2b): build, Lord + Ads, Slides +
     FilmPanes, FilmNight + FirstDay, ALL PASSED. The merged head builds, so lane B may start step B3 from it. The
     join stays unpushed until lh-rnd-23 (count class) and lh-rnd-24 (unit suite, title, opening film) are green.
+  - 23.11. 09:02: round lh-rnd-23 is green on f254c4e8 (the join with B1 and the director's mend of the count
+    helper): build, Count + Lord, FilmOpening + LookAround, the whole unit suite, ALL PASSED. The helper's mend holds
+    (no second or late board noted). The join went to origin at exactly f254c4e8; 4a42da26 (C2, E2b) follows when
+    lh-rnd-24 is green. Step B3 (no words on the walk; one presence) went out in lane B, merging 4a42da26 first:
+    brief ci-out/director/polish/briefs/B3.md, labels lh-rb-16 to 19. Split off for the lane's next step (B3b): the
+    hall's moment on the one driver, the glow and lift following the light, the dead site lantern over a new
+    building, VoiceOver in the dawn wait. C1-7 (the plaques' cue) goes to B4. Usage 62 %.
