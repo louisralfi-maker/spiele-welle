@@ -1,0 +1,44 @@
+m10-a: the dawn and the report coming; the condition: the report stands
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +6.830 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWNight 1 -GWSeed 1 -GWHour 5.3 -GWCameraX 1330
+
+frame  seconds since the burst began  (scene where read)
+01  +0.257 s  
+02  +0.510 s  day:1 hour:5.64 alive:0 seen:0 shots:0 kx:1330 dawn:0.62 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+03  +0.959 s  
+04  +1.194 s  day:1 hour:5.70 alive:0 seen:0 shots:0 kx:1330 dawn:0.10 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+05  +1.677 s  
+06  +1.908 s  day:1 hour:5.76 alive:0 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+07  +2.491 s  
+08  +2.824 s  day:1 hour:5.84 alive:0 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+09  +3.377 s  
+10  +3.615 s  day:1 hour:5.90 alive:0 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+11  +4.106 s  
+12  +4.466 s  day:1 hour:5.98 alive:0 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+13  +5.133 s  
+14  +5.379 s  day:2 hour:6.00 alive:0 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none
+15  +6.078 s  
+16  +6.282 s  day:2 hour:6.00 alive:0 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+17  +7.105 s  
+18  +7.411 s  
+19  +7.773 s  
+20  +8.122 s  
+21  +8.499 s  
+22  +8.851 s  
+23  +9.134 s  
+24  +9.388 s  
+25  +9.730 s  
+26  +9.935 s  
+27  +10.187 s  
+28  +10.473 s  
+29  +10.790 s  
+30  +11.112 s  
+31  +11.358 s  
+32  +11.572 s  
+33  +11.830 s  
+34  +12.068 s  
+35  +12.310 s  
+36  +12.500 s  day:2 hour:6.00 alive:0 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.350 s over 35 gaps

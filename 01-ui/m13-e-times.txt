@@ -1,0 +1,28 @@
+m13-e: the pause sheet's Sound the horn, confirmed: the same dusk in 4.0 s, then the horn
+real time; as fast as the frames come (a rolling burst)
+the cause (the pause sheet's Sound the horn, confirmed: the same dusk in 4.0 s, then the horn) was sent at +0.000 s and returned at +0.270 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +5.155 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 1545
+
+frame  seconds since the burst began  (scene where read)
+01  +0.557 s  
+02  +1.044 s  day:1 hour:14.93 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none
+03  +1.677 s  
+04  +1.984 s  day:1 hour:17.34 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none
+05  +2.523 s  
+06  +2.846 s  day:1 hour:18.59 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none
+07  +3.501 s  
+08  +3.794 s  day:1 hour:18.93 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none
+09  +4.411 s  
+10  +4.579 s  day:1 hour:18.99 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+11  +5.412 s  
+12  +5.753 s  
+13  +6.040 s  
+14  +6.362 s  
+15  +6.679 s  
+16  +7.067 s  
+17  +7.345 s  
+18  +7.607 s  
+19  +7.884 s  
+20  +8.140 s  day:1 hour:19.28 alive:0 seen:0 shots:0 kx:1545 stage:world lx:1545 gold:9 hud:none cam:1322 tap:moment count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.399 s over 19 gaps

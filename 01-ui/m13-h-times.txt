@@ -1,0 +1,15 @@
+m13-h: after the horn under Reduce Motion, one frame every 0.5 s
+real time; one frame every 0.50 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 2600 -GWReduceMotion YES
+scene before: frame:890 ready day:1 hour:19.16 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:9 hud:none cam:2382 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:2600.00 kf:6 kd:1 kcx:2381.50 lantern:ready
+scene after: frame:1050 ready day:1 hour:19.38 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:9 hud:none cam:2382 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:2600.00 kf:6 kd:1 kcx:2381.50 lantern:ready
+
+frame  seconds since the burst began  (scene where read)
+01  +0.236 s  
+02  +0.645 s  
+03  +1.196 s  
+04  +1.643 s  
+05  +2.183 s  
+06  +2.675 s  
+mean spacing 0.488 s over 5 gaps

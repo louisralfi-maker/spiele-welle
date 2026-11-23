@@ -1,0 +1,18 @@
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13HesperSaysTheFarGoalOnDayOne]' passed (65.243 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheDuskUnderReduceMotionInTheTown]' passed (37.774 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheEndOfAnEmptyDay]' passed (94.909 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheRibbonReadsTheNight]' passed (32.187 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM08DuskAndTheHorn]' passed (50.219 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM09TheFirstAttack]' passed (115.713 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawn]' passed (39.058 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawnCardWaitsForTheGate]' passed (31.342 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM12AnAdOfferAndTheEndCard]' passed (90.883 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP01MareksCardIsOneOfThePanes]' passed (23.806 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP02APaneClosesByOpacityUnderReduceMotion]' passed (18.119 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP03ThePauseSheetsSwitchAndItsSwap]' passed (38.603 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP04ThePauseSheetComesGoesAndGlints]' passed (59.627 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP05ThePauseSheetUnderReduceMotion]' passed (47.581 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP06TheHallsChoiceUnderAQuickTap]' passed (26.599 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP07ATapBesideMareksCardNeverReachesTheWorld]' passed (16.685 seconds).
+exit=0
+screenshots: 860

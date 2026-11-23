@@ -1,0 +1,19 @@
+m13-d: after the horn: the night's first seconds, one frame every 0.5 s
+real time; one frame every 0.50 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 1545
+scene before: frame:1420 ready day:1 hour:19.39 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1525 lord:lord stage:world lx:1525 errand:none door:1830 gold:9 hud:none cam:1260 tap:touch-talk-brannock hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:1525.00 kf:6 kd:-1 kcx:1259.60 lantern:ready
+scene after: frame:1630 ready day:1 hour:19.78 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1525 lord:lord stage:world lx:1525 errand:none door:1830 gold:9 hud:none cam:1260 tap:touch-talk-brannock hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:1525.00 kf:7 kd:-1 kcx:1259.60 lantern:ready
+
+frame  seconds since the burst began  (scene where read)
+01  +0.477 s  
+02  +0.923 s  
+03  +1.359 s  
+04  +1.775 s  
+05  +2.286 s  
+06  +2.758 s  
+07  +3.303 s  
+08  +3.749 s  
+09  +4.280 s  
+10  +4.818 s  
+mean spacing 0.482 s over 9 gaps

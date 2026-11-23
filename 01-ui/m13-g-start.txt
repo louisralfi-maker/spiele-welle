@@ -1,0 +1,1 @@
+frame:200 ready day:1 hour:11.36 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:9 hud:none cam:2382 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:stands dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:2600.00 kf:6 kd:1 kcx:2381.50
