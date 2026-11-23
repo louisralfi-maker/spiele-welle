@@ -1,0 +1,13 @@
+m02-c: a tap at 85 %: he sets off right (burst d follows at once)
+real time; as fast as the frames come
+the tap was sent without waiting at +1.446 s (point 24.1, 742.9; interface orientation 3 (the app's)); the runner answered at +1.739 s; no effect check
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500
+scene after: frame:1850 ready day:1 hour:12.35 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1520 lord:lord stage:world lx:1520 errand:none door:1830 gold:44 hud:none cam:1300 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:36.00 kxf:1519.74 kf:1 kd:1 kcx:1300.22
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +1.674 s  
+02  +2.032 s  
+03  +2.266 s  
+04  +2.554 s  
+mean spacing 0.293 s over 3 gaps

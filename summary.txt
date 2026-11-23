@@ -1,0 +1,13 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 0d87b327
+source: claude/lh-r-b
+08:22:41 build starts (Lanternhold)
+simulator: EED6FB0A-E273-43C6-B5DE-3DF739543042 (iPhone 17 Pro, iOS 26.5)
+08:25:41 simulator up
+08:26:53 project generated
+08:31:37 PASS build
+08:34:56 FAIL unit LanternholdTests/TouchWorldTests LanternholdTests/TalkTests LanternholdTests/CollectorTouchTests LanternholdTests/LanternMomentTests LanternholdTests/PayCountTests (exit 65), see 01-unit/log.txt
+08:41:49 PASS ui LanternholdUITests/FilmOpeningUITests/testM02TheFirstSteps LanternholdUITests/FilmOpeningUITests/testM03ATalk LanternholdUITests/FilmDealsUITests/testM06TheHall LanternholdUITests/FilmDealsUITests/testM07TheTaxesOnFoot
+FAILED: 1
