@@ -93,7 +93,9 @@ final class PaneFamilyTests: XCTestCase {
     func testOneDimAndTheHallsVeil() {
         XCTAssertEqual(MotionStyle.dim, 0.40)
         XCTAssertEqual(OverlayView.hallVeil, 0.08)
-        XCTAssertEqual(PaneShown.besideCue.sound?.volume ?? 0, 0.3, accuracy: 1e-9, "H14: tap at 0.3")
+        XCTAssertNotNil(PaneShown.besideCue.sound, "H14: a tap beside a pane is heard")
+        XCTAssertEqual(PaneShown.besideCue.sound?.volume ?? 0, FeedbackCue.bubbleClose.sound?.volume ?? -1,
+                       accuracy: 1e-9, "the bubble close's stand-in: its level is lane D's (step D2)")
         XCTAssertNil(PaneShown.besideCue.haptic, "a tap beside a pane gives no haptic")
     }
 }
