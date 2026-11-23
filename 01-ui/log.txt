@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (249.059 seconds).
+exit=0
+screenshots: 15
