@@ -1540,3 +1540,7 @@ schneller geht."
     brief ci-out/director/polish/briefs/B3.md, labels lh-rb-16 to 19. Split off for the lane's next step (B3b): the
     hall's moment on the one driver, the glow and lift following the light, the dead site lantern over a new
     building, VoiceOver in the dawn wait. C1-7 (the plaques' cue) goes to B4. Usage 62 %.
+  - 23.11. 09:07: round lh-rnd-24 is green on 4a42da26 (the join with C2 and E2b): build, the whole unit suite,
+    Title + FilmOpening, ALL PASSED. With lh-rnd-25 (Lord, Ads, Slides, FilmPanes, FilmNight, FirstDay) the merged
+    head is tested; the join went to origin at exactly 4a42da26. The count class last ran green on f254c4e8
+    (lh-rnd-23) and runs again in the joined round before tf-lh-5. Still out: A2b (lane A), C2b (lane C), B3 (lane B).
