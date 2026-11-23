@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.FirstDayUITests testReportStills]' passed (206.065 seconds).
+exit=0
+screenshots: 11
