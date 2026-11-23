@@ -1606,3 +1606,8 @@ schneller geht."
   - 23.11. 17:37: **build 554 is uploaded to TestFlight** (round tf-lh-5 ALL PASSED on 151ca052: build, upload).
     It holds wave A, 0a to B3b. Louis got the short phone list in chat; ROUND.md keeps the full one. Next: wave B,
     A5 first, within the 80 % stop. Next TestFlight label: tf-lh-6.
+  - 23.11. 17:45: step A5 (the gate moves, thing 10) went out as wave B's first step, run wf_064cd74e-61c,
+    lane A from 151ca052, brief ci-out/director/polish/briefs/A5.md: the closed door travels in whole rows
+    inside the gateway (0.8 s up, 0.6 s down, opacity only under Reduce Motion), the dawn card waits for the
+    real open gate, the gate cue starts with the door; labels lh-ra-20 to 23. Usage 74 %; the rest up to
+    80 % is held for mends from the phone feedback on build 554.
