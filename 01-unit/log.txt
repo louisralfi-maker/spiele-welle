@@ -1,0 +1,87 @@
+2026-11-23 02:16:19.943632+0000 Lanternhold[19051:66198] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-23 02:16:21.699529+0000 Lanternhold[19051:68352] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:16:21.699875+0000 Lanternhold[19051:67487] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:16:21.701231+0000 Lanternhold[19051:67501] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:16:21.701274+0000 Lanternhold[19051:67487] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:16:21.928683+0000 Lanternhold[19051:67487] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 02:16:22.030366+0000 Lanternhold[19051:67487] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.FeelTests testFirstLightSweepsFromRightToLeftWhereTheSimulationDissolves]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.FeelTests testTheBigMomentsAlwaysPlayAndComeFirst]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FeelTests testTheShakeFadesAndRespectsReduceMotion]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FeelTests testVolleysPlayNearTheKingAndThinOut]' passed (0.058 seconds).
+Test Case '-[LanternholdTests.SoundDirectorTests testTheRealHubRunsEveryNewPath]' passed (17.329 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testABuildingFarOffIsOnlyHeardFaded]' passed (0.028 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testABuildingStandsAtItsSize]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testAnOlderHubStillBuilds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testKillsDoNotChain]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testOneTouchOneTick]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testOnlyPositionalCuesArePlaced]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testSpaceFallsOffAndPans]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheBattleDuckAloneAndUnderADeeperOne]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheBedIsTheQuietestThingByNumbers]' passed (0.807 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheBedsDuckAtQuickAndComeBackOverTheSettleTime]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheCardPairIsAnAliasOfThePanes]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheChainClimbsASemitoneARepeatAndResets]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheContractsHaptics]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheContractsStandInsSitOnTheirStep]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheDawnHeldAndLostSoundApart]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheDawnVerdictRingsOrTolls]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheDeepestDuckWinsNeverTheProduct]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheEdgeOfHearing]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheGateKeepsStepThreeSteady]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheGruntsKeepHalfASecondApart]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheHallBedWaitsForTheLatch]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheHubTakesAPlace]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheLaddersFourSizes]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheNightsCuesSitOnTheirSteps]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testThePlaquePressGivesNoHapticWithHapticsOff]' passed (0.275 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheRetiredCuesAreSilentInSoundAndHand]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheReturnAfterAShallowerDuckTakesTheSettleTime]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheStepFourDuckHoldsAndReturns]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheTapAndTheStepTurnThroughThreeRenderedFiles]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheTaxCoinsClimb]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheThinnerKeepsWhereACueCameFrom]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundMixTests testTheTitlesBeds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testEveryCuePlaysAFileThatShipsAndIsInTheManifest]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.SoundTests testEveryFileIsInTheAppAndSmall]' passed (0.057 seconds).
+Test Case '-[LanternholdTests.SoundTests testFireIsHeardNearBraziersAndTheBeacon]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testSoundIsOffInTestsUnlessAskedFor]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheAmbienceFollowsDayNightRainAndPlace]' passed (0.095 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGameFeedsTheHubWithoutTouchingTheSimulation]' passed (0.348 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGateShutsAtNightfall]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheHaptics]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheLordsStepsFollowHisWalk]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheMomentsHaveTheirSounds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheNewFilesHaveTheirLengthAndLevel]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.SoundTests testThePlacesHaveTheirBedsAndCrossOver120Px]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThinnerTakesTheWatchsCues]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThrottleKeepsItsGapPerKey]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheWatchHearsALampLit]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheWatchHearsAManStruckAndAManFallen]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheWatchHearsAWallCrackOnceANight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheWatchHearsGoldWallsAndCreatures]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testAHeldCoinGlintsNowAndThenButNotWithReduceMotion]' passed (0.058 seconds).
+Test Case '-[LanternholdTests.TownShowTests testAKnockRightAfterTheTossShowsOneHouseholdAtTheDoor]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TownShowTests testARefusedKnockIsOneKnockAndNothingOpens]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TownShowTests testATouchOnADoorFindsItsHouse]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownShowTests testEveryHouseholdThatOwesWaitsBeforeItsOpenDoor]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.TownShowTests testGladHouseholdsWaveAndGrimOnesThrowAtHisFeet]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownShowTests testHeStepsBackHalfAStepSoTheBowIsSeenInAFreeDoorway]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testOnlyHisOwnLanternFollowsTheKnockPose]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownShowTests testReduceMotionFadesTheCoinsInAtTheLord]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testSometimesTheChildRunsOutWithTheCoins]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheCoinsLandInHisOpenPalmUnderTheLantern]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheDebugStartsSetTodaysDoors]' passed (0.289 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheDoorsAreTheHousesPaintedDoors]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheFarmerCountsHisCoinsOutOfTheCloth]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheFirstMorningsHouseholdWaitsInTheCourtyardAndWalksHome]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheFrameGetsTheDoorsTheFiguresTheCoinsAndTheKnock]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheHouseholdsPayTheCollectorAtTheirDoors]' passed (0.027 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheKnockKnocksThriceOpensBowsHandsOverAndShutsTheShutters]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownShowTests testThePeopleLanesCollectorStandsAtHerDoorWithHisCart]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheReportsTaxesRowTellsYesterdayInOneLine]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheSpritesKeepTheirContract]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheTossFliesItsCoinsIntoTheLordsHandOneByOne]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheWanderersKeepClearOfWhereTheTaxesHappen]' passed (0.003 seconds).
+exit=0
+screenshots: 0

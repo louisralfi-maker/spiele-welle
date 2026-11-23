@@ -1,0 +1,40 @@
+m05-c: the work runs; kept: the last frames before the site lantern goes out (the gate standing finished) and after
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +27.604 s (76 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200
+
+frame  seconds since the burst began  (scene where read)
+01  +21.486 s  
+02  +21.734 s  
+03  +22.002 s  
+04  +22.261 s  day:3 hour:14.24 alive:0 seen:0 shots:0 kx:1260 stage:world lx:1260 gold:110 hud:strip cam:1106 tap:touch-plot-0 count:none last:paid:touch-plot-0 lanterns:1 yard:none drill:none
+05  +22.945 s  
+06  +23.181 s  
+07  +23.405 s  
+08  +23.647 s  day:3 hour:14.35 alive:0 seen:0 shots:0 kx:1260 stage:world lx:1260 gold:110 hud:none cam:1106 tap:touch-plot-0 count:none last:paid:touch-plot-0 lanterns:1 yard:none drill:none
+09  +24.369 s  
+10  +24.740 s  
+11  +25.088 s  
+12  +25.358 s  day:3 hour:14.50 alive:0 seen:0 shots:0 kx:1260 stage:world lx:1260 gold:110 hud:none cam:1106 tap:touch-plot-0 count:none last:paid:touch-plot-0 lanterns:1 yard:none drill:none
+13  +26.022 s  
+14  +26.313 s  
+15  +26.558 s  
+16  +26.854 s  day:3 hour:14.62 alive:0 seen:0 shots:0 kx:1260 stage:world lx:1260 gold:110 hud:none cam:1106 tap:touch-plot-0 count:none last:paid:touch-plot-0 lanterns:0 yard:none drill:none  <- the condition holds
+17  +27.973 s  
+18  +28.188 s  
+19  +28.816 s  
+20  +29.027 s  
+21  +29.315 s  
+22  +29.556 s  
+23  +29.796 s  
+24  +30.036 s  
+25  +30.295 s  
+26  +30.528 s  
+27  +30.741 s  
+28  +30.946 s  
+29  +31.152 s  
+30  +31.476 s  
+31  +31.706 s  
+32  +31.898 s  day:3 hour:15.01 alive:0 seen:0 shots:0 kx:1260 stage:world lx:1260 gold:110 hud:none cam:1106 tap:touch-plot-0 count:none last:paid:touch-plot-0 lanterns:0 yard:none drill:none
+mean spacing 0.336 s over 31 gaps

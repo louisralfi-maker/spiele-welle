@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.FilmDealsUITests testM05APurchase]' passed (145.321 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM06TheHall]' passed (143.016 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM07TheTaxesOnFoot]' passed (112.248 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM11TheDrillYard]' passed (134.637 seconds).
+exit=0
+screenshots: 712

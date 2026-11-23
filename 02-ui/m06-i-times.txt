@@ -1,0 +1,23 @@
+m06-i: a tap on Pip's offer: its slip opens
+real time; as fast as the frames come
+the tap was sent without waiting at +1.002 s (point 294.0, 699.0; interface orientation 3 (the app's)); the runner answered at +1.325 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWScreen table
+scene after: frame:540 ready day:2 hour:9.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none drill:none kv:0.00 kxf:1314.00 kf:6 kd:-1
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +1.259 s  
+02  +1.518 s  
+03  +1.711 s  
+04  +1.855 s  
+05  +1.993 s  
+06  +2.174 s  
+07  +2.356 s  
+08  +2.557 s  
+09  +2.869 s  
+10  +3.211 s  
+11  +3.542 s  
+12  +3.892 s  
+13  +4.155 s  
+14  +4.431 s  
+mean spacing 0.244 s over 13 gaps

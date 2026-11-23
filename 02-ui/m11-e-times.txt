@@ -1,0 +1,33 @@
+m11-e: the noon drill (drilling: true)
+real time; as fast as the frames come
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWDay 5 -GWClock 11.5 -GWCameraX 1600 -GWGold 200 -GWYard 2
+scene before: frame:1420 ready day:5 hour:13.93 alive:0 seen:0 lit:0 shots:0 aim:1 kx:1453 lord:lord stage:world lx:1453 errand:none door:1830 gold:190 hud:none cam:1177 tap:touch-recruit-archer hint:off0 count:none last:paid:touch-recruit-archer lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:2,t:0/9,d:0,drill offer:none dusk:none drill:a1.990,g0.500 kv:0.00 kxf:1453.00 kf:6 kd:1
+scene after: frame:1720 ready day:5 hour:14.48 alive:0 seen:0 lit:0 shots:0 aim:1 kx:1453 lord:lord stage:world lx:1453 errand:none door:1830 gold:190 hud:none cam:1177 tap:touch-recruit-archer hint:off0 count:none last:paid:touch-recruit-archer lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:2,t:0/9,d:0,drill offer:none dusk:none drill:a1.990,g0.617 kv:0.00 kxf:1453.00 kf:7 kd:1
+
+frame  seconds since the burst began  (scene where read)
+01  +0.329 s  
+02  +0.580 s  
+03  +0.835 s  
+04  +1.079 s  
+05  +1.348 s  
+06  +1.669 s  
+07  +1.974 s  
+08  +2.265 s  
+09  +2.540 s  
+10  +2.775 s  
+11  +3.014 s  
+12  +3.225 s  
+13  +3.562 s  
+14  +3.805 s  
+15  +4.046 s  
+16  +4.278 s  
+17  +4.622 s  
+18  +4.870 s  
+19  +5.213 s  
+20  +5.432 s  
+21  +5.623 s  
+22  +5.815 s  
+23  +6.015 s  
+24  +6.217 s  
+mean spacing 0.256 s over 23 gaps

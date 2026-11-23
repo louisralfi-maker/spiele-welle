@@ -1,0 +1,38 @@
+m05-f: slowed: a hold of 3 s on the gate; frames start after the finger lifted (the coins still flying, the seal, or the coins going home)
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the cause (slowed: a hold of 3 s on the gate; frames start after the finger lifted (the coins still flying, the seal, or the coins going home)) was sent at +0.413 s and returned at +4.950 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200 -GWTimeScale 0.25
+scene before: frame:1010 ready day:3 hour:10.40 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:none cam:1106 tap:touch-plot-0 hint:off0 count:touch-plot-0:0/9:there last:letGo:touch-plot-0 lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none drill:none kv:0.00 kxf:1260.00 kf:6 kd:1
+scene after: frame:1590 ready day:3 hour:10.67 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:110 hud:none cam:1106 tap:count hint:off0 count:none last:paid:touch-plot-0 lanterns:1 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none drill:none kv:0.00 kxf:1260.00 kf:7 kd:1
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +5.215 s  
+02  +5.600 s  
+03  +5.845 s  
+04  +6.119 s  
+05  +6.403 s  
+06  +6.656 s  
+07  +6.891 s  
+08  +7.145 s  
+09  +7.432 s  
+10  +7.707 s  
+11  +7.998 s  
+12  +8.295 s  
+13  +8.569 s  
+14  +8.829 s  
+15  +9.178 s  
+16  +9.459 s  
+17  +9.724 s  
+18  +10.010 s  
+19  +10.314 s  
+20  +10.578 s  
+21  +10.889 s  
+22  +11.152 s  
+23  +11.429 s  
+24  +11.661 s  
+25  +12.010 s  
+26  +12.284 s  
+27  +12.579 s  
+28  +12.828 s  
+mean spacing 0.282 s over 27 gaps
