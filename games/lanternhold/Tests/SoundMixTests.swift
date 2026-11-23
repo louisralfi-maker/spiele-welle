@@ -783,6 +783,51 @@ final class SoundMixTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(SoundID.toll.voices, 3, "the tolls ring into each other's tails")
     }
 
+    /// Polish D2 part 3 (F12): the coins coming in (the taxes landing, `SoundWatch`'s `coin` on a rising purse) climb like
+    /// the count's: +1 semitone a coin with the pitched coin files, capped at +7, back to the root after 1.5 s, the hand
+    /// soft growing 0.3 to 0.7, never varied; the last landing (`taxesCounted`) keeps coins.wav and success.
+    func testTheTaxCoinsClimb() throws {
+        var gate = FeedbackGate()
+        var ids: [SoundID?] = []
+        var strengths: [Double] = []
+        var hands: [HapticKind?] = []
+        for k in 0..<10 {
+            let answer = gate.answer(.coin, soundOn: true, hapticsOn: true, now: 1 + Double(k) * 0.12)
+            ids.append(answer.sound?.id)
+            strengths.append(answer.hapticStrength)
+            hands.append(answer.haptic)
+            XCTAssertEqual(answer.sound?.rate, 1)
+            XCTAssertEqual(answer.sound?.volume, 0.6)
+            XCTAssertFalse(answer.jitter, "a chained coin is never varied")
+        }
+        XCTAssertEqual(ids, [.coin, .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07, .coinP07, .coinP07],
+                       "capped at +7")
+        XCTAssertEqual(strengths.first ?? 0, 0.3, accuracy: 1e-12)
+        XCTAssertEqual(strengths[7], 0.7, accuracy: 1e-12)
+        for (a, b) in zip(strengths, strengths.dropFirst()) { XCTAssertGreaterThanOrEqual(b, a - 1e-12) }
+        // The haptic keeps its gap (0.25 s); the strength it comes with is the chain's.
+        XCTAssertEqual(hands, [.soft, nil, nil, .soft, nil, nil, .soft, nil, nil, .soft])
+        let reset = gate.answer(.coin, soundOn: true, hapticsOn: true, now: 1 + 9 * 0.12 + 1.5)
+        XCTAssertEqual(reset.sound?.id, .coin, "1.5 s without a coin: back to the root")
+        XCTAssertEqual(reset.hapticStrength, 0.3, accuracy: 1e-12)
+        XCTAssertEqual(gate.answer(.coin, soundOn: true, hapticsOn: true, now: 1 + 9 * 0.12 + 1.62).sound?.id, .coinP01)
+        // With Sound off the hand still grows along the chain.
+        var quiet = FeedbackGate()
+        var last = 0.0
+        for k in 0..<4 { last = quiet.answer(.coin, soundOn: false, hapticsOn: true, now: Double(k) * 0.3).hapticStrength }
+        XCTAssertEqual(last, 0.3 + 0.4 * 3 / 7, accuracy: 1e-12)
+        // Every chained file is in the app at step 2's level.
+        for id in SoundID.coinSteps.prefix(AnswerChain.taxCap + 1) {
+            let level = AnswerSize.level(fileRMS: try Self.fileRMS(id), volume: 0.6)
+            XCTAssertTrue(AnswerSize.deed.band.contains(level), "\(id.rawValue) at \(level) dBFS")
+        }
+        XCTAssertEqual(FeedbackCue.taxesCounted.sound?.id, .coins)
+        XCTAssertEqual(FeedbackCue.taxesCounted.haptic, .success)
+        var thinner = FeedbackThinner()
+        XCTAssertEqual(thinner.cues(for: [], extra: [(.taxesCounted, nil), (.coin, nil)], time: 1, listenerX: 600),
+                       [.taxesCounted], "the last landing is the counted coins, not a coin as well")
+    }
+
     /// Polish D2 part 2 (F6): a held night and a lost one do not sound alike. The toll's spacing (at most one every
     /// 0.9 s), its own low damped file at step 3's level and length, one heavy with the first toll; the held night's
     /// bell as made with success; the dawn gate as made.

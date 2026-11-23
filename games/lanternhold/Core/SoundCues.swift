@@ -183,7 +183,10 @@ extension FeedbackCue {
         case .cardClosed: return FeedbackCue.paneClose.sound
         case .refused: return SoundPlay(id: .decline, volume: 0.6)
         case .happinessUp, .happinessDown: return nil
-        case .coin: return SoundPlay(id: .coin, volume: 0.55)
+        // D2 part 3 (F12): a coin coming in (the taxes landing, the collector's purse, any gold won) climbs like the
+        // count's: the gate plays the pitched coin file of its chain step (`coin`, `coin_p01` ... `coin_p07`), at 0.6 like
+        // the count's coin (-19.7 to -20.0 dBFS, law 4's step 2; was a flat coin.wav at 0.55, -20.4).
+        case .coin: return SoundPlay(id: .coin, volume: 0.6)
         case .paid: return SoundPlay(id: .coins, volume: 0.5, rate: 1.08)
         case .wallHit: return SoundPlay(id: .wallHit, volume: 0.6)
         // D1: retired. `SoundWatch` plays `hit` (the contract's cue, with its x) for the same blow.
@@ -316,6 +319,8 @@ extension FeedbackCue {
         // D2 0f: the ground tap and the step are law 4's step 1 too (they sit 3 dB over every bed).
         case .touched, .step: return .touch
         case .hit, .manHit, .dawnGate: return .deed
+        // D2 part 3: a coin coming in is law 4's step 2 (a coin of the count or the taxes).
+        case .coin: return .deed
         case .arrowHit, .wallHit, .creatureDissolved: return .deed
         case .buildStood, .manFell, .dawnHeld, .dawnToll: return .triumph
         // D2 part 1: the simulation's `buildDone` answers as `buildStood` (step 3: never randomised, the beds x 0.7 for
@@ -447,6 +452,8 @@ struct FeedbackGate: Sendable, Equatable {
     /// D2 0a: when a card cue and a pane cue last answered (the alias rule).
     private var cardAt: Double?
     private var paneAt: Double?
+    /// D2 part 3: the coins coming in climb (+1 semitone a coin, to +7, back to the root after 1.5 s).
+    private var coinChain = AnswerChain(cap: AnswerChain.taxCap)
 
     /// At most one grunt every this many seconds (D1).
     static let gruntSpacing = 0.5
@@ -463,6 +470,10 @@ struct FeedbackGate: Sendable, Equatable {
     static func isPane(_ cue: FeedbackCue) -> Bool {
         cue == .paneOpen || cue == .paneClose
     }
+
+    /// D2 part 3: the hand of a coin coming in along its chain, soft growing 0.3 to 0.7 (law 4's step 2 hand, kept
+    /// under the count's).
+    static let coinHand: ClosedRange<Double> = 0.3 ... 0.7
 
     /// D2 0a: the old card pair, which answers as the pane pair.
     static func isCard(_ cue: FeedbackCue) -> Bool {
@@ -494,6 +505,14 @@ struct FeedbackGate: Sendable, Equatable {
         // closes.
         var afterPress = false
         if card || pane, let at = pressAt, now >= at, now - at <= FeedbackGate.oneTouch { afterPress = true }
+        // D2 part 3: a coin coming in steps its chain whether it is heard or not, so the hand grows with Sound off too.
+        var coinStep: Int?
+        if cue == .coin {
+            let step = coinChain.next(at: now)
+            coinStep = step
+            answer.hapticStrength = coinChain.strength(from: FeedbackGate.coinHand.lowerBound,
+                                                       to: FeedbackGate.coinHand.upperBound)
+        }
         if cue == .plaquePress { pressAt = now }
         if !afterPress, near, let haptic = FeedbackGate.haptic(cue, hapticsOn: hapticsOn),
            haptics.allow(cue.rawValue, gap: cue.hapticGap, now: now) {
@@ -513,6 +532,10 @@ struct FeedbackGate: Sendable, Equatable {
             gruntFlip.toggle()
             if !gruntFlip { sound.id = .grunt2 }
         }
+        // D2 part 3: the coin's chain step picks its pitched file (the count's), played as made.
+        if let coinStep {
+            sound.id = SoundID.coinSteps[min(coinStep, SoundID.coinSteps.count - 1)]
+        }
         // D2 0g: the taps and the steps turn through their three rendered files among those that play, so the same one
         // never comes twice in a row.
         if sound.id == .tap {
@@ -525,7 +548,8 @@ struct FeedbackGate: Sendable, Equatable {
         // D2 0c (the director's call after D1): kills do not chain. A kill plays as made and varies like any step 2
         // answer; law 4's chain is for the coins (the count to +12, the taxes to +7, both with pitched files).
         answer.sound = sound
-        answer.jitter = sound.id.varies && (cue.answerSize?.jitters ?? true)
+        // A chained coin is never varied: each one must sound a semitone over the last.
+        answer.jitter = coinStep == nil && sound.id.varies && (cue.answerSize?.jitters ?? true)
         if near, let size = cue.answerSize, size >= .triumph { answer.duck = size }
         return answer
     }
