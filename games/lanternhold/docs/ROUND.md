@@ -346,6 +346,45 @@ Law 4 (answers and sounds), after D2:
     the count's own word that he stands, a second board on a slow runner, never under the freeze `back`, which holds
     a let-go board for good).
 
+21. **After step C2 (thing 8, the first five seconds).** Verified GREEN at 7dad35c3 (round lh-rc-19 on it: build,
+    `TitleStepInTests`, `PaneFamilyTests`, `MotionTests`, Title + FilmOpening, FirstDay; the whole unit suite ran on
+    fb95223e in lh-rc-18, the join round runs it on the merged head). The sheets `C2/m01-c-gate.png` and
+    `C2/m01-a.png` looked at: title, stepped mask on black, the hall dim from black, the hall whole, then the name
+    card; no frame holds the title and the hall together. The calls: (1) C2 is accepted and joined as it stands; the
+    seam of the two roots is closed in its shape (one timeline `StepIn`, no cross-fade). (2) The one tagged block in
+    lane B's `UI/GameView.swift` (`lhApplyWorldStill`, written only when the value flips) is accepted; lane B leaves
+    it. (3) `lanternUp` sits 0.5 dB under the title's beds: law 4 holds, the mend is lane D's (D3: at the title's
+    touch `lanternUp` stands at least 3 dB over the beds through the duck rule, never a louder cue). (4) Under
+    Reduce Motion the hall rises from black in 0.25 s and the title closes in 0.45 s: a named exception, a whole
+    screen coming from black takes the normal tempo. (5) Leaving the app at the title and coming back raises nothing
+    (the root lowers the lantern moment and resumes), but on the join with B1 the hall's own scene-phase handler
+    still raises the moment under the title, so `lanternUp` and `lanternDown` sound at the title: B3 closes it
+    (while `lhWorldStill` holds, the hall's handler raises nothing; the root's lowering stays as a net; a check).
+    (6) Three look faults the director saw on the sheets, and five small things, go into the follow-up step C2b
+    (lane C, from 7dad35c3): the reveal begins with a cut from the wait's soft glow (about 92 x 64 game px) to a hard
+    window of 116 x 82 (P3); the mask's end radius 340 is far past the 281 that covers the 17 Pro's window, so the
+    swell's settle and half the close run off the screen (P4); the hall is mounted in the same moment the reveal
+    starts, a gap of 1.2 s inside the swell (P5); the name card shows on the film about 1 s after the hall is whole
+    although the probe says 0.25 s (to prove with a mark on the card's first drawn frame); the mask's rows rebuilt
+    per frame (L5), `StepIn.hallWarmSeconds` unnamed (L6), a line outside the tagged block in
+    `UITests/FilmOpeningUITests.swift:46` (L7), `panesOpen` and `takesTouches` without a caller (L2), a kept tap
+    during the reveal with no answer until its end (P6). (7) The Lord, Ads and Slides UI classes did not run since
+    C2: the join round runs them. (8) Phone checks: every sound of the opening, the hand, the reveal's feel, the
+    0.10 s of the flame alone (P7), whether the masked close hitches (0.44 s lost on the runner), the name card's
+    wait, leaving at the title and coming back, the gear-to-pause gap (first build of the sheet 139 ms; if it shows,
+    C3 builds the sheet once, hidden, while the title stands).
+
+22. **After step E2b (the dawn card's loose ends).** Verified GREEN at 948d8699 (round lh-re-14 on it: build, the
+    whole unit suite, FilmNight + FirstDay); three files, all lane E's, no block in another lane's file. The calls:
+    a continued launch brings no dawn card, no dawn cue and no ads' gate (`resumeDawnCardAtLaunch` is gone; law 3
+    says so now); the tolls have one owner (the model plays lane D's `DawnVerdict.cues(fallen:)`,
+    `GameModel.dawnTollGap` is gone); Brannock's line carries no glyph, because the glyph set has no horn (the
+    still `E2b/p7-giant-line.png` looked at: the warning triangle is gone, the line is whole above the footer's rule
+    at the 17 Pro and at the mini). Accepted as it stands. Riders: a pin that Brannock's line has no glyph and the
+    comment at `App/GameModel.swift:357` go to E3; `DawnVerdict.cue(fallen:)` has no caller in the app any more,
+    lane D keeps or drops it in D3. Phone check: a real cold launch of a saved realm (the title, then the day with
+    no card and no interstitial).
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged

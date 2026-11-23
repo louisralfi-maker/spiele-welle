@@ -1513,3 +1513,13 @@ schneller geht."
     f254c4e8 (`launchAtTheBoard` no longer races the empty board's 5.0 s). Round lh-rnd-23 went out on f254c4e8
     (build, Count + Lord, FilmOpening + LookAround, the whole unit suite); the join is pushed only when its count
     class is green. lh-rnd-22 (the join with A2) still runs. Usage 59 % (Fable 28 %).
+  - 23.11. 08:15: steps C2 (the first five seconds, 7dad35c3, round lh-rc-19) and E2b (the dawn card's loose ends,
+    948d8699, round lh-re-14) verified by the director: rounds read, pushed heads checked, changed files against the
+    lanes, the sheets and the still looked at. The calls are ROUND.md's points 21 and 22. Both joined locally: C2 as
+    b78b6107 (tree 7a23fbfe, as the trial merge), E2b as 4a42da26. Rounds lh-rnd-24 (build, the whole unit suite,
+    Title + FilmOpening) and lh-rnd-25 (build, Lord + Ads, Slides + FilmPanes, FilmNight + FirstDay) went out on
+    4a42da26. The join is pushed only when lh-rnd-23's count class and these are green (origin still 7f68847b).
+    Follow-up step C2b goes out in lane C (the reveal's cut, the swell off the screen, the hitch at the reveal's
+    start, the name card's true time). New riders: B3 (no lantern moment and no lantern cue under the title), D3
+    (`lanternUp` over the title's beds; `DawnVerdict.cue(fallen:)`), E3 (the glyph pin, one comment). lh-rnd-22 and
+    lh-rnd-23 still run. Usage 60 % (Fable 29 %).
