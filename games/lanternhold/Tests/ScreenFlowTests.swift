@@ -24,6 +24,9 @@ final class DriverMovesTests: XCTestCase {
         XCTAssertEqual(driver.state.king.velocity, balance.kingRunSpeed, "he runs")
         driver.setDrag(offset: -20)
         XCTAssertNil(driver.travelTarget, "a drag cancels the walk")
+        // Step A1b: the drag walks him as a tap does (the turn's hold, then the start), so the walk west comes in
+        // a few steps, no longer within the call.
+        driver.advance(by: 0.25, events: &events)
         XCTAssertEqual(driver.state.king.velocity, -balance.kingWalkSpeed)
         var bot = SimDriver(state: GameState.newRealm(seed: 3), balance: balance, bot: Autoplay.reference())
         bot.travel(to: 900)

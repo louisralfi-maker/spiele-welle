@@ -396,4 +396,207 @@ final class FilmOpeningUITests: XCTestCase {
         film.note("m02-\(letter)-times", notes.joined(separator: "\n"))
     }
     // LANE-A end
+    // LANE-A: A1b
+    /// Step A1b, slowed four times as in A1: (v, w, x) three stops after runs of different length, so the landing falls on
+    /// different strides (the feet in the last frames before the standing pose); (y) a drag on the walk pad, its first
+    /// frames and its release (the brake, the landing, the held pose); then at night, where a tap hurries (68 px/s; by
+    /// day a tap on the ground always walks): (z) a tap about 20 px on and (q) one about 40 px on, each with the camera's
+    /// left edge (`kcx:`) from his landing until it rests.
+    func testA1bTheStopTheDragAndTheCamera() {
+        let film = FilmReel(self, "m02")
+        let app = film.launch(FilmOpeningUITests.dayOne + ["-GWCameraX", "1500", "-GWTimeScale", "0.25"])
+        guard film.ready(app) else {
+            XCTFail("A1b: the scene never stood")
+            return
+        }
+        film.pause(9)
+        waitForStill(app, timeout: 6)
+        waitForCamera(app, timeout: 8)
+        let scene = film.element(app, "world-scene")
+        for (letter, share, what) in [("v", 0.66, "a tap at 66 %"), ("w", 0.36, "a tap at 36 % (back west)"),
+                                      ("x", 0.71, "a tap at 71 % (east again)")] {
+            let point = scene.coordinate(withNormalizedOffset: CGVector(dx: share, dy: 0.94))
+            a1bSteps(film, app, letter: letter, what: what + ", slowed: the stop closes the stride", start: 4,
+                     after: 8) { answer in
+                let sent = film.sendWithoutWaiting(point, app, answer)
+                if !sent.ok { point.tap() }
+                return sent.ok ? sent.text : "the plain tap: " + sent.text
+            }
+            waitForStill(app, timeout: 14)
+            waitForCamera(app, timeout: 10)
+            film.pause(1.0)
+        }
+        let from = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.30, dy: 0.94))
+        a1bSteps(film, app, letter: "y", what: "a drag on the walk pad held 2.6 s, slowed: walk frame 0 and the pace "
+                 + "growing, then let go: the brake over at most 4 px, the landing, the held pose", start: 12,
+                 after: 10) { answer in
+            self.sendDragWithoutWaiting(from: from, by: 30, hold: 2.6, app, answer)
+        }
+        app.terminate()
+
+        let night = FilmReel(self, "m02")
+        let dark = night.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWNight", "1",
+                                 "-GWSeed", "1", "-GWHour", "22.5", "-GWCameraX", "2600", "-GWTimeScale", "0.25"])
+        guard night.ready(dark) else {
+            XCTFail("A1b: the night never stood")
+            return
+        }
+        night.pause(6)
+        waitForStill(dark, timeout: 6)
+        let darkScene = night.element(dark, "world-scene")
+        // A first walk east sets the camera's walking lead, so the bursts show the landing, not the lead's ease.
+        darkScene.coordinate(withNormalizedOffset: CGVector(dx: 0.66, dy: 0.94)).tap()
+        waitForStill(dark, timeout: 12)
+        waitForCamera(dark, timeout: 12)
+        night.pause(2)
+        for (letter, distance) in [("z", 20.0), ("q", 40.0)] {
+            let lord = FilmReel.number("kxf:", in: night.scene(dark)) ?? 2600
+            let left = FilmReel.number("kcx:", in: night.scene(dark)) ?? (lord - 218.5)
+            let share = (lord + distance - left) / (2622.0 / 6)
+            let point = darkScene.coordinate(withNormalizedOffset: CGVector(dx: share, dy: 0.94))
+            a1bSteps(night, dark, letter: letter, what: String(format: "a tap %.0f px on at night (a hurry, 68 px/s), "
+                     + "slowed: the camera from his landing until it rests (kcx:)", distance), start: 2,
+                     after: 34) { answer in
+                let sent = night.sendWithoutWaiting(point, dark, answer)
+                if !sent.ok { point.tap() }
+                return sent.ok ? sent.text : "the plain tap: " + sent.text
+            }
+            waitForStill(dark, timeout: 14)
+            waitForCamera(dark, timeout: 12)
+            night.pause(2)
+        }
+        dark.terminate()
+    }
+
+    /// A slowed burst for step A1b: the cause (sent without waiting), then frames back to back with the scene read
+    /// after each: the first `start` kept, a ring of the last 12 while he walks, and `after` more once he stands.
+    private func a1bSteps(_ film: FilmReel, _ app: XCUIApplication, letter: String, what: String, start: Int,
+                          after: Int, cause: (FilmAnswer) -> String) {
+        struct Shot {
+            let shot: XCUIScreenshot
+            let seconds: Double
+            let text: String
+        }
+        let keys = ["kv:", "kxf:", "kf:", "kd:", "kcx:", "hour:"]
+        func values(_ value: String) -> String {
+            value.split(separator: " ").filter { word in keys.contains { word.hasPrefix($0) } }.joined(separator: " ")
+        }
+        var kept: [Shot] = [Shot(shot: XCUIScreen.main.screenshot(), seconds: -0.01,
+                                 text: "before: " + values(film.scene(app)))]
+        let started = Date()
+        let answer = FilmAnswer()
+        let sent = cause(answer)
+        var ring: [Shot] = []
+        var stood = false
+        var walked = false
+        var count = 0
+        var index = 0
+        while index < 400 {
+            let shot = XCUIScreen.main.screenshot()
+            let seconds = Date().timeIntervalSince(started)
+            let text = values(film.scene(app))
+            let frame = Shot(shot: shot, seconds: seconds, text: text)
+            index += 1
+            let speed = FilmReel.number("kv:", in: text) ?? 0
+            if speed != 0 { walked = true }
+            if index <= start {
+                kept.append(frame)
+                continue
+            }
+            if !stood {
+                ring.append(frame)
+                if ring.count > 12 { ring.removeFirst() }
+                if walked && speed == 0 {
+                    stood = true
+                    kept.append(contentsOf: ring)
+                    ring = []
+                }
+            } else {
+                kept.append(frame)
+                count += 1
+                if count >= after { break }
+            }
+        }
+        var notes = ["m02-\(letter): \(what)", film.clock + "; frames back to back, the scene read after each",
+                     "launch: " + film.arguments.joined(separator: " "), "the cause at +0.000 s: " + sent]
+        notes.append("frame  seconds since the burst began  scene")
+        for (number, frame) in kept.enumerated() {
+            let name = String(format: "m02-%@-%02ld", letter, number)
+            film.keep(frame.shot, name)
+            notes.append(String(format: "%02ld  %+.3f s  %@", number, frame.seconds, frame.text))
+        }
+        film.note("m02-\(letter)-times", notes.joined(separator: "\n"))
+    }
+
+    /// A drag on the walk pad sent without waiting (as `FilmReel.sendWithoutWaiting` sends a tap): down at `from`, `by`
+    /// points to the right over 0.2 s, held there, lifted at `hold` seconds.
+    private func sendDragWithoutWaiting(from: XCUICoordinate, by points: Double, hold: Double,
+                                        _ app: XCUIApplication, _ answer: FilmAnswer) -> String {
+        typealias Alloc = @convention(c) (AnyClass, Selector) -> Unmanaged<AnyObject>
+        typealias RecordInit = @convention(c) (AnyObject, Selector, NSString, Int) -> Unmanaged<AnyObject>
+        typealias PathInit = @convention(c) (AnyObject, Selector, CGPoint, Double) -> Unmanaged<AnyObject>
+        typealias MoveTo = @convention(c) (AnyObject, Selector, CGPoint, Double) -> Void
+        typealias TakesDouble = @convention(c) (AnyObject, Selector, Double) -> Void
+        typealias TakesObject = @convention(c) (AnyObject, Selector, AnyObject) -> Void
+        typealias Send = @convention(c) (AnyObject, Selector, AnyObject, AnyObject) -> Void
+        let allocName = NSSelectorFromString("alloc")
+        let recordInitName = NSSelectorFromString("initWithName:interfaceOrientation:")
+        let addName = NSSelectorFromString("addPointerEventPath:")
+        let pathInitName = NSSelectorFromString("initForTouchAtPoint:offset:")
+        let moveName = NSSelectorFromString("moveToPoint:atOffset:")
+        let liftName = NSSelectorFromString("liftUpAtOffset:")
+        let synthesizerName = NSSelectorFromString("eventSynthesizer")
+        let sendName = NSSelectorFromString("synthesizeEvent:completion:")
+        guard let recordClass = NSClassFromString("XCSynthesizedEventRecord"),
+              let pathClass = NSClassFromString("XCPointerEventPath"),
+              let recordAlloc = class_getClassMethod(recordClass, allocName),
+              let pathAlloc = class_getClassMethod(pathClass, allocName),
+              let recordInit = class_getInstanceMethod(recordClass, recordInitName),
+              let add = class_getInstanceMethod(recordClass, addName),
+              let pathInit = class_getInstanceMethod(pathClass, pathInitName),
+              let move = class_getInstanceMethod(pathClass, moveName),
+              let lift = class_getInstanceMethod(pathClass, liftName) else {
+            from.press(forDuration: 0.05, thenDragTo: from.withOffset(CGVector(dx: points, dy: 0)),
+                       withVelocity: .default, thenHoldForDuration: hold)
+            return "the plain drag (a record method is missing)"
+        }
+        let device = XCUIDevice.shared
+        guard device.responds(to: synthesizerName),
+              let synthesizer = device.perform(synthesizerName)?.takeUnretainedValue() as? NSObject,
+              synthesizer.responds(to: sendName), let synthesizerClass = object_getClass(synthesizer),
+              let send = class_getInstanceMethod(synthesizerClass, sendName) else {
+            from.press(forDuration: 0.05, thenDragTo: from.withOffset(CGVector(dx: points, dy: 0)),
+                       withVelocity: .default, thenHoldForDuration: hold)
+            return "the plain drag (no event synthesizer)"
+        }
+        typealias GetInt = @convention(c) (AnyObject, Selector) -> Int
+        let orientationName = NSSelectorFromString("interfaceOrientation")
+        var orientation = UIInterfaceOrientation.landscapeRight.rawValue
+        if let appClass = object_getClass(app), let getter = class_getInstanceMethod(appClass, orientationName) {
+            let read = unsafeBitCast(method_getImplementation(getter), to: GetInt.self)(app, orientationName)
+            if (1...4).contains(read) { orientation = read }
+        }
+        let point = from.screenPoint
+        let record = unsafeBitCast(method_getImplementation(recordInit), to: RecordInit.self)(
+            unsafeBitCast(method_getImplementation(recordAlloc), to: Alloc.self)(recordClass, allocName)
+                .takeUnretainedValue(), recordInitName, "film drag" as NSString, orientation).takeUnretainedValue()
+        let path = unsafeBitCast(method_getImplementation(pathInit), to: PathInit.self)(
+            unsafeBitCast(method_getImplementation(pathAlloc), to: Alloc.self)(pathClass, allocName)
+                .takeUnretainedValue(), pathInitName, point, 0).takeUnretainedValue()
+        let moveTo = unsafeBitCast(method_getImplementation(move), to: MoveTo.self)
+        for step in 1...4 {
+            moveTo(path, moveName, CGPoint(x: point.x + points * Double(step) / 4, y: point.y), 0.05 * Double(step))
+        }
+        moveTo(path, moveName, CGPoint(x: point.x + points, y: point.y), hold)
+        unsafeBitCast(method_getImplementation(lift), to: TakesDouble.self)(path, liftName, hold + 0.02)
+        unsafeBitCast(method_getImplementation(add), to: TakesObject.self)(record, addName, path)
+        let done: @Sendable @convention(block) () -> Void = {
+            answer.at = Date()
+            answer.done = true
+        }
+        unsafeBitCast(method_getImplementation(send), to: Send.self)(synthesizer, sendName, record, done as AnyObject)
+        return String(format: "a drag from %.1f, %.1f by %.0f pt, lifted at %.2f s (synthesized)", point.x, point.y,
+                      points, hold + 0.02)
+    }
+    // LANE-A end
 }
