@@ -871,6 +871,11 @@ final class SmoothWalkTests: XCTestCase {
                 XCTAssertGreaterThanOrEqual(steps[index], 0.5 * steps[index - 1], "\(label): falls at \(index)")
             }
         }
+        // The A1b gate (F3): the last step before rest is invisible too (a hundredth of a game px), so an ease that
+        // ended in a snap onto the goal would fail here.
+        if let last = steps.last {
+            XCTAssertLessThanOrEqual(last, 0.01, "\(label): the last step before rest")
+        }
         XCTAssertTrue(settled, "\(label): at rest on its goal")
         XCTAssertLessThan(steps.count, 240, "\(label): at rest within 4 s")
     }
@@ -964,6 +969,8 @@ final class SmoothWalkTests: XCTestCase {
                     }
                 }
             }
+            // The A1b gate (F3): the last step before rest is at most a hundredth of a game px (no snap at the end).
+            XCTAssertLessThanOrEqual(moving.last ?? 0, 0.01, "\(label): the last step before rest")
             XCTAssertLessThan(moving.count, 300, "\(label): at rest within 5 s")
         }
         var hall = Camera(focusX: 380, viewWidth: Double(2622) / 7, worldWidth: HallLayout.width)

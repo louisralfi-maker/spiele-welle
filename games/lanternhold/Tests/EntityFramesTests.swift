@@ -548,6 +548,58 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertGreaterThan(lordDiffer, 500, "and out of step with the lord")
     }
 
+    /// The A1b gate (F4): the drawn frames, not only the clocks: the hall's frame draws the standing lord on his gait's
+    /// breath whatever the animation clock says (before, the old 2 fps idle on that clock), and the court layer draws
+    /// the two wall guards on the one breath with their ids' phases (before, a symmetric clock of their own).
+    func testTheDrawnHallLordAndWallGuardsBreatheTheOneBreath() throws {
+        var s = GameState.newRealm(seed: 5)
+        s.day = 2
+        s.hour = 10
+        PetitionEngine.prepare(&s, catalog: .standard)
+        s.king.x = 1500
+        // The hall: he walks 20 px, lands, and stands; every tenth step the hall's frame is built.
+        let options = FrameOptions(flickerTime: 1.5)
+        let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        var walker = HallWalker(x: 300, facing: 1)
+        walker.walk(to: 320, speed: KingState.walkSpeed)
+        for _ in 0..<120 { walker.step(dt: 1.0 / 60) }
+        XCTAssertEqual(walker.x, 320)
+        var drawn = Set<Int>()
+        for index in 0..<240 {
+            walker.rest(dt: 1.0 / 60)
+            guard index % 10 == 0 else { continue }
+            var scene = HallScene(walker: walker)
+            let walkWidth = HallFraming.viewWidth(pixelScale, scale: Double(HallFraming.scales(pixelScale).walk))
+            scene.camera = Camera(focusX: walker.x, viewWidth: walkWidth, worldWidth: HallLayout.width)
+            let input = HallFrameInput(state: s, balance: .standard, scene: scene,
+                                       court: CourtScene(rooms: RoomFades(kingX: s.king.x)), figures: [], specs: [],
+                                       lord: s.lordOrDefault, pixelScale: pixelScale, options: options,
+                                       ambient: AmbientRamp.sample(at: s.hour), weather: .clear,
+                                       animTime: 0.1 + Double(index) * 0.029)
+            let desc = HallFrames.build(input)
+            let lord = try XCTUnwrap(desc.actors.last { $0.sprite == s.lordOrDefault.body }, "the hall's lord")
+            XCTAssertEqual(lord.frame, walker.gait.frame, "the hall draws his gait's breath (rest step \(index))")
+            drawn.insert(lord.frame)
+        }
+        XCTAssertEqual(drawn, [6, 7], "the drawn lord breathes in the hall")
+        // The court layer: the two wall guards on the wall walk, by their ids' phases.
+        var court = s.court ?? CourtState()
+        court.world = ["castle.guards.wall"]
+        s.court = court
+        var differ = 0
+        for time in [0.0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.9, 3.6] {
+            let frame = CastleRoomsTests.frame(s, focus: 1500, court: CourtScene(rooms: RoomFades(kingX: 1500)),
+                                               time: time)
+            let guards = frame.desc.actors.filter { $0.sprite == .guardsman && $0.rect.y < 600 }
+                .sorted { $0.rect.x < $1.rect.x }
+            XCTAssertEqual(guards.count, 2, "two guards on the wall walk at \(time)")
+            let expected = CourtFrames.wallGuardIDs.map { FigureMotion.breath(time: time, id: $0) }
+            XCTAssertEqual(guards.map(\.frame), expected, "the drawn wall guards breathe the one breath at \(time)")
+            if expected[0] != expected[1] { differ += 1 }
+        }
+        XCTAssertGreaterThan(differ, 0, "the samples include the two guards out of step")
+    }
+
     /// One breath for every person (law 1: frame A 1.15 s, frame B 0.85 s, phase id × 0.37 s): two figures with
     /// different ids are out of phase, every figure breathes 30 times a minute, and the court, the guards and the
     /// archers draw from it.
