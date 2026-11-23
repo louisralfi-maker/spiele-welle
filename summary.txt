@@ -1,0 +1,13 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 7a6794c3
+source: claude/lh-r-b
+10:21:51 build starts (Lanternhold)
+simulator: EED6FB0A-E273-43C6-B5DE-3DF739543042 (iPhone 17 Pro, iOS 26.5)
+10:25:32 simulator up
+10:26:17 project generated
+10:31:14 PASS build
+10:33:24 PASS unit LanternholdTests/LanternMomentTests LanternholdTests/CollectorTouchTests LanternholdTests/PaySignTests
+10:37:51 PASS ui LanternholdUITests/TownUITests/testTheCollectorIsTakenOnByTouch
+ALL PASSED
