@@ -1,0 +1,28 @@
+a2-d: real time: the palisade stands under its dust (touch-plot-6); kept: the frames before its site lantern goes out (the job's end, the event) and the finish after it
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +19.745 s (80 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWGold 200 -GWCameraX 960
+
+frame  seconds since the burst began  (scene where read)
+01  +17.296 s  
+02  +17.525 s  day:3 hour:12.74 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:1 yard:none drill:none
+03  +17.983 s  
+04  +18.201 s  day:3 hour:12.82 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:1 yard:none drill:none
+05  +18.662 s  
+06  +18.957 s  day:3 hour:12.87 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:1 yard:none drill:none
+07  +19.481 s  
+08  +19.637 s  day:3 hour:12.92 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:0 yard:none drill:none  <- the condition holds
+09  +19.920 s  
+10  +20.093 s  
+11  +20.251 s  
+12  +20.490 s  
+13  +20.800 s  
+14  +21.061 s  
+15  +21.250 s  
+16  +21.442 s  
+17  +21.675 s  
+18  +22.102 s  
+19  +22.383 s  
+20  +22.724 s  day:3 hour:13.17 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:0 yard:none drill:none
+mean spacing 0.286 s over 19 gaps
