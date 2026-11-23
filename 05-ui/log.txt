@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM04TheLanternMoment]' passed (131.769 seconds).
+exit=0
+screenshots: 128

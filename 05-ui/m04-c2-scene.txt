@@ -1,0 +1,1 @@
+tap touch-talk-pip errand none; frame:2470 ready day:1 hour:9.61 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1782 lord:lord stage:world lx:1782 errand:none door:1830 gold:44 hud:strip cam:1597 tap:touch-talk-pip hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1782.00 kf:6 kd:-1 kcx:1597.10
