@@ -383,6 +383,39 @@ final class GateMotionTests: XCTestCase {
         XCTAssertLessThan(closed.alpha, 1)
     }
 
+    /// Gate review M1: a touch rim is the whole sprite at the prop's place, so on the travelling gate (a cut prop) it
+    /// would outline the cut rows above the arch. A cut prop draws no rim; the standing gate keeps its rim.
+    func testATravellingGateDrawsNoTouchRimAboveTheArch() throws {
+        func rims(_ effects: BattleEffects) -> [EmissiveInstance] {
+            let s = GameFrameSupport.demoDay()
+            let options = FrameOptions(flickerTime: 1.5)
+            let pixelScale = options.pixelScale(physicalWidth: GameFrameSupport.pro.0,
+                                                physicalHeight: GameFrameSupport.pro.1)
+            let camera = Camera(focusX: 1360, pixelScale: pixelScale)
+            let scene = SceneFilter.gameScene(GameFrameSupport.world, state: s)
+            var layer = EntityFrames.layer(state: s, balance: .standard, scene: scene, camera: camera,
+                                           pixelScale: pixelScale, options: options, animTime: 1.5, effects: effects)
+            // The rim part as `TouchRims.mark` puts it on every prop a marked plot's thing stands on.
+            let rim = EmissivePart(sprite: .hallMote, dx: 0, dy: 0, color: SIMD3<Float>(1, 0.8, 0.3), intensity: 1,
+                                   flickerSeed: nil, fadesByDay: false, isFire: false, rim: true)
+            for index in layer.props.indices where layer.props[index].sprite == .gateIron {
+                layer.props[index].emissive.append(rim)
+            }
+            var clock = DayClock(hour: s.hour, day: s.day)
+            clock.isFrozen = true
+            clock.advance(by: 1.5)
+            let desc = FrameBuilder.build(scene: scene, clock: clock, camera: camera, pixelScale: pixelScale,
+                                          options: options, entities: layer)
+            return desc.emissives.filter { $0.kind == .rim && $0.sprite == .gateIron }
+        }
+        let travelling = opening(at: 100.3)
+        XCTAssertTrue(travelling.gate.isMoving)
+        XCTAssertEqual(rims(travelling).count, 0, "no gold outline of the cut door above the arch")
+        let standing = opening(at: 101.2)
+        XCTAssertFalse(standing.gate.isMoving)
+        XCTAssertEqual(rims(standing).count, 1, "the standing gate keeps its rim, as before")
+    }
+
     @MainActor
     func testTheRenderersOccluderShowsThePartItsSourceNames() {
         let layout = AtlasLayout.shared

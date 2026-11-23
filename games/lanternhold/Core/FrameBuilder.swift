@@ -1074,6 +1074,10 @@ enum FrameBuilder {
 
         for part in prop.emissive {
             if part.isFire && !prop.isLit { continue }
+            // LANE-A: A5 (gate review M1: a touch rim is the whole sprite at the prop's place; on a prop cut at its top,
+            // the travelling gate, it would outline the cut rows above the arch, so a cut prop has no rim)
+            if part.rim && prop.cropTop > 0 { continue }
+            // LANE-A end
             // Look 2: a fading sprite's glow fades with it (the far castle's pane over the valley).
             if var emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
                                                animTime: animTime, options: options, geometry: geometry,
