@@ -294,6 +294,34 @@ enum EntityFrames {
         return props.works[plot]
     }
 
+    /// Step A2's gate: where a finished work's dust lies (`BattleEffects.stand`): its scaffold's span (`work`, from the
+    /// realm before the event), and for a line's wall also the end piece of the new tier's anchor that appears with it
+    /// (round lh-ra-15's film: the palisade's door piece right of the scaffold stood outside the dust).
+    static func standSpan(plot: Int, before old: GameState, after item: BuildItem?,
+                          balance: Balance) -> (centre: Double, width: Double, y: Double)? {
+        guard var span = work(plot: plot, state: old, balance: balance) else { return nil }
+        guard let line = Realm.lines.firstIndex(where: { $0.wall == plot }), let item,
+              let reach = anchorReach(item) else { return span }
+        let left = lineLayout(line, state: old, balance: balance).wallLeft
+        let low = min(span.centre - span.width / 2, left)
+        let high = max(span.centre + span.width / 2, left + reach)
+        span.centre = (low + high) / 2
+        span.width = high - low
+        return span
+    }
+
+    /// How far right of the wall's left a tier's anchor (`wallAnchor`, look 2, its canvas at the wall's left minus
+    /// `SceneLayout.look2OldWallInset`) stands above the ground: the art's last opaque column over its 8 px drop
+    /// (palisadeAnchor 58, stoneWallAnchor 83, bastionAnchor 90) + 1 - 28.
+    static func anchorReach(_ item: BuildItem) -> Double? {
+        switch item {
+        case .palisade: return 31
+        case .stoneWall: return 56
+        case .bastion: return 63
+        default: return nil
+        }
+    }
+
     /// A glass mask of the art lane's anchors (sprite pixels from the bottom-left, dy up).
     static func glass(_ dx: Double, _ dy: Double, _ width: Int, _ height: Int) -> GlassMask {
         GlassMask(dx: dx, dy: dy, width: width, height: height, color: SIMD3<Float>(1.0, 0.76, 0.42))

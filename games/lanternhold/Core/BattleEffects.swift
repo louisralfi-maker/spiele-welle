@@ -250,20 +250,22 @@ extension BattleEffects {
     static let keepDustWidth = 120.0
     static let keepDustY = 70.0
 
-    /// The dust's pieces for a work `width` wide: its puffs and `standMotes` motes, at most 12 (two works at once fit
-    /// the frame's 24).
+    /// The dust's pieces for a work `width` wide: its puffs and up to `standMotes` motes, at most `standPieces` (two
+    /// works at once fit the frame's 24).
     static func standDustCount(width: Double) -> Int {
-        standPuffCount(width: width) + standMotes
+        let puffs = standPuffCount(width: width)
+        return puffs + min(standMotes, standPieces - puffs)
     }
 
-    /// The round puffs (`smokePuff`): one per 4.5 px of the work, 3 to 10, so their 5 px bodies overlap into one band
+    /// The round puffs (`smokePuff`): one per 4.5 px of the work, 3 to 12, so their 5 px bodies overlap into one band
     /// over the work's foot at the swap (the gate of A2: one per 9 px, 2 px at the swap, left most of the foot open).
     static func standPuffCount(width: Double) -> Int {
-        min(10, max(3, Int((width / 4.5).rounded())))
+        min(standPieces, max(3, Int((width / 4.5).rounded())))
     }
 
-    /// The motes over the puffs.
+    /// The motes over the puffs (where the puffs leave room), and the most pieces one work's dust draws.
     static let standMotes = 2
+    static let standPieces = 12
 
     /// The puffs' white body times this is a pale, cool stone dust (its underside a shade darker), lighter than the
     /// town's tan walls and ochre ground (the gate of A2: the warm tint was lost on the house).
@@ -299,7 +301,8 @@ extension BattleEffects {
             guard !still else { continue }
             var old = state
             old.plots[plot] = was
-            if let work = EntityFrames.work(plot: plot, state: old, balance: balance) {
+            if let work = EntityFrames.standSpan(plot: plot, before: old, after: state.plots[plot].item,
+                                                 balance: balance) {
                 add(.standDust, x: work.centre, y: work.y, time: now, width: work.width)
             }
             if castleGrows, plot == Realm.lines[0].wall, CastleStage.grown(old) != CastleStage.grown(state) {

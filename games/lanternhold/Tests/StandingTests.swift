@@ -159,18 +159,26 @@ final class StandingTests: XCTestCase {
         step(&effects, events, before: before.plots, state: after)
         let dust = try XCTUnwrap(effects.items.first { $0.kind == .standDust })
         XCTAssertEqual(effects.items.filter { $0.kind == .standDust }.count, 1, "one dust, no keep (not the gate)")
-        // The palisade's scaffold for the stone wall: from the wall's left over the stone wall's 36 px.
-        XCTAssertEqual(dust.x, Realm.wallX[1] + 18)
-        XCTAssertEqual(dust.width, 36)
+        // The palisade's scaffold for the stone wall, from the wall's left over the stone wall's 36 px, and the stone
+        // wall's anchor's end piece that appears with it, to 56 px right of the wall's left (`EntityFrames.anchorReach`).
+        XCTAssertEqual(dust.x, Realm.wallX[1] + 28)
+        XCTAssertEqual(dust.width, 56)
         XCTAssertEqual(dust.y, 0)
         XCTAssertEqual(dust.plane, .world)
+        // A new palisade: from the wall's left over its scaffold and the palisade anchor's door piece (31 px).
+        let wood = finishing(plot, from: nil, to: .palisade)
+        var fresh = BattleEffects()
+        step(&fresh, wood.events, before: wood.before.plots, state: wood.after)
+        let woodDust = try XCTUnwrap(fresh.items.first { $0.kind == .standDust })
+        XCTAssertEqual(woodDust.x - woodDust.width / 2, Realm.wallX[1], accuracy: 1e-9)
+        XCTAssertGreaterThanOrEqual(woodDust.x + woodDust.width / 2, Realm.wallX[1] + 31 - 1e-9)
         XCTAssertEqual(dust.lifetime, 1.1)
         let focus = 960.0
         let camera = Camera(focusX: focus, pixelScale: pro)
         let ground = Camera.groundDeviceY(physicalHeight: pro.physicalHeight, scale: pro.scale)
         let scale = pro.scale
         func lifts(_ list: [ActorInstance]) -> [Int] { list.map { ground - Int($0.rect.y + $0.rect.w) } }
-        let count = BattleEffects.standDustCount(width: 36)
+        let count = BattleEffects.standDustCount(width: dust.width)
         let first = shards(after, effects: effects, focus: focus)
         XCTAssertEqual(first.count, count, "every particle at the event")
         XCTAssertTrue(lifts(first).allSatisfy { $0 == 0 }, "at the foot")
@@ -179,10 +187,10 @@ final class StandingTests: XCTestCase {
         XCTAssertEqual(peak.count, count)
         XCTAssertTrue(peak.allSatisfy { $0.tint.w == 1 }, "fullest at the swap")
         XCTAssertTrue(lifts(peak).allSatisfy { $0 >= 1 * scale && $0 <= 9 * scale }, "risen over the foot: \(lifts(peak))")
-        XCTAssertEqual(peak.filter { $0.sprite == .smokePuff }.count, BattleEffects.standPuffCount(width: 36),
-                       "round puffs among the motes")
-        let left = camera.deviceX(worldX: dust.x - 18 - 2, scale: scale, mode: .smooth)
-        let right = camera.deviceX(worldX: dust.x + 18 + 2, scale: scale, mode: .smooth)
+        XCTAssertEqual(peak.filter { $0.sprite == .smokePuff }.count, BattleEffects.standPuffCount(width: dust.width),
+                       "round puffs")
+        let left = camera.deviceX(worldX: dust.x - dust.width / 2 - 2, scale: scale, mode: .smooth)
+        let right = camera.deviceX(worldX: dust.x + dust.width / 2 + 2, scale: scale, mode: .smooth)
         let anchors = peak.map { Int($0.rect.x + $0.rect.z / 2) }
         XCTAssertTrue(anchors.allSatisfy { $0 >= left && $0 <= right }, "over the work's width")
         XCTAssertGreaterThan((anchors.max() ?? 0) - (anchors.min() ?? 0), 20 * scale, "spread over it, not a puff")
