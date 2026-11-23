@@ -552,7 +552,8 @@ final class FilmDealsUITests: XCTestCase {
     /// with one hold; a rolling burst keeps the frames before the site lantern goes out (the job's end, the event) and
     /// 1.6 s of the finish after it: the scaffold and the old picture, the dust rising, the swap under the dust, the
     /// 1 px settle, the dust thinning. Then the palisade with Reduce Motion in real time: it stands at once, the scaffold
-    /// fades over it, no dust. Frames `a2-<letter>-<nn>`, notes `a2-<letter>-times`.
+    /// fades over it, no dust; step A2b: the palisade in real time without Reduce Motion. Frames `a2-<letter>-<nn>`,
+    /// notes `a2-<letter>-times`.
     func testA2ItStands() {
         let film = FilmReel(self, "a2")
         let day = FilmDealsUITests.gate.filter { $0 != "-GWCameraX" && $0 != "1240" }
@@ -564,6 +565,9 @@ final class FilmDealsUITests: XCTestCase {
         a2Finish(film, "c", day + ["-GWCameraX", "960", "-GWReduceMotion", "YES"], sites: ["touch-plot-6"],
                  what: "Reduce Motion, real time: the palisade stands at once, the scaffold fades over it, no dust",
                  keepBefore: 8, after: 10, timeout: 120)
+        // Step A2b (the review's A2-P4): the palisade once more in real time without Reduce Motion, the dust as played.
+        a2Finish(film, "d", day + ["-GWCameraX", "960"], sites: ["touch-plot-6"],
+                 what: "real time: the palisade stands under its dust", keepBefore: 8, after: 12, timeout: 120)
     }
 
     /// One finish: launch, the first of `sites` that offers something, its counter, one hold, then the rolling burst

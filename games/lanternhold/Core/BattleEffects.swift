@@ -227,6 +227,29 @@ struct Jolt: Sendable, Equatable {
     var start: Double
 }
 
+/// Step A2b: one piece of a standing's dust at its rest, in the swap's frame (`BattleEffects.standDust`).
+struct StandPiece: Sendable, Equatable {
+    /// A puff's body: its left column from the work's centre and its bottom row over the foot (whole game px); a
+    /// mote's (`size` 0): its flake's centre column.
+    var left: Double
+    var bottom: Double
+    /// The puff's body at rest (4 or 5 px, `smokePuff`'s frames 2 and 3); 0 for a mote (`sootFlake`).
+    var size: Int
+    /// The lighter of the two tones (drawn over the darker pieces of its clump).
+    var light: Bool
+    /// Its peak alpha (in the swap's frame), 0.6 to 0.9.
+    var alpha: Float
+    /// Seconds from the event to its end, 0.7 to 1.1.
+    var life: Double
+    /// Its drift after the swap: px outward (away from the work's middle) and up, at its end.
+    var driftX: Double
+    var driftY: Double
+    /// Where it starts on the foot line: this share of its way out from the work's middle.
+    var start: Double
+    /// A mote's flake shape (`HordeLook.flakeShapes`).
+    var shape: Int = 0
+}
+
 extension BattleEffects {
     /// The swap: the old picture stands 0.12 s after the event, the new sprite from then on (the brief's times).
     static let standSwap = 0.12
@@ -257,27 +280,176 @@ extension BattleEffects {
         return puffs + min(standMotes, standPieces - puffs)
     }
 
-    /// The round puffs (`smokePuff`): one per 4.5 px of the work, 3 to 12, so their 5 px bodies overlap into one band
-    /// over the work's foot at the swap (the gate of A2: one per 9 px, 2 px at the swap, left most of the foot open).
+    /// Step A2b: the puffs (`smokePuff`), one per 4.2 px of the work (0.24 a px, rounded up), 6 to 12: enough for
+    /// three clumps on the smallest work and for at least 70 % of the foot's columns up to a 72 px work.
     static func standPuffCount(width: Double) -> Int {
-        min(standPieces, max(3, Int((width / 4.5).rounded())))
+        min(standPieces, max(6, Int((width * 0.24).rounded(.up))))
     }
 
-    /// The motes over the puffs (where the puffs leave room), and the most pieces one work's dust draws.
+    /// The motes over the clumps (only where the puffs leave room), and the most pieces one work's dust draws.
     static let standMotes = 2
     static let standPieces = 12
 
-    /// The puffs' white body times this is a pale, cool stone dust (its underside a shade darker), lighter than the
-    /// town's tan walls and ochre ground (the gate of A2: the warm tint was lost on the house).
-    static let standPuffTint = SIMD3<Float>(0.9, 0.88, 0.84)
+    /// Step A2b (the director's brief: "the standing's dust reads as dust"): A2's dust was an even row of equal, nearly
+    /// white round puffs and read as a string of pearls. The puffs now gather in clumps: 3 to 5 a work (`standClumpsMost`,
+    /// the keep's 120 px up to `standKeepClumps`), one per `standClumpSpan` px, each 2 to 4 puffs of 4 and 5 px in turn.
+    /// In a clump each puff stands 1 to 3 px higher or lower than the one before and overlaps it by 1 or 2 columns,
+    /// or touches it side by side where the work is too wide for overlap to keep the foot covered (12 pieces of at most
+    /// 5 px; `standCoverAim`). The gaps between the clumps are uneven.
+    static let standClumpSpan = 13.0
+    static let standClumpsLeast = 3
+    static let standClumpsMost = 5
+    static let standKeepClumps = 6
+    /// Overlap is added joint by joint (in the plot's order) only while the clumps still span this share of the work.
+    static let standCoverAim = 0.78
+    /// The cloud's top edge: no piece rises above this many px over the foot (its lowest top is the 4 px puff on the
+    /// foot); the clump the plot's seed picks stands 2 px higher where its puffs overlap.
+    static let standTop = 10.0
+    /// Each piece's own end, 0.7 to 1.1 s after the event (law 4's step 3), so the cloud breaks up raggedly; the last
+    /// is gone by `standDustSeconds`.
+    static let standLifeShortest = 0.7
+    /// After the swap a piece drifts 1 to 2 px outward and 1 to 2 px up (at most 2.8 px) on law 1's ease-out.
+    static let standDriftLeast = 1.0
+    static let standDriftMost = 2.0
+    /// Where a piece starts on the foot line: 25 to 50 % of its way out from the work's middle (the burst).
+    static let standStartLeast = 0.25
+    static let standStartMost = 0.5
+    /// Peak alpha (law of the brief: 0.6 to 0.9, varied per piece): the darker pieces hold the body, the lighter thinner.
+    static let standDarkAlpha: ClosedRange<Float> = 0.78...0.9
+    static let standLightAlpha: ClosedRange<Float> = 0.66...0.84
+
+    /// The dust's two tones (the puff's white body times this, then the hour's light; its underside row a value
+    /// darker in the art): a grey ground dust. Measured on round lh-ra-16's film (day 3, 14:48), the light tone's body
+    /// stays under the lit stone of the line's tower (176, 177, 175) and under the lit plaster of the town's house
+    /// (197, 151, 99); the darker tone is 15 % below it. A clump draws its darker pieces first, the lighter over them.
+    static let standDustLight = SIMD3<Float>(0.75, 0.74, 0.70)
+    static let standDustDark: Float = 0.85
+
+    /// The flakes' grey (0x5E6170) times this is the light tone of the puffs (`standDustLight`) for the motes. Above 1,
+    /// so the drawing tells the dust's flakes from the small ones' soot (`EntityFrames.effectParticles`).
+    static let standDustTint = SIMD3<Float>(2.03, 1.95, 1.59)
 
     /// At most one `.buildStood` this often (the standings' clock; the thinner's old gap for `.buildDone`), at the
     /// due standing nearest the listener: two works finishing together are answered once, with one haptic.
     static let stoodGap = 0.4
 
-    /// The flakes' grey (0x5E6170) times this is a pale warm stone dust (about 0xB4AAA0); every mote 0.85 to 1.15 of
-    /// it. Above 1, so the drawing tells the dust's flakes from the small ones' soot (`EntityFrames.effectParticles`).
-    static let standDustTint = SIMD3<Float>(1.92, 1.76, 1.43)
+    /// The plot's seed for its dust: from the work's place and width only (never the effects' counter), so one work
+    /// raises the same dust at every finish, in every build, at every frame rate.
+    static func standKey(x: Double, width: Double) -> UInt64 {
+        let place = UInt64(bitPattern: Int64((x * 4).rounded()))
+        let span = UInt64(bitPattern: Int64((width * 4).rounded()))
+        return SeededRandom.mix(place ^ (span << 32) ^ 0x5D0D_57A2_0B5E_ED11)
+    }
+
+    /// Step A2b: the pieces of a work's dust at their rest (their place in the swap's frame), in drawing order (each
+    /// clump's darker pieces before its lighter), placed by the plot's seed (`standKey`) and the piece's index only.
+    static func standDust(width: Double, key: UInt64, clumpsMost: Int = standClumpsMost) -> [StandPiece] {
+        func unit(_ k: Int, _ salt: Int64) -> Double {
+            Double(SeededRandom.hash(key, Int64(k) &* 31 &+ salt) >> 11) * 0x1.0p-53
+        }
+        let puffs = standPuffCount(width: width)
+        let clumps = min(clumpsMost, puffs / 2, max(standClumpsLeast, Int((width / standClumpSpan).rounded())))
+        var counts = Array(repeating: puffs / clumps, count: clumps)
+        let order = (0..<clumps).sorted { unit($0, 1) < unit($1, 1) }
+        for extra in 0..<(puffs % clumps) { counts[order[extra]] += 1 }
+        var sizes: [[Int]] = []
+        var overlaps: [[Int]] = []
+        for clump in 0..<clumps {
+            var size = unit(clump, 2) < 0.5 ? 5 : 4
+            var row: [Int] = []
+            for _ in 0..<counts[clump] {
+                row.append(size)
+                size = size == 5 ? 4 : 5
+            }
+            sizes.append(row)
+            overlaps.append(Array(repeating: 0, count: counts[clump]))
+        }
+        func spans() -> [Int] {
+            (0..<clumps).map { sizes[$0].reduce(0, +) - overlaps[$0].reduce(0, +) }
+        }
+        var spare = Int((Double(spans().reduce(0, +)) - standCoverAim * width).rounded(.down))
+        let joints = (0..<clumps).flatMap { clump in (1..<max(1, counts[clump])).map { (clump, $0) } }
+            .sorted { unit($0.0 * 4 + $0.1, 3) < unit($1.0 * 4 + $1.1, 3) }
+        for overlap in 1...2 {
+            for (clump, joint) in joints where spare > 0 {
+                overlaps[clump][joint] = overlap
+                spare -= 1
+            }
+        }
+        let widths = spans()
+        let rest = width - Double(widths.reduce(0, +))
+        let gaps: [Double]
+        if rest >= 0 {
+            let weights = (0..<(clumps - 1)).map { 0.6 + 0.8 * unit($0, 4) }
+            let total = max(0.01, weights.reduce(0, +))
+            gaps = weights.map { rest * $0 / total }
+        } else {
+            gaps = Array(repeating: max(rest / Double(clumps - 1), -3), count: clumps - 1)
+        }
+        var x = -(Double(widths.reduce(0, +)) + gaps.reduce(0, +)) / 2
+        let high = Int(unit(0, 5) * Double(clumps)) % clumps
+        var placed: [(left: Double, bottom: Double, size: Int, clump: Int, index: Int)] = []
+        var index = 0
+        for clump in 0..<clumps {
+            let left = x.rounded()
+            let base = Double(Int(unit(clump, 6) * 2))
+            var cursor = 0
+            for joint in 0..<counts[clump] {
+                if joint > 0 { cursor += sizes[clump][joint - 1] - overlaps[clump][joint] }
+                let size = sizes[clump][joint]
+                var bottom = base
+                if joint % 2 == 1 {
+                    let lift = clump == high && overlaps[clump][joint] >= 1 ? 2.0 : 0
+                    bottom = base + 1 + Double(Int(unit(index, 7) * 3)) + lift
+                } else if joint > 0 {
+                    bottom = base + Double(Int(unit(index, 7) * 2))
+                }
+                placed.append((left + Double(cursor), min(bottom, standTop - Double(size)), size, clump, index))
+                index += 1
+            }
+            x += Double(widths[clump]) + (clump < gaps.count ? gaps[clump] : 0)
+        }
+        // No two neighbours at one height.
+        for k in placed.indices.dropFirst() where placed[k].bottom == placed[k - 1].bottom {
+            placed[k].bottom += placed[k].bottom + Double(placed[k].size) + 1 <= standTop ? 1 : -1
+        }
+        var pieces: [StandPiece] = []
+        for clump in 0..<clumps {
+            let members = placed.filter { $0.clump == clump }
+            let top = members.max { ($0.bottom, -$0.index) < ($1.bottom, -$1.index) }?.index ?? -1
+            var darker: [StandPiece] = []
+            var lighter: [StandPiece] = []
+            for (joint, member) in members.enumerated() {
+                let k = member.index
+                let light = k == top || (joint > 0 && unit(k, 8) < 0.5)
+                let range = light ? standLightAlpha : standDarkAlpha
+                let piece = StandPiece(
+                    left: member.left, bottom: member.bottom, size: member.size, light: light,
+                    alpha: range.lowerBound + (range.upperBound - range.lowerBound) * Float(unit(k, 9)),
+                    life: standLifeShortest + (standDustSeconds - standLifeShortest) * unit(k, 10),
+                    driftX: standDriftLeast + (standDriftMost - standDriftLeast) * unit(k, 11),
+                    driftY: standDriftLeast + (standDriftMost - standDriftLeast) * unit(k, 12),
+                    start: standStartLeast + (standStartMost - standStartLeast) * unit(k, 13))
+                if light { lighter.append(piece) } else { darker.append(piece) }
+            }
+            pieces += darker + lighter
+        }
+        // The motes (one or two flakes of grit) where the puffs leave room: over the clumps, below the top edge.
+        for mote in 0..<min(standMotes, standPieces - puffs) {
+            let k = 100 + mote
+            pieces.append(StandPiece(
+                left: ((unit(k, 14) - 0.5) * width * 0.8).rounded(), bottom: 5 + Double(Int(unit(k, 15) * 3)), size: 0,
+                light: true,
+                alpha: standLightAlpha.lowerBound
+                    + (standLightAlpha.upperBound - standLightAlpha.lowerBound) * Float(unit(k, 9)),
+                life: standLifeShortest + (standDustSeconds - standLifeShortest) * unit(k, 10),
+                driftX: standDriftLeast + (standDriftMost - standDriftLeast) * unit(k, 11),
+                driftY: standDriftLeast + (standDriftMost - standDriftLeast) * unit(k, 12),
+                start: standStartLeast + (standStartMost - standStartLeast) * unit(k, 13),
+                shape: Int(unit(k, 16) * Double(HordeLook.flakeShapes)) % HordeLook.flakeShapes))
+        }
+        return pieces
+    }
 
     /// One frame of the buildings' finishes (`GameModel.advanceGame`, every frame, before the frame is drawn): the
     /// standings' clock runs on by `seconds` (the driver's seconds), every `buildDone` of the frame's `events` gets
