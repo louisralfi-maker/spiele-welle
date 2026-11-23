@@ -68,6 +68,14 @@ struct RootView: View {
     @State private var hallLive = false
     /// Polish C2 (Debug): the step's probe, the hitches its beat did not count (`stepin-probe`, noted by the film).
     @State private var stepProbe = "none"
+    /// Polish C2b (part 5): the start pane has been built once, unseen, under the title (`paneWarmed`).
+    @State private var paneWarmed = false
+    #if DEBUG
+    /// Polish C2b (Debug): when the warm-up ended, the hall was mounted and the hall stood warm (the launch's marks).
+    @State private var warmUpEndedAt: Date? = nil
+    @State private var hallMountedAt: Date? = nil
+    @State private var hallWarmAt: Date? = nil
+    #endif
 
     var body: some View {
         if MetalContext.shared == nil {
@@ -112,9 +120,31 @@ struct RootView: View {
                             // lh-rc-17: paused from its first frame, the hall drew its first, heavy frames at the touch
                             // (2.2 s of the step lost on the runner); now they fall here, under the title, and before
                             // its reveal (polish C2b, P5).
+                            #if DEBUG
+                            hallMountedAt = Date()
+                            #endif
                             Task { @MainActor in
                                 try? await Task.sleep(nanoseconds: UInt64(StepIn.hallWarmSeconds * 1_000_000_000))
                                 worldWarm = true
+                                #if DEBUG
+                                hallWarmAt = Date()
+                                #endif
+                            }
+                        }
+                }
+                if let model, gameMounted, !titleDone, stepBeat == nil, !paneWarmed, model.overlay == .lordEntry {
+                    // Polish C2b (part 5): the pane a new realm holds at its start is built once, unseen, under the
+                    // title as the hall is, before the light opens, so its first build (the name field, the portraits)
+                    // falls into the breathing wait and the card comes 0.25 s after the hall is whole (lh-rc-20: its
+                    // first build took 0.17 s after the panes were let go, 0.23 s with its first frame).
+                    LordEntryView(model: model)
+                        .opacity(0)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                        .onAppear {
+                            Task { @MainActor in
+                                try? await Task.sleep(nanoseconds: 100_000_000)
+                                paneWarmed = true
                             }
                         }
                 }
@@ -149,6 +179,9 @@ struct RootView: View {
                     Task { @MainActor in
                         await RenderWarmup.prepare()
                         warmedUp = true
+                        #if DEBUG
+                        warmUpEndedAt = Date()
+                        #endif
                         // Polish C2b (P5): the wait for the warm hall never hangs.
                         let warmAt = Date()
                         try? await Task.sleep(nanoseconds: UInt64(StepIn.revealCeilingSeconds * 1_000_000_000))
@@ -238,6 +271,18 @@ struct RootView: View {
             #if DEBUG
             let head = String(format: "lost:%.3f longest:%.3f wall:%.3f; wall/lost at ", beat.lost, beat.longestGap,
                               Date().timeIntervalSince(start))
+            // Polish C2b (Debug): the launch before the touch, in seconds after the warm-up ended: the hall mounted,
+            // the hall warm, and what opened the light (the warm hall, or the ceiling 2.0 s after the warm-up).
+            var launch = "launch: none; "
+            if let warmUpEndedAt {
+                func after(_ date: Date?) -> String {
+                    date.map { String(format: "%.3f", $0.timeIntervalSince(warmUpEndedAt)) } ?? "none"
+                }
+                let warm = hallWarmAt.map { $0.timeIntervalSince(warmUpEndedAt) } ?? .infinity
+                launch = "launch after the warm-up: hall mounted " + after(hallMountedAt) + ", hall warm "
+                    + after(hallWarmAt) + ", light opened by "
+                    + (warm < StepIn.revealCeilingSeconds ? "the warm hall" : "the ceiling") + "; "
+            }
             // Polish C2b (part 5): the start pane's first drawn frame (its onAppear, then the main thread's next turn),
             // waited for at most 3 s after the panes were let go; "none" when the game held no pane at its start.
             let probe = StepProbe.shared
@@ -248,12 +293,13 @@ struct RootView: View {
             func wall(_ date: Date?) -> String {
                 date.map { String(format: "%.3f", $0.timeIntervalSince(start)) } ?? "none"
             }
+            marks.append("card-init " + wall(probe.paneInit))
             marks.append("card-appear " + wall(probe.paneAppeared))
             marks.append("card-free " + wall(probe.paneFree))
             if let free = probe.paneFree, let wholeWall {
                 marks.append(String(format: "whole-to-card %.3f", free.timeIntervalSince(start) - wholeWall))
             }
-            stepProbe = head + marks.joined(separator: ", ")
+            stepProbe = launch + head + marks.joined(separator: ", ")
             #endif
         }
     }
@@ -275,13 +321,20 @@ struct RootView: View {
 @MainActor
 final class StepProbe {
     static let shared = StepProbe()
+    private(set) var paneInit: Date?
     private(set) var paneAppeared: Date?
     private(set) var paneFree: Date?
 
     /// A new step into the game: forget an earlier pane.
     func reset() {
+        paneInit = nil
         paneAppeared = nil
         paneFree = nil
+    }
+
+    /// The start pane's view was made (its parent's body ran); the first time after a reset counts.
+    func paneMade() {
+        if paneInit == nil { paneInit = Date() }
     }
 
     /// The start pane appeared; the main thread's next turn says when its first frame was done.

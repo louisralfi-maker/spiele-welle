@@ -29,6 +29,10 @@ struct LordEntryView: View {
         let draft = model.lordDraft
         _name = State(initialValue: draft?.name ?? "")
         _form = State(initialValue: draft?.form ?? .lord)
+        #if DEBUG
+        // Polish C2b, part 5: when the start pane was made, for the step's probe (`StepProbe`).
+        StepProbe.shared.paneMade()
+        #endif
     }
 
     var body: some View {
