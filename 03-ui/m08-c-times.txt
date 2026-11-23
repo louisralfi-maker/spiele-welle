@@ -1,0 +1,33 @@
+m08-c: after burst b: the night falling, one frame every 0.6 s
+real time; one frame every 0.60 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 17.5 -GWStage world -GWCameraX 2300
+scene before: frame:1230 ready day:3 hour:19.46 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2300 lord:lord stage:world lx:2300 errand:none door:1830 gold:91 hud:none cam:2103 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none lantern:ready
+scene after: frame:2050 ready day:3 hour:20.64 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2300 lord:lord stage:world lx:2300 errand:none door:1830 gold:91 hud:none cam:2103 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none lantern:ready
+
+frame  seconds since the burst began  (scene where read)
+01  +0.390 s  
+02  +0.800 s  
+03  +1.398 s  
+04  +1.976 s  
+05  +2.582 s  
+06  +3.189 s  
+07  +3.835 s  
+08  +4.447 s  
+09  +5.033 s  
+10  +5.595 s  
+11  +6.247 s  
+12  +6.808 s  
+13  +7.465 s  
+14  +8.102 s  
+15  +8.643 s  
+16  +9.197 s  
+17  +9.803 s  
+18  +10.403 s  
+19  +11.031 s  
+20  +11.665 s  
+21  +12.164 s  
+22  +12.875 s  
+23  +13.418 s  
+24  +13.991 s  
+mean spacing 0.591 s over 23 gaps
