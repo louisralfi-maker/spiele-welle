@@ -1,0 +1,2 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/Camera.swift:81:12: error: circular reference

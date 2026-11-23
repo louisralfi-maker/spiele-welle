@@ -1,0 +1,3 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Render/Shaders.metal:1093:17: warning: unused variable 'kMoonRim2' [-Wunused-const-variable]
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Render/Shaders.metal:1119:16: warning: unused variable 'kHordeRim2' [-Wunused-const-variable]
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Render/Shaders.metal:1120:16: warning: unused variable 'kHordeRimShare2' [-Wunused-const-variable]
