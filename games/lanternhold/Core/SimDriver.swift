@@ -50,6 +50,8 @@ struct SimDriver: Sendable {
     /// Touch the world (stage lane, step stage-2): the pace of that walk (a walk, a hurry or a run); nil runs, as the
     /// realm strip always did.
     var travelSpeed: Double?
+    /// Polish step A1: the lord's gait (the player's walk and what the picture needs of it); never saved.
+    private(set) var gait = LordGait()
     /// A card or the pause sheet is open (the UI sets it).
     var isPaused = false
     /// The app is not active.
@@ -123,21 +125,40 @@ struct SimDriver: Sendable {
             state.king.velocity = walk.velocity(kingX: state.king.x, speed: balance.kingWalkSpeed)
             walker = walk
         }
+        // Polish step A1 (`LordGait`): the player's walk to a spot starts over 0.12 s, brakes over the last 4 px onto
+        // the spot exactly, turns after a 0.07 s hold and changes pace over 0.25 s. Only here: `Sim.stepKing` and the
+        // bots move as they always did.
+        var landing: Double?
         if let target = travelTarget, bot == nil {
             let gap = target - state.king.x
-            if abs(gap) < 0.5 || state.king.lightingPlot >= 0 {
+            if state.king.lightingPlot >= 0 || gap == 0 || (gait.direction == 0 && abs(gap) < 0.5) {
                 state.king.velocity = 0
                 travelTarget = nil
+                gait.halt()
             } else {
-                let speed = travelSpeed ?? balance.kingRunSpeed
-                state.king.velocity = max(-speed, min(speed, gap / dt))
+                let step = gait.travel(x: state.king.x, target: target, want: travelSpeed ?? balance.kingRunSpeed,
+                                       current: state.king.velocity, dt: dt)
+                state.king.velocity = step.velocity
+                if let facing = step.facing { state.king.facing = facing }
+                if step.lands { landing = target }
             }
+        } else {
+            gait.halt()
         }
         if var player = bot {
             player.act(&state, dt: dt, balance: balance, events: &events, petitions: petitions)
             bot = player
         }
+        let before = state.king.x
         Sim.step(&state, dt: dt, balance: balance, events: &events)
+        if let target = landing, abs(state.king.x - target) < 1e-6 {
+            // On the spot exactly: he stands from this step on.
+            state.king.x = target
+            state.king.velocity = 0
+            travelTarget = nil
+            gait.halt()
+        }
+        gait.note(moved: abs(state.king.x - before), dt: dt)
         // b3-horde (build 3, lane 4 step A, step 4; one block for the join): the runner's clip of the horde holds the
         // night's clock and keeps its stream coming (`HordeProof.drive`, a `-GWHorde dark` launch of a Debug build only).
         #if DEBUG
@@ -153,31 +174,100 @@ struct SimDriver: Sendable {
         }
     }
 
-    /// Where "Sound the horn" takes the clock: a minute before the horn.
+    // LANE-E: E1 (the polish audit's thing 6; law 3.3: the dusk played in 4.0 s instead of a cut to 18:59)
+    /// Where the played dusk's quick steps take the clock: a minute before the horn. The last minute the realm steps as
+    /// ever, so the horn sounds by itself at 19:00 and the night begins exactly as a night that came by itself.
     static let hornCallHour = 19.0 - 1.0 / 60
+    /// Law 3.3: the dusk played, from the call to the horn, in seconds of the driver's time.
+    static let duskSeconds = 4.0
+    /// The last minute before the horn at the day's own pace (0.2 s); the quick steps take the rest of the 4.0 s.
+    static let duskLastMinute = (19.0 - hornCallHour) * DayClock.secondsPerHour
 
-    /// The player sounds the horn by day (the pause sheet; M2b review: once day 1's gold was spent, two minutes of the
-    /// day had nothing left to do): the realm plays on headless to 18:59 in the day's one-second steps, so the builders
-    /// finish what they can, and the horn sounds at 19:00 a moment later. The king stands still meanwhile. False when it
-    /// is not day.
+    /// A dusk being played (not saved): the day and the hour of the call, and the driver's seconds since.
+    struct Dusk: Sendable, Equatable {
+        var day: Int
+        var fromHour: Double
+        var elapsed = 0.0
+
+        /// The clock's hour the dusk wants now: linear (law 1: the time of day is linear) from the call to the horn's
+        /// minute over 4.0 s less the last minute.
+        var targetHour: Double {
+            let ramp = max(1e-9, SimDriver.duskSeconds - SimDriver.duskLastMinute)
+            let share = min(1, max(0, elapsed / ramp))
+            return fromHour + (SimDriver.hornCallHour - fromHour) * share
+        }
+
+        /// How far the dusk is (0 ... 1 of its 4.0 s).
+        var share: Double { min(1, max(0, elapsed / SimDriver.duskSeconds)) }
+    }
+
+    /// The dusk being played since the call; nil when none.
+    private(set) var dusk: Dusk?
+
+    /// True while a dusk is being played on this day (a dusk of a day undone by a restart or a wake is not).
+    var playsDusk: Bool {
+        guard let played = dusk else { return false }
+        return played.day == state.day && state.hour >= played.fromHour - 1e-6 && !state.defeated
+            && DayClock.phase(at: state.hour) == .day && state.hour < 19
+    }
+
+    /// The player sounds the horn by day (Brannock's offer, the pause sheet): the dusk is played, not cut. From now
+    /// on `playDusk` steps the realm on in its own 1/60 s steps, as many each frame as bring the clock to the horn's
+    /// minute in 4.0 s (the sky, the lamps, the builders and the town's evening run as at any dusk); the last minute
+    /// runs at the day's pace and the horn sounds by itself. The lord stops where he is (he may walk again). False when
+    /// it is not day, the horn is a minute off, the realm fell, or a dusk is already played.
     @discardableResult
     mutating func callTheNight() -> Bool {
-        guard DayClock.phase(at: state.hour) == .day, state.hour < SimDriver.hornCallHour - 1e-6, !state.defeated else {
+        guard !playsDusk, DayClock.phase(at: state.hour) == .day, state.hour < SimDriver.hornCallHour - 1e-6,
+              !state.defeated else {
             return false
         }
         state.king.velocity = 0
         travelTarget = nil
-        var remaining = (SimDriver.hornCallHour - state.hour) * DayClock.secondsPerHour
-        var events: [SimEvent] = []
-        while remaining > 1e-9 && !state.defeated {
-            let dt = min(Sim.dayStep, remaining)
-            events.removeAll(keepingCapacity: true)
-            Sim.step(&state, dt: dt, balance: balance, events: &events)
-            remaining -= dt
-        }
-        accumulator = SimDriver.startPhase
+        dusk = Dusk(day: state.day, fromHour: state.hour)
         return true
     }
+
+    /// One frame of a played dusk (`GameModel.advanceGame`, after the frame's own steps): `seconds` of the driver's
+    /// time pass for the dusk (at most `maxCatchUp`; none while the world is held), and the realm takes the extra 1/60 s
+    /// steps that bring the clock to the dusk's hour, each the frame step's own work (the simulation, the petitions),
+    /// with the lord's intent at rest during them, so he keeps his own pace. The dusk ends at the horn's minute's
+    /// end, a new day, a fall or a jump in time. Returns the extra steps taken.
+    @discardableResult
+    mutating func playDusk(seconds: Double, events: inout [SimEvent]) -> Int {
+        guard var played = dusk else { return 0 }
+        guard playsDusk else {
+            dusk = nil
+            return 0
+        }
+        guard canStep else { return 0 }
+        played.elapsed += min(max(0, seconds), SimDriver.maxCatchUp)
+        dusk = played
+        let target = played.targetHour
+        let half = SimDriver.step / DayClock.secondsPerHour / 2
+        let intent = state.king.velocity
+        var taken = 0
+        while state.hour + half < target && !state.defeated && taken < 4_000 {
+            state.king.velocity = 0
+            let first = events.count
+            Sim.step(&state, dt: SimDriver.step, balance: balance, events: &events)
+            #if DEBUG
+            if HordeProof.probing { HordeProof.drive(&state, balance: balance) }
+            #endif
+            PetitionEngine.prepare(&state, catalog: petitions)
+            steps += 1
+            taken += 1
+            for event in events[first...] {
+                if case .dawn = event {
+                    dawnSnapshot = state
+                    dawnRing.record(state, keep: balance.front.hearth.dawnsKept)
+                }
+            }
+        }
+        state.king.velocity = intent
+        return taken
+    }
+    // LANE-E end
 
     /// The walk pad's horizontal drag in points from where the finger went down (nil when it lifts): below the dead
     /// zone the king stands, beyond `runDistance` he runs (DESIGN.md "Controls": walk 36, run 80 game px/s). Any drag
@@ -227,6 +317,7 @@ struct SimDriver: Sendable {
     /// The defeat card's "Replay the day": the realm as it was at this day's dawn.
     mutating func replayDay() {
         state = dawnSnapshot
+        gait = LordGait()
         state.king.velocity = 0
         dawnSnapshot = state
         accumulator = SimDriver.startPhase
@@ -237,6 +328,7 @@ struct SimDriver: Sendable {
     /// stays who he or she was until the name entry answers again.
     mutating func restart(seed: UInt64) {
         let lord = state.lord
+        gait = LordGait()
         state = GameState.newRealm(seed: seed, balance: balance)
         state.lord = lord
         // Craft lane hook: a restarted chapter meets the travelling craftsmen too (build 3: `CraftVisits.open`).
@@ -266,6 +358,7 @@ struct SimDriver: Sendable {
     mutating func wake(back: Int) -> Bool {
         guard let dawn = dawnRing.wake(back: back) else { return false }
         state = dawn
+        gait = LordGait()
         state.king.velocity = 0
         dawnSnapshot = state
         accumulator = SimDriver.startPhase

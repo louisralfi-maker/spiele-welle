@@ -382,6 +382,89 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertTrue((8...9).contains(EntityFrames.kingFrame(king, balance: balance, time: 0.3)), "command")
     }
 
+    // MARK: - Polish step A1: the walk and the breath (law 1, figures)
+
+    /// The driver's walk from standing: every step's frame is the walk frame of the distance this walk has come (one
+    /// per 4 px stride, walk frame 0 first, so the feet do not slide through the ramp and the brake); after the stop the
+    /// standing pose holds 0.25 s, then the breath begins with frame A.
+    func testTheKingsFrameFollowsTheDistanceOfHisWalkAndHolds() {
+        var s = GameState.newRealm(seed: 6)
+        s.hour = 10
+        s.king.x = 2700.4
+        var driver = SimDriver(state: s, balance: balance)
+        var events: [SimEvent] = []
+        driver.travel(to: 2731, speed: balance.kingWalkSpeed)
+        var walked = 0.0
+        var first = true
+        while driver.travelTarget != nil {
+            let x = driver.state.king.x
+            driver.advance(by: SimDriver.step, events: &events)
+            walked += abs(driver.state.king.x - x)
+            let frame = EntityFrames.kingFrame(driver.state.king, balance: balance, time: driver.state.simTime,
+                                               gait: driver.gait)
+            if first {
+                XCTAssertEqual(frame, 0, "the first frame after the tap is walk frame 0")
+                first = false
+            }
+            XCTAssertEqual(frame, Int(walked / FigureMotion.lordStride) % 6, "walk frame by distance at \(walked)")
+        }
+        XCTAssertEqual(walked, 30.6, accuracy: 1e-9)
+        var standing: [Int] = []
+        for _ in 0..<100 {
+            driver.advance(by: SimDriver.step, events: &events)
+            standing.append(EntityFrames.kingFrame(driver.state.king, balance: balance, time: driver.state.simTime,
+                                                   gait: driver.gait))
+        }
+        XCTAssertTrue(standing[0..<15].allSatisfy { $0 == 6 }, "the standing pose held 0.25 s: \(standing)")
+        XCTAssertTrue(standing[15..<80].allSatisfy { $0 == 6 }, "then frame A of the breath")
+        XCTAssertEqual(standing[90], 7, "frame B after 1.4 s")
+        // Command frames still win.
+        var lighting = driver.state.king
+        lighting.lightingPlot = 2
+        XCTAssertTrue((8...9).contains(EntityFrames.kingFrame(lighting, balance: balance, time: 0.3,
+                                                             gait: driver.gait)))
+    }
+
+    /// One breath for every person (law 1: frame A 1.15 s, frame B 0.85 s, phase id × 0.37 s): two figures with
+    /// different ids are out of phase, every figure breathes 30 times a minute, and the court, the guards and the
+    /// archers draw from it.
+    func testOneBreathAndTwoFiguresAreOutOfPhase() {
+        var a = 0
+        var differ = 0
+        let samples = 2000
+        for index in 0..<samples {
+            let time = Double(index) * 0.01
+            if FigureMotion.breath(time: time, id: 0) == 0 { a += 1 }
+            if FigureMotion.breath(time: time, id: 1) != FigureMotion.breath(time: time, id: 2) { differ += 1 }
+        }
+        XCTAssertEqual(Double(a) / Double(samples), 1.15 / 2.0, accuracy: 0.01, "frame A held 1.15 of every 2 s")
+        XCTAssertGreaterThan(differ, samples / 4, "ids 1 and 2 breathe out of step")
+        XCTAssertEqual(FigureMotion.breath(time: 0, id: 0), 0)
+        XCTAssertEqual(FigureMotion.breath(time: 1.16, id: 0), 1)
+        XCTAssertEqual(FigureMotion.breath(time: 0, id: 4), 1, "id 4 starts 1.48 s into its cycle")
+        // The court by its keys: two members not in step.
+        let body = SpeakerBody.court(.king)
+        var courtDiffer = 0
+        for index in 0..<400 {
+            let time = Double(index) * 0.01
+            if CourtFrames.idleFrame(body, animTime: time, key: "odile")
+                != CourtFrames.idleFrame(body, animTime: time, key: "brannock") { courtDiffer += 1 }
+        }
+        XCTAssertGreaterThan(courtDiffer, 0, "the court never breathes in step")
+        // An idle builder fidgets: a hammer tap (4, 5) now and then, frame 1 between.
+        var seen = Set<Int>()
+        for index in 0..<600 {
+            seen.insert(FigureMotion.builderIdleFrame(time: Double(index) * 0.01, index: 1))
+        }
+        XCTAssertEqual(seen, [1, 4, 5], "frame 1, and the tap")
+        // The gate (A1-C3): under Reduce Motion the idle builder holds frame 1.
+        var still = Set<Int>()
+        for index in 0..<600 {
+            still.insert(FigureMotion.builderIdleFrame(time: Double(index) * 0.01, index: 1, reduceMotion: true))
+        }
+        XCTAssertEqual(still, [1], "Reduce Motion: frame 1 held")
+    }
+
     // MARK: - The horde (b3-horde, POLISH.md 7: the small ones' picture; Battle and Balance untouched)
 
     static let smallSprites: Set<SpriteID> = [.sootling, .sootlingB, .tumbler]

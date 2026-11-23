@@ -1189,6 +1189,18 @@
         }
       }
     },
+    "line.brannock_horn_offer" : {
+      "comment" : "Court talk: brannock. Polish E1: said when the day's work is done (days 1-3, 09:00-17:30, nothing left the purse can pay); a second touch on him calls the night. English only for now.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing more to build today, {lord|my lady}. Say the word and I sound the horn."
+          }
+        }
+      }
+    },
     "line.brannock_hounds" : {
       "comment" : "Court talk: brannock.",
       "extractionState" : "manual",
@@ -4496,7 +4508,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A circlet is a hat that argues back, my {lord|lady}. Sit when you are ready."
+            "value" : "A circlet is a hat that argues back, my {lord|lady}. Sit when ready. Then go to Brannock: the gate wants fire before dark."
           }
         },
         "es" : {

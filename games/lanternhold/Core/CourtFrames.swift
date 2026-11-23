@@ -118,9 +118,10 @@ struct DrawnFigure: Sendable, Equatable {
 /// inside a shut room do not show. Pure: the same state, scene and time give the same additions.
 enum CourtFrames {
     static let propIDBase = 2_000_000
-    /// A breath every 0.8 s (as `CourtLayout`), on the animation clock, so the court breathes while the clock
-    /// stands still under the audience card; talk frames every 0.35 s.
-    static let breathSeconds = 0.8
+    /// The one breath (polish step A1, M6; `FigureMotion.breath`): frame A held 1.15 s (this), frame B 0.85 s, each
+    /// figure shifted by its own phase, on the animation clock, so the court breathes while the clock stands still
+    /// under the audience card; talk frames every 0.35 s.
+    static let breathSeconds = FigureMotion.breathA
     static let talkSeconds = 0.35
     /// The wall walk's two guards (`castle.guards.wall`).
     static let wallGuards: [Double] = [1324, 1396]
@@ -281,7 +282,8 @@ enum CourtFrames {
     }
 
     static func idleFrame(_ body: SpeakerBody, animTime: Double, key: String) -> Int {
-        body.idle.lowerBound + Int(max(0, animTime + phase(key)) / breathSeconds) % max(1, body.idle.count)
+        guard body.idle.count > 1 else { return body.idle.lowerBound }
+        return body.idle.lowerBound + FigureMotion.breath(time: max(0, animTime), id: FigureMotion.id(key))
     }
 
     /// A seated petitioner: frame 0, and the nod (frame 1) now and then, never in step with his neighbour.
@@ -294,7 +296,7 @@ enum CourtFrames {
     /// nil: settled at once.
     static func lordSeatedFrame(seconds: Double?, animTime: Double) -> Int {
         if let seconds, seconds < sitSeconds { return seconds < sitSeconds / 2 ? 0 : 1 }
-        return 2 + Int(max(0, animTime) / breathSeconds) % 2
+        return 2 + FigureMotion.breath(time: max(0, animTime), id: 0)
     }
 
     /// Talk frames (a gesture while speaking); a body without them idles.
