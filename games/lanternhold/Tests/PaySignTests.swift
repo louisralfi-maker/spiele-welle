@@ -79,6 +79,12 @@ final class PaySignTests: XCTestCase {
         }
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        // LANE-B: B3 (gate M2): the marks come by the presence rule (from share 0 over 0.15 s), so the two frames above
+        // ask for them but draw none; one presence step and a frame bring them whole, as they stood before B3, so a
+        // mark the tests find absent is absent by the rule, not caught before its coming. Nothing else moves.
+        game.stepPresence(0.3)
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        // LANE-B end
         return game
     }
 
@@ -454,6 +460,11 @@ final class PaySignTests: XCTestCase {
         XCTAssertFalse(frame.actors.contains {
             $0.sprite == .tapBuild && abs(Double($0.rect.x + $0.rect.z / 2) - markX) < 4 * framing.scale
         }, "the models replace the site's mark")
+        // LANE-B: B3 (gate M2): the control: every mark this frame asks for stands whole (none is caught in its coming),
+        // and the plot asks for none.
+        XCTAssertTrue(game.touch.markShows.values.allSatisfy { !$0.wanted || $0.whole.isWhole }, "the marks have come")
+        XCTAssertNil(game.touch.markShows["touch-plot-\(plot)"], "the plot asks for no mark")
+        // LANE-B end
         XCTAssertTrue(game.modelWord.contains("\(plot):ballista,catapult"), "the scene names it (\(game.modelWord))")
     }
 
