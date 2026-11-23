@@ -302,6 +302,9 @@ extension BattleEffects {
     static let standKeepClumps = 6
     /// Overlap is added joint by joint (in the plot's order) only while the clumps still span this share of the work.
     static let standCoverAim = 0.78
+    /// No gap between two clumps wider than this (the brief: about 4 px; the gate of A2b, P3: on works wider than about
+    /// 64 px the gaps grew to 6 to 12 px). What the gaps leave of the width goes to the work's two ends.
+    static let standGapMost = 4.0
     /// The cloud's top edge: no piece rises above this many px over the foot (its lowest top is the 4 px puff on the
     /// foot); the clump the plot's seed picks stands 2 px higher where its puffs overlap.
     static let standTop = 10.0
@@ -384,7 +387,9 @@ extension BattleEffects {
         if rest >= 0 {
             let weights = (0..<(clumps - 1)).map { 0.6 + 0.8 * unit($0, 4) }
             let total = max(0.01, weights.reduce(0, +))
-            gaps = weights.map { rest * $0 / total }
+            // uneven as the weights, the widest at most `standGapMost`; the set stays centred, the rest at its ends
+            let share = min(rest / total, standGapMost / max(0.01, weights.max() ?? 1))
+            gaps = weights.map { share * $0 }
         } else {
             gaps = Array(repeating: max(rest / Double(clumps - 1), -3), count: clumps - 1)
         }

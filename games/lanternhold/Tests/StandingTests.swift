@@ -287,6 +287,8 @@ final class StandingTests: XCTestCase {
     /// brighter than the dust's light tone (under the lit stone and plaster); the top edge stands 4 to 10 px over the
     /// foot. The layout keeps the brief's numbers for every width a work can have: at most 12 pieces, 3 to 5 clumps
     /// (the keep up to 6), peak alpha 0.6 to 0.9, an end 0.7 to 1.1 s after the event, a drift of at most 3 px.
+    /// The gate of A2b: no gap between the clumps wider than 4 px on any width (P3: on wide works they grew to 6 to
+    /// 12 px).
     func testTheDustGathersInClumpsNotARow() throws {
         let scale = pro.scale
         let ground = Camera.groundDeviceY(physicalHeight: pro.physicalHeight, scale: scale)
@@ -330,6 +332,13 @@ final class StandingTests: XCTestCase {
             XCTAssertTrue(pieces.allSatisfy { $0.alpha >= 0.6 && $0.alpha <= 0.9 }, "\(width) px")
             XCTAssertTrue(pieces.allSatisfy { $0.life >= 0.7 - 1e-9 && $0.life <= BattleEffects.standDustSeconds + 1e-9 })
             XCTAssertTrue(pieces.allSatisfy { ($0.driftX * $0.driftX + $0.driftY * $0.driftY).squareRoot() <= 3 })
+            var reach = -Double.infinity
+            for puff in puffs.sorted(by: { $0.left < $1.left }) {
+                if reach > -Double.infinity && puff.left > reach {
+                    XCTAssertLessThanOrEqual(puff.left - reach, BattleEffects.standGapMost, "\(width) px: a gap")
+                }
+                reach = max(reach, puff.left + Double(puff.size))
+            }
             XCTAssertTrue(pieces.allSatisfy { $0.bottom >= 0 && $0.bottom + Double(max($0.size, 3)) <= 10 })
             XCTAssertTrue(pieces.allSatisfy { $0.left == $0.left.rounded() && $0.bottom == $0.bottom.rounded() },
                           "whole game px")
