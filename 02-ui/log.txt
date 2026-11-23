@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawnCardWaitsForTheGate]' passed (51.078 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testReportStills]' passed (143.352 seconds).
+exit=0
+screenshots: 49
