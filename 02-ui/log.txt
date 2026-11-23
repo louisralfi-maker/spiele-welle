@@ -1,0 +1,23 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (51.761 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (27.965 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (88.611 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (28.880 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (69.518 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (26.172 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (134.714 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (20.257 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:245: error: -[LanternholdUITests.CountUITests testTheGuardsBoard] : XCTAssertTrue failed - the hold counts on, frozen; now: lx:1597 kxf:1597.00 kv:0.00 cam:1347 kcx:1346.50 count:none last:letGo:touch-recruit-guard cstand:? chold:? cidle:? errand:none tap:touch-recruit-guard hud:notes stage:world
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' failed (39.798 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (22.582 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (53.251 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (106.802 seconds).
+Test Suite 'CountUITests' failed at 2026-11-23 12:45:45.131.
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (244.851 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (68.061 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testATapOnSaulsBubbleTakesHimOn]' passed (19.334 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (108.182 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (230.088 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-23 12:56:55.662.
+Test Suite 'Selected tests' failed at 2026-11-23 12:56:55.663.
+exit=65
+screenshots: 100
