@@ -2114,4 +2114,60 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(hub.ticks.count, laid, "a soft tick for every coin home")
         XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid")
     }
+
+    // MARK: - Polish B3b part 3: no dead lantern over a new building
+
+    /// Polish B3b part 3 (A2-P2): the pure decision (a site lantern, its work standing or not, the time since it went
+    /// out -> the share drawn). A burning lantern is whole whatever stands. Gone out with its work not standing, it keeps
+    /// its 0.7 s dark and its fade over the last 0.3 s exactly. Once its work stands, it leaves with the scaffold: over
+    /// the scaffold's 0.12 s to the swap on the curve of what leaves, falling every frame, gone in the swap's frame (the
+    /// building's first whole frame) and after; under Reduce Motion with the swap's 0.15 s fade. Never more than its own
+    /// share. Only a building's lantern reads a standing, and only its own plot's.
+    func testADeadSiteLanternLeavesWithTheScaffold() {
+        XCTAssertEqual(CountLantern.outSeconds, 0.7)
+        XCTAssertEqual(CountLantern.fadeSeconds, 0.3)
+        XCTAssertEqual(BattleEffects.standSwap, 0.12)
+        XCTAssertEqual(BattleEffects.standFade, 0.15)
+        // Burning (or not yet caught): never cut.
+        for stood in [nil, 0.0, 0.05, 0.5] as [Double?] {
+            XCTAssertEqual(SiteLanternLeave.share(outFor: nil, stoodFor: stood, still: false), 1)
+            XCTAssertEqual(SiteLanternLeave.share(outFor: nil, stoodFor: stood, still: true), 1)
+        }
+        // Gone out, the work not standing: exactly as before (dark 0.4 s, then the fade).
+        for (out, share) in [(0.0, 1.0), (0.39, 1.0), (0.4, 1.0), (0.55, 0.5), (0.69, 1.0 / 30), (0.7, 0.0), (1.0, 0.0)] {
+            XCTAssertEqual(SiteLanternLeave.share(outFor: out, stoodFor: nil, still: false), share, accuracy: 1e-9,
+                           "\(out) s out, no work standing")
+        }
+        // Gone out as its work stands: it leaves with the scaffold, gone by the swap.
+        var last = 2.0
+        for step in 0...14 {
+            let stood = Double(step) / 100
+            let share = SiteLanternLeave.share(outFor: stood, stoodFor: stood, still: false)
+            XCTAssertLessThanOrEqual(share, last, "falls frame by frame (\(stood) s)")
+            if stood < BattleEffects.standSwap - 1e-9 {
+                XCTAssertEqual(share, 1 - Motion.leave(stood / BattleEffects.standSwap), accuracy: 1e-9)
+            } else {
+                XCTAssertEqual(share, 0, "gone in the swap's frame and after (\(stood) s)")
+            }
+            last = share
+        }
+        XCTAssertEqual(SiteLanternLeave.share(outFor: 0, stoodFor: 0, still: false), 1, "whole at the event")
+        XCTAssertGreaterThan(SiteLanternLeave.share(outFor: 0.06, stoodFor: 0.06, still: false), 0, "not cut at once")
+        // It went out earlier and is fading on its own: the lower share wins.
+        XCTAssertEqual(SiteLanternLeave.share(outFor: 0.65, stoodFor: 0.02, still: false), 0.05 / 0.3, accuracy: 1e-9)
+        // Reduce Motion: with the swap's fade (0.15 s, as the scaffold's `fades()`).
+        XCTAssertEqual(SiteLanternLeave.share(outFor: 0.1, stoodFor: 0.1, still: true),
+                       1 - Motion.leave(0.1 / BattleEffects.standFade), accuracy: 1e-9)
+        XCTAssertGreaterThan(SiteLanternLeave.share(outFor: 0.13, stoodFor: 0.13, still: true), 0)
+        XCTAssertEqual(SiteLanternLeave.share(outFor: 0.15, stoodFor: 0.15, still: true), 0)
+        // Which standing a lantern reads: its own plot's, and only a building's.
+        let standing = Standing(plot: 3, before: PlotState(), start: 10, still: false)
+        let house = PayOffer.build(plot: 3, item: .house)
+        let stood = SiteLanternLeave.stood(house, standings: [standing], clock: 10.05)
+        XCTAssertEqual(stood?.seconds ?? -1, 0.05, accuracy: 1e-9)
+        XCTAssertEqual(stood?.still, false)
+        XCTAssertNil(SiteLanternLeave.stood(.build(plot: 4, item: .house), standings: [standing], clock: 10.05))
+        XCTAssertNil(SiteLanternLeave.stood(.recruit(.archer), standings: [standing], clock: 10.05))
+        XCTAssertNil(SiteLanternLeave.stood(house, standings: [], clock: 10.05))
+    }
 }

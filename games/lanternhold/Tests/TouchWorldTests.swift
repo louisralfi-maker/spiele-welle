@@ -845,4 +845,58 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertFalse(morning.nightOfferTakesTouch)
         XCTAssertTrue(morning.touchLabel(brannock, state: early).hasPrefix("Talk to"), "a talk as for everyone")
     }
+
+    // MARK: - Polish B3b part 4: VoiceOver is held in the dawn wait
+
+    /// Polish B3b part 4 (E2's L2): in the 0.6 s between the open gate and the dawn card the world takes no touch, and
+    /// the VoiceOver actions are held by the same rule (`TouchHold`, read from E2's `dawnCardWaits`): a thing's element,
+    /// "Walk right" and the lord's element do nothing there, exactly as a tap does nothing. The control: the same
+    /// actions act on a morning with no card waiting, so the absences can fail.
+    func testTheDawnWaitHoldsVoiceOverAsItHoldsTheFinger() throws {
+        XCTAssertTrue(TouchHold.takesTouch(dawnCardWaits: false))
+        XCTAssertFalse(TouchHold.takesTouch(dawnCardWaits: true))
+        // The control: by day the three actions act.
+        let day = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        run(day, seconds: 0.3)
+        XCTAssertTrue(day.worldTakesTouch)
+        day.walkScreen(1)
+        XCTAssertNotNil(day.driver?.travelTarget, "control: Walk right walks him")
+        day.stopWalking()
+        run(day, seconds: 0.3)
+        day.activateLordElement()
+        XCTAssertNotNil(day.lanternMoment, "control: the lord's element raises the lantern")
+        day.lowerLanternMoment()
+        run(day, seconds: 0.3)
+        let door = try XCTUnwrap(day.touch.things.first { $0.id == "touch-door-hall" }, "the hall's door offers")
+        day.touchSpot(door.id)
+        XCTAssertEqual(day.touch.errand?.id, door.id, "control: a thing's element starts its errand")
+
+        // Night 1 (seed 4) played to its dawn: the card waits.
+        let game = model(["GWNight": "1", "GWSeed": "4", "GWCameraX": "1150"])
+        var frames = 0
+        while !game.dawnCardWaits && game.overlay == nil && frames < 2000 {
+            game.advance(by: 0.25)
+            frames += 1
+        }
+        XCTAssertTrue(game.dawnCardWaits, "the dawn came and the card waits")
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertFalse(game.worldTakesTouch, "the wait takes no touch")
+        // A tap does nothing ...
+        let point = CGPoint(x: 437, y: 260)
+        game.touchChanged(start: point, at: point, translation: .zero, in: proPoints)
+        XCTAssertNil(game.touch.down, "no finger is taken")
+        game.touchEnded(at: point, translation: .zero, in: proPoints)
+        // ... and neither does VoiceOver.
+        let ids = game.touch.things.map(\.id) + ["touch-door-hall", "touch-plot-0"]
+        for id in ids { game.touchSpot(id) }
+        XCTAssertNil(game.touch.errand, "no thing's element starts an errand")
+        XCTAssertNil(game.touch.count, "nor brings a board")
+        game.walkScreen(1)
+        game.walkScreen(-1)
+        XCTAssertNil(game.driver?.travelTarget, "Walk left and right do not walk him")
+        game.activateLordElement()
+        XCTAssertNil(game.lanternMoment, "the lord's element raises no lantern")
+        XCTAssertNil(game.overlay, "and nothing opens")
+        XCTAssertTrue(game.dawnCardWaits, "the card still waits")
+    }
 }

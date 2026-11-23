@@ -1016,3 +1016,32 @@ enum PayFreeze: Sendable, Equatable {
         }
     }
 }
+
+/// Polish B3b part 3 (A2-P2): no dead site lantern over a new building. A count lantern that has gone out stands dark
+/// `CountLantern.outSeconds` (0.7 s) and fades over its last `fadeSeconds` (0.3 s); when the site's work stands inside
+/// that time (the event A2's standing begins with: `Standing.start`), the lantern and its crook leave with the
+/// scaffold instead: over the scaffold's own time to the swap (`BattleEffects.standSwap`, 0.12 s, on the curve of what
+/// leaves), gone in the swap's frame, the building's first whole frame; under Reduce Motion (a still standing) with
+/// the swap's fade (`BattleEffects.standFade`, 0.15 s, the same curve as the scaffold's `fades()`). A lantern whose
+/// work does not stand yet keeps its 0.7 s and its fade exactly; a burning lantern is never cut by this rule. Pure.
+enum SiteLanternLeave {
+    /// The share of a site lantern drawn (1 whole, 0 gone): `outFor` the seconds since it went out (nil: it burns, or
+    /// hangs unlit before it catches), `stoodFor` the seconds since its work stood on the standings' clock (nil: it
+    /// does not stand), `still` the standing's Reduce Motion form.
+    static func share(outFor: Double?, stoodFor: Double?, still: Bool) -> Double {
+        guard let out = outFor else { return 1 }
+        let own = min(1, max(0, (CountLantern.outSeconds - out) / CountLantern.fadeSeconds))
+        guard let stood = stoodFor, stood >= -1e-9 else { return own }
+        let leave = still ? BattleEffects.standFade : BattleEffects.standSwap
+        let withScaffold = stood >= leave - 1e-9 ? 0 : 1 - Motion.leave(max(0, stood) / leave)
+        return min(own, withScaffold)
+    }
+
+    /// The seconds since the work of `offer` stood, from A2's standings (`BattleEffects.standings`) on their clock, and
+    /// whether that standing is the still one; nil when the offer is no building's or its work does not stand now.
+    static func stood(_ offer: PayOffer, standings: [Standing], clock: Double) -> (seconds: Double, still: Bool)? {
+        guard case .build(let plot, _) = offer,
+              let standing = standings.last(where: { $0.plot == plot }) else { return nil }
+        return (clock - standing.start, standing.still)
+    }
+}

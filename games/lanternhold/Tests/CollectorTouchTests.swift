@@ -161,18 +161,123 @@ final class CollectorTouchTests: XCTestCase {
         game.refreshTouchSpots()
         XCTAssertEqual(game.touchSpots.first { $0.id == CollectorTouch.id }?.label,
                        CollectorTouch.label(state, waiting: true))
-        // B3 gate (M1): a tap on his bubble while the deed waits keeps it (the slip stayed until the second touch).
+        // Polish B3b part 5 (rewritten from the B3 gate's M1, "a tap keeps the bubble"): the bubble says the deed, so a
+        // tap on it while the deed waits does it, as the second touch would; the deed goes with the wait.
         game.tapTalkBubble(try XCTUnwrap(game.talkBubble))
-        XCTAssertNotNil(game.talkBubble, "a tap keeps the bubble while the deed waits")
-        XCTAssertEqual(game.touch.errand?.waiting, true, "and the second touch still waits")
-        XCTAssertNotNil(game.collectorDeed(try XCTUnwrap(game.talkBubble)), "with the deed on it")
-        // The second touch takes him on; the deed goes with the wait.
-        let again = try XCTUnwrap(game.touch.things.first { $0.id == CollectorTouch.id })
-        game.touchThing(again)
         XCTAssertTrue(Town.collectorHired(try XCTUnwrap(game.driver?.state)), "taken on")
+        XCTAssertNil(game.touch.errand, "the wait is over")
         let answer = try XCTUnwrap(game.talkBubble)
         XCTAssertNil(game.collectorDeed(answer), "his answer carries no deed")
         game.tapTalkBubble(answer)
         XCTAssertNil(game.talkBubble, "his answer closes on a tap")
+    }
+
+    // MARK: - Polish B3b part 5: Saul's bubble does what it says
+
+    /// A realm on day 1 at 10:00 with the lord standing before Saul at his post, his offer in the bubble and the second
+    /// touch waiting, and a recording hub.
+    private func standingBeforeSaul(_ directory: URL) throws -> (game: GameModel, hub: SilentFeedback,
+                                                                  frames: (Double) -> Void) {
+        let pro = PixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let game = GameModel(args: DebugArgs(values: ["GWReset": "YES", "GWSkipOnboarding": "YES", "GWStage": "world",
+                                                      "GWClock": "10",
+                                                      "GWCameraX": "\(Int(Town.collectorPost) - 70)"]),
+                             kind: .world, store: SaveStore(directory: directory))
+        let hub = SilentFeedback()
+        game.feedback = hub
+        game.setTouchViewSize(CGSize(width: 874, height: 402))
+        let frames: (Double) -> Void = { seconds in
+            var left = seconds
+            while left > 1e-9 {
+                game.advance(by: 1.0 / 60)
+                _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+                left -= 1.0 / 60
+            }
+        }
+        frames(0.3)
+        let saul = try XCTUnwrap(game.touch.things.first { $0.id == CollectorTouch.id }, "Saul at his post")
+        game.touchThing(saul)
+        var waited = 0.0
+        while game.talkBubble == nil && waited < 6 {
+            frames(0.1)
+            waited += 0.1
+        }
+        XCTAssertNotNil(game.talkBubble, "his offer as the lord stands before him")
+        XCTAssertEqual(game.touch.errand?.waiting, true, "the second touch waits")
+        frames(0.2)
+        return (game, hub, frames)
+    }
+
+    /// Polish B3b part 5 (the director's call after B3): while the deed waits and its words stand in his bubble, a tap
+    /// on the bubble does the deed: the same function, the same sounds and the same result as the second touch on him
+    /// (two realms side by side). It does it once: a second tap (on the bubble the deed replaced) does nothing more. The
+    /// deed line reads the published state: it stands while the deed waits and is gone the frame after. His answer, a
+    /// bubble with no deed, closes on a tap as any bubble does, its going heard once.
+    func testATapOnHisBubbleDoesTheDeedOnce() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("lanternhold-collector-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let byBubble = try standingBeforeSaul(root.appendingPathComponent("a", isDirectory: true))
+        let byTouch = try standingBeforeSaul(root.appendingPathComponent("b", isDirectory: true))
+        let game = byBubble.game
+        let offer = try XCTUnwrap(game.talkBubble)
+        let state = try XCTUnwrap(game.driver?.state)
+        XCTAssertEqual(WalkSigns.shared.bubbleDeed, CollectorTouch.label(state, waiting: true),
+                       "the deed published while it waits")
+        XCTAssertFalse(Town.collectorHired(state), "not yet taken on")
+
+        // The tap on the bubble and the second touch on him, from the same moment.
+        let bubbleMark = byBubble.hub.played.count
+        let touchMark = byTouch.hub.played.count
+        game.tapTalkBubble(offer)
+        let saul = try XCTUnwrap(byTouch.game.touch.things.first { $0.id == CollectorTouch.id })
+        byTouch.game.touchThing(saul)
+        let bubbleCues = Array(byBubble.hub.played.dropFirst(bubbleMark))
+        let touchCues = Array(byTouch.hub.played.dropFirst(touchMark))
+        XCTAssertEqual(bubbleCues, touchCues, "the same sounds as the second touch")
+        XCTAssertTrue(bubbleCues.contains(.touched), "the touch's own tick")
+        XCTAssertTrue(Town.collectorHired(try XCTUnwrap(game.driver?.state)), "taken on")
+        XCTAssertTrue(Town.collectorHired(try XCTUnwrap(byTouch.game.driver?.state)), "taken on by the touch too")
+        XCTAssertNil(game.touch.errand, "the wait is over")
+        let answer = try XCTUnwrap(game.talkBubble, "his answer")
+        XCTAssertEqual(answer.textKey, try XCTUnwrap(byTouch.game.talkBubble).textKey, "the same answer")
+        XCTAssertNil(game.collectorDeed(answer), "his answer carries no deed")
+
+        // A second tap on the bubble the deed replaced does nothing more.
+        let afterDeed = byBubble.hub.played.count
+        game.tapTalkBubble(offer)
+        XCTAssertTrue(Town.collectorHired(try XCTUnwrap(game.driver?.state)), "still taken on, never sent home")
+        XCTAssertEqual(game.talkBubble, answer, "his answer stands")
+        XCTAssertEqual(byBubble.hub.played.count, afterDeed, "no sound")
+
+        // The deed line follows the published state the next frame.
+        byBubble.frames(1.0 / 60)
+        XCTAssertNil(WalkSigns.shared.bubbleDeed, "no deed once it no longer waits")
+
+        // His answer closes on a tap, its going heard once.
+        let beforeClose = byBubble.hub.played.filter { $0 == .bubbleClose }.count
+        game.tapTalkBubble(answer)
+        XCTAssertNil(game.talkBubble, "his answer closes on a tap")
+        byBubble.frames(0.3)
+        XCTAssertEqual(byBubble.hub.played.filter { $0 == .bubbleClose }.count, beforeClose + 1, "bubbleClose once")
+    }
+
+    /// Polish B3b part 5: a bubble with no deed waiting closes on a tap as before (another speaker's line; Saul's own
+    /// offer once the lord walked off and the wait was dropped).
+    func testABubbleWithNoDeedClosesOnATap() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("lanternhold-collector-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let saul = try standingBeforeSaul(root)
+        let game = saul.game
+        game.cancelErrand()
+        let bubble = try XCTUnwrap(game.talkBubble)
+        XCTAssertNil(game.collectorDeed(bubble), "no deed once the wait is dropped")
+        saul.frames(1.0 / 60)
+        XCTAssertNil(WalkSigns.shared.bubbleDeed, "and none published")
+        game.tapTalkBubble(bubble)
+        XCTAssertNil(game.talkBubble, "the tap closes it")
+        XCTAssertFalse(Town.collectorHired(try XCTUnwrap(game.driver?.state)), "and does no deed")
     }
 }

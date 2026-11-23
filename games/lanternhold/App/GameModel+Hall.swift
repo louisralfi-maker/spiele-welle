@@ -382,7 +382,9 @@ extension GameModel {
         input.touchMarks = touchHall(state: state, figures: figures, pixelScale: pixelScale, scene: scene)
         // Stage-3-interface: the gold and the notes above the lord; his raised glass while the lantern is up.
         input.lordNotes = hallLordNotes
-        input.lanternUp = lanternMoment != nil
+        // LANE-B: B3b (the hall is handed the outside's values for the moment's one driver: pose, light; `hallLantern`)
+        input.lantern = hallLantern
+        // LANE-B end
         // The inner door stands open just after he came in by it and while he goes out through it.
         let leaving = stageChange.map { $0.to == .world && ($0.phase == .opening || $0.phase == .darkening) } ?? false
         input.doorOpen = leaving || scene.since < HallFrames.doorOpenSeconds * max(1, args.stageSlow)

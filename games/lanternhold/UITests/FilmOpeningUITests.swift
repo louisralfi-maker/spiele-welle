@@ -442,6 +442,44 @@ final class FilmOpeningUITests: XCTestCase {
     }
     // LANE-B end
 
+    // LANE-B: B3b
+    /// Polish B3b part 1 (the hall's moment on the one driver): day 3 at 10:00 in the great hall (280), the lantern's
+    /// light slowed to a quarter as in m04: b3h-a a tap on the lord raises the lantern (the arm's lift frame, the
+    /// block's three steps); b3h-b a touch on the empty floor low at the left lowers it.
+    func testB3bTheHallsMoment() {
+        let film = FilmReel(self, "b3h")
+        let app = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWDay", "3",
+                               "-GWSeed", "2", "-GWClock", "10", "-GWStage", "hall", "-GWHallX", "280",
+                               "-GWTimeScale", "0.25"])
+        guard film.ready(app) else {
+            XCTFail("b3h: the hall never stood")
+            return
+        }
+        film.pause(6)
+        waitForStill(app, timeout: 4)
+        let lord = film.element(app, "touch-lord")
+        let moment = film.element(app, "lantern-moment")
+        guard lord.waitForExistence(timeout: 6) else {
+            XCTFail("b3h: no lord to touch in the hall")
+            return
+        }
+        film.tapBurst("a", app, count: 16, what: "in the hall a tap on the lord: the lantern rises",
+                      at: lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))) {
+            moment.exists
+        }
+        guard moment.waitForExistence(timeout: 3) || openLantern(app) else {
+            XCTFail("b3h: the lantern never rose in the hall")
+            return
+        }
+        film.pause(1.5)
+        film.tapBurst("b", app, count: 16, what: "in the hall a touch on the empty floor low at the left: the lantern "
+                      + "lowers", at: moment.coordinate(withNormalizedOffset: FilmOpeningUITests.emptyWorld)) {
+            !moment.exists
+        }
+        app.terminate()
+    }
+    // LANE-B end
+
     // LANE-A: A1
     /// Polish step A1 (the walk and the breath): the first steps slowed to a quarter (`-GWTimeScale 0.25`) and shot back
     /// to back, the scene read after every frame (`kv:` his speed, `kxf:` his place, `kf:` his frame, `kd:` his facing),

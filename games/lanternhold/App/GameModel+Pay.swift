@@ -966,8 +966,18 @@ extension GameModel {
         }
         touch.countLanterns.removeAll { lantern in
             guard let out = lantern.outAt else { return false }
-            return now - out >= CountLantern.outSeconds
+            // Polish B3b part 3: one whose work stood has left with the scaffold (`SiteLanternLeave`).
+            return now - out >= CountLantern.outSeconds || siteLanternShare(lantern, now: now) <= 0
         }
+    }
+
+    /// Polish B3b part 3 (A2-P2): the share of `lantern` drawn now: a lantern gone out keeps its 0.7 s and its fade,
+    /// unless its work stands; then it leaves with the scaffold, gone by the swap (`SiteLanternLeave`, read from A2's
+    /// standings on their own clock). A burning lantern is whole.
+    func siteLanternShare(_ lantern: CountLantern, now: Double) -> Double {
+        let stood = SiteLanternLeave.stood(lantern.offer, standings: effects.standings, clock: effects.standClock)
+        return SiteLanternLeave.share(outFor: lantern.outAt.map { now - $0 }, stoodFor: stood?.seconds,
+                                      still: stood?.still ?? false)
     }
 
     /// The cues after the seal whose moment has come.
@@ -1385,9 +1395,10 @@ extension GameModel {
             if let hold = args.countFreeze?.litHold { age = min(age, hold) }
             var alpha: Float = 1
             var lit = true
-            if let out = lantern.outAt {
+            if lantern.outAt != nil {
                 lit = false
-                alpha = Float(min(1, max(0, (CountLantern.outSeconds - (now - out)) / CountLantern.fadeSeconds)))
+                // Polish B3b part 3: its own dark 0.7 s and fade, or with the scaffold once its work stands.
+                alpha = Float(siteLanternShare(lantern, now: now))
             } else if now < lantern.litAt {
                 // Behind the shut board, unlit, until it catches.
                 lit = false

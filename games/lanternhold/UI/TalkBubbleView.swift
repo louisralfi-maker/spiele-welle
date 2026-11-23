@@ -4,7 +4,7 @@ import SwiftUI
 /// night glass with his name in lantern gold and the line, its tail pointing down at him, following him on screen. A tap closes it
 /// (walking away closes it too, `GameModel.stepCourt`). Polish B3: it comes and goes by the presence rule (`GameView`:
 /// quick in rising 2 game px, quick out in place), and at Saul's post it carries the second touch's deed; while that
-/// deed waits a tap does not close it (B3 gate M1: like the slip it stays until the second touch, walking away or a card).
+/// deed waits a tap on it does the deed, as the second touch on him (polish B3b part 5).
 @MainActor
 struct TalkBubbleView: View {
     let bubble: TalkBubble
@@ -17,7 +17,9 @@ struct TalkBubbleView: View {
             let head = CGFloat(bubble.headY) * geometry.size.height
             let left = min(max(20, x - width / 2), geometry.size.width - width - 20)
             let tail = min(max(16, x - left), width - 16)
-            // Polish B3 gate (P1, M1): over Saul while the second touch waits, the deed that touch does.
+            // Polish B3 gate (P1, M1): over Saul while the second touch waits, the deed that touch does. Polish B3b part 5
+            // (B3's L3): read fresh from the model, and drawn again whenever the published deed changes.
+            let _ = WalkSigns.shared.bubbleDeed
             let deed = model.collectorDeed(bubble)
             VStack(spacing: 0) {
                 Button {
@@ -39,11 +41,13 @@ struct TalkBubbleView: View {
                         }
                         // Polish B3 (H4): the deed the errand slip used to name over Saul's post (what the second touch
                         // on him does), under his line; nil for every other bubble. B3 gate (P1): in the lord's quiet
-                        // hand (the italic of his hint), not in caps, so it reads neither as Saul's voice nor as a button.
+                        // hand (the italic of his hint), not in caps, so it does not read as Saul's voice. Polish B3b
+                        // gate (M1): since part 5 a tap on the bubble does this deed, so the line wears the lantern gold
+                        // of a button's words (`Theme.sealWords`), not the ink of a line that only closes on a tap.
                         if let deed {
                             Text(inked: deed, .subheadline)
                                 .font(Theme.italic(.subheadline))
-                                .foregroundStyle(Theme.ink)
+                                .foregroundStyle(Theme.sealWords)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(.top, 2)
                         }
@@ -57,8 +61,15 @@ struct TalkBubbleView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                // B3 gate (M1): while the deed waits a tap keeps the bubble (`GameModel.tapTalkBubble`).
-                .accessibilityHint(deed == nil ? Text("Tap to close") : Text(verbatim: ""))
+                // Polish B3b part 5: while the deed waits a tap on the bubble does it (`GameModel.tapTalkBubble`), and
+                // VoiceOver offers the deed's own words as the bubble's action. B3b gate (M1): the hint says what the
+                // default activation does: the deed's own words (no new string), "Tap to close" otherwise.
+                .accessibilityHint(deed == nil ? Text("Tap to close") : Text(verbatim: deed ?? ""))
+                .accessibilityActions {
+                    if let deed {
+                        Button(deed) { model.tapTalkBubble(bubble) }
+                    }
+                }
                 .accessibilityIdentifier("talk-bubble")
                 GlassTail()
                     .offset(x: tail - width / 2)

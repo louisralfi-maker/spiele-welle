@@ -40,6 +40,12 @@ struct HallFrameInput {
     var lordNotes: (block: HUDKit.Block, x: Double, ground: Double)? = nil
     /// The lantern moment: the lord's lantern brighter.
     var lanternUp = false
+    // LANE-B: B3b
+    /// Polish B3b (B1's M2, L1): the lantern moment as the outside's one driver gives it (`GameModel.hallLantern`): the
+    /// lord's pose (8 or 9; nil his own frame), his glass light's strength and its lift in whole rows. `lanternUp` alone
+    /// (a frame built by hand) still raises the pole to 9.
+    var lantern = HallLantern()
+    // LANE-B end
 }
 
 /// The great hall's frame (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world", SPRITES.md "The
@@ -725,9 +731,11 @@ enum HallFrames {
                 // Step A1b: as in the world, the walk frame by the distance his walk has come (walk frame 0 first), the
                 // brake closing the stride, the standing pose from the step that lands him.
                 frame = walker.gait.frame
-            } else if input.lanternUp {
+            // LANE-B: B3b (the pose read from the one driver: the lift frame 8 for 0.05 s, then 9; down as outside)
+            } else if let pose = input.lantern.pose ?? (input.lanternUp ? 9 : nil) {
                 // Stage-3-interface: the lantern moment, the pole held high (the command frame).
-                frame = 9
+                frame = pose
+            // LANE-B end
             } else {
                 // Step A1b (A1-C5): the one breath (1.15 s / 0.85 s, his phase), after the 0.25 s hold, as in the world;
                 // before, he panted at 2 fps.
@@ -750,9 +758,13 @@ enum HallFrames {
             // Fix round 2: one round pool over the wall, the wainscot and the floor, and its ellipse on the carpet.
             let glassX = lordX + EntityFrames.kingGlass.dx * Double(lordFacing)
             let level = HallLight.lanternLevel.day + HallLight.lanternLevel.night * night
-            light(.lantern, x: glassX, row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy).rounded()),
-                  radius: HallLight.lanternRadius, intensity: level, color: lanternColor, squash: 1,
+            // LANE-B: B3b (the glass light stands where the drawn glass stands and brightens with the one driver)
+            let glass = input.lantern
+            light(.lantern, x: glassX,
+                  row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy + glass.lift).rounded()),
+                  radius: HallLight.lanternRadius, intensity: level * glass.intensity, color: lanternColor, squash: 1,
                   seed: 0x4C4F_5244)
+            // LANE-B end
             let floorPool = HallLight.lanternFloor
             light(.lantern, x: glassX, row: HallLayout.floorRow - Int(lordLift.rounded()), radius: floorPool.radius,
                   intensity: level * floorPool.share, color: lanternColor, squash: Float(floorPool.squash),

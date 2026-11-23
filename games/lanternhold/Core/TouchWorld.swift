@@ -291,3 +291,13 @@ enum TouchRules {
     static let poolStrength = 0.7
     static let pressedPool = 1.4
 }
+
+/// Polish B3b part 4 (E2's L2): whether the world takes a touch now, for the finger and for VoiceOver alike (a thing's
+/// element, the scene's "Walk left" and "Walk right", the lord's element). In the 0.6 s between the open gate and the
+/// dawn card (`GameModel.dawnCardWaits`, E2's state) it takes none: a tap does nothing there, and so does every
+/// VoiceOver action. Pure.
+enum TouchHold {
+    static func takesTouch(dawnCardWaits: Bool) -> Bool {
+        !dawnCardWaits
+    }
+}

@@ -764,6 +764,53 @@ struct LanternVeil: Sendable, Equatable {
     }
 }
 
+/// Polish B3b part 2 (B1's L1; law 1 "one event, one driver"): the lord's glass light during the lantern moment. It sits
+/// where the drawn glass sits in every frame and brightens with the driver: the lift frame 8 holds the glass one row
+/// over his own frame, the raised frame 9 two rows (`LanternFlare.liftRows`; read off `kingGlow.png` and
+/// `ladyGlow.png`: the glass's rows over the foot are 23-24 in his own frames 0, 2, 3, 5, 6, 24-25 in 8 and 25-26 in
+/// 9), never above a glass that is not there yet; its strength goes from 1 to `raised` and back with the driver's
+/// share (`LanternVeil.light`). Whole rows, no scale. Outside (`GameModel.lanternWorld`) and in the hall
+/// (`HallLantern`, `HallFrames`) alike. Pure.
+enum LanternGlass {
+    /// The raised light's strength over the lantern's own at the driver's 1 (the moment's old flat 1.45).
+    static let raised = 1.45
+
+    /// The rows the drawn glass stands over its place in his own frame for `pose` (8, 9, or nil: his own frame).
+    static func liftRows(pose: Int?) -> Double {
+        switch pose {
+        case 8: return 1
+        case 9: return LanternFlare.liftRows
+        default: return 0
+        }
+    }
+
+    /// The glass light's strength factor at the driver's `light` (0 ... 1): 1 at 0, `raised` at 1, linear between, so
+    /// it never falls on the way up nor rises on the way down.
+    static func intensity(light: Double) -> Double {
+        1 + (raised - 1) * min(1, max(0, light))
+    }
+}
+
+/// Polish B3b part 1 (B1's M2): what the hall's frame is handed of the lantern moment, the outside's own values for the
+/// same driver: the lord's pose (`LanternVeil.pose`: 8 for 0.05 s, then 9; on the way down 9, then 8; nil his own
+/// frame, and nil while he walks), and his glass light's strength and lift (`LanternGlass`). The moment's block in
+/// the hall carries its alpha in its pieces (`GameModel.hallLordNotes`). The default is no moment.
+struct HallLantern: Sendable, Equatable {
+    var pose: Int? = nil
+    var intensity = 1.0
+    var lift = 0.0
+
+    /// The values for `veil` with the lantern `raised` or not, the lord walking or not.
+    init(veil: LanternVeil, raised: Bool, walking: Bool, reduceMotion: Bool) {
+        let pose = walking ? nil : veil.pose(raised: raised, reduceMotion: reduceMotion)
+        self.pose = pose
+        intensity = LanternGlass.intensity(light: veil.light)
+        lift = LanternGlass.liftRows(pose: pose)
+    }
+
+    init() {}
+}
+
 /// The hint's glint and the raise's flare as light (build 3, lane 5 step 5; the step-4 critic's M3, the director's
 /// ruling): whole game px round the lord's glass (`dx` right of its column, `dy` up from its row), opaque, in their own
 /// colours, drawn over the finished picture (`ActorDim.over`), stepping instead of fading so they read at phone size.

@@ -57,11 +57,20 @@ extension GameModel {
         return CollectorTouch.label(state, waiting: true)
     }
 
-    /// Polish B3 gate (M1, P1): a tap on a talk bubble closes it, except over Saul while the second touch waits: then the
-    /// bubble carries the deed the errand slip carried, and like the slip it stays until that touch, walking away
-    /// (`stepCourt`) or a card. What a touch on Saul does is unchanged.
+    /// Polish B3 gate (M1, P1): a tap on a talk bubble closes it, except over Saul while the second touch waits.
+    /// Polish B3b part 5 (the director's call after B3): then the bubble says the deed in words, so it is also a place to
+    /// do it: the tap is the second touch on him (`touchThing` on his thing: the same function, the same sound, the same
+    /// result; the deed's own answer replaces the bubble, which then closes as any bubble does). A tap on a bubble that
+    /// no longer shows (a second tap that reaches the one the deed replaced) does nothing. What a touch on Saul does is
+    /// unchanged.
     func tapTalkBubble(_ bubble: TalkBubble) {
-        guard collectorDeed(bubble) == nil else { return }
+        guard let shown = talkBubble, shown.who == bubble.who, shown.textKey == bubble.textKey,
+              shown.text == bubble.text else { return }
+        if collectorDeed(shown) != nil {
+            guard let saul = touch.things.first(where: { $0.id == CollectorTouch.id }) else { return }
+            touchThing(saul)
+            return
+        }
         closeTalk()
     }
 

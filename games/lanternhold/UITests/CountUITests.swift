@@ -229,21 +229,36 @@ final class CountUITests: XCTestCase {
                       "the second board: he already stands at it; now: \(guardFacts(app))")
         // Polish B2 (H2; added to pin the new rule): beside the open board the lord takes no tap. A tap on his body
         // 2 game px (4 pt) toward the board is the board's first coin; the lantern stays down.
-        let before = sceneWords(app) + " lord element:\(lord.frame)"
+        // The director's mend after round lh-rb-22 (23.11.2026, a slow runner): the test raced two of the game's own
+        // clocks. When the lord has turned away between the two boards the camera pans back for about a second, so the
+        // near tap waits for a still camera (a short wait: an empty board goes after 5.0 s, PayCount.emptyWait). And a
+        // board with a tapped coin goes by itself after 3.0 s (PayCount.tapWait), so the hold starts as soon as the
+        // coin is seen, on the element already held: no query and no note between the two. The lantern is read from
+        // the same scene value that showed the coin.
+        let still = waitForCamera(app, timeout: 1.5)
         lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62)).withOffset(CGVector(dx: 4 * toward, dy: 0))
             .tap()
-        let coin = waitForField(app, "count:touch-recruit-guard:1/5", timeout: 3)
-        let after = guardFacts(app)
-        note("175n-count-guard-near-tap", "coin:\(coin) | before: \(before) | after: \(after)")
-        XCTAssertTrue(coin, "the near tap is a coin; before: \(before); after: \(after)")
-        XCTAssertNotEqual(sceneField(app, "hud:"), "moment",
-                          "no purse, strip or gear: the lantern stays down; before: \(before); after: \(after)")
-        if let again = waitForThing(app, "touch-recruit-guard", timeout: 3) {
-            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).press(forDuration: 1.5)
+        let tapped = Date()
+        var seen = ""
+        var coin = false
+        while !coin, Date().timeIntervalSince(tapped) < 3 {
+            seen = sceneWords(app)
+            coin = seen.contains("count:touch-recruit-guard:1/5")
+            if !coin { pause(0.15) }
         }
-        pause(0.3)
-        XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:3/5", timeout: 3),
-                      "the hold counts on, frozen; now: \(guardFacts(app))")
+        let coinAfter = String(format: "%.2f", Date().timeIntervalSince(tapped))
+        if coin {
+            first.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).press(forDuration: 1.5)
+            pause(0.3)
+        }
+        let held = coin && waitForField(app, "count:touch-recruit-guard:3/5", timeout: 3)
+        let after = guardFacts(app)
+        note("175n-count-guard-near-tap",
+             "coin:\(coin) after \(coinAfter) s | camera still:\(still) | at the coin: \(seen) | after the hold: \(after)")
+        XCTAssertTrue(coin, "the near tap is a coin; camera still: \(still); then: \(seen)")
+        XCTAssertFalse(seen.contains("hud:moment"),
+                       "no purse, strip or gear: the lantern stays down; at the coin: \(seen)")
+        XCTAssertTrue(held, "the hold counts on, frozen; the coin was seen \(coinAfter) s after the tap; now: \(after)")
         XCTAssertNotEqual(sceneField(app, "hud:"), "moment")
         attach(XCUIScreen.main.screenshot(), "175-count-guard-\(language)")
         note("175-count-guard-state", sceneField(app, "count:") ?? "?")
