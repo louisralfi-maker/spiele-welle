@@ -306,6 +306,8 @@ struct TitleView: View {
                     picture(scale: scale, t: t, lordFrame: lordFrame)
                     lettering(scale: scale)
                 }
+                // Polish C2 gate (P2): the picture and its lettering fade as one picture, never layer by layer.
+                .compositingGroup()
                 .opacity(opacity)
             }
         case .flame:
