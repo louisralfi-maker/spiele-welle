@@ -1,0 +1,18 @@
+p02-a: Marek's card coming under Reduce Motion (opacity only, 0.15 s); the condition: the card stands
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +0.710 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWDay 6 -GWHour 7 -GWMerchant YES -GWCameraX 1500 -GWReduceMotion YES
+
+frame  seconds since the burst began  (scene where read)
+01  +0.233 s  
+02  +0.424 s  day:6 hour:7.00 alive:0 seen:0 shots:0 kx:1500 stage:world lx:1500 gold:10 hud:none cam:1238 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+03  +0.851 s  
+04  +1.004 s  
+05  +1.173 s  
+06  +1.340 s  
+07  +1.494 s  
+08  +1.655 s  
+09  +1.842 s  
+10  +2.183 s  day:6 hour:7.00 alive:0 seen:0 shots:0 kx:1500 stage:world lx:1500 gold:10 hud:none cam:1238 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.217 s over 9 gaps
