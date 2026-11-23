@@ -1,0 +1,29 @@
+m04-c2: under the lantern (the marks shown) a tap on touch-door-hall: the lantern lowers and the deed begins in the same touch
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the tap was sent without waiting at +1.924 s (point 107.0, 494.3; interface orientation 3 (the app's)); the runner answered at +2.214 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830 -GWTimeScale 0.25
+scene after: frame:4110 ready day:1 hour:10.40 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1794 lord:lord stage:world lx:1794 errand:touch-door-hall door:1830 gold:44 hud:strip cam:1601 tap:touch-door-hall hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:36.00 kxf:1794.31 kf:0 kd:1 kcx:1600.79
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +2.280 s  
+02  +2.582 s  
+03  +2.796 s  
+04  +3.016 s  
+05  +3.330 s  
+06  +3.604 s  
+07  +3.869 s  
+08  +4.247 s  
+09  +4.544 s  
+10  +4.803 s  
+11  +5.096 s  
+12  +5.401 s  
+13  +5.687 s  
+14  +5.938 s  
+15  +6.215 s  
+16  +6.472 s  
+17  +6.714 s  
+18  +6.995 s  
+19  +7.310 s  
+20  +7.554 s  
+mean spacing 0.278 s over 19 gaps

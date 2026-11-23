@@ -1,0 +1,26 @@
+a2-c: Reduce Motion, real time: the palisade stands at once, the scaffold fades over it, no dust (touch-plot-6); kept: the frames before its site lantern goes out (the job's end, the event) and the finish after it
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +19.312 s (82 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWGold 200 -GWCameraX 960 -GWReduceMotion YES
+
+frame  seconds since the burst began  (scene where read)
+01  +17.524 s  
+02  +17.682 s  day:3 hour:12.78 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:1 yard:none drill:none
+03  +17.976 s  
+04  +18.165 s  day:3 hour:12.82 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:1 yard:none drill:none
+05  +18.505 s  
+06  +18.659 s  day:3 hour:12.86 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:1 yard:none drill:none
+07  +18.951 s  
+08  +19.123 s  day:3 hour:12.92 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:0 yard:none drill:none  <- the condition holds
+09  +19.465 s  
+10  +19.646 s  
+11  +19.808 s  
+12  +19.959 s  
+13  +20.140 s  
+14  +20.292 s  
+15  +20.464 s  
+16  +20.706 s  
+17  +20.868 s  
+18  +21.049 s  day:3 hour:13.07 alive:0 seen:0 shots:0 kx:996 stage:world lx:996 gold:180 hud:none cam:746 tap:count count:none last:paid:touch-plot-6 lanterns:0 yard:none drill:none
+mean spacing 0.207 s over 17 gaps
