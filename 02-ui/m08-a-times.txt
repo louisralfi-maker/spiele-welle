@@ -1,0 +1,42 @@
+m08-a: Silas Moth lights the first street lantern by the postern (TownLamps: it takes the flame at 17:58); the condition: the hour 17.975
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +2.663 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 17.5 -GWStage world -GWCameraX 2300
+
+frame  seconds since the burst began  (scene where read)
+01  +0.199 s  
+02  +0.463 s  day:3 hour:17.83 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+03  +0.805 s  
+04  +1.025 s  day:3 hour:17.88 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+05  +1.345 s  
+06  +1.575 s  day:3 hour:17.92 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+07  +1.886 s  
+08  +2.098 s  day:3 hour:17.97 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+09  +2.357 s  
+10  +2.558 s  day:3 hour:18.02 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+11  +2.957 s  
+12  +3.178 s  
+13  +3.423 s  
+14  +3.629 s  
+15  +3.781 s  
+16  +4.013 s  
+17  +4.268 s  
+18  +4.470 s  
+19  +4.633 s  
+20  +4.837 s  
+21  +5.022 s  
+22  +5.241 s  
+23  +5.517 s  
+24  +5.727 s  
+25  +5.932 s  
+26  +6.111 s  
+27  +6.291 s  
+28  +6.465 s  
+29  +6.650 s  
+30  +6.804 s  
+31  +7.063 s  
+32  +7.247 s  
+33  +7.446 s  
+34  +7.617 s  day:3 hour:18.43 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.225 s over 33 gaps

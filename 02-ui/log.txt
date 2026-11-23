@@ -1,0 +1,9 @@
+Test Case '-[LanternholdUITests.FilmNightUITests testA5TheDawnUnderReduceMotion]' passed (39.880 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testA5TheHornsGateFalls]' passed (30.248 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM08DuskAndTheHorn]' passed (47.556 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM09TheFirstAttack]' passed (109.310 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawn]' passed (36.729 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawnCardWaitsForTheGate]' passed (26.489 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM12AnAdOfferAndTheEndCard]' passed (117.422 seconds).
+exit=0
+screenshots: 574

@@ -1,0 +1,1 @@
+frame:2050 ready day:3 hour:20.64 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2300 lord:lord stage:world lx:2300 errand:none door:1830 gold:91 hud:none cam:2103 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:2300.00 kf:7 kd:-1 kcx:2102.50 lantern:ready
