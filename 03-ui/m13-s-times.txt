@@ -1,0 +1,13 @@
+m13-s: E1b: his line heard and closed, the offer stands: Brannock keeps his mark
+real time; one frame every 0.40 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 1545
+scene before: frame:780 ready day:1 hour:12.20 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1525 lord:lord stage:world lx:1525 errand:none door:1830 gold:9 hud:none cam:1260 tap:touch-talk-brannock hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:heard dusk:none talkmarks:brannock,collector drill:none
+scene after: frame:850 ready day:1 hour:12.30 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1525 lord:lord stage:world lx:1525 errand:none door:1830 gold:9 hud:none cam:1260 tap:touch-talk-brannock hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:heard dusk:none talkmarks:brannock,collector drill:none
+
+frame  seconds since the burst began  (scene where read)
+01  +0.215 s  
+02  +0.576 s  
+03  +0.947 s  
+04  +1.368 s  
+mean spacing 0.384 s over 3 gaps

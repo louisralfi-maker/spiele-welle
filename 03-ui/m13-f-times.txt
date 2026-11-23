@@ -1,0 +1,15 @@
+m13-f: after the horn (the pause route), one frame every 0.5 s
+real time; one frame every 0.50 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 1545
+scene before: frame:890 ready day:1 hour:19.15 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1545 lord:lord stage:world lx:1545 errand:none door:1830 gold:9 hud:none cam:1322 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none lantern:ready
+scene after: frame:1040 ready day:1 hour:19.36 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1545 lord:lord stage:world lx:1545 errand:none door:1830 gold:9 hud:none cam:1322 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none lantern:ready
+
+frame  seconds since the burst began  (scene where read)
+01  +0.200 s  
+02  +0.658 s  
+03  +1.164 s  
+04  +1.696 s  
+05  +2.199 s  
+06  +2.640 s  
+mean spacing 0.488 s over 5 gaps
