@@ -215,6 +215,8 @@ struct RootView: View {
             #if DEBUG
             // Debug: the wall seconds and the beat's uncounted hitches at each phase (`stepin-probe`).
             var marks = [String(format: "task %.3f/%.3f", Date().timeIntervalSince(start), beat.lost)]
+            var wholeWall: Double? = nil
+            StepProbe.shared.reset()
             #endif
             // Polish C2b (L2): the phases are `StepIn`'s list, which the tests pin.
             for (phase, at) in StepIn.phases(mode) {
@@ -230,11 +232,28 @@ struct RootView: View {
                 }
                 #if DEBUG
                 marks.append(String(format: "%@ %.3f/%.3f", phase.rawValue, Date().timeIntervalSince(start), beat.lost))
+                if phase == .whole { wholeWall = Date().timeIntervalSince(start) }
                 #endif
             }
             #if DEBUG
-            stepProbe = String(format: "lost:%.3f longest:%.3f wall:%.3f; wall/lost at ", beat.lost, beat.longestGap,
-                               Date().timeIntervalSince(start)) + marks.joined(separator: ", ")
+            let head = String(format: "lost:%.3f longest:%.3f wall:%.3f; wall/lost at ", beat.lost, beat.longestGap,
+                              Date().timeIntervalSince(start))
+            // Polish C2b (part 5): the start pane's first drawn frame (its onAppear, then the main thread's next turn),
+            // waited for at most 3 s after the panes were let go; "none" when the game held no pane at its start.
+            let probe = StepProbe.shared
+            let deadline = Date().addingTimeInterval(3)
+            while probe.paneFree == nil && Date() < deadline {
+                try? await Task.sleep(nanoseconds: 8_000_000)
+            }
+            func wall(_ date: Date?) -> String {
+                date.map { String(format: "%.3f", $0.timeIntervalSince(start)) } ?? "none"
+            }
+            marks.append("card-appear " + wall(probe.paneAppeared))
+            marks.append("card-free " + wall(probe.paneFree))
+            if let free = probe.paneFree, let wholeWall {
+                marks.append(String(format: "whole-to-card %.3f", free.timeIntervalSince(start) - wholeWall))
+            }
+            stepProbe = head + marks.joined(separator: ", ")
             #endif
         }
     }
@@ -248,6 +267,35 @@ struct RootView: View {
         }
     }
 }
+
+#if DEBUG
+/// Polish C2b, part 5 (Debug): the start pane's first drawn frame for the step's probe (`stepin-probe`): the moment
+/// the pane appeared and when the main thread was free after it (its first frame committed), as `PaneProbe` does for
+/// the pause sheet. The pane at the start of a new realm is the name card (`LordEntryView`).
+@MainActor
+final class StepProbe {
+    static let shared = StepProbe()
+    private(set) var paneAppeared: Date?
+    private(set) var paneFree: Date?
+
+    /// A new step into the game: forget an earlier pane.
+    func reset() {
+        paneAppeared = nil
+        paneFree = nil
+    }
+
+    /// The start pane appeared; the main thread's next turn says when its first frame was done.
+    func paneAppear() {
+        guard paneAppeared == nil else { return }
+        paneAppeared = Date()
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                StepProbe.shared.paneFree = Date()
+            }
+        }
+    }
+}
+#endif
 
 /// The cover over the hall during the step into the game (polish C2, M8): black under the title, then black at 1
 /// minus the hall's opacity of `StepIn`'s timeline on the beat's clock, so the hall rises from black as its root's

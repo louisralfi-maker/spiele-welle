@@ -44,6 +44,10 @@ struct LordEntryView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("lord-entry-root")
+        #if DEBUG
+        // Polish C2b, part 5: the start pane's first drawn frame for the step's probe (`StepProbe`).
+        .onAppear { StepProbe.shared.paneAppear() }
+        #endif
     }
 
     @ViewBuilder private var content: some View {
