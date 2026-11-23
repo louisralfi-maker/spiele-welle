@@ -904,6 +904,9 @@ extension GameModel {
         guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase, lanternMoment == nil else {
             return []
         }
+        // LANE-E: E2 (the gate's P2: the night's marks go in the frame the gate opens, not alone in the card's wait)
+        if dawnCardWaits { return [] }
+        // LANE-E end
         // Step 5 (P4): at a plot with several offers the builder's models replace the site's mark, its pool, its rim and
         // its footing; the plot takes no mark slot either (the review: it could push a neighbour's mark out).
         let modelled = Set(touch.models.map { "touch-plot-\($0.plot)" })
