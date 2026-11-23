@@ -29,6 +29,12 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     // Polish step D1 (tools/polishsound.py; law 4's sounds): a man falls (a body on packed earth and a chink of mail), a
     // man struck (two wordless grunts, played in turn), a wall splitting below half
     case manFall = "man_fall", grunt1 = "grunt_1", grunt2 = "grunt_2", wallCrack = "wall_crack"
+    // Polish step D2 0g (tools/polishsound.py; a rate is not a pitch): the variants law 4 means as higher or lower
+    // sounds, rendered at their pitch and played at rate 1: the tap's and the step's second and third (+3.5 %, -3.4 %),
+    // the tap lower (a pane or a bubble closing), the knock lower (the board set), the lantern higher and shorter
+    // (Silas's lamp) and higher (the night raise), and the dawn's toll (the bell rendered low and damped).
+    case tap2 = "tap_2", tap3 = "tap_3", step3 = "step_3", tapLow = "tap_low", knockLow = "knock_low"
+    case lanternHigh = "lantern_high", lanternRaise = "lantern_raise", toll
 
     static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall,
                                    .ambThroat, .ambBailey, .ambValley, .ambRiver]
@@ -45,6 +51,11 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         return coinSteps[min(coinSteps.count - 1, max(0, semitones))]
     }
 
+    /// D2 0g: the touch's three taps and the lord's three steps, each within +-4 % of pitch, played in rotation and
+    /// never the same one twice in a row (`FeedbackGate`); a cue names the first, the gate turns it.
+    static let taps: [SoundID] = [.tap, .tap2, .tap3]
+    static let steps: [SoundID] = [.step1, .step2, .step3]
+
     /// The same sound starts at most this often (seconds of real time): nothing rattles like a machine gun, whoever
     /// asks for it (the thinner's gaps count the simulation's cues; the cards' taps come straight from the player).
     var minimumInterval: Double {
@@ -57,14 +68,18 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .parchment, .creatureHit: return 0.3
         case .wallHit, .engine, .lantern, .buildStart, .buildDone: return 0.25
         case .dissolve: return 0.15
-        case .step1, .step2: return 0.12
+        case .step1, .step2, .step3: return 0.12
         case .bow, .arrowHit: return 0.1
         case .coin, .coins, .seal, .sealLow, .decline, .knock: return 0.08
         case .coinsBack: return 0.2
         case .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07, .coinP08, .coinP09,
              .coinP10, .coinP11, .coinP12:
             return 0.04
-        case .tap: return 0.06
+        case .tap, .tap2, .tap3, .tapLow: return 0.06
+        // D2 0g: the rendered variants keep their first file's gaps; the toll at most one every 0.9 s (D2 part 2).
+        case .knockLow: return 0.08
+        case .lanternHigh, .lanternRaise: return 0.25
+        case .toll: return 0.9
         // D1: a fall and a crack are rare; the grunts share one throttle (`throttleKey`): at most one every 0.5 s.
         case .manFall, .wallCrack: return 0.25
         case .grunt1, .grunt2: return FeedbackGate.gruntSpacing
@@ -74,10 +89,12 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     }
 
     /// The key the throttle counts this sound under: its own name, except the two grunts, which share one (at most one
-    /// grunt every 0.5 s, whichever file; D1).
+    /// grunt every 0.5 s, whichever file; D1), and D2's families: the taps (the three and the lower one) and the steps.
     var throttleKey: String {
         switch self {
         case .grunt1, .grunt2: return "grunt"
+        case .tap, .tap2, .tap3, .tapLow: return "tap"
+        case .step1, .step2, .step3: return "step"
         default: return rawValue
         }
     }
@@ -88,15 +105,19 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .horn, .gate, .wallBreak, .parchment, .doorCreak, .doorLatch: return 1
         // Step 0b: the dawn verdict's tolls (`DawnVerdict`, the bell at rate 0.55 as the toll's stand-in) ring into each
         // other's tails; one voice would cut a ringing bell.
-        case .bow, .arrowHit, .dissolve, .coin, .step1, .step2, .bell: return 3
+        case .bow, .arrowHit, .dissolve, .coin, .step1, .step2, .step3, .bell: return 3
+        // D2: the tolls ring into each other's tails (1.4 s each, one every 0.9 s at most).
+        case .toll: return 3
         default: return 2
         }
     }
 
-    /// Sounds whose pitch varies a little from play to play (a few per cent), so repeats never sound copied.
+    /// Sounds played at a rate varied a little from play to play (+-4 %), so repeats never sound copied. A player's rate
+    /// stretches time and keeps the pitch, so this varies the length, not the pitch (D2 0g); the tap and the step vary
+    /// by their three rendered files instead and are not on this list any more.
     var varies: Bool {
         switch self {
-        case .bow, .arrowHit, .creatureHit, .dissolve, .coin, .coins, .step1, .step2, .wallHit, .tap, .buildStart,
+        case .bow, .arrowHit, .creatureHit, .dissolve, .coin, .coins, .wallHit, .buildStart,
              .knock, .grunt1, .grunt2:
             return true
         default:
@@ -121,8 +142,8 @@ enum HapticKind: String, Sendable, CaseIterable, Equatable {
 }
 
 extension FeedbackCue {
-    /// The sound of a cue, nil for none (DESIGN.md "Sound and haptics": the list). `.step` alternates between the two
-    /// step files in the director.
+    /// The sound of a cue, nil for none (DESIGN.md "Sound and haptics": the list). A cue that names `step1` or `tap`
+    /// turns through the three rendered files of its family in the gate (D2 0g).
     var sound: SoundPlay? {
         switch self {
         case .volley: return SoundPlay(id: .bow, volume: 0.45)
@@ -167,6 +188,7 @@ extension FeedbackCue {
         // D1 (law 4, step 2): an arrow's or a bolt's landing at -19.7 dBFS (was 0.45, -24.1).
         case .arrowHit: return SoundPlay(id: .arrowHit, volume: 0.75)
         case .gate: return SoundPlay(id: .gate, volume: 0.8)
+        // D2 0g: the three rendered steps in rotation (the gate turns `step1`).
         case .step: return SoundPlay(id: .step1, volume: 0.3)
         case .audienceOpened: return SoundPlay(id: .parchment, volume: 0.6)
         case .choiceMade: return SoundPlay(id: .seal, volume: 0.7)
@@ -174,8 +196,11 @@ extension FeedbackCue {
         case .shutter: return SoundPlay(id: .knock, volume: 0.55, rate: 0.7)
         case .doorOpened: return SoundPlay(id: .doorCreak, volume: 0.7)
         case .doorShut: return SoundPlay(id: .doorLatch, volume: 0.75)
-        case .touched: return SoundPlay(id: .tap, volume: 0.22, rate: 1.25)
-        case .lanternRaised: return SoundPlay(id: .lantern, volume: 0.8, rate: 1.3)
+        // D2 0g: the three rendered taps in rotation (the gate turns `tap`), at rate 1 (was tap.wav at a rate of 1.25,
+        // which only shortened it).
+        case .touched: return SoundPlay(id: .tap, volume: 0.22)
+        // D2 0g: the night raise's lantern rendered 1.3 higher (law 4: "keeps lantern.wav rate 1.3"; a rate is no pitch).
+        case .lanternRaised: return SoundPlay(id: .lanternRaise, volume: 0.8)
         // The count: a coin as the plain clink (the hub's `countCoin` gives it its rising pitch); the seal deep and
         // full; the site lantern catching; the coins going back, soft.
         case .countCoin: return SoundPlay(id: .coin, volume: 0.6)
@@ -186,11 +211,14 @@ extension FeedbackCue {
         // says who calls each and why this file; lane D swaps the real sounds in behind them in D1 and D2).
         case .lanternUp: return SoundPlay(id: .tap, volume: 0.55, rate: 1.15)
         case .lanternDown: return SoundPlay(id: .tap, volume: 0.4, rate: 0.8)
+        // D2 0g: the pane's and the bubble's close play the tap rendered at 0.85 of its pitch (law 4's "r 0.85"), the
+        // board set the knock rendered at 0.62 (law 4's "knock 0.4 r 0.62"), all at rate 1; the open and the press play
+        // the three taps in rotation.
         case .paneOpen: return SoundPlay(id: .tap, volume: 0.55)
-        case .paneClose: return SoundPlay(id: .tap, volume: 0.45, rate: 0.85)
-        case .bubbleClose: return SoundPlay(id: .tap, volume: 0.3, rate: 0.85)
-        case .plaquePress: return SoundPlay(id: .tap, volume: 0.42, rate: 1.2)
-        case .boardSet: return SoundPlay(id: .knock, volume: 0.4, rate: 0.62)
+        case .paneClose: return SoundPlay(id: .tapLow, volume: 0.45)
+        case .bubbleClose: return SoundPlay(id: .tapLow, volume: 0.3)
+        case .plaquePress: return SoundPlay(id: .tap, volume: 0.42)
+        case .boardSet: return SoundPlay(id: .knockLow, volume: 0.4)
         // D1 (law 4, step 2): a blow on a creature at -17.4 dBFS, over the night bed under the battle duck; a man
         // struck grunts at -18.0 / -19.0 (grunt_1 / grunt_2, in turn, at most one every 0.5 s), or, with the grunts
         // switched off, the body blow of an arrow's landing.
@@ -198,15 +226,18 @@ extension FeedbackCue {
         case .manHit:
             return FeedbackCue.soldierGrunts ? SoundPlay(id: .grunt1, volume: 0.55)
                 : SoundPlay(id: .arrowHit, volume: 0.75)
-        case .dawnGate: return SoundPlay(id: .gate, volume: 0.6, rate: 1.05)
+        // D2 0g: the dawn gate as made (law 4's "r 1.05" is too close to matter, and a rate is no pitch).
+        case .dawnGate: return SoundPlay(id: .gate, volume: 0.6)
         case .buildStood: return SoundPlay(id: .buildDone, volume: 0.9)
         // D1 (law 4, step 3): man_fall at -14.4 dBFS; the step's duck (beds x 0.7 for 0.7 s) comes with it. D2 0d (the
         // director's call): at rate 1, as made; the law's "x 0.7" is that duck of the beds, not a rate.
         case .manFell: return SoundPlay(id: .manFall, volume: 0.7)
         // D1 (law 4, step 3): a wall below half splits at -15.4 dBFS.
         case .wallCracked: return SoundPlay(id: .wallCrack, volume: 0.95)
-        case .dawnHeld: return SoundPlay(id: .bell, volume: 0.5, rate: 0.9)
-        case .dawnToll: return SoundPlay(id: .bell, volume: 0.5, rate: 0.55)
+        // D2 0g: a held night rings the bell as made (law 4's "r 0.9" is too close to matter); a lost one tolls its own
+        // file, the bell rendered low and damped (law 4's "bell at rate 0.55" meant a lower bell), at -15.0 dBFS.
+        case .dawnHeld: return SoundPlay(id: .bell, volume: 0.5)
+        case .dawnToll: return SoundPlay(id: .toll, volume: 0.65)
         }
     }
 
@@ -377,12 +408,13 @@ struct CueAnswer: Sendable, Equatable {
 }
 
 /// The hub's decisions for a cue, pure (`SoundDirector` applies them; tests read them): the settings, the throttles per
-/// sound and per haptic, the two steps' alternation and law 4's no-jitter rule for steps 3 and 4.
+/// sound and per haptic, the taps' and the steps' rotation (D2 0g) and law 4's no-jitter rule for steps 3 and 4.
 struct FeedbackGate: Sendable, Equatable {
     private var sounds = SoundThrottle()
     private var haptics = SoundThrottle()
-    private var stepFlip = false
-    /// D1: the grunts alternate; the last plaque press.
+    /// D1: the grunts alternate; the last plaque press. D2 0g: the taps' and the steps' turn (-1: none played yet).
+    private var tapTurn = -1
+    private var stepTurn = -1
     private var gruntFlip = false
     private var pressAt: Double?
     /// D2 0a: when a card cue and a pane cue last answered (the alias rule).
@@ -442,10 +474,6 @@ struct FeedbackGate: Sendable, Equatable {
             answer.echo = cue.hapticEcho
         }
         guard soundOn, var sound = cue.sound else { return answer }
-        if sound.id == .step1 {
-            stepFlip.toggle()
-            if !stepFlip { sound.id = .step2 }
-        }
         if afterPress {
             // The pane's sound plays although the press's tap is still inside tap.wav's throttle.
             sounds.note(sound.id.throttleKey, now: now)
@@ -456,6 +484,15 @@ struct FeedbackGate: Sendable, Equatable {
         if sound.id == .grunt1 {
             gruntFlip.toggle()
             if !gruntFlip { sound.id = .grunt2 }
+        }
+        // D2 0g: the taps and the steps turn through their three rendered files among those that play, so the same one
+        // never comes twice in a row.
+        if sound.id == .tap {
+            tapTurn = (tapTurn + 1) % SoundID.taps.count
+            sound.id = SoundID.taps[tapTurn]
+        } else if sound.id == .step1 {
+            stepTurn = (stepTurn + 1) % SoundID.steps.count
+            sound.id = SoundID.steps[stepTurn]
         }
         // D2 0c (the director's call after D1): kills do not chain. A kill plays as made and varies like any step 2
         // answer; law 4's chain is for the coins (the count to +12, the taxes to +7, both with pitched files).

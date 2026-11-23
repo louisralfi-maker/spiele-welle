@@ -26,7 +26,7 @@ final class SoundDirector: FeedbackHub {
     private var voices: [SoundID: [AVAudioPlayer]] = [:]
     private var loops: [SoundID: AVAudioPlayer] = [:]
     private var levels: [SoundID: Double] = [:]
-    /// Step 0b: the throttles, the steps' alternation and the no-jitter rule (`FeedbackGate`, pure).
+    /// Step 0b: the throttles, the taps' and steps' rotation and the no-jitter rule (`FeedbackGate`, pure).
     private var gate = FeedbackGate()
     private var lastAmbience: Double?
     /// After a loop could not start (an interruption, a call), it is tried again from this time on.

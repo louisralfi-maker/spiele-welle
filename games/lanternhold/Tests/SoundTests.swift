@@ -44,9 +44,11 @@ final class SoundTests: XCTestCase {
             XCTAssertTrue((0.5...2).contains(sound.rate), "\(cue)")
         }
         let used = Set(FeedbackCue.allCases.compactMap { $0.sound?.id })
-        // The count's clink steps are played by `FeedbackHub.countCoin` (build 3, b3-count), not by a cue; step_2 and
-        // grunt_2 are their first file's partners in turn (`FeedbackGate`).
-        let partners: Set<SoundID> = FeedbackCue.soldierGrunts ? [.step2, .grunt2] : [.step2, .grunt1, .grunt2]
+        // The count's clink steps are played by `FeedbackHub.countCoin` (build 3, b3-count), not by a cue (and by the tax
+        // coins' chain in the gate, D2); step_2, step_3, tap_2, tap_3 and grunt_2 are their first file's partners in turn
+        // (`FeedbackGate`; D2 0g added the taps' and the third step).
+        let turns: Set<SoundID> = [.step2, .step3, .tap2, .tap3]
+        let partners: Set<SoundID> = turns.union(FeedbackCue.soldierGrunts ? [.grunt2] : [.grunt1, .grunt2])
         for id in SoundID.allCases where !id.isLoop && !partners.contains(id) && !SoundID.coinSteps.contains(id) {
             XCTAssertTrue(used.contains(id), "\(id.rawValue) is played by some cue")
         }
