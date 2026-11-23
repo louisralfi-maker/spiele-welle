@@ -233,9 +233,10 @@ struct FeedbackThinner: Sendable, Equatable {
         case .horn: return (.horn, nil)
         case .firstLight: return (.firstLight, nil)
         case .buildOrdered: return (.buildOrdered, nil)
-        // D2 gate M1: at the plot's place, so a building finishing far from the lord gives no haptic and no duck.
-        case .buildDone(let plot):
-            return (.buildDone, Realm.plots.indices.contains(plot) ? Realm.plots[plot].x : nil)
+        // LANE-A: A2 (the answer comes at the swap, 0.12 s after the event: `BattleEffects.stand` hands the plot's x
+        // to `GameModel`, which plays `.buildStood` there once per building; the event itself gives nothing)
+        case .buildDone: return nil
+        // LANE-A end
         case .recruited: return (.recruited, nil)
         case .patched: return (.patched, nil)
         case .brazierLit: return (.brazierLit, nil)
