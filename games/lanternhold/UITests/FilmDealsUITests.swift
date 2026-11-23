@@ -49,7 +49,8 @@ final class FilmDealsUITests: XCTestCase {
             // Polish B2 (round lh-rb-4): a slow runner outlasted the empty board's 5 s during burst a, so the board
             // comes up again first; and the taps go to a fixed point of the screen, since the gate's element goes the
             // moment the gate is paid and a tap resolved on it then failed the whole test.
-            if !film.scene(app).contains("count:touch-plot-0") {
+            // B2 gate (M-2): an open board, not one still fading after its let go.
+            if !b2Open(film.scene(app)) {
                 touchThing(again)
                 film.wait(6) { film.scene(app).contains(":there") }
                 waitForStill(app, timeout: 4)
@@ -118,7 +119,8 @@ final class FilmDealsUITests: XCTestCase {
                 // The count runs on real time even while the world is slowed: the empty board waits 5 s of real time,
                 // which the waits above can outlast (rounds lh-rb-2, lh-rb-6); then the board comes up again first, so
                 // tap 1 sets a coin as in the audit's burst.
-                if !film.scene(slow).contains("count:touch-plot-0") {
+                // B2 gate (M-2): an open board, not one still fading after its let go (lh-rb-7: frame 00 faded).
+                if !b2Open(film.scene(slow)) {
                     touchThing(again)
                     film.wait(20) { film.scene(slow).contains(":there") }
                     film.note("m05-e-again", "the board had gone before the burst; brought again: \(film.scene(slow))")
@@ -135,7 +137,7 @@ final class FilmDealsUITests: XCTestCase {
                                                          $0.1) })
                 // Tap 1 sets the first coin, or brings the board when it had gone in the meantime (the scene before
                 // the burst says which); the three near taps set three coins either way.
-                let laid = before.contains("count:touch-plot-0") ? 4 : 3
+                let laid = b2Open(before) ? 4 : 3
                 let three = film.wait(8) { film.scene(slow).contains("count:touch-plot-0:\(laid)/9") }
                 let value = film.scene(slow)
                 film.note("m05-e-state", "\(laid) coins expected: \(three); scene: \(value)")
@@ -175,7 +177,7 @@ final class FilmDealsUITests: XCTestCase {
         waitForStill(calm, timeout: 4)
         film.pause(0.3)
         if let again = waitForThing(calm, "touch-plot-0", timeout: 3) {
-            if !film.scene(calm).contains("count:touch-plot-0") {
+            if !b2Open(film.scene(calm)) {
                 touchThing(again)
                 film.wait(6) { film.scene(calm).contains(":there") }
                 film.note("m05-g-again", "the board had gone before the burst; brought again: \(film.scene(calm))")
@@ -276,6 +278,12 @@ final class FilmDealsUITests: XCTestCase {
                + "apart, a frame every \(every) s, then \(after) s after the last tap (polish B2, H9: the warning at 2.0 s, "
                + "the coins kept by the next tap, home at 3.0 s after the last)\n" + lines.joined(separator: "\n")
                + "\nlaunch: \(film.arguments.joined(separator: " "))\nscene after: \(film.scene(app))")
+    }
+
+    /// B2 gate (M-2): true while the count on `thing` stands open (`:there` or `:open`), not while an ended one still
+    /// fades (`:letGo`, `:paid`, `:cutOff`, `:short`).
+    private func b2Open(_ scene: String, _ thing: String = "touch-plot-0") -> Bool {
+        scene.range(of: "count:\(thing):[0-9]+/[0-9]+:(there|open)", options: .regularExpression) != nil
     }
 
     /// Polish B2: keeps the frames as `<moment>-<letter>-<nn>` and the note `<moment>-<letter>-times` (FilmKit's form).
