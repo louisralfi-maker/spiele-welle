@@ -188,8 +188,9 @@ extension FeedbackCue {
         // D1 (law 4, step 2): an arrow's or a bolt's landing at -19.7 dBFS (was 0.45, -24.1).
         case .arrowHit: return SoundPlay(id: .arrowHit, volume: 0.75)
         case .gate: return SoundPlay(id: .gate, volume: 0.8)
-        // D2 0g: the three rendered steps in rotation (the gate turns `step1`).
-        case .step: return SoundPlay(id: .step1, volume: 0.3)
+        // D2 0g: the three rendered steps in rotation (the gate turns `step1`). D2 0f and part 8: at 0.5 (-21.1 to
+        // -21.3 dBFS; was 0.3, -26.7 / -28.9), at least 3 dB over every bed.
+        case .step: return SoundPlay(id: .step1, volume: 0.5)
         case .audienceOpened: return SoundPlay(id: .parchment, volume: 0.6)
         case .choiceMade: return SoundPlay(id: .seal, volume: 0.7)
         case .knock: return SoundPlay(id: .knock, volume: 0.8)
@@ -197,8 +198,9 @@ extension FeedbackCue {
         case .doorOpened: return SoundPlay(id: .doorCreak, volume: 0.7)
         case .doorShut: return SoundPlay(id: .doorLatch, volume: 0.75)
         // D2 0g: the three rendered taps in rotation (the gate turns `tap`), at rate 1 (was tap.wav at a rate of 1.25,
-        // which only shortened it).
-        case .touched: return SoundPlay(id: .tap, volume: 0.22)
+        // which only shortened it). D2 0f: a ground tap is law 4's step 1, at least 3 dB over every bed: 0.55
+        // (-21.2 dBFS; was 0.22, -29.2, under every bed; law 2's 0.4 gives -24.0).
+        case .touched: return SoundPlay(id: .tap, volume: 0.55)
         // D2 0g: the night raise's lantern rendered 1.3 higher (law 4: "keeps lantern.wav rate 1.3"; a rate is no pitch).
         case .lanternRaised: return SoundPlay(id: .lanternRaise, volume: 0.8)
         // The count: a coin as the plain clink (the hub's `countCoin` gives it its rising pitch); the seal deep and
@@ -213,12 +215,14 @@ extension FeedbackCue {
         case .lanternDown: return SoundPlay(id: .tap, volume: 0.4, rate: 0.8)
         // D2 0g: the pane's and the bubble's close play the tap rendered at 0.85 of its pitch (law 4's "r 0.85"), the
         // board set the knock rendered at 0.62 (law 4's "knock 0.4 r 0.62"), all at rate 1; the open and the press play
-        // the three taps in rotation.
+        // the three taps in rotation. D2 0f: every step 1 cue at least 3 dB over every bed (-21.5 dBFS or more), raised
+        // inside its band where it needed it: the closes 0.45 / 0.3 -> 0.55 (-21.2), the press 0.42 -> 0.55 (-21.2),
+        // the board set 0.4 -> 0.42 (-21.1).
         case .paneOpen: return SoundPlay(id: .tap, volume: 0.55)
-        case .paneClose: return SoundPlay(id: .tapLow, volume: 0.45)
-        case .bubbleClose: return SoundPlay(id: .tapLow, volume: 0.3)
-        case .plaquePress: return SoundPlay(id: .tap, volume: 0.42)
-        case .boardSet: return SoundPlay(id: .knockLow, volume: 0.4)
+        case .paneClose: return SoundPlay(id: .tapLow, volume: 0.55)
+        case .bubbleClose: return SoundPlay(id: .tapLow, volume: 0.55)
+        case .plaquePress: return SoundPlay(id: .tap, volume: 0.55)
+        case .boardSet: return SoundPlay(id: .knockLow, volume: 0.42)
         // D1 (law 4, step 2): a blow on a creature at -17.4 dBFS, over the night bed under the battle duck; a man
         // struck grunts at -18.0 / -19.0 (grunt_1 / grunt_2, in turn, at most one every 0.5 s), or, with the grunts
         // switched off, the body blow of an arrow's landing.
@@ -305,6 +309,8 @@ extension FeedbackCue {
         switch self {
         case .lanternUp, .lanternDown, .paneOpen, .paneClose, .bubbleClose, .plaquePress, .boardSet: return .touch
         case .cardOpened, .cardClosed: return .touch
+        // D2 0f: the ground tap and the step are law 4's step 1 too (they sit 3 dB over every bed).
+        case .touched, .step: return .touch
         case .hit, .manHit, .dawnGate: return .deed
         case .arrowHit, .wallHit, .creatureDissolved: return .deed
         case .buildStood, .manFell, .dawnHeld, .dawnToll: return .triumph
@@ -825,9 +831,56 @@ struct AmbienceMix: Sendable, Equatable {
     static let hallVolume = 0.6
 
     /// A loop's bed with this frame's duck laid over it at once (what settles in the ear once the hub's follower
-    /// has caught up).
+    /// has caught up). D2 0f: the bed as played (`bed`, under the ceiling) under the duck.
     func heard(_ id: SoundID) -> Double {
-        level(id) * ducks.depth
+        bed(id) * ducks.depth
+    }
+
+    // MARK: D2 0f: the bed is the quietest thing, by numbers
+
+    /// The beds' files' whole RMS (dBFS, inventory.md's measure), measured on Resources/Sound at D2. SoundMixTests reads
+    /// the files and holds these within 0.1 dB, so D3's re-made beds bring their own numbers here.
+    static func bedRMS(_ id: SoundID) -> Double {
+        switch id {
+        case .ambDay: return -16.58
+        case .ambNight: return -17.04
+        case .ambRain: return -17.53
+        case .ambFire: return -14.00
+        case .ambHall: return -14.00
+        case .ambThroat: return -15.39
+        case .ambBailey: return -22.37
+        case .ambValley: return -21.79
+        case .ambRiver: return -17.45
+        default: return -120
+        }
+    }
+
+    /// The most the beds that play together may sum to, undecked (dBFS; file RMS + 20 log10 volume, summed by power):
+    /// law 4's "the bed is always the quietest thing", the director's call after D1 (at most -24), 0.5 dB under it so
+    /// the law's pane come (tap 0.55, -21.2) clears it by 3 dB. The title's beds are not under it (step C2 judges them).
+    static let bedCeiling = -24.5
+
+    /// The beds of this mix as asked, summed by power (dBFS), before the ceiling.
+    var bedSum: Double {
+        var power = 0.0
+        for id in SoundID.loops {
+            let volume = level(id)
+            guard volume > 0 else { continue }
+            power += volume * volume * pow(10, AmbienceMix.bedRMS(id) / 10)
+        }
+        return power > 0 ? 10 * log10(power) : -120
+    }
+
+    /// The factor every bed of this mix is lowered by so their sum stays at the ceiling: all together, so their
+    /// balance holds at every place and hour (1 where they are quiet enough already).
+    var trim: Double {
+        let sum = bedSum
+        return sum > AmbienceMix.bedCeiling ? pow(10, (AmbienceMix.bedCeiling - sum) / 20) : 1
+    }
+
+    /// A loop's bed as the hub plays it, undecked: its level under the ceiling (`trim`).
+    func bed(_ id: SoundID) -> Double {
+        level(id) * trim
     }
 
     /// Step 0b: the title's beds (thing 8; `FeedbackHub.startTitleBeds`): the Throat's wind and the fire, faded in under

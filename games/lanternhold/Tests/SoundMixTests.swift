@@ -54,7 +54,7 @@ final class SoundMixTests: XCTestCase {
         }
         // The law's own numbers stand where the whole-file measure reads a long bell or gate tail quieter than its
         // strike (D2 0g keeps "the bell at 0.5" and "the gate at 0.6").
-        let lawOutsideTheMeasure: Set<FeedbackCue> = [.bubbleClose, .dawnGate, .dawnHeld]
+        let lawOutsideTheMeasure: Set<FeedbackCue> = [.dawnGate, .dawnHeld]
         for cue in Self.contract where !lawOutsideTheMeasure.contains(cue) {
             let sound = try XCTUnwrap(cue.sound)
             let size = try XCTUnwrap(cue.answerSize)
@@ -274,7 +274,8 @@ final class SoundMixTests: XCTestCase {
         let mix = AmbienceMix.target(hour: 22, rain: 0, place: .outside, fire: 0, ducked: true,
                                      ducks: BedDucks(battleNear: true), x: 900)
         XCTAssertEqual(mix.ducks.depth, 0.5, accuracy: 1e-12)
-        XCTAssertEqual(mix.heard(.ambNight), mix.night * 0.5, accuracy: 1e-12)
+        // D2 0f rewrote this line: the bed heard is the one under the ceiling (`bed`), halved.
+        XCTAssertEqual(mix.heard(.ambNight), mix.bed(.ambNight) * 0.5, accuracy: 1e-12)
     }
 
     /// Polish D1, the battle duck: a blow, a fall, a crack or a kill heard within 300 px of the lord keeps the beds at
@@ -583,11 +584,11 @@ final class SoundMixTests: XCTestCase {
             XCTAssertTrue(AnswerSize.deed.band.contains(other), "grunt_2 at \(other) dBFS")
         }
         // The night bed in the gorge (no fire): amb_night and amb_throat as the mix plays them, summed by power,
-        // under the battle duck.
+        // under the battle duck. D2 0f rewrote this line: as played, under the ceiling (`bed`).
         let mix = AmbienceMix.target(hour: 23, rain: 0, place: .outside, fire: 0, x: 900)
         var power = 0.0
         for id in [SoundID.ambNight, .ambThroat] {
-            power += pow(10, AnswerSize.level(fileRMS: try Self.fileRMS(id), volume: mix.level(id)) / 10)
+            power += pow(10, AnswerSize.level(fileRMS: try Self.fileRMS(id), volume: mix.bed(id)) / 10)
         }
         let bed = 10 * log10(power)
         let ducked = bed + 20 * log10(BedDucks.battleDepth)
@@ -599,6 +600,81 @@ final class SoundMixTests: XCTestCase {
         let fade = SoundSpace.gain(distance: 100, hearing: FeedbackCue.hit.hearing)
         let away = try XCTUnwrap(levels[.hit]) + 20 * log10(fade)
         XCTAssertGreaterThanOrEqual(away - ducked, 3, "a blow 100 px away at \(away) over \(ducked)")
+    }
+
+    /// Polish D2 0f (the director's call after D1): the bed is the quietest thing, by numbers. At every place and hour
+    /// (and in every rain and beside every fire), the beds that play together sum to at most -24 dBFS undecked (file
+    /// RMS + 20 log10 volume, summed by power), lowered all together (their balance holds), and every step 1 cue sits
+    /// inside its band at least 3 dB over that sum. The beds' RMS numbers in the code are the files'. After it, the
+    /// first blow of a skirmish clears the bed without the duck.
+    func testTheBedIsTheQuietestThingByNumbers() throws {
+        var rms: [SoundID: Double] = [:]
+        for id in SoundID.loops {
+            rms[id] = try Self.fileRMS(id)
+            XCTAssertEqual(AmbienceMix.bedRMS(id), try XCTUnwrap(rms[id]), accuracy: 0.1, "\(id.rawValue)'s RMS")
+        }
+        XCTAssertLessThanOrEqual(AmbienceMix.bedCeiling, -24)
+        // Every step 1 cue, each file of a family it turns through.
+        var touchLevels: [(cue: FeedbackCue, level: Double)] = []
+        for cue in FeedbackCue.allCases where cue.answerSize == .touch {
+            let sound = try XCTUnwrap(cue.sound, "\(cue)")
+            let files = sound.id == .tap ? SoundID.taps : sound.id == .step1 ? SoundID.steps : [sound.id]
+            for id in files {
+                let level = AnswerSize.level(fileRMS: try Self.fileRMS(id), volume: sound.volume)
+                XCTAssertTrue(AnswerSize.touch.band.contains(level), "\(cue) (\(id.rawValue)) at \(level) dBFS")
+                touchLevels.append((cue, level))
+            }
+        }
+        XCTAssertTrue(touchLevels.contains { $0.cue == .touched } && touchLevels.contains { $0.cue == .step })
+        let quietest = try XCTUnwrap(touchLevels.map(\.level).min())
+        let loops = SoundID.loops
+        let bedFiles = try loops.map { try XCTUnwrap(rms[$0]) }
+        var loudest = -120.0
+        var cells = 0
+        var over: [String] = []
+        var unbalanced = 0
+        for place in SoundPlace.allCases {
+            for x in stride(from: 0.0, through: 3900, by: 30) {
+                for hour in stride(from: 0.0, to: 24, by: 0.5) {
+                    for rain in [0.0, 0.5, 1] {
+                        for fire in [0.0, 0.5, 1] {
+                            let mix = AmbienceMix.target(hour: hour, rain: rain, place: place, fire: fire, x: x)
+                            let trim = mix.trim
+                            var power = 0.0
+                            for (k, id) in loops.enumerated() {
+                                let volume = mix.level(id) * trim
+                                if volume > 0 { power += volume * volume * pow(10, bedFiles[k] / 10) }
+                            }
+                            let sum = power > 0 ? 10 * log10(power) : -120
+                            loudest = max(loudest, sum)
+                            cells += 1
+                            if (sum > -24 || quietest - sum < 3) && over.count < 5 {
+                                over.append("\(place) x \(x) hour \(hour) rain \(rain) fire \(fire): \(sum)")
+                            }
+                            // Lowered together: the beds keep their balance.
+                            if trim < 1, mix.day > 0, mix.night > 0,
+                               abs(mix.bed(.ambDay) / mix.bed(.ambNight) - mix.day / mix.night) > 1e-9 {
+                                unbalanced += 1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        XCTAssertEqual(over, [], "every bed sum at most -24 dBFS and every step 1 cue (\(quietest)) 3 dB over it")
+        XCTAssertEqual(unbalanced, 0)
+        let gorge = AmbienceMix.target(hour: 23, rain: 0, place: .outside, fire: 1, x: 900)
+        XCTAssertLessThan(gorge.trim, 1, "the night gorge beside a fire is lowered")
+        XCTAssertEqual(gorge.bed(.ambThroat), gorge.throat * gorge.trim, accuracy: 1e-12)
+        XCTAssertGreaterThan(cells, 100_000)
+        XCTAssertEqual(loudest, AmbienceMix.bedCeiling, accuracy: 0.1, "the ceiling is reached somewhere")
+        // Where the beds were quiet already they are left alone (the town by day).
+        let town = AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0, x: 3000)
+        XCTAssertEqual(town.trim, 1)
+        XCTAssertEqual(town.bed(.ambValley), town.valley)
+        // The first blow of a skirmish (a creature struck at the lord's feet) clears the undecked bed by 3 dB or more.
+        let blow = AnswerSize.level(fileRMS: try Self.fileRMS(.creatureHit), volume: FeedbackCue.hit.sound?.volume ?? 0)
+        XCTAssertGreaterThanOrEqual(blow - loudest, 3, "a blow at \(blow) over the bed at \(loudest), undecked")
     }
 
     func testTheBedsDuckAtQuickAndComeBackOverTheSettleTime() {

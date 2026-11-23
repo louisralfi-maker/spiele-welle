@@ -34,6 +34,12 @@ import Foundation
 //   wallBroken step 4 wall_break 1.0 (-11.4, heavy, heavy again 0.12 s later, the beds x 0.25 held 1.5 s and back
 //   over 2 s). Beyond its hearing a positional cue fades from 0.35 to nothing over a further half of it, and gives
 //   no haptic and no answer duck there (D1 gate M5). A blow (hit, manHit) is heard 440 px far (D1 gate M1).
+// - D2 0f (the director's call after D1), the bed is the quietest thing, by numbers: the beds that play together are
+//   lowered all together (`AmbienceMix.trim`, by volume only; the files are D3's) so their sum stays at or under
+//   -24.5 dBFS undecked at every place and hour (`bedCeiling`; the law's "at most -24"), and every step 1 cue
+//   (the ground tap, a step, the lantern up and down, the board set, the bubble close, the panes come and go, the
+//   plaque press, the card pair) sits inside -24 ... -20 at -21.5 or more, at least 3 dB over it. The title's beds are
+//   not under the ceiling (step C2).
 // - D1, the battle duck: the hub notes every placed blow, fall, crack and kill; one heard within 300 px of the lord in
 //   the last 1.2 s ducks the beds x 0.6 (`FightNear`, `BedDucks.battleNear`); the deepest duck still wins.
 // - D1, the soldiers' grunts sit behind one switch, `FeedbackCue.soldierGrunts` (Louis, 22.11.: out again if they

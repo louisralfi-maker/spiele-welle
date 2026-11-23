@@ -170,7 +170,8 @@ final class SoundDirector: FeedbackHub {
         for id in SoundID.loops {
             // Under the title its beds are its own (`startTitleBeds`); the other loops rest.
             if titleSince != nil && AmbienceMix.titleBeds.contains(where: { $0.id == id }) { continue }
-            let target = soundOn && titleSince == nil ? mix.level(id) : 0
+            // D2 0f: the beds under their ceiling (`AmbienceMix.bed`): together never louder than -24.5 dBFS undecked.
+            let target = soundOn && titleSince == nil ? mix.bed(id) : 0
             let level = AmbienceMix.approach(levels[id] ?? 0, target, dt: dt)
             levels[id] = level
             let heard = level * ducked

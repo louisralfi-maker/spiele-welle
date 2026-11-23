@@ -279,7 +279,8 @@ final class SoundTests: XCTestCase {
         // Step 0b (law 4's one duck rule): the screen duck no longer sits inside the beds; it rides beside them
         // (`ducks`) and the ear hears the bed at half once the hub's follower has caught up.
         let ducked = AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0, ducked: true)
-        XCTAssertEqual(ducked.heard(.ambDay), noon.day / 2, accuracy: 1e-9)
+        // D2 0f rewrote this line: what is heard is the bed under its ceiling (`bed`), halved by the screen duck.
+        XCTAssertEqual(ducked.heard(.ambDay), noon.bed(.ambDay) / 2, accuracy: 1e-9)
         XCTAssertEqual(ducked.day, noon.day, accuracy: 1e-9, "the bed itself is not multiplied")
         XCTAssertTrue(ducked.ducks.screen)
         XCTAssertEqual(SoundPlace.at(x: WorldLayout.throneX, inAudience: false), .hall)
