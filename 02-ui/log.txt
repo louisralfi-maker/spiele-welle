@@ -1,0 +1,13 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (199.904 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP01MareksCardIsOneOfThePanes]' passed (37.718 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP02APaneClosesByOpacityUnderReduceMotion]' passed (24.554 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP03ThePauseSheetsSwitchAndItsSwap]' passed (35.998 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FilmPanesUITests.swift:190: error: -[LanternholdUITests.FilmPanesUITests testP04ThePauseSheetComesGoesAndGlints] : XCTAssertEqual failed: ("0") is not equal to ("2") - p04: the two taps on the dim in the left inset (x 0.05) reach it
+Test Case '-[LanternholdUITests.FilmPanesUITests testP04ThePauseSheetComesGoesAndGlints]' failed (71.687 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP05ThePauseSheetUnderReduceMotion]' passed (59.599 seconds).
+Test Case '-[LanternholdUITests.FilmPanesUITests testP06TheHallsChoiceUnderAQuickTap]' passed (18.875 seconds).
+Test Suite 'FilmPanesUITests' failed at 2026-11-23 01:50:27.144.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-23 01:50:27.147.
+Test Suite 'Selected tests' failed at 2026-11-23 01:50:27.148.
+exit=65
+screenshots: 255

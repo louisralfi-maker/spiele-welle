@@ -1,0 +1,33 @@
+m10-b: Continue: the report goes, day 2 begins
+real time; as fast as the frames come
+the tap was sent without waiting at +0.970 s (point 104.7, 671.0; interface orientation 3 (the app's)); the runner answered at +1.314 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWNight 1 -GWSeed 1 -GWHour 5.3 -GWCameraX 1330
+scene after: frame:790 ready day:2 hour:6.46 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1330 lord:lord stage:world lx:1330 errand:none door:1830 gold:21 hud:strip cam:1133 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +1.381 s  
+02  +1.695 s  
+03  +1.929 s  
+04  +2.147 s  
+05  +2.356 s  
+06  +2.562 s  
+07  +2.764 s  
+08  +2.967 s  
+09  +3.180 s  
+10  +3.381 s  
+11  +3.596 s  
+12  +3.833 s  
+13  +4.054 s  
+14  +4.291 s  
+15  +4.580 s  
+16  +4.816 s  
+17  +5.080 s  
+18  +5.305 s  
+19  +5.516 s  
+20  +5.728 s  
+21  +5.933 s  
+22  +6.152 s  
+23  +6.352 s  
+24  +6.564 s  
+mean spacing 0.225 s over 23 gaps

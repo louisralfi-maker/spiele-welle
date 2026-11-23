@@ -1,0 +1,3 @@
+p03-a: the pause sheet before (01) and after (02) a tap on the Haptics row
+the row's value: On -> Off
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWWeather clear
