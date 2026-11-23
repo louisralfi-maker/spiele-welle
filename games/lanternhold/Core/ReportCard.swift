@@ -99,7 +99,7 @@ struct ReportCard: Sendable, Equatable {
         }
         let lowest = report.hearthLowest < 99.5 ? max(0, Int(report.hearthLowest.rounded())) : nil
         let doors = today.flatMap { $0.day == report.day ? $0.places.filter { $0.owed > 0 }.count : nil }
-        let ahead = forward(unlocked: !unlocks.isEmpty, tonight: report.day, housesFull: report.housesFull == true,
+        let ahead = lineForward(unlocked: !unlocks.isEmpty, tonight: report.day, housesFull: report.housesFull == true,
                             balance: balance)
         return ReportCard(day: report.day, night: report.night, banners: banners,
                           creaturesStopped: report.creaturesStopped, creaturesDissolved: report.creaturesDissolved,
@@ -138,7 +138,7 @@ struct ReportCard: Sendable, Equatable {
 
     /// The line forward for a dawn: an unlock; else the first night of a kind tonight (night `tonight`, the day that
     /// begins; the first nights read from `balance`); else the houses full; else none.
-    static func forward(unlocked: Bool, tonight: Int, housesFull: Bool, balance: Balance) -> Forward? {
+    static func lineForward(unlocked: Bool, tonight: Int, housesFull: Bool, balance: Balance) -> Forward? {
         if unlocked { return .unlock }
         if let line = firstNightLines.first(where: { balance.creature($0.kind).firstNight == tonight }) {
             return .firstNight(line.kind, lineKey: line.lineKey)

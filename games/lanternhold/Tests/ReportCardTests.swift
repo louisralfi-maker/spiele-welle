@@ -154,24 +154,24 @@ final class ReportCardTests: XCTestCase {
     }
 
     func testTheLineForwardTakesTheFirstThatApplies() throws {
-        XCTAssertEqual(ReportCard.forward(unlocked: true, tonight: 3, housesFull: true, balance: balance), .unlock,
+        XCTAssertEqual(ReportCard.lineForward(unlocked: true, tonight: 3, housesFull: true, balance: balance), .unlock,
                        "an unlock first (its key line is the line forward)")
-        XCTAssertEqual(ReportCard.forward(unlocked: false, tonight: 3, housesFull: true, balance: balance),
+        XCTAssertEqual(ReportCard.lineForward(unlocked: false, tonight: 3, housesFull: true, balance: balance),
                        .firstNight(.shadehound, lineKey: "line.brannock_hounds"), "the hounds' first night next")
-        XCTAssertEqual(ReportCard.forward(unlocked: false, tonight: 10, housesFull: false, balance: balance),
+        XCTAssertEqual(ReportCard.lineForward(unlocked: false, tonight: 10, housesFull: false, balance: balance),
                        .firstNight(.ashGiant, lineKey: "line.brannock_giant"))
-        XCTAssertEqual(ReportCard.forward(unlocked: false, tonight: 4, housesFull: true, balance: balance), .housesFull,
+        XCTAssertEqual(ReportCard.lineForward(unlocked: false, tonight: 4, housesFull: true, balance: balance), .housesFull,
                        "then the houses full")
-        XCTAssertNil(ReportCard.forward(unlocked: false, tonight: 4, housesFull: false, balance: balance),
+        XCTAssertNil(ReportCard.lineForward(unlocked: false, tonight: 4, housesFull: false, balance: balance),
                      "otherwise none")
-        XCTAssertNil(ReportCard.forward(unlocked: false, tonight: 5, housesFull: false, balance: balance),
+        XCTAssertNil(ReportCard.lineForward(unlocked: false, tonight: 5, housesFull: false, balance: balance),
                      "the crows have no line of Brannock's: no line forward")
         // The first nights are read from Balance, never a loose number.
         var later = balance
         later.creatures[CreatureKind.shadehound.index].firstNight = 4
-        XCTAssertEqual(ReportCard.forward(unlocked: false, tonight: 4, housesFull: false, balance: later),
+        XCTAssertEqual(ReportCard.lineForward(unlocked: false, tonight: 4, housesFull: false, balance: later),
                        .firstNight(.shadehound, lineKey: "line.brannock_hounds"))
-        XCTAssertNil(ReportCard.forward(unlocked: false, tonight: 3, housesFull: false, balance: later))
+        XCTAssertNil(ReportCard.lineForward(unlocked: false, tonight: 3, housesFull: false, balance: later))
         // The quoted lines exist (no new line of speech).
         for line in ReportCard.firstNightLines {
             XCTAssertNotEqual(StoryText.string(line.lineKey, lord: .standard), line.lineKey, line.lineKey)
