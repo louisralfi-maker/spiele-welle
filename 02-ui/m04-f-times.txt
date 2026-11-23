@@ -1,0 +1,40 @@
+m04-f: a tap on the empty world lowers the lantern raised on the way to touch-talk-pip: he walks on, arrives and the talk opens
+slowed: -GWTimeScale 0.25; one frame every 0.35 s
+the cause (a tap on the empty world lowers the lantern raised on the way to touch-talk-pip: he walks on, arrives and the talk opens) was sent at +0.219 s and returned at +2.218 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830 -GWTimeScale 0.25
+scene before: frame:2750 ready day:1 hour:9.69 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1870 lord:lord stage:world lx:1870 errand:touch-talk-pip door:1830 gold:44 hud:moment cam:1623 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1869.73 kf:0 kd:-1 kcx:1623.42
+scene after: frame:3360 ready day:1 hour:9.94 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1761 lord:lord stage:world lx:1761 errand:touch-talk-pip door:1830 gold:44 hud:none cam:1591 tap:lowered hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:-36.00 kxf:1760.53 kf:3 kd:-1 kcx:1590.66
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +2.651 s  
+02  +3.017 s  
+03  +3.349 s  
+04  +3.706 s  
+05  +4.070 s  
+06  +4.407 s  
+07  +4.815 s  
+08  +5.256 s  
+09  +5.594 s  
+10  +5.940 s  
+11  +6.321 s  
+12  +6.872 s  
+13  +7.202 s  
+14  +7.559 s  
+15  +8.063 s  
+16  +8.466 s  
+17  +9.002 s  
+18  +9.346 s  
+19  +9.788 s  
+20  +10.181 s  
+21  +10.666 s  
+22  +11.093 s  
+23  +11.562 s  
+24  +11.952 s  
+25  +12.306 s  
+26  +12.602 s  
+27  +12.981 s  
+28  +13.350 s  
+29  +13.761 s  
+30  +14.219 s  
+mean spacing 0.399 s over 29 gaps

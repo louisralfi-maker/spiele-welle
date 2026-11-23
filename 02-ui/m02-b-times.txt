@@ -1,0 +1,41 @@
+m02-b: a tap on the ground at 20 % of the width: he turns and walks back
+real time; as fast as the frames come
+the tap was sent without waiting at +0.164 s (point 24.1, 174.8; interface orientation 3 (the app's)); the runner answered at +0.463 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500
+scene after: frame:1590 ready day:1 hour:11.45 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1489 lord:lord stage:world lx:1489 errand:none door:1830 gold:44 hud:none cam:1205 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1488.67 kf:7 kd:-1 kcx:1204.90
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.465 s  
+02  +0.710 s  
+03  +0.954 s  
+04  +1.188 s  
+05  +1.411 s  
+06  +1.638 s  
+07  +1.932 s  
+08  +2.122 s  
+09  +2.321 s  
+10  +2.518 s  
+11  +2.701 s  
+12  +2.930 s  
+13  +3.137 s  
+14  +3.345 s  
+15  +3.532 s  
+16  +3.716 s  
+17  +3.933 s  
+18  +4.109 s  
+19  +4.328 s  
+20  +4.574 s  
+21  +4.764 s  
+22  +5.041 s  
+23  +5.201 s  
+24  +5.368 s  
+25  +5.539 s  
+26  +5.735 s  
+27  +5.902 s  
+28  +6.151 s  
+29  +6.356 s  
+30  +6.544 s  
+31  +6.726 s  
+32  +6.912 s  
+mean spacing 0.208 s over 31 gaps
