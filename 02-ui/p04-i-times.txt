@@ -1,0 +1,17 @@
+p04-i: taps on the dim in the left inset on the island's band (x 0.05, y 0.55)
+real time; 3 frames after each tap as fast as they come, then 1 more
+tap 1 at +0.000 s: sent without waiting
+tap 2 at +0.914 s: sent without waiting
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWWeather clear
+scene after: frame:780 ready day:2 hour:9.83 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector,tamsin drill:none kv:0.00 kxf:1314.00 kf:7 kd:-1 kcx:1127.70
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the first tap
+01  +0.411 s  first frame after tap 1
+02  +0.618 s  
+03  +0.914 s  
+04  +1.493 s  first frame after tap 2
+05  +1.725 s  
+06  +2.061 s  
+07  +2.370 s  
+mean spacing 0.326 s over 6 gaps
