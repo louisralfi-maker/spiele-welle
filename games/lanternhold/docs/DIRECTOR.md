@@ -1498,3 +1498,10 @@ schneller geht."
   - Round lh-rnd-21 on a1817c58 is green (23.11., 07:14): the six UI classes that read the report after a dawn
     (ads, endings, mid chapter, yard, proof, the deals' film) pass with the card's 0.6 s wait. E2's open point
     L6 is closed.
+  - 23.11. 07:39: step A2 (a building's finish) is verified: GREEN at f9f0e5ef, round lh-ra-16; the whole unit
+    suite last ran on the builder's head 43cb999c (lh-ra-14). Joined locally as 22d6d237 (a clean merge with E2's
+    changes in `App/GameModel.swift`); round lh-rnd-22 went out on it (build, the whole unit suite, the deals' film,
+    the first day); the join stays local. The director's look at the sheets: the timing stands, the dust does not
+    (an even row of equal pale puffs, a string of pearls); step A2b went out in lane A to make it read as dust
+    (brief `ci-out/director/polish/briefs/A2b.md`, the player's lens only, labels from lh-ra-17). The calls are
+    ROUND.md's point 19. Step B1 finished at the same time (GREEN | claude/lh-r-b d767fea3 | round lh-rb-15 ALL PASSED); its verification is next. Usage 58 %.

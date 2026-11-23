@@ -317,6 +317,17 @@ Law 4 (answers and sounds), after D2:
     horn's glyph or none, never the warning triangle (E2b). A brief names the narrow case exactly, or what must
     not happen.
 
+19. **After step A2 (thing 4, a building's finish).** A2's timing stands: the old picture for 0.12 s, the swap under
+    the dust, the new sprite 1 px high settling at quick, one answer (`buildStood`) at the swap for the standing
+    nearest the lord, none within 0.4 s of the last. The settle's 0.15 s and the Reduce Motion fade's 0.15 s count as
+    quick's in: the new building enters. Puffs and motes instead of the `wallDust` shards stand. The dust's look does
+    not: an even row of equal, nearly white puffs reads as a string of pearls; step A2b makes it uneven clumps, a
+    burst and two ground tones (at least 70 % of the foot covered at the swap, at most 12 pieces a work). A pin on
+    cover is no pin on a look: the director looks at the sheet before a look counts as done. The dead site lantern
+    that fades over the new building goes to lane B's B3; the day gate's jolt on an unchanged frame, the dust's share
+    of the frame's particles and the keep's dust on a film go to A3; a chimney's plume born full-length is backlog;
+    lane D's stale comments beside the thinner go to D3.
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged
