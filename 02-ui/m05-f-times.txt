@@ -1,0 +1,38 @@
+m05-f: slowed: a hold of 3 s on the gate; frames start after the finger lifted (the coins still flying, the seal, or the coins going home)
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the cause (slowed: a hold of 3 s on the gate; frames start after the finger lifted (the coins still flying, the seal, or the coins going home)) was sent at +0.061 s and returned at +3.769 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200 -GWTimeScale 0.25
+scene before: frame:890 ready day:3 hour:10.34 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:notes cam:1106 tap:touch-plot-0 hint:off0 count:none last:letGo:touch-plot-0 lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none drill:none kv:0.00 kxf:1260.00 kf:7 kd:1
+scene after: frame:1380 ready day:3 hour:10.52 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:110 hud:none cam:1106 tap:count hint:off0 count:none last:paid:touch-plot-0 lanterns:1 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none drill:none kv:0.00 kxf:1260.00 kf:7 kd:1
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +3.948 s  
+02  +4.102 s  
+03  +4.280 s  
+04  +4.443 s  
+05  +4.637 s  
+06  +4.830 s  
+07  +4.994 s  
+08  +5.148 s  
+09  +5.296 s  
+10  +5.431 s  
+11  +5.575 s  
+12  +5.716 s  
+13  +5.856 s  
+14  +6.025 s  
+15  +6.195 s  
+16  +6.340 s  
+17  +6.522 s  
+18  +6.708 s  
+19  +6.999 s  
+20  +7.320 s  
+21  +7.497 s  
+22  +7.671 s  
+23  +7.828 s  
+24  +7.985 s  
+25  +8.123 s  
+26  +8.281 s  
+27  +8.459 s  
+28  +8.605 s  
+mean spacing 0.172 s over 27 gaps

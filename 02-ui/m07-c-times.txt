@@ -1,0 +1,46 @@
+m07-c: Saul the collector on his round: the chandler's household bows, its coins hop into his strongbox; the condition: the state lists her coins in his hand
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +7.704 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWTown collector -GWHappiness 66 -GWCameraX 2580
+
+frame  seconds since the burst began  (scene where read)
+01  +0.347 s  
+02  +0.623 s  day:2 hour:6.43 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:strip cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+03  +1.238 s  
+04  +1.694 s  day:2 hour:6.52 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+05  +3.404 s  
+06  +3.756 s  day:2 hour:6.69 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+07  +4.810 s  
+08  +5.416 s  day:2 hour:6.81 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+09  +6.774 s  
+10  +7.075 s  day:2 hour:6.92 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+11  +7.937 s  
+12  +8.246 s  
+13  +8.670 s  
+14  +8.986 s  
+15  +9.578 s  
+16  +9.922 s  
+17  +10.215 s  
+18  +10.606 s  
+19  +10.911 s  
+20  +11.203 s  
+21  +11.450 s  
+22  +11.731 s  
+23  +12.031 s  
+24  +12.287 s  
+25  +12.521 s  
+26  +12.750 s  
+27  +13.059 s  
+28  +13.297 s  
+29  +13.588 s  
+30  +13.867 s  
+31  +14.174 s  
+32  +14.438 s  
+33  +14.705 s  
+34  +14.978 s  
+35  +15.236 s  
+36  +15.494 s  
+37  +15.765 s  
+38  +16.021 s  day:2 hour:7.70 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.424 s over 37 gaps

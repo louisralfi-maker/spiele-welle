@@ -1,0 +1,23 @@
+m05-e: slowed: one tap, one coin from his hand to its hollow
+slowed: -GWTimeScale 0.25; 14 frames after each tap as fast as they come, then 0 more
+tap 1 at +0.000 s: sent without waiting
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200 -GWTimeScale 0.25
+scene after: frame:810 ready day:3 hour:10.31 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:notes cam:1106 tap:touch-plot-0 hint:off0 count:touch-plot-0:1/9:there last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none drill:none kv:0.00 kxf:1260.00 kf:7 kd:1
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the first tap
+01  +0.394 s  first frame after tap 1
+02  +0.529 s  
+03  +0.683 s  
+04  +0.818 s  
+05  +0.960 s  
+06  +1.127 s  
+07  +1.399 s  
+08  +1.575 s  
+09  +1.727 s  
+10  +1.874 s  
+11  +2.033 s  
+12  +2.178 s  
+13  +2.376 s  
+14  +2.514 s  
+mean spacing 0.163 s over 13 gaps
