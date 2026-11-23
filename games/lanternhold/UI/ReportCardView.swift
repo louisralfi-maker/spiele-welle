@@ -87,28 +87,32 @@ struct ReportCardView: View {
             ForEach(Array(bigBanners.enumerated()), id: \.offset) { index, banner in
                 ReportBanner(banner: banner, large: index == 0 && card.isFinale)
             }
-            HStack(alignment: .top, spacing: 14) {
-                nightColumn
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-                realmColumn
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-            }
-            // Polish E2 (R3 fix 2, law 3.6): one line forward under the key lines, in their style, across the card's
-            // width (in the right column Brannock's longest line took three lines and ran under the footer at 6.1
-            // inch, round lh-re-8); none when nothing applies (an unlock is its own key line).
-            if let line = forwardLine {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    GlyphView(glyph: line.glyph)
-                        .foregroundStyle(NightGlass.lanternGold)
-                    Text(inked: line.text, .subheadline)
-                        .font(Theme.serif(.subheadline))
-                        .foregroundStyle(Theme.teal)
-                        .fixedSize(horizontal: false, vertical: true)
+            // Polish E2: the line forward stands 4 pt under the columns (the sections' 8 and the valley's last-row
+            // gap of 6 cost the 6.1 inch phone's last line, round lh-re-9).
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .top, spacing: 14) {
+                    nightColumn
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                    realmColumn
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 6)
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("report-forward")
+                // Polish E2 (R3 fix 2, law 3.6): one line forward under the key lines, in their style, across the
+                // card's width (in the right column Brannock's longest line took three lines and ran under the footer
+                // at 6.1 inch, round lh-re-8); none when nothing applies (an unlock is its own key line).
+                if let line = forwardLine {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        GlyphView(glyph: line.glyph)
+                            .foregroundStyle(NightGlass.lanternGold)
+                        Text(inked: line.text, .subheadline)
+                            .font(Theme.serif(.subheadline))
+                            .foregroundStyle(Theme.teal)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 6)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("report-forward")
+                }
             }
         }
         .padding(.horizontal, 20)
@@ -228,8 +232,8 @@ struct ReportCardView: View {
             }
         }
         // Fix round 2 (the critic's smaller point on 47): the last valley row keeps its line gap above the footer's
-        // rule ("1 born" stood about 2 pt above it).
-        .padding(.bottom, 6)
+        // rule ("1 born" stood about 2 pt above it). Polish E2: the line forward under it keeps that gap instead.
+        .padding(.bottom, forwardLine == nil ? 6 : 0)
     }
 
     private var footer: some View {
