@@ -125,6 +125,30 @@ final class TitleCues {
     }
 }
 
+/// A beat's clock for the views (polish C2): `BeatClock` read with the wall clock, so a hitch of the main thread
+/// (a view built, a renderer made) never skips the reveal or the step into the game ahead. Read in a frame's body it
+/// only counts time; nothing observes it.
+@MainActor
+final class BeatBox {
+    private var clock: BeatClock
+
+    init(start: Date = Date()) {
+        clock = BeatClock(start: start.timeIntervalSinceReferenceDate)
+    }
+
+    /// The beat's seconds at `date`.
+    func elapsed(_ date: Date = Date()) -> Double {
+        clock.elapsed(at: date.timeIntervalSinceReferenceDate)
+    }
+
+    /// Waits until the beat has run `seconds` (read every 8 ms, so the wait itself counts the frames it sees).
+    func wait(until seconds: Double) async {
+        while elapsed() < seconds {
+            try? await Task.sleep(nanoseconds: 8_000_000)
+        }
+    }
+}
+
 /// The title's mask (polish C2, M9): the open runs of `TitleMask` as whole game px rects, so the edge is stepped on the
 /// picture's own grid. The rect is the picture's frame (520 x 201 game px at its scale).
 struct TitleMaskShape: Shape {
@@ -149,20 +173,20 @@ struct TitleView: View {
     var reduceMotionArgument = false
     /// The title's sounds (made by the root, which hands it the model's hub).
     let cues: TitleCues
-    /// The touch that starts the game, with its time (t = 0 of `StepIn`): the root raises the hall from it.
-    let onStart: (Date) -> Void
+    /// The touch that starts the game, with the beat's clock (t = 0 of `StepIn`): the root raises the hall by it.
+    let onStart: (BeatBox) -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var step = 0
     @State private var revealing = false
-    /// Polish C2: when the reveal began and when the sixth step was reached (the breath's clock).
-    @State private var revealAt: Date? = nil
+    /// Polish C2: the reveal's beat, and when the sixth step was reached (the breath's clock).
+    @State private var revealBeat: BeatBox? = nil
     @State private var caughtAt: Date? = nil
     @State private var holdRadius: Int? = nil
     @State private var lit: Set<Int> = []
     @State private var started = false
-    /// Polish C2: the touch that started the step into the game (t = 0 of `StepIn`).
-    @State private var startedAt: Date? = nil
+    /// Polish C2: the beat of the step into the game, from the touch (t = 0 of `StepIn`).
+    @State private var stepBeat: BeatBox? = nil
     /// Polish C2: a touch before the picture stands is kept and acts when the reveal ends.
     @State private var pendingTouch = false
     @State private var shown = Date()
@@ -191,18 +215,18 @@ struct TitleView: View {
             let scale = geometry.size.height / TitleLayout.picture.height
             let left = (geometry.size.width - TitleLayout.windowWidth * scale) / 2 - TitleLayout.windowX * scale
             // Under Reduce Motion nothing moves until the step into the game, which fades by the clock.
-            TimelineView(.animation(paused: mode.reduceMotion && startedAt == nil)) { timeline in
+            TimelineView(.animation(paused: mode.reduceMotion && stepBeat == nil)) { timeline in
                 let now = timeline.date
                 let t = now.timeIntervalSince(shown)
                 ZStack(alignment: .topLeading) {
-                    if let startedAt {
-                        stepIn(StepIn.picture(at: now.timeIntervalSince(startedAt), mode: mode), scale: scale, t: t)
+                    if let stepBeat {
+                        stepIn(StepIn.picture(at: stepBeat.elapsed(now), mode: mode), scale: scale, t: t)
                     } else if revealDone {
                         picture(scale: scale, t: t, lordFrame: 0)
                         lettering(scale: scale)
                     } else if revealing {
-                        let radius = holdRadius ?? revealAt.map {
-                            TitleTempo.revealRadius(at: now.timeIntervalSince($0), mode: mode)
+                        let radius = holdRadius ?? revealBeat.map {
+                            TitleTempo.revealRadius(at: $0.elapsed(now), mode: mode)
                         } ?? TitleTempo.revealFrom
                         picture(scale: scale, t: t, lordFrame: 0)
                             .mask(alignment: .topLeading) { TitleMaskShape(radius: radius) }
@@ -222,7 +246,7 @@ struct TitleView: View {
                 }
                 .frame(width: TitleLayout.picture.width * scale, height: TitleLayout.picture.height * scale,
                        alignment: .topLeading)
-                .background(startedAt == nil ? TitleLayout.night : Color.black)
+                .background(stepBeat == nil ? TitleLayout.night : Color.black)
                 .offset(x: left)
             }
             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
@@ -239,7 +263,7 @@ struct TitleView: View {
             }
         }
         // The step into the game goes to black (polish C2): the ground outside the closing mask is the game's black.
-        .background(startedAt == nil ? TitleLayout.night : Color.black)
+        .background(stepBeat == nil ? TitleLayout.night : Color.black)
         .ignoresSafeArea()
         .contentShape(Rectangle())
         .onTapGesture { touched() }
@@ -406,9 +430,12 @@ struct TitleView: View {
             if pendingTouch { begin() }
             return
         }
-        revealAt = Date()
+        let beat = BeatBox()
+        revealBeat = beat
         revealing = true
-        try? await Task.sleep(nanoseconds: UInt64(TitleTempo.revealSeconds * 1_000_000_000))
+        // The beat's clock: a hitch (the hall's view is built under the title as the game turns ready) delays the
+        // swell, it never cuts it short.
+        await beat.wait(until: TitleTempo.revealSeconds)
         revealDone = true
         if pendingTouch { begin() }
         for group in TitleLayout.lightOrder {
@@ -429,10 +456,10 @@ struct TitleView: View {
     private func begin() {
         guard !started else { return }
         started = true
-        let at = Date()
-        startedAt = at
+        let beat = BeatBox()
+        stepBeat = beat
         withAnimation(.lhLeave(.quick, mode: mode)) { showHint = false }
         cues.touched()
-        onStart(at)
+        onStart(beat)
     }
 }

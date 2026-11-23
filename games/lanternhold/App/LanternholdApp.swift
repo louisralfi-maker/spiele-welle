@@ -47,9 +47,9 @@ struct RootView: View {
     @State private var plaqueFeedback: PlaqueFeedback? = nil
     /// Polish C2 (F2): the title's sounds; the model's hub is handed in as soon as the model is made.
     @State private var titleCues = TitleCues()
-    /// Polish C2 (M8): the touch on the title (t = 0 of `StepIn`); the hall is in the tree from here, under the title
-    /// and the cover, so it is alive while it rises.
-    @State private var stepInAt: Date? = nil
+    /// Polish C2 (M8): the beat of the step into the game, from the touch on the title (t = 0 of `StepIn`).
+    @State private var stepBeat: BeatBox? = nil
+    @Environment(\.scenePhase) private var scenePhase
     /// The hall is whole: the step's cover is gone and the world takes touches (from the start without the title).
     @State private var hallWhole = DebugArgs.launchHooksOpen ? !TitleGate.shows : false
     /// Polish C2 (C1-10): no pane stands before the hall is whole; a pane the game holds at its start comes 0.25 s
@@ -71,10 +71,14 @@ struct RootView: View {
             // Polish C2: one stack, so the title keeps its state while the hall comes in under it. One picture at a
             // time (`StepIn`): the title closes on the flame and is gone at 0.70 s; the cover over the hall then
             // lifts from black (the hall's opacity on a black ground) until 1.30 s. No cross-fade of two roots.
+            // The hall's view is built under the title and its black cover as soon as the game is ready (the
+            // title's ready: the model made, the renderer warm), so building it never holds the step into the game
+            // (round lh-rc-12: built at the touch, it held the main thread about a second on the runner and the
+            // closing mask was skipped); its world stands still (`setActive(false)`) until the touch.
             ZStack {
                 // The first light: the night's darkest colour and the house's lantern while the game is made.
                 Color.black.ignoresSafeArea()
-                if let model, titleDone || stepInAt != nil {
+                if let model, gameMounted {
                     // The Lantern Table's plain list (`-GWScreen table`, `UI/Table`): nothing unless that argument asks.
                     GameView(model: model)
                         // Polish C1 (step 0a's review, M2): the game's own Reduce Motion (the system's switch or
@@ -84,14 +88,17 @@ struct RootView: View {
                         .lhPlaqueFeedback(plaqueFeedback)
                         .lhPanesHeld(panesHeld)
                         .overlay { TableDebugLayer(model: model) }
+                        .onAppear {
+                            if !titleDone && stepBeat == nil { model.setActive(false) }
+                        }
                 }
-                if let stepInAt, !hallWhole {
-                    StepInCover(start: stepInAt, mode: stepInMode)
+                if gameMounted && !hallWhole {
+                    StepInCover(beat: stepBeat, mode: stepInMode)
                 }
                 if !titleDone {
                     TitleView(ready: RenderWarmup.titleReady(modelMade: model != nil, warmedUp: warmedUp),
-                              reduceMotionArgument: args.reduceMotion, cues: titleCues) { at in
-                        stepIn(at: at)
+                              reduceMotionArgument: args.reduceMotion, cues: titleCues) { beat in
+                        stepIn(beat)
                     }
                 }
             }
@@ -121,9 +128,14 @@ struct RootView: View {
             // Polish C2: a launch that skips the title keeps the pane rule from its first frame: a pane the game holds
             // at its start comes 0.25 s after the hall stands; it does not stand.
             .task(id: model != nil) {
-                guard model != nil, titleDone, stepInAt == nil, panesHeld else { return }
-                await RootView.wait(until: Date().addingTimeInterval(StepIn.panesAtWithoutTitle))
+                guard model != nil, titleDone, stepBeat == nil, panesHeld else { return }
+                await BeatBox().wait(until: StepIn.panesAtWithoutTitle)
                 panesHeld = false
+            }
+            // The world behind the title stays still when the app comes back to the front (GameView sets it running).
+            .onChange(of: scenePhase) { _, phase in
+                guard phase == .active, !titleDone, stepBeat == nil, let model else { return }
+                Task { @MainActor in model.setActive(false) }
             }
         }
     }
@@ -133,31 +145,31 @@ struct RootView: View {
         MotionMode(reduceMotion: model?.reduceMotion ?? (args.reduceMotion || UIAccessibility.isReduceMotionEnabled))
     }
 
-    /// The touch on the title (polish C2, M8): the hall comes into the tree under the title at once; the beds stop at
-    /// the black (0.60 s), the title leaves the tree once it has gone (0.70 s), the cover once the hall is whole
-    /// (1.30 s; 0.95 s under Reduce Motion), and a pane the game holds comes 0.25 s after that. Each removal falls
-    /// where the timeline already shows what is under it, so none changes a pixel.
-    private func stepIn(at start: Date) {
-        guard stepInAt == nil else { return }
-        stepInAt = start
-        let mode = stepInMode
-        Task { @MainActor in
-            await RootView.wait(until: start.addingTimeInterval(StepIn.blackAt))
-            titleCues.black()
-            await RootView.wait(until: start.addingTimeInterval(StepIn.riseFrom))
-            titleDone = true
-            await RootView.wait(until: start.addingTimeInterval(StepIn.hallWholeAt(mode)))
-            hallWhole = true
-            await RootView.wait(until: start.addingTimeInterval(StepIn.panesAt(mode)))
-            panesHeld = false
-        }
+    /// The hall's view stands in the tree: from the start without the title, under the title once the game is ready
+    /// (the title's own ready), and from the touch at the latest.
+    private var gameMounted: Bool {
+        model != nil && (titleDone || warmedUp || stepBeat != nil)
     }
 
-    /// Sleeps until `date` (at once when it has passed).
-    private static func wait(until date: Date) async {
-        let seconds = date.timeIntervalSinceNow
-        guard seconds > 0 else { return }
-        try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+    /// The touch on the title (polish C2, M8), on the beat's clock: the world runs from here; the beds stop at the
+    /// black (0.60 s), the title leaves the tree once it has gone (0.70 s), the cover once the hall is whole (1.30 s;
+    /// 0.95 s under Reduce Motion), and a pane the game holds comes 0.25 s after that. Each removal falls where the
+    /// timeline already shows what is under it, so none changes a pixel.
+    private func stepIn(_ beat: BeatBox) {
+        guard stepBeat == nil else { return }
+        stepBeat = beat
+        model?.setActive(true)
+        let mode = stepInMode
+        Task { @MainActor in
+            await beat.wait(until: StepIn.blackAt)
+            titleCues.black()
+            await beat.wait(until: StepIn.riseFrom)
+            titleDone = true
+            await beat.wait(until: StepIn.hallWholeAt(mode))
+            hallWhole = true
+            await beat.wait(until: StepIn.panesAt(mode))
+            panesHeld = false
+        }
     }
 
     /// The scene kind a `-GWScene` value asks for.
@@ -170,16 +182,23 @@ struct RootView: View {
     }
 }
 
-/// The cover over the hall during the step into the game (polish C2, M8): black at 1 minus the hall's opacity of
-/// `StepIn`'s timeline, so the hall rises from black as its root's opacity would on a black ground, and no picture of
-/// the title crosses it. It takes every touch until the hall is whole (then the root takes it away).
+/// The cover over the hall during the step into the game (polish C2, M8): black under the title, then black at 1
+/// minus the hall's opacity of `StepIn`'s timeline on the beat's clock, so the hall rises from black as its root's
+/// opacity would on a black ground, and no picture of the title crosses it. It takes every touch until the hall is
+/// whole (then the root takes it away).
 struct StepInCover: View {
-    let start: Date
+    let beat: BeatBox?
     let mode: MotionMode
 
     var body: some View {
-        TimelineView(.animation) { timeline in
-            Color.black.opacity(1 - StepIn.picture(at: timeline.date.timeIntervalSince(start), mode: mode).hallOpacity)
+        Group {
+            if let beat {
+                TimelineView(.animation) { timeline in
+                    Color.black.opacity(1 - StepIn.picture(at: beat.elapsed(timeline.date), mode: mode).hallOpacity)
+                }
+            } else {
+                Color.black
+            }
         }
         .contentShape(Rectangle())
         .onTapGesture {}

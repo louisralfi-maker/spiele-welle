@@ -195,6 +195,33 @@ final class TitleStepInTests: XCTestCase {
         XCTAssertEqual(StepIn.blackAt, 0.60, accuracy: 1e-9, "the same black in both forms")
     }
 
+    /// The beat's clock (round lh-rc-12: the hall's view built at the touch held the main thread about a second and
+    /// the wall clock cut the closing mask to its end): frames count as they come, a hitch counts 1/20 s, a reading
+    /// back in time changes nothing; the timeline then shows the beat's next picture, not its end.
+    func testAHitchNeverSkipsTheBeat() {
+        var clock = BeatClock(start: 100)
+        var t = 100.0
+        for _ in 0..<12 {
+            t += 1.0 / 60
+            _ = clock.elapsed(at: t)
+        }
+        XCTAssertEqual(clock.elapsed(at: t), 0.2, accuracy: 1e-9, "twelve frames of 1/60 s")
+        let before = clock.elapsed(at: t)
+        t += 1.1
+        let after = clock.elapsed(at: t)
+        XCTAssertEqual(after - before, BeatClock.longestFrame, accuracy: 1e-9, "a hitch of 1.1 s counts 0.05 s")
+        XCTAssertEqual(clock.elapsed(at: t - 0.5), after, "an earlier reading changes nothing")
+        XCTAssertEqual(clock.lost, 1.05, accuracy: 1e-9)
+        if case let .title(radius, lord, _) = StepIn.picture(at: after, mode: full) {
+            XCTAssertEqual(lord, 3)
+            XCTAssertNotNil(radius, "after the hitch the mask goes on closing from where it stood")
+        } else {
+            XCTFail("the title still closes after a hitch")
+        }
+        var fresh = BeatClock(start: 5)
+        XCTAssertEqual(fresh.elapsed(at: 4), 0, "never before its start")
+    }
+
     /// The world takes no touch before the hall is whole.
     func testTheWorldTakesTouchesOnlyOnceTheHallIsWhole() {
         XCTAssertFalse(StepIn.takesTouches(at: 1.29, mode: full))

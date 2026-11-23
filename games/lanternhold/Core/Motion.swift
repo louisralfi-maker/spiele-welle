@@ -455,3 +455,31 @@ enum StepIn {
         return opacity > 0 ? .hall(opacity: opacity) : .black
     }
 }
+
+/// The clock of a stage beat (polish C2: the title's reveal and the step into the game): seconds since its start, but
+/// a hitch never skips the beat ahead. A gap between two readings longer than `longestFrame` counts only that long,
+/// so after the main thread was held (a view built, a renderer made) the beat carries on from where it stood instead
+/// of cutting to its end. Readings in any order: an earlier one changes nothing. Times in seconds of any one clock.
+struct BeatClock: Sendable, Equatable {
+    /// The longest frame a beat counts (1/20 s, the frame clamp of the director's call 10 on the dusk).
+    static let longestFrame = 0.05
+    let start: Double
+    private(set) var last: Double
+    /// Seconds of hitches the beat did not count.
+    private(set) var lost = 0.0
+
+    init(start: Double) {
+        self.start = start
+        last = start
+    }
+
+    /// The beat's seconds at `now`, never going back.
+    mutating func elapsed(at now: Double) -> Double {
+        if now > last {
+            let gap = now - last
+            if gap > BeatClock.longestFrame { lost += gap - BeatClock.longestFrame }
+            last = now
+        }
+        return max(0, last - start - lost)
+    }
+}
