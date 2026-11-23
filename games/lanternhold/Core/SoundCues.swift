@@ -168,7 +168,10 @@ extension FeedbackCue {
         case .firstLight: return SoundPlay(id: .bell, volume: 0.7)
         case .taxesCounted: return SoundPlay(id: .coins, volume: 0.8)
         case .buildOrdered: return SoundPlay(id: .buildStart, volume: 0.7)
-        case .buildDone: return SoundPlay(id: .buildDone, volume: 0.75)
+        // D2 part 1 (F4, law 4 step 3): a building or a tier stands: the re-made build_done (two knocks, a 70 Hz body,
+        // a gravel tail, 1.1 s) at -13.9 dBFS (was 0.75 of the old file, -16.9, quieter than the seal). `buildStood`
+        // gives the same answer; a caller plays one of them, never both for one building.
+        case .buildDone: return SoundPlay(id: .buildDone, volume: 0.9)
         case .recruited: return SoundPlay(id: .seal, volume: 0.6)
         case .patched: return SoundPlay(id: .buildStart, volume: 0.6, rate: 1.1)
         case .brazierLit: return SoundPlay(id: .lantern, volume: 0.75)
@@ -232,7 +235,7 @@ extension FeedbackCue {
                 : SoundPlay(id: .arrowHit, volume: 0.75)
         // D2 0g: the dawn gate as made (law 4's "r 1.05" is too close to matter, and a rate is no pitch).
         case .dawnGate: return SoundPlay(id: .gate, volume: 0.6)
-        case .buildStood: return SoundPlay(id: .buildDone, volume: 0.9)
+        case .buildStood: return FeedbackCue.buildDone.sound
         // D1 (law 4, step 3): man_fall at -14.4 dBFS; the step's duck (beds x 0.7 for 0.7 s) comes with it. D2 0d (the
         // director's call): at rate 1, as made; the law's "x 0.7" is that duck of the beds, not a rate.
         case .manFell: return SoundPlay(id: .manFall, volume: 0.7)
@@ -265,7 +268,8 @@ extension FeedbackCue {
         // D2 0a: the card pair has the pane pair's hand.
         case .cardOpened: return FeedbackCue.paneOpen.haptic
         case .cardClosed: return FeedbackCue.paneClose.haptic
-        case .buildDone: return .light
+        // D2 part 1 (F4): success, then light 0.12 s later (`hapticEcho`), for a building standing.
+        case .buildDone: return .success
         case .coin: return .soft
         case .wallHit: return .medium
         case .wallBroken, .hearthHit: return .heavy
@@ -314,16 +318,29 @@ extension FeedbackCue {
         case .hit, .manHit, .dawnGate: return .deed
         case .arrowHit, .wallHit, .creatureDissolved: return .deed
         case .buildStood, .manFell, .dawnHeld, .dawnToll: return .triumph
+        // D2 part 1: the simulation's `buildDone` answers as `buildStood` (step 3: never randomised, the beds x 0.7 for
+        // 0.7 s).
+        case .buildDone: return .triumph
         case .wallCracked: return .triumph
         case .wallBroken: return .realm
         default: return nil
         }
     }
 
-    /// Law 4's step 4 hand: a second heavy this many seconds after the first (D1: the breach).
+    /// Law 4's step 4 hand: a second heavy this many seconds after the first (D1: the breach). D2 part 1: a building
+    /// standing has a second haptic too, a light one (`hapticEchoKind`).
     var hapticEcho: Double? {
         switch self {
         case .wallBroken: return 0.12
+        case .buildDone, .buildStood: return 0.12
+        default: return nil
+        }
+    }
+
+    /// The echo's own haptic where it is not the first one again (D2 part 1: success, then light).
+    var hapticEchoKind: HapticKind? {
+        switch self {
+        case .buildDone, .buildStood: return .light
         default: return nil
         }
     }
@@ -411,6 +428,8 @@ struct CueAnswer: Sendable, Equatable {
     var duck: AnswerSize? = nil
     /// D1: the haptic again this many seconds later (law 4's step 4: heavy, then heavy again after 0.12 s).
     var echo: Double? = nil
+    /// D2: the echo's haptic (nil: the first haptic again).
+    var echoHaptic: HapticKind? = nil
 }
 
 /// The hub's decisions for a cue, pure (`SoundDirector` applies them; tests read them): the settings, the throttles per
@@ -478,6 +497,7 @@ struct FeedbackGate: Sendable, Equatable {
            haptics.allow(cue.rawValue, gap: cue.hapticGap, now: now) {
             answer.haptic = haptic
             answer.echo = cue.hapticEcho
+            answer.echoHaptic = cue.hapticEchoKind
         }
         guard soundOn, var sound = cue.sound else { return answer }
         if afterPress {

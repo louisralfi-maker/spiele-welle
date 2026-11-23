@@ -363,6 +363,32 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(nearCrack.duck, .triumph)
     }
 
+    /// Polish D2 part 1 (F4): a building stands: build_done re-made (two knocks, a 70 Hz body, a gravel tail, 1.1 s)
+    /// at step 3's level, success then light 0.12 s later, the beds x 0.7 for 0.7 s, never randomised; `buildDone` and
+    /// `buildStood` give the same answer.
+    func testABuildingStandsAtItsSize() throws {
+        for cue in [FeedbackCue.buildDone, .buildStood] {
+            XCTAssertEqual(cue.sound, SoundPlay(id: .buildDone, volume: 0.9), "\(cue)")
+            XCTAssertEqual(cue.answerSize, .triumph)
+            XCTAssertEqual(cue.haptic, .success)
+            var gate = FeedbackGate()
+            let answer = gate.answer(cue, soundOn: true, hapticsOn: true, now: 1)
+            XCTAssertEqual(answer.haptic, .success)
+            XCTAssertEqual(answer.echo, 0.12)
+            XCTAssertEqual(answer.echoHaptic, .light)
+            XCTAssertEqual(answer.duck, .triumph, "the beds x 0.7 for 0.7 s")
+            XCTAssertFalse(answer.jitter)
+        }
+        XCTAssertNil(FeedbackCue.wallBroken.hapticEchoKind, "the breach echoes its heavy")
+        let level = AnswerSize.level(fileRMS: try Self.fileRMS(.buildDone), volume: 0.9)
+        XCTAssertTrue(AnswerSize.triumph.band.contains(level), "build_done at \(level) dBFS")
+        let seal = AnswerSize.level(fileRMS: try Self.fileRMS(.sealLow), volume: FeedbackCue.countSeal.sound?.volume ?? 0)
+        XCTAssertGreaterThan(level, seal, "it stands louder than the seal before it")
+        let seconds = Double(try Self.samples(.buildDone).count) / 22050
+        XCTAssertEqual(seconds, 1.1, accuracy: 0.01)
+        XCTAssertTrue(AnswerSize.triumph.length.contains(seconds))
+    }
+
     /// Polish D1: a man struck grunts at most once every 0.5 s, grunt_1 and grunt_2 in turn among those that play.
     func testTheGruntsKeepHalfASecondApart() {
         guard FeedbackCue.soldierGrunts else { return }

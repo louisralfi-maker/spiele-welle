@@ -55,7 +55,9 @@ final class SoundTests: XCTestCase {
     }
 
     func testTheHaptics() {
-        XCTAssertEqual(FeedbackCue.buildDone.haptic, .light)
+        // Polish D2 rewrote this line (it was light): a building standing is law 4's step 3, success then light.
+        XCTAssertEqual(FeedbackCue.buildDone.haptic, .success)
+        XCTAssertEqual(FeedbackCue.buildDone.hapticEchoKind, .light)
         XCTAssertEqual(FeedbackCue.coin.haptic, .soft)
         XCTAssertEqual(FeedbackCue.wallHit.haptic, .medium)
         XCTAssertEqual(FeedbackCue.wallBroken.haptic, .heavy)

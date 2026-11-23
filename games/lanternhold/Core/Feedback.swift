@@ -51,8 +51,10 @@ import Foundation
 //   gate (whole-file RMS reads a long bell or gate tail quieter than its strike). D2 judges them by ear.
 // - D1 retired `soldierFell` (the thinner maps the event to nothing; `SoundWatch` plays `manFell` at the man's x) and
 //   `creatureHit` (`SoundWatch` plays `hit`): both cues stay as cases and are silent. The card pair is not retired: it
-//   answers as the pane pair (D2 0a, below). When A2 calls `buildStood`, the
-//   simulation's `buildDone` goes quiet in the same step (D2), so nothing plays twice.
+//   answers as the pane pair (D2 0a, below). D2 part 1: `buildDone` and
+//   `buildStood` give one answer (build_done 0.9, success then light 0.12 s later, the beds x 0.7 for 0.7 s); a caller
+//   plays one of them, never both for one building. Lane A's step A2 will play `buildStood` at its sprite swap and
+//   take the earlier call out (the thinner's `buildDone` from the simulation's event) in the same step.
 // - Old calls a new cue retires, in the caller's step (they share a file and its throttle, so the one called first in
 //   a frame would swallow the other and both haptics would fire):
 //   - B1: `lanternUp` replaces `play(.touched)` on the raise (`GameModel+Lantern.swift`, `openLanternMoment`); both

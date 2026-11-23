@@ -91,13 +91,15 @@ final class SoundDirector: FeedbackHub {
         let answer = gate.answer(cue, soundOn: soundOn, hapticsOn: hapticsOn, now: now, near: near)
         if let haptic = answer.haptic {
             fire(haptic, strength: answer.hapticStrength)
-            // D1, law 4's step 4: the same haptic again (the breach: heavy, then heavy 0.12 s later).
+            // D1, law 4's step 4: the same haptic again (the breach: heavy, then heavy 0.12 s later). D2: or the echo's
+            // own (a building standing: success, then light).
             if let echo = answer.echo {
                 let strength = answer.hapticStrength
+                let second = answer.echoHaptic ?? haptic
                 Task { [weak self] in
                     try? await Task.sleep(nanoseconds: UInt64(echo * 1_000_000_000))
                     guard let self, self.hapticsOn else { return }
-                    self.fire(haptic, strength: strength)
+                    self.fire(second, strength: strength)
                 }
             }
         }
