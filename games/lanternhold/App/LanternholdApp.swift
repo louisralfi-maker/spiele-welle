@@ -92,6 +92,9 @@ struct RootView: View {
                         .lhPanesHeld(panesHeld)
                         .environment(\.lhWorldStill, !titleDone && stepBeat == nil)
                         .overlay { TableDebugLayer(model: model) }
+                        // Under the title and its cover the hall says nothing to VoiceOver (and a UI test's snapshot
+                        // after a touch on the title stays small: lh-rc-16 lost about 0.9 s of the step to it).
+                        .accessibilityHidden(!hallWhole)
                         .onAppear {
                             if !titleDone && stepBeat == nil { model.setActive(false) }
                         }
