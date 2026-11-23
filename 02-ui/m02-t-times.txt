@@ -1,0 +1,18 @@
+m02-t: a tap at 20 % from standing, slowed: he turns and starts at once
+slowed: -GWTimeScale 0.25; frames back to back, the scene read after each
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500 -GWTimeScale 0.25
+a tap before frame 01 sent at +0.000 s (point 24.1, 174.8; interface orientation 3 (the app's))
+frame  seconds since the burst began  scene
+00  -0.010 s  before: hour:9.69 lx:1588 cam:1401 kv:0.00 kxf:1587.83 kf:7 kd:1
+01  +0.498 s  hour:9.70 lx:1587 cam:1400 kv:-14.97 kxf:1587.45 kf:0 kd:-1
+02  +0.884 s  hour:9.71 lx:1584 cam:1380 kv:-36.00 kxf:1583.76 kf:1 kd:-1
+03  +1.099 s  hour:9.72 lx:1582 cam:1368 kv:-36.00 kxf:1581.96 kf:1 kd:-1
+04  +1.365 s  hour:9.72 lx:1581 cam:1360 kv:-36.00 kxf:1580.76 kf:1 kd:-1
+05  +1.587 s  hour:9.72 lx:1578 cam:1347 kv:-36.00 kxf:1578.36 kf:2 kd:-1
+06  +1.808 s  hour:9.73 lx:1577 cam:1339 kv:-36.00 kxf:1576.56 kf:2 kd:-1
+07  +2.023 s  hour:9.73 lx:1575 cam:1333 kv:-36.00 kxf:1574.76 kf:3 kd:-1
+08  +2.274 s  hour:9.74 lx:1571 cam:1325 kv:-36.00 kxf:1571.16 kf:4 kd:-1
+09  +2.591 s  hour:9.74 lx:1570 cam:1323 kv:-36.00 kxf:1569.96 kf:4 kd:-1
+10  +2.916 s  hour:9.75 lx:1566 cam:1317 kv:-36.00 kxf:1565.76 kf:5 kd:-1
+11  +3.202 s  hour:9.76 lx:1564 cam:1314 kv:-36.00 kxf:1563.96 kf:5 kd:-1
+12  +3.455 s  hour:9.76 lx:1562 cam:1312 kv:-36.00 kxf:1562.16 kf:0 kd:-1

@@ -1,0 +1,1 @@
+the step's beat without the film (hitches it did not count, its longest gap, wall seconds of each phase and of the card's first frame): lost:0.101 longest:0.105 wall:1.654; wall/lost at task 0.031/0.000, close 0.162/0.000, black 0.647/0.046, gone 0.839/0.101, whole 1.404/0.101, panes 1.654/0.101, card-appear 1.829, card-free 1.883, whole-to-card 0.480

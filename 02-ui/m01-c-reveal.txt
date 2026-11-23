@@ -1,0 +1,1 @@
+the reveal's beat before the touch (hitches it did not count, its longest gap): reveal lost:1.545 longest:1.489

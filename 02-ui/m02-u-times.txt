@@ -1,0 +1,27 @@
+m02-u: a tap at 85 % and a second at 25 % while he walks, slowed: the turn
+slowed: -GWTimeScale 0.25; frames back to back, the scene read after each
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500 -GWTimeScale 0.25
+a tap before frame 01 sent at +0.000 s (point 24.1, 742.9; interface orientation 3 (the app's))
+a tap before frame 08 sent at +1.975 s (point 24.1, 218.5; interface orientation 3 (the app's))
+frame  seconds since the burst began  scene
+00  -0.010 s  before: hour:10.01 lx:1489 cam:1205 kv:0.00 kxf:1488.67 kf:6 kd:-1
+01  +0.363 s  hour:10.02 lx:1489 cam:1206 kv:14.97 kxf:1489.05 kf:0 kd:1
+02  +0.614 s  hour:10.02 lx:1490 cam:1207 kv:26.72 kxf:1489.85 kf:0 kd:1
+03  +0.888 s  hour:10.02 lx:1492 cam:1214 kv:36.00 kxf:1492.14 kf:0 kd:1
+04  +1.118 s  hour:10.03 lx:1496 cam:1229 kv:36.00 kxf:1495.74 kf:1 kd:1
+05  +1.320 s  hour:10.04 lx:1497 cam:1235 kv:36.00 kxf:1496.94 kf:2 kd:1
+06  +1.596 s  hour:10.04 lx:1498 cam:1240 kv:36.00 kxf:1498.14 kf:2 kd:1
+07  +1.839 s  hour:10.05 lx:1503 cam:1257 kv:36.00 kxf:1502.94 kf:3 kd:1
+08  +2.346 s  hour:10.06 lx:1505 cam:1267 kv:0.00 kxf:1505.34 kf:6 kd:-1
+09  +2.630 s  hour:10.06 lx:1505 cam:1266 kv:-7.90 kxf:1505.21 kf:0 kd:-1
+10  +2.964 s  hour:10.07 lx:1502 cam:1253 kv:-35.95 kxf:1502.47 kf:0 kd:-1
+11  +3.617 s  hour:10.08 lx:1499 cam:1236 kv:-36.00 kxf:1498.87 kf:1 kd:-1
+12  +4.432 s  hour:10.10 lx:1489 cam:1208 kv:-36.00 kxf:1489.27 kf:4 kd:-1
+13  +5.294 s  hour:10.13 lx:1477 cam:1192 kv:-36.00 kxf:1477.27 kf:1 kd:-1
+14  +6.769 s  hour:10.14 lx:1472 cam:1186 kv:-36.00 kxf:1471.87 kf:2 kd:-1
+15  +7.281 s  hour:10.15 lx:1467 cam:1182 kv:-36.00 kxf:1467.07 kf:3 kd:-1
+16  +7.524 s  hour:10.16 lx:1465 cam:1180 kv:-36.00 kxf:1464.67 kf:4 kd:-1
+17  +7.759 s  hour:10.16 lx:1463 cam:1179 kv:-36.00 kxf:1462.87 kf:4 kd:-1
+18  +8.012 s  hour:10.17 lx:1460 cam:1177 kv:-36.00 kxf:1459.87 kf:5 kd:-1
+19  +8.295 s  hour:10.17 lx:1458 cam:1175 kv:-36.00 kxf:1458.07 kf:5 kd:-1
+20  +8.553 s  hour:10.18 lx:1455 cam:1173 kv:-36.00 kxf:1455.07 kf:0 kd:-1

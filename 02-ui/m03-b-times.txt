@@ -1,0 +1,25 @@
+m03-b: a tap on the bubble: the next line or the bubble closing
+real time; as fast as the frames come
+the tap was sent without waiting at +0.117 s (point 167.8, 333.7; interface orientation 3 (the app's)); the runner answered at +0.423 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 2120
+scene after: frame:1110 ready day:3 hour:12.02 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2196 lord:lord stage:world lx:2196 errand:none door:1830 gold:91 hud:none cam:2041 tap:touch-talk-tamsin hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:2196.00 kf:6 kd:1 kcx:2041.11
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.347 s  
+02  +0.523 s  
+03  +0.722 s  
+04  +0.942 s  
+05  +1.154 s  
+06  +1.401 s  
+07  +1.610 s  
+08  +1.872 s  
+09  +2.131 s  
+10  +2.324 s  
+11  +2.567 s  
+12  +2.814 s  
+13  +3.063 s  
+14  +3.290 s  
+15  +3.507 s  
+16  +3.725 s  
+mean spacing 0.225 s over 15 gaps
