@@ -1,0 +1,14 @@
+    export CLANG_WARN_DIRECT_OBJC_ISA_USAGE\=YES_ERROR
+    export CLANG_WARN_OBJC_ROOT_CLASS\=YES_ERROR
+    export GCC_TREAT_WARNINGS_AS_ERRORS\=NO
+    export GCC_WARN_ABOUT_RETURN_TYPE\=YES_ERROR
+    export TREAT_MISSING_SCRIPT_PHASE_OUTPUTS_AS_ERRORS\=NO
+    export VALIDATE_DEVELOPMENT_ASSET_PATHS\=YES_ERROR
+** ARCHIVE SUCCEEDED **
+** EXPORT SUCCEEDED **
+== archive with automatic signing, build 554
+== exit 0
+== export and upload to App Store Connect
+2026-11-23 16:36:55.357 xcodebuild[64296:184544] Progress 41%: Uploaded package is processing.
+2026-11-23 16:36:55.364 xcodebuild[64296:184544] Progress 41%: Upload succeeded.
+Uploaded Lanternhold
