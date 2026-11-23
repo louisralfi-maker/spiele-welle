@@ -1,0 +1,19 @@
+p06-b: a quick tap (lifted after 0.05 s) on the first choice: amber fills it from the left in 0.15 s and holds that long, then goes back in 0.10 s
+real time; as fast as the frames come
+the tap was sent without waiting at +0.337 s (point 50.0, 173.0; interface orientation 3 (the app's)); the runner answered at +0.644 s; no effect check
+launch: -GWReset YES -GWSkipOnboarding YES -GWScreen petition
+scene after: frame:260 ready day:17 hour:17.80 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:416 lx:416 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:225.43
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.586 s  
+02  +0.789 s  
+03  +1.035 s  
+04  +1.309 s  
+05  +1.582 s  
+06  +1.824 s  
+07  +2.144 s  
+08  +2.394 s  
+09  +2.603 s  
+10  +2.877 s  
+mean spacing 0.255 s over 9 gaps

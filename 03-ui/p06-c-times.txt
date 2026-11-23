@@ -1,0 +1,16 @@
+p06-c: a press held 0.8 s on the first choice: amber fills it from the left in 0.15 s under the finger and stays while it is down; the answer comes on the lift
+the press was sent without waiting at +0.189 s (point 50.0, 173.0; interface orientation 3; lift after 0.80 s)
+launch: -GWReset YES -GWSkipOnboarding YES -GWScreen petition
+
+frame  seconds since the burst began
+00  -0.010 s  before the press
+01  +0.455 s
+02  +0.745 s
+03  +0.951 s
+04  +1.117 s
+05  +1.338 s
+06  +1.488 s
+07  +1.636 s
+08  +1.799 s
+09  +2.070 s
+10  +2.268 s
