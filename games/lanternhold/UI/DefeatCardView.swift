@@ -230,6 +230,10 @@ struct PauseSheetView: View {
         GeometryReader { geometry in
             CardScroll {
                 content
+                    // C1 gate (C1-1): each face is its own view and comes without a transition of its own; only the
+                    // face's opacity moves, so a swap never blends two faces.
+                    .id(callingTheNight ? 2 : (confirming ? 1 : 0))
+                    .transition(.identity)
                     .opacity(faceShown)
                     .allowsHitTesting(faceShown == 1)
             }
@@ -243,17 +247,20 @@ struct PauseSheetView: View {
     }
 
     /// A swap inside the pane (law 2, M16: the confirmations cut before): the face goes at the normal token's out
-    /// (0.15 s ease-in), then `change` and the new face come at its in (0.25 s ease-out); opacity only, at quick under
-    /// Reduce Motion. No touch lands while it goes.
+    /// (0.15 s ease-in), then `change` cuts while the face is empty (no animation: the old and the new face never show
+    /// at once, law 1 "never a blend"; the sheet takes the new face's size in the same cut), and the new face comes
+    /// alone at its in (0.25 s ease-out); opacity only, at quick under Reduce Motion. No touch lands while it goes.
     private func swap(_ change: @escaping @MainActor () -> Void) {
         let mode = MotionMode(reduceMotion: model.reduceMotion)
         withAnimation(.lhLeave(.normal, mode: mode)) { faceShown = 0 }
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: UInt64(mode.outSeconds(.normal) * 1_000_000_000))
-            withAnimation(.lhEnter(.normal, mode: mode)) {
-                change()
-                faceShown = 1
-            }
+            // C1 gate (C1-1, F1): the change inside the face's fade-in gave the `if` branches SwiftUI's default
+            // opacity transition, a double exposure over a sheet changing its size (film p03-b 03, p03-c 03).
+            var cut = Transaction()
+            cut.disablesAnimations = true
+            withTransaction(cut) { change() }
+            withAnimation(.lhEnter(.normal, mode: mode)) { faceShown = 1 }
         }
     }
 
