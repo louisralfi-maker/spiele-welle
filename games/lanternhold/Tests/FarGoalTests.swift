@@ -4,7 +4,8 @@ import XCTest
 
 /// Polish E1b (the audit's R10; Louis' answer 4: "both"): the run's far goal said twice. The horn's ribbon reads
 /// "Night {n} of {N}" inside the run and its old words past it (`FarGoal.hornLine`); Mother Hesper says it on days 1 to
-/// 3, marked and first on day 1, unmarked and after her newer lines on days 2 and 3 (`FarGoal.place`, `CourtTalk`).
+/// 3, marked and right after her greeting on day 1, unmarked and after her newer lines on days 2 and 3
+/// (`FarGoal.place`, `CourtTalk`).
 final class FarGoalTests: XCTestCase {
     // MARK: - The ribbon
 
@@ -55,20 +56,38 @@ final class FarGoalTests: XCTestCase {
         XCTAssertTrue(english.contains("twenty nights"))
     }
 
-    func testOnDayOneHerLineComesFirstAndCarriesTheMarkUntilHeard() {
+    /// E1b gate F1 rewrote this test (the builder's "first among her lines"): on day 1 she welcomes the heir first and
+    /// says the far goal right after her greeting; the mark stays until the far goal itself is heard.
+    func testOnDayOneHerLineComesRightAfterHerGreetingAndCarriesTheMarkUntilHeard() {
         let s = realm(day: 1)
         var log = TalkLog()
         let list = CourtTalk.todaysLines("hesper", state: s, lines: .standard)
-        XCTAssertEqual(list.first?.id, FarGoal.lineID, "first among her lines: \(list.map(\.id))")
+        XCTAssertEqual(list.prefix(2).map(\.id), [FarGoal.greetingID, FarGoal.lineID],
+                       "her greeting, then the far goal: \(list.map(\.id))")
         XCTAssertEqual(list.filter { $0.id == FarGoal.lineID }.count, 1)
-        XCTAssertEqual(CourtTalk.line("hesper", state: s, lines: .standard, log: log)?.text, FarGoal.lineKey)
+        XCTAssertEqual(Set(list.map(\.id)),
+                       Set(CourtLineBook.standard.lines(for: "hesper", state: s).map(\.id) + [FarGoal.lineID]),
+                       "no line of hers lost or doubled")
+        XCTAssertEqual(CourtTalk.line("hesper", state: s, lines: .standard, log: log)?.id, FarGoal.greetingID,
+                       "the first touch: her greeting")
         XCTAssertTrue(CourtTalk.marks(s, figures: figures, lines: .standard, log: log).contains("hesper"),
                       "the mark of an unheard line")
         log.note("hesper", day: 1)
+        XCTAssertTrue(CourtTalk.marks(s, figures: figures, lines: .standard, log: log).contains("hesper"),
+                      "the greeting heard, the far goal not yet: the mark stays")
+        XCTAssertTrue(FarGoal.stillMarked("hesper", state: s, lines: .standard, talked: ["hesper"]),
+                      "the touch things' rule: talked to, the far goal unheard: marked")
+        XCTAssertEqual(CourtTalk.line("hesper", state: s, lines: .standard, log: log)?.text, FarGoal.lineKey,
+                       "the second touch: the far goal")
+        log.note("hesper", day: 1)
+        log.note(FarGoal.heardKey, day: 1)
         XCTAssertFalse(CourtTalk.marks(s, figures: figures, lines: .standard, log: log).contains("hesper"),
-                       "heard: the mark goes")
+                       "the far goal heard: the mark goes")
+        XCTAssertFalse(FarGoal.stillMarked("hesper", state: s, lines: .standard,
+                                           talked: ["hesper", FarGoal.heardKey]))
         XCTAssertNotEqual(CourtTalk.line("hesper", state: s, lines: .standard, log: log)?.id, FarGoal.lineID,
                           "the next touch: her next line")
+        XCTAssertFalse(FarGoal.stillMarked("odile", state: s, lines: .standard, talked: ["odile"]), "only Hesper")
         // Nobody else's lines change.
         for who in ["odile", "brannock", "pip", "tamsin", "bram"] {
             XCTAssertEqual(CourtTalk.todaysLines(who, state: s, lines: .standard).map(\.id),
@@ -84,6 +103,8 @@ final class FarGoalTests: XCTestCase {
             XCTAssertEqual(list.map(\.id), book.map(\.id) + [FarGoal.lineID], "day \(day): last, after her newer lines")
             XCTAssertFalse(CourtTalk.marks(s, figures: figures, lines: .standard, log: TalkLog()).contains("hesper"),
                            "day \(day): no mark of its own")
+            XCTAssertFalse(FarGoal.stillMarked("hesper", state: s, lines: .standard, talked: ["hesper"]),
+                           "day \(day): no mark of its own on the touch things")
             var log = TalkLog()
             for _ in book { log.note("hesper", day: day) }
             XCTAssertEqual(CourtTalk.line("hesper", state: s, lines: .standard, log: log)?.id, FarGoal.lineID,
@@ -108,13 +129,20 @@ final class FarGoalTests: XCTestCase {
                        ["hesper_x_hint", FarGoal.lineID, "hesper_x"])
         XCTAssertEqual(FarGoal.place([hint, other], who: "hesper", day: 2).map(\.id),
                        ["hesper_x_hint", "hesper_x", FarGoal.lineID])
+        // E1b gate F1: her greeting is moved up behind the hints, the far goal right after it.
+        let greeting = CourtLine(id: FarGoal.greetingID, speaker: "hesper", days: [1, 1], requires: nil, forbids: nil,
+                                 weight: nil, text: "line.z", about: nil, answer: nil)
+        XCTAssertEqual(FarGoal.place([hint, other, greeting], who: "hesper", day: 1).map(\.id),
+                       ["hesper_x_hint", FarGoal.greetingID, FarGoal.lineID, "hesper_x"])
+        XCTAssertEqual(FarGoal.place([greeting, other], who: "hesper", day: 1).map(\.id),
+                       [FarGoal.greetingID, FarGoal.lineID, "hesper_x"])
         XCTAssertEqual(FarGoal.place([], who: "hesper", day: 1).map(\.id), [], "a silent speaker stays silent")
         XCTAssertEqual(FarGoal.place([other], who: "odile", day: 1).map(\.id), ["hesper_x"], "only Hesper")
     }
 }
 
-/// Polish E1b in the model: on day 1 Hesper carries the mark (`touch.hinted`), the first touch hears the far goal and
-/// the mark goes.
+/// Polish E1b in the model: on day 1 Hesper carries the mark (`touch.hinted`), the first touch hears her greeting, the
+/// second the far goal, and then the mark goes.
 @MainActor
 final class FarGoalModelTests: XCTestCase {
     private var directory: URL!
@@ -128,7 +156,8 @@ final class FarGoalModelTests: XCTestCase {
         if let directory { try? FileManager.default.removeItem(at: directory) }
     }
 
-    func testOnDayOneHesperIsMarkedAndHerFirstLineIsTheFarGoal() throws {
+    /// E1b gate F1 rewrote this test: her greeting first, the far goal on the second touch, the mark until then.
+    func testOnDayOneHesperIsMarkedUntilHerFarGoalIsHeardAfterHerGreeting() throws {
         let values = ["GWReset": "YES", "GWSkipOnboarding": "YES", "GWHour": "11", "GWGold": "9", "GWStage": "world",
                       "GWCameraX": "1540"]
         let game = GameModel(args: DebugArgs(values: values), kind: .world, store: SaveStore(directory: directory))
@@ -137,7 +166,14 @@ final class FarGoalModelTests: XCTestCase {
         game.refreshCourt(state)
         XCTAssertTrue(game.touch.hinted.contains("hesper"), "her mark")
         game.talk(to: "hesper")
-        XCTAssertEqual(game.talkBubble?.textKey, FarGoal.lineKey, "the first touch: the far goal")
+        XCTAssertEqual(game.talkBubble?.textKey, "line.hesper_first", "the first touch: her greeting")
+        game.refreshCourt(state)
+        XCTAssertTrue(game.touch.hinted.contains("hesper"), "greeted, the far goal unheard: the mark stays")
+        XCTAssertFalse(game.talkedToday(state).contains(FarGoal.heardKey))
+        game.closeTalk()
+        game.talk(to: "hesper")
+        XCTAssertEqual(game.talkBubble?.textKey, FarGoal.lineKey, "the second touch: the far goal")
+        XCTAssertTrue(game.talkedToday(state).contains(FarGoal.heardKey), "the talk log heard it")
         game.refreshCourt(state)
         XCTAssertFalse(game.touch.hinted.contains("hesper"), "heard: the mark goes")
         game.closeTalk()

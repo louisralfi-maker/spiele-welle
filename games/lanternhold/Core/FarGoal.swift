@@ -44,26 +44,43 @@ enum FarGoal {
     static let line = CourtLine(id: lineID, speaker: speaker, days: [days.lowerBound, days.upperBound], requires: nil,
                                 forbids: nil, weight: nil, text: lineKey, about: nil, answer: nil)
 
+    /// Her day-1 greeting ("Welcome, heir of the house", lines.json): on a marked day she welcomes the heir before she
+    /// tells him the far goal (E1b gate F1).
+    static let greetingID = "hesper_first"
+
     /// `list`: what `who` may say today (`CourtLineBook.lines(for:state:)`), with her far-goal line placed on its days.
-    /// On a marked day it comes right after the hints about today's petitioners (they are preferred, as ever) and
-    /// before everything else, so the first touch hears it; on the other days it comes last, once she has nothing newer
-    /// to say. A speaker who says nothing today (absent, `ErrandEngine.isAbsent`) stays silent.
+    /// On a marked day it comes right after the hints about today's petitioners (they are preferred, as ever) and her
+    /// greeting (moved up to them when she has it today), before everything else; on the other days it comes last,
+    /// once she has nothing newer to say. A speaker who says nothing today (absent, `ErrandEngine.isAbsent`) stays
+    /// silent.
     static func place(_ list: [CourtLine], who: String, day: Int) -> [CourtLine] {
         guard who == speaker, days.contains(day), !list.isEmpty, !list.contains(where: { $0.id == lineID }) else {
             return list
         }
         var placed = list
         if markedDays.contains(day) {
-            let hints = placed.prefix { $0.about != nil }.count
-            placed.insert(line, at: hints)
+            var at = placed.prefix { $0.about != nil }.count
+            if let greeting = placed.firstIndex(where: { $0.id == greetingID }), greeting >= at {
+                let moved = placed.remove(at: greeting)
+                placed.insert(moved, at: at)
+                at += 1
+            }
+            placed.insert(line, at: at)
         } else {
             placed.append(line)
         }
         return placed
     }
 
-    /// True when `line` is her far-goal line on a day it carries the mark (it counts as an unheard line worth a mark).
-    static func marks(_ line: CourtLine, day: Int) -> Bool {
-        line.id == lineID && markedDays.contains(day)
+    /// The talk log's note that the far goal was heard today (UI state of one day, never saved; the pattern of
+    /// `NightOffer.heardKey`). Her greeting comes before it on day 1, so the mark rests on this note, not on whether
+    /// she was talked to (E1b gate F1).
+    static let heardKey = "hesper.far_goal"
+
+    /// True while `who` is Hesper on a marked day, her far goal is among her lines of today and `talked` (the talk
+    /// log's keys of today) does not hold `heardKey`: she keeps the mark of an unheard line until it is heard.
+    static func stillMarked(_ who: String, state: GameState, lines: CourtLineBook, talked: Set<String>) -> Bool {
+        guard who == speaker, markedDays.contains(state.day), !talked.contains(heardKey) else { return false }
+        return CourtTalk.todaysLines(who, state: state, lines: lines).contains { $0.id == lineID }
     }
 }

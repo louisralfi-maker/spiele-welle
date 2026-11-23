@@ -303,6 +303,8 @@ extension GameModel {
         guard overlay == nil, let state = driver?.state, DayClock.phase(at: state.hour) == .day,
               let line = CourtTalk.line(who, state: state, lines: .standard, log: talkLog) else { return }
         talkLog.note(who, day: state.day)
+        // E1b gate F1: Hesper's far goal heard (her mark rests on this note, her greeting comes first on day 1).
+        if line.id == FarGoal.lineID { talkLog.note(FarGoal.heardKey, day: state.day) }
         let height = Double(Speakers.speaker(who)?.body.sprite.size.height ?? 30)
         if stage == .hall {
             // The hall stage: the speaker as the hall draws him, the bubble over his head on the hall's framing.
@@ -344,8 +346,9 @@ extension GameModel {
     }
 
     /// Polish E1 (law 3.3; critic-run R1, the collector's two-touch pattern): Brannock's offer of the horn. The first
-    /// touch opens his line ("Say the word and I sound the horn"), and the offer counts as heard (his mark goes). A
-    /// touch on him while that very line stands, once it has stood `NightOffer.wordAfter`, is the word: the night is
+    /// touch opens his line ("Say the word and I sound the horn"), and the offer counts as heard (E1b: his mark stays
+    /// while the offer stands, until the night is called, `NightOffer.calledKey`). A touch on him while that very line
+    /// stands, once it has stood `NightOffer.wordAfter`, is the word: the night is
     /// called and the dusk plays. A touch on the bubble closes it, walking away closes it, and the next touch on him
     /// only says the line again; a touch sooner than the beat does nothing, so a double tap never ends the day.
     func offerTheHorn() {

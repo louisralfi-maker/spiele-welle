@@ -72,22 +72,25 @@ enum CourtTalk {
         return list[((nth % list.count) + list.count) % list.count]
     }
 
-    /// True when `who`'s first line today is worth a mark: a hint about one of today's waiting petitions, an answer to
-    /// what the king decided (`CourtLineBook.hasHint`), or Hesper's far goal on day 1 (polish E1b, `FarGoal.marks`).
+    /// True when `who`'s first line today is worth a mark: a hint about one of today's waiting petitions or an answer
+    /// to what the king decided (`CourtLineBook.hasHint`).
     static func hasMarkedLine(_ who: String, state: GameState, lines: CourtLineBook) -> Bool {
         guard let first = todaysLines(who, state: state, lines: lines).first else { return false }
-        return first.about != nil || first.isAnswer || FarGoal.marks(first, day: state.day)
+        return first.about != nil || first.isAnswer
     }
 
     /// The speech mark (SPRITES.md `speakerMark`): over a court member or guest who has a hint about one of today's
-    /// waiting petitions, an answer, or (Hesper, day 1) the far goal, until the king has talked to him today. By day
-    /// only.
+    /// waiting petitions or an answer, until the king has talked to him today; over Hesper on day 1 until her far goal
+    /// was heard (polish E1b, `FarGoal.stillMarked`: her greeting comes first). By day only.
     static func marks(_ s: GameState, figures: [CourtFigure], lines: CourtLineBook, log: TalkLog) -> Set<String> {
         guard DayClock.phase(at: s.hour) == .day, !s.defeated else { return [] }
         var marked = Set<String>()
         for figure in figures where Speakers.canTalk(figure.who) && !marked.contains(figure.who) {
             if figure.who == "seren" && figure.petition != nil { continue }
             if log.count(figure.who, day: s.day) == 0 && hasMarkedLine(figure.who, state: s, lines: lines) {
+                marked.insert(figure.who)
+            } else if log.count(FarGoal.heardKey, day: s.day) == 0
+                        && FarGoal.stillMarked(figure.who, state: s, lines: lines, talked: []) {
                 marked.insert(figure.who)
             }
         }

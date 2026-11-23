@@ -60,7 +60,8 @@ enum TouchThings {
                 seen.insert(figure.who)
                 list.append(person(figure, act: .talk(who: figure.who), lordX: s.king.x,
                                    court: Speakers.speaker(figure.who)?.role == .court,
-                                   marked: !talked.contains(figure.who) || (offered && figure.who == NightOffer.speaker)))
+                                   marked: !talked.contains(figure.who) || (offered && figure.who == NightOffer.speaker)
+                                       || FarGoal.stillMarked(figure.who, state: s, lines: lines, talked: talked)))
             }
             // Build 3, the drill yard (wave 2, lane 2): its site in the courtyard while it offers something; a touch
             // brings its counter (the count, docs/PAY.md), marked while the purse can pay it.
@@ -250,9 +251,11 @@ enum TouchThings {
             guard !figure.key.hasPrefix("leaving:"), Speakers.canTalk(figure.who),
                   lines.line(for: figure.who, state: s) != nil else { continue }
             seen.insert(figure.who)
+            // E1b gate F1: Hesper keeps the mark of her far goal on day 1 until it is heard (her greeting comes first).
             list.append(person(figure, act: .talk(who: figure.who), lordX: lordX,
                                court: Speakers.speaker(figure.who)?.role == .court,
-                               marked: !talked.contains(figure.who)))
+                               marked: !talked.contains(figure.who)
+                                   || FarGoal.stillMarked(figure.who, state: s, lines: lines, talked: talked)))
         }
         return list
     }

@@ -6,8 +6,8 @@ import XCTest
 /// carries his mark (a); the first touch opens his offer (b); the second touch calls the night and the dusk plays in
 /// 4.0 s to the horn (c), the night's first frames (d). Then the pause sheet's route in a second launch: "Sound the
 /// horn" and its confirmation play the same dusk (e) and the night (f). E1b: between the touches his line is closed and
-/// he keeps his mark (s); the ribbon reads "Night 1 of 20"; Hesper's far goal on day 1 (i, j). Frames
-/// `m13-<letter>-<nn>`, notes `m13-<letter>-times`.
+/// he keeps his mark (s); the ribbon reads "Night 1 of 20"; Hesper's far goal on day 1 after her greeting (i, k, j).
+/// Frames `m13-<letter>-<nn>`, notes `m13-<letter>-times`.
 @MainActor
 final class FilmDuskUITests: XCTestCase {
     override func setUp() async throws {
@@ -86,7 +86,9 @@ final class FilmDuskUITests: XCTestCase {
         // E1b (the far goal, R10): the ribbon's second line counts the run's nights.
         film.note("m13-c-ribbon", "the horn's ribbon: \(ribbon)")
         XCTAssertTrue(ribbon.contains("Night 1 of 20"), "the ribbon reads Night 1 of 20: \(ribbon)")
-        XCTAssertFalse(marks(film.scene(app)).contains("brannock"), "the night called: his mark is gone")
+        // E1b gate M1: the call taking his mark is pinned in NightOfferModelTests (the dusk's first frame); here,
+        // after the horn, every talk mark is gone by the day-only rule.
+        XCTAssertFalse(marks(film.scene(app)).contains("brannock"), "after the horn: no talk mark")
         XCTAssertTrue(held, "the horn came after the word")
         XCTAssertGreaterThanOrEqual(hour(film.scene(app)), 19, "night")
         film.burst("d", app, count: 10, what: "after the horn: the night's first seconds, one frame every 0.5 s",
@@ -127,7 +129,8 @@ final class FilmDuskUITests: XCTestCase {
     }
 
     /// E1b (the far goal said twice, R10): day 1, Mother Hesper in the great hall carries the mark of an unheard line
-    /// (i); the first touch opens her far-goal line (j), and the mark goes.
+    /// (i). E1b gate F1: the first touch hears her greeting; with it closed she keeps the mark (k); the second touch
+    /// opens her far-goal line (j), and the mark goes.
     func testM13HesperSaysTheFarGoalOnDayOne() {
         let film = FilmReel(self, "m13")
         let app = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWClock", "10",
@@ -149,10 +152,22 @@ final class FilmDuskUITests: XCTestCase {
         XCTAssertTrue(touchPerson(app, hesper), "she speaks")
         XCTAssertTrue(bubble.waitForExistence(timeout: 6), "her bubble")
         waitForStill(app, timeout: 4)
+        film.note("m13-k-greeting", "bubble: \(bubble.label) | scene: \(film.scene(app))")
+        XCTAssertTrue(bubble.label.contains("Welcome"), "her greeting first: \(bubble.label)")
+        bubble.tap()
+        XCTAssertTrue(film.wait(4) { !bubble.exists }, "a tap on the bubble closes it")
+        XCTAssertTrue(film.wait(4) { self.marks(film.scene(app)).contains("hesper") },
+                      "greeted, the far goal unheard: her mark stays: \(film.scene(app))")
+        film.note("m13-k-scene", film.scene(app))
+        film.burst("k", app, count: 1, what: "E1b gate F1: her greeting heard and closed, the far goal unheard: the "
+                   + "mark stays", before: false, every: 0.5)
+        XCTAssertTrue(touchPerson(app, hesper), "she speaks again")
+        XCTAssertTrue(bubble.waitForExistence(timeout: 6), "her bubble again")
+        waitForStill(app, timeout: 4)
         film.pause(0.6)
         film.note("m13-j-bubble", "bubble: \(bubble.label) | scene: \(film.scene(app))")
-        XCTAssertTrue(bubble.label.contains("twenty nights"), "the far goal first: \(bubble.label)")
-        film.burst("j", app, count: 2, what: "E1b: her first line on day 1, the far goal", before: false, every: 0.5)
+        XCTAssertTrue(bubble.label.contains("twenty nights"), "the far goal right after her greeting: \(bubble.label)")
+        film.burst("j", app, count: 2, what: "E1b: her second line on day 1, the far goal", before: false, every: 0.5)
         XCTAssertFalse(marks(film.scene(app)).contains("hesper"), "heard: her mark goes")
         app.terminate()
     }
