@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (24.902 seconds).
+exit=0
+screenshots: 1
