@@ -519,7 +519,8 @@ enum SoundSpace {
 
 /// Law 4's one duck rule: the beds duck under these, and the deepest active duck wins, never a product of several.
 /// The screen duck exists (the lantern moment and every screen); the battle duck's caller is the hub (D1: a blow, a
-/// fall or a kill heard within 300 px of the lord in the last 1.2 s, `FightNear`); the answers' are the hub itself,
+/// fall or a kill heard within 300 px of the lord in the last 1.2 s, `FightNear`; D2 0e: it stays on heard blows, the
+/// creatures' places are never read); the answers' are the hub itself,
 /// when a cue of step 3 or 4 plays; the horn's lead waits for its caller (E).
 struct BedDucks: Sendable, Equatable {
     /// The lantern moment or a whole screen stands.
@@ -580,11 +581,6 @@ struct BedDucks: Sendable, Equatable {
         var deepest = 1.0
         forEachActive { deepest = min(deepest, $0) }
         return deepest
-    }
-
-    /// Whether any of `xs` (the fight's places) is within `battleReach` of the lord at `listenerX`.
-    static func battleNear(_ xs: [Double], listenerX: Double) -> Bool {
-        xs.contains { abs($0 - listenerX) <= battleReach }
     }
 }
 
