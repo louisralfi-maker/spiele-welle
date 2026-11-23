@@ -481,6 +481,36 @@ Law 4 (answers and sounds), after D2:
       does not flip while a count board stands (a tagged block in lane A's `Core/Camera.swift`).
     - The whole unit suite did not run on the lane; it runs at the join (round lh-rnd-31).
 
+27. **After step A5 (the gate moves; lane A 76c7faa1, round lh-ra-23 ALL PASSED; report `polish/steps/A5.md`).**
+    The director looked at `A5-dawn.png` and `A5-dusk.png`: the door rises and falls in whole rows, cut flat under
+    the grille, no row above the arch, the card comes after the open gate.
+    - Accepted, the gate's lead (A5-P1): gate.wav's hit is at 0.95 s, so a cued opening holds 0.2 s and its last row
+      lands on the hit (`GateMotion.cueLead`; 0.8 s lead under Reduce Motion, the fade ends on the hit).
+      `gateStandsOpenAt` is dawn + 1.0 s, the card comes 1.6 s after the dawn. By ear on the phone.
+    - Accepted: `GateMotion.longestStep` 0.05 s (a stalled frame moves the door that far at most); the rim skip on a
+      prop with `cropTop > 0`; one 0.15 s for the Reduce Motion fade both ways.
+    - Law 1 read for the gate: "entering at most 2 game px" is for things that appear (panes, marks, bubbles); the
+      gate is a thing of the world that travels, as a figure walks. Its Reduce Motion form is one sprite's opacity
+      over another, as A2's swap is.
+    - The director's call on M2: the second chance's dawn is a dawn like any other. The gate is seeded shut after
+      `restartView` and rises with its cue; the card waits. Rider of step A3 (a tagged block in lane E's
+      `App/GameModel.swift`; `ScreenFlowTests` :137, :243, :344 wait about 1.6 s). Until then that dawn is silent.
+    - Riders of A3 too: L1 (after a stall the card may come 0.2 s early: one tagged line in `stepDawnCard`,
+      `due.at = max(due.at, standsOpenAt + dawnCardDelay)`); L5 (a model-level pin: a loaded day save shows the gate
+      standing).
+    - Rider of D3 (lane D): gate.wav at 20:00 sounds 12 s after the gate fell in silence at the horn. The fall is
+      heard when it lands: lane A hands over `GateMotion.Change.closes`, the 20:00 cue goes.
+    - Rider of B4 (lane B): the gate's hammer mark and gold rim leave in one frame when the door starts to fall.
+    - Kept: a dawn while the lord is in the hall waits the same time and plays the cue (the day is heard inside).
+    - Open, by the phone: the wooden gate lifts as one slab while its open frame shows swung leaves (A5-P2, L3 the
+      dark band under the planks). If it reads wrong to Louis, the wood gate's closed frame is repainted as a
+      lifting gate in `Render/PlaceholderStructures.swift` (a rider of A7); iron and great gate read right.
+    - Join notes: `DawnCardTests`' LANE-A block wraps two of E2's tests whole; a comment in lane B's B3b block of
+      `Core/HallFrames.swift` was rewritten; A4's hall door must set the stage to `.world` before the world shows,
+      or the gate stands at once under the fade.
+    - Phone check: the door against the gate sound, the travel at 60 and 120 frames a second, the dawn's 1.6 s until
+      the card by feel, the Reduce Motion fade (no film frame catches it).
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged

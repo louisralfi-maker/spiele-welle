@@ -1611,3 +1611,8 @@ schneller geht."
     inside the gateway (0.8 s up, 0.6 s down, opacity only under Reduce Motion), the dawn card waits for the
     real open gate, the gate cue starts with the door; labels lh-ra-20 to 23. Usage 74 %; the rest up to
     80 % is held for mends from the phone feedback on build 554.
+  - 23.11. 20:42: step A5 (the gate moves) is built, reviewed and gated: lane A 76c7faa1, round lh-ra-23 ALL
+    PASSED, on origin. The door rises in 0.8 s and falls in 0.6 s in whole rows; a cued opening holds 0.2 s so
+    its last row lands on the gate sound's hit; the dawn card comes 1.6 s after the dawn. The director's calls
+    are ROUND.md point 27 (the second chance's dawn, the stall line and the save pin ride with A3; the horn's
+    gate sound with D3; the wooden gate's look is a phone check). Usage 76 %. The join follows.
