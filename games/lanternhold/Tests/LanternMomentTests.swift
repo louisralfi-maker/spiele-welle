@@ -1407,12 +1407,16 @@ final class LanternMomentTests: XCTestCase {
             } else {
                 XCTAssertNil(game.lanternDimNow, "\(name): no dim without light")
             }
-            let stepped = light > 1e-9 ? (light * 3 - 1e-9).rounded(.up) / 3 : 0
+            // The B1 gate (M1): the nearest third, never more than a sixth from the light.
+            let stepped = light > 1e-9 ? (light * 3).rounded() / 3 : 0
+            XCTAssertLessThanOrEqual(abs(stepped - light), 1.0 / 6 + 1e-9, "\(name): the block keeps with the light")
             let coins = frame.actors.filter { $0.sprite == .hudCoin }
             if stepped > 0 {
                 let coin = try XCTUnwrap(coins.first, "\(name): the block is drawn while the light shows")
                 XCTAssertEqual(Double(coin.tint.w), stepped, accuracy: 1e-6, "\(name): the block's alpha in thirds")
                 XCTAssertTrue(coins.allSatisfy { abs(Double($0.tint.w) - stepped) < 1e-6 }, "\(name): one alpha")
+            } else if light > 1e-9 {
+                XCTAssertTrue(coins.allSatisfy { $0.tint.w == 0 }, "\(name): under a sixth of light the block is clear")
             } else {
                 XCTAssertTrue(coins.isEmpty, "\(name): no block once the light is gone")
             }

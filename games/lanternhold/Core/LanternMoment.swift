@@ -617,11 +617,12 @@ struct LanternVeil: Sendable, Equatable {
     /// The share the moment's own signs show at (1 whole, 0 gone).
     var signs: Double { 1 - clean }
 
-    /// Polish B1: the Metal block's alpha, `light` in three even steps (rounded up, so the block shows from the first
-    /// frame of the raise and stays a third until the light is gone), times the clean frame's `signs`.
+    /// Polish B1: the Metal block's alpha, `light` in three even steps rounded to the nearest third (the B1 gate's M1:
+    /// rounded up, the numbers led the frame-work by up to a third in every frame; to the nearest the gap stays under a
+    /// sixth either way), times the clean frame's `signs`.
     var blockShare: Double {
         guard light > 1e-9 else { return 0 }
-        let stepped = min(LanternVeil.blockSteps, (light * LanternVeil.blockSteps - 1e-9).rounded(.up))
+        let stepped = min(LanternVeil.blockSteps, (light * LanternVeil.blockSteps).rounded())
         return stepped / LanternVeil.blockSteps * signs
     }
 
