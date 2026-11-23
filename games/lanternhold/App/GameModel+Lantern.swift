@@ -48,8 +48,17 @@ extension GameModel {
         // Build 3 (PAY.md 4): the moment cuts a count off; it pays nothing.
         cutCount()
         resetTouch()
-        cancelErrand()
-        if stage == .hall { stopWalking() }
+        // Polish B1 (H8, the refuter's missed point 1): the errand survives the moment. The world stands still under
+        // the lantern; on the lowering he walks on and does his deed. Only a count is cut (PAY.md 4): the walk to the
+        // cut board goes with it, and he stands. In the hall (whose walker steps under the moment) today's rule
+        // stays: the raise stops him and the errand goes.
+        if stage == .hall {
+            cancelErrand()
+            stopWalking()
+        } else if let errand = touch.errand, errand.id == touch.count?.thing {
+            cancelErrand()
+            stopWalking()
+        }
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
         // Fix round 1: the lesson is learnt, the lord's hint never comes again.
@@ -79,6 +88,10 @@ extension GameModel {
             game.setDrag(offset: nil)
         }
         lanternMoment = show
+        // Polish B1: the block and the SwiftUI layer stay drawn from this show while the light leaves after the
+        // lowering (the one driver, `LanternVeil.light`, takes them down as one thing).
+        touch.momentLast = show
+        MomentFade.shared.setShow(show)
         #if DEBUG
         // b3-lantern: `-GWLookAround <dx>[:<slow>]`, the look-around's pictures: the view stands slid at once.
         if let look = DebugArgs.lookAround, stage == .world, let view = camera {
@@ -92,7 +105,8 @@ extension GameModel {
         }
         #endif
         stripCalling = false
-        feedback.play(.touched)
+        // Polish B1 (F7, law 4 step 1): the raise has its own cue (`lantern_up` with a soft haptic), not the ground tap.
+        feedback.play(.lanternUp)
         refreshHUD()
     }
 
@@ -100,6 +114,16 @@ extension GameModel {
     func lowerLanternMoment() {
         guard lanternMoment != nil else { return }
         lanternMoment = nil
+        // Polish B1 (F7, law 4 step 1): every way down sounds once (`lantern_down`, no haptic): a tap on the empty
+        // world, a tap on a thing (its deed's own cue follows), a drag in the hall, the strip, the gear.
+        feedback.play(.lanternDown)
+        // Polish B1 (H8): a kept errand whose aim is gone (the person left, the site was paid or no longer offers)
+        // ends quietly: he stands, nothing opens, nothing is paid.
+        if let errand = touch.errand, errand.stage == stage,
+           touch.things.first(where: { $0.id == errand.id && $0.act == errand.act }) == nil {
+            cancelErrand()
+            stopWalking()
+        }
         // Build 3, lane 5 step 4: lowering the lantern shuts the town banner's slip.
         MoodSlip.shared.close()
         // Build 3, lane 5: a view the look-around slid glides home as the world runs on.
@@ -179,6 +203,8 @@ extension GameModel {
                         pan: touch.look.pan, reduceMotion: reduceMotion,
                         voiceOver: UIAccessibility.isVoiceOverRunning)
         MomentFade.shared.set(touch.veil.clean)
+        // Polish B1: the SwiftUI layer's opacity is the one driver's light, nothing of its own.
+        MomentFade.shared.setLight(touch.veil.light)
     }
 
     // MARK: - The lantern's own light (build 3, lane 5 step 5)
@@ -302,9 +328,13 @@ extension GameModel {
         // the day line) is drawn here, in the world's own frame, as the walking row is; it rides the look-around's pan
         // with the world and never trails it.
         // Step 5 (the clean frame): it fades while a finger holds the look-around's pan (`LanternVeil.signs`).
-        if let show = lanternMoment, let blockX = show.blockX {
-            layer.actors += HUDKitActors.moment(show.block, left: blockX, groundLift: 0, framing: framing,
-                                                alpha: Float(touch.veil.signs))
+        // Polish B1 (M3): its alpha is the one driver's light in three steps (`LanternVeil.blockShare`, with the clean
+        // frame's share); after the lowering the last block is drawn on until the light is gone.
+        if let show = momentShown, let blockX = show.blockX {
+            if touch.veil.light > 1e-9 {
+                layer.actors += HUDKitActors.moment(show.block, left: blockX, groundLift: 0, framing: framing,
+                                                    alpha: Float(touch.veil.blockShare))
+            }
         }
         let block = lordNotesBlock
         if !block.pieces.isEmpty {
@@ -314,16 +344,32 @@ extension GameModel {
         }
         if touch.lordHintOn && lanternMoment == nil { lordHintGlint(&layer, state: state, framing: framing) }
         raiseHalo(&layer, state: state)
-        guard lanternMoment != nil else { return }
+        // Polish B1 (M3): the pose is read from the one driver: the lift frame 8 for 0.05 s, then 9; on the way down 9,
+        // then 8 for the last 0.05 s while he still stands (`LanternVeil.pose`).
+        guard let pose = lanternPose(state) else { return }
         let lord = state.lordOrDefault
         for index in layer.actors.indices
         where layer.actors[index].sprite == lord.body || layer.actors[index].sprite == lord.glow {
-            layer.actors[index].frame = 9
+            layer.actors[index].frame = pose
         }
         for index in layer.lights.indices where isLordsLantern(layer.lights[index].source, state: state) {
             layer.lights[index].source.intensity *= 1.45
             layer.lights[index].source.y += LanternFlare.liftRows
         }
+    }
+
+    /// Polish B1: the moment drawn now: the raised one, or after the lowering the last one while its light leaves.
+    var momentShown: LanternMomentShow? {
+        if let show = lanternMoment { return show }
+        return touch.veil.light > 1e-9 ? touch.momentLast : nil
+    }
+
+    /// Polish B1 (M3): the lord's frame for the lantern moment now (8 or 9), nil for his own frame: read from the one
+    /// driver (`LanternVeil.pose`); on the way down only while he stands (a kept errand may walk him on at once).
+    func lanternPose(_ state: GameState) -> Int? {
+        let raised = lanternMoment != nil
+        if !raised && state.king.velocity != 0 { return nil }
+        return touch.veil.pose(raised: raised, reduceMotion: reduceMotion)
     }
 
     /// The lord's hint (fix round 1, the critic's high 3): his lantern glints, a quick bright pulse on the glass every

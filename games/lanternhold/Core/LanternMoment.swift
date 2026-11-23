@@ -582,8 +582,13 @@ enum LanternLight {
 ///   moment's own signs (the lord's row, the town's banner, the gear; never the people of the world) fade out in
 ///   0.15 s and the dim lifts to 40 % of its strength; when the finger lets go and the glide home starts (0.35 s)
 ///   they come back in 0.15 s, whole before he is home. The lantern going down clears it at once.
-/// Under Reduce Motion both are there and gone at once; with VoiceOver running nothing fades. `dim` is the strength of
-/// `LanternLight`'s rings, `signs` the share the moment's signs show at. Picture only, never saved.
+/// Under Reduce Motion the clean frame is there and gone at once; with VoiceOver running nothing fades. `dim` is the
+/// strength of `LanternLight`'s rings, `signs` the share the moment's signs show at. Picture only, never saved.
+/// Polish B1 (thing 2 of the polish audit, law 1 "one event, one driver"): `light` is the one driver of the whole
+/// moment. The dim reads it (`dim`), the Metal block reads it in three steps (`blockShare`), the SwiftUI layer (the
+/// strip, the banner, the gear) reads it as its opacity, and the lord's raised pose is read from it (`pose`); no layer
+/// keeps a curve or a timer of its own. Under Reduce Motion the moment comes and goes by opacity at law 1's quick tempo
+/// (`MotionToken.quick`: 0.15 s in, 0.10 s out, the same linear ramp), never at once.
 struct LanternVeil: Sendable, Equatable {
     /// 0 ... 1: the lantern's own light.
     private(set) var light = 0.0
@@ -592,6 +597,14 @@ struct LanternVeil: Sendable, Equatable {
 
     static let upSeconds = 0.15
     static let downSeconds = 0.1
+    /// Polish B1: under Reduce Motion the light ramps at law 1's quick tempo (opacity only, no travel).
+    static let reducedUpSeconds = MotionToken.quick.inSeconds
+    static let reducedDownSeconds = MotionToken.quick.outSeconds
+    /// Polish B1: the Metal block's alpha steps (three, on the pixel look: 1/3, 2/3, 1).
+    static let blockSteps = 3.0
+    /// Polish B1 (M3): the lord's lift frame (8) is held this long before the raised frame (9), on the way up and on
+    /// the way down (then his own frame).
+    static let poseHoldSeconds = 0.05
     /// The clean frame's fade, out and back.
     static let cleanSeconds = 0.15
     /// A held pan fades the signs past this many game px from home.
@@ -604,18 +617,39 @@ struct LanternVeil: Sendable, Equatable {
     /// The share the moment's own signs show at (1 whole, 0 gone).
     var signs: Double { 1 - clean }
 
+    /// Polish B1: the Metal block's alpha, `light` in three even steps (rounded up, so the block shows from the first
+    /// frame of the raise and stays a third until the light is gone), times the clean frame's `signs`.
+    var blockShare: Double {
+        guard light > 1e-9 else { return 0 }
+        let stepped = min(LanternVeil.blockSteps, (light * LanternVeil.blockSteps - 1e-9).rounded(.up))
+        return stepped / LanternVeil.blockSteps * signs
+    }
+
+    /// Polish B1 (M3): the lord's frame read from the light: going up (`raised`) the lift frame 8 for the first
+    /// `poseHoldSeconds` of the ramp, then 9; coming down 9 until the last `poseHoldSeconds`, then 8, then his own
+    /// frame (nil). Under Reduce Motion 9 while raised and his own frame at once, no held frame.
+    func pose(raised: Bool, reduceMotion: Bool) -> Int? {
+        if reduceMotion { return raised ? 9 : nil }
+        if raised {
+            return light * LanternVeil.upSeconds < LanternVeil.poseHoldSeconds - 1e-9 ? 8 : 9
+        }
+        guard light > 1e-9 else { return nil }
+        return light * LanternVeil.downSeconds > LanternVeil.poseHoldSeconds + 1e-9 ? 9 : 8
+    }
+
     /// One step of `seconds`: `raised` while the lantern is up, `held` while a finger holds the look-around's view,
     /// `pan` how far it stands slid (game px).
     mutating func step(_ seconds: Double, raised: Bool, held: Bool = false, pan: Double = 0, reduceMotion: Bool,
                        voiceOver: Bool = false) {
         let dt = max(0, seconds)
         let target = raised ? 1.0 : 0.0
-        if reduceMotion {
-            light = target
-        } else if light < target {
-            light = LanternVeil.toward(light, target, by: dt / LanternVeil.upSeconds)
+        // Polish B1: Reduce Motion keeps the ramp at law 1's quick tempo (it was a cut).
+        let up = reduceMotion ? LanternVeil.reducedUpSeconds : LanternVeil.upSeconds
+        let down = reduceMotion ? LanternVeil.reducedDownSeconds : LanternVeil.downSeconds
+        if light < target {
+            light = LanternVeil.toward(light, target, by: dt / up)
         } else if light > target {
-            light = LanternVeil.toward(light, target, by: dt / LanternVeil.downSeconds)
+            light = LanternVeil.toward(light, target, by: dt / down)
         }
         let wanted = raised && held && abs(pan) > LanternVeil.cleanFrom && !voiceOver ? 1.0 : 0.0
         if !raised || voiceOver || reduceMotion {

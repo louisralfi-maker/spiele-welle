@@ -125,6 +125,8 @@ struct TouchState: Sendable {
     /// clock's second the Debug finger of `-GWLookAround <dx>:<slow>:hold<s>` lets go (Debug builds only).
     var veil = LanternVeil()
     var lookHoldUntil: Double?
+    /// Polish B1: the last lantern moment shown, drawn on while its light leaves after the lowering.
+    var momentLast: LanternMomentShow?
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -679,6 +681,9 @@ extension GameModel {
             // on the lord when it lifts: it opens the lantern moment.
             if driver?.state.king.raises != raises { touch.raised = true } else { touch.onLord = false }
         }
+        // Polish B1 (H8): under the lantern the world stands still and the kept errand waits; the lowering checks its
+        // aim (`lowerLanternMoment`) and it goes on.
+        if lanternMoment != nil { return }
         guard var errand = touch.errand else { return }
         if overlay != nil || errand.stage != stage {
             cancelErrand()
@@ -896,9 +901,11 @@ extension GameModel {
     }
 
     /// The marks in view now: none under a card, during a change of stage or while the reference bot plays; the
-    /// errand's thing always among them while it stands clear of the screen's edges.
+    /// errand's thing always among them while it stands clear of the screen's edges. Polish B1 (H1's cause, the
+    /// refuter's missed point 2; the step-5 ruling): under the lantern too, never dimmed, so the player sees which tap
+    /// does a deed (a tap on a thing lowers and does it, a tap on the empty world only lowers).
     private func currentMarks(lordX: Double, framing: TouchFraming) -> [TouchMark] {
-        guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase, lanternMoment == nil else {
+        guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase else {
             return []
         }
         // Step 5 (P4): at a plot with several offers the builder's models replace the site's mark, its pool, its rim and
@@ -1116,6 +1123,8 @@ extension GameModel {
         case .collector:
             return CollectorTouch.label(state, waiting: touch.errand?.id == thing.id && touch.errand?.waiting == true)
         case .talk(let who):
+            // Polish B1 (rider 2): while his offer of the horn takes the touch, Brannock's element names the deed.
+            if who == NightOffer.speaker, nightOfferTakesTouch { return String(localized: "Sound the horn") }
             return String(localized: "Talk to \(speakerName(who, state: state))")
         case .bench:
             let who = thing.who ?? ""
