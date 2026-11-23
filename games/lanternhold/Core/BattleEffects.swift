@@ -73,6 +73,9 @@ struct BattleEffects: Sendable, Equatable {
     /// (`stale`), so the swept ones' puffs (`GameModel.dissolveSwept`, noted right after) find theirs too. A note comes
     /// only with events, so a sighting can be seconds old: the match widens with its age (`claimBody`).
     private var seenSmall: [SmallSeen] = []
+    /// Polish step A5: line 1's gate's motion (`GateMotion`) on the picture's wall clock. Never saved: new effects
+    /// after a load or a jump stand the gate in its target at once.
+    private(set) var gate = GateMotion()
 
     private struct SmallSeen: Sendable, Equatable {
         var id: Int
@@ -508,6 +511,19 @@ extension BattleEffects {
         stoodAt = now
         let near = listenerX.map { x in due.min { abs($0 - x) < abs($1 - x) } ?? due[0] } ?? due[0]
         return [near]
+    }
+
+    /// Polish step A5: notes line 1's gate's target for the frame (from the realm as the picture shows it, `drawn`,
+    /// with the frame's own day rule) at `time` on the picture's wall clock; `seen` while the world stage shows.
+    /// Returns what the note started (`.opens` in the frame the gate begins to rise). `cued`: the frame plays the
+    /// gate's cue with a change (the dawn), so an opening holds the cue's lead (`GateMotion.lead`).
+    @discardableResult
+    mutating func stepGate(_ state: GameState, balance: Balance, time: Double, reduceMotion: Bool,
+                           seen: Bool, cued: Bool = false) -> GateMotion.Change {
+        let shown = drawn(state)
+        let isDay = DayClock.phase(at: shown.hour) == .day
+        let target = EntityFrames.gateTarget(shown, balance: balance, isDay: isDay)
+        return gate.note(open: target?.open, time: time, reduceMotion: reduceMotion, seen: seen, cued: cued)
     }
 
     /// True once `standing`'s swap has come (by the standings' clock).

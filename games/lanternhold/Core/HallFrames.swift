@@ -38,12 +38,10 @@ struct HallFrameInput {
     /// Stage-3-interface (HUD.md section 3): the gold and the notes above the lord (the block, his x, the floor's lift
     /// under him), drawn unlit after everything; nil: none.
     var lordNotes: (block: HUDKit.Block, x: Double, ground: Double)? = nil
-    /// The lantern moment: the lord's lantern brighter.
-    var lanternUp = false
     // LANE-B: B3b
     /// Polish B3b (B1's M2, L1): the lantern moment as the outside's one driver gives it (`GameModel.hallLantern`): the
-    /// lord's pose (8 or 9; nil his own frame), his glass light's strength and its lift in whole rows. `lanternUp` alone
-    /// (a frame built by hand) still raises the pole to 9.
+    /// lord's pose (8 or 9; nil his own frame), his glass light's strength and its lift in whole rows. Step A5 (part 3):
+    /// the only source of the pose; the old `lanternUp` flag and its fallback to frame 9 are gone.
     var lantern = HallLantern()
     // LANE-B end
 }
@@ -732,7 +730,7 @@ enum HallFrames {
                 // brake closing the stride, the standing pose from the step that lands him.
                 frame = walker.gait.frame
             // LANE-B: B3b (the pose read from the one driver: the lift frame 8 for 0.05 s, then 9; down as outside)
-            } else if let pose = input.lantern.pose ?? (input.lanternUp ? 9 : nil) {
+            } else if let pose = input.lantern.pose {
                 // Stage-3-interface: the lantern moment, the pole held high (the command frame).
                 frame = pose
             // LANE-B end

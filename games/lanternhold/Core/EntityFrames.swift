@@ -154,7 +154,7 @@ enum EntityFrames {
 
         var props = structures(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
                                look: options.look, drill: drill, reduceMotion: options.reduceMotion,
-                               shifts: effects.shifts(reduceMotion: options.reduceMotion))
+                               shifts: effects.shifts(reduceMotion: options.reduceMotion), gate: effects.gate.look)
         for fade in effects.fades() {
             var old = s
             old.plots[fade.plot] = fade.before
@@ -243,14 +243,20 @@ enum EntityFrames {
         var plot = -1
         var shifts: [Int: Double] = [:]
         var works: [Int: (centre: Double, width: Double, y: Double)] = [:]
+        /// Polish step A5: line 1's gate as its motion stands this frame (`GateMotion`, from `BattleEffects.gate`); nil
+        /// (a frame built without the model's effects) draws the rule's frame as before.
+        var gateLook: GateMotion.Look?
 
+        /// Step A5: `cropTop` cuts that many rows off the sprite's top (`Prop.cropTop`): the gate while it travels.
         mutating func add(_ sprite: SpriteID, x: Double, y: Double = 0, z: Int, frame: Int = 0, flipped: Bool = false,
                           shade: Float = 1, alpha: Float = 1, emissive: [EmissivePart] = [], masks: [GlassMask] = [],
-                          lights: [LightSource] = [], isLit: Bool = true) {
+                          lights: [LightSource] = [], isLit: Bool = true, cropTop: Int = 0) {
             let lift = plot >= 0 ? shifts[plot] ?? 0 : 0
-            props.append(Prop(id: EntityFrames.propIDBase + props.count, sprite: sprite, plane: .world, x: x,
-                              y: y + lift, z: z, shade: shade, flipped: flipped, region: WorldLayout.worldRegion(x: x),
-                              emissive: emissive, masks: masks, isLit: isLit, frame: frame, alpha: alpha))
+            var prop = Prop(id: EntityFrames.propIDBase + props.count, sprite: sprite, plane: .world, x: x,
+                            y: y + lift, z: z, shade: shade, flipped: flipped, region: WorldLayout.worldRegion(x: x),
+                            emissive: emissive, masks: masks, isLit: isLit, frame: frame, alpha: alpha)
+            prop.cropTop = cropTop
+            props.append(prop)
             self.lights.append(contentsOf: lights)
         }
     }
@@ -271,9 +277,10 @@ enum EntityFrames {
     /// structure drawn `shifts` whole px off its place (step A2).
     static func structures(_ s: GameState, balance: Balance, layouts: [LineLayout], battleLights: [LightSource],
                            isDay: Bool, look: LookVersion, drill: YardLook.Drill?, reduceMotion: Bool,
-                           shifts: [Int: Double] = [:]) -> PropList {
+                           shifts: [Int: Double] = [:], gate: GateMotion.Look? = nil) -> PropList {
         var props = PropList()
         props.shifts = shifts
+        props.gateLook = gate
         defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
                      look: look, props: &props)
         props.plot = Realm.beaconPlot
@@ -496,23 +503,47 @@ enum EntityFrames {
         }
     }
 
+    /// The rule of line 1's gate: nil while its plot is rubble or holds no gate (nothing moves then); else its sprite,
+    /// its closed frame (0, or 1 below half strength) and whether it stands open (by day, no living creature within
+    /// `gateNear` of the outer wall). Step A5: `BattleEffects.stepGate` notes `open` for the motion every frame.
+    static func gateTarget(_ s: GameState, balance: Balance,
+                           isDay: Bool) -> (sprite: SpriteID, closed: Int, open: Bool)? {
+        let plot = s.plots[Realm.lines[0].wall]
+        guard !plot.isRubble, let item = plot.item else { return nil }
+        var near = false
+        for c in s.creatures where c.hp > 0 && c.x >= Realm.wallX[0] - gateNear {
+            near = true
+            break
+        }
+        let damaged = plot.hp < Build.maxHP(item, balance: balance) * 0.5
+        return (sprite: wallSprite(item), closed: damaged ? 1 : 0, open: isDay && !near)
+    }
+
     /// Line 1's gate in the castle front's gateway: closed at night and while creatures are near, open by day,
     /// the damaged frame below half strength, the broken gate when it falls; scaffolding while it is rebuilt or
     /// raised a tier.
+    ///
+    /// Step A5 (the gate moves, `GateMotion`): the gateway is drawn as its motion stands (`PropList.gateLook`). The
+    /// open frame (2) stands in its place and shows only below the closed frame's bottom edge; the closed frame (0 or
+    /// 1, as the rule gives it now) stands `rows` whole rows up, cut at the gateway's top edge (the frame's own top
+    /// row), so nothing of it shows above the arch. At 0 rows only the closed frame is drawn, at the full height only
+    /// the open one: no cut at either end. Under Reduce Motion both stand in place, the closed frame fading out over
+    /// the open one as the open one fades in (or the other way). Without a look (a frame built without the model's
+    /// effects) the rule's frame as before.
     private static func gate(_ s: GameState, balance: Balance, isDay: Bool, props: inout PropList) {
         let plot = s.plots[Realm.lines[0].wall]
         let gateWidth = Double(SpriteID.gateWood.size.width)
         if plot.isRubble {
             props.add(.gateBroken, x: gatewayX, z: 1)
-        } else if let item = plot.item {
-            var near = false
-            for c in s.creatures where c.hp > 0 && c.x >= Realm.wallX[0] - gateNear {
-                near = true
-                break
+        } else if let target = gateTarget(s, balance: balance, isDay: isDay) {
+            let look = props.gateLook ?? (target.open ? GateMotion.Look.open : GateMotion.Look.shut)
+            if look.showsOpen {
+                props.add(target.sprite, x: gatewayX, z: 1, frame: 2, alpha: look.openAlpha, cropTop: look.openCut)
             }
-            let damaged = plot.hp < Build.maxHP(item, balance: balance) * 0.5
-            let frame = isDay && !near ? 2 : (damaged ? 1 : 0)
-            props.add(wallSprite(item), x: gatewayX, z: 1, frame: frame)
+            if look.showsClosed {
+                props.add(target.sprite, x: gatewayX, y: Double(look.rows), z: 1, frame: target.closed,
+                          alpha: look.closedAlpha, cropTop: look.rows)
+            }
         }
         if plot.job != nil {
             scaffold(&props, centre: gatewayX + gateWidth / 2, width: gateWidth)

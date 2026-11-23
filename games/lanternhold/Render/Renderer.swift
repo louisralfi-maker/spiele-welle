@@ -941,7 +941,12 @@ final class Renderer {
             return SpriteQuad(rect: emissive.rect, texel: part.texels(flipped: emissive.flipped),
                               tint: SIMD4<Float>(rgb.x, rgb.y, rgb.z, glassMode))
         case .occluder:
-            return SpriteQuad(rect: emissive.rect, texel: cell.texels(flipped: emissive.flipped),
+            // Polish step A5: the part of the cell its source names (a prop cut at its top, `Prop.cropTop`: the gate
+            // while it travels); the whole cell for every other occluder, whose source is the whole sprite.
+            let source = emissive.source
+            let part = AtlasCell(x: cell.x + Int(source.x), y: cell.y + Int(source.y),
+                                 width: min(cell.width, Int(source.z)), height: min(cell.height, Int(source.w)))
+            return SpriteQuad(rect: emissive.rect, texel: part.texels(flipped: emissive.flipped),
                               tint: SIMD4<Float>(0, 0, 0, occluderMode))
         case .rim:
             // Touch the world, fix round 1 (stage lane): the cell grown by a texel left, right and up (the atlas keeps
