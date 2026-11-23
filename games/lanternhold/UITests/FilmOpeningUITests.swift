@@ -35,6 +35,8 @@ final class FilmOpeningUITests: XCTestCase {
             XCTFail("m01: no title to touch")
             return
         }
+        film.note("m01-c-reveal", "the reveal's beat before the touch (hitches it did not count, its longest gap): "
+                  + ((title.value as? String) ?? "none"))
         film.tapBurst("c", app, count: 26, what: "a touch on the title: the lord raises the lantern, the picture closes "
                       + "on the flame, the hall rises from black, then the name entry comes",
                       at: title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)))

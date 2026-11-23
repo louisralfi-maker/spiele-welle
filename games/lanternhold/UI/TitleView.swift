@@ -201,6 +201,8 @@ struct TitleView: View {
     @State private var showHint = false
     /// The reveal has ended: the picture stands without its mask (the mask then opens every pixel already).
     @State private var revealDone = false
+    /// Debug: the reveal's beat (hitches it did not count, its longest gap), the title's accessibility value.
+    @State private var revealProbe = ""
 
     /// `-GWTitleHold loading|half|lit|hint` (Debug only): the sequence holds at that state for the proof frames.
     private static let hold: String? = {
@@ -276,6 +278,7 @@ struct TitleView: View {
         .accessibilityLabel(Text("Lanternhold"))
         .accessibilityHint(Text("Double tap to begin"))
         .accessibilityAddTraits(.isButton)
+        .accessibilityValue(Text(verbatim: revealProbe))
         .accessibilityAction { touched() }
         .onAppear { gameReady = ready }
         .onChange(of: ready) { _, now in gameReady = now }
@@ -441,6 +444,9 @@ struct TitleView: View {
         // swell, it never cuts it short.
         await beat.wait(until: TitleTempo.revealSeconds)
         revealDone = true
+        #if DEBUG
+        revealProbe = String(format: "reveal lost:%.3f longest:%.3f", beat.lost, beat.longestGap)
+        #endif
         if pendingTouch { begin() }
         for group in TitleLayout.lightOrder {
             lit.formUnion(group)
