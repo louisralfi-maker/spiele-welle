@@ -17,10 +17,13 @@ struct ReportCardView: View {
             // Polish E2 (part 6's proof): `-GWReportFrame` lays the card out as on a screen of that size.
             let screen = ReportCardView.proofFrame ?? geometry.size
             let width = min(660, screen.width - 20)
+            // Polish E2 gate (P1): the minis' 354 pt (safe area) hold the longest line forward only with the head on one
+            // line and the body's padding halved; every taller phone keeps the card as it is.
+            let compact = screen.height < ReportCardView.compactHeight
             VStack(spacing: 0) {
-                header
+                header(compact: compact)
                 CardScroll {
-                    sections
+                    sections(compact: compact)
                 }
                 footer
             }
@@ -42,20 +45,41 @@ struct ReportCardView: View {
         .accessibilityIdentifier("report-root")
     }
 
-    private var header: some View {
+    /// Polish E2 gate (P1): a screen shorter than this (the safe area's height) lays the card out compact.
+    static let compactHeight: CGFloat = 360
+
+    // The same keys as `Text("Day \(n) dawns")`; the digits stand in the ledger's figures.
+    private var dayTitle: some View {
+        Text(inked: String(localized: "Day \(card.day) dawns"), .title2)
+            .font(Theme.caps(.title2))
+            .foregroundStyle(Theme.rubric)
+    }
+
+    // Polish E2 (part 5): the night as the ribbon said it the evening before ("Night 2 of 20", `FarGoal`).
+    private var nightLine: some View {
+        Text(inked: FarGoal.reportLine(night: card.night), .subheadline)
+            .font(Theme.italic(.subheadline))
+            .foregroundStyle(Theme.inkSoft)
+    }
+
+    private func header(compact: Bool) -> some View {
         HStack(spacing: 12) {
             // Fix round 1 (the critic's high 4, HUD.md section 2): the day line exactly as the lantern moment draws it
             // above the lord, the kit's dawn sign and the day's figure, so the report teaches it.
             KitDayLine(day: card.day, unit: 3)
-            VStack(alignment: .leading, spacing: 1) {
-                // The same keys as `Text("Day \(n) dawns")`; the digits stand in the ledger's figures.
-                Text(inked: String(localized: "Day \(card.day) dawns"), .title2)
-                    .font(Theme.caps(.title2))
-                    .foregroundStyle(Theme.rubric)
-                // Polish E2 (part 5): the night as the ribbon said it the evening before ("Night 2 of 20", `FarGoal`).
-                Text(inked: FarGoal.reportLine(night: card.night), .subheadline)
-                    .font(Theme.italic(.subheadline))
-                    .foregroundStyle(Theme.inkSoft)
+            Group {
+                if compact {
+                    // Polish E2 gate (P1): on the minis the night stands beside the day, on its baseline.
+                    HStack(alignment: .firstTextBaseline, spacing: 10) {
+                        dayTitle
+                        nightLine
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 1) {
+                        dayTitle
+                        nightLine
+                    }
+                }
             }
             .fixedSize(horizontal: false, vertical: true)
             .layoutPriority(1)
@@ -75,14 +99,14 @@ struct ReportCardView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 9)
-        .padding(.bottom, 5)
+        .padding(.top, compact ? 6 : 9)
+        .padding(.bottom, compact ? 3 : 5)
         .overlay(alignment: .bottom) {
             InkRule().padding(.horizontal, 20)
         }
     }
 
-    private var sections: some View {
+    private func sections(compact: Bool) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             ForEach(Array(bigBanners.enumerated()), id: \.offset) { index, banner in
                 ReportBanner(banner: banner, large: index == 0 && card.isFinale)
@@ -109,14 +133,14 @@ struct ReportCardView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, 6)
+                    .padding(.bottom, compact ? 3 : 6)
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("report-forward")
                 }
             }
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 6)
+        .padding(.vertical, compact ? 3 : 6)
     }
 
     // The columns' rows stand 5 pt apart and a row's detail directly under it: IM Fell's lines are taller than the
@@ -146,13 +170,25 @@ struct ReportCardView: View {
                         .font(Theme.caps(.footnote))
                         .tracking(1)
                         .foregroundStyle(Theme.rubric)
-                    ForEach(Array(card.fallen.enumerated()), id: \.offset) { _, soldier in
-                        HStack(spacing: 6) {
-                            GlyphView(glyph: .shield)
-                            Text(inked: Texts.fallen(soldier), .subheadline)
+                    if forwardLine != nil {
+                        // Polish E2 gate (P1): under a line forward the fallen stand two to a row, so the line is not
+                        // pushed under the footer's rule (four fallen and the giant's line, still 46i).
+                        ForEach(Array(stride(from: 0, to: card.fallen.count, by: 2)), id: \.self) { first in
+                            HStack(alignment: .top, spacing: 10) {
+                                fallenRow(card.fallen[first])
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                if first + 1 < card.fallen.count {
+                                    fallenRow(card.fallen[first + 1])
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                } else {
+                                    Color.clear.frame(maxWidth: .infinity, maxHeight: 0)
+                                }
+                            }
                         }
-                        .font(Theme.serif(.subheadline))
-                        .foregroundStyle(Theme.ink)
+                    } else {
+                        ForEach(Array(card.fallen.enumerated()), id: \.offset) { _, soldier in
+                            fallenRow(soldier)
+                        }
                     }
                 }
                 .accessibilityElement(children: .combine)
@@ -178,6 +214,17 @@ struct ReportCardView: View {
                 .accessibilityIdentifier("report-yard")
             }
         }
+    }
+
+    /// One of the fallen: the shield and the name with his post (a long name wraps inside its own place).
+    private func fallenRow(_ soldier: FallenSoldier) -> some View {
+        HStack(spacing: 6) {
+            GlyphView(glyph: .shield)
+            Text(inked: Texts.fallen(soldier), .subheadline)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .font(Theme.serif(.subheadline))
+        .foregroundStyle(Theme.ink)
     }
 
     /// b3-yard: the glyph before a line of the yard.
