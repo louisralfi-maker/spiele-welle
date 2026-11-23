@@ -1,0 +1,7 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FilmOpeningUITests.swift:330: error: -[LanternholdUITests.FilmOpeningUITests testM04TheLanternMoment] : failed - B1: the tap on the walking lord did not raise the lantern (m04-f)
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM04TheLanternMoment]' failed (105.110 seconds).
+Test Suite 'FilmOpeningUITests' failed at 2026-11-23 04:02:13.753.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-23 04:02:13.753.
+Test Suite 'Selected tests' failed at 2026-11-23 04:02:13.754.
+exit=65
+screenshots: 76
