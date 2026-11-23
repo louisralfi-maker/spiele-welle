@@ -157,8 +157,8 @@ final class TouchUITests: XCTestCase {
         hall.terminate()
     }
 
-    /// Day 3 (seed 2) at 10:00 before the gatehouse: the sites' marks, a touch on one, the slip while he walks, the card
-    /// when he arrives; a tap on the ground; the elements.
+    /// Day 3 (seed 2) at 10:00 before the gatehouse: the sites' marks, a touch on one, its board while he walks; a tap
+    /// on the ground; the elements.
     private func theFront() {
         let app = XCUIApplication()
         app.launchArguments = TouchUITests.base + ["-GWDay", "3", "-GWSeed", "2", "-GWClock", "10",
@@ -267,10 +267,13 @@ final class TouchUITests: XCTestCase {
         if let brazier = waitForThing(poor, "touch-brazier-2", timeout: 3) {
             XCTAssertFalse(brazier.label.isEmpty, "the light's label")
             touchThing(brazier)
-            if element(poor, "touch-slip").waitForExistence(timeout: 2) {
+            // Polish B3 (H4): no slip over the cold brazier; its own mark, pressed, is the errand's sign while he
+            // hurries (the picture shows it).
+            if waitForField(poor, "errand:touch-brazier-2", timeout: 2) {
                 attach(XCUIScreen.main.screenshot(), "153c-touch-light-\(language)")
+                XCTAssertFalse(element(poor, "touch-slip").exists, "no words over the walked world")
             } else {
-                XCTFail("no slip over the cold brazier")
+                XCTFail("no errand to the cold brazier")
             }
             waitForStill(poor)
             pause(1.5)
@@ -365,12 +368,14 @@ final class TouchUITests: XCTestCase {
             return
         }
         touchThing(throne)
-        if element(app, "touch-slip").waitForExistence(timeout: 3) {
+        // Polish B3 (H4): no slip over the throne while he walks up; the throne's own mark, pressed, is the sign.
+        if waitForField(app, "errand:touch-throne", timeout: 3) {
             pause(0.7)
             attach(XCUIScreen.main.screenshot(), "156-touch-hall-walk-\(language)")
+            XCTAssertFalse(element(app, "touch-slip").exists, "no words over the walked world")
             XCTAssertFalse(element(app, "audience-root").exists, "still on his way: no card yet")
         } else {
-            XCTFail("no slip over the throne while he walks")
+            XCTFail("no errand to the throne")
         }
         let card = element(app, "audience-root")
         XCTAssertTrue(card.waitForExistence(timeout: 16), "the audience when he sits")

@@ -1,3 +1,4 @@
+import Observation
 import SwiftUI
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the whole screen
@@ -72,9 +73,9 @@ struct TouchSpotsView: View {
     }
 }
 
-/// The slip above the thing the lord walks to: what he is about to do and what it costs ("Repair the wall" and the
-/// coin with 10), on night glass (stage-3-interface), its pixel tail down to the thing. Over a damaged wall it stays once he
-/// stands there, until a second touch pays; the price turns red while the treasury cannot pay it.
+/// The lord's hint over his head ("Touch the lord to still the world", fix round 1), its pixel tail down to him, on night
+/// glass in the quiet hand. Polish B3 (H4): the errand slip that used this view is gone (the errand's sign is the
+/// thing's own mark); the hint comes and goes by the presence rule (`GameView`) and stands only while he stands.
 @MainActor
 struct ErrandSlipView: View {
     let slip: ErrandSlip
@@ -94,32 +95,34 @@ struct ErrandSlipView: View {
     }
 
     private var content: some View {
-        HStack(spacing: 6) {
-            if slip.hint {
-                // The lord's hint (fix round 1): guidance in the quiet hand, not an errand's caps.
-                Text(verbatim: slip.text)
-                    .font(Theme.italic(.subheadline))
-                    .foregroundStyle(Theme.ink)
-            } else {
-                Text(inked: slip.text, .footnote)
-                    .font(Theme.caps(.footnote))
-                    .foregroundStyle(Theme.ink)
+        Text(verbatim: slip.text)
+            .font(Theme.italic(.subheadline))
+            .foregroundStyle(Theme.ink)
+            .lineLimit(1)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(GlassPanelBackground())
+            .overlay(alignment: .bottom) {
+                GlassTail()
+                    .offset(y: 4 * NightGlass.pointsPerPixel)
             }
-            if let price = slip.price {
-                // Night glass (stage-3-interface): the coin and the price in lantern gold, ember when short.
-                GoldAmount(amount: price, size: 13, color: slip.shortOfGold ? Theme.short : NightGlass.lanternGold)
-            }
-        }
-        .lineLimit(1)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(GlassPanelBackground())
-        .overlay(alignment: .bottom) {
-            GlassTail()
-                .offset(y: 4 * NightGlass.pointsPerPixel)
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier(slip.hint ? "touch-lord-hint" : "touch-slip")
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("touch-lord-hint")
+    }
+}
+
+/// Polish B3: whether the lord walks now, published only when it flips (the model's own `driver` is not observed), so
+/// the two teaching slips are never drawn over a walking lord (`GameView`; law 2).
+@MainActor
+@Observable
+final class WalkSigns {
+    static let shared = WalkSigns()
+    var lordWalks = false
+
+    /// Polish B3: a teaching slip (the first minute's, the lord's hint) is drawn only while it is due, no card is open,
+    /// the lantern is down and the lord stands.
+    nonisolated static func slipDrawn(due: Bool, card: Bool, lantern: Bool, walking: Bool) -> Bool {
+        due && !card && !lantern && !walking
     }
 }
 

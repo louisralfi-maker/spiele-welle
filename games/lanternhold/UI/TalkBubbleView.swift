@@ -2,7 +2,8 @@ import SwiftUI
 
 /// A court member's line in a speech bubble over his head (DESIGN.md "Talking"; M3 step 3; `talk-bubble`): a pane of
 /// night glass with his name in lantern gold and the line, its tail pointing down at him, following him on screen. A tap closes it
-/// (walking away closes it too, `GameModel.stepCourt`).
+/// (walking away closes it too, `GameModel.stepCourt`). Polish B3: it comes and goes by the presence rule (`GameView`:
+/// quick in rising 2 game px, quick out in place), and at Saul's post it carries the second touch's deed.
 @MainActor
 struct TalkBubbleView: View {
     let bubble: TalkBubble
@@ -26,10 +27,21 @@ struct TalkBubbleView: View {
                                 .tracking(0.8)
                                 .foregroundStyle(Theme.rubric)
                         }
-                        Text(inked: bubble.text ?? model.story(bubble.textKey), .subheadline)
-                            .font(Theme.serif(.subheadline))
-                            .foregroundStyle(Theme.ink)
-                            .fixedSize(horizontal: false, vertical: true)
+                        let line = bubble.text ?? model.story(bubble.textKey)
+                        if !line.isEmpty {
+                            Text(inked: line, .subheadline)
+                                .font(Theme.serif(.subheadline))
+                                .foregroundStyle(Theme.ink)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        // Polish B3 (H4): the deed the errand slip used to name over Saul's post (what the second touch
+                        // on him does), in the slip's caps, under his line; nil for every other bubble.
+                        if let deed = model.collectorDeed(bubble) {
+                            Text(inked: deed, .footnote)
+                                .font(Theme.caps(.footnote))
+                                .foregroundStyle(Theme.ink)
+                                .padding(.top, 2)
+                        }
                     }
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal, 12)
