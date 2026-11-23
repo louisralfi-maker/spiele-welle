@@ -1,0 +1,42 @@
+m07-a: a touch on the chandler's door: he walks up, her household tosses its coins into his palm, the purse; the condition: the town's state lists her as paid
+real time; as fast as the frames come (a rolling burst)
+the cause (a touch on the chandler's door: he walks up, her household tosses its coins into his palm, the purse; the condition: the town's state lists her as paid) was sent at +0.000 s and returned at +0.528 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +2.115 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWTown owed -GWClock 14 -GWHappiness 66 -GWCameraX 2400
+
+frame  seconds since the burst began  (scene where read)
+01  +0.706 s  
+02  +0.854 s  day:2 hour:14.57 alive:0 seen:0 shots:0 kx:2436 stage:world lx:2436 gold:21 hud:none cam:2158 tap:door count:none last:none lanterns:0 yard:none drill:none
+03  +1.155 s  
+04  +1.355 s  day:2 hour:14.60 alive:0 seen:0 shots:0 kx:2468 stage:world lx:2468 gold:21 hud:none cam:2217 tap:door count:none last:none lanterns:0 yard:none drill:none
+05  +1.769 s  
+06  +1.946 s  day:2 hour:14.65 alive:0 seen:0 shots:0 kx:2494 stage:world lx:2494 gold:37 hud:none cam:2279 tap:door count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+07  +2.296 s  
+08  +2.519 s  
+09  +2.767 s  
+10  +2.992 s  
+11  +3.202 s  
+12  +3.437 s  
+13  +3.630 s  
+14  +3.802 s  
+15  +3.977 s  
+16  +4.190 s  
+17  +4.479 s  
+18  +4.698 s  
+19  +4.920 s  
+20  +5.140 s  
+21  +5.301 s  
+22  +5.493 s  
+23  +5.710 s  
+24  +5.968 s  
+25  +6.168 s  
+26  +6.369 s  
+27  +6.521 s  
+28  +6.698 s  
+29  +6.869 s  
+30  +7.017 s  
+31  +7.189 s  
+32  +7.402 s  
+33  +7.605 s  
+34  +7.805 s  day:2 hour:15.14 alive:0 seen:0 shots:0 kx:2494 stage:world lx:2494 gold:37 hud:none cam:2279 tap:door count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.215 s over 33 gaps

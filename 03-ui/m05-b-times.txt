@@ -1,0 +1,64 @@
+m05-b: nine taps on the gate, one coin each (nine hollows): the coins, the last coin, the seal, the counter going
+real time; 3 frames after each tap as fast as they come, then 20 more
+tap 1 at +0.000 s: sent without waiting
+tap 2 at +0.634 s: sent without waiting
+tap 3 at +1.475 s: sent without waiting
+tap 4 at +2.069 s: sent without waiting
+tap 5 at +2.640 s: sent without waiting
+tap 6 at +3.178 s: sent without waiting
+tap 7 at +3.703 s: sent without waiting
+tap 8 at +4.319 s: sent without waiting
+tap 9 at +5.214 s: sent without waiting
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200
+scene after: frame:1270 ready day:3 hour:11.97 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1360 lord:lord stage:world lx:1360 errand:none door:1830 gold:110 hud:none cam:1142 tap:ground hint:off0 count:none last:paid:touch-plot-0 lanterns:1 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:1360.00 kf:6 kd:1 kcx:1141.50
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the first tap
+01  +0.268 s  first frame after tap 1
+02  +0.439 s  
+03  +0.634 s  
+04  +1.034 s  first frame after tap 2
+05  +1.264 s  
+06  +1.475 s  
+07  +1.712 s  first frame after tap 3
+08  +1.877 s  
+09  +2.069 s  
+10  +2.302 s  first frame after tap 4
+11  +2.471 s  
+12  +2.640 s  
+13  +2.891 s  first frame after tap 5
+14  +3.034 s  
+15  +3.177 s  
+16  +3.412 s  first frame after tap 6
+17  +3.546 s  
+18  +3.703 s  
+19  +3.931 s  first frame after tap 7
+20  +4.133 s  
+21  +4.319 s  
+22  +4.724 s  first frame after tap 8
+23  +4.978 s  
+24  +5.214 s  
+25  +5.667 s  first frame after tap 9
+26  +5.880 s  
+27  +6.106 s  
+28  +6.288 s  
+29  +6.461 s  
+30  +6.639 s  
+31  +6.778 s  
+32  +6.944 s  
+33  +7.112 s  
+34  +7.319 s  
+35  +7.471 s  
+36  +7.638 s  
+37  +7.821 s  
+38  +7.996 s  
+39  +8.186 s  
+40  +8.386 s  
+41  +8.567 s  
+42  +8.753 s  
+43  +8.929 s  
+44  +9.140 s  
+45  +9.307 s  
+46  +9.485 s  
+47  +9.664 s  
+mean spacing 0.204 s over 46 gaps
