@@ -39,6 +39,19 @@ final class TitleStepInTests: XCTestCase {
         }
     }
 
+    /// Polish C2b (P5): the light opens only once the hall under the title is warm and still, so its heavy first frames
+    /// fall into the breathing wait and not into the swell; never before the game is ready; and the wait never hangs:
+    /// 2.0 s after the warm-up ended the reveal starts whatever the hall did (a scene with no hall under the title).
+    func testTheRevealWaitsForTheWarmHall() {
+        XCTAssertFalse(StepIn.revealMayStart(gameReady: false, hallWarm: true, sinceWarmedUp: 9))
+        XCTAssertFalse(StepIn.revealMayStart(gameReady: true, hallWarm: false, sinceWarmedUp: 0))
+        XCTAssertFalse(StepIn.revealMayStart(gameReady: true, hallWarm: false, sinceWarmedUp: 1.99))
+        XCTAssertTrue(StepIn.revealMayStart(gameReady: true, hallWarm: true, sinceWarmedUp: 0))
+        XCTAssertTrue(StepIn.revealMayStart(gameReady: true, hallWarm: false, sinceWarmedUp: 2.0), "the ceiling")
+        XCTAssertEqual(StepIn.revealCeilingSeconds, 2.0)
+        XCTAssertGreaterThan(StepIn.revealCeilingSeconds, StepIn.hallWarmSeconds, "the ceiling never cuts the warm-up")
+    }
+
     // MARK: The reveal (M9)
 
     /// One calm swell: from its start to the window's end (281 game px on the iPhone 17 Pro) over 1.6 s on

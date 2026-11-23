@@ -497,6 +497,24 @@ enum StepInPicture: Equatable, Sendable {
 /// lantern, the picture closes in on the flame, the flame stands alone, and out of the black the hall rises; a pane the
 /// game holds at its start comes after. A pure timeline: time in, the one picture out.
 enum StepIn {
+    // Before the touch (polish C2b, P5): the hall is warm before the light opens.
+
+    /// The hall's view, built under the title once the game is ready, draws its first, heavy frames for 0.5 s and then
+    /// stands still (`worldWarm`) until the step's black (C2's L6, named here and read at the one place, the root).
+    static let hallWarmSeconds = 0.5
+    /// The reveal waits for that still hall, so the heaviest work of the launch falls into the breathing wait (the
+    /// light is the progress bar, TITLE.md) and never into the swell. The wait never hangs: 2.0 s after the warm-up
+    /// (`RenderWarmup`) ended the reveal starts whatever the hall did, also when no hall is mounted under the title.
+    static let revealCeilingSeconds = 2.0
+
+    /// Whether the title's reveal may start: the game ready (the model made, the renderer warm) and the hall warm and
+    /// still, or `revealCeilingSeconds` passed since the warm-up ended.
+    static func revealMayStart(gameReady: Bool, hallWarm: Bool, sinceWarmedUp seconds: Double) -> Bool {
+        gameReady && (hallWarm || seconds >= revealCeilingSeconds)
+    }
+
+    // From the touch.
+
     /// The lord raises the lantern: three frames, 0.1 s each (as before).
     static let raiseFrames = 3
     static let raiseFrameSeconds = 0.1

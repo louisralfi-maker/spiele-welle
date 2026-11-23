@@ -109,6 +109,35 @@ final class TitleUITests: XCTestCase {
         app.terminate()
     }
 
+    /// Polish C2b (P5, and part 5's marks): the reveal and the step in without the film. One launch with no screenshot
+    /// and no query of the app between the lantern's catching and the reveal's end, then the reveal's probe (the hitches
+    /// its beat did not count, its longest gap); then one touch, and with no screenshot until the name card stands, the
+    /// step's probe (the black, the hall whole, the card's first frame). Notes `m01-q-reveal` and `m01-q-probe`; no
+    /// frame is kept.
+    func testTheRevealAndStepInWithoutTheFilm() {
+        let film = FilmReel(self, "m01")
+        let app = film.launch(["-GWTitle", "YES", "-GWReset", "YES", "-GWSeed", "1"])
+        let title = film.element(app, "title-root")
+        XCTAssertTrue(title.waitForExistence(timeout: 30), "the title stands first")
+        // The catch (1.2 s), the warm-up (about 3 s in Debug on the runner), the hall's warm frames (0.5 s), the swell
+        // (1.6 s, at most 2.0 s after the warm-up plus 0.35 s for the breath's high step) and the lettering: nothing is
+        // asked of the app for 11 s.
+        film.pause(11)
+        let reveal = (title.value as? String) ?? "none"
+        film.note("m01-q-reveal", "the reveal's beat without the film (hitches it did not count, its longest gap): "
+                  + reveal)
+        XCTAssertTrue(reveal.hasPrefix("reveal lost:"), "the reveal ran within 11 s: \(reveal)")
+        title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
+        // The step in (1.55 s to the card) and the card's first frame, unasked.
+        film.pause(4)
+        let entry = film.element(app, "lord-entry-root")
+        XCTAssertTrue(entry.waitForExistence(timeout: 20), "the name card after the title")
+        film.note("m01-q-probe", "the step's beat without the film (hitches it did not count, its longest gap, wall "
+                  + "seconds of each phase and of the card's first frame): "
+                  + ((film.element(app, "stepin-probe").value as? String) ?? "none"))
+        app.terminate()
+    }
+
     private func attach(_ screenshot: XCUIScreenshot, _ name: String) {
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name

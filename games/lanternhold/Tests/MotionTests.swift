@@ -349,10 +349,11 @@ final class MotionTests: XCTestCase {
 
     /// The title's reveal is the one stage beat with its own tempo and curve (the director's call on thing 8): 1.6 s on
     /// (0.45, 0, 0.25, 1), from the glow's reach (93 game px, polish C2b P3, was 116) to the window's covering radius
-    /// (C2b P4: no constant end, was 340; `TitleStepInTests` pins it), the glow going out at quick. The wait breathes
-    /// 0.5 s / 0.35 s. The step into the game: the raise
-    /// 3 x 0.1 s, the close from 0.15 s over 0.45 s on the leave curve, the flame 0.10 s, the hall over the slow token
-    /// (0.25 s under Reduce Motion) and the pane the normal token later.
+    /// (C2b P4: no constant end, was 340; `TitleStepInTests` pins it), the glow going out at quick, a touch finishing
+    /// the swell at normal (P6); it waits for the hall's 0.5 s of warm frames, at most 2.0 s after the warm-up (P5).
+    /// The wait breathes 0.5 s / 0.35 s. The step into the game: the raise 3 x 0.1 s, the close from 0.15 s over
+    /// 0.45 s on the leave curve, the flame 0.10 s, the hall over the slow token (0.25 s under Reduce Motion) and the
+    /// pane the normal token later.
     func testTheTitlesTemposArePinned() {
         XCTAssertEqual(TitleTempo.catchSteps, 6)
         XCTAssertEqual(TitleTempo.catchStepSeconds, 0.2)
@@ -367,6 +368,8 @@ final class MotionTests: XCTestCase {
         XCTAssertEqual(TitleTempo.revealFrom, 93)
         XCTAssertEqual(TitleTempo.glowOutSeconds, MotionToken.quick.inSeconds)
         XCTAssertEqual(TitleTempo.finishSeconds, MotionToken.normal.inSeconds)
+        XCTAssertEqual(StepIn.hallWarmSeconds, 0.5)
+        XCTAssertEqual(StepIn.revealCeilingSeconds, 2.0)
         XCTAssertEqual(StepIn.raiseFrames, 3)
         XCTAssertEqual(StepIn.raiseFrameSeconds, 0.1)
         XCTAssertEqual(StepIn.closeFrom, 0.15)

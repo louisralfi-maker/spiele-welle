@@ -190,7 +190,8 @@ struct TitleMaskShape: Shape {
 
 @MainActor
 struct TitleView: View {
-    /// The game is ready behind the light (the model is made); the lantern's last step waits for it.
+    /// The game is ready behind the light (the model made, the renderer warm, and since polish C2b the hall under the
+    /// title warm and still, or the root's ceiling passed); the lantern's last step waits for it.
     let ready: Bool
     /// The game's own Reduce Motion (`-GWReduceMotion`); the system's switch counts too.
     var reduceMotionArgument = false

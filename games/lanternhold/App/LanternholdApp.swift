@@ -55,9 +55,13 @@ struct RootView: View {
     /// Polish C2 (C1-10): no pane stands before the hall is whole; a pane the game holds at its start comes 0.25 s
     /// after it (`StepIn.panesAt`), with its own come and one `paneOpen` (`OverlayView`, `AdLayer`).
     @State private var panesHeld = true
-    /// Polish C2: the hall's view built under the title has drawn its first frames (the heavy first one falls at the
-    /// reveal's start, which the beat's clock waits out); from then on it draws nothing until the step's black.
+    /// Polish C2: the hall's view built under the title has drawn its first frames (`StepIn.hallWarmSeconds`); from
+    /// then on it draws nothing until the step's black. Polish C2b (P5): the title's reveal waits for it, so those
+    /// heavy frames fall into the breathing wait and not into the swell.
     @State private var worldWarm = false
+    /// Polish C2b (P5): seconds since the warm-up ended, set once `StepIn.revealCeilingSeconds` have passed: then the
+    /// reveal starts whatever the hall did (a scene that mounts no hall under the title still reveals).
+    @State private var sinceWarmedUp = 0.0
     /// Polish C2 gate (P1, M2): the hall's view draws again from the black of the step (0.60 s), not from the touch,
     /// so its first draw or a wait for a drawable falls on the flame alone on black, never into the closing mask
     /// (lh-rc-18: the close stalled 0.5 to 1.0 s on the runner while the hall drew under the opaque title).
@@ -106,9 +110,10 @@ struct RootView: View {
                             guard !titleDone && stepBeat == nil else { return }
                             model.setActive(false)
                             // lh-rc-17: paused from its first frame, the hall drew its first, heavy frames at the touch
-                            // (2.2 s of the step lost on the runner); now they fall here, under the title.
+                            // (2.2 s of the step lost on the runner); now they fall here, under the title, and before
+                            // its reveal (polish C2b, P5).
                             Task { @MainActor in
-                                try? await Task.sleep(nanoseconds: 500_000_000)
+                                try? await Task.sleep(nanoseconds: UInt64(StepIn.hallWarmSeconds * 1_000_000_000))
                                 worldWarm = true
                             }
                         }
@@ -126,7 +131,11 @@ struct RootView: View {
                     .accessibilityValue(Text(verbatim: stepProbe))
                 #endif
                 if !titleDone {
-                    TitleView(ready: RenderWarmup.titleReady(modelMade: model != nil, warmedUp: warmedUp),
+                    // Polish C2b (P5): the light opens once the game is ready and the hall under it warm and still
+                    // (or the ceiling passed); until then the flame breathes.
+                    TitleView(ready: StepIn.revealMayStart(
+                                gameReady: RenderWarmup.titleReady(modelMade: model != nil, warmedUp: warmedUp),
+                                hallWarm: worldWarm, sinceWarmedUp: sinceWarmedUp),
                               reduceMotionArgument: args.reduceMotion, cues: titleCues) { beat in
                         stepIn(beat)
                     }
@@ -140,6 +149,10 @@ struct RootView: View {
                     Task { @MainActor in
                         await RenderWarmup.prepare()
                         warmedUp = true
+                        // Polish C2b (P5): the wait for the warm hall never hangs.
+                        let warmAt = Date()
+                        try? await Task.sleep(nanoseconds: UInt64(StepIn.revealCeilingSeconds * 1_000_000_000))
+                        sinceWarmedUp = Date().timeIntervalSince(warmAt)
                     }
                 }
                 let made = GameModel(args: args, kind: RootView.kind(of: args.scene))
