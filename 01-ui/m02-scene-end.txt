@@ -1,0 +1,1 @@
+frame:1990 ready day:1 hour:12.17 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1447 lord:lord stage:world lx:1447 errand:none door:1830 gold:44 hud:none cam:1169 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1447.17 kf:6 kd:-1 kcx:1169.03

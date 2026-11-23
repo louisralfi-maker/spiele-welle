@@ -1,0 +1,29 @@
+m02-y: a drag on the walk pad held 2.6 s, slowed: walk frame 0 and the pace growing, then let go: the brake over at most 4 px, the landing, the held pose
+slowed: -GWTimeScale 0.25; frames back to back, the scene read after each
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500 -GWTimeScale 0.25
+the cause at +0.000 s: a drag from 24.1, 262.2 to 24.1, 292.2 (30 pt), lifted at 2.62 s (synthesized)
+frame  seconds since the burst began  scene
+00  -0.010 s  before: hour:10.01 kv:0.00 kxf:1498.00 kf:7 kd:1 kcx:1251.65
+01  +2.416 s  hour:10.07 kv:36.00 kxf:1501.47 kf:0 kd:1 kcx:1255.79
+02  +2.949 s  hour:10.07 kv:36.00 kxf:1505.67 kf:1 kd:1 kcx:1264.77
+03  +3.372 s  hour:10.08 kv:36.00 kxf:1508.07 kf:2 kd:1 kcx:1270.62
+04  +3.725 s  hour:10.09 kv:36.00 kxf:1511.67 kf:3 kd:1 kcx:1279.60
+05  +4.221 s  hour:10.10 kv:36.00 kxf:1516.47 kf:4 kd:1 kcx:1291.46
+06  +4.627 s  hour:10.11 kv:36.00 kxf:1518.87 kf:5 kd:1 kcx:1297.27
+07  +5.110 s  hour:10.12 kv:16.01 kxf:1523.55 kf:5 kd:1 kcx:1308.93
+08  +5.772 s  hour:10.13 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+09  +6.314 s  hour:10.14 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+10  +6.922 s  hour:10.15 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+11  +7.393 s  hour:10.16 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+12  +7.922 s  hour:10.17 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+13  +8.343 s  hour:10.18 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+14  +8.793 s  hour:10.19 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+15  +9.179 s  hour:10.20 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+16  +9.633 s  hour:10.21 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+17  +10.099 s  hour:10.22 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+18  +10.480 s  hour:10.22 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+19  +10.803 s  hour:10.23 kv:0.00 kxf:1524.07 kf:6 kd:1 kcx:1310.12
+20  +11.275 s  hour:10.24 kv:0.00 kxf:1524.07 kf:7 kd:1 kcx:1310.12
+21  +11.864 s  hour:10.26 kv:0.00 kxf:1524.07 kf:7 kd:1 kcx:1310.12
+22  +12.337 s  hour:10.27 kv:0.00 kxf:1524.07 kf:7 kd:1 kcx:1310.12
+23  +12.673 s  hour:10.27 kv:0.00 kxf:1524.07 kf:7 kd:1 kcx:1310.12
