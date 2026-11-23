@@ -1,3 +1,4 @@
+import QuartzCore
 import SwiftUI
 
 @main
@@ -287,7 +288,7 @@ struct RootView: View {
             // waited for at most 3 s after the panes were let go; "none" when the game held no pane at its start.
             let probe = StepProbe.shared
             let deadline = Date().addingTimeInterval(3)
-            while probe.paneFree == nil && Date() < deadline {
+            while (probe.paneFree == nil || probe.paneShown == nil) && Date() < deadline {
                 try? await Task.sleep(nanoseconds: 8_000_000)
             }
             func wall(_ date: Date?) -> String {
@@ -298,6 +299,12 @@ struct RootView: View {
             marks.append("card-free " + wall(probe.paneFree))
             if let free = probe.paneFree, let wholeWall {
                 marks.append(String(format: "whole-to-card %.3f", free.timeIntervalSince(start) - wholeWall))
+            }
+            // The C2b gate (F1): the second display-link tick after the appear, the first frame that can hold the
+            // card's pixels (the film saw the card later than its main-thread turn).
+            marks.append("card-shown " + wall(probe.paneShown))
+            if let shown = probe.paneShown, let wholeWall {
+                marks.append(String(format: "whole-to-shown %.3f", shown.timeIntervalSince(start) - wholeWall))
             }
             stepProbe = launch + head + marks.joined(separator: ", ")
             #endif
@@ -324,12 +331,20 @@ final class StepProbe {
     private(set) var paneInit: Date?
     private(set) var paneAppeared: Date?
     private(set) var paneFree: Date?
+    /// The C2b gate (F1): the second display-link tick after the appear. The appear's commit has gone out with the
+    /// first tick's frame at the latest, so this is the first frame on which the card can stand (a main-thread turn
+    /// alone, `paneFree`, can come before that commit is drawn).
+    fileprivate(set) var paneShown: Date?
+    private var ticker: StepProbeTicker?
 
     /// A new step into the game: forget an earlier pane.
     func reset() {
         paneInit = nil
         paneAppeared = nil
         paneFree = nil
+        paneShown = nil
+        ticker?.stop()
+        ticker = nil
     }
 
     /// The start pane's view was made (its parent's body ran); the first time after a reset counts.
@@ -346,6 +361,34 @@ final class StepProbe {
                 StepProbe.shared.paneFree = Date()
             }
         }
+        let ticker = StepProbeTicker()
+        self.ticker = ticker
+        ticker.start()
+    }
+}
+
+/// The C2b gate (F1, Debug): counts the display's frames after the start pane appeared and marks the second.
+@MainActor
+private final class StepProbeTicker: NSObject {
+    private var link: CADisplayLink?
+    private var ticks = 0
+
+    func start() {
+        let link = CADisplayLink(target: self, selector: #selector(tick(_:)))
+        link.add(to: .main, forMode: .common)
+        self.link = link
+    }
+
+    func stop() {
+        link?.invalidate()
+        link = nil
+    }
+
+    @objc private func tick(_ link: CADisplayLink) {
+        ticks += 1
+        guard ticks >= 2 else { return }
+        stop()
+        if StepProbe.shared.paneShown == nil { StepProbe.shared.paneShown = Date() }
     }
 }
 #endif
