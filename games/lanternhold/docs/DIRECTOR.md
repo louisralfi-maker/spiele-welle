@@ -1594,3 +1594,8 @@ schneller geht."
     79049e55. B3b's review and gate went out as a fresh run of a continuation script (the step script without
     its Build phase, `ci-out/director/lanternhold-round-review.js`); the gate's labels are lh-rb-25 to 27. Usage
     72 %.
+  - 23.11. 15:51: step B3b is reviewed and gated. Both reviews accept; the gate fixed the one medium (Saul's deed
+    line wears the lantern gold, VoiceOver's hint says the deed) in 9e953fa1, round lh-rb-25 green; lane B is on
+    origin at 9e953fa1. Joined locally as 151ca052 (not pushed); rounds lh-rnd-31 (build, whole unit suite), 32
+    (Touch, Lord, Hall, Count) and 33 (FilmOpening, FilmDeals, Town; LookAround, Title, FilmPanes) went out. The
+    director's calls are point 26 of ROUND.md. Usage 73 %.

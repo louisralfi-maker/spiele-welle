@@ -450,6 +450,37 @@ Law 4 (answers and sounds), after D2:
       `Tests/PaySignTests.swift`: an absence test that could no longer fail). The unit suite on the join catches
       failures, not emptied proofs; a reviewer has to look for them.
 
+26. **After step B3b (the lantern's loose ends; lane B at 9e953fa1, joined locally as 151ca052).** Both reviews
+    accept: code no finding above low (7 low), player one medium and two low. The gate fixed the medium's styling in
+    `UI/TalkBubbleView.swift` and proved it on round lh-rb-25 (build and the two Saul cases, ALL PASSED on 9e953fa1).
+    The closing round stands split over lh-rb-21 and 23 (1d86f734) and lh-rb-24 (79049e55); after 1d86f734 only a
+    test and one view's colour and hint changed. The code reviewer judged the director's mend of
+    `CountUITests.testTheGuardsBoard` (79049e55): no proof is weaker.
+    - Seen by the director on the sheets: in the hall nothing cuts (a stipple third, two thirds, whole, and the same
+      way down); with full motion no dark lantern stands over a new building; Saul's deed line in the lantern gold
+      (`Theme.sealWords`) reads as something to do, and the tap on the bubble takes him on.
+    - The call on the medium (M1): the whole bubble does the deed, as the brief said. A bubble that carries a deed
+      stands only as the answer to the player's own first touch on Saul, and the deed is undone by the next one. The
+      gate gave the line the gold of a button's words and VoiceOver the deed's own words as the hint. A phone check:
+      does a habitual close-tap hire him or send him home by accident. If it does, step B4 limits the deed tap to
+      the deed line's own row (44 pt) and the rest of the bubble closes.
+    - Kept as decided: the Reduce Motion frame with the dark lantern fading with the scaffold (a2-c 09).
+    - To step B4: the answer's swap (clip the bubble's content to its glass, or key the text so the old lines leave
+      with the old glass; the old lines stand for a moment below the new, smaller glass); the hall's walking row held
+      back for up to 0.10 s while the leaving block fades; `lanternDimNow` one row off the glass in frame 8; a young
+      lantern that goes out 0.12 to 0.32 s after its work stood is cut in one frame (measure the leave from the
+      later of the two, one pin); `WalkSigns.shared.bubbleDeed` reset per test; the deed label built once, not each
+      frame; one Reduce Motion burst of the hall's raise; the new UI test above the Helpers mark.
+    - To lane A's next step: delete `HallFrameInput.lanternUp` and its fallback to frame 9 (no app writer, it skips
+      frame 8). To lane E when it next edits its E2 block in `App/GameModel+Touch.swift`: the guard line at :168 was
+      changed there by lane B (same truth value); move the guard just outside the block.
+    - The count's camera, read twice now (the director and the player reviewer, from lh-rb-22's log: lord x 1635 to
+      1597, camera 1449 to 1347, the board let go): after the lord turns between two boards the camera pans back for
+      about a second, so a hold aimed at the board can land on the ground, walk him off the stand and let the board
+      go with its coins. No film yet. A rider for B4: film it first; the candidate rule is that the camera's lead
+      does not flip while a count board stands (a tagged block in lane A's `Core/Camera.swift`).
+    - The whole unit suite did not run on the lane; it runs at the join (round lh-rnd-31).
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged
