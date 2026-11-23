@@ -1,0 +1,2 @@
+Story table: /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Resources/Story.xcstrings
+problems:
