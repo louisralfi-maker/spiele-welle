@@ -2,7 +2,9 @@ import SwiftUI
 
 /// A court member's line in a speech bubble over his head (DESIGN.md "Talking"; M3 step 3; `talk-bubble`): a pane of
 /// night glass with his name in lantern gold and the line, its tail pointing down at him, following him on screen. A tap closes it
-/// (walking away closes it too, `GameModel.stepCourt`).
+/// (walking away closes it too, `GameModel.stepCourt`). Polish B3: it comes and goes by the presence rule (`GameView`:
+/// quick in rising 2 game px, quick out in place), and at Saul's post it carries the second touch's deed; while that
+/// deed waits a tap does not close it (B3 gate M1: like the slip it stays until the second touch, walking away or a card).
 @MainActor
 struct TalkBubbleView: View {
     let bubble: TalkBubble
@@ -15,9 +17,11 @@ struct TalkBubbleView: View {
             let head = CGFloat(bubble.headY) * geometry.size.height
             let left = min(max(20, x - width / 2), geometry.size.width - width - 20)
             let tail = min(max(16, x - left), width - 16)
+            // Polish B3 gate (P1, M1): over Saul while the second touch waits, the deed that touch does.
+            let deed = model.collectorDeed(bubble)
             VStack(spacing: 0) {
                 Button {
-                    model.closeTalk()
+                    model.tapTalkBubble(bubble)
                 } label: {
                     VStack(alignment: .leading, spacing: 2) {
                         if let name = bubble.nameText ?? bubble.nameKey.map({ model.story($0) }) {
@@ -26,10 +30,23 @@ struct TalkBubbleView: View {
                                 .tracking(0.8)
                                 .foregroundStyle(Theme.rubric)
                         }
-                        Text(inked: bubble.text ?? model.story(bubble.textKey), .subheadline)
-                            .font(Theme.serif(.subheadline))
-                            .foregroundStyle(Theme.ink)
-                            .fixedSize(horizontal: false, vertical: true)
+                        let line = bubble.text ?? model.story(bubble.textKey)
+                        if !line.isEmpty {
+                            Text(inked: line, .subheadline)
+                                .font(Theme.serif(.subheadline))
+                                .foregroundStyle(Theme.ink)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        // Polish B3 (H4): the deed the errand slip used to name over Saul's post (what the second touch
+                        // on him does), under his line; nil for every other bubble. B3 gate (P1): in the lord's quiet
+                        // hand (the italic of his hint), not in caps, so it reads neither as Saul's voice nor as a button.
+                        if let deed {
+                            Text(inked: deed, .subheadline)
+                                .font(Theme.italic(.subheadline))
+                                .foregroundStyle(Theme.ink)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(.top, 2)
+                        }
                     }
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal, 12)
@@ -40,7 +57,8 @@ struct TalkBubbleView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityHint(Text("Tap to close"))
+                // B3 gate (M1): while the deed waits a tap keeps the bubble (`GameModel.tapTalkBubble`).
+                .accessibilityHint(deed == nil ? Text("Tap to close") : Text(verbatim: ""))
                 .accessibilityIdentifier("talk-bubble")
                 GlassTail()
                     .offset(x: tail - width / 2)

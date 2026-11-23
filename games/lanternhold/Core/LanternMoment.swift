@@ -32,6 +32,10 @@ enum HUDKit {
         var frame: Int
         var x: Int
         var y: Int
+        /// Polish B3 (the presence rule): the piece's share while its group comes or goes, and the whole game px it
+        /// stands below its place while it comes (`LordNotesShow`); 1 and 0 for everything else.
+        var alpha = 1.0
+        var drop = 0
     }
 
     /// A block of pieces and its size in game px.
@@ -45,7 +49,12 @@ enum HUDKit {
 
         /// The pieces moved by (dx, dy).
         func shifted(_ dx: Int, _ dy: Int) -> [Piece] {
-            pieces.map { Piece(sprite: $0.sprite, frame: $0.frame, x: $0.x + dx, y: $0.y + dy) }
+            pieces.map { piece in
+                var moved = piece
+                moved.x += dx
+                moved.y += dy
+                return moved
+            }
         }
     }
 
@@ -268,6 +277,93 @@ enum LordNotes {
     }
 }
 
+/// Polish B3 (M2 "the purse figure and the mood arrows appear and vanish in one frame"; law 1 quick): the walking row's
+/// three groups (the coin and its figure, the face and its arrow, the people and their arrow) each come and go by the
+/// presence rule: quick in rising 2 whole game px to its place, quick out in place; opacity only under Reduce Motion. A
+/// group that goes keeps the last value it showed. Picture state: never saved. Pure.
+struct LordNotesShow: Sendable, Equatable {
+    var purse = Presence(token: .quick)
+    var mood = Presence(token: .quick)
+    var crowd = Presence(token: .quick)
+    /// The last values shown (a group that goes shows its last).
+    var lastPurse: Int?
+    var lastMood: Bool?
+    var lastCrowd: Bool?
+    /// B3 gate (M3, P2): Reduce Motion as the last step had it (the row then holds each group's slot until it is gone).
+    var still = false
+
+    /// One group on screen: its pieces, its share and its rise (whole game px below its place).
+    struct Group: Sendable, Equatable {
+        var block: HUDKit.Block
+        var alpha: Double
+        var rise: Int
+    }
+
+    /// One step of `seconds`: each group toward whole while the frame asks for it (a value), else toward gone.
+    mutating func step(_ seconds: Double, purse wantedPurse: Int?, mood wantedMood: Bool?, crowd wantedCrowd: Bool?,
+                       mode: MotionMode) {
+        if let wantedPurse { lastPurse = wantedPurse }
+        if let wantedMood { lastMood = wantedMood }
+        if let wantedCrowd { lastCrowd = wantedCrowd }
+        still = mode.reduceMotion
+        purse.step(seconds, shown: wantedPurse != nil, mode: mode)
+        mood.step(seconds, shown: wantedMood != nil, mode: mode)
+        crowd.step(seconds, shown: wantedCrowd != nil, mode: mode)
+    }
+
+    /// The groups to draw, left to right as `LordNotes.block` lays them, each with its share and rise; a group that is
+    /// gone is left out.
+    func groups(happiness: Int) -> [Group] {
+        var list: [Group] = []
+        if let value = lastPurse, purse.alpha > MarkPresence.faintest {
+            list.append(Group(block: HUDKit.group(sign: .hudCoin, number: value), alpha: purse.alpha, rise: purse.rise))
+        }
+        if let up = lastMood, mood.alpha > MarkPresence.faintest {
+            list.append(Group(block: HUDKit.group(sign: .hudFace, frame: HUDKit.faceFrame(happiness: happiness),
+                                                  arrowUp: up), alpha: mood.alpha, rise: mood.rise))
+        }
+        if let up = lastCrowd, crowd.alpha > MarkPresence.faintest {
+            list.append(Group(block: HUDKit.group(sign: .hudPeople, arrowUp: up), alpha: crowd.alpha,
+                              rise: crowd.rise))
+        }
+        return list
+    }
+
+    /// The walking row as one block, laid out as `LordNotes.block` lays it, each piece carrying its group's share and
+    /// rise (`HUDKitActors.placed` draws them; the world and the hall alike). Empty when every group is gone.
+    /// B3 gate (M3, P2): each group's slot (its width and the space after it) counts at its weight (`slotWeights`), so
+    /// when one group comes or goes beside another the one that stays glides to its new place in whole px over the
+    /// other's 0.15 s or 0.10 s instead of jumping in one frame; with every group at one share it is `HUDKit.row`.
+    func block(happiness: Int) -> HUDKit.Block {
+        let list = groups(happiness: happiness)
+        guard !list.isEmpty else { return HUDKit.Block() }
+        let weights = LordNotesShow.slotWeights(list.map(\.alpha), still: still)
+        var row = HUDKit.Block()
+        var run = 0.0
+        for (group, weight) in zip(list, weights) {
+            row.pieces += group.block.shifted(Int(run.rounded()), 0).map { piece in
+                var faded = piece
+                faded.alpha = group.alpha
+                faded.drop = group.rise
+                return faded
+            }
+            run += Double(group.block.width + HUDKit.space) * weight
+        }
+        row.width = max(0, Int(run.rounded()) - HUDKit.space)
+        row.height = HUDKit.rowHeight
+        return row
+    }
+
+    /// B3 gate (M3, P2): each group's slot weight: its share over the largest share in the row, so a group alone, or
+    /// groups coming or going together, keep their places (weight 1); under Reduce Motion every slot is held whole
+    /// until its group is gone (no glide; the still form).
+    static func slotWeights(_ alphas: [Double], still: Bool) -> [Double] {
+        let top = alphas.max() ?? 0
+        guard !still, top > 0 else { return alphas.map { _ in 1 } }
+        return alphas.map { $0 / top }
+    }
+}
+
 /// When the realm strip comes by itself (HUD.md section 3): a call (petitioners wait in the hall, the Stranger at the
 /// gate, a wall below half at night) brings it up with its tag. It stands for `seconds` when a call begins or grows and
 /// again every `again` seconds while the call is open (round lh-s3-3: once a game hour kept it up half the time), so
@@ -385,12 +481,13 @@ enum HUDKitActors {
         return block.pieces.map { piece in
             let size = piece.sprite.size
             let x = framing.deviceX(stageX: left + Double(piece.x))
-            let y = framing.deviceY(lift: top - Double(piece.y))
+            // Polish B3: a piece whose group comes stands its drop lower (whole game px) at its share.
+            let y = framing.deviceY(lift: top - Double(piece.y) - Double(piece.drop))
             var actor = ActorInstance(sprite: piece.sprite, frame: piece.frame,
                                       rect: SIMD4<Float>(Float(x), Float(y), Float(size.width) * scale,
                                                          Float(size.height) * scale),
-                                      tint: SIMD4<Float>(1, 1, 1, alpha), flipped: false, isEmissive: true,
-                                      isLit: true)
+                                      tint: SIMD4<Float>(1, 1, 1, alpha * Float(min(1, piece.alpha))),
+                                      flipped: false, isEmissive: true, isLit: true)
             actor.dimRule = rule
             return actor
         }

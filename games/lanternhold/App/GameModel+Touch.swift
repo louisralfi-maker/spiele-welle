@@ -2,9 +2,10 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-/// The slip above the thing the lord walks to (touch the world): what he is about to do and what it costs; it stays
-/// over a damaged wall once he stands there, until a second touch pays. `x` and `y`: the mark's top on screen (0 ... 1
-/// of the width and the height).
+/// A slip of words over the walked world. Polish B3 (H4, law 2 "no word, number or plate on the walked world"): the
+/// errand's slip is gone, its sign is the thing's own mark; what is left is the lord's hint (`hint`), the one teaching
+/// line over his head, drawn only while he stands. `x` and `y`: its foot on screen (0 ... 1 of the width and the
+/// height).
 struct ErrandSlip: Sendable, Equatable {
     var text: String
     var price: Int?
@@ -127,6 +128,16 @@ struct TouchState: Sendable {
     var lookHoldUntil: Double?
     /// Polish B1: the last lantern moment shown, drawn on while its light leaves after the lowering.
     var momentLast: LanternMomentShow?
+    // Polish B3 (one presence; never saved).
+    /// The marks as they come and go (`MarkPresence`), the ids drawn last on which stage (the marks' memory,
+    /// `TouchRules.marked`'s `shown`).
+    var markShows: [String: MarkShow] = [:]
+    var markChosen: Set<String> = []
+    var markStage: StageKind?
+    /// The walking row's three groups as they come and go (`LordNotesShow`).
+    var notesShow = LordNotesShow()
+    /// Whether a talk bubble stood the frame before (its going is heard once, `bubbleClose`).
+    var bubbleWas = false
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -599,7 +610,6 @@ extension GameModel {
     func cancelErrand() {
         guard touch.errand != nil else { return }
         touch.errand = nil
-        if errandSlip != nil { errandSlip = nil }
     }
 
     /// He stands at the thing: he does what it offers. Build 3: beside a count's board he waits for the coins.
@@ -612,12 +622,13 @@ extension GameModel {
         }
         switch errand.act {
         case .collector:
-            // The join: at Saul Tolliver's post the slip waits for a second touch; while he was never taken on he
-            // makes his offer first, in the bubble over his head.
+            // The join: at Saul Tolliver's post the errand waits for a second touch; while he was never taken on he
+            // makes his offer first, in the bubble over his head. Polish B3 (H4): the slip that named the second
+            // touch is gone; its words stand in his bubble as the deed under his line (`collectorDeed`).
             var waiting = errand
             waiting.waiting = true
             touch.errand = waiting
-            if let state = driver?.state, CollectorTouch.offer(state) == .hire { collectorSays(.offer) }
+            if let state = driver?.state { collectorAwaits(CollectorTouch.offer(state)) }
         case .patch:
             // Build 3: the repair is paid by its count (`GameModel+Pay.swift`); the second touch that paid is gone.
             touch.errand = nil
@@ -676,6 +687,8 @@ extension GameModel {
         stepLanternHUD()
         stepFirstSlip(seconds)
         stepLordHint()
+        // Polish B3: the signs on the world come and go (marks, the walking row), the bubble's going is heard.
+        stepPresence(seconds)
         if touch.down != nil, touch.onLord, !touch.dragging, !touch.raised,
            clock.elapsed - touch.downAt >= LanternRaise.holdSeconds {
             let raises = driver?.state.king.raises
@@ -828,15 +841,31 @@ extension GameModel {
             layer.lights.append((source: pool, plane: .world))
         }
         // Fix round 1: the gold rim on each marked thing, and an empty plot's footing behind every figure.
-        TouchRims.mark(&layer.props, marks: marks, night: night)
+        // Polish B3: each at its mark's share, so the rim and the footing come and go with the tag.
+        GameModel.markRims(&layer.props, marks: marks, night: night)
         // b3-smooth (build 3, lane 5b step 1, the critic's M2): the rim round a marked person rides the figure's own
         // device pixels (an actor behind every figure, placed through the court's own view), not the world's grid.
-        let rims = TouchRims.actors(marks, figures: figures, night: night,
-                                    view: EntityFrames.ActorView(camera: view, pixelScale: pixelScale,
-                                                                 mode: options.actorMode))
+        let actorView = EntityFrames.ActorView(camera: view, pixelScale: pixelScale, mode: options.actorMode)
+        var rims: [ActorInstance] = []
+        var footing: [ActorInstance] = []
+        for mark in marks {
+            let share = Float(min(1, mark.alpha))
+            rims += TouchRims.actors([mark], figures: figures, night: night, view: actorView).map { rim in
+                var faded = rim
+                faded.tint.x *= share
+                faded.tint.y *= share
+                faded.tint.z *= share
+                return faded
+            }
+            footing += TouchFooting.actors([mark], framing: framing).map { pixel in
+                var faded = pixel
+                faded.tint.w *= share
+                return faded
+            }
+        }
         layer.actors.insert(contentsOf: rims, at: 0)
         // b3-smooth end
-        layer.actors.insert(contentsOf: TouchFooting.actors(marks, framing: framing), at: 0)
+        layer.actors.insert(contentsOf: footing, at: 0)
         raisedLantern(&layer, state: state, framing: framing)
         // The flame shows the danger (director's note 5): as the next wave nears the lantern burns lower and
         // flutters, and it steadies when the wave is spent; with Reduce Motion it reddens instead of fluttering.
@@ -906,11 +935,26 @@ extension GameModel {
     /// The marks in view now: none under a card, during a change of stage or while the reference bot plays; the
     /// errand's thing always among them while it stands clear of the screen's edges. Polish B1 (H1's cause, the
     /// refuter's missed point 2; the step-5 ruling): under the lantern too, never dimmed, so the player sees which tap
-    /// does a deed (a tap on a thing lowers and does it, a tap on the empty world only lowers).
+    /// does a deed (a tap on a thing lowers and does it, a tap on the empty world only lowers). Polish B3: the errand's
+    /// mark is its sign (pressed, its pool x 1.4, from the touch until he arrives); the marks remember what they showed
+    /// (`TouchRules.keepMargin`), and each comes and goes by the presence rule (`MarkPresence`), also when a card opens
+    /// or the stage changes.
     private func currentMarks(lordX: Double, framing: TouchFraming) -> [TouchMark] {
-        guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase else {
-            return []
+        guard driver?.bot == nil, !isShowcase else { return [] }
+        if touch.markStage != framing.stage {
+            touch.markStage = framing.stage
+            touch.markChosen = []
+            touch.markShows = [:]
         }
+        let wanted = wantedMarks(lordX: lordX, framing: framing)
+        touch.markChosen = Set(wanted.map(\.id))
+        MarkPresence.merge(&touch.markShows, wanted: wanted)
+        return MarkPresence.drawn(touch.markShows)
+    }
+
+    /// The marks this frame asks for (before their presence): none under a card or during a change of stage.
+    private func wantedMarks(lordX: Double, framing: TouchFraming) -> [TouchMark] {
+        guard overlay == nil, stageChange == nil else { return [] }
         // LANE-E: E2 (the gate's P2: the night's marks go in the frame the gate opens, not alone in the card's wait)
         if dawnCardWaits { return [] }
         // LANE-E end
@@ -918,11 +962,13 @@ extension GameModel {
         // its footing; the plot takes no mark slot either (the review: it could push a neighbour's mark out).
         let modelled = Set(touch.models.map { "touch-plot-\($0.plot)" })
         var marked = TouchRules.marked(touch.things.filter { !modelled.contains($0.id) }, lordX: lordX,
-                                       viewLeft: framing.viewLeft, viewRight: framing.viewRight)
+                                       viewLeft: framing.viewLeft, viewRight: framing.viewRight,
+                                       shown: touch.markChosen)
         // Stage-3-interface (stage-2 critic look 2, high 5): by day three at most, buildings' marks 120 px apart.
         let night = Double(AmbientRamp.sample(at: driver?.state.hour ?? 12, look: args.look).torchStrength)
         marked = TouchRules.thinned(marked, night: night)
-        if let errand = touch.errand, let thing = touch.things.first(where: { $0.id == errand.id }),
+        let errand = touch.errand?.stage == stage ? touch.errand : nil
+        if let errand, let thing = touch.things.first(where: { $0.id == errand.id }),
            thing.kind.mark != nil,
            TouchRules.clearOfEdges(thing.markX, viewLeft: framing.viewLeft, viewRight: framing.viewRight) {
             marked = TouchRules.withErrand(marked, thing)
@@ -930,11 +976,11 @@ extension GameModel {
         // The errand's thing may be a modelled plot: still no mark there.
         marked.removeAll { modelled.contains($0.id) }
         var marks = TouchMarks.marks(marked, pressed: touch.pressed ?? heldMark(marked))
-        // High 2: a slip that names a thing takes its mark's place (the errand's slip; inside, the horn's at the
-        // door).
         for index in marks.indices {
             let id = marked[index].id
-            if touch.errand?.id == id && touch.errand?.stage == stage { marks[index].hidden = true }
+            // Polish B3 (H4): the errand's sign is its own mark, pressed from the touch until he arrives (a wait at
+            // Saul's post is after the arrival), never hidden.
+            if let errand, errand.id == id, !errand.waiting { marks[index].pressed = true }
             // Build 3: the board stands there; the mark gives way to it.
             if touch.count?.thing == id { marks[index].hidden = true }
             // b3-yard (build 3, wave 2, lane 2, step 3; the critic's H1): no talk mark over a person behind a board.
@@ -944,11 +990,49 @@ extension GameModel {
         return marks
     }
 
+    /// Polish B3: one frame of the signs on the world: the marks' presence, the walking row's groups, the first
+    /// minute's slip held while he walks, and the bubble's going heard once (`bubbleClose`, on every way it goes: a
+    /// tap, walking away, a card, the horn, the stage). The game's time (`-GWTimeScale` slows them for their pictures,
+    /// as the lantern's light; 1 in a Release build).
+    func stepPresence(_ seconds: Double) {
+        let dt = seconds * args.timeScale
+        let mode = MotionMode(reduceMotion: reduceMotion)
+        MarkPresence.step(&touch.markShows, seconds: dt, mode: mode)
+        let notes = lordNotesWanted
+        touch.notesShow.step(dt, purse: notes.purse, mood: notes.mood, crowd: notes.crowd, mode: mode)
+        let walks = !lordStands
+        if WalkSigns.shared.lordWalks != walks { WalkSigns.shared.lordWalks = walks }
+        let bubble = talkBubble != nil
+        if touch.bubbleWas && !bubble { feedback.play(.bubbleClose) }
+        touch.bubbleWas = bubble
+    }
+
+    /// Polish B3: the lord stands (no walk of his own on the stage that shows).
+    var lordStands: Bool {
+        if stage == .hall { return (hall?.walker.velocity ?? 0) == 0 }
+        return (driver?.state.king.velocity ?? 0) == 0
+    }
+
     /// `-GWPressed <id>` (fix round 1, the pressed frame's picture): that thing's mark held pressed while no finger is
     /// down; `nearest` presses the nearest mark.
     private func heldMark(_ marked: [TouchThing]) -> String? {
         guard let held = args.pressed, touch.down == nil else { return nil }
         return held == "nearest" ? marked.first?.id : held
+    }
+
+    /// Polish B3: the gold rims on the props a marked thing stands on (`TouchRims.mark`), each at its mark's share.
+    static func markRims(_ props: inout [Prop], marks: [TouchMark], night: Double) {
+        for mark in marks {
+            let before = props.map(\.emissive.count)
+            TouchRims.mark(&props, marks: [mark], night: night)
+            let share = Float(min(1, mark.alpha))
+            guard share < 1 else { continue }
+            for index in props.indices where props[index].emissive.count > before[index] {
+                for part in before[index]..<props[index].emissive.count {
+                    props[index].emissive[part].color *= share
+                }
+            }
+        }
     }
 
     /// True for the lord's own lantern among the frame's lights (on his glass; the street lanterns keep theirs).
@@ -1017,7 +1101,7 @@ extension GameModel {
         framing.deviceX(stageX: kingX + (EntityFrames.kingGlass.dx * Double(facing)).rounded(.down))
     }
 
-    /// After each frame: the slip over the errand's thing, and four times a second the accessibility elements.
+    /// After each frame: the lord's hint, and four times a second the accessibility elements.
     private func noteTouchFrame() {
         refreshTouchSlip()
         let now = clock.elapsed
@@ -1036,21 +1120,13 @@ extension GameModel {
         abs(next - old) * max(1, span) >= 0.5
     }
 
-    /// The slip over the errand's thing (nil without an errand).
+    /// The lord's hint over his head (nil while it is not due). Polish B3 (H4, law 2): no slip over an errand's thing
+    /// any more, its sign is its own mark; the hint is drawn only while he stands and the lantern is down (it goes at
+    /// quick out when he starts and comes back under its own rule when he stands).
     func refreshTouchSlip() {
         var next: ErrandSlip?
-        // Build 3: no slip over a count's thing; its board is the price.
-        if let errand = touch.errand, touch.count?.thing != errand.id, let framing = touch.framing,
-           framing.stage == stage, overlay == nil,
-           let thing = touch.things.first(where: { $0.id == errand.id }), let state = driver?.state {
-            let top = thing.markLift + (thing.kind.mark != nil ? TouchRules.markHeight : 0)
-            let x = framing.deviceX(stageX: thing.markX) / max(1, framing.physicalWidth)
-            let y = framing.deviceY(lift: top) / max(1, framing.physicalHeight)
-            next = ErrandSlip(text: touchLabel(thing, state: state), price: thing.price,
-                              shortOfGold: (thing.price ?? 0) > state.gold, x: x, y: y, waiting: errand.waiting)
-        }
-        if next == nil, touch.lordHintOn, let framing = touch.framing, framing.stage == stage, overlay == nil,
-           lanternMoment == nil {
+        if touch.lordHintOn, let framing = touch.framing, framing.stage == stage, overlay == nil,
+           lanternMoment == nil, lordStands {
             // The lord's hint over his head, its tail down to him.
             let ground = stage == .hall ? HallLayout.lift(at: stageLordX) : 0
             let x = framing.deviceX(stageX: stageLordX) / max(1, framing.physicalWidth)
@@ -1058,8 +1134,7 @@ extension GameModel {
             next = ErrandSlip(text: story("touch.lord"), price: nil, shortOfGold: false, x: x, y: y, waiting: false,
                               hint: true)
         }
-        if let next, let old = errandSlip, next.text == old.text, next.price == old.price,
-           next.shortOfGold == old.shortOfGold, next.waiting == old.waiting, let framing = touch.framing,
+        if let next, let old = errandSlip, next.text == old.text, let framing = touch.framing,
            !GameModel.followsOnScreen(next.x, old.x, span: framing.physicalWidth),
            !GameModel.followsOnScreen(next.y, old.y, span: framing.physicalHeight) {
             return
@@ -1103,7 +1178,8 @@ extension GameModel {
         if spots != touchSpots { touchSpots = spots }
     }
 
-    /// What a thing offers, the act first ("Talk to Tamsin", "Repair the wall"): the slip and the element's label.
+    /// What a thing offers, the act first ("Talk to Tamsin", "Repair the wall"): the element's label (VoiceOver and the
+    /// UI tests). Polish B3: no slip says it on the world any more (the list of where each is said now: B3.md).
     func touchLabel(_ thing: TouchThing, state: GameState) -> String {
         switch thing.act {
         case .build(let plot):

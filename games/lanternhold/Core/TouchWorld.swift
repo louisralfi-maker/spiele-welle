@@ -203,19 +203,31 @@ enum TouchRules {
         return best
     }
 
+    /// Polish B3 (M2: the marks blinked while he walked, because the nearest four changed with every step): a mark that
+    /// is shown keeps its place among the marks until a thing not shown is nearer to the lord by more than this many
+    /// world px.
+    static let keepMargin = 12.0
+
     /// The marks to draw: things in view (`viewLeft ... viewRight`) that may carry one, the nearest to the lord first,
     /// at most `maxMarks` (and `maxSiteMarks` over sites); of a row of damaged walls only the nearest carries the mark;
-    /// a tag that would overlap a nearer one gives way.
-    static func marked(_ things: [TouchThing], lordX: Double, viewLeft: Double, viewRight: Double) -> [TouchThing] {
+    /// a tag that would overlap a nearer one gives way. Polish B3: `shown` is what was drawn the frame before (the
+    /// memory): a shown thing counts `keepMargin` px nearer than it stands, so a thing not shown takes its place only
+    /// once it is nearer by more than that, and a step back inside the margin changes nothing. Pure: the same lord's
+    /// place and memory give the same marks at every frame rate.
+    static func marked(_ things: [TouchThing], lordX: Double, viewLeft: Double, viewRight: Double,
+                       shown: Set<String> = []) -> [TouchThing] {
         // Fix round 1: only while the thing stands clear of the screen's edges (no mark cut in half there).
         var list = things.filter { thing in
             thing.marked && thing.kind.mark != nil
                 && clearOfEdges(thing.markX, viewLeft: viewLeft, viewRight: viewRight)
         }
         list.sort { a, b in
-            let d = abs(a.x - lordX)
-            let e = abs(b.x - lordX)
-            return d == e ? a.id < b.id : d < e
+            let d = TouchRules.weighedDistance(a, lordX: lordX, shown: shown)
+            let e = TouchRules.weighedDistance(b, lordX: lordX, shown: shown)
+            if d != e { return d < e }
+            let aShown = shown.contains(a.id)
+            if aShown != shown.contains(b.id) { return aShown }
+            return a.id < b.id
         }
         // b3-yard (build 3, wave 2, lane 2, step 2; a registration block for the join): the yard's site is weighed
         // before every other thing that is not a person, so a nearer building's tag never takes its mark, while a
@@ -251,6 +263,11 @@ enum TouchRules {
         // b3-yard: back in the order of nearness.
         out.sort { (nearestFirst.firstIndex(of: $0.id) ?? 0) < (nearestFirst.firstIndex(of: $1.id) ?? 0) }
         return out
+    }
+
+    /// Polish B3: a thing's distance to the lord as the marks weigh it: `keepMargin` less while its mark is shown.
+    static func weighedDistance(_ thing: TouchThing, lordX: Double, shown: Set<String>) -> Double {
+        abs(thing.x - lordX) - (shown.contains(thing.id) ? keepMargin : 0)
     }
 
     /// His pace for a walk of `distance` px: a walk, a hurry beyond `hurryDistance` or at night, a run when asked

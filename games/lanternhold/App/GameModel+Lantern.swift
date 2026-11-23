@@ -324,6 +324,14 @@ extension GameModel {
         return LordNotes.block(purse: purse.shown, happiness: state.happiness, mood: notes.mood, crowd: notes.crowd)
     }
 
+    /// Polish B3: what the walking row asks for this frame (the purse's figure while it ticks, the mood's and the
+    /// people's arrows while they stand), nil for each while the lantern is up, a card is open or the stage changes
+    /// (then the groups go at quick out instead of in one frame).
+    var lordNotesWanted: (purse: Int?, mood: Bool?, crowd: Bool?) {
+        guard lanternMoment == nil, overlay == nil, stageChange == nil, driver != nil else { return (nil, nil, nil) }
+        return (purse.shown, notes.mood, notes.crowd)
+    }
+
     /// The notes as unlit actors above the lord on the world strip (`touchWorld`), and while the lantern is up the
     /// lord's raised pose and the brighter glass.
     func lanternWorld(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming) {
@@ -339,7 +347,8 @@ extension GameModel {
                                                     alpha: Float(touch.veil.blockShare))
             }
         }
-        let block = lordNotesBlock
+        // Polish B3 (M2): the walking row by its groups, each coming and going by the presence rule.
+        let block = touch.notesShow.block(happiness: state.happiness)
         if !block.pieces.isEmpty {
             // Build 3, the count's step 2 (M2): the figure never touches a board standing by the lord.
             let room = countPurseRoom(width: block.width, lordX: state.king.x)
@@ -484,7 +493,8 @@ extension GameModel {
             let ground = HallLayout.lift(at: scene.walker.x) + Double(HUDKit.momentAbove - HUDKit.purseAbove)
             return (show.block, blockX + Double(show.block.width) / 2, ground)
         }
-        let block = lordNotesBlock
+        // Polish B3 (M2): the walking row by the presence rule in the hall too.
+        let block = touch.notesShow.block(happiness: driver?.state.happiness ?? 0)
         guard !block.pieces.isEmpty else { return nil }
         return (block, scene.walker.x, HallLayout.lift(at: scene.walker.x))
     }

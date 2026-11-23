@@ -157,6 +157,178 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertEqual(TouchRules.marked(close, lordX: 100, viewLeft: 0, viewRight: 400).map(\.id), ["a"])
     }
 
+    /// Polish B3 (M2, the 12 px memory): a walk along a row of five people (four marks at most) changes the set of
+    /// marks only once a thing not shown is nearer to the lord by more than `TouchRules.keepMargin`, and a step back
+    /// and forth inside the margin changes nothing; without the memory the set flips at the half-way point. The
+    /// errand's thing stays in the set whatever the nearest four are.
+    func testAWalkPastFiveThingsChangesTheMarksOnlyPastTheMargin() {
+        XCTAssertEqual(TouchRules.keepMargin, 12)
+        let row = (0..<5).map { thing("p\($0)", kind: .talk, x: 100 + Double($0) * 40) }
+        func set(_ lordX: Double, _ shown: Set<String>) -> Set<String> {
+            Set(TouchRules.marked(row, lordX: lordX, viewLeft: 0, viewRight: 1000, shown: shown).map(\.id))
+        }
+        // East along the row, one px a frame, each frame remembering the last.
+        var shown = set(100, [])
+        XCTAssertEqual(shown, ["p0", "p1", "p2", "p3"])
+        var changes: [(x: Double, gone: Set<String>, came: Set<String>)] = []
+        for x in stride(from: 100.0, through: 260, by: 1) {
+            let next = set(x, shown)
+            if next != shown { changes.append((x, shown.subtracting(next), next.subtracting(shown))) }
+            shown = next
+        }
+        XCTAssertEqual(changes.count, 1, "one change on the way: \(changes.map(\.x))")
+        for change in changes {
+            let gone = row.first { change.gone.contains($0.id) }!
+            let came = row.first { change.came.contains($0.id) }!
+            XCTAssertLessThan(abs(came.x - change.x), abs(gone.x - change.x) - TouchRules.keepMargin,
+                              "the new one is nearer by more than 12 px at \(change.x)")
+        }
+        // p0 (100) and p4 (260) are as near at 180: the change comes at 187 going east, at 173 going west.
+        XCTAssertEqual(changes.first?.x, 187)
+        var west = set(260, [])
+        var westChanges: [Double] = []
+        for x in stride(from: 260.0, through: 100, by: -1) {
+            let next = set(x, west)
+            if next != west { westChanges.append(x) }
+            west = next
+        }
+        XCTAssertEqual(westChanges, [173], "and back west only past the margin the other way")
+        // Back and forth inside the margin around the half-way point: nothing changes.
+        var held = set(180, ["p0", "p1", "p2", "p3"])
+        let start = held
+        for x in [181.0, 179, 183, 177, 185, 175, 186, 174, 180] {
+            held = set(x, held)
+            XCTAssertEqual(held, start, "inside the 12 px at \(x)")
+        }
+        // Without the memory the nearest four flip at the half-way point.
+        XCTAssertNotEqual(set(179, []), set(181, []), "the old rule flipped with one step")
+        // The errand's thing stays among the marks, also when it is the farthest.
+        let errandThing = row[4]
+        let marked = TouchRules.marked(row, lordX: 100, viewLeft: 0, viewRight: 1000, shown: shown)
+        XCTAssertFalse(marked.contains { $0.id == errandThing.id })
+        XCTAssertTrue(TouchRules.withErrand(marked, errandThing).contains { $0.id == errandThing.id },
+                      "the errand's mark is in the set")
+        XCTAssertLessThanOrEqual(TouchRules.withErrand(marked, errandThing).count, TouchRules.maxMarks)
+    }
+
+    /// Polish B3 (law 1 quick): a mark comes in 0.15 s on the ease-out curve, rising 2 whole game px to its place, and
+    /// goes in 0.10 s in place; a mark that stays keeps its presence when the set around it changes; under Reduce
+    /// Motion alpha only, at quick; its pool follows its share.
+    func testAMarkComesAndGoesByThePresenceRule() {
+        func mark(_ id: String, x: Double) -> TouchMark {
+            TouchMark(sprite: .tapTalk, x: x, lift: 30, pressed: false, poolX: x, kind: .talk, id: id)
+        }
+        var shows: [String: MarkShow] = [:]
+        let step = 1.0 / 60
+        MarkPresence.merge(&shows, wanted: [mark("a", x: 100)])
+        XCTAssertTrue(MarkPresence.drawn(shows).isEmpty, "not yet begun: nothing drawn in its first frame")
+        var rises: [Int] = []
+        var alphas: [Double] = []
+        for _ in 0..<9 {
+            MarkPresence.step(&shows, seconds: step, mode: .full)
+            let drawn = MarkPresence.drawn(shows)
+            rises.append(drawn.first?.rise ?? -1)
+            alphas.append(drawn.first?.alpha ?? -1)
+        }
+        XCTAssertEqual(alphas.last ?? 0, 1, accuracy: 1e-9, "whole after 0.15 s")
+        XCTAssertEqual(rises.last, 0, "at its place")
+        XCTAssertEqual(rises.first, 2, "it starts 2 px low")
+        XCTAssertEqual(rises, rises.sorted(by: >), "it only rises")
+        XCTAssertTrue(Set(rises).isSubset(of: [0, 1, 2]), "whole px only")
+        XCTAssertEqual(alphas, alphas.sorted(), "it only grows")
+        XCTAssertLessThan(alphas[1], 1, "it grows over frames")
+        // Its pool and its tag at its share; no scale.
+        var half = mark("h", x: 0)
+        half.alpha = 0.5
+        XCTAssertEqual(TouchMarks.pools([half]).first?.intensity ?? 0, TouchRules.poolStrength * 0.5, accuracy: 1e-6)
+        let framing = TouchFraming(stage: .world, whole: 0, deviceShift: 0, scale: 6, groundY: 1000,
+                                   physicalWidth: 2622, physicalHeight: 1206)
+        let actor = TouchMarks.actors([half], framing: framing, night: 0).first
+        XCTAssertEqual(actor?.tint.w ?? 0, 0.5, accuracy: 1e-6)
+        XCTAssertEqual(actor?.rect.z, Float(SpriteID.tapTalk.size.width) * 6, "never scaled")
+        var low = half
+        low.rise = 2
+        XCTAssertEqual(TouchMarks.rect(low, framing: framing).y - TouchMarks.rect(half, framing: framing).y, 12,
+                       "2 game px = 12 device px lower while it comes")
+        // A second mark comes; the first stays as it is (no restart, no move).
+        MarkPresence.merge(&shows, wanted: [mark("b", x: 140), mark("a", x: 100)])
+        MarkPresence.step(&shows, seconds: step, mode: .full)
+        let a = MarkPresence.drawn(shows).first { $0.id == "a" }
+        XCTAssertEqual(a?.alpha, 1, "the mark that stays keeps its presence")
+        XCTAssertEqual(a?.rise, 0)
+        XCTAssertEqual(a?.x, 100)
+        // The first goes: in place, gone after 0.10 s.
+        MarkPresence.merge(&shows, wanted: [mark("b", x: 140)])
+        var out: [Double] = []
+        for _ in 0..<6 {
+            MarkPresence.step(&shows, seconds: step, mode: .full)
+            if let going = MarkPresence.drawn(shows).first(where: { $0.id == "a" }) {
+                XCTAssertEqual(going.rise, 0, "it goes in place")
+                out.append(going.alpha)
+            }
+        }
+        XCTAssertEqual(out.count, 5, "drawn going for 5 frames of 6 (0.10 s)")
+        XCTAssertEqual(out, out.sorted(by: >))
+        XCTAssertNil(shows["a"], "gone and dropped")
+        // A tag that gives way to a board goes at quick out; its pool stays.
+        var boarded = mark("b", x: 140)
+        boarded.hidden = true
+        MarkPresence.merge(&shows, wanted: [boarded])
+        for _ in 0..<7 { MarkPresence.step(&shows, seconds: step, mode: .full) }
+        let b = MarkPresence.drawn(shows).first { $0.id == "b" }
+        XCTAssertEqual(b?.alpha, 1, "its pool and rim stay")
+        XCTAssertEqual(b?.hidden, true, "its tag gave way")
+        // Reduce Motion: alpha only, at quick.
+        var reduced: [String: MarkShow] = [:]
+        MarkPresence.merge(&reduced, wanted: [mark("r", x: 100)])
+        var reducedRises: Set<Int> = []
+        for _ in 0..<9 {
+            MarkPresence.step(&reduced, seconds: step, mode: .reduced)
+            reducedRises.insert(MarkPresence.drawn(reduced).first?.rise ?? -1)
+        }
+        XCTAssertEqual(reducedRises, [0], "no rise under Reduce Motion")
+        XCTAssertEqual(MarkPresence.drawn(reduced).first?.alpha ?? 0, 1, accuracy: 1e-9, "whole at quick")
+    }
+
+    /// Polish B3: a talk bubble's going is heard once (`bubbleClose`) on every way it goes (a tap, a card), never when
+    /// the next line of the same speaker takes its place.
+    func testABubblesGoingIsHeardOnce() throws {
+        let game = model(["GWDay": "3", "GWSeed": "2", "GWClock": "10", "GWStage": "world", "GWCameraX": "2120"])
+        let hub = SilentFeedback()
+        game.feedback = hub
+        run(game, seconds: 0.3)
+        // A member of the court in view who has a line; the lord stands by him (walking away would close it).
+        var found: String?
+        for thing in game.touch.things where thing.kind == .talk {
+            guard let who = thing.who else { continue }
+            game.withDriver { $0.state.king.x = thing.x - 12 }
+            game.talk(to: who)
+            if game.talkBubble != nil {
+                found = who
+                break
+            }
+        }
+        let speaker = try XCTUnwrap(found, "someone with a word in view")
+        func closes() -> Int { hub.played.filter { $0 == .bubbleClose }.count }
+        XCTAssertNotNil(game.talkBubble, "\(speaker) speaks")
+        run(game, seconds: 0.2)
+        XCTAssertEqual(closes(), 0)
+        game.talk(to: speaker)
+        run(game, seconds: 0.2)
+        XCTAssertEqual(closes(), 0, "the next line takes its place: no going")
+        game.closeTalk()
+        run(game, seconds: 0.2)
+        XCTAssertEqual(closes(), 1, "a tap closed it: heard once")
+        run(game, seconds: 0.5)
+        XCTAssertEqual(closes(), 1, "and only once")
+        game.talk(to: speaker)
+        run(game, seconds: 0.2)
+        game.openPause()
+        run(game, seconds: 0.2)
+        XCTAssertNil(game.talkBubble, "the card closed it")
+        XCTAssertEqual(closes(), 2, "a card closed it: heard once")
+    }
+
     func testTheMarksAtNightAreDarkerAndWarm() {
         let day = TouchRules.markTint(night: 0)
         XCTAssertEqual(day, SIMD3<Float>(repeating: 1), "by day as drawn")
@@ -582,6 +754,9 @@ final class TouchWorldTests: XCTestCase {
 
     func testTheMarksAreDrawnAndTheSpotsPlaced() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1180"])
+        // Polish B3: the marks come at quick (0.15 s) from the first frame that lists them, so they are drawn once
+        // their coming has run.
+        run(game, seconds: 0.3)
         let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let marks = frame.actors.filter { [.tapBuild, .tapRecruit, .tapDoor, .tapTalk].contains($0.sprite) }
         XCTAssertFalse(marks.isEmpty, "a mark over what offers something")
@@ -598,47 +773,76 @@ final class TouchWorldTests: XCTestCase {
         }
     }
 
-    /// Lane 5 step 2a (the smooth walk, suspect 5): the errand slip follows its thing in every frame of a walk, within
-    /// one device px; 0.002 of the screen's width held it back by up to 5 device px.
-    func testTheErrandSlipFollowsItsThingInEveryFrameOfAWalk() throws {
+    /// Polish B3 (H4): no slip over the errand's thing; its own mark is its sign, pressed (pool x 1.4) from the touch
+    /// until he arrives, among the marks drawn in every frame of the walk while it stands clear of the edges, over its
+    /// thing within one device px (the smooth walk's proof, lane 5 step 2a, which the slip's test held before).
+    func testTheErrandsMarkIsItsSignInEveryFrameOfAWalk() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" })
         game.touchThing(door)
         XCTAssertEqual(game.touch.errand?.id, door.id, "he sets off to the door")
         var seen: Set<Double> = []
+        var drawnPressed = 0
         for _ in 0..<120 {
             game.advance(by: 1.0 / 60)
-            _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            XCTAssertNil(game.errandSlip, "no words over the walked world")
+            guard game.touch.errand?.id == door.id, game.touch.errand?.waiting == false else { break }
             let framing = try XCTUnwrap(game.touch.framing)
             let thing = try XCTUnwrap(game.touch.things.first { $0.id == door.id })
-            let slip = try XCTUnwrap(game.errandSlip, "the slip stands while he walks")
+            guard TouchRules.clearOfEdges(thing.markX, viewLeft: framing.viewLeft, viewRight: framing.viewRight)
+            else { continue }
+            let show = try XCTUnwrap(game.touch.markShows[door.id], "the errand's mark is among the marks")
+            XCTAssertTrue(show.wanted)
+            XCTAssertTrue(show.mark.pressed, "pressed while he walks to it")
+            XCTAssertFalse(show.mark.hidden, "never hidden")
             let thingX = framing.deviceX(stageX: thing.markX)
-            XCTAssertEqual(slip.x * framing.physicalWidth, thingX, accuracy: 1, "the slip stands over its thing")
+            if let tag = frame.actors.first(where: { $0.sprite == .tapDoor }), show.whole.isWhole {
+                XCTAssertEqual(tag.frame, 1, "the pressed frame")
+                let tip = Double(tag.rect.x) + Double(SpriteID.tapDoor.size.width / 2) * framing.scale
+                XCTAssertEqual(tip, thingX, accuracy: 1, "the mark stands over its thing")
+                drawnPressed += 1
+            }
             seen.insert(thingX)
         }
+        XCTAssertGreaterThan(drawnPressed, 20, "the pressed mark was drawn through the walk")
         XCTAssertGreaterThan(seen.count, 20, "the door moved on the screen while he walked")
     }
 
     /// Polish B1 (rider 2): while Brannock's offer of the horn takes the touch, his element names the deed ("Sound the
-    /// horn"); otherwise it is a talk as for everyone.
+    /// horn"); otherwise it is a talk as for everyone. Polish B3 (part 5, B1's L4): each case sets the state it asserts
+    /// (heard today, a word of his own still to say, gold enough that the offer does not stand) instead of branching on
+    /// what it meets.
     func testBrannocksElementSaysSoundTheHornWhileHisOfferTakesTheTouch() throws {
-        let game = model(["GWHour": "11", "GWGold": "9", "GWStage": "world", "GWCameraX": "1540"])
-        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
-        let state = try XCTUnwrap(game.driver?.state)
-        let him = try XCTUnwrap(game.touch.things.first { $0.id == "touch-talk-brannock" }, "Brannock in view")
-        XCTAssertTrue(game.nightOfferStands, "the day's work is done: his offer stands")
-        if game.nightOfferTakesTouch {
-            XCTAssertEqual(game.touchLabel(him, state: state), String(localized: "Sound the horn"))
-        } else {
-            XCTAssertTrue(game.touchLabel(him, state: state).hasPrefix("Talk to"), "his own line comes first")
-        }
-        let morning = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1540"])
+        let args = ["GWHour": "11", "GWGold": "9", "GWStage": "world", "GWCameraX": "1540"]
+        // Heard today: the offer takes the touch.
+        let heard = model(args)
+        _ = heard.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let state = try XCTUnwrap(heard.driver?.state)
+        let him = try XCTUnwrap(heard.touch.things.first { $0.id == "touch-talk-brannock" }, "Brannock in view")
+        XCTAssertTrue(heard.nightOfferStands, "the day's work is done: his offer stands")
+        heard.talkLog.note(NightOffer.speaker, day: state.day)
+        XCTAssertTrue(heard.nightOfferTakesTouch, "heard today, the touch is the word")
+        XCTAssertEqual(heard.touchLabel(him, state: state), String(localized: "Sound the horn"))
+        // A word of his own about today's petitions still to say: his own line comes first.
+        let hinted = model(args)
+        _ = hinted.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let hintedState = try XCTUnwrap(hinted.driver?.state)
+        let hintedHim = try XCTUnwrap(hinted.touch.things.first { $0.id == "touch-talk-brannock" })
+        hinted.touch.hinted.insert(NightOffer.speaker)
+        XCTAssertTrue(hinted.nightOfferStands)
+        XCTAssertFalse(hinted.nightOfferTakesTouch, "his own line first")
+        XCTAssertTrue(hinted.touchLabel(hintedHim, state: hintedState).hasPrefix("Talk to"), "his own line comes first")
+        // Gold enough to build: no offer stands, a talk as for everyone.
+        var rich = args
+        rich["GWGold"] = "900"
+        let morning = model(rich)
         _ = morning.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let early = try XCTUnwrap(morning.driver?.state)
-        if let brannock = morning.touch.things.first(where: { $0.id == "touch-talk-brannock" }),
-           !morning.nightOfferTakesTouch {
-            XCTAssertTrue(morning.touchLabel(brannock, state: early).hasPrefix("Talk to"), "a talk as for everyone")
-        }
+        let brannock = try XCTUnwrap(morning.touch.things.first { $0.id == "touch-talk-brannock" })
+        XCTAssertFalse(morning.nightOfferStands, "something can still be bought")
+        XCTAssertFalse(morning.nightOfferTakesTouch)
+        XCTAssertTrue(morning.touchLabel(brannock, state: early).hasPrefix("Talk to"), "a talk as for everyone")
     }
 }
