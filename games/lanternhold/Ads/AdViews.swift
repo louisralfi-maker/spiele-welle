@@ -246,6 +246,14 @@ struct AdLayer: View {
                     .zIndex(1)
             }
             #if DEBUG
+            // Polish C2, part 5: how many taps on the dim beside Marek's card reached it (FilmPanesUITests p07).
+            Text(verbatim: "\(glint)")
+                .font(.system(size: 2))
+                .foregroundStyle(Color.clear)
+                .frame(width: 2, height: 2)
+                .allowsHitTesting(false)
+                .accessibilityIdentifier("merchant-glint")
+                .accessibilityValue(Text(verbatim: "\(glint)"))
             if director.mode == .stub {
                 Text(verbatim: director.log)
                     .font(.system(size: 2))
