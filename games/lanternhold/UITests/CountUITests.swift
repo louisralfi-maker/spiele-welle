@@ -211,10 +211,21 @@ final class CountUITests: XCTestCase {
         let lord = element(app, "touch-lord")
         if lord.waitForExistence(timeout: 3), let board = waitForThing(app, "touch-recruit-guard", timeout: 3) {
             let toward: CGFloat = board.frame.midX >= lord.frame.midX ? 1 : -1
+            // Polish B1 (Part 0): the scene's numbers right before the tap and after it go into the messages (the
+            // join round lh-rnd-12 raised the lantern here once and kept nothing to say why).
+            let lordBefore = lord.frame
+            let camA = sceneField(app, "kcx:") ?? "?"
+            pause(0.2)
+            let before = guardFacts(app) + " kcx(0.2 s earlier):\(camA) lord element:\(lordBefore)"
+                + " board element:\(board.frame)"
             lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))
                 .withOffset(CGVector(dx: 4 * toward, dy: 0)).tap()
-            XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:1/5", timeout: 3), "the near tap is a coin")
-            XCTAssertNotEqual(sceneField(app, "hud:"), "moment", "no purse, strip or gear: the lantern stays down")
+            let coin = waitForField(app, "count:touch-recruit-guard:1/5", timeout: 3)
+            let after = guardFacts(app) + " lord element:\(lord.exists ? "\(lord.frame)" : "none")"
+            note("175n-count-guard-near-tap", "coin:\(coin) | before: \(before) | after: \(after)")
+            XCTAssertTrue(coin, "the near tap is a coin; before: \(before); after: \(after)")
+            XCTAssertNotEqual(sceneField(app, "hud:"), "moment",
+                              "no purse, strip or gear: the lantern stays down; before: \(before); after: \(after)")
         } else {
             XCTFail("the lord or the guard's half is missing")
         }
@@ -222,7 +233,8 @@ final class CountUITests: XCTestCase {
             again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).press(forDuration: 1.5)
         }
         pause(0.3)
-        XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:3/5", timeout: 3), "the hold counts on, frozen")
+        XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:3/5", timeout: 3),
+                      "the hold counts on, frozen; now: \(guardFacts(app))")
         XCTAssertNotEqual(sceneField(app, "hud:"), "moment")
         attach(XCUIScreen.main.screenshot(), "175-count-guard-\(language)")
         note("175-count-guard-state", sceneField(app, "count:") ?? "?")
@@ -517,6 +529,14 @@ final class CountUITests: XCTestCase {
             return false
         }
         return true
+    }
+
+    /// Polish B1 (Part 0): the scene's numbers the guard's near tap depends on: the lord's place (`lx:`, `kxf:`) and
+    /// speed (`kv:`), the camera (`cam:`, `kcx:`), the count (`count:` with the board's stand `cstand:` and whether it
+    /// holds the lord's body `chold:`), the errand, the last tap and the lantern (`hud:`).
+    private func guardFacts(_ app: XCUIApplication) -> String {
+        ["lx:", "kxf:", "kv:", "cam:", "kcx:", "count:", "cstand:", "chold:", "errand:", "tap:", "hud:", "stage:"]
+            .map { "\($0)\(sceneField(app, $0) ?? "?")" }.joined(separator: " ")
     }
 
     private func waitForField(_ app: XCUIApplication, _ text: String, timeout: TimeInterval) -> Bool {

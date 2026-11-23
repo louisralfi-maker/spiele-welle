@@ -994,6 +994,11 @@ extension GameModel {
         }
         let lit = touch.countLanterns.filter { $0.outAt == nil }.count
         var text = "\(word) last:\(touch.countLast) lanterns:\(lit)"
+        // Polish B1 (Part 0): the open board's stand and whether it holds the lord's body now (`countHoldsLord`), for
+        // the near tap's assertion messages.
+        if let count = touch.count, let board = touch.countBoard {
+            text += " cstand:\(Int(board.stand.rounded())) chold:\(countHoldsLord(count) ? "y" : "n")"
+        }
         // Step 4 (M-a, Debug pictures): which share of a one-hold strip stands now.
         if args.countFreeze != nil, countFrozen { text += " frozen:\(touch.countFreezeStep)" }
         return text
