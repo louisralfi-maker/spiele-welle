@@ -1,0 +1,24 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (34.391 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (28.190 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (89.959 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:170: error: -[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome] : XCTAssertTrue failed - a tap, a coin
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:172: error: -[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome] : XCTAssertTrue failed - a second tap, a second coin
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:175: error: -[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome] : XCTAssertTrue failed - at 2.0 s the warning, both coins still laid
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' failed (34.524 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (86.309 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (22.890 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (148.410 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (19.893 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:216: error: -[LanternholdUITests.CountUITests testTheGuardsBoard] : XCTAssertTrue failed - the near tap is a coin
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:217: error: -[LanternholdUITests.CountUITests testTheGuardsBoard] : XCTAssertNotEqual failed: ("Optional("moment")") is equal to ("Optional("moment")") - no purse, strip or gear: the lantern stays down
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:225: error: -[LanternholdUITests.CountUITests testTheGuardsBoard] : XCTAssertTrue failed - the hold counts on, frozen
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' failed (35.008 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (23.195 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (57.751 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (110.754 seconds).
+Test Suite 'CountUITests' failed at 2026-11-23 04:26:36.481.
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (84.737 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-23 04:28:01.238.
+Test Suite 'Selected tests' failed at 2026-11-23 04:28:01.239.
+exit=65
+screenshots: 49

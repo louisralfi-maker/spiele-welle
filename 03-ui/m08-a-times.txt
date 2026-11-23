@@ -1,0 +1,44 @@
+m08-a: Silas Moth lights the first street lantern by the postern (TownLamps: it takes the flame at 17:58); the condition: the hour 17.975
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +2.811 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 17.5 -GWStage world -GWCameraX 2300
+
+frame  seconds since the burst began  (scene where read)
+01  +0.226 s  
+02  +0.403 s  day:3 hour:17.80 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+03  +0.678 s  
+04  +0.887 s  day:3 hour:17.85 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+05  +1.187 s  
+06  +1.375 s  day:3 hour:17.89 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+07  +1.624 s  
+08  +1.814 s  day:3 hour:17.92 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+09  +2.089 s  
+10  +2.275 s  day:3 hour:17.97 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+11  +2.532 s  
+12  +2.740 s  day:3 hour:18.00 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+13  +3.053 s  
+14  +3.222 s  
+15  +3.409 s  
+16  +3.598 s  
+17  +3.802 s  
+18  +4.009 s  
+19  +4.225 s  
+20  +4.454 s  
+21  +4.760 s  
+22  +4.973 s  
+23  +5.225 s  
+24  +5.462 s  
+25  +5.679 s  
+26  +5.894 s  
+27  +6.139 s  
+28  +6.376 s  
+29  +6.607 s  
+30  +6.855 s  
+31  +7.131 s  
+32  +7.405 s  
+33  +7.684 s  
+34  +7.879 s  
+35  +8.081 s  
+36  +8.282 s  day:3 hour:18.46 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.230 s over 35 gaps

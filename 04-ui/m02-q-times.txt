@@ -1,0 +1,46 @@
+m02-q: a tap 40 px on at night (a hurry, 68 px/s), slowed: the camera from his landing until it rests (kcx:)
+slowed: -GWTimeScale 0.25; frames back to back, the scene read after each
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWNight 1 -GWSeed 1 -GWHour 22.5 -GWCameraX 2600 -GWTimeScale 0.25
+the cause at +0.000 s: point 24.1, 453.0; interface orientation 3 (the app's)
+frame  seconds since the burst began  scene
+00  -0.010 s  before: hour:23.29 kv:0.00 kxf:2690.00 kf:6 kd:1 kcx:2503.50
+01  +0.407 s  hour:23.30 kv:40.17 kxf:2691.39 kf:0 kd:1 kcx:2503.93
+02  +0.896 s  hour:23.31 kv:68.00 kxf:2697.69 kf:1 kd:1 kcx:2508.05
+03  +1.408 s  hour:23.32 kv:68.00 kxf:2705.63 kf:3 kd:1 kcx:2516.02
+04  +2.314 s  hour:23.32 kv:68.00 kxf:2711.29 kf:5 kd:1 kcx:2522.27
+05  +2.990 s  hour:23.35 kv:57.34 kxf:2728.11 kf:2 kd:1 kcx:2540.74
+06  +3.557 s  hour:23.37 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.36
+07  +4.078 s  hour:23.37 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.39
+08  +4.383 s  hour:23.38 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.43
+09  +4.698 s  hour:23.38 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.45
+10  +4.965 s  hour:23.39 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.47
+11  +5.262 s  hour:23.40 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.48
+12  +5.583 s  hour:23.40 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.48
+13  +5.844 s  hour:23.41 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.49
+14  +6.121 s  hour:23.41 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.49
+15  +6.433 s  hour:23.42 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.49
+16  +6.729 s  hour:23.43 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+17  +7.003 s  hour:23.43 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+18  +7.262 s  hour:23.44 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+19  +7.508 s  hour:23.44 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+20  +7.757 s  hour:23.45 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+21  +8.018 s  hour:23.45 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+22  +8.308 s  hour:23.46 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+23  +8.571 s  hour:23.46 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+24  +8.835 s  hour:23.47 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+25  +9.130 s  hour:23.48 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+26  +9.421 s  hour:23.48 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+27  +9.709 s  hour:23.49 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+28  +10.077 s  hour:23.49 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+29  +10.474 s  hour:23.51 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+30  +10.831 s  hour:23.51 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+31  +11.084 s  hour:23.52 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+32  +11.322 s  hour:23.52 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+33  +11.559 s  hour:23.53 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+34  +11.875 s  hour:23.53 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+35  +12.129 s  hour:23.54 kv:0.00 kxf:2730.00 kf:7 kd:1 kcx:2543.50
+36  +12.385 s  hour:23.54 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+37  +12.664 s  hour:23.55 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+38  +12.957 s  hour:23.56 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+39  +13.254 s  hour:23.56 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50
+40  +13.583 s  hour:23.57 kv:0.00 kxf:2730.00 kf:6 kd:1 kcx:2543.50

@@ -1,0 +1,32 @@
+m13-c: the second touch on Brannock calls the night: the dusk in 4.0 s, eased out since E1b, then the horn
+real time; one frame every 0.25 s
+the cause (the second touch on Brannock calls the night: the dusk in 4.0 s, eased out since E1b, then the horn) was sent at +0.064 s and returned at +0.265 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 1545
+scene before: frame:1170 ready day:1 hour:13.04 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1525 lord:lord stage:world lx:1525 errand:none door:1830 gold:9 hud:none cam:1260 tap:touch-talk-brannock hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:heard dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:1525.00 kf:7 kd:-1 kcx:1259.60
+scene after: frame:1480 ready day:1 hour:19.08 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1525 lord:lord stage:world lx:1525 errand:none door:1830 gold:9 hud:none cam:1260 tap:touch-talk-brannock hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:1525.00 kf:6 kd:-1 kcx:1259.60 lantern:ready
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +0.445 s  
+02  +0.645 s  
+03  +0.900 s  
+04  +1.082 s  
+05  +1.305 s  
+06  +1.475 s  
+07  +1.689 s  
+08  +2.092 s  
+09  +2.333 s  
+10  +2.528 s  
+11  +2.709 s  
+12  +3.033 s  
+13  +3.264 s  
+14  +3.461 s  
+15  +3.703 s  
+16  +4.036 s  
+17  +4.243 s  
+18  +4.566 s  
+19  +4.876 s  
+20  +5.068 s  
+21  +5.247 s  
+22  +5.478 s  
+mean spacing 0.240 s over 21 gaps
