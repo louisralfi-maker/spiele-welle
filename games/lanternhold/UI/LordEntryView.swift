@@ -111,9 +111,10 @@ struct LordEntryView: View {
         let chosen = form == choice
         let portrait = LordIdentity(name: "", form: choice).portrait
         return Button {
+            // Polish C1: the press answers with the plaque's own cue (`plaquePress`); the old `cardOpened` here was
+            // no pane coming.
             guard form != choice else { return }
             form = choice
-            model.feedback.play(.cardOpened)
         } label: {
             VStack(spacing: 4) {
                 // Fix round 1 (the critic's blocker on M8): the Burgherrin on her own teal ground.
@@ -121,16 +122,15 @@ struct LordEntryView: View {
                              ground: choice == .lady ? .teal : .dusk)
                 (choice == .lady ? Text("Lady Lantern") : Text("Lord Lantern"))
                     .font(Theme.caps(.footnote))
-                    .foregroundStyle(chosen ? NightGlass.lanternGold : NightGlass.mist)
+                    .foregroundStyle(chosen ? HierarchicalShapeStyle.primary : HierarchicalShapeStyle.secondary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
             .padding(7)
             .frame(minWidth: 96, minHeight: 44)
-            .background(PlaqueBackground(enabled: chosen, marked: chosen))
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        // Polish C1: the plaque style; the chosen one marked in lantern gold, the other drawn dim (as before).
+        .buttonStyle(GlassPlaqueStyle(marked: chosen, goldWords: chosen, dimmed: !chosen))
         .accessibilityLabel(choice == .lady ? Text("Lady Lantern") : Text("Lord Lantern"))
         .accessibilityAddTraits(chosen ? [.isSelected] : [])
         .accessibilityIdentifier(choice == .lady ? "lord-form-lady" : "lord-form-lord")

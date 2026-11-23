@@ -148,8 +148,8 @@ enum Motion {
 
     // MARK: The follow (a critically damped spring)
 
-    /// The follow's stiffness (rad/s), the camera's (`Camera.followOmega`, "settle: camera, as now"): from rest a
-    /// follow has 0.61 % of its way left after the settle token's 1.2 s.
+    /// The follow's stiffness (rad/s), written here once: `Camera.followOmega` reads it (step 0a's review, L3). From
+    /// rest a follow has 0.61 % of its way left after the settle token's 1.2 s.
     static let followOmega = 6.0
     /// A follow counts as settled when less than this share of its way from rest is left.
     static let settledShare = 0.01

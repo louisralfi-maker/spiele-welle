@@ -24,6 +24,15 @@ struct AudienceCardView: View {
     /// The hall's layout: the HUD's ledger slip keeps the top right (its width and a margin).
     static let ledgerRoom: CGFloat = 196
 
+    /// The game's motion mode (its Reduce Motion: the system's switch or `-GWReduceMotion`).
+    private var motion: MotionMode { MotionMode(reduceMotion: model.reduceMotion) }
+
+    /// Odile's line comes into the card as a swap inside a pane (polish C1, law 2): the normal token's in on
+    /// ease-out, its out on ease-in, no rise; opacity only at quick under Reduce Motion.
+    private var counselSwap: AnyTransition {
+        LHPaneModifier.transition(.normal, rises: false, mode: motion)
+    }
+
     var body: some View {
         // The hall stage (stage lane, 14.11.2026; docs/REVIEW-look-2.md H4): in the great hall the card no longer
         // covers the stage: the letter lies in the upper left, the choices as plaques along the floor band.
@@ -62,10 +71,10 @@ struct AudienceCardView: View {
                         .frame(width: noteWidth, alignment: .leading)
                         .frame(maxHeight: AudienceCardView.topRoom - 10, alignment: .top)
                         .offset(x: AudienceCardView.noteLeft, y: 5)
-                        .transition(model.reduceMotion ? .identity : .opacity)
+                        .transition(counselSwap)
                 }
             }
-            .animation(model.reduceMotion ? nil : .easeOut(duration: 0.2), value: card.counselShown)
+            .animation(.lhEnter(.normal, mode: motion), value: card.counselShown)
         }
     }
 
@@ -136,7 +145,7 @@ struct AudienceCardView: View {
                     if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
                         HallCounsel(text: model.story(hint), compact: true)
                             .frame(width: counselWidth, alignment: .leading)
-                            .transition(model.reduceMotion ? .identity : .opacity)
+                            .transition(counselSwap)
                     }
                 }
                 .offset(x: 2, y: 4)
@@ -210,7 +219,7 @@ struct AudienceCardView: View {
         .padding(.trailing, 10)
         .padding(.vertical, 9)
         .background(ParchmentBackground())
-        .animation(model.reduceMotion ? nil : .easeOut(duration: 0.2), value: card.counselShown)
+        .animation(.lhEnter(.normal, mode: motion), value: card.counselShown)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("audience-root")
     }
@@ -246,16 +255,14 @@ struct AudienceCardView: View {
                 PortraitTile(portrait: .own(.portraitOdile, frame: 0), side: 40)
                 Text("Counsel")
                     .font(Theme.caps(.subheadline))
-                    .foregroundStyle(NightGlass.lanternGold)
                     .lineLimit(1)
             }
             .padding(.leading, 3)
             .padding(.trailing, 12)
             .frame(minHeight: 46)
-            .background(GlassPlaqueBackground(inside: true))
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        // Polish C1 (H5): a plaque like every button, amber under the finger, its words in lantern gold at rest.
+        .buttonStyle(GlassPlaqueStyle(inside: true, goldWords: true))
         .accessibilityLabel(Text("Odile's counsel"))
         .accessibilityIdentifier("audience-counsel")
     }
@@ -267,15 +274,13 @@ struct AudienceCardView: View {
         } label: {
             Text("Leave")
                 .font(Theme.caps(.subheadline))
-                .foregroundStyle(Theme.ink)
                 .lineLimit(1)
                 .fixedSize()
                 .padding(.horizontal, 14)
                 .frame(minWidth: 52, minHeight: 52, maxHeight: stretch ? .infinity : nil)
-                .background(PlaqueBackground())
-                .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        // Polish C1 (H5): the plaque style, amber under the finger.
+        .buttonStyle(GlassPlaqueStyle())
         .accessibilityIdentifier("audience-leave")
     }
 
@@ -316,16 +321,13 @@ struct AudienceCardView: View {
                         PortraitTile(portrait: .own(.portraitOdile, frame: 0), side: 40)
                         Text("Counsel")
                             .font(Theme.caps(.subheadline))
-                            .foregroundStyle(NightGlass.lanternGold)
                             .lineLimit(1)
                     }
                     .padding(.leading, 3)
                     .padding(.trailing, 12)
                     .frame(minHeight: 46)
-                    .background(GlassPlaqueBackground(inside: true))
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(GlassPlaqueStyle(inside: true, goldWords: true))
                 .accessibilityLabel(Text("Odile's counsel"))
                 .accessibilityIdentifier("audience-counsel")
             }
@@ -334,14 +336,11 @@ struct AudienceCardView: View {
             } label: {
                 Text("Leave")
                     .font(Theme.caps(.subheadline))
-                    .foregroundStyle(Theme.ink)
                     .lineLimit(1)
                     .padding(.horizontal, 12)
                     .frame(minWidth: 44, minHeight: 44)
-                    .background(GlassPlaqueBackground(inside: true))
-                    .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(GlassPlaqueStyle(inside: true))
             .accessibilityIdentifier("audience-leave")
         }
     }
@@ -578,9 +577,10 @@ struct ChoiceTile: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .top, spacing: 4) {
+                    // Polish C1: the plaque's own words (bone, deep navy under the amber, dim mist when it cannot be
+                    // taken).
                     Text(inked: StoryText.string(option.labelKey, lord: lord), compact ? .footnote : .subheadline)
                         .font(Theme.serif(compact ? .footnote : .subheadline))
-                        .foregroundStyle(Theme.ink.opacity(option.enabled ? 1 : 0.5))
                         .lineLimit(compact ? 2 : nil)
                         .minimumScaleFactor(compact ? 0.85 : 1)
                         .fixedSize(horizontal: false, vertical: true)
@@ -603,7 +603,7 @@ struct ChoiceTile: View {
                             .lineLimit(compact ? 1 : nil)
                             .minimumScaleFactor(compact ? 0.75 : 1)
                     }
-                    .foregroundStyle(NightGlass.mist)
+                    .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -611,7 +611,6 @@ struct ChoiceTile: View {
             .padding(.horizontal, 10)
             .padding(.vertical, compact ? 4 : 6)
             .frame(maxWidth: .infinity, minHeight: 52, maxHeight: compact ? .infinity : nil, alignment: .topLeading)
-            .background(PlaqueBackground(enabled: option.enabled, marked: option.favoured))
             // Odile's seal sits on the plaque's corner, in its padding: it never takes the words' width (fix round 1:
             // the chosen plaque wrapped and grew).
             .overlay(alignment: .topTrailing) {
@@ -626,9 +625,10 @@ struct ChoiceTile: View {
                         .accessibilityLabel(Text("Odile's choice"))
                 }
             }
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        // Polish C1 (H5): amber under the finger at touch-down and the plaque's cue; Odile's favourite keeps its
+        // lantern-gold line.
+        .buttonStyle(GlassPlaqueStyle(marked: option.favoured))
         .disabled(!option.enabled)
         .accessibilityIdentifier("audience-choice-\(option.index)")
     }
