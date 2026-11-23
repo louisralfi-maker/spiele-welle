@@ -1,0 +1,12 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: cb7e522b
+source: claude/lh-r-c
+23:58:50 build starts (Lanternhold)
+simulator: EED6FB0A-E273-43C6-B5DE-3DF739543042 (iPhone 17 Pro, iOS 26.5)
+00:00:13 simulator up
+00:00:39 project generated
+00:04:06 PASS build
+00:06:33 FAIL ui LanternholdUITests/FilmPanesUITests/testP04ThePauseSheetComesGoesAndGlints (exit 65), see 01-ui/log.txt
+FAILED: 1

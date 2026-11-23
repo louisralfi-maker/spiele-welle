@@ -1,0 +1,7 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FilmPanesUITests.swift:176: error: -[LanternholdUITests.FilmPanesUITests testP04ThePauseSheetComesGoesAndGlints] : XCTAssertNotEqual failed: ("0") is equal to ("0") - p04: the taps beside the sheet reach the dim
+Test Case '-[LanternholdUITests.FilmPanesUITests testP04ThePauseSheetComesGoesAndGlints]' failed (68.506 seconds).
+Test Suite 'FilmPanesUITests' failed at 2026-11-23 00:05:56.861.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-23 00:05:56.862.
+Test Suite 'Selected tests' failed at 2026-11-23 00:05:56.862.
+exit=65
+screenshots: 69
