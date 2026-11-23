@@ -342,6 +342,7 @@ final class FilmOpeningUITests: XCTestCase {
             moment.coordinate(withNormalizedOffset: FilmOpeningUITests.emptyWorld).tap()
         }
         let talked = bubble.waitForExistence(timeout: 20)
+        if talked { film.keep(XCUIScreen.main.screenshot(), "m04-f-talk") }
         film.note("m04-f-after", "the talk opened \(talked); " + film.scene(app))
         XCTAssertTrue(talked, "B1 m04-f: after the lowering he arrives and the talk opens")
         closeBubble(app, timeout: 2)
