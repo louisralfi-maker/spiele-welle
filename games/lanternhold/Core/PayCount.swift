@@ -179,6 +179,9 @@ struct PayCount: Sendable, Equatable {
     static let warnAfter = 2.0
     /// A press that set at most this many coins counts as a tap for the wait (a hold streams more).
     static let tapCoins = 1
+    /// B2 gate (M-1, F2): a press shorter than this counts as a tap for the wait whatever it set (the game's tap/hold
+    /// line, the lantern's hold charge); a slow thumb tap lets a second coin go at about 0.18 s.
+    static let tapPress = LanternRaise.holdSeconds
     static let sinkSeconds = slideSeconds
     /// Going back, the coins leave one by one, the last laid first, `homeGap` apart (step 4, the director's call 2:
     /// 0.07 s, so they never bunch); each flies home to the lord's belt in `slideSeconds`, shrinking to a pixel, and the
@@ -295,6 +298,10 @@ struct PayCount: Sendable, Equatable {
     private(set) var lastByTap = false
     /// Polish B2 (H9): the second the warning came (the rocking coin sinking home), nil while none stands.
     private(set) var warnedAt: Double?
+    /// B2 gate (F4): the rocking coin sank into his hand at the warning and stays there until the next coin leaves it.
+    private(set) var sunk = false
+    /// B2 gate (M-1): the second the press now down began.
+    private(set) var pressAt: Double
     /// Taps waiting for a coin (while he walks, or between two coins).
     private(set) var queued = 0
     /// The lord stands at the board (the coins wait while he walks there), and since when.
@@ -325,6 +332,7 @@ struct PayCount: Sendable, Equatable {
         self.flights = flights
         self.time = time
         lastTouch = time
+        pressAt = time
         self.holding = holding
         if holding { due = coins.count == 1 ? PayCount.firstCoin + PayCount.lastBeat : PayCount.firstCoin }
     }
@@ -453,6 +461,7 @@ struct PayCount: Sendable, Equatable {
         guard result == nil, sealAt == nil, !pendingShort else { return }
         holding = true
         pressPlaced = 0
+        pressAt = time
         lastTouch = time
         warnedAt = nil
         if launched.count < coins.count { due = time + nextDelay(fresh: true) }
@@ -466,7 +475,8 @@ struct PayCount: Sendable, Equatable {
         lastTouch = time
         // Polish B2 (H9): a press that set one coin was a quick touch (a held coin leaves the hand a flight before its
         // moment, so even a 0.05 s touch lets one go: round lh-rb-2); one that streamed two or more was a hold.
-        if pressPlaced > 0 { lastByTap = pressPlaced <= PayCount.tapCoins }
+        // B2 gate (M-1): and any press shorter than `tapPress` was a tap, though a slow thumb let a second coin go.
+        if pressPlaced > 0 { lastByTap = pressPlaced <= PayCount.tapCoins || time - pressAt < PayCount.tapPress }
         if tap && pressPlaced == 0 { self.tap() }
         pressPlaced = 0
     }
@@ -479,6 +489,13 @@ struct PayCount: Sendable, Equatable {
         lastTouch = time
         lastByTap = true
         warnedAt = nil
+    }
+
+    /// B2 gate (F3): a tap on the ground sent the lord away from the open board: the wait is a hold's again
+    /// (`slideAfter` after the last touch) and gives no warning, as before the polish.
+    mutating func walkAway() {
+        guard result == nil else { return }
+        lastByTap = false
     }
 
     /// VoiceOver's double tap: the whole price at once when he stands there.
@@ -578,6 +595,7 @@ struct PayCount: Sendable, Equatable {
             if quiet, placed > 0, lastByTap, idle >= PayCount.warnAfter {
                 if warnedAt == nil {
                     warnedAt = time - (idle - PayCount.warnAfter)
+                    sunk = true
                     beats.append(.warn)
                 }
             } else {
@@ -642,6 +660,7 @@ struct PayCount: Sendable, Equatable {
         launched.append(moment)
         arrivals.append(max(moment, arrival))
         lastTouch = time
+        sunk = false
         if launched.count == coins.count {
             holding = false
             due = nil
@@ -673,6 +692,7 @@ struct PayCount: Sendable, Equatable {
         result = end
         resultAt = time
         sealAt = nil
+        sunk = false
         holding = false
         due = nil
         queued = 0

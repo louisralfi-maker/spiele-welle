@@ -617,6 +617,27 @@ final class PayCountTests: XCTestCase {
         XCTAssertEqual(count.result, .letGo)
     }
 
+    /// B2 gate (M-1, F2): a slow thumb tap (0.25 s) lets a second coin go, yet it is a tap: warned at 2.0 s, home at
+    /// 3.0 s. A press of `tapPress` (the game's tap/hold line) or longer that streamed is a hold, as before.
+    func testASlowTapThatLetTwoCoinsGoIsStillATap() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        count.arrive()
+        _ = run(&count, seconds: 0.3, gold: 100)
+        count.press()
+        _ = run(&count, seconds: 0.25, gold: 100)
+        count.lift(tap: true)
+        _ = run(&count, seconds: 0.3, gold: 100)
+        XCTAssertEqual(count.placed, 2, "the slow tap let two coins go")
+        XCTAssertTrue(count.lastByTap, "a tap")
+        let quiet = count.lastTouch
+        var beats = run(&count, to: quiet + 2.9, gold: 100)
+        XCTAssertTrue(count.isOpen, "kept at 2.9 s")
+        XCTAssertEqual(beats.filter { $0 == .warn }.count, 1, "warned at 2.0 s")
+        beats += run(&count, to: quiet + PayCount.tapWait + 1e-6, gold: 100)
+        XCTAssertEqual(count.result, .letGo, "home at 3.0 s")
+        XCTAssertEqual(PayCount.tapPress, LanternRaise.holdSeconds, "the game's tap/hold line")
+    }
+
     /// Polish B2 (H9): a hold is unchanged: two seconds after the finger lifts the coins go home, with no warning.
     func testAHoldStillWaitsTwoSecondsWithoutAWarning() {
         var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: true)
