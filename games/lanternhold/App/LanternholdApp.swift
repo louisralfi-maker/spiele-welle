@@ -43,6 +43,8 @@ struct RootView: View {
     @State private var titleDone = DebugArgs.launchHooksOpen ? !TitleGate.shows : false
     /// render-1: the atlas and the pipelines are made off the main thread while the title stands (`RenderWarmup`).
     @State private var warmedUp = false
+    /// Polish C1: the plaques' answer, the model's feedback hub looked up at each press (made once with the model).
+    @State private var plaqueFeedback: PlaqueFeedback? = nil
 
     var body: some View {
         if MetalContext.shared == nil {
@@ -58,6 +60,11 @@ struct RootView: View {
         } else if let model, titleDone {
             // The Lantern Table's plain list (`-GWScreen table`, `UI/Table`): nothing unless that argument asks.
             GameView(model: model)
+                // Polish C1 (step 0a's review, M2): the game's own Reduce Motion (the system's switch or
+                // `-GWReduceMotion`) reaches every `.lhPane()`; every plaque's press goes through the feedback hub,
+                // behind the Haptics switch.
+                .lhReduceMotion(model.reduceMotion)
+                .lhPlaqueFeedback(plaqueFeedback)
                 .overlay { TableDebugLayer(model: model) }
         } else {
             ZStack {
@@ -88,6 +95,7 @@ struct RootView: View {
                     }
                     // The ads (Ads/AdDirector.swift): the report's gate, the silent consent refresh; none in tests.
                     AdDirector.shared.attach(made)
+                    plaqueFeedback = PlaqueFeedback(model: made)
                     model = made
                 }
         }

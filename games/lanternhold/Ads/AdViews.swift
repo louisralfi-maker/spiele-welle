@@ -33,8 +33,10 @@ struct DawnReportAds: View {
                 }
             }
         }
-        .animation(model.reduceMotion ? nil : .easeOut(duration: 0.25), value: director.rewardedReady)
-        .animation(model.reduceMotion ? nil : .easeOut(duration: 0.25), value: director.doubled)
+        // Polish C1, a swap inside a pane (law 2): the offer goes at the normal token's out, the note comes at its in;
+        // opacity only, at quick under Reduce Motion.
+        .animation(.lhEnter(.normal, mode: motion), value: director.rewardedReady)
+        .animation(.lhEnter(.normal, mode: motion), value: director.doubled)
         .onAppear { director.reportAppeared() }
     }
 
@@ -43,8 +45,10 @@ struct DawnReportAds: View {
         return nil
     }
 
+    private var motion: MotionMode { MotionMode(reduceMotion: model.reduceMotion) }
+
     private var transition: AnyTransition {
-        model.reduceMotion ? .identity : .opacity
+        LHPaneModifier.transition(.normal, rises: false, mode: motion)
     }
 }
 
@@ -68,11 +72,11 @@ struct DoubleTaxesButton: View {
                         CoinIcon(size: 12)
                             .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
                     }
-                    .foregroundStyle(Theme.ink)
+                    // Polish C1: the plaque's own words (bone, deep navy under the amber), its secondary in mist.
                     Text("Watch a short video ad", tableName: "Ads",
                          comment: "Under every rewarded offer: a video ad plays.")
                         .font(Theme.italic(.footnote))
-                        .foregroundStyle(Theme.inkSoft)
+                        .foregroundStyle(.secondary)
                 }
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -173,7 +177,8 @@ struct SecondChanceOffer: View {
             }
             .buttonStyle(GoldButtonStyle())
             .accessibilityIdentifier("defeat-second-chance")
-            .transition(model.reduceMotion ? .identity : .opacity)
+            .transition(LHPaneModifier.transition(.normal, rises: false,
+                                                  mode: MotionMode(reduceMotion: model.reduceMotion)))
         }
     }
 }
@@ -207,6 +212,13 @@ struct PrivacyChoicesRow: View {
 @MainActor
 struct AdLayer: View {
     let model: GameModel
+    /// Taps on the dim behind Marek's card (each glints its gift plaque).
+    @State private var glint = 0
+
+    /// Marek's card stands.
+    private var merchantShown: Bool {
+        AdDirector.shared.merchantCardOpen && AdDirector.shared.merchantGift != nil
+    }
 
     var body: some View {
         let director = AdDirector.shared
@@ -218,15 +230,18 @@ struct AdLayer: View {
                     .allowsHitTesting(false)
                     .transition(model.reduceMotion ? .identity : .opacity)
             }
+            // Polish C1, one pane family (law 2): Marek's card comes and goes like every card, over the one dim, and a
+            // tap beside it no longer closes it (the x and "Not now" do): it glints the gift's plaque.
             if director.merchantCardOpen, let gift = director.merchantGift {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .contentShape(Rectangle())
-                    .onTapGesture { director.closeMerchantCard() }
-                    .accessibilityHidden(true)
-                    .transition(.opacity)
+                PaneDim(amount: MotionStyle.dim) {
+                    glint &+= 1
+                    model.feedback.play(PaneShown.besideCue)
+                }
+                .lhPaneDim()
+                .zIndex(0)
                 MerchantGiftCard(gift: gift, model: model)
-                    .transition(model.reduceMotion ? .identity : .opacity.combined(with: .scale(scale: 0.97)))
+                    .lhPane()
+                    .zIndex(1)
             }
             #if DEBUG
             if director.mode == .stub {
@@ -240,8 +255,17 @@ struct AdLayer: View {
             }
             #endif
         }
-        .animation(model.reduceMotion ? nil : .easeOut(duration: 0.22), value: director.merchantCardOpen)
+        .environment(\.lhPaneGlint, glint)
+        .animation(.lhLeave(.normal, mode: MotionMode(reduceMotion: model.reduceMotion)),
+                   value: director.merchantCardOpen)
         .animation(model.reduceMotion ? nil : .easeOut(duration: 0.3), value: director.giftLanded)
+        // The pane cues (law 4's pane pair), as OverlayView plays them for the overlay's cards.
+        .onChange(of: merchantShown) { old, new in
+            if let cue = PaneShown.cue(from: old ? PaneShown(kind: .merchant) : nil,
+                                       to: new ? PaneShown(kind: .merchant) : nil) {
+                model.feedback.play(cue)
+            }
+        }
         // A video that stops being ready (an expired ad) while the card is open: the card closes, no dead button.
         .onChange(of: director.rewardedReady) { _, ready in
             if !ready { director.merchantOfferLost() }
@@ -368,11 +392,9 @@ struct MerchantGiftCard: View {
     }
 }
 
-/// An offer on parchment: an inked plaque that darkens when pressed (docs/UI-look.md "Buttons": nothing moves).
+/// An offer on night glass: the one plaque of the game (polish C1, law 2), amber under the finger with its cue.
 struct OfferPlaqueStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(PlaqueBackground(enabled: true, marked: false, pressed: configuration.isPressed))
-            .contentShape(Rectangle())
+        GlassPlaqueStyle().makeBody(configuration: configuration)
     }
 }
