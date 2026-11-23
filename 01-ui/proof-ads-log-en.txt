@@ -1,0 +1,7 @@
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] 03s: report-root continue-hittable:true webviews:0 close-buttons:0 system-alert:false app:4
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] 10s: report-root continue-hittable:true webviews:0 close-buttons:0 system-alert:false app:4
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] no consent form was answered (none came, or none could be tapped)
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] the test answered no tracking question (none came, or the system took it)
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] report: offer not shown 58 s after the report appeared
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] no video was ready: the report goes on without an offer
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] the clock after the report: 6.2 then 6.47
