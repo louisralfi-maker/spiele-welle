@@ -1505,3 +1505,11 @@ schneller geht."
     (an even row of equal pale puffs, a string of pearls); step A2b went out in lane A to make it read as dust
     (brief `ci-out/director/polish/briefs/A2b.md`, the player's lens only, labels from lh-ra-17). The calls are
     ROUND.md's point 19. Step B1 finished at the same time (GREEN | claude/lh-r-b d767fea3 | round lh-rb-15 ALL PASSED); its verification is next. Usage 58 %.
+  - 23.11. 07:54: round lh-rnd-20 is green on a1817c58 (build, the whole unit suite, FilmNight + FilmDusk,
+    FirstDay + Town). Step B1 (one lantern instrument, the count's near tap) verified: GREEN at d767fea3, rounds
+    lh-rb-13/14/15 checked, 12 files, all lane B's or the unowned opening film, the gate's 17 findings hold (3 fixed
+    there), two sheets looked at. The calls are ROUND.md's point 20; the hall's part of the moment goes into B3.
+    Joined locally: f8ddc547 (merge, tree d3d1eca1), then the director's mend of the count tests' board helper
+    f254c4e8 (`launchAtTheBoard` no longer races the empty board's 5.0 s). Round lh-rnd-23 went out on f254c4e8
+    (build, Count + Lord, FilmOpening + LookAround, the whole unit suite); the join is pushed only when its count
+    class is green. lh-rnd-22 (the join with A2) still runs. Usage 59 % (Fable 28 %).

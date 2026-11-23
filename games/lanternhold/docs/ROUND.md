@@ -328,6 +328,24 @@ Law 4 (answers and sounds), after D2:
     of the frame's particles and the keep's dust on a film go to A3; a chimney's plume born full-length is backlog;
     lane D's stale comments beside the thinner go to D3.
 
+20. **After step B1 (thing 2, the lantern moment).** The instrument stands: one driver (`LanternVeil.light`) for the
+    dim, the block (three alpha steps), the strip, banner, gear and numbers, and the lord's arm (frame 8 for 0.05 s,
+    then 9); `lanternUp` at the raise and `lanternDown` once on every way down; the marks stay under the lantern; an
+    errand survives the moment. The gate's two mends are accepted (the block's share rounds to the nearest third; a
+    card opened from the moment lets both layers leave together in 0.10 s). Part 0's cause is accepted: the empty
+    board's 5.0 s runs out on a slow runner before the test's tap lands. Open, and where it goes:
+    the hall still runs the moment on two drivers (pose and block at once) and goes into B3 as a bounded part, with
+    `// LANE-B` blocks in lane A's `Core/HallFrames.swift` and one line in `App/GameModel+Hall.swift`, nothing else in
+    the hall, so thing 2 is whole in the next build; the word slip that replaces a mark in one frame under the
+    lantern, and a kept errand's slip, go to B3 (it removes the slips); the lantern's glow and lift follow the light
+    (B3); the two tests that branch on what they should assert (B3); the call strip's own 0.3 s against the moment's
+    strip and the stop within 6 px go to B4; GameView's body re-evaluating per ramp frame is backlog; the stipple
+    third against a wash, the walking lord's arm dropping in one frame and both sounds are phone checks; the 0.2 s of
+    bare world between the moment leaving and the pause pane is checked at C2's verification. The shared test helper
+    `launchAtTheBoard` was left racing the same 5.0 s; the director mended it in the join (no wait for a still lord,
+    the count's own word that he stands, a second board on a slow runner, never under the freeze `back`, which holds
+    a let-go board for good).
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged
