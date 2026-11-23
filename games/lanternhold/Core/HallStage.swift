@@ -8,13 +8,26 @@ enum StageKind: String, Sendable, Equatable {
 }
 
 /// The lord walking in the hall (UI state, pure): the walk pad's drag as in the world (walk 36, run 80 game px/s), or
-/// a walk to a place a hook sends him to (the inner door), held on the hall's floor.
+/// a walk to a place a hook sends him to (the inner door), held on the hall's floor. Step A1b: he starts, brakes, turns
+/// and stands through his own `LordGait`, as in the world (a walk to a place lands exactly on it after the brake over
+/// its last 4 px; the drag starts over 0.12 s and, let go, brakes over at most 4 px from where he is).
 struct HallWalker: Sendable, Equatable {
     var x: Double
     var facing: Int
     var velocity = 0.0
     /// A place he walks to by himself (nil: he follows the drag).
     var target: Double?
+    /// Step A1b: his gait, the walk pad's pace while the finger is down (signed; nil when no drag walks him), the
+    /// spot the brake brings him to once it lets go and its pace, the pace of a walk to a place, and the velocity he
+    /// set himself in the last step (whoever sets `velocity` to 0 from outside stops him there, as before).
+    private(set) var gait = LordGait()
+    private var dragPace: Double?
+    private var stop: Double?
+    private var stopPace = 0.0
+    private var walkPace = KingState.walkSpeed
+    private var driven: Double?
+    /// The last step's own travel per second (signed): what the hall's camera feeds forward.
+    private(set) var stepVelocity = 0.0
 
     init(x: Double, facing: Int) {
         self.x = min(HallLayout.walkRange.upperBound, max(HallLayout.walkRange.lowerBound, x))
@@ -23,16 +36,39 @@ struct HallWalker: Sendable, Equatable {
 
     var isWalking: Bool { velocity != 0 }
 
-    /// The walk pad: below the dead zone he stands, beyond `runDistance` he runs; nil (the finger lifts) stops him.
+    /// The walk pad: below the dead zone he stands (from a walk, the brake), beyond `runDistance` he runs; nil (the
+    /// finger lifts) brakes him over at most 4 px from where he is.
     mutating func setDrag(offset: Double?, deadZone: Double, runDistance: Double) {
         target = nil
         guard let offset, abs(offset) >= deadZone else {
-            velocity = 0
+            letGo()
             return
         }
+        stop = nil
         let speed = abs(offset) > runDistance ? KingState.runSpeed : KingState.walkSpeed
-        velocity = offset > 0 ? speed : -speed
-        facing = offset > 0 ? 1 : -1
+        dragPace = offset > 0 ? speed : -speed
+    }
+
+    /// The finger lets go: the brake from where he is (`LordGait.brakeDistance`), or he stands when he did not walk.
+    private mutating func letGo() {
+        guard dragPace != nil else {
+            if stop == nil {
+                velocity = 0
+                gait.halt()
+            }
+            return
+        }
+        dragPace = nil
+        let distance = gait.brakeDistance
+        if distance > 1e-9, gait.direction != 0, velocity * Double(gait.direction) > 0 {
+            stop = min(HallLayout.walkRange.upperBound,
+                       max(HallLayout.walkRange.lowerBound, x + Double(gait.direction) * distance))
+            stopPace = gait.paceTo
+        } else {
+            stop = nil
+            velocity = 0
+            gait.halt()
+        }
     }
 
     /// Sends him to `x` (at a walk, or running when `run`).
@@ -40,30 +76,110 @@ struct HallWalker: Sendable, Equatable {
         walk(to: x, speed: run ? KingState.runSpeed : KingState.walkSpeed)
     }
 
-    /// Sends him to `x` at `speed` px/s (touch the world: a walk, a hurry or a run).
+    /// Sends him to `x` at `speed` px/s (touch the world: a walk, a hurry or a run). He sets off in his next step, from
+    /// where his gait is (the start, or on from a walk the same way, or a turn).
     mutating func walk(to x: Double, speed: Double) {
-        target = min(HallLayout.walkRange.upperBound, max(HallLayout.walkRange.lowerBound, x))
-        let gap = (target ?? self.x) - self.x
-        velocity = abs(gap) < 0.5 ? 0 : (gap > 0 ? speed : -speed)
-        if velocity != 0 { facing = velocity > 0 ? 1 : -1 }
+        let spot = min(HallLayout.walkRange.upperBound, max(HallLayout.walkRange.lowerBound, x))
+        dragPace = nil
+        stop = nil
+        walkPace = speed
+        if abs(spot - self.x) < 0.5 && gait.direction == 0 {
+            target = nil
+            velocity = 0
+            return
+        }
+        target = spot
     }
 
-    /// Moves him on by `dt`; returns how far he walked. A walk to a place ends there.
+    /// Moves him on by `dt`; returns how far he walked. A walk to a place ends exactly there.
     @discardableResult
     mutating func step(dt: Double) -> Double {
-        guard velocity != 0, dt > 0 else { return 0 }
-        let before = x
-        var next = x + velocity * dt
-        if let goal = target {
-            if (velocity > 0 && next >= goal) || (velocity < 0 && next <= goal) {
-                next = goal
-                velocity = 0
-                target = nil
+        guard dt > 0 else { return 0 }
+        if let set = driven, target == nil, velocity != set {
+            // Stopped from outside (an errand at once, the walk out past the door): the drag's walk ends.
+            dragPace = nil
+            stop = nil
+            gait.halt()
+        }
+        driven = nil
+        var landing: Double?
+        // The A1b gate (P4): a drag toward the floor's end brakes onto it once the end is within his brake's way (the
+        // tap's brake, landing exactly on the end), and he stands there while the finger holds; before, the clamp
+        // stopped him dead from pace.
+        var edge: Double?
+        if target == nil && stop == nil, let want = dragPace {
+            let way = want > 0 ? 1 : -1
+            let end = way > 0 ? HallLayout.walkRange.upperBound : HallLayout.walkRange.lowerBound
+            let gap = abs(end - x)
+            if gap < 1e-9 || (gait.direction == way && velocity * want > 0 && gap <= gait.brakeDistance + 1e-9) {
+                edge = end
             }
         }
-        x = min(HallLayout.walkRange.upperBound, max(HallLayout.walkRange.lowerBound, next))
-        if x == HallLayout.walkRange.upperBound && velocity > 0 { velocity = 0 }
-        return abs(x - before)
+        if let spot = target ?? stop ?? edge {
+            let gap = spot - x
+            if gap == 0 || (gait.direction == 0 && abs(gap) < 0.5) {
+                velocity = 0
+                target = nil
+                stop = nil
+                gait.halt()
+            } else {
+                let want = target != nil ? walkPace : stop != nil ? stopPace : abs(dragPace ?? stopPace)
+                let move = gait.travel(x: x, target: spot, want: want, current: velocity, dt: dt)
+                velocity = move.velocity
+                if let turn = move.facing { facing = turn }
+                if move.lands { landing = spot }
+            }
+        } else if let want = dragPace {
+            let move = gait.drive(want: want, current: velocity, dt: dt)
+            velocity = move.velocity
+            if let turn = move.facing { facing = turn }
+        } else {
+            velocity = 0
+            gait.halt()
+        }
+        let before = x
+        x = min(HallLayout.walkRange.upperBound, max(HallLayout.walkRange.lowerBound, x + velocity * dt))
+        if velocity > 0 { facing = 1 }
+        if velocity < 0 { facing = -1 }
+        var landed = false
+        if let spot = landing, abs(x - spot) < 1e-6 {
+            x = spot
+            velocity = 0
+            target = nil
+            stop = nil
+            gait.halt()
+            landed = true
+        } else if (x == HallLayout.walkRange.upperBound && velocity > 0)
+                    || (x == HallLayout.walkRange.lowerBound && velocity < 0) {
+            // The end of the floor: he stands there.
+            velocity = 0
+            target = nil
+            stop = nil
+            dragPace = nil
+            gait.halt()
+        }
+        if velocity != 0 && (target == nil) { driven = velocity }
+        let walked = abs(x - before)
+        stepVelocity = (x - before) / dt
+        let spot = target ?? stop ?? edge
+        gait.note(moved: walked, dt: dt, left: spot.map { abs($0 - x) }, landed: landed)
+        return walked
+    }
+
+    /// Step A1b: a step of `dt` while the hall holds still (a card is up): he stands, and his breath goes on.
+    mutating func rest(dt: Double) {
+        guard dt > 0 else { return }
+        stepVelocity = 0
+        if dragPace != nil || stop != nil {
+            // The A1b gate (F1, P7): a card took the finger in the middle of a drag or its brake: the drag's walk ends
+            // there, as in the world, so no brake waits under the card.
+            dragPace = nil
+            stop = nil
+            driven = nil
+            velocity = 0
+            gait.halt()
+        }
+        gait.note(moved: 0, dt: dt)
     }
 }
 

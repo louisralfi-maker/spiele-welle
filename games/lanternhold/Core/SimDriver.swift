@@ -52,6 +52,14 @@ struct SimDriver: Sendable {
     var travelSpeed: Double?
     /// Polish step A1: the lord's gait (the player's walk and what the picture needs of it); never saved.
     private(set) var gait = LordGait()
+    /// Step A1b (a drag walks like a tap): the walk pad's pace while the finger is down (signed game px/s; nil when
+    /// no drag walks him), the spot the brake brings him to once it lets go and that brake's pace, and the velocity the
+    /// drag set in the last step (anyone else who changes it, an errand, a card, the called night, stops the drag's walk).
+    /// Never saved.
+    private(set) var dragPace: Double?
+    private(set) var dragStop: Double?
+    private var dragStopPace = 0.0
+    private var dragDriven: Double?
     /// A card or the pause sheet is open (the UI sets it).
     var isPaused = false
     /// The app is not active.
@@ -126,21 +134,43 @@ struct SimDriver: Sendable {
             walker = walk
         }
         // Polish step A1 (`LordGait`): the player's walk to a spot starts over 0.12 s, brakes over the last 4 px onto
-        // the spot exactly, turns after a 0.07 s hold and changes pace over 0.25 s. Only here: `Sim.stepKing` and the
-        // bots move as they always did.
+        // the spot exactly, turns after a 0.07 s hold and changes pace over 0.25 s. Step A1b: the walk pad's drag the
+        // same (`dragPace`), and let go it brakes onto `dragStop`. Only here: `Sim.stepKing` and the bots move as they
+        // always did.
+        if let driven = dragDriven, travelTarget == nil, state.king.velocity != driven {
+            // Someone else stopped him (an errand at once, a card, the called night, a lit brazier): the drag's walk ends.
+            dragPace = nil
+            dragStop = nil
+            gait.halt()
+        }
+        dragDriven = nil
         var landing: Double?
-        if let target = travelTarget, bot == nil {
+        var drives = false
+        if let target = travelTarget ?? dragStop, bot == nil {
             let gap = target - state.king.x
             if state.king.lightingPlot >= 0 || gap == 0 || (gait.direction == 0 && abs(gap) < 0.5) {
                 state.king.velocity = 0
                 travelTarget = nil
+                dragStop = nil
                 gait.halt()
             } else {
-                let step = gait.travel(x: state.king.x, target: target, want: travelSpeed ?? balance.kingRunSpeed,
-                                       current: state.king.velocity, dt: dt)
+                let pace = travelTarget != nil ? travelSpeed ?? balance.kingRunSpeed : dragStopPace
+                let step = gait.travel(x: state.king.x, target: target, want: pace, current: state.king.velocity,
+                                       dt: dt)
                 state.king.velocity = step.velocity
                 if let facing = step.facing { state.king.facing = facing }
                 if step.lands { landing = target }
+                drives = travelTarget == nil
+            }
+        } else if let want = dragPace, bot == nil, walker == nil {
+            if state.king.lightingPlot >= 0 {
+                state.king.velocity = 0
+                gait.halt()
+            } else {
+                let step = gait.drive(want: want, current: state.king.velocity, dt: dt)
+                state.king.velocity = step.velocity
+                if let facing = step.facing { state.king.facing = facing }
+                drives = true
             }
         } else {
             gait.halt()
@@ -151,14 +181,20 @@ struct SimDriver: Sendable {
         }
         let before = state.king.x
         Sim.step(&state, dt: dt, balance: balance, events: &events)
+        var landed = false
         if let target = landing, abs(state.king.x - target) < 1e-6 {
             // On the spot exactly: he stands from this step on.
             state.king.x = target
             state.king.velocity = 0
             travelTarget = nil
+            dragStop = nil
             gait.halt()
+            landed = true
+            drives = false
         }
-        gait.note(moved: abs(state.king.x - before), dt: dt)
+        if drives { dragDriven = state.king.velocity }
+        let spot = travelTarget ?? dragStop
+        gait.note(moved: abs(state.king.x - before), dt: dt, left: spot.map { abs($0 - state.king.x) }, landed: landed)
         // b3-horde (build 3, lane 4 step A, step 4; one block for the join): the runner's clip of the horde holds the
         // night's clock and keeps its stream coming (`HordeProof.drive`, a `-GWHorde dark` launch of a Debug build only).
         #if DEBUG
@@ -286,22 +322,63 @@ struct SimDriver: Sendable {
 
     /// The walk pad's horizontal drag in points from where the finger went down (nil when it lifts): below the dead
     /// zone the king stands, beyond `runDistance` he runs (DESIGN.md "Controls": walk 36, run 80 game px/s). Any drag
-    /// ends autoplay.
+    /// ends autoplay. Step A1b (Louis, 22.11.: a drag walks the lord): it walks him as a tap does, through his gait
+    /// (the start over 0.12 s, walk to run over 0.25 s, a reversal as a turn with its 0.07 s hold), each step of the
+    /// driver; let go (or back inside the dead zone) he brakes from where he is and comes to rest at most 4 px on.
     mutating func setDrag(offset: Double?, deadZone: Double = 6, runDistance: Double = 40) {
-        guard let offset else {
-            if bot == nil && walker == nil { state.king.velocity = 0 }
+        guard let offset, abs(offset) >= deadZone else {
+            if offset != nil {
+                bot = nil
+                walker = nil
+                travelTarget = nil
+            }
+            letGo()
             return
         }
         bot = nil
         walker = nil
         travelTarget = nil
-        let distance = abs(offset)
-        guard distance >= deadZone else {
+        dragStop = nil
+        let speed = abs(offset) > runDistance ? balance.kingRunSpeed : balance.kingWalkSpeed
+        dragPace = offset > 0 ? speed : -speed
+    }
+
+    /// The finger lets go of a walking drag: the brake from where he is, on to `dragStop` (4 px from his pace, less from
+    /// a pace still ramping), exactly, with no creep; he stands at once when he was not walking.
+    private mutating func letGo() {
+        if isPaused && (dragPace != nil || dragStop != nil) {
+            // The A1b gate (F1, P7): a card, the lantern, a slide, the table or the end card takes the finger while the
+            // world stands still. The drag's walk ends there, as before A1b (the card covers that moment), so no brake
+            // waits under the card and the raised lantern finds him standing.
+            dragPace = nil
+            dragStop = nil
+            dragDriven = nil
             state.king.velocity = 0
+            gait.halt()
             return
         }
-        let speed = distance > runDistance ? balance.kingRunSpeed : balance.kingWalkSpeed
-        state.king.velocity = offset > 0 ? speed : -speed
+        guard dragPace != nil else {
+            // As before A1b (a card, a slide, the lantern lift the finger for him), unless the brake is under way.
+            if bot == nil && walker == nil && dragStop == nil { state.king.velocity = 0 }
+            return
+        }
+        dragPace = nil
+        let distance = gait.brakeDistance
+        if distance > 1e-9, gait.direction != 0, state.king.velocity * Double(gait.direction) > 0 {
+            dragStop = min(Realm.walkEnd, max(0, state.king.x + Double(gait.direction) * distance))
+            dragStopPace = gait.paceTo
+        } else {
+            dragStop = nil
+            state.king.velocity = 0
+            gait.halt()
+        }
+    }
+
+    /// A new realm or a replayed one: no drag walks him.
+    private mutating func clearDrag() {
+        dragPace = nil
+        dragStop = nil
+        dragDriven = nil
     }
 
     /// What the action button offers now (at night: light a snuffed brazier, patch a damaged wall).
@@ -313,6 +390,8 @@ struct SimDriver: Sendable {
     mutating func travel(to x: Double, speed: Double? = nil) {
         bot = nil
         walker = nil
+        dragPace = nil
+        dragStop = nil
         travelTarget = min(Realm.walkEnd, max(0, x))
         travelSpeed = speed
     }
@@ -333,6 +412,7 @@ struct SimDriver: Sendable {
     mutating func replayDay() {
         state = dawnSnapshot
         gait = LordGait()
+        clearDrag()
         state.king.velocity = 0
         dawnSnapshot = state
         accumulator = SimDriver.startPhase
@@ -344,6 +424,7 @@ struct SimDriver: Sendable {
     mutating func restart(seed: UInt64) {
         let lord = state.lord
         gait = LordGait()
+        clearDrag()
         state = GameState.newRealm(seed: seed, balance: balance)
         state.lord = lord
         // Craft lane hook: a restarted chapter meets the travelling craftsmen too (build 3: `CraftVisits.open`).
@@ -374,6 +455,7 @@ struct SimDriver: Sendable {
         guard let dawn = dawnRing.wake(back: back) else { return false }
         state = dawn
         gait = LordGait()
+        clearDrag()
         state.king.velocity = 0
         dawnSnapshot = state
         accumulator = SimDriver.startPhase

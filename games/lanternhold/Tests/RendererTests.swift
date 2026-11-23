@@ -139,10 +139,14 @@ final class RendererTests: XCTestCase {
             driver.advance(by: SimDriver.step, events: &events)
             let frame = try drawnFrame()
             XCTAssertEqual(frame, driver.gait.frame)
-            XCTAssertEqual(frame, Int(driver.gait.walked / FigureMotion.lordStride) % 6)
-            frames.insert(frame)
+            // Step A1b: by the distance outside the brake; inside it the stride closes, and the landing draws 6.
+            if !driver.gait.brakes && driver.travelTarget != nil {
+                XCTAssertEqual(frame, Int(driver.gait.walked / FigureMotion.lordStride) % 6)
+            }
+            if driver.travelTarget != nil { frames.insert(frame) }
         }
         XCTAssertEqual(frames, [0, 1, 2, 3, 4, 5], "the whole cycle over 40 px")
+        XCTAssertEqual(try drawnFrame(), 6, "the landing step draws the standing pose")
         for _ in 0..<10 {
             driver.advance(by: SimDriver.step, events: &events)
             XCTAssertEqual(try drawnFrame(), 6, "the standing pose held after the stop")

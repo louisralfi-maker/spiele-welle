@@ -1484,6 +1484,12 @@ final class GameModel {
             + " kd:\(state.king.facing)"
         #endif
         // LANE-A end
+        // LANE-A: A1b
+        #if DEBUG
+        // Step A1b (the film): the shown camera's left edge to a hundredth of a px, for the camera's landing per frame.
+        text += " kcx:" + String(format: "%.2f", shownCamera ?? 0)
+        #endif
+        // LANE-A end
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {
             text += " lantern:\(GameModel.lanternWord(LanternRaise.phase(since: state.king.lanternSince)))"

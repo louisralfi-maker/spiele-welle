@@ -196,6 +196,9 @@ extension GameModel {
             } else if walked == 0 {
                 scene.stepMark = scene.walker.x
             }
+        } else {
+            // Step A1b: held by a card or the door, he stands and breathes on (the court breathes on its own clock).
+            scene.walker.rest(dt: dt)
         }
         // Out by walking left past the door.
         if stageChange == nil && !busy && scene.walker.x < HallLayout.exitX {
@@ -207,7 +210,9 @@ extension GameModel {
             feedback.play(.doorOpened)
         }
         if var view = scene.camera {
-            view.follow(targetX: scene.walker.x, targetVelocity: busy ? 0 : scene.walker.velocity, dt: dt,
+            // Step A1b: the walker's own travel of this step is fed forward (as the world's goal change is), so the
+            // landing step of his brake is no dead stop for the follow.
+            view.follow(targetX: scene.walker.x, targetVelocity: busy ? 0 : scene.walker.stepVelocity, dt: dt,
                         reduceMotion: reduceMotion)
             scene.camera = view
         }
