@@ -1,0 +1,31 @@
+m01-r: under Reduce Motion, a touch on the title: the lord raises the lantern, the title goes to black by opacity, the hall comes from black, the name entry comes
+real time; as fast as the frames come
+the tap was sent without waiting at +0.080 s (point 134.6, 437.0; interface orientation 3 (the app's)); the runner answered at +0.442 s; no effect check
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWReduceMotion YES
+scene after: frame:160 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:224.71
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.245 s  
+02  +0.579 s  
+03  +0.740 s  
+04  +0.909 s  
+05  +1.056 s  
+06  +1.221 s  
+07  +1.389 s  
+08  +1.581 s  
+09  +1.778 s  
+10  +2.018 s  
+11  +2.262 s  
+12  +2.436 s  
+13  +2.592 s  
+14  +2.767 s  
+15  +2.973 s  
+16  +3.290 s  
+17  +3.504 s  
+18  +3.709 s  
+19  +3.903 s  
+20  +4.083 s  
+21  +4.311 s  
+22  +4.500 s  
+mean spacing 0.203 s over 21 gaps
