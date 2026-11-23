@@ -34,6 +34,10 @@ enum FigureMotion {
     static let lordClosedFrames: Set<Int> = [2, 5]
     static let lordStridePixels = 12.0
     static let lordPassingFrom = 8.0
+    /// The brake reaches the passing frame when this much of it is left (game px), so the closed legs show for the
+    /// last quarter of the brake's way, about half its time at a walk (the round lh-ra-5: reached only in the step
+    /// before the landing, the frame stood for 1/60 s and no film frame caught it).
+    static let lordClosingPixels = 1.0
 
     /// The camera (the gate, A1-C1): a goal that stops in one step from faster than this (game px/s) stopped dead, and
     /// the follow eases past and back rather than stop the picture in one frame. Below it the walk braked onto its
@@ -292,21 +296,23 @@ struct LordGait: Sendable, Equatable {
     /// The walk phase drawn (game px of the cycle): the distance this walk has come, except inside the brake's last
     /// 4 px. There (A1b, the stop closes the stride) the phase runs from where the brake began to the passing frame of
     /// the stride it began in, so the last walk frame before the standing pose has the legs closed and no new wide
-    /// stride begins: the passing frame nearest the spot within that stride (on the spot when it lies there), reached
-    /// by the step before the landing (the next step's travel can be foreseen: at most his pace, or the brake's cap),
-    /// a straight run of the phase between. The feet slide by the gap between that frame and the spot (at most 2 px
-    /// for two landings in three; up to one frame, 4 px, when the spot lies mid-stride: the art has two passing
-    /// frames in six). The first step of a walk is always the distance (walk frame 0 after a tap).
+    /// stride begins: the passing frame nearest the spot within that stride, reached when `lordClosingPixels` of the
+    /// brake are left (or by the step before the landing, which can be foreseen: the next step's travel is at most his
+    /// pace or the brake's cap), a straight run of the phase between, the frame held after. The feet slide by the gap
+    /// between that frame and the spot: at most 2 px for about two landings in three, up to a frame and a step when the
+    /// spot lies mid-stride (the art has two passing frames in six). The first step of a walk is always the distance
+    /// (walk frame 0 after a tap).
     var phase: Double {
         guard moving, let from = brakeFrom, let gap = left else { return walked }
         let spot = walked + gap
+        let aim = max(from.walked, spot - FigureMotion.lordClosingPixels)
         let stride = (from.phase / FigureMotion.lordStridePixels + 1e-12).rounded(.down)
         let passing = stride * FigureMotion.lordStridePixels + FigureMotion.lordPassingFrom
         let strideEnd = (stride + 1) * FigureMotion.lordStridePixels
-        let closing = max(from.phase, min(max(spot, passing), strideEnd - 1e-6))
+        let closing = max(from.phase, min(max(aim, passing), strideEnd - 1e-6))
         let foreseen = min(paceTo, paceTo * (gap / FigureMotion.brakePixels).squareRoot()) * lastDt
-        if foreseen >= gap || walked >= spot || spot - from.walked <= 1e-9 { return closing }
-        return from.phase + (walked - from.walked) * (closing - from.phase) / (spot - from.walked)
+        if foreseen >= gap || walked >= aim || aim - from.walked <= 1e-9 { return closing }
+        return from.phase + (walked - from.walked) * (closing - from.phase) / (aim - from.walked)
     }
 
     /// True while the phase is the brake's (inside the last 4 px, after the walk's first step).

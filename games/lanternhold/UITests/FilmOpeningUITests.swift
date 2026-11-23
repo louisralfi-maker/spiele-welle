@@ -584,10 +584,13 @@ final class FilmOpeningUITests: XCTestCase {
             unsafeBitCast(method_getImplementation(pathAlloc), to: Alloc.self)(pathClass, allocName)
                 .takeUnretainedValue(), pathInitName, point, 0).takeUnretainedValue()
         let moveTo = unsafeBitCast(method_getImplementation(move), to: MoveTo.self)
+        // The points along the drag in the screen's own frame (the round lh-ra-5: a move in that frame's x went down the
+        // landscape screen, not along it), from the coordinate's offset in the app's frame.
         for step in 1...4 {
-            moveTo(path, moveName, CGPoint(x: point.x + points * Double(step) / 4, y: point.y), 0.05 * Double(step))
+            let along = from.withOffset(CGVector(dx: points * Double(step) / 4, dy: 0)).screenPoint
+            moveTo(path, moveName, along, 0.05 * Double(step))
         }
-        moveTo(path, moveName, CGPoint(x: point.x + points, y: point.y), hold)
+        moveTo(path, moveName, from.withOffset(CGVector(dx: points, dy: 0)).screenPoint, hold)
         unsafeBitCast(method_getImplementation(lift), to: TakesDouble.self)(path, liftName, hold + 0.02)
         unsafeBitCast(method_getImplementation(add), to: TakesObject.self)(record, addName, path)
         let done: @Sendable @convention(block) () -> Void = {
@@ -595,8 +598,9 @@ final class FilmOpeningUITests: XCTestCase {
             answer.done = true
         }
         unsafeBitCast(method_getImplementation(send), to: Send.self)(synthesizer, sendName, record, done as AnyObject)
-        return String(format: "a drag from %.1f, %.1f by %.0f pt, lifted at %.2f s (synthesized)", point.x, point.y,
-                      points, hold + 0.02)
+        let end = from.withOffset(CGVector(dx: points, dy: 0)).screenPoint
+        return String(format: "a drag from %.1f, %.1f to %.1f, %.1f (%.0f pt), lifted at %.2f s (synthesized)", point.x,
+                      point.y, end.x, end.y, points, hold + 0.02)
     }
     // LANE-A end
 }

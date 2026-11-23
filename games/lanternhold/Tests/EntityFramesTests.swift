@@ -436,9 +436,10 @@ final class EntityFramesTests: XCTestCase {
     /// Step A1b (the stop closes the stride; A1's F3 and A1-C9): for every landing phase of the cycle (0 to 23.5 px in
     /// half pixels, after walks of two and four strides and more, at the walk, the hurry and the run), the frames
     /// through the brake never draw a wide stride directly before the standing pose, the landing step draws the
-    /// standing pose, no new wide stride begins inside the brake, the walk frames only go forward, and the feet slide
-    /// at most 2 px where the art allows it (the landing within 2 px of a passing frame of the stride the brake began
-    /// in) and never more than one frame and one step.
+    /// standing pose, no new wide stride begins inside the brake, the walk frames only go forward, the closed legs
+    /// stand for more than one step at the walk and the hurry, and the feet slide at most 2 px where the art allows it
+    /// (the landing within 2 px of a passing frame of the stride the brake began in) and never more than one frame, the
+    /// closing px and one step.
     func testTheStopClosesTheStrideForEveryLandingPhase() {
         let wide: Set<Int> = [0, 1, 3, 4]
         for pace in [balance.kingWalkSpeed, TouchRules.hurrySpeed, balance.kingRunSpeed] {
@@ -479,7 +480,13 @@ final class EntityFramesTests: XCTestCase {
                     if phase <= 2 || phase >= 7 {
                         XCTAssertLessThanOrEqual(slide, 2.5, "\(label): the feet slide at most 2 px here")
                     }
-                    XCTAssertLessThanOrEqual(slide, 4 + pace * SimDriver.step + 1e-9, "\(label): at most a frame")
+                    XCTAssertLessThanOrEqual(slide, 4 + FigureMotion.lordClosingPixels + pace * SimDriver.step + 1e-9,
+                                             "\(label): at most a frame, the closing px and a step")
+                    // The closed legs stand for more than the step before the landing at the walk and the hurry.
+                    if pace < balance.kingRunSpeed {
+                        let held = frames.dropLast().reversed().prefix { $0 == last }.count
+                        XCTAssertGreaterThanOrEqual(held, 2, "\(label): the closed legs held \(held) steps")
+                    }
                 }
             }
         }
