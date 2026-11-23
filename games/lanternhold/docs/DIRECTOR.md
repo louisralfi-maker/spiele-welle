@@ -1589,3 +1589,8 @@ schneller geht."
     B3's P8). A possible real finding for B4, to be filmed first: the camera's lead flips when the lord turns to
     a board, so the world slides about 64 px under the finger for about a second while the board stands.
     Nothing of lane B is pushed yet; next: lh-rb-24's result, then the push, review and gate, the join.
+  - 23.11. 15:16: round lh-rb-24 is green on 79049e55 (the guard's board case passed four times, three of them on
+    runs slower than the failed one; the coin was seen 0.07 to 0.40 s after the near tap). Lane B is on origin at
+    79049e55. B3b's review and gate went out as a fresh run of a continuation script (the step script without
+    its Build phase, `ci-out/director/lanternhold-round-review.js`); the gate's labels are lh-rb-25 to 27. Usage
+    72 %.
