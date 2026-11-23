@@ -1,0 +1,30 @@
+m02-w: a tap at 36 % (back west), slowed: the stop closes the stride
+slowed: -GWTimeScale 0.25; frames back to back, the scene read after each
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500 -GWTimeScale 0.25
+the cause at +0.000 s: point 24.1, 314.6; interface orientation 3 (the app's)
+frame  seconds since the burst began  scene
+00  -0.010 s  before: hour:9.47 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.86
+01  +0.365 s  hour:9.48 kv:-7.90 kxf:1526.54 kf:0 kd:-1 kcx:1315.53
+02  +0.642 s  hour:9.49 kv:-14.97 kxf:1526.29 kf:0 kd:-1 kcx:1314.71
+03  +0.902 s  hour:9.50 kv:-36.00 kxf:1521.99 kf:1 kd:-1 kcx:1291.34
+04  +1.200 s  hour:9.50 kv:-36.00 kxf:1520.79 kf:1 kd:-1 kcx:1283.51
+05  +3.916 s  hour:9.56 kv:-36.00 kxf:1495.59 kf:1 kd:-1 kcx:1214.19
+06  +4.143 s  hour:9.56 kv:-36.00 kxf:1494.99 kf:1 kd:-1 kcx:1213.35
+07  +4.373 s  hour:9.57 kv:-36.00 kxf:1491.99 kf:2 kd:-1 kcx:1209.26
+08  +4.579 s  hour:9.57 kv:-36.00 kxf:1488.39 kf:3 kd:-1 kcx:1204.59
+09  +4.752 s  hour:9.57 kv:-36.00 kxf:1488.39 kf:3 kd:-1 kcx:1204.59
+10  +4.991 s  hour:9.58 kv:-36.00 kxf:1485.39 kf:4 kd:-1 kcx:1200.88
+11  +5.321 s  hour:9.59 kv:-36.00 kxf:1483.59 kf:4 kd:-1 kcx:1198.74
+12  +5.621 s  hour:9.59 kv:-36.00 kxf:1479.99 kf:5 kd:-1 kcx:1194.66
+13  +5.900 s  hour:9.60 kv:-36.00 kxf:1476.99 kf:0 kd:-1 kcx:1191.45
+14  +6.208 s  hour:9.61 kv:-29.58 kxf:1475.37 kf:1 kd:-1 kcx:1189.79
+15  +6.491 s  hour:9.61 kv:-23.89 kxf:1474.53 kf:1 kd:-1 kcx:1188.94
+16  +6.773 s  hour:9.62 kv:0.00 kxf:1473.17 kf:6 kd:-1 kcx:1187.61
+17  +7.080 s  hour:9.62 kv:0.00 kxf:1473.17 kf:6 kd:-1 kcx:1187.61
+18  +7.289 s  hour:9.63 kv:0.00 kxf:1473.17 kf:6 kd:-1 kcx:1187.61
+19  +7.523 s  hour:9.63 kv:0.00 kxf:1473.17 kf:6 kd:-1 kcx:1187.61
+20  +7.765 s  hour:9.64 kv:0.00 kxf:1473.17 kf:6 kd:-1 kcx:1187.61
+21  +7.966 s  hour:9.64 kv:0.00 kxf:1473.17 kf:6 kd:-1 kcx:1187.61
+22  +8.166 s  hour:9.65 kv:0.00 kxf:1473.17 kf:6 kd:-1 kcx:1187.61
+23  +8.354 s  hour:9.65 kv:0.00 kxf:1473.17 kf:6 kd:-1 kcx:1187.61
+24  +8.559 s  hour:9.66 kv:0.00 kxf:1473.17 kf:6 kd:-1 kcx:1187.61
