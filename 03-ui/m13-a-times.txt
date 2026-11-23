@@ -1,0 +1,15 @@
+m13-a: Brannock carries his mark (the offer stands, nothing left to buy)
+real time; one frame every 0.30 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 1545
+scene before: frame:320 ready day:1 hour:11.49 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1545 lord:lord stage:world lx:1545 errand:none door:1830 gold:9 hud:none cam:1322 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:stands dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:1545.00 kf:7 kd:1
+scene after: frame:420 ready day:1 hour:11.64 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1545 lord:lord stage:world lx:1545 errand:none door:1830 gold:9 hud:none cam:1322 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:stands dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:1545.00 kf:7 kd:1
+
+frame  seconds since the burst began  (scene where read)
+01  +0.331 s  
+02  +0.512 s  
+03  +0.801 s  
+04  +1.103 s  
+05  +1.372 s  
+06  +1.702 s  
+mean spacing 0.274 s over 5 gaps

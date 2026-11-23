@@ -1,0 +1,9 @@
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13HesperSaysTheFarGoalOnDayOne]' passed (44.356 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheDuskUnderReduceMotionInTheTown]' passed (32.729 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FilmDuskUITests.swift:88: error: -[LanternholdUITests.FilmDuskUITests testM13TheEndOfAnEmptyDay] : XCTAssertTrue failed - the ribbon reads Night 1 of 20: (no ribbon)
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheEndOfAnEmptyDay]' failed (79.992 seconds).
+Test Suite 'FilmDuskUITests' failed at 2026-11-23 01:49:12.073.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-23 01:49:12.079.
+Test Suite 'Selected tests' failed at 2026-11-23 01:49:12.080.
+exit=65
+screenshots: 125

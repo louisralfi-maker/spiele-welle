@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (202.175 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (63.181 seconds).
+exit=0
+screenshots: 13

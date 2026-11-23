@@ -1,0 +1,34 @@
+m13-g: Reduce Motion, the lord in the town: the pause sheet's Sound the horn, confirmed: the dusk in 4.0 s, then the horn
+real time; as fast as the frames come (a rolling burst)
+the cause (Reduce Motion, the lord in the town: the pause sheet's Sound the horn, confirmed: the dusk in 4.0 s, then the horn) was sent at +0.000 s and returned at +0.236 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +4.845 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 2600 -GWReduceMotion YES
+
+frame  seconds since the burst began  (scene where read)
+01  +0.431 s  
+02  +0.665 s  day:1 hour:13.23 alive:0 seen:0 shots:0 kx:2600 stage:world lx:2600 gold:9 hud:none cam:2382 tap:moment count:none last:none lanterns:0 yard:none drill:none
+03  +1.055 s  
+04  +1.268 s  day:1 hour:15.69 alive:0 seen:0 shots:0 kx:2600 stage:world lx:2600 gold:9 hud:none cam:2382 tap:moment count:none last:none lanterns:0 yard:none drill:none
+05  +1.632 s  
+06  +1.830 s  day:1 hour:17.02 alive:0 seen:0 shots:0 kx:2600 stage:world lx:2600 gold:9 hud:none cam:2382 tap:moment count:none last:none lanterns:0 yard:none drill:none
+07  +2.259 s  
+08  +2.490 s  day:1 hour:18.33 alive:0 seen:0 shots:0 kx:2600 stage:world lx:2600 gold:9 hud:none cam:2382 tap:moment count:none last:none lanterns:0 yard:none drill:none
+09  +2.852 s  
+10  +3.141 s  day:1 hour:18.76 alive:0 seen:0 shots:0 kx:2600 stage:world lx:2600 gold:9 hud:none cam:2382 tap:moment count:none last:none lanterns:0 yard:none drill:none
+11  +3.445 s  
+12  +3.625 s  day:1 hour:18.91 alive:0 seen:0 shots:0 kx:2600 stage:world lx:2600 gold:9 hud:none cam:2382 tap:moment count:none last:none lanterns:0 yard:none drill:none
+13  +3.934 s  
+14  +4.148 s  day:1 hour:18.98 alive:0 seen:0 shots:0 kx:2600 stage:world lx:2600 gold:9 hud:none cam:2382 tap:moment count:none last:none lanterns:0 yard:none drill:none
+15  +4.466 s  
+16  +4.693 s  day:1 hour:19.02 alive:0 seen:0 shots:0 kx:2600 stage:world lx:2600 gold:9 hud:none cam:2382 tap:moment count:none last:none lanterns:0 yard:none drill:none lantern:ready  <- the condition holds
+17  +5.024 s  
+18  +5.277 s  
+19  +5.488 s  
+20  +5.675 s  
+21  +5.868 s  
+22  +6.033 s  
+23  +6.250 s  
+24  +6.438 s  
+25  +6.661 s  
+26  +6.905 s  day:1 hour:19.20 alive:0 seen:0 shots:0 kx:2600 stage:world lx:2600 gold:9 hud:none cam:2382 tap:moment count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.259 s over 25 gaps
