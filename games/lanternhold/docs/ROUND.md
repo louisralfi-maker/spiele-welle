@@ -207,6 +207,27 @@ Every deed answers at once for ear, hand and eye, at its size and never larger. 
 - Pane pair (law 2 meets law 4): pane come = `tap.wav` 0.55 at the start of the 0.25 s; pane go = `tap.wav` 0.45,
   rate 0.85; bubble close = `tap.wav` 0.3, rate 0.85. Lantern: `lantern_up` 0.55 and soft 0.5 at the touch, under the
   0.15 s ramp; `lantern_down` 0.4 at the start of the 0.10 s ramp. The night raise keeps `lantern.wav` rate 1.3.
+- The director's calls after step D1 (23.11.), the newer word where they differ from the lines above and from the
+  tables below:
+  1. A blow (`hit`, `manHit`) is heard one screen far (440 px, was 240). Beyond its hearing a cue gives only its
+     faded sound: no haptic and no answer duck.
+  2. Kills do not chain. The chain is for coins only (the count to +12, taxes to +7), with pitched files, because
+     the player's `rate` stretches time and keeps the pitch. For the same reason every lower or higher variant a
+     table names by a rate is rendered as its own small file and played at rate 1 (D2); `bell` and `gate` play as
+     made.
+  3. `cardOpened` / `cardClosed` do not go quiet: they are an alias of the pane cues (the same sound, hand and
+     one touch, one tick). Of a card cue and a pane cue within 0.25 s only the first plays, the other is dropped
+     whole. So a deed whose overlay does not change (a talk bubble, an errand, a slide turned) keeps its answer
+     until each caller has a cue of its own.
+  4. The budget is 5,000,000 bytes over every wav in `Resources/Sound`, every file counted, until D3 has re-made
+     the beds; then back toward 4 MB.
+  5. The bed is the quietest thing by numbers: the beds that play together sum to at most -24 dBFS undecked, and
+     every step 1 cue sits at least 3 dB over that sum (D2, by the volume numbers only; the title's beds are
+     C2's).
+  6. The battle duck answers heard blows within 300 px, with a memory of 1.2 s, not creature positions.
+  7. `man_fall` plays at rate 1; the 0.7 in its row is the step 3 duck.
+  8. The step's sync with the contact frames waits for A1b (it needs a contact phase from lane A); the ad offer's
+     press (F21) is looked at after C1 is joined.
 
 Sounds, all made like today (pure Python in `tools/soundsynth.py` or a lane file that imports it, mono, fixed seed,
 MANIFEST sha, through `artlock.sh`, budget 4 MB):

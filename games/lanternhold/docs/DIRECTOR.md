@@ -1433,3 +1433,11 @@ schneller geht."
     he leaves the hall facing west or the way he goes on. Step A1b went out from 6b8e6840: the stop closes the
     stride, a drag and the hall's walker walk like a tap, the camera eases onto a standing goal, one breath
     everywhere. Lane A also owns `Core/FigureMotion.swift`, `Core/Camera.swift` and `Core/HallFrames.swift`.
+
+  - Step D1 is in the join branch (23.11., 01:30): `claude/lh-round` a7af7075 = 0a + 0b + E1 + A1 + D1 (round
+    lh-rnd-10 green: build, the whole unit suite, the night's film). The night's blows, a soldier's fall and a
+    wall's crack have their own sounds, placed by side and distance, and a near fight pushes the beds down. Nobody
+    has heard it on a phone yet. The director's calls after D1 stand in law 4 of `ROUND.md` (the card pair answers
+    again as an alias of the pane cues, kills do not chain, a rate is not a pitch, the bed below every answer by
+    numbers, budget 5,000,000 bytes until D3). Step D2 went out from a7af7075 with the brief
+    `ci-out/director/polish/briefs/D2.md`.
