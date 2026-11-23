@@ -545,6 +545,78 @@ final class FilmDealsUITests: XCTestCase {
         dawn.terminate()
     }
 
+    // LANE-A: A2
+    /// Polish step A2 ("it stands"): a building's finish, slowed four times (`-GWTimeScale 0.25`: the standing runs on
+    /// the driver's seconds, so a frame about every 0.18 s of real time is one about every 0.045 s of the finish). The
+    /// palisade of line 2 (a wall of the line, day 3) and a house's next tier in the town, each bought at its counter
+    /// with one hold; a rolling burst keeps the frames before the site lantern goes out (the job's end, the event) and
+    /// 1.6 s of the finish after it: the scaffold and the old picture, the dust rising, the swap under the dust, the
+    /// 1 px settle, the dust thinning. Then the palisade with Reduce Motion in real time: it stands at once, the scaffold
+    /// fades over it, no dust. Frames `a2-<letter>-<nn>`, notes `a2-<letter>-times`.
+    func testA2ItStands() {
+        let film = FilmReel(self, "a2")
+        let day = FilmDealsUITests.gate.filter { $0 != "-GWCameraX" && $0 != "1240" }
+        a2Finish(film, "a", day + ["-GWCameraX", "960", "-GWTimeScale", "0.25"], sites: ["touch-plot-6"],
+                 what: "slowed: the palisade of line 2 stands", keepBefore: 16, after: 36, timeout: 240)
+        a2Finish(film, "b", day + ["-GWCameraX", "2860", "-GWTimeScale", "0.25"],
+                 sites: ["touch-plot-23", "touch-plot-24"], what: "slowed: a house's next tier stands",
+                 keepBefore: 16, after: 36, timeout: 330)
+        a2Finish(film, "c", day + ["-GWCameraX", "960", "-GWReduceMotion", "YES"], sites: ["touch-plot-6"],
+                 what: "Reduce Motion, real time: the palisade stands at once, the scaffold fades over it, no dust",
+                 keepBefore: 8, after: 10, timeout: 120)
+    }
+
+    /// One finish: launch, the first of `sites` that offers something, its counter, one hold, then the rolling burst
+    /// until the site lantern goes out.
+    private func a2Finish(_ film: FilmReel, _ letter: String, _ arguments: [String], sites: [String], what: String,
+                          keepBefore: Int, after: Int, timeout: TimeInterval) {
+        let app = film.launch(arguments)
+        defer { app.terminate() }
+        guard film.ready(app) else {
+            XCTFail("a2-\(letter): the scene never stood")
+            return
+        }
+        film.pause(0.8)
+        var found: (id: String, element: XCUIElement)?
+        for id in sites {
+            if let thing = waitForThing(app, id, timeout: 4) {
+                found = (id, thing)
+                break
+            }
+        }
+        guard let found else {
+            film.note("a2-\(letter)-missing", "none of \(sites) offers anything; scene: \(film.scene(app))")
+            XCTFail("a2-\(letter): nothing offered at \(sites)")
+            return
+        }
+        let id = found.id
+        let site = found.element
+        var paid = false
+        for attempt in 0..<3 where !paid {
+            if !b2Open(film.scene(app), id) {
+                touchThing(waitForThing(app, id, timeout: 3) ?? site)
+                film.wait(30) { film.scene(app).contains("count:\(id):") && film.scene(app).contains(":there") }
+                waitForStill(app, timeout: 20)
+                film.pause(0.3)
+            }
+            guard let again = waitForThing(app, id, timeout: 3) else { break }
+            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 3.5)
+            paid = film.wait(5) { film.scene(app).contains("last:paid:\(id)") }
+            film.note("a2-\(letter)-pay-\(attempt)", "paid: \(paid); scene: \(film.scene(app))")
+        }
+        guard paid, film.wait(5, { film.scene(app).contains("lanterns:1") }) else {
+            XCTFail("a2-\(letter): \(id) was not paid or its site lantern never lit: \(FilmReel.short(film.scene(app)))")
+            return
+        }
+        let held = film.rolling(letter, app, keepBefore: keepBefore, after: after, timeout: timeout,
+                                what: "\(what) (\(id)); kept: the frames before its site lantern goes out (the job's "
+                                    + "end, the event) and the finish after it", checkEvery: 2) { value in
+            value.contains("lanterns:0")
+        }
+        XCTAssertTrue(held, "a2-\(letter): the work finished within \(Int(timeout)) s")
+    }
+    // LANE-A end
+
     // MARK: - Helpers
 
     /// The plots after `key` in the town's state ("paid:21,23").

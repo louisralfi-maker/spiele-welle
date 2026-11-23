@@ -403,13 +403,15 @@ final class SoundMixTests: XCTestCase {
         }
         let plot = try XCTUnwrap(Realm.plots.indices.first { Realm.plots[$0].x < 1000 })
         let x = Realm.plots[plot].x
-        XCTAssertEqual(FeedbackThinner.cue(for: .buildDone(plot: plot))?.x, x)
+        // LANE-A: A2 (the answer moved to the swap: the thinner gives nothing for the simulation's `buildDone`; the
+        // standing plays `.buildStood` at the plot's x 0.12 s later, `StandingTests`; the place rule below holds for it)
+        XCTAssertNil(FeedbackThinner.cue(for: .buildDone(plot: plot)), "the event itself gives no answer (step A2)")
         var thinner = FeedbackThinner()
         let near = thinner.placedCues(for: [.buildDone(plot: plot)], extra: [], time: 1, listenerX: x + 100)
-        XCTAssertEqual(near.map(\.cue), [.buildDone])
-        XCTAssertEqual(near.first?.x, x)
-        let gone = thinner.placedCues(for: [.buildDone(plot: plot)], extra: [], time: 5, listenerX: x + 2000)
-        XCTAssertTrue(gone.isEmpty, "a wall finishing two screens behind the town is not heard")
+        XCTAssertTrue(near.isEmpty, "nothing from the thinner: the standing answers at its swap")
+        XCTAssertFalse(SoundSpace.heard(distance: 2000, hearing: FeedbackCue.buildStood.hearing),
+                       "a wall finishing two screens behind the town is not heard")
+        // LANE-A end
         let edge = try XCTUnwrap(SoundSpace.place(.buildDone, x: x, listenerX: x + 1000))
         XCTAssertLessThan(edge.gain, 0.35, "beyond its hearing: faded")
         XCTAssertFalse(SoundSpace.near(distance: 1000, hearing: FeedbackCue.buildDone.hearing))

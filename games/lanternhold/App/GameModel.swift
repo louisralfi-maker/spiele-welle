@@ -479,6 +479,15 @@ final class GameModel {
             game.playDusk(seconds: seconds * args.timeScale, events: &events)
         }
         driver = game
+        // LANE-A: A2 (a building's finish, `BattleEffects.stand`: its record, its dust, the swap 0.12 s after the
+        // event, the 1 px jolts; `.buildStood` at the swap, at the plot's x, once for the swaps of a frame and at
+        // most every 0.4 s, the one nearest the lord)
+        for x in effects.stand(events, before: game.framePlots, state: game.state, balance: game.balance,
+                               seconds: seconds * args.timeScale, reduceMotion: reduceMotion,
+                               castleGrows: args.look == .two && !args.castleFixed, listenerX: game.state.king.x) {
+            feedback.play(.buildStood, at: x, listenerX: game.state.king.x)
+        }
+        // LANE-A end
         // Town-2: the purse is heard as the player sees it (the coins in the air held back until they land).
         let heard = watch.cues(TownShow.heard(game.state, balance: game.balance), balance: game.balance,
                                moving: stepped > 0)
@@ -1297,7 +1306,9 @@ final class GameModel {
                 }
                 return frame
             }
-            growCastle(state)
+            // LANE-A: A2 (the keep and the castle front swap with their gate, at the standing's 0.12 s)
+            growCastle(effects.drawn(state))
+            // LANE-A end
             var view = ensureCamera(pixelScale, focus: CameraFraming.goal(lordX: state.king.x, lead: 0, danger: 0))
             let sway = shake.offset(at: clock.elapsed, reduceMotion: reduceMotion)
             if sway != 0 {

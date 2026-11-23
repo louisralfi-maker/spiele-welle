@@ -1406,7 +1406,9 @@ final class EntityFramesTests: XCTestCase {
 
     func testAMassKillDrawsOnlyTheNewestFalls() {
         var s = GameFrameSupport.demoNight()
-        s.creatures = (0..<24).map { GameFrameSupport.creature(.sootling, x: 560 + Double($0) * 6, id: $0, lit: true) }
+        // Polish A2 (part 4): the list holds 32 now, so the mass kill is more than it holds (it was 24 kills for 24).
+        let many = BattleEffects.maxEffects + 4
+        s.creatures = (0..<many).map { GameFrameSupport.creature(.sootling, x: 560 + Double($0) * 6, id: $0, lit: true) }
         var effects = BattleEffects()
         effects.note([], state: s, balance: balance, time: 0.5)
         let kills: [SimEvent] = s.creatures.map { .creatureKilled(kind: .sootling, x: $0.x) }
