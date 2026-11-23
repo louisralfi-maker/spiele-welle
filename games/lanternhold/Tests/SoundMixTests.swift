@@ -783,6 +783,44 @@ final class SoundMixTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(SoundID.toll.voices, 3, "the tolls ring into each other's tails")
     }
 
+    /// Polish D2 part 6 (F18): the hall door's creak at 1.0, and the beds wait for the latch: from the creak, the place
+    /// the beds had before it holds (with each frame's ducks) until the creak ends or 0.35 s after it starts, whichever
+    /// is sooner; then the new place's beds come in as before.
+    func testTheHallBedWaitsForTheLatch() throws {
+        XCTAssertEqual(FeedbackCue.doorOpened.sound, SoundPlay(id: .doorCreak, volume: 1))
+        let creak = Double(try Self.samples(.doorCreak).count) / 22050
+        XCTAssertEqual(BedLatch.creakSeconds, creak, accuracy: 0.01, "the creak's length is the file's")
+        XCTAssertEqual(BedLatch.hold, min(creak, 0.35), accuracy: 0.01)
+        let outside = AmbienceMix.target(hour: 12, rain: 0, place: .castle, fire: 0, x: 1830)
+        let hall = AmbienceMix.target(hour: 12, rain: 0, place: .hall, fire: 0, x: 1830)
+        XCTAssertGreaterThan(hall.hall, outside.hall)
+        var latch = BedLatch()
+        XCTAssertEqual(latch.mix(outside, now: 0.9), outside, "no creak, no hold")
+        latch.creak(at: 1, before: outside)
+        let early = latch.mix(hall, now: 1.1)
+        XCTAssertEqual(early.hall, outside.hall, "the hall bed waits")
+        XCTAssertEqual(early.bailey, outside.bailey, "the courtyard's bed holds")
+        var duckedHall = hall
+        duckedHall.ducks.screen = true
+        XCTAssertTrue(latch.mix(duckedHall, now: 1.2).ducks.screen, "the frame's ducks still apply")
+        XCTAssertEqual(latch.mix(hall, now: 1.34).hall, outside.hall)
+        XCTAssertEqual(latch.mix(hall, now: 1.36), hall, "at the latch the hall's beds come in")
+        XCTAssertEqual(latch.mix(hall, now: 1.5), hall)
+        // A creak with no mix before it holds nothing; a clock that went back lets go.
+        var bare = BedLatch()
+        bare.creak(at: 1, before: nil)
+        XCTAssertEqual(bare.mix(hall, now: 1.1), hall)
+        var back = BedLatch()
+        back.creak(at: 5, before: outside)
+        XCTAssertEqual(back.mix(hall, now: 2), hall)
+        // A second creak while holding keeps the first place.
+        var twice = BedLatch()
+        twice.creak(at: 1, before: outside)
+        twice.creak(at: 1.2, before: hall)
+        XCTAssertEqual(twice.mix(hall, now: 1.5).hall, outside.hall)
+        XCTAssertEqual(twice.mix(hall, now: 1.56), hall)
+    }
+
     /// Polish D2 part 3 (F12): the coins coming in (the taxes landing, `SoundWatch`'s `coin` on a rising purse) climb like
     /// the count's: +1 semitone a coin with the pitched coin files, capped at +7, back to the root after 1.5 s, the hand
     /// soft growing 0.3 to 0.7, never varied; the last landing (`taxesCounted`) keeps coins.wav and success.

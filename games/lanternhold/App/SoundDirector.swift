@@ -41,6 +41,9 @@ final class SoundDirector: FeedbackHub {
     private var titleSince: Double?
     /// D1: the battle duck's caller, from the placed blows (`FightNear`).
     private var fight = FightNear()
+    /// D2 part 6: the beds wait for the hall door's latch (`BedLatch`); the last mix the game asked for before a creak.
+    private var latch = BedLatch()
+    private var lastMix: AmbienceMix?
 
     private let lightImpact: UIImpactFeedbackGenerator
     private let softImpact: UIImpactFeedbackGenerator
@@ -104,6 +107,8 @@ final class SoundDirector: FeedbackHub {
             }
         }
         guard let sound = answer.sound, let player = voice(sound.id) else { return }
+        // D2 part 6: the hall door's creak holds the beds' place until the latch.
+        if cue == .doorOpened { latch.creak(at: now, before: lastMix) }
         // Step 0b, D1 (0b's L1): an answer of step 3 or 4 ducks the beds only when its sound really plays (not when
         // it was throttled away, Sound is off, or its file is missing).
         switch answer.duck {
@@ -157,8 +162,11 @@ final class SoundDirector: FeedbackHub {
     }
     // end b3-count
 
-    func ambience(_ mix: AmbienceMix) {
+    func ambience(_ asked: AmbienceMix) {
         let now = CACurrentMediaTime()
+        // D2 part 6: through a door's creak the beds keep the place they had before it (`BedLatch`).
+        let mix = latch.mix(asked, now: now)
+        lastMix = asked
         let dt = min(0.25, max(0, now - (lastAmbience ?? now)))
         lastAmbience = now
         // Step 0b, law 4's one duck rule: the deepest active duck wins (`BedDucks.depth`), followed on this clock and

@@ -201,7 +201,9 @@ extension FeedbackCue {
         case .choiceMade: return SoundPlay(id: .seal, volume: 0.7)
         case .knock: return SoundPlay(id: .knock, volume: 0.8)
         case .shutter: return SoundPlay(id: .knock, volume: 0.55, rate: 0.7)
-        case .doorOpened: return SoundPlay(id: .doorCreak, volume: 0.7)
+        // D2 part 6 (F18): the hall door's creak at 1.0 (-22.5 dBFS; was 0.7, -25.6, masked by the hall bed coming in at
+        // the same instant); the beds wait for the latch (`BedLatch`).
+        case .doorOpened: return SoundPlay(id: .doorCreak, volume: 1)
         case .doorShut: return SoundPlay(id: .doorLatch, volume: 0.75)
         // D2 0g: the three rendered taps in rotation (the gate turns `tap`), at rate 1 (was tap.wav at a rate of 1.25,
         // which only shortened it). D2 0f: a ground tap is law 4's step 1, at least 3 dB over every bed: 0.55
@@ -673,6 +675,47 @@ struct BedDucks: Sendable, Equatable {
         var deepest = 1.0
         forEachActive { deepest = min(deepest, $0) }
         return deepest
+    }
+}
+
+/// D2 part 6 (F18): the hall door's creak is not masked by the hall bed coming in. When the creak plays, the beds keep
+/// the place they had before it until the creak ends or 0.35 s after it starts, whichever is sooner (about when the
+/// latch falls at full dark), then cross-fade to the new place as before. The ducks of each frame still apply. Pure:
+/// the hub feeds it its clock and the mixes it is given.
+struct BedLatch: Sendable, Equatable {
+    /// door_creak.wav's length (seconds; SoundMixTests holds it to the file).
+    static let creakSeconds = 0.95
+    /// The latest the beds wait after the creak starts.
+    static let latest = 0.35
+    /// How long the beds hold their place after a creak: the sooner of the creak's end and `latest`.
+    static var hold: Double { min(creakSeconds, latest) }
+
+    private var held: AmbienceMix?
+    private var until = -Double.infinity
+
+    init() {}
+
+    /// The creak starts at `now`; `before` is the last mix the hub was given before it. A creak while the beds already
+    /// hold keeps the place they hold.
+    mutating func creak(at now: Double, before: AmbienceMix?) {
+        if held != nil, now < until, now >= until - BedLatch.hold {
+            until = now + BedLatch.hold
+            return
+        }
+        guard let before else { return }
+        held = before
+        until = now + BedLatch.hold
+    }
+
+    /// The mix to follow at `now`: while the latch holds, the held place's beds with this frame's ducks; else `incoming`.
+    mutating func mix(_ incoming: AmbienceMix, now: Double) -> AmbienceMix {
+        guard let place = held, now < until, now >= until - BedLatch.hold - 1e-9 else {
+            held = nil
+            return incoming
+        }
+        var out = place
+        out.ducks = incoming.ducks
+        return out
     }
 }
 
