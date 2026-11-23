@@ -354,8 +354,8 @@ final class GameModel {
         }
         // Panels lane: a realm saved at the finale's dawn that never chose how to go on gets its ending again.
         resumeChapterEndAtLaunch()
-        // Polish E2b (M2; the audit's director's call 18): a continued launch brings no dawn card, no verdict cue and no
-        // ads' gate. The save is always the dawn snapshot, so a card "after a dawn save" would stand before every launch.
+        // Polish E2b (M2; the audit's director's call 18): a continued launch brings no dawn card, no verdict cue
+        // and no ads' gate. The save is always the dawn snapshot: a card "after a dawn save" would meet every launch.
         // The lantern moment (stage-3-interface): the purse and the notes start from the realm as it is.
         resetLanternHUD()
         refreshHUD()

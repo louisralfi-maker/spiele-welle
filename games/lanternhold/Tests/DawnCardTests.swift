@@ -231,7 +231,8 @@ final class DawnCardModelTests: XCTestCase {
             while game.clock.elapsed - start < GameModel.dawnCardDelay + last + 1.0 { game.advance(by: step) }
             XCTAssertNotNil(game.reportCard, "\(fallen) fallen: the card stands")
             let verdict = hub.heard.filter { $0.cue == .dawnToll || $0.cue == .dawnHeld }
-            XCTAssertEqual(verdict.map { $0.cue }, expected.map { $0.cue }, "\(fallen) fallen: the verdict's cues, in its order")
+            XCTAssertEqual(verdict.map { $0.cue }, expected.map { $0.cue },
+                           "\(fallen) fallen: the verdict's cues, in its order")
             XCTAssertEqual(hub.count(.dawnToll), min(DawnVerdict.maxTolls, fallen), "\(fallen) fallen: the tolls")
             guard let first = verdict.first, verdict.count == expected.count else { continue }
             XCTAssertGreaterThanOrEqual(first.at - start, GameModel.dawnCardDelay - 1e-9, "the first as the card lands")
