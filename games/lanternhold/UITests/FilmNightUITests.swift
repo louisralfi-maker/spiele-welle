@@ -141,6 +141,49 @@ final class FilmNightUITests: XCTestCase {
     }
     // LANE-E end
 
+    // LANE-A: A5 (the gate moves: the horn's gate falling, the dawn under Reduce Motion; the gateway in view)
+    /// Polish A5: day 3 (seed 2, m08's realm) from 18:00 with the lord before the gate (1330); the hour read without
+    /// frames until 18:50 (about 1.8 s before the horn), then frames as fast as they come for about 5 s: the horn and
+    /// the gate falling over its 0.6 s (a).
+    func testA5TheHornsGateFalls() {
+        let film = FilmReel(self, "a5")
+        let app = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWDay", "3",
+                               "-GWSeed", "2", "-GWClock", "18.0", "-GWStage", "world", "-GWCameraX", "1330"])
+        guard film.ready(app) else {
+            XCTFail("a5 a: the scene never stood")
+            return
+        }
+        film.note("a5-a-start", film.scene(app))
+        let near = film.wait(40) { (FilmReel.number("hour:", in: film.scene(app)) ?? 0) >= 18.85 }
+        film.burst("a", app, count: 36, what: "the horn at 19:00 and line 1's gate falling (A5: 0.6 s, ease-in, in whole "
+                   + "rows), frames as fast as they come", before: false)
+        XCTAssertTrue(near, "the evening's last seconds were reached")
+        film.note("a5-a-end", film.scene(app))
+        app.terminate()
+    }
+
+    /// Polish A5: m10-c under Reduce Motion: night 1's last seconds and the dawn, a frame every 0.15 s for 6 s; the
+    /// gate changes by opacity over 0.15 s, the card 0.6 s after it (r).
+    func testA5TheDawnUnderReduceMotion() {
+        let film = FilmReel(self, "a5")
+        let app = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWNight", "1",
+                               "-GWSeed", "1", "-GWHour", "5.3", "-GWCameraX", "1330", "-GWReduceMotion", "YES"])
+        guard film.ready(app) else {
+            XCTFail("a5 r: the scene never stood")
+            return
+        }
+        film.note("a5-r-start", film.scene(app))
+        let near = film.wait(40) { (FilmReel.number("hour:", in: film.scene(app)) ?? 0) >= 5.87 }
+        film.burst("r", app, count: 40, what: "under Reduce Motion: the night's last second, the dawn, the gate's 0.15 s "
+                   + "fade and the card's 0.6 s wait, then the card, one frame every 0.15 s", before: false, every: 0.15)
+        XCTAssertTrue(near, "the night's last seconds were reached")
+        let report = film.element(app, "report-root")
+        XCTAssertTrue(report.waitForExistence(timeout: 6), "the card came after the dawn")
+        film.note("a5-r-end", film.scene(app))
+        app.terminate()
+    }
+    // LANE-A end
+
     /// m12: the ads with the Debug stub (`-GWAdStub YES`: its video and its interstitial end at once, nothing stands
     /// in for them on screen): the dawn report of day 9 with its offer (a), the offer taken (b), Continue (c); a second
     /// dawn without the offer taken, Continue and the interstitial (d). The end card: the Shuttered Lantern skipped to

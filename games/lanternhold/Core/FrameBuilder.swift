@@ -115,8 +115,10 @@ enum FrameBuilder {
             }
             guard covers else { return }
             let black = SIMD4<Float>(0, 0, 0, 1)
+            // LANE-A: A5 (a cut sprite's occluder is cut the same way: its source goes with it; nil the whole cell)
             items.append(EmissiveInstance(sprite: sprite.sprite, plane: plane, rect: r, color: black, kind: .occluder,
-                                          flipped: sprite.flipped, frame: sprite.frame))
+                                          source: sprite.source, flipped: sprite.flipped, frame: sprite.frame))
+            // LANE-A end
         }
     }
 
@@ -1053,8 +1055,16 @@ enum FrameBuilder {
             tint = SIMD4<Float>(1, 1, 1, strength)
             hidesGlow = false
         }
-        let sprite = SpriteInstance(sprite: prop.sprite, frame: prop.frame, rect: rect, tint: tint,
+        // LANE-A: A5 (the gate moves: a prop cut at its top, `Prop.cropTop`, draws its rows from there down)
+        var sprite = SpriteInstance(sprite: prop.sprite, frame: prop.frame, rect: rect, tint: tint,
                                     flipped: prop.flipped)
+        if prop.cropTop > 0 {
+            let rows = Float(min(prop.cropTop, prop.height))
+            sprite.rect.y += rows
+            sprite.rect.w -= rows
+            sprite.source = SIMD4<Float>(0, rows, Float(prop.width), Float(prop.height) - rows)
+        }
+        // LANE-A end
         if hidesGlow {
             glow.occlude(sprite, plane: glowPlane)
         }

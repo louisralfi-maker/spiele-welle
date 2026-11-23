@@ -95,6 +95,11 @@ struct Prop: Sendable, Equatable {
     var frame: Int
     /// Opacity of the drawn sprite (M2b: the darkness around the Lightless King); 1 for the scene.
     var alpha: Float
+    // LANE-A: A5 (the gate moves)
+    /// Whole rows cut off the sprite's top: its quad starts that many rows lower and draws the rest
+    /// (`FrameBuilder.addProp`). Line 1's gate while it travels (`GateMotion`); 0 for everything else.
+    var cropTop: Int = 0
+    // LANE-A end
 
     init(id: Int, sprite: SpriteID, plane: Plane, x: Double, y: Double, z: Int = 0, shade: Float = 1,
          flipped: Bool = false, anchor: PropAnchor = .ground, region: WorldLayout.Region = .all,
