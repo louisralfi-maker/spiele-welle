@@ -626,7 +626,8 @@ struct QuietButtonStyle: ButtonStyle {
     }
 }
 
-/// The × of a card: a small inked box in a 44 pt touch area.
+/// The × of a card: a small inset plaque (26 pt) in a 44 pt touch area; pressed, it fills amber like every plaque
+/// (polish C1: one button style).
 struct CardCloseButton: View {
     let identifier: String
     let action: @MainActor () -> Void
@@ -634,13 +635,8 @@ struct CardCloseButton: View {
     var body: some View {
         Button(action: action) {
             GlyphView(glyph: .close)
-                .foregroundStyle(NightGlass.bone)
-                .frame(width: 26, height: 26)
-                .background(GlassSkinView(skin: .inset))
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(GlassPlaqueStyle(inside: true, face: 26))
         .accessibilityLabel(Text("Close"))
         .accessibilityIdentifier(identifier)
     }
