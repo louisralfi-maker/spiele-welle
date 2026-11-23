@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.FilmDealsUITests testA2ItStands]' passed (444.104 seconds).
+exit=0
+screenshots: 122

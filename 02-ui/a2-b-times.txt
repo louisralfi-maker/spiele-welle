@@ -1,0 +1,60 @@
+a2-b: slowed: a house's next tier stands (touch-plot-23); kept: the frames before its site lantern goes out (the job's end, the event) and the finish after it
+slowed: -GWTimeScale 0.25; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +175.999 s (788 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWGold 200 -GWCameraX 2860 -GWTimeScale 0.25
+
+frame  seconds since the burst began  (scene where read)
+01  +173.060 s  
+02  +173.230 s  day:3 hour:14.80 alive:0 seen:0 shots:0 kx:2930 stage:world lx:2930 gold:147 hud:strip cam:2680 tap:count count:none last:paid:touch-plot-23 lanterns:1 yard:none drill:none
+03  +173.443 s  
+04  +173.636 s  day:3 hour:14.81 alive:0 seen:0 shots:0 kx:2930 stage:world lx:2930 gold:147 hud:strip cam:2680 tap:count count:none last:paid:touch-plot-23 lanterns:1 yard:none drill:none
+05  +173.912 s  
+06  +174.131 s  day:3 hour:14.82 alive:0 seen:0 shots:0 kx:2930 stage:world lx:2930 gold:147 hud:none cam:2680 tap:count count:none last:paid:touch-plot-23 lanterns:1 yard:none drill:none
+07  +174.448 s  
+08  +174.597 s  day:3 hour:14.83 alive:0 seen:0 shots:0 kx:2930 stage:world lx:2930 gold:147 hud:none cam:2680 tap:count count:none last:paid:touch-plot-23 lanterns:1 yard:none drill:none
+09  +174.789 s  
+10  +174.916 s  day:3 hour:14.83 alive:0 seen:0 shots:0 kx:2930 stage:world lx:2930 gold:147 hud:none cam:2680 tap:count count:none last:paid:touch-plot-23 lanterns:1 yard:none drill:none
+11  +175.101 s  
+12  +175.228 s  day:3 hour:14.84 alive:0 seen:0 shots:0 kx:2930 stage:world lx:2930 gold:147 hud:none cam:2680 tap:count count:none last:paid:touch-plot-23 lanterns:1 yard:none drill:none
+13  +175.438 s  
+14  +175.585 s  day:3 hour:14.85 alive:0 seen:0 shots:0 kx:2930 stage:world lx:2930 gold:147 hud:none cam:2680 tap:count count:none last:paid:touch-plot-23 lanterns:1 yard:none drill:none
+15  +175.778 s  
+16  +175.951 s  day:3 hour:14.86 alive:0 seen:0 shots:0 kx:2930 stage:world lx:2930 gold:147 hud:none cam:2680 tap:count count:none last:paid:touch-plot-23 lanterns:0 yard:none drill:none  <- the condition holds
+17  +176.144 s  
+18  +176.305 s  
+19  +176.460 s  
+20  +176.676 s  
+21  +176.849 s  
+22  +177.003 s  
+23  +177.207 s  
+24  +177.360 s  
+25  +177.488 s  
+26  +177.614 s  
+27  +177.760 s  
+28  +177.958 s  
+29  +178.148 s  
+30  +178.310 s  
+31  +178.489 s  
+32  +178.729 s  
+33  +178.900 s  
+34  +179.077 s  
+35  +179.274 s  
+36  +179.486 s  
+37  +179.719 s  
+38  +179.924 s  
+39  +180.096 s  
+40  +180.275 s  
+41  +180.458 s  
+42  +180.624 s  
+43  +180.849 s  
+44  +181.025 s  
+45  +181.210 s  
+46  +181.377 s  
+47  +181.557 s  
+48  +181.707 s  
+49  +181.969 s  
+50  +182.241 s  
+51  +182.529 s  
+52  +182.769 s  day:3 hour:15.00 alive:0 seen:0 shots:0 kx:2930 stage:world lx:2930 gold:147 hud:none cam:2680 tap:count count:none last:paid:touch-plot-23 lanterns:0 yard:none drill:none
+mean spacing 0.190 s over 51 gaps
