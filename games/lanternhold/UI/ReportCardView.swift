@@ -14,7 +14,9 @@ struct ReportCardView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let width = min(660, geometry.size.width - 20)
+            // Polish E2 (part 6's proof): `-GWReportFrame` lays the card out as on a screen of that size.
+            let screen = ReportCardView.proofFrame ?? geometry.size
+            let width = min(660, screen.width - 20)
             VStack(spacing: 0) {
                 header
                 CardScroll {
@@ -26,7 +28,14 @@ struct ReportCardView: View {
             .background(ParchmentBackground())
             // Fix round 1 (the critic's high 7): at least 16 pt of the world above and below the card (the finale's
             // stood 5 pt from the top).
-            .frame(maxHeight: geometry.size.height - 32)
+            .frame(maxHeight: screen.height - 32)
+            .background {
+                if let frame = ReportCardView.proofFrame {
+                    // The proof's screen edge, so a still shows what the smaller phone would have around the card.
+                    Rectangle().stroke(Color.red.opacity(0.7), lineWidth: 1)
+                        .frame(width: frame.width, height: frame.height)
+                }
+            }
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
         .accessibilityElement(children: .contain)
@@ -43,7 +52,8 @@ struct ReportCardView: View {
                 Text(inked: String(localized: "Day \(card.day) dawns"), .title2)
                     .font(Theme.caps(.title2))
                     .foregroundStyle(Theme.rubric)
-                Text(inked: String(localized: "Night \(card.night) is over"), .subheadline)
+                // Polish E2 (part 5): the night as the ribbon said it the evening before ("Night 2 of 20", `FarGoal`).
+                Text(inked: FarGoal.reportLine(night: card.night), .subheadline)
                     .font(Theme.italic(.subheadline))
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -162,9 +172,16 @@ struct ReportCardView: View {
     private var realmColumn: some View {
         VStack(alignment: .leading, spacing: 5) {
             SectionTitle(text: String(localized: "The valley"))
-            ReportRow(label: String(localized: "Taxes"), detail: taxDetail) {
-                GoldAmount(amount: card.goldIn, size: 14)
+            // Polish E2 (R3 fix 1): what the doors owe today, with yesterday's gold in the detail (`ReportCard.owedDetail`).
+            ReportRow(label: String(localized: "Owed today"), detail: card.owedDetail) {
+                if card.owedToday > 0 {
+                    GoldAmount(amount: card.owedToday, size: 14)
+                } else {
+                    Text("None")
+                        .font(Theme.serif(.subheadline))
+                }
             }
+            .accessibilityIdentifier("report-owed")
             ReportRow(label: String(localized: "Happiness"), detail: reasons) {
                 HStack(spacing: 5) {
                     Text(verbatim: "\(card.happinessBefore) \u{2192} \(card.happinessAfter)")
@@ -191,6 +208,20 @@ struct ReportCardView: View {
                         .foregroundStyle(Theme.teal)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+            }
+            // Polish E2 (R3 fix 2, law 3.6): one line forward under the key lines, in their style; none when nothing
+            // applies (an unlock is its own key line).
+            if let line = forwardLine {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    GlyphView(glyph: line.glyph)
+                        .foregroundStyle(NightGlass.lanternGold)
+                    Text(inked: line.text, .subheadline)
+                        .font(Theme.serif(.subheadline))
+                        .foregroundStyle(Theme.teal)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("report-forward")
             }
         }
         // Fix round 2 (the critic's smaller point on 47): the last valley row keeps its line gap above the footer's
@@ -239,15 +270,33 @@ struct ReportCardView: View {
         return card.wallsLost.map { Texts.lineName($0) }.joined(separator: ", ")
     }
 
-    private var taxDetail: String? {
-        // Town-2: the amount is what reached the purse yesterday; the detail tells yesterday in one line.
-        if let town = card.town { return TownText.reportDetail(town) }
-        if card.taxes.unrest { return String(localized: "Unrest: no taxes at this dawn") }
-        var parts = [String(localized: "\(card.taxes.taxpayers) taxpayers")]
-        if card.taxes.fields > 0 { parts.append(String(localized: "fields +\(card.taxes.fields)")) }
-        if card.taxes.market > 0 { parts.append(String(localized: "market +\(card.taxes.market)")) }
-        return parts.joined(separator: " · ")
+    /// Polish E2: the line forward in words: the captain's own line for a first night ("“Hounds come soon …” —
+    /// Brannock"), or the houses full; nil for none and for an unlock (its key line stands already).
+    private var forwardLine: (glyph: PixelGlyph, text: String)? {
+        switch card.forward {
+        case .firstNight(_, let key)?:
+            let name = Speakers.nameKey(ReportCard.firstNightSpeaker, day: card.day, flags: [])
+                .map { model.story($0) } ?? ""
+            let quote = "\u{201C}\(model.story(key))\u{201D}"
+            return (.warning, name.isEmpty ? quote : "\(quote) \u{2014} \(name)")
+        case .housesFull?:
+            return (.hammer, String(localized: "Houses full: build a house"))
+        case .unlock?, nil:
+            return nil
+        }
     }
+
+    /// The proof's screen size (`-GWReportFrame 667x375`, points), Debug builds only; nil: the real screen.
+    static let proofFrame: CGSize? = {
+        #if DEBUG
+        guard let text = UserDefaults.standard.string(forKey: "GWReportFrame") else { return nil }
+        let parts = text.lowercased().split(separator: "x").compactMap { Double($0) }
+        guard parts.count == 2, parts[0] > 100, parts[1] > 100 else { return nil }
+        return CGSize(width: parts[0], height: parts[1])
+        #else
+        return nil
+        #endif
+    }()
 
     private var reasons: String? {
         guard !card.reasons.isEmpty else { return nil }
@@ -259,7 +308,7 @@ struct ReportCardView: View {
         if card.grown > 0 { parts.append(String(localized: "\(card.grown) born")) }
         if card.left > 0 { parts.append(String(localized: "\(card.left) left the valley")) }
         if card.volunteer { parts.append(String(localized: "a volunteer took up the bow")) }
-        if card.housesFull { parts.append(String(localized: "Houses full: build a house")) }
+        // Polish E2: "Houses full: build a house" is the line forward now (`forwardLine`), not this detail.
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 }

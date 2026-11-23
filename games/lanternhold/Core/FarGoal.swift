@@ -24,6 +24,14 @@ enum FarGoal {
         return String(localized: "Night \(night) is coming")
     }
 
+    /// Polish E2 (law 3.6, the dawn card is the one place the plan is said in words): the card's head says the night
+    /// that ended as the ribbon said it the evening before, "Night 2 of 20" inside the run; past it the card's old
+    /// words, "Night 21 is over" (the ribbon's fallback is "is coming", which a night that ended cannot say).
+    static func reportLine(night: Int) -> String {
+        if let total = hornTotal(night: night) { return String(localized: "Night \(night) of \(total)") }
+        return String(localized: "Night \(night) is over")
+    }
+
     // MARK: - Mother Hesper's line
 
     /// Who says it.

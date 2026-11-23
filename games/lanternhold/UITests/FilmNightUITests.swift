@@ -117,6 +117,30 @@ final class FilmNightUITests: XCTestCase {
         app.terminate()
     }
 
+    // LANE-E: E2 (m10-c: the dawn card after the open gate, a frame about every 0.15 s)
+    /// Polish E2 (ROUND.md law 3.6): night 1 played to its last seconds (the m10 launch), the hour read without frames
+    /// until 05:52 (about 1.6 s before the dawn); then a frame every 0.15 s for 6 s through the dawn: the gate opens,
+    /// no card for 0.6 s, then the card stands (c).
+    func testM10TheDawnCardWaitsForTheGate() {
+        let film = FilmReel(self, "m10")
+        let app = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWNight", "1",
+                               "-GWSeed", "1", "-GWHour", "5.3", "-GWCameraX", "1330"])
+        guard film.ready(app) else {
+            XCTFail("m10 c: the scene never stood")
+            return
+        }
+        film.note("m10-c-start", film.scene(app))
+        let near = film.wait(40) { (FilmReel.number("hour:", in: film.scene(app)) ?? 0) >= 5.87 }
+        film.burst("c", app, count: 40, what: "the night's last second, the dawn, the gate open and the card's 0.6 s wait, "
+                   + "then the card (E2), one frame every 0.15 s", before: false, every: 0.15)
+        XCTAssertTrue(near, "the night's last seconds were reached")
+        let report = film.element(app, "report-root")
+        XCTAssertTrue(report.waitForExistence(timeout: 6), "the card came after the dawn")
+        film.note("m10-c-end", film.scene(app))
+        app.terminate()
+    }
+    // LANE-E end
+
     /// m12: the ads with the Debug stub (`-GWAdStub YES`: its video and its interstitial end at once, nothing stands
     /// in for them on screen): the dawn report of day 9 with its offer (a), the offer taken (b), Continue (c); a second
     /// dawn without the offer taken, Continue and the interstitial (d). The end card: the Shuttered Lantern skipped to

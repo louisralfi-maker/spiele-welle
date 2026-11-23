@@ -87,6 +87,106 @@ final class ReportCardTests: XCTestCase {
         XCTAssertEqual(card.wallsLost, [3, 1])
     }
 
+    // MARK: - Polish E2: "Owed today" (R3 fix 1) and the line forward (R3 fix 2)
+
+    func testTheRowSaysWhatTheDoorsOweTodayWithYesterdayInTheDetail() throws {
+        var s = GameState.newRealm(seed: 4, balance: balance)
+        var bot = Autoplay.reference()
+        let report = try XCTUnwrap(Sim.runToDawn(&s, balance: balance, bot: &bot))
+        let today = try XCTUnwrap(s.town?.today)
+        let card = ReportCard.make(report, today: today)
+        XCTAssertEqual(card.owedToday, report.taxes.total, "the figure is what the doors owe today")
+        XCTAssertGreaterThan(card.owedToday, 0)
+        let doors = today.places.filter { $0.owed > 0 }.count
+        XCTAssertEqual(card.owedDoors, doors)
+        let detail = try XCTUnwrap(card.owedDetail)
+        let parts = detail.components(separatedBy: " · ")
+        XCTAssertEqual(parts.first, doors == 1 ? "1 door" : "\(doors) doors", detail)
+        XCTAssertEqual(parts.dropFirst().first, "Yesterday: \(Balance.standard.town.firstMorningGold)",
+                       "yesterday's gold moved into the detail: \(detail)")
+        XCTAssertEqual(card.goldIn, Balance.standard.town.firstMorningGold, "goldIn stays yesterday's")
+        // A ledger of another day says nothing about today's doors.
+        var old = today
+        old.day = report.day - 1
+        XCTAssertNil(ReportCard.make(report, today: old).owedDoors)
+    }
+
+    func testOneDoorAndTheTownsLineAfterYesterday() throws {
+        let report = ReportCard.sampleReport()
+        var owing = TownPlace(plot: 0, kind: .house, taxpayers: 3, owed: 12)
+        owing.collected = false
+        let quiet = TownPlace(plot: 1, kind: .house, taxpayers: 0, owed: 0)
+        let today = TownDay(day: report.day, places: [owing, quiet], unrest: false)
+        let card = ReportCard.make(report, today: today)
+        XCTAssertEqual(card.owedDoors, 1)
+        XCTAssertEqual(card.owedToday, 64, "the sample's taxes: 54 + 10")
+        XCTAssertEqual(card.owedDetail, "1 door · Yesterday: 64", "paid in full yesterday: no town line beyond it")
+
+        var kept = report
+        var town = TownSummary.paidInFull(day: 7, gold: 30)
+        town.kept = 24
+        kept.town = town
+        let line = try XCTUnwrap(TownText.reportDetail(town))
+        XCTAssertEqual(ReportCard.make(kept, today: today).owedDetail, "1 door · Yesterday: 30 · \(line)")
+    }
+
+    func testNothingOwedReadsCalm() throws {
+        let unrest = try XCTUnwrap(ReportCard.proofSample("unrest"))
+        let card = ReportCard.make(unrest, today: TownDay(day: unrest.day, places: [], unrest: true))
+        XCTAssertEqual(card.owedToday, 0, "unrest: nobody owes")
+        let detail = try XCTUnwrap(card.owedDetail)
+        XCTAssertTrue(detail.hasPrefix("Unrest: no taxes at this dawn · Yesterday: 0"), detail)
+        XCTAssertFalse(detail.contains("door ·"), "no doors when nothing is owed: \(detail)")
+
+        var none = ReportCard.sampleReport()
+        none.taxes = TaxBreakdown(taxpayers: 0, taxPart: 0, fields: 0, market: 0, unrest: false)
+        let empty = ReportCard.make(none, today: TownDay(day: none.day, places: [], unrest: false))
+        XCTAssertEqual(empty.owedToday, 0)
+        XCTAssertEqual(empty.owedDetail, "Yesterday: 64", "no door owes: only yesterday")
+
+        var oldSave = none
+        oldSave.town = nil
+        XCTAssertNil(ReportCard.make(oldSave).owedDetail, "nothing owed and no yesterday: no detail")
+        var oldTaxes = ReportCard.sampleReport()
+        oldTaxes.town = nil
+        XCTAssertEqual(ReportCard.make(oldTaxes).owedDetail, "11 taxpayers · fields +10",
+                       "a save from before the taxes went on foot keeps today's sum in its parts")
+    }
+
+    func testTheLineForwardTakesTheFirstThatApplies() throws {
+        XCTAssertEqual(ReportCard.forward(unlocked: true, tonight: 3, housesFull: true, balance: balance), .unlock,
+                       "an unlock first (its key line is the line forward)")
+        XCTAssertEqual(ReportCard.forward(unlocked: false, tonight: 3, housesFull: true, balance: balance),
+                       .firstNight(.shadehound, lineKey: "line.brannock_hounds"), "the hounds' first night next")
+        XCTAssertEqual(ReportCard.forward(unlocked: false, tonight: 10, housesFull: false, balance: balance),
+                       .firstNight(.ashGiant, lineKey: "line.brannock_giant"))
+        XCTAssertEqual(ReportCard.forward(unlocked: false, tonight: 4, housesFull: true, balance: balance), .housesFull,
+                       "then the houses full")
+        XCTAssertNil(ReportCard.forward(unlocked: false, tonight: 4, housesFull: false, balance: balance),
+                     "otherwise none")
+        XCTAssertNil(ReportCard.forward(unlocked: false, tonight: 5, housesFull: false, balance: balance),
+                     "the crows have no line of Brannock's: no line forward")
+        // The first nights are read from Balance, never a loose number.
+        var later = balance
+        later.creatures[CreatureKind.shadehound.index].firstNight = 4
+        XCTAssertEqual(ReportCard.forward(unlocked: false, tonight: 4, housesFull: false, balance: later),
+                       .firstNight(.shadehound, lineKey: "line.brannock_hounds"))
+        XCTAssertNil(ReportCard.forward(unlocked: false, tonight: 3, housesFull: false, balance: later))
+        // The quoted lines exist (no new line of speech).
+        for line in ReportCard.firstNightLines {
+            XCTAssertNotEqual(StoryText.string(line.lineKey, lord: .standard), line.lineKey, line.lineKey)
+        }
+
+        XCTAssertEqual(ReportCard.make(ReportCard.sampleReport()).forward, .unlock, "day 8 opens the outer line")
+        XCTAssertEqual(ReportCard.make(try XCTUnwrap(ReportCard.proofSample("held"))).forward,
+                       .firstNight(.shadehound, lineKey: "line.brannock_hounds"))
+        XCTAssertEqual(ReportCard.make(try XCTUnwrap(ReportCard.proofSample("giant"))).forward,
+                       .firstNight(.ashGiant, lineKey: "line.brannock_giant"))
+        XCTAssertEqual(ReportCard.make(try XCTUnwrap(ReportCard.proofSample("houses"))).forward, .housesFull)
+        XCTAssertNil(ReportCard.make(try XCTUnwrap(ReportCard.proofSample("unrest"))).forward)
+        XCTAssertNil(ReportCard.proofSample("nothing"))
+    }
+
     func testASecondChanceBringsADawnWithItsBanner() throws {
         var s = GameState.newRealm(seed: 2, balance: balance)
         var bot = Autoplay.buildsNothing
