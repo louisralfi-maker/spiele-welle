@@ -1530,3 +1530,6 @@ schneller geht."
     time, C2's small leftovers. Rounds lh-rnd-24 and lh-rnd-25 run on the join 4a42da26. Usage 60 % (Fable 30 %).
   - 23.11. 08:37: round lh-rnd-22 is green on 22d6d237 (the join with A2): build, the whole unit suite, FilmDeals +
     FirstDay, ALL PASSED. The join is still not pushed: the count class runs in lh-rnd-23 (on f254c4e8).
+  - 23.11. 08:55: round lh-rnd-25 is green on 4a42da26 (the join with C2 and E2b): build, Lord + Ads, Slides +
+    FilmPanes, FilmNight + FirstDay, ALL PASSED. The merged head builds, so lane B may start step B3 from it. The
+    join stays unpushed until lh-rnd-23 (count class) and lh-rnd-24 (unit suite, title, opening film) are green.
