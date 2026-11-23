@@ -1834,14 +1834,17 @@ enum EntityFrames {
                     add(.shard, k % 2, x, y, side < 0, SIMD4<Float>(0.8, 0.76, 0.72, 1), false, true)
                 }
             case .standDust:
-                // Step A2: dust motes spread over the work's whole width at its foot from the event; they rise (eased
-                // out) to their fullest at the swap, 0.12 s, over the foot as the new sprite stands, then drift outward
-                // and up and thin to nothing by 1.1 s. The broken wall's shards are soot-black: on round lh-ra-10's film
+                // Step A2: dust spread over the work's whole width at its foot from the event; it grows (eased out) to
+                // its fullest at the swap, 0.12 s, and covers the foot as the new sprite stands, then drifts outward and
+                // up and thins to nothing by 1.1 s. The broken wall's shards are soot-black: on round lh-ra-10's film
                 // they did not read at all on the day's ground, so the dust is made of existing pictures tinted to pale
-                // stone dust (no new art): a few round puffs (the chimney's `smokePuff`, growing from 2 to 5 px) and
-                // motes between them (the grey `sootFlake`, `BattleEffects.standDustTint`), a shade each (round
-                // lh-ra-12: the motes alone read as a few specks). The keep's dust stands on the mistBand plane: placed
-                // with the camera as that plane moves.
+                // stone dust (no new art): round puffs (the chimney's `smokePuff`) and two motes over them (the grey
+                // `sootFlake`, `BattleEffects.standDustTint`), a shade each. The gate of A2 (A2-P1, M1, M2; round
+                // lh-ra-13's film: 3 to 5 puffs of 2 px at the swap left most of the foot open): one puff per 4.5 px,
+                // their size from the rise only, so all reach the largest frame (5 px) in the swap's frame and overlap
+                // into one band, every other one 3 px higher; held low (1 or 4 px) until the swap; after it only their
+                // drift and alpha change, so the cover (area x alpha) peaks at the swap. The keep's dust stands on the
+                // mistBand plane: placed with the camera as that plane moves.
                 let seconds = max(0, effects.standClock - effect.start)
                 let peak = BattleEffects.standSwap
                 let rise = Motion.enter(min(1, seconds / peak))
@@ -1850,13 +1853,13 @@ enum EntityFrames {
                 let centre = effect.plane == .world ? effect.x : effect.x + cameraX * (1 - effect.plane.parallax)
                 let count = BattleEffects.standDustCount(width: effect.width)
                 let puffs = BattleEffects.standPuffCount(width: effect.width)
+                let size = min(CastleSmoke.sizes - 1, Int((rise * Double(CastleSmoke.sizes - 1)).rounded()))
                 for k in 0..<puffs {
                     guard spend() else { return }
-                    let side = (Double(k) + unit(k, 11)) / Double(puffs) - 0.5
-                    let x = centre + side * effect.width * 0.9 + (side < 0 ? -1 : 1) * after * (4 + 5 * unit(k, 12))
-                    let y = effect.y + rise * (1 + 3 * unit(k, 13)) + after * (3 + 4 * unit(k, 14))
-                    let size = min(CastleSmoke.sizes - 1, Int(rise * 2.4) + Int(after * 5))
-                    let shade = Float(0.9 + 0.2 * unit(k, 15))
+                    let side = (Double(k) + 0.5 + (unit(k, 11) - 0.5) * 0.2) / Double(puffs) - 0.5
+                    let x = centre + side * effect.width + (side < 0 ? -1 : 1) * after * (4 + 5 * unit(k, 12))
+                    let y = effect.y + rise * Double(1 + 3 * (k % 2)) + after * (3 + 4 * unit(k, 14))
+                    let shade = Float(0.92 + 0.12 * unit(k, 15))
                     let tint = BattleEffects.standPuffTint * shade
                     add(.smokePuff, size, x.rounded(), y.rounded(), false, SIMD4<Float>(tint.x, tint.y, tint.z, thin),
                         false, true)

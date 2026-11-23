@@ -463,10 +463,11 @@ final class GameModel {
         }
         driver = game
         // LANE-A: A2 (a building's finish, `BattleEffects.stand`: its record, its dust, the swap 0.12 s after the
-        // event, the 1 px jolts; `.buildStood` once per building at the swap, at the plot's x)
+        // event, the 1 px jolts; `.buildStood` at the swap, at the plot's x, once for the swaps of a frame and at
+        // most every 0.4 s, the one nearest the lord)
         for x in effects.stand(events, before: game.framePlots, state: game.state, balance: game.balance,
                                seconds: seconds * args.timeScale, reduceMotion: reduceMotion,
-                               castleGrows: args.look == .two && !args.castleFixed) {
+                               castleGrows: args.look == .two && !args.castleFixed, listenerX: game.state.king.x) {
             feedback.play(.buildStood, at: x, listenerX: game.state.king.x)
         }
         // LANE-A end

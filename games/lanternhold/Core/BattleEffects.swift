@@ -66,6 +66,8 @@ struct BattleEffects: Sendable, Equatable {
     private(set) var jolts: [Jolt] = []
     private var wallFrames: [Int: Int] = [:]
     private(set) var standClock = 0.0
+    /// The standings' clock when `.buildStood` last played (the gate of A2: at most one answer per `stoodGap`).
+    private var stoodAt = -Double.infinity
     /// b3-horde: the small ones seen at the last note (id, x, heap lift and when), so a kill, which names only its kind
     /// and place, finds the body that fell. One that vanished without a matching kill is kept for one more note
     /// (`stale`), so the swept ones' puffs (`GameModel.dissolveSwept`, noted right after) find theirs too. A note comes
@@ -248,18 +250,28 @@ extension BattleEffects {
     static let keepDustWidth = 120.0
     static let keepDustY = 70.0
 
-    /// The dust's motes for a work `width` wide: one per 3 px, 8 to 12 (two works at once fit the frame's 24).
+    /// The dust's pieces for a work `width` wide: its puffs and `standMotes` motes, at most 12 (two works at once fit
+    /// the frame's 24).
     static func standDustCount(width: Double) -> Int {
-        min(12, max(8, Int((width / 3).rounded())))
+        standPuffCount(width: width) + standMotes
     }
 
-    /// Of them, the round puffs (`smokePuff`): one per 9 px, 3 to 5; the rest are motes.
+    /// The round puffs (`smokePuff`): one per 4.5 px of the work, 3 to 10, so their 5 px bodies overlap into one band
+    /// over the work's foot at the swap (the gate of A2: one per 9 px, 2 px at the swap, left most of the foot open).
     static func standPuffCount(width: Double) -> Int {
-        min(5, max(3, Int((width / 9).rounded())))
+        min(10, max(3, Int((width / 4.5).rounded())))
     }
 
-    /// The puffs' white body times this is the same pale stone dust (its underside a shade darker).
-    static let standPuffTint = SIMD3<Float>(0.74, 0.69, 0.6)
+    /// The motes over the puffs.
+    static let standMotes = 2
+
+    /// The puffs' white body times this is a pale, cool stone dust (its underside a shade darker), lighter than the
+    /// town's tan walls and ochre ground (the gate of A2: the warm tint was lost on the house).
+    static let standPuffTint = SIMD3<Float>(0.9, 0.88, 0.84)
+
+    /// At most one `.buildStood` this often (the standings' clock; the thinner's old gap for `.buildDone`), at the
+    /// due standing nearest the listener: two works finishing together are answered once, with one haptic.
+    static let stoodGap = 0.4
 
     /// The flakes' grey (0x5E6170) times this is a pale warm stone dust (about 0xB4AAA0); every mote 0.85 to 1.15 of
     /// it. Above 1, so the drawing tells the dust's flakes from the small ones' soot (`EntityFrames.effectParticles`).
@@ -269,10 +281,11 @@ extension BattleEffects {
     /// standings' clock runs on by `seconds` (the driver's seconds), every `buildDone` of the frame's `events` gets
     /// its record (the old picture from `before`, the plots as the frame before drew them) and, unless Reduce Motion,
     /// its dust at the work's foot over its width (and the keep's second dust when the gate's tier changes the keep and
-    /// `castleGrows`); a wall that turned damaged or fell gets its jolt. Returns the x (the plot's) of every standing
-    /// whose swap came in this frame: `.buildStood` plays there, once per building. The keep's dust is silent.
+    /// `castleGrows`); a wall that turned damaged or fell gets its jolt. Returns the x (the plot's) of the standing
+    /// whose swap came in this frame (the one nearest `listenerX` when several did; none within `stoodGap` of the last
+    /// answer): `.buildStood` plays there, never twice for one building. The keep's dust is silent.
     mutating func stand(_ events: [SimEvent], before: [PlotState], state: GameState, balance: Balance, seconds: Double,
-                        reduceMotion: Bool, castleGrows: Bool) -> [Double] {
+                        reduceMotion: Bool, castleGrows: Bool, listenerX: Double? = nil) -> [Double] {
         standClock += max(0, seconds)
         let now = standClock
         for event in events {
@@ -302,7 +315,12 @@ extension BattleEffects {
             let plot = standings[index].plot
             if Realm.plots.indices.contains(plot) { due.append(Realm.plots[plot].x) }
         }
-        return due
+        // The gate of A2 (P3, L2): one answer for the swaps of a frame, at the one nearest the listener, and none within
+        // `stoodGap` of the last (every standing is still marked sounded: it is never answered later).
+        guard !due.isEmpty, now - stoodAt >= BattleEffects.stoodGap - 1e-9 else { return [] }
+        stoodAt = now
+        let near = listenerX.map { x in due.min { abs($0 - x) < abs($1 - x) } ?? due[0] } ?? due[0]
+        return [near]
     }
 
     /// True once `standing`'s swap has come (by the standings' clock).

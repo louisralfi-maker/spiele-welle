@@ -33,20 +33,21 @@ final class StandingTests: XCTestCase {
     @discardableResult
     private func step(_ effects: inout BattleEffects, _ events: [SimEvent] = [], before: [PlotState] = [],
                       state: GameState, seconds: Double? = nil, reduceMotion: Bool = false,
-                      castleGrows: Bool = true) -> [Double] {
+                      castleGrows: Bool = true, listenerX: Double? = nil) -> [Double] {
         effects.stand(events, before: before, state: state, balance: balance, seconds: seconds ?? frame,
-                      reduceMotion: reduceMotion, castleGrows: castleGrows)
+                      reduceMotion: reduceMotion, castleGrows: castleGrows, listenerX: listenerX)
     }
 
     /// Steps until the standings' clock is `age` seconds after the first standing's event.
     @discardableResult
     private func run(_ effects: inout BattleEffects, to age: Double, state: GameState,
-                     reduceMotion: Bool = false) -> [Double] {
+                     reduceMotion: Bool = false, listenerX: Double? = nil) -> [Double] {
         let start = effects.standings.first?.start ?? effects.standClock
         var due: [Double] = []
         while effects.standClock - start < age - 1e-9 {
             let left = age - (effects.standClock - start)
-            due += step(&effects, state: state, seconds: min(frame, left), reduceMotion: reduceMotion)
+            due += step(&effects, state: state, seconds: min(frame, left), reduceMotion: reduceMotion,
+                        listenerX: listenerX)
         }
         return due
     }
@@ -148,9 +149,9 @@ final class StandingTests: XCTestCase {
 
     // MARK: - The dust
 
-    /// The dust starts at the event at the work's foot over its whole width (the existing grey flakes tinted to pale
-    /// stone dust: the broken wall's soot shards did not read on the day's ground), is fullest at the swap (every particle in, at full alpha, risen 2 to 9 px over the foot), then thins and is gone
-    /// by 1.1 s. Its own kind (`standDust`); the broken wall's dust stays as it was.
+    /// The dust starts at the event at the work's foot over its whole width (the chimney's puffs and two grey flakes
+    /// tinted to pale stone dust: the broken wall's soot shards did not read on the day's ground), is fullest at the
+    /// swap (every particle in, at full alpha, risen 1 to 9 px over the foot), then thins and is gone by 1.1 s. Its own kind (`standDust`); the broken wall's dust stays as it was.
     func testTheDustRisesOverTheWorksWidthAndPeaksAtTheSwap() throws {
         let plot = Realm.lines[1].wall
         let (before, after, events) = finishing(plot, from: .palisade, to: .stoneWall)
@@ -199,6 +200,50 @@ final class StandingTests: XCTestCase {
         XCTAssertEqual(broken.items.map(\.kind), [.wallDust])
     }
 
+    /// The gate of A2 (A2-P1, M1, M2): in the swap's frame the puffs are all at their largest frame and together cover
+    /// at least nine tenths of the work's width at its foot; their cover (area x alpha) is greater there than halfway
+    /// up the rise (0.06 s) and than after it (0.3 s).
+    func testTheDustCoversTheFootAtTheSwap() throws {
+        let plot = Realm.lines[1].wall
+        let (before, after, events) = finishing(plot, from: .palisade, to: .stoneWall)
+        var effects = BattleEffects()
+        step(&effects, events, before: before.plots, state: after)
+        let dust = try XCTUnwrap(effects.items.first { $0.kind == .standDust })
+        let focus = 960.0
+        let camera = Camera(focusX: focus, pixelScale: pro)
+        let scale = Float(pro.scale)
+        let cell = Float(SpriteID.smokePuff.size.width)
+        func puffs() -> [ActorInstance] {
+            GameFrameSupport.frame(after, focus: focus, effects: effects).layer.actors.filter { $0.sprite == .smokePuff }
+        }
+        func cover(_ list: [ActorInstance]) -> Float {
+            list.reduce(0) { sum, puff in
+                let side = Float(CastleSmoke.side(frame: puff.frame))
+                return sum + side * side * puff.tint.w
+            }
+        }
+        run(&effects, to: 0.06, state: after)
+        let rising = cover(puffs())
+        run(&effects, to: BattleEffects.standSwap, state: after)
+        let peak = puffs()
+        XCTAssertEqual(peak.count, BattleEffects.standPuffCount(width: dust.width))
+        XCTAssertTrue(peak.allSatisfy { $0.frame == CastleSmoke.sizes - 1 }, "the largest frame at the swap")
+        let left = camera.deviceX(worldX: dust.x - dust.width / 2, scale: pro.scale, mode: .smooth)
+        let right = camera.deviceX(worldX: dust.x + dust.width / 2, scale: pro.scale, mode: .smooth)
+        var covered = Set<Int>()
+        for puff in peak {
+            let side = Float(CastleSmoke.side(frame: puff.frame))
+            let x0 = Int(puff.rect.x + ((cell - side) / 2).rounded(.down) * scale)
+            for column in x0..<(x0 + Int(side * scale)) where column >= left && column < right { covered.insert(column) }
+        }
+        XCTAssertGreaterThanOrEqual(Double(covered.count), 0.9 * Double(right - left), "the foot covered")
+        let full = cover(peak)
+        run(&effects, to: 0.3, state: after)
+        let later = cover(puffs())
+        XCTAssertGreaterThan(full, rising, "growing to the swap")
+        XCTAssertGreaterThan(full, later, "thinning after it")
+    }
+
     /// The gate raised a tier (look 2's castle grows with it): the keep gets a second dust at its own foot on the
     /// mistBand plane, silent (one building, one answer), and its scene swaps with the gate (`drawn`). A rebuilt gate
     /// (the same tier) or a fixed castle gets none.
@@ -229,7 +274,9 @@ final class StandingTests: XCTestCase {
         XCTAssertEqual(again.items.filter { $0.kind == .standDust }.count, 1, "a rebuild is no growth")
     }
 
-    /// Two works finishing in the same frame each get their own standing, their own dust and their own answer.
+    /// Two works finishing in the same frame each get their own standing and their own dust; they are answered once
+    /// (the gate of A2, P3 and L2: two `.buildStood` in one frame doubled the success haptic and its echo, and the
+    /// hub's sound throttle kept whichever came first), at the one nearest the listener.
     func testTwoWorksAtOnceEachStand() {
         let wall = Realm.lines[1].wall
         let house = Realm.townPlots[2]
@@ -240,13 +287,37 @@ final class StandingTests: XCTestCase {
         Build.complete(&after, plot: wall, balance: balance, events: &events)
         XCTAssertEqual(events.count, 2)
         var effects = BattleEffects()
-        step(&effects, events, before: both.before.plots, state: after)
+        step(&effects, events, before: both.before.plots, state: after, listenerX: Realm.plots[house].x - 40)
         XCTAssertEqual(effects.standings.map(\.plot).sorted(), [wall, house].sorted())
         XCTAssertEqual(effects.items.filter { $0.kind == .standDust }.count, 2)
         XCTAssertEqual(props(after, effects: effects), props(both.before), "both drawn as they stood")
-        let due = run(&effects, to: 0.5, state: after)
-        XCTAssertEqual(Set(due), [Realm.plots[wall].x, Realm.plots[house].x])
-        XCTAssertEqual(due.count, 2, "one answer each")
+        var nearWall = effects
+        let due = run(&effects, to: 0.5, state: after, listenerX: Realm.plots[house].x - 40)
+        XCTAssertEqual(due, [Realm.plots[house].x], "one answer, at the nearer one")
+        XCTAssertTrue(effects.standings.allSatisfy(\.sounded) || effects.standings.isEmpty, "neither answered later")
+        XCTAssertEqual(run(&nearWall, to: 0.5, state: after, listenerX: Realm.plots[wall].x), [Realm.plots[wall].x])
+        XCTAssertTrue(run(&effects, to: 1.2, state: after).isEmpty, "never a second answer")
+    }
+
+    /// A second work standing within 0.4 s of the last answer is not answered again (the thinner's old gap for
+    /// `.buildDone`); one standing 0.4 s or more after it is.
+    func testASecondStandingSoonAfterIsNotAnsweredAgain() {
+        let wall = Realm.lines[1].wall
+        let house = Realm.townPlots[2]
+        let first = finishing(wall, from: .palisade, to: .stoneWall)
+        let both = finishing(house, from: .house, to: .bigHouse, base: first.before)
+        var after = both.after
+        var wallEvents: [SimEvent] = []
+        Build.complete(&after, plot: wall, balance: balance, events: &wallEvents)
+        for (delay, answered) in [(0.2, false), (0.45, true)] {
+            var effects = BattleEffects()
+            var due = step(&effects, wallEvents, before: both.before.plots, state: after)
+            due += run(&effects, to: delay, state: after)
+            XCTAssertEqual(due, [Realm.plots[wall].x], "the first at its swap")
+            due = step(&effects, both.events, before: both.before.plots, state: after)
+            due += run(&effects, to: delay + 0.5, state: after)
+            XCTAssertEqual(due, answered ? [Realm.plots[house].x] : [], "the second \(delay) s later")
+        }
     }
 
     // MARK: - Part 3: damage does not swap silently
