@@ -125,6 +125,9 @@ enum CourtFrames {
     static let talkSeconds = 0.35
     /// The wall walk's two guards (`castle.guards.wall`).
     static let wallGuards: [Double] = [1324, 1396]
+    /// Step A1b: the wall guards' ids for the one breath (phase id × 0.37 s): 101 and 104 breathe 1.11 s apart, near
+    /// the opposite halves of the 2 s cycle.
+    static let wallGuardIDs = [101, 104]
     /// The throne's mark while petitioners wait (M3 fix, U2): above the lord's head when he stands at the throne, in
     /// gold (the speech mark's parchment times this tint).
     static let throneMarkY = 36.0
@@ -441,7 +444,8 @@ enum CourtFrames {
         // Two guards on the wall walk by day once a petition posted them there.
         if isDay && world.contains("castle.guards.wall") {
             for (index, x) in wallGuards.enumerated() {
-                let frame = Int(max(0, animTime + Double(index) * 0.45) / breathSeconds) % 2
+                // Step A1b (A1-C6): the one breath with each guard's own phase (before, a symmetric clock of their own).
+                let frame = FigureMotion.breath(time: max(0, animTime), id: CourtFrames.wallGuardIDs[index % 2])
                 add(.guardsman, frame: frame, x: x, y: WorldLayout.wallWalkY, facing: -1, alpha: 1)
             }
         }

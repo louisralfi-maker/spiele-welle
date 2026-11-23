@@ -721,14 +721,17 @@ enum HallFrames {
             lordLift = HallLayout.lift(at: lordX)
             lordFacing = walker.facing
             let frame: Int
-            if walker.isWalking {
-                let step = Int((walker.x * Double(walker.facing) / EntityFrames.kingStride).rounded(.down))
-                frame = ((step % 6) + 6) % 6
+            if walker.gait.moving {
+                // Step A1b: as in the world, the walk frame by the distance his walk has come (walk frame 0 first), the
+                // brake closing the stride, the standing pose from the step that lands him.
+                frame = walker.gait.frame
             } else if input.lanternUp {
                 // Stage-3-interface: the lantern moment, the pole held high (the command frame).
                 frame = 9
             } else {
-                frame = 6 + FrameBuilder.idleFrame(time: animTime, frames: 2)
+                // Step A1b (A1-C5): the one breath (1.15 s / 0.85 s, his phase), after the 0.25 s hold, as in the world;
+                // before, he panted at 2 fps.
+                frame = walker.gait.frame
             }
             addActor(lord.body, frame: frame, x: lordX, lift: lordLift, facing: lordFacing)
             if night >= 0.3 {
