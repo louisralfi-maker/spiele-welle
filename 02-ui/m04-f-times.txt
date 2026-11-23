@@ -1,0 +1,40 @@
+m04-f: a tap on the empty world lowers the lantern raised on the way to touch-talk-pip: he walks on, arrives and the talk opens
+slowed: -GWTimeScale 0.25; one frame every 0.35 s
+the cause (a tap on the empty world lowers the lantern raised on the way to touch-talk-pip: he walks on, arrives and the talk opens) was sent at +0.115 s and returned at +0.881 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830 -GWTimeScale 0.25
+scene before: frame:2630 ready day:1 hour:9.67 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1878 lord:lord stage:world lx:1878 errand:touch-talk-pip door:1830 gold:44 hud:moment cam:1626 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1877.53 kf:4 kd:-1 kcx:1625.76
+scene after: frame:3220 ready day:1 hour:9.87 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1792 lord:lord stage:world lx:1792 errand:touch-talk-pip door:1830 gold:44 hud:none cam:1600 tap:lowered hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:-36.00 kxf:1792.33 kf:1 kd:-1 kcx:1600.20
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.095 s  
+02  +1.273 s  
+03  +1.448 s  
+04  +1.667 s  
+05  +1.865 s  
+06  +2.048 s  
+07  +2.310 s  
+08  +2.627 s  
+09  +2.989 s  
+10  +3.330 s  
+11  +3.676 s  
+12  +4.035 s  
+13  +4.398 s  
+14  +4.718 s  
+15  +5.096 s  
+16  +5.424 s  
+17  +5.775 s  
+18  +6.116 s  
+19  +6.457 s  
+20  +6.825 s  
+21  +7.179 s  
+22  +7.513 s  
+23  +7.873 s  
+24  +8.207 s  
+25  +8.581 s  
+26  +8.916 s  
+27  +9.271 s  
+28  +9.614 s  
+29  +9.966 s  
+30  +10.327 s  
+mean spacing 0.318 s over 29 gaps
