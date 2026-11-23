@@ -1,0 +1,22 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (70.144 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (77.861 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (104.282 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (27.869 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (74.814 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (29.529 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (147.993 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (21.288 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (35.325 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (23.745 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (63.299 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (132.689 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testATapUnderTheLanternDoesTheDeed]' passed (29.177 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheCleanFrame]' passed (29.449 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheGlideHomeFilmstrip]' passed (34.969 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheGlintAndTheFlare]' passed (44.905 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheLookAround]' passed (26.604 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheTownsBanner]' passed (216.030 seconds).
+Test Case '-[LanternholdUITests.LookAroundUITests testTheTwoEnds]' passed (50.081 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (110.250 seconds).
+exit=0
+screenshots: 82

@@ -1,0 +1,1 @@
+0.80 s of real time after the glide set off (the fade back takes 0.6 s at this time scale)

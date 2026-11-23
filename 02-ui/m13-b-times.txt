@@ -1,0 +1,21 @@
+m13-b: the first touch on Brannock: his offer
+real time; as fast as the frames come
+the tap was sent without waiting at +0.343 s (point 97.0, 382.7; interface orientation 3 (the app's)); the runner answered at +0.641 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWHour 11 -GWGold 9 -GWStage world -GWCameraX 1545
+scene after: frame:580 ready day:1 hour:11.96 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1525 lord:lord stage:world lx:1525 errand:none door:1830 gold:9 hud:none cam:1260 tap:touch-talk-brannock hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:heard dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:1525.00 kf:7 kd:-1 kcx:1259.60
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.553 s  
+02  +0.804 s  
+03  +1.135 s  
+04  +1.419 s  
+05  +1.654 s  
+06  +1.875 s  
+07  +2.134 s  
+08  +2.382 s  
+09  +2.587 s  
+10  +2.840 s  
+11  +3.083 s  
+12  +3.264 s  
+mean spacing 0.246 s over 11 gaps
