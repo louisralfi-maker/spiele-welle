@@ -82,7 +82,26 @@ extension EnvironmentValues {
     }
 }
 
+private struct LHPanesHeldKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    /// Polish C2 (C1-10): while true no pane stands (the hall is still rising from the title, or the first frame of a
+    /// launch without it has just come). Set once at the root (`RootView`); `OverlayView` and `AdLayer` read it, so a
+    /// pane the game holds at its start comes with its own come and one `paneOpen` when it turns false.
+    var lhPanesHeld: Bool {
+        get { self[LHPanesHeldKey.self] }
+        set { self[LHPanesHeldKey.self] = newValue }
+    }
+}
+
 extension View {
+    /// Polish C2: holds every pane below until `held` turns false (`EnvironmentValues.lhPanesHeld`).
+    func lhPanesHeld(_ held: Bool) -> some View {
+        environment(\.lhPanesHeld, held)
+    }
+
     /// Sets the game's Reduce Motion for every `.lhPane()` below.
     func lhReduceMotion(_ on: Bool) -> some View {
         environment(\.lhReduceMotion, on)

@@ -15,12 +15,14 @@ struct OverlayView: View {
     let model: GameModel
     /// Taps on the dim (law 2: each glints the main plaque's brass line).
     @State private var glint = 0
+    /// Polish C2 (C1-10): no pane stands while the root holds them (the hall rising, a launch's first frame).
+    @Environment(\.lhPanesHeld) private var panesHeld
 
     /// The hall audience's veil (law 2: "The hall audience keeps its 0.08 veil"): the hall stays in view.
     static let hallVeil = 0.08
 
     var body: some View {
-        let shown = PaneShown.of(model)
+        let shown = PaneShown.gated(PaneShown.of(model), held: panesHeld)
         let mode = MotionMode(reduceMotion: model.reduceMotion)
         ZStack {
             // One dim for every card that holds the world, outside the cards: a card that hands over to another keeps
@@ -30,7 +32,7 @@ struct OverlayView: View {
                     .lhPaneDim()
                     .zIndex(0)
             }
-            if model.overlay == .audience {
+            if model.overlay == .audience && !panesHeld {
                 // M3: the hall stays in view (a light veil only); the card opens when the petitioner has walked up.
                 // C1 gate (C1-9, F5): the veil takes the taps in silence. The audience card has no plaque that glints
                 // (C3's), and before the petitioner stands no card at all: a tick there is a sound with nothing to see.
@@ -38,7 +40,7 @@ struct OverlayView: View {
                     .lhPaneDim()
                     .zIndex(0)
             }
-            switch model.overlay {
+            switch (panesHeld ? nil : model.overlay) {
             case .build?:
                 if let card = model.buildCard {
                     BuildCardView(card: card, model: model)
@@ -150,6 +152,12 @@ struct PaneShown: Equatable, Sendable {
         case (_?, nil): return .paneClose
         case let (was?, now?): return was == now ? nil : .paneOpen
         }
+    }
+
+    /// Polish C2 (C1-10): the pane shown while the root holds the panes is none; when it lets go, the pane the game
+    /// holds comes as any pane comes (one `paneOpen` from `cue(from:to:)`). One rule for every card, at the root.
+    static func gated(_ pane: PaneShown?, held: Bool) -> PaneShown? {
+        held ? nil : pane
     }
 
     /// A tap beside a pane that holds (H14): the bubble close as a stand-in (`tap_low` at 0.55 since step D2, no

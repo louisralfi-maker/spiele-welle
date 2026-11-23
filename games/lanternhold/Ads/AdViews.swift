@@ -214,10 +214,12 @@ struct AdLayer: View {
     let model: GameModel
     /// Taps on the dim behind Marek's card (each glints its gift plaque).
     @State private var glint = 0
+    /// Polish C2 (C1-10): no pane stands while the root holds them (the hall rising, a launch's first frame).
+    @Environment(\.lhPanesHeld) private var panesHeld
 
     /// Marek's card stands.
     private var merchantShown: Bool {
-        AdDirector.shared.merchantCardOpen && AdDirector.shared.merchantGift != nil
+        AdDirector.shared.merchantCardOpen && AdDirector.shared.merchantGift != nil && !panesHeld
     }
 
     var body: some View {
@@ -232,7 +234,7 @@ struct AdLayer: View {
             }
             // Polish C1, one pane family (law 2): Marek's card comes and goes like every card, over the one dim, and a
             // tap beside it no longer closes it (the x and "Not now" do): it glints the gift's plaque.
-            if director.merchantCardOpen, let gift = director.merchantGift {
+            if merchantShown, let gift = director.merchantGift {
                 PaneDim(amount: MotionStyle.dim) {
                     glint &+= 1
                     model.feedback.play(PaneShown.besideCue)
@@ -257,7 +259,7 @@ struct AdLayer: View {
         }
         .environment(\.lhPaneGlint, glint)
         .animation(.lhLeave(.normal, mode: MotionMode(reduceMotion: model.reduceMotion)),
-                   value: director.merchantCardOpen)
+                   value: merchantShown)
         .animation(model.reduceMotion ? nil : .easeOut(duration: 0.3), value: director.giftLanded)
         // The pane cues (law 4's pane pair), as OverlayView plays them for the overlay's cards.
         .onChange(of: merchantShown) { old, new in

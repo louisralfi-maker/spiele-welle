@@ -45,6 +45,16 @@ struct RootView: View {
     @State private var warmedUp = false
     /// Polish C1: the plaques' answer, the model's feedback hub looked up at each press (made once with the model).
     @State private var plaqueFeedback: PlaqueFeedback? = nil
+    /// Polish C2 (F2): the title's sounds; the model's hub is handed in as soon as the model is made.
+    @State private var titleCues = TitleCues()
+    /// Polish C2 (M8): the touch on the title (t = 0 of `StepIn`); the hall is in the tree from here, under the title
+    /// and the cover, so it is alive while it rises.
+    @State private var stepInAt: Date? = nil
+    /// The hall is whole: the step's cover is gone and the world takes touches (from the start without the title).
+    @State private var hallWhole = DebugArgs.launchHooksOpen ? !TitleGate.shows : false
+    /// Polish C2 (C1-10): no pane stands before the hall is whole; a pane the game holds at its start comes 0.25 s
+    /// after it (`StepIn.panesAt`), with its own come and one `paneOpen` (`OverlayView`, `AdLayer`).
+    @State private var panesHeld = true
 
     var body: some View {
         if MetalContext.shared == nil {
@@ -57,48 +67,97 @@ struct RootView: View {
         } else if args.scene == "testpattern" {
             TestPatternView(virtualHeight: args.virtualHeight, scaleOverride: args.scaleOverride)
                 .ignoresSafeArea()
-        } else if let model, titleDone {
-            // The Lantern Table's plain list (`-GWScreen table`, `UI/Table`): nothing unless that argument asks.
-            GameView(model: model)
-                // Polish C1 (step 0a's review, M2): the game's own Reduce Motion (the system's switch or
-                // `-GWReduceMotion`) reaches every `.lhPane()`; every plaque's press goes through the feedback hub,
-                // behind the Haptics switch.
-                .lhReduceMotion(model.reduceMotion)
-                .lhPlaqueFeedback(plaqueFeedback)
-                .overlay { TableDebugLayer(model: model) }
         } else {
+            // Polish C2: one stack, so the title keeps its state while the hall comes in under it. One picture at a
+            // time (`StepIn`): the title closes on the flame and is gone at 0.70 s; the cover over the hall then
+            // lifts from black (the hall's opacity on a black ground) until 1.30 s. No cross-fade of two roots.
             ZStack {
                 // The first light: the night's darkest colour and the house's lantern while the game is made.
-                if titleDone {
-                    Color.black.ignoresSafeArea()
-                } else {
-                    TitleView(ready: RenderWarmup.titleReady(modelMade: model != nil, warmedUp: warmedUp)) {
-                        withAnimation(.easeInOut(duration: 0.4)) { titleDone = true }
+                Color.black.ignoresSafeArea()
+                if let model, titleDone || stepInAt != nil {
+                    // The Lantern Table's plain list (`-GWScreen table`, `UI/Table`): nothing unless that argument asks.
+                    GameView(model: model)
+                        // Polish C1 (step 0a's review, M2): the game's own Reduce Motion (the system's switch or
+                        // `-GWReduceMotion`) reaches every `.lhPane()`; every plaque's press goes through the feedback
+                        // hub, behind the Haptics switch.
+                        .lhReduceMotion(model.reduceMotion)
+                        .lhPlaqueFeedback(plaqueFeedback)
+                        .lhPanesHeld(panesHeld)
+                        .overlay { TableDebugLayer(model: model) }
+                }
+                if let stepInAt, !hallWhole {
+                    StepInCover(start: stepInAt, mode: stepInMode)
+                }
+                if !titleDone {
+                    TitleView(ready: RenderWarmup.titleReady(modelMade: model != nil, warmedUp: warmedUp),
+                              reduceMotionArgument: args.reduceMotion, cues: titleCues) { at in
+                        stepIn(at: at)
                     }
                 }
             }
-                .onAppear {
-                    guard model == nil else { return }
-                    // render-1: under the title only; a launch that skips it builds the renderer on demand, as before.
-                    if !titleDone {
-                        RenderWarmup.start()
-                        Task { @MainActor in
-                            await RenderWarmup.prepare()
-                            warmedUp = true
-                        }
+            .onAppear {
+                guard model == nil else { return }
+                // render-1: under the title only; a launch that skips it builds the renderer on demand, as before.
+                if !titleDone {
+                    RenderWarmup.start()
+                    Task { @MainActor in
+                        await RenderWarmup.prepare()
+                        warmedUp = true
                     }
-                    let made = GameModel(args: args, kind: RootView.kind(of: args.scene))
-                    // Sound and haptics (DESIGN.md "Sound and haptics"): the game only, never in tests.
-                    if made.kind == .world,
-                       SoundDirector.allowed(args: args, environment: ProcessInfo.processInfo.environment) {
-                        made.installFeedback(SoundDirector())
-                    }
-                    // The ads (Ads/AdDirector.swift): the report's gate, the silent consent refresh; none in tests.
-                    AdDirector.shared.attach(made)
-                    plaqueFeedback = PlaqueFeedback(model: made)
-                    model = made
                 }
+                let made = GameModel(args: args, kind: RootView.kind(of: args.scene))
+                // Sound and haptics (DESIGN.md "Sound and haptics"): the game only, never in tests.
+                if made.kind == .world,
+                   SoundDirector.allowed(args: args, environment: ProcessInfo.processInfo.environment) {
+                    made.installFeedback(SoundDirector())
+                }
+                // Polish C2: the title's sounds go through the model's hub, made with the saved Sound and Haptics.
+                titleCues.hub = made.feedback
+                // The ads (Ads/AdDirector.swift): the report's gate, the silent consent refresh; none in tests.
+                AdDirector.shared.attach(made)
+                plaqueFeedback = PlaqueFeedback(model: made)
+                model = made
+            }
+            // Polish C2: a launch that skips the title keeps the pane rule from its first frame: a pane the game holds
+            // at its start comes 0.25 s after the hall stands; it does not stand.
+            .task(id: model != nil) {
+                guard model != nil, titleDone, stepInAt == nil, panesHeld else { return }
+                await RootView.wait(until: Date().addingTimeInterval(StepIn.panesAtWithoutTitle))
+                panesHeld = false
+            }
         }
+    }
+
+    /// The step's Reduce Motion: the game's (`-GWReduceMotion` or the system's switch), as the title reads it.
+    private var stepInMode: MotionMode {
+        MotionMode(reduceMotion: model?.reduceMotion ?? (args.reduceMotion || UIAccessibility.isReduceMotionEnabled))
+    }
+
+    /// The touch on the title (polish C2, M8): the hall comes into the tree under the title at once; the beds stop at
+    /// the black (0.60 s), the title leaves the tree once it has gone (0.70 s), the cover once the hall is whole
+    /// (1.30 s; 0.95 s under Reduce Motion), and a pane the game holds comes 0.25 s after that. Each removal falls
+    /// where the timeline already shows what is under it, so none changes a pixel.
+    private func stepIn(at start: Date) {
+        guard stepInAt == nil else { return }
+        stepInAt = start
+        let mode = stepInMode
+        Task { @MainActor in
+            await RootView.wait(until: start.addingTimeInterval(StepIn.blackAt))
+            titleCues.black()
+            await RootView.wait(until: start.addingTimeInterval(StepIn.riseFrom))
+            titleDone = true
+            await RootView.wait(until: start.addingTimeInterval(StepIn.hallWholeAt(mode)))
+            hallWhole = true
+            await RootView.wait(until: start.addingTimeInterval(StepIn.panesAt(mode)))
+            panesHeld = false
+        }
+    }
+
+    /// Sleeps until `date` (at once when it has passed).
+    private static func wait(until date: Date) async {
+        let seconds = date.timeIntervalSinceNow
+        guard seconds > 0 else { return }
+        try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
     }
 
     /// The scene kind a `-GWScene` value asks for.
@@ -108,5 +167,23 @@ struct RootView: View {
         case "probe": return .probe
         default: return .world
         }
+    }
+}
+
+/// The cover over the hall during the step into the game (polish C2, M8): black at 1 minus the hall's opacity of
+/// `StepIn`'s timeline, so the hall rises from black as its root's opacity would on a black ground, and no picture of
+/// the title crosses it. It takes every touch until the hall is whole (then the root takes it away).
+struct StepInCover: View {
+    let start: Date
+    let mode: MotionMode
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            Color.black.opacity(1 - StepIn.picture(at: timeline.date.timeIntervalSince(start), mode: mode).hallOpacity)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {}
+        .accessibilityHidden(true)
+        .ignoresSafeArea()
     }
 }
