@@ -689,6 +689,7 @@ final class HearthTests: XCTestCase {
                 driver.callTheNight()
             }
             driver.advance(by: 0.25, events: &events)
+            driver.playDusk(seconds: 0.25, events: &events)  // polish E1: the called night plays its dusk
             guard driver.state.defeated else { continue }
             falls += 1
             XCTAssertEqual(driver.state.hearthFire?.level, .out)
@@ -731,6 +732,7 @@ final class HearthTests: XCTestCase {
             while driver.state.day == day && guardSteps < 20_000 {
                 guardSteps += 1
                 driver.advance(by: 0.25, events: &events)
+                driver.playDusk(seconds: 0.25, events: &events)  // polish E1: the called night plays its dusk
             }
         }
         XCTAssertEqual(driver.dawnRing.dawns.map { $0.day }, [2, 3, 4])

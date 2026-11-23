@@ -152,8 +152,8 @@ struct PaneShown: Equatable, Sendable {
         }
     }
 
-    /// A tap beside a pane that holds (H14: "tap.wav at 0.3"): the contract's quietest tap, the bubble close's stand-in
-    /// (tap 0.30, rate 0.85, no haptic) until lane D gives it a cue of its own.
+    /// A tap beside a pane that holds (H14): the bubble close as a stand-in (`tap_low` at 0.55 since step D2, no
+    /// haptic) until lane D gives it a cue of its own.
     static let besideCue = FeedbackCue.bubbleClose
 }
 

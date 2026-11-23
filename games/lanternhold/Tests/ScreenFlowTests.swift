@@ -24,6 +24,11 @@ final class DriverMovesTests: XCTestCase {
         XCTAssertEqual(driver.state.king.velocity, balance.kingRunSpeed, "he runs")
         driver.setDrag(offset: -20)
         XCTAssertNil(driver.travelTarget, "a drag cancels the walk")
+        // LANE-A: A1b
+        // Step A1b: the drag walks him as a tap does (the turn's hold, then the start), so the walk west comes in
+        // a few steps, no longer within the call.
+        driver.advance(by: 0.25, events: &events)
+        // LANE-A end
         XCTAssertEqual(driver.state.king.velocity, -balance.kingWalkSpeed)
         var bot = SimDriver(state: GameState.newRealm(seed: 3), balance: balance, bot: Autoplay.reference())
         bot.travel(to: 900)
@@ -269,19 +274,22 @@ final class GameScreensTests: XCTestCase {
     }
 
     func testThePauseSheetSoundsTheHornByDay() throws {
-        // M2b review: by day the pause sheet calls the night; the day plays on to 18:59 at once, so the brazier ordered
-        // this morning stands when the horn sounds a moment later.
+        // M2b review: by day the pause sheet calls the night. Polish E1 (law 3.3): the dusk is played, not cut: the day
+        // runs on to the horn in 4.0 s in the day's own steps, so the brazier ordered this morning stands when the horn
+        // sounds.
         let game = model(["GWCameraX": "1255"])
         let plot = Realm.lines[0].braziers[0]
         game.performAction()
         game.order(.brazier)
         game.openPause()
         XCTAssertTrue(game.canCallTheNight)
+        let before = game.driver?.state.hour ?? 0
         game.callTheNight()
         XCTAssertNil(game.overlay, "the sheet closes")
-        XCTAssertEqual(game.driver?.state.hour ?? 0, SimDriver.hornCallHour, accuracy: 0.01)
+        XCTAssertEqual(game.driver?.state.hour ?? 0, before, accuracy: 0.01, "no cut to 18:59")
+        XCTAssertTrue(game.driver?.playsDusk ?? false, "the dusk plays")
+        for _ in 0..<18 { game.advance(by: 0.25) }
         XCTAssertEqual(game.driver?.state.plots[plot].item, .brazier, "the builders finished the day's work")
-        for _ in 0..<4 { game.advance(by: 0.25) }
         XCTAssertGreaterThanOrEqual(game.driver?.state.hour ?? 0, 19, "the horn sounded")
         XCTAssertEqual(game.hornNight, 1)
         game.openPause()
@@ -295,8 +303,8 @@ final class GameScreensTests: XCTestCase {
         game.openPause()
         XCTAssertTrue(game.canCallTheNight)
         game.callTheNight()
-        XCTAssertEqual(game.petitionersWaiting, 1, "a minute before the horn he still waits")
-        for _ in 0..<4 { game.advance(by: 0.25) }
+        XCTAssertEqual(game.petitionersWaiting, 1, "while the dusk plays he still waits")
+        for _ in 0..<18 { game.advance(by: 0.25) }
         let state = try XCTUnwrap(game.driver?.state)
         XCTAssertGreaterThanOrEqual(state.hour, 19, "the horn sounded")
         XCTAssertEqual(state.unheardPetitioners, 1)

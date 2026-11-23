@@ -303,7 +303,7 @@ final class PayCountTests: XCTestCase {
         XCTAssertNil(count.slideShare, "the coin lies on the board")
         var beats: [PayBeat] = []
         while !beats.contains(.slideBack) { beats += count.step(step, gold: 100) }
-        XCTAssertEqual(count.result, .letGo, "two seconds without a touch")
+        XCTAssertEqual(count.result, .letGo, "three seconds without a touch (polish B2: a tapped coin's wait)")
         XCTAssertEqual(count.slideShare ?? -1, 0, accuracy: 0.1, "the slide starts")
         _ = run(&count, seconds: PayCount.slideSeconds + step, gold: 100)
         XCTAssertEqual(count.slideShare ?? 0, 1, accuracy: 1e-9, "one coin home in its flight")
@@ -502,12 +502,14 @@ final class PayCountTests: XCTestCase {
     }
 
     /// The critic's H5: an empty board waits five seconds for the finger (the rocking coin is the lesson); once a
-    /// coin lies on it, two.
+    /// coin lies on it, two. Polish B2 (H9, rewritten to pin the director's call of 22.11.): a coin laid by a tap waits
+    /// three seconds (warned at two); a coin laid by a hold still two.
     func testAnEmptyBoardWaitsFiveSecondsAndALaidCoinTwo() {
         var empty = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
         empty.arrive()
-        _ = run(&empty, seconds: PayCount.emptyWait - 0.2, gold: 100)
+        let emptyBeats = run(&empty, seconds: PayCount.emptyWait - 0.2, gold: 100)
         XCTAssertTrue(empty.isOpen, "an empty board waits five seconds")
+        XCTAssertFalse(emptyBeats.contains(.warn), "an empty board gives no warning")
         _ = run(&empty, seconds: 0.4, gold: 100)
         XCTAssertEqual(empty.result, .letGo)
         var laid = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
@@ -515,10 +517,148 @@ final class PayCountTests: XCTestCase {
         laid.tap()
         _ = run(&laid, seconds: 0.3, gold: 100)
         XCTAssertEqual(laid.placed, 1)
-        _ = run(&laid, seconds: PayCount.slideAfter - 0.3, gold: 100)
-        XCTAssertTrue(laid.isOpen, "a coin on the board: it waits two seconds after it")
+        _ = run(&laid, seconds: PayCount.tapWait - 0.3, gold: 100)
+        XCTAssertTrue(laid.isOpen, "a tapped coin on the board: it waits three seconds after it")
         _ = run(&laid, seconds: 0.5, gold: 100)
         XCTAssertEqual(laid.result, .letGo)
+        var held = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        held.arrive()
+        held.press()
+        _ = run(&held, seconds: 0.6, gold: 100)
+        held.lift(tap: true)
+        _ = run(&held, seconds: 0.2, gold: 100)
+        XCTAssertGreaterThan(held.placed, 1, "the hold streamed coins")
+        _ = run(&held, seconds: PayCount.slideAfter - 0.5, gold: 100)
+        XCTAssertTrue(held.isOpen, "a held count waits two seconds")
+        _ = run(&held, seconds: 0.5, gold: 100)
+        XCTAssertEqual(held.result, .letGo, "and goes home after two, as before")
+    }
+
+    /// Steps `count` up to `moment` seconds of its own time (never past it).
+    private func run(_ count: inout PayCount, to moment: Double, gold: Int) -> [PayBeat] {
+        var beats: [PayBeat] = []
+        while count.time < moment - 1e-9 {
+            beats += count.step(min(step, moment - count.time), gold: gold)
+        }
+        return beats
+    }
+
+    /// Polish B2 (H9, the director's call of 22.11.): a count by taps waits three seconds after its last touch. At
+    /// 2.0 s the warning comes once (the rocking coin sinks back into the lord's hand: `sinkShare`, one `.warn` beat
+    /// for the soft tick); at 2.9 s the coins are still set; at 3.0 s they go home as before.
+    func testATapCountWaitsThreeSecondsAndWarnsAtTwo() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        count.arrive()
+        count.tap()
+        count.tap()
+        var beats = run(&count, seconds: 0.4, gold: 100)
+        XCTAssertEqual(count.placed, 2, "two tapped coins lie on the board")
+        let quiet = count.lastTouch
+        beats += run(&count, to: quiet + 1.99, gold: 100)
+        XCTAssertFalse(beats.contains(.warn), "no warning before 2.0 s")
+        XCTAssertNil(count.sinkShare)
+        beats += run(&count, to: quiet + PayCount.warnAfter + 1e-6, gold: 100)
+        XCTAssertEqual(beats.filter { $0 == .warn }.count, 1, "the warning at 2.0 s")
+        XCTAssertEqual(count.sinkShare ?? -1, 0, accuracy: 0.01, "the rocking coin starts home")
+        XCTAssertTrue(count.isOpen)
+        beats += run(&count, to: quiet + PayCount.warnAfter + PayCount.sinkSeconds, gold: 100)
+        XCTAssertEqual(count.sinkShare ?? -1, 1, accuracy: 1e-6, "in his hand after the coins' own way home")
+        beats += run(&count, to: quiet + 2.9, gold: 100)
+        XCTAssertTrue(count.isOpen, "at 2.9 s the coins are still set")
+        XCTAssertEqual(count.placed, 2)
+        XCTAssertNotNil(count.sinkShare, "the warning still stands")
+        XCTAssertFalse(beats.contains(.slideBack))
+        beats += run(&count, to: quiet + PayCount.tapWait + 1e-6, gold: 100)
+        XCTAssertEqual(count.result, .letGo, "at 3.0 s they go home")
+        XCTAssertTrue(beats.contains(.slideBack))
+        XCTAssertNil(count.sinkShare, "no warning once it ended")
+        XCTAssertEqual(beats.filter { $0 == .warn }.count, 1, "warned once")
+        XCTAssertEqual(seals(beats), 0, "nothing paid")
+    }
+
+    /// Polish B2 (H9): a tap after the warning takes it back: the coin flies, the wait starts again (warned again 2.0 s
+    /// after the new coin, home 3.0 s after it).
+    func testATapAfterTheWarningKeepsTheCount() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        count.arrive()
+        count.tap()
+        _ = run(&count, seconds: 0.3, gold: 100)
+        _ = run(&count, to: count.lastTouch + 2.4, gold: 100)
+        XCTAssertNotNil(count.sinkShare, "warned")
+        count.tap()
+        XCTAssertNil(count.sinkShare, "the tap takes the warning back")
+        _ = run(&count, seconds: 0.3, gold: 100)
+        XCTAssertEqual(count.placed, 2, "the coin flew")
+        let quiet = count.lastTouch
+        var beats = run(&count, to: quiet + 2.9, gold: 100)
+        XCTAssertTrue(count.isOpen, "a slow count of taps 2.4 s apart keeps its coins")
+        XCTAssertEqual(beats.filter { $0 == .warn }.count, 1, "warned again 2.0 s after the new coin")
+        beats += run(&count, to: quiet + 3.1, gold: 100)
+        XCTAssertEqual(count.result, .letGo)
+    }
+
+    /// Polish B2 (H9, round lh-rb-2): a finger's quick touch on the board is a press that lets one coin go (a held coin
+    /// leaves the hand a flight before its moment); it counts as a tap: warned at 2.0 s, home at 3.0 s.
+    func testAQuickPressThatSetOneCoinCountsAsATap() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        count.arrive()
+        _ = run(&count, seconds: 0.3, gold: 100)
+        count.press()
+        _ = run(&count, seconds: 0.1, gold: 100)
+        count.lift(tap: true)
+        _ = run(&count, seconds: 0.3, gold: 100)
+        XCTAssertEqual(count.placed, 1, "one coin")
+        XCTAssertTrue(count.lastByTap, "a tap")
+        let quiet = count.lastTouch
+        var beats = run(&count, to: quiet + 2.9, gold: 100)
+        XCTAssertTrue(count.isOpen, "kept at 2.9 s")
+        XCTAssertEqual(beats.filter { $0 == .warn }.count, 1, "warned")
+        beats += run(&count, to: quiet + 3.0 + 1e-6, gold: 100)
+        XCTAssertEqual(count.result, .letGo)
+    }
+
+    /// B2 gate (M-1, F2): a slow thumb tap (0.25 s) lets a second coin go, yet it is a tap: warned at 2.0 s, home at
+    /// 3.0 s. A press of `tapPress` (the game's tap/hold line) or longer that streamed is a hold, as before.
+    func testASlowTapThatLetTwoCoinsGoIsStillATap() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: false)
+        count.arrive()
+        _ = run(&count, seconds: 0.3, gold: 100)
+        count.press()
+        _ = run(&count, seconds: 0.25, gold: 100)
+        count.lift(tap: true)
+        _ = run(&count, seconds: 0.3, gold: 100)
+        XCTAssertEqual(count.placed, 2, "the slow tap let two coins go")
+        XCTAssertTrue(count.lastByTap, "a tap")
+        let quiet = count.lastTouch
+        var beats = run(&count, to: quiet + 2.9, gold: 100)
+        XCTAssertTrue(count.isOpen, "kept at 2.9 s")
+        XCTAssertEqual(beats.filter { $0 == .warn }.count, 1, "warned at 2.0 s")
+        beats += run(&count, to: quiet + PayCount.tapWait + 1e-6, gold: 100)
+        XCTAssertEqual(count.result, .letGo, "home at 3.0 s")
+        XCTAssertEqual(PayCount.tapPress, LanternRaise.holdSeconds, "the game's tap/hold line")
+    }
+
+    /// Polish B2 (H9): a hold is unchanged: two seconds after the finger lifts the coins go home, with no warning.
+    func testAHoldStillWaitsTwoSecondsWithoutAWarning() {
+        var count = PayCount(thing: "t", offer: .patch(plot: 0), price: 45, holding: true)
+        count.arrive()
+        var beats = run(&count, seconds: 0.5, gold: 100)
+        XCTAssertGreaterThan(count.placed, 0)
+        XCTAssertLessThan(count.placed, 9)
+        count.lift(tap: false)
+        // A coin still in the air lands first (its landing is the last touch).
+        beats += run(&count, seconds: 0.2, gold: 100)
+        XCTAssertEqual(count.inFlight, 0)
+        let quiet = count.lastTouch
+        beats += run(&count, to: quiet + PayCount.slideAfter - 0.01, gold: 100)
+        XCTAssertTrue(count.isOpen, "the hold's board waits two seconds")
+        beats += run(&count, to: quiet + PayCount.slideAfter + 1e-6, gold: 100)
+        XCTAssertEqual(count.result, .letGo, "then the coins go home, as before")
+        XCTAssertFalse(beats.contains(.warn), "a hold gives no warning")
+        XCTAssertEqual(PayCount.slideAfter, 2.0, "the hold's wait")
+        XCTAssertEqual(PayCount.emptyWait, 5.0, "the empty board's wait")
+        XCTAssertEqual(PayCount.tapWait, 3.0, "the tap count's wait")
+        XCTAssertEqual(PayCount.warnAfter, 2.0, "the warning")
     }
 
     /// The critic's H5: let go, the coins come home one by one, the last laid first, `homeGap` apart, and the purse

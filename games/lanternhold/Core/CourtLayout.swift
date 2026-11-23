@@ -96,9 +96,10 @@ enum CourtLayout {
     static let marekEvery = 3
     static let serenInFlag = "stranger_in"
     static let serenGoneFlag = "seren_handed_over"
-    /// A walk frame every 7 game px (as the king), a breath every 0.8 s.
+    /// A walk frame every 7 game px; the breath is the one breath (polish step A1, `FigureMotion.breath`: frame A held
+    /// 1.15 s, this, then frame B 0.85 s).
     static let walkFramePixels = 7.0
-    static let breathSeconds = 0.8
+    static let breathSeconds = FigureMotion.breathA
 
     static let courtOrder = ["odile", "brannock", "pip", "hesper", "tamsin", "bram", "marek", "seren"]
 
@@ -177,7 +178,8 @@ enum CourtLayout {
         if walking {
             return body.walk.lowerBound + Int(max(0, walked) / walkFramePixels) % max(1, body.walk.count)
         }
-        return body.idle.lowerBound + Int(max(0, seconds) / breathSeconds) % max(1, body.idle.count)
+        guard body.idle.count > 1 else { return body.idle.lowerBound }
+        return body.idle.lowerBound + FigureMotion.breath(time: max(0, seconds), id: 0)
     }
 
     /// Seconds since 06:00 (for the rounds and the breath).

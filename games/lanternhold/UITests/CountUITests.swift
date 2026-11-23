@@ -154,20 +154,29 @@ final class CountUITests: XCTestCase {
         }
     }
 
-    /// Let go: a short hold sets a few coins, the finger lifts, two seconds later the coins come home one by one, the
-    /// last laid first, each shrinking to his hand (frozen half way, the purse mid-count); nothing was paid.
+    /// Let go. Polish B2 (H9; rewritten to pin the director's call of 22.11.2026, it was a short hold let go after
+    /// 2 s): two taps set two coins and the finger stays off; at 2.0 s the warning stands (the rocking coin sank back
+    /// into his hand, `:warned`) while both coins still lie on the board; at 3.0 s the coins come home one by one, the
+    /// last laid first, each shrinking to his hand (frozen half way, the purse mid-count); nothing was paid. A hold
+    /// still lets go after 2.0 s (PayCountTests).
     func testLetGoSendsTheCoinsHome() {
         XCUIDevice.shared.orientation = .landscapeLeft
         guard let app = launchAtTheBoard(CountUITests.gate + ["-GWCountFreeze", "back"], name: "count-back") else {
             return
         }
         if let again = waitForThing(app, "touch-plot-0", timeout: 3) {
-            // Step 3 (round lh-b3c-31): every coin leaves his hand a flight (up to 0.16 s) before its moment, so a hold
-            // of 0.75 s already throws the ninth coin and the gate is paid; 0.4 s sets two or three.
-            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).press(forDuration: 0.4)
+            let spot = again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
+            spot.tap()
+            XCTAssertTrue(waitForField(app, "count:touch-plot-0:1/9", timeout: 3), "a tap, a coin")
+            spot.tap()
+            XCTAssertTrue(waitForField(app, "count:touch-plot-0:2/9", timeout: 3), "a second tap, a second coin")
         }
+        // The warning comes first, the coins still on the board.
+        XCTAssertTrue(waitForField(app, "count:touch-plot-0:2/9:there:warned", timeout: 4),
+                      "at 2.0 s the warning, both coins still laid")
+        attach(XCUIScreen.main.screenshot(), "174w-count-warned-\(language)")
         // The count's own state (`<placed>/9:letGo`), never `last:letGo:`.
-        XCTAssertTrue(waitForField(app, "/9:letGo", timeout: 6), "let go: the coins go home")
+        XCTAssertTrue(waitForField(app, "/9:letGo", timeout: 4), "at 3.0 s the coins go home")
         XCTAssertFalse(waitForField(app, ":0/9:letGo", timeout: 0.3), "with coins on the board")
         pause(0.3)
         attach(XCUIScreen.main.screenshot(), "174-count-letgo-\(language)")
@@ -176,7 +185,8 @@ final class CountUITests: XCTestCase {
     }
 
     /// The guard's board beside the barracks: one big coin and four small (14), frozen with half of them laid (b3-yard:
-    /// Marek's cart stands by the back gate now, no longer before the barracks).
+    /// Marek's cart stands by the back gate now, no longer before the barracks). Polish B2 (H2): first a tap on the
+    /// lord's body toward the board, which is a coin, never the lantern.
     func testTheGuardsBoard() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
@@ -196,10 +206,24 @@ final class CountUITests: XCTestCase {
         XCTAssertTrue(waitForField(app, "count:touch-recruit-guard", timeout: 3), "the guard's board stands")
         waitForStill(app)
         _ = waitForField(app, ":there", timeout: 4)
+        // Polish B2 (H2; added to pin the new rule): beside the open board the lord takes no tap. A tap on his body
+        // 2 game px (4 pt) toward the board is the board's first coin; the lantern stays down.
+        let lord = element(app, "touch-lord")
+        if lord.waitForExistence(timeout: 3), let board = waitForThing(app, "touch-recruit-guard", timeout: 3) {
+            let toward: CGFloat = board.frame.midX >= lord.frame.midX ? 1 : -1
+            lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))
+                .withOffset(CGVector(dx: 4 * toward, dy: 0)).tap()
+            XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:1/5", timeout: 3), "the near tap is a coin")
+            XCTAssertNotEqual(sceneField(app, "hud:"), "moment", "no purse, strip or gear: the lantern stays down")
+        } else {
+            XCTFail("the lord or the guard's half is missing")
+        }
         if let again = waitForThing(app, "touch-recruit-guard", timeout: 3) {
             again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).press(forDuration: 1.5)
         }
         pause(0.3)
+        XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:3/5", timeout: 3), "the hold counts on, frozen")
+        XCTAssertNotEqual(sceneField(app, "hud:"), "moment")
         attach(XCUIScreen.main.screenshot(), "175-count-guard-\(language)")
         note("175-count-guard-state", sceneField(app, "count:") ?? "?")
         app.terminate()

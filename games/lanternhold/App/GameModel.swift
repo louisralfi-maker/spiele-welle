@@ -200,6 +200,8 @@ final class GameModel {
     /// while someone stands where his arrow is still low (`YardLook.DrillClock`, `yardDrill(_:balance:)`). Picture only.
     @ObservationIgnored var yardDrillClock = YardLook.DrillClock()
     @ObservationIgnored var talkLog = TalkLog()
+    /// Polish E1: when Brannock's offer of the horn last opened its bubble (the model's clock; UI state, not saved).
+    @ObservationIgnored var nightOfferShownAt = -1.0
     // The taxes on foot (town-2, `GameModel+Town.swift`): the walk to a door and the cues' clock; the doors on screen
     // for VoiceOver and the UI tests; the town's state for the UI tests.
     @ObservationIgnored var townRun = TownRun()
@@ -454,6 +456,11 @@ final class GameModel {
             if GameModel.opensScreen(events[mark...]) { break }
             mark = events.count
         }
+        // Polish E1 (law 3.3): a called night plays its dusk, the realm's extra steps of this frame after its own (none
+        // while the world is held: the dusk waits with it).
+        if game.dusk != nil {
+            game.playDusk(seconds: seconds * args.timeScale, events: &events)
+        }
         driver = game
         // Town-2: the purse is heard as the player sees it (the coins in the air held back until they land).
         let heard = watch.cues(TownShow.heard(game.state, balance: game.balance), balance: game.balance,
@@ -548,9 +555,11 @@ final class GameModel {
 
     /// The frame's cues, thinned (`FeedbackThinner`), to the feedback hub.
     private func playCues(_ frameEvents: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], state: GameState) {
-        for cue in thinner.cues(for: frameEvents, extra: extra, time: clock.elapsed, listenerX: state.king.x) {
-            feedback.play(cue)
+        // LANE-D: D1 (law 4's space: every positional cue with its x, faded and panned by the hub)
+        for placed in thinner.placedCues(for: frameEvents, extra: extra, time: clock.elapsed, listenerX: state.king.x) {
+            feedback.play(placed: placed, listenerX: state.king.x)
         }
+        // LANE-D end
     }
 
     /// Where the listener is for the ambience (DESIGN.md "Sound and haptics"): the great hall while the lord is on
@@ -937,9 +946,12 @@ final class GameModel {
         setOverlay(nil)
     }
 
-    /// The pause sheet offers "Sound the horn" by day while the player drives (not under the reference bot).
+    /// The pause sheet offers "Sound the horn" by day while the player drives (not under the reference bot), and not
+    /// while the dusk is already played.
     var canCallTheNight: Bool {
-        guard kind == .world, let game = driver, game.bot == nil, !game.state.defeated else { return false }
+        guard kind == .world, let game = driver, game.bot == nil, !game.state.defeated, !game.playsDusk else {
+            return false
+        }
         return DayClock.phase(at: game.state.hour) == .day && game.state.hour < SimDriver.hornCallHour - 1e-6
     }
 
@@ -950,15 +962,46 @@ final class GameModel {
         return court.queue.count
     }
 
-    /// The pause sheet's "Sound the horn" (after its confirmation): the day plays on to 18:59 at once and the horn
-    /// sounds a moment after the sheet closes.
+    /// The pause sheet's "Sound the horn" (after its confirmation). Polish E1: the same call as Brannock's word, so
+    /// both play the same dusk: the sheet closes and the day runs to the horn in 4.0 s (`SimDriver.callTheNight`).
     func callTheNight() {
-        guard overlay == .pause, canCallTheNight, var game = driver else { return }
-        game.callTheNight()
-        driver = game
-        revision += 1
+        guard overlay == .pause, canCallTheNight, soundTheNight() else { return }
         setOverlay(nil)
         refreshHUD()
+    }
+
+    /// Polish E1: the night is called (the pause sheet, Brannock's word), one call for both: the driver plays the dusk
+    /// (`SimDriver.callTheNight`). What the horn closes closes now: a count is cut (it pays nothing, PAY.md 4), the
+    /// bubble and the errand end; the offer counts as answered and Brannock's standing mark goes (E1b). The lord may
+    /// walk on; a card, a pane or the lantern moment opened during the dusk holds the world, and the dusk waits with
+    /// it. False when nothing was called.
+    @discardableResult
+    func soundTheNight() -> Bool {
+        guard var game = driver else { return false }
+        guard game.callTheNight() else { return false }
+        driver = game
+        revision += 1
+        cutCount()
+        closeTalk()
+        cancelErrand()
+        talkLog.note(NightOffer.heardKey, day: game.state.day)
+        talkLog.note(NightOffer.calledKey, day: game.state.day)
+        refreshHUD()
+        return true
+    }
+
+    /// Polish E1 (law 3.3): Brannock's offer of the horn stands now: the realm's rule (`NightOffer.stands`) while the
+    /// player drives in the world, no count's board is open (an open order) and no dusk is played.
+    var nightOfferStands: Bool {
+        guard kind == .world, stage == .world, let game = driver, game.bot == nil, !game.playsDusk,
+              touch.count?.isOpen != true else { return false }
+        return NightOffer.stands(game.state, balance: game.balance)
+    }
+
+    /// Polish E1: the played dusk's share (0 ... 1 of its 4.0 s), nil when none is played.
+    var duskShare: Double? {
+        guard let game = driver, game.playsDusk else { return nil }
+        return game.dusk?.share
     }
 
     /// The system's Reduce Motion changed (GameView follows `accessibilityReduceMotion`).
@@ -1131,6 +1174,9 @@ final class GameModel {
                                           options: options)
             }
             let state = game.state
+            // LANE-A: A1
+            options.lordGait = game.gait
+            // LANE-A end
             // The hall stage: inside, the great hall is drawn instead of the world (`GameModel+Hall.swift`).
             if stage == .hall {
                 _ = ensureCamera(pixelScale, focus: state.king.x)
@@ -1420,10 +1466,30 @@ final class GameModel {
         text += " count:\(countWord) models:\(modelWord)"
         // Build 3, the drill yard: its stage, the kettle, the trained, the days drilled (`Yard.word`).
         text += " yard:\(Yard.word(state, balance: game.balance))"
+        // Polish E1: Brannock's offer (none, stands, heard) and the played dusk's share.
+        let offer = nightOfferStands ? (talkedToday(state).contains(NightOffer.heardKey) ? "heard" : "stands") : "none"
+        text += " offer:\(offer) dusk:" + (duskShare.map { String(format: "%.2f", $0) } ?? "none")
+        // Polish E1b: who carries a talk mark now (Brannock's standing offer, Hesper's far goal on day 1).
+        let talkMarks = touch.things.filter { $0.kind == .talk && $0.marked }.compactMap(\.who).sorted()
+        text += " talkmarks:" + (talkMarks.isEmpty ? "none" : talkMarks.joined(separator: ","))
         // b3-yard step 4 (E4): where the drilling archer and guard stand in their rounds (the slowed strip's frames).
         text += " drill:" + (Yard.drilling(state, balance: game.balance)
             ? YardLook.drillWord(archerTime: yardDrillClock.time, guardTime: state.simTime) : "none")
         #endif
+        // LANE-A: A1
+        #if DEBUG
+        // Polish step A1 (the film): the lord's speed, place, frame and facing, for the slowed bursts of his steps.
+        text += " kv:" + String(format: "%.2f", state.king.velocity) + " kxf:" + String(format: "%.2f", state.king.x)
+            + " kf:\(EntityFrames.kingFrame(state.king, balance: game.balance, time: state.simTime, gait: game.gait))"
+            + " kd:\(state.king.facing)"
+        #endif
+        // LANE-A end
+        // LANE-A: A1b
+        #if DEBUG
+        // Step A1b (the film): the shown camera's left edge to a hundredth of a px, for the camera's landing per frame.
+        text += " kcx:" + String(format: "%.2f", shownCamera ?? 0)
+        #endif
+        // LANE-A end
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {
             text += " lantern:\(GameModel.lanternWord(LanternRaise.phase(since: state.king.lanternSince)))"

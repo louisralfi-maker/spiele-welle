@@ -954,8 +954,8 @@ player's first success and never comes back. `-GWSkipOnboarding YES` turns it of
    was slain (`DawnReport.kingSlain`) or withdrew into the Gloom for good.
 6. **Story panels:** prologue, beats, endings (three panels each, tap to go on, skippable).
 7. **Defeat card** and **chapter end**.
-8. **Pause sheet:** resume, by day "Sound the horn" (after a confirmation the day plays on to dusk at once; M2b review),
-   settings, back to the title. **Settings:** sound, haptics, reset (with confirmation).
+8. **Pause sheet:** resume, by day "Sound the horn" (after a confirmation the dusk plays in 4.0 s to the horn, the
+   same call as Brannock's offer on days 1 to 3; M2b review, polish E1 and E1b), settings, back to the title. **Settings:** sound, haptics, reset (with confirmation).
 
 Navigation is a state machine in the model, no NavigationStack.
 
@@ -1787,7 +1787,9 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
   only from the dusk, his drawn lantern pool on the painted glass (the battle's stays where the simulation holds it).
 - **Sound the horn by day** (the review's medium finding on day 1's idle minutes): the pause sheet's second button by
   day; after a confirmation the realm plays on headless to 18:59 (`SimDriver.callTheNight`, the day's 1 s steps) and the
-  horn sounds a moment later (`ScreenFlowTests`).
+  horn sounds a moment later (`ScreenFlowTests`). Since polish E1 (22.11.2026) the night is no longer cut to: the dusk
+  plays in 4.0 s of the world (eased out since E1b, so the sky turns within the first second and slows into the horn),
+  and on days 1 to 3 Brannock offers the same call once nothing is left to buy (`NightOffer`).
 - **HUD and cards**: the clock, the numbers and the strip hide under every card and screen (the pause button under
   the screens); the tax card shows the treasury; the action button is greyed with the missing gold, a cooldown ring or
   while he lights (`KingTargetHold`), and its caption says Build, Upgrade or Rebuild; on the restart's confirmation

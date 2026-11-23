@@ -110,6 +110,50 @@ final class RendererTests: XCTestCase {
         XCTAssertLessThanOrEqual(dithered.count, FrameBuilder.lightBands + 1, "dithered: \(dithered.sorted())")
     }
 
+    /// Polish step A1: the game's frame draws the lord with the driver's gait (`FrameOptions.lordGait`): walk frame 0
+    /// in the first frame after a tap, the walk frame of the distance this walk has come while he walks, the standing
+    /// pose held after he stops; without the gait, as before by his x.
+    func testTheGameFrameDrawsTheLordByHisGait() throws {
+        var s = GameState.newRealm(seed: 6)
+        s.hour = 10
+        s.king.x = 2701.3
+        var driver = SimDriver(state: s, balance: .standard)
+        var events: [SimEvent] = []
+        func drawnFrame(gait: Bool = true) throws -> Int {
+            let state = driver.state
+            var options = FrameOptions(flickerTime: 1.5)
+            if gait { options.lordGait = driver.gait }
+            let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+            let layer = EntityFrames.layer(state: state, balance: .standard,
+                                           scene: SceneFilter.gameScene(GameFrameSupport.world, state: state),
+                                           camera: Camera(focusX: state.king.x, pixelScale: pixelScale),
+                                           pixelScale: pixelScale, options: options, animTime: 1.5)
+            let lord = try XCTUnwrap(layer.actors.last { $0.sprite == state.lordOrDefault.body }, "the lord")
+            return lord.frame
+        }
+        driver.travel(to: 2741, speed: Balance.standard.kingWalkSpeed)
+        driver.advance(by: SimDriver.step, events: &events)
+        XCTAssertEqual(try drawnFrame(), 0, "walk frame 0 in the first frame after the tap")
+        var frames = Set<Int>()
+        while driver.travelTarget != nil {
+            driver.advance(by: SimDriver.step, events: &events)
+            let frame = try drawnFrame()
+            XCTAssertEqual(frame, driver.gait.frame)
+            // Step A1b: by the distance outside the brake; inside it the stride closes, and the landing draws 6.
+            if !driver.gait.brakes && driver.travelTarget != nil {
+                XCTAssertEqual(frame, Int(driver.gait.walked / FigureMotion.lordStride) % 6)
+            }
+            if driver.travelTarget != nil { frames.insert(frame) }
+        }
+        XCTAssertEqual(frames, [0, 1, 2, 3, 4, 5], "the whole cycle over 40 px")
+        XCTAssertEqual(try drawnFrame(), 6, "the landing step draws the standing pose")
+        for _ in 0..<10 {
+            driver.advance(by: SimDriver.step, events: &events)
+            XCTAssertEqual(try drawnFrame(), 6, "the standing pose held after the stop")
+        }
+        XCTAssertTrue(try (6...7).contains(drawnFrame(gait: false)), "without the gait: standing by his velocity")
+    }
+
     func testActorsAreLitAtDevicePixels() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)
