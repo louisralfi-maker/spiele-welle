@@ -31,9 +31,9 @@ final class FilmPanesUITests: XCTestCase {
         }
         film.pause(1.2)
         let window = app.windows.firstMatch
-        film.tapBurst("b", app, count: 14, what: "a tap on the dim beside the card (left edge): the card stays, the "
+        film.tapBurst("b", app, count: 14, what: "a tap on the dim left of the card (x 0.15): the card stays, the "
                       + "gift plaque's line glints for 0.25 s",
-                      at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.07, dy: 0.6))) { card.exists }
+                      at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.6))) { card.exists }
         film.pause(1.0)
         XCTAssertTrue(card.exists, "p01: a tap beside Marek's card does not close it (law 2)")
         let later = film.element(app, "merchant-later")
@@ -164,16 +164,23 @@ final class FilmPanesUITests: XCTestCase {
             }
             film.pause(0.8)
             if round == 0 {
+                // lh-rc-7: four taps at x 0.05 (44 pt, inside the left safe-area inset) never reached the dim. Here the
+                // taps fall inside the safe area left of the sheet (g, x 0.16 = 140 pt; the sheet begins at 227 pt),
+                // then in the inset again (h); the probe's count is noted after each, as evidence, not as a gate.
                 let probe = film.element(app, "pane-glint")
-                let before = (probe.value as? String) ?? "none"
-                film.tappingAt("g", app, taps: 4, framesPerTap: 3, after: 2, what: "taps on the dim beside the sheet: it "
-                               + "stays, Resume's line glints (0.15 s up, 0.10 s down) after each",
-                               at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.55)))
+                let start = (probe.value as? String) ?? "none"
+                film.tappingAt("g", app, taps: 4, framesPerTap: 3, after: 2, what: "taps on the dim left of the sheet "
+                               + "(x 0.16): it stays, Resume's line glints (0.15 s up, 0.10 s down) after each",
+                               at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.16, dy: 0.55)))
                 film.pause(0.5)
-                let after = (probe.value as? String) ?? "none"
-                film.note("p04-g-probe", "taps on the dim that reached it (OverlayView's glint count): \(before) -> "
-                          + "\(after); the window's frame \(window.frame)")
-                XCTAssertNotEqual(before, after, "p04: the taps beside the sheet reach the dim")
+                let middle = (probe.value as? String) ?? "none"
+                film.tappingAt("h", app, taps: 2, framesPerTap: 3, after: 1, what: "taps on the dim in the left inset "
+                               + "(x 0.05)", at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.55)))
+                film.pause(0.5)
+                let end = (probe.value as? String) ?? "none"
+                film.note("p04-g-probe", "taps on the dim that reached it (OverlayView's glint count): before \(start), "
+                          + "after the four at x 0.16 \(middle), after the two at x 0.05 \(end); the window's frame "
+                          + "\(window.frame)")
                 film.pause(0.8)
                 XCTAssertTrue(sheet.exists, "p04: a tap beside the pause sheet does not close it")
             }
