@@ -401,6 +401,26 @@ Law 4 (answers and sounds), after D2:
     - Left: a pin that the puffs form 3 to 5 groups (low); the burst's first 0.12 s at real speed and the keep's
       dust (phone).
 
+24. **After step C2b (the reveal reads as one swell).** Verified GREEN at a1e0f181 (round lh-rc-22; the gate moved
+    the swell's start to 82, the glow's opaque reach, and made the Debug probe mark a presented frame). The director
+    looked at both sheets: the wait's glow, then a window of the glow's own size, then 135, then 206 with dark
+    corners, the last corner sliver, whole. It is one swell with its settle on the screen and no hitch (the reveal
+    lost 0.000 s, longest 0.012 s without the burst; C2 was 2.665 / 2.162). On the handover still the ring lies soft
+    over the night and the picture shows only under the glow's solid part. The swell's end is computed from the view
+    (281 on the 17 Pro and the mini, 252 at 667 pt); a touch during the swell finishes it in 0.25 s. The director's
+    calls:
+    - The 0.15 s in which the glow goes out by opacity over the picture (F6) is the brief's own form and stands:
+      opacity at quick is law 1's allowed fade, and no scaled pixel art is in it.
+    - The name card's time (F1): the app's frames hold the law (0.30 to 0.33 s from the whole hall to the card's
+      first presented frame); the runner's film shows 0.55 to 0.6 s. A phone decides. If it is late there, step C3
+      draws the warm card visibly for one frame under the black cover.
+    - The breath's one stall of about 0.4 s while the title's 21 PNGs decode on the main actor (F3): a phone decides;
+      if the flame is seen to freeze, the decode moves off the main actor in step C3.
+    - A touch late in the swell answered only in the corners (F4) and the close's lost time under a screenshot burst
+      (F5): phone checks, nothing to build.
+    - Left: the 0.15 s handover and the settle's ease are not on moving film (the runner's frames stand 0.24 s
+      apart); the 2.0 s ceiling path is unit-pinned only; the unseen card pre-build is checked only on the runner.
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged

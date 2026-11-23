@@ -1548,3 +1548,9 @@ schneller geht."
     locally as ff79492b on top of 4a42da26; the director's calls are ROUND.md point 23. Round lh-rnd-26 went out on
     ff79492b (build, FilmDeals + Count, the whole unit suite); the join is pushed when it is green. Lane A is idle
     (its next steps A5 and A3 belong to wave B). Still out: C2b (lane C), B3 (lane B). Usage 63 %.
+  - 23.11. 10:32: step C2b (the reveal reads as one swell) verified GREEN at a1e0f181 (lh-rc-22) and joined
+    locally as 92ffe894 on top of ff79492b; the director's calls are ROUND.md point 24. Round lh-rnd-27 went out on
+    92ffe894 (build, Title + FilmOpening, the whole unit suite). Round lh-rnd-26 on ff79492b still runs; each join
+    head is pushed when its round is green (origin stands at 4a42da26). Lane C is idle (its next step C3 belongs to
+    wave B; new riders: the name card drawn visibly for one frame under the cover if a phone shows it late, the
+    title's PNG decode off the main actor if the flame is seen to freeze). Still out: B3 (lane B). Usage 64 %.
