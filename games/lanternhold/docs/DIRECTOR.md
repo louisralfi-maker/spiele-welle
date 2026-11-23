@@ -1603,3 +1603,6 @@ schneller geht."
     Count; FilmOpening, FilmDeals, Town; LookAround, Title, FilmPanes); `claude/lh-round` is on origin at
     151ca052. Wave A is complete (0a to B3b). Next: the TestFlight round tf-lh-5 from that head, then wave B
     (A5 first). Usage 73 %, the stop stands at 80 %.
+  - 23.11. 17:37: **build 554 is uploaded to TestFlight** (round tf-lh-5 ALL PASSED on 151ca052: build, upload).
+    It holds wave A, 0a to B3b. Louis got the short phone list in chat; ROUND.md keeps the full one. Next: wave B,
+    A5 first, within the 80 % stop. Next TestFlight label: tf-lh-6.
