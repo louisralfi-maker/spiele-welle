@@ -4,7 +4,8 @@ import XCTest
 /// The first light (item 12 of the join, `TitleView`): on a real launch (here `-GWTitle YES`) the house's lantern
 /// catches on the night's darkest colour, its light uncovers the title, a touch makes the lord raise his lantern, and
 /// a new realm then asks for its lord (the name entry), as the first launch's order says: title, name, prologue, day 1.
-/// Saves `00a-title-loading`, `00b-title-half`, `00c-title-lit`, `00d-title-hint`, `00e-title-name-entry` (`-<lang>`).
+/// Saves `00a-title-loading`, `00b-title-half`, `00g-title-glow`, `00c-title-lit`, `00d-title-hint`,
+/// `00e-title-name-entry` (`-<lang>`).
 @MainActor
 final class TitleUITests: XCTestCase {
     override func setUp() async throws {
@@ -21,8 +22,10 @@ final class TitleUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         // render-1: "half", "lit" and "hint" wait for the game's ready, which now includes the warm-up (about 3 s in
         // Debug on the runner); each hold stays in its state, so the longer waits only make sure it has been reached.
+        // Polish C2b: "glow" holds the swell's first moments, the glow half gone over the picture at the glow's reach.
         for (hold, name, wait) in [("loading", "00a-title-loading", 2.0), ("half", "00b-title-half", 8.0),
-                                   ("lit", "00c-title-lit", 10.0), ("hint", "00d-title-hint", 10.5)] {
+                                   ("glow", "00g-title-glow", 8.0), ("lit", "00c-title-lit", 10.0),
+                                   ("hint", "00d-title-hint", 10.5)] {
             let app = XCUIApplication()
             app.launchArguments = ["-GWTitle", "YES", "-GWTitleHold", hold, "-GWReset", "YES", "-GWSeed", "1"]
             app.launch()

@@ -379,6 +379,22 @@ final class TitleStepInTests: XCTestCase {
         XCTAssertEqual(fresh.elapsed(at: 4), 0, "never before its start")
     }
 
+    /// Polish C2b (the probes): the beat knows where in it the longest gap fell, on its own counted seconds.
+    func testTheBeatKnowsWhereItsLongestGapFell() {
+        var clock = BeatClock(start: 0)
+        var t = 0.0
+        for _ in 0..<6 {
+            t += 0.02
+            _ = clock.elapsed(at: t)
+        }
+        t += 0.8
+        _ = clock.elapsed(at: t)
+        t += 0.02
+        _ = clock.elapsed(at: t)
+        XCTAssertEqual(clock.longestGap, 0.8, accuracy: 1e-9)
+        XCTAssertEqual(clock.longestAt, 0.12 + BeatClock.longestFrame, accuracy: 1e-9, "after six frames and the hitch")
+    }
+
     /// Polish C2b (L2; this test pinned `StepIn.takesTouches`, which no app code called): the root runs `StepIn`'s
     /// phases in this order and at these seconds. The world takes touches at "whole", the first moment the timeline
     /// shows the hall whole (1.30 s, 0.95 s under Reduce Motion), never before; the beds stop at the black in both forms;

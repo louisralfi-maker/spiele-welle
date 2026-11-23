@@ -85,6 +85,7 @@ enum TitleLayout {
 final class TitleArt {
     static let shared = TitleArt()
     private var cache: [String: UIImage] = [:]
+    private var decoded: Set<String> = []
 
     func image(_ name: String) -> UIImage? {
         if let hit = cache[name] { return hit }
@@ -94,6 +95,23 @@ final class TitleArt {
         cache[name] = image
         return image
     }
+
+    /// Polish C2b (P5): reads and decodes `names` now, in the breathing wait, so the swell's first frame reads and
+    /// decodes no new image (a read PNG is decoded at its first draw otherwise).
+    func preload(_ names: [String]) {
+        for name in names {
+            guard !decoded.contains(name), let image = image(name) else { continue }
+            decoded.insert(name)
+            cache[name] = image.preparingForDisplay() ?? image
+        }
+    }
+
+    /// The picture's PNGs the reveal draws first (the layers, the figures, the lettering, the flame and its glow).
+    static let revealImages: [String] = ["title1Sky", "title2Far", "title3Rock", "title4Castle", "title4Parapet",
+                                         "title5Fog", "titleSentryA", "titleSentryB", "titleLord0", "titleLord1",
+                                         "titleLord2", "titleLord3", "titleLordLight0", "titleLordLight1",
+                                         "titleLordLight2", "titleLordLight3", "letteringUnlit", "letteringLit",
+                                         "lantern6", "lantern7", "lanternGlow6"]
 }
 
 /// The title's sounds (polish C2, F2; lane D built the sound side in steps 0b and D2, this only calls it). The beds
@@ -162,6 +180,8 @@ final class BeatBox {
     /// The hitches the beat did not count, and its longest gap (the step's Debug probe).
     var lost: Double { clock.lost }
     var longestGap: Double { clock.longestGap }
+    /// Debug: the beat's seconds where its longest gap ended.
+    var longestAt: Double { clock.longestAt }
 
     /// Waits until the beat has run `seconds` (read every 8 ms, so the wait itself counts the frames it sees).
     func wait(until seconds: Double) async {
@@ -208,6 +228,8 @@ struct TitleView: View {
     @State private var caughtAt: Date? = nil
     /// `-GWTitleHold half`: the mask stands halfway between its start and the window's end.
     @State private var holdHalf = false
+    /// `-GWTitleHold glow` (polish C2b): the reveal stands at this second of its beat (the glow half gone).
+    @State private var holdBeat: Double? = nil
     @State private var lit: Set<Int> = []
     @State private var started = false
     /// Polish C2: the beat of the step into the game, from the touch (t = 0 of `StepIn`).
@@ -227,7 +249,7 @@ struct TitleView: View {
     /// Debug: the reveal's beat (hitches it did not count, its longest gap), the title's accessibility value.
     @State private var revealProbe = ""
 
-    /// `-GWTitleHold loading|half|lit|hint` (Debug only): the sequence holds at that state for the proof frames.
+    /// `-GWTitleHold loading|half|glow|lit|hint` (Debug only): the sequence holds at that state for the proof frames.
     private static let hold: String? = {
         #if DEBUG
         return UserDefaults.standard.string(forKey: "GWTitleHold")?.lowercased()
@@ -257,7 +279,7 @@ struct TitleView: View {
                         picture(scale: scale, t: t, lordFrame: 0)
                         lettering(scale: scale)
                     } else if revealing {
-                        let elapsed = revealBeat.map { $0.elapsed(now) } ?? 0
+                        let elapsed = holdBeat ?? revealBeat.map { $0.elapsed(now) } ?? 0
                         let radius = holdHalf ? (TitleTempo.revealFrom + end) / 2
                             : TitleTempo.revealRadius(at: elapsed, to: end, touchedAt: revealTouchAt, mode: mode)
                         // Polish C2b (P3): the lettering lies inside the light as well (it catches the light last), so
@@ -456,6 +478,8 @@ struct TitleView: View {
         }
         let caught = Date()
         caughtAt = caught
+        // Polish C2b (P5): the picture is read and decoded while the flame breathes, not in the swell's first frame.
+        TitleArt.shared.preload(TitleArt.revealImages)
         while !gameReady { try? await Task.sleep(nanoseconds: 50_000_000) }
         if TitleView.hold == "half" {
             holdHalf = true
@@ -465,6 +489,11 @@ struct TitleView: View {
         // Polish C2b (P3): the swell starts on the breath's high step, whose glow it grows out of (at most 0.35 s on).
         while TitleTempo.breathStep(since: Date().timeIntervalSince(caught), mode: mode) != TitleTempo.breathSteps.high {
             try? await Task.sleep(nanoseconds: 8_000_000)
+        }
+        if TitleView.hold == "glow" {
+            holdBeat = TitleTempo.glowOutSeconds / 2
+            revealing = true
+            return
         }
         await reveal()
         if TitleView.hold == "lit" { return }
@@ -495,7 +524,8 @@ struct TitleView: View {
         }
         revealDone = true
         #if DEBUG
-        revealProbe = String(format: "reveal lost:%.3f longest:%.3f", beat.lost, beat.longestGap)
+        revealProbe = String(format: "reveal lost:%.3f longest:%.3f at:%.3f", beat.lost, beat.longestGap,
+                             beat.longestAt)
         #endif
         if pendingTouch { begin() }
         for group in TitleLayout.lightOrder {
@@ -515,7 +545,7 @@ struct TitleView: View {
             begin()
             return
         }
-        if revealing, !holdHalf, revealTouchAt == nil, let revealBeat {
+        if revealing, !holdHalf, holdBeat == nil, revealTouchAt == nil, let revealBeat {
             revealTouchAt = revealBeat.elapsed()
         }
         pendingTouch = true
