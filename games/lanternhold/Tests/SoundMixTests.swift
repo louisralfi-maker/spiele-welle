@@ -42,7 +42,9 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(FeedbackCue.paneOpen.sound, SoundPlay(id: .tap, volume: 0.55))
         XCTAssertEqual(FeedbackCue.paneClose.sound?.id, .tapLow)
         XCTAssertEqual(FeedbackCue.bubbleClose.sound?.id, .tapLow)
-        XCTAssertEqual(FeedbackCue.lanternDown.sound?.volume, 0.4)
+        // D2 part 7: the lantern moment's own files (lantern_up at 0.42 to stay inside step 1's band).
+        XCTAssertEqual(FeedbackCue.lanternUp.sound, SoundPlay(id: .lanternUp, volume: 0.42))
+        XCTAssertEqual(FeedbackCue.lanternDown.sound, SoundPlay(id: .lanternDown, volume: 0.4))
         XCTAssertEqual(FeedbackCue.boardSet.sound?.id, .knockLow)
         XCTAssertEqual(FeedbackCue.dawnGate.sound, SoundPlay(id: .gate, volume: 0.6))
         XCTAssertEqual(FeedbackCue.dawnHeld.sound, SoundPlay(id: .bell, volume: 0.5))
@@ -885,8 +887,7 @@ final class SoundMixTests: XCTestCase {
         let toll = AnswerSize.level(fileRMS: try Self.fileRMS(.toll), volume: FeedbackCue.dawnToll.sound?.volume ?? 0)
         XCTAssertTrue(AnswerSize.triumph.band.contains(toll), "the toll at \(toll) dBFS")
         let seconds = Double(try Self.samples(.toll).count) / 22050
-        XCTAssertTrue(AnswerSize.triumph.length.contains(seconds), "\(seconds) s")
-        XCTAssertEqual(seconds, 1.4, accuracy: 0.01)
+        XCTAssertEqual(seconds, 1.4, accuracy: 0.01, "the toll is 1.4 s, step 3's longest")
         var held = FeedbackGate()
         let bell = held.answer(.dawnHeld, soundOn: true, hapticsOn: true, now: 1)
         XCTAssertEqual(bell.sound, SoundPlay(id: .bell, volume: 0.5))

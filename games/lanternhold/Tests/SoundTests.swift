@@ -467,6 +467,62 @@ final class SoundTests: XCTestCase {
         }
     }
 
+    /// Polish D2: the step's new and re-made files, each behind its cue, at a length and a level inside its step's
+    /// bands (inventory.md's measure: the file's whole RMS + 20 log10 of the cue's volume).
+    func testTheNewFilesHaveTheirLengthAndLevel() throws {
+        let made: [(cue: FeedbackCue, id: SoundID)] = [
+            (.lanternUp, .lanternUp), (.lanternDown, .lanternDown), (.boardSet, .knockLow), (.paneClose, .tapLow),
+            (.bubbleClose, .tapLow), (.lampLit, .lanternHigh), (.dawnToll, .toll), (.buildDone, .buildDone),
+            (.buildStood, .buildDone), (.touched, .tap2), (.touched, .tap3), (.step, .step1), (.step, .step2),
+            (.step, .step3),
+        ]
+        for (cue, id) in made {
+            let size = try XCTUnwrap(cue.answerSize, "\(cue)")
+            let sound = try XCTUnwrap(cue.sound, "\(cue)")
+            let family = sound.id == .tap ? SoundID.taps : sound.id == .step1 ? SoundID.steps : [sound.id]
+            XCTAssertTrue(family.contains(id), "\(cue) plays \(id.rawValue)")
+            XCTAssertEqual(sound.rate, 1, "\(cue): played as made")
+            let (seconds, rms) = try Self.measure(id)
+            // 5 ms either way: a file cut at a band's end (0.3 s, 0.45 s, 1.4 s) is its sample count over 22.05 kHz.
+            let lengths = size.length.lowerBound - 0.005 ... size.length.upperBound + 0.005
+            XCTAssertTrue(lengths.contains(seconds), "\(id.rawValue): \(seconds) s for step \(size.rawValue)")
+            let level = rms + 20 * log10(sound.volume)
+            XCTAssertTrue(size.band.contains(level), "\(cue) (\(id.rawValue)) at \(level) dBFS for step \(size.rawValue)")
+        }
+        // The night raise's rendered lantern (not on the ladder): as long as the lantern at 1.3 of its pitch.
+        let raise = try Self.measure(.lanternRaise).seconds
+        XCTAssertEqual(raise, try Self.measure(.lantern).seconds / 1.3, accuracy: 0.01)
+    }
+
+    /// A wav's length (seconds) and whole RMS (dBFS), read from the app's bundle (D2).
+    private static func measure(_ id: SoundID) throws -> (seconds: Double, rms: Double) {
+        let url = try XCTUnwrap(Bundle.main.url(forResource: id.rawValue, withExtension: "wav", subdirectory: "Sound")
+            ?? Bundle.main.url(forResource: id.rawValue, withExtension: "wav"), id.rawValue)
+        let data = try Data(contentsOf: url)
+        var offset = 12
+        while offset + 8 <= data.count {
+            let tag = String(decoding: data[offset..<offset + 4], as: UTF8.self)
+            let size = Int(data[offset + 4]) | Int(data[offset + 5]) << 8 | Int(data[offset + 6]) << 16
+                | Int(data[offset + 7]) << 24
+            if tag == "data" {
+                let end = min(data.count, offset + 8 + size)
+                var sum = 0.0
+                var n = 0
+                var i = offset + 8
+                while i + 1 < end {
+                    let v = Double(Int16(bitPattern: UInt16(data[i]) | UInt16(data[i + 1]) << 8)) / 32768
+                    sum += v * v
+                    n += 1
+                    i += 2
+                }
+                return (Double(n) / 22050, 10 * log10(max(1e-18, sum / Double(max(1, n)))))
+            }
+            offset += 8 + size + (size & 1)
+        }
+        XCTFail("\(id.rawValue) has no data chunk")
+        return (0, -120)
+    }
+
     func testEveryFileIsInTheAppAndSmall() throws {
         var total = 0
         for id in SoundID.allCases {

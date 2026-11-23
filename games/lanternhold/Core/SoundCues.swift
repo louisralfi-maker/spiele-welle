@@ -35,6 +35,9 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     // (Silas's lamp) and higher (the night raise), and the dawn's toll (the bell rendered low and damped).
     case tap2 = "tap_2", tap3 = "tap_3", step3 = "step_3", tapLow = "tap_low", knockLow = "knock_low"
     case lanternHigh = "lantern_high", lanternRaise = "lantern_raise", toll
+    // Polish step D2 part 7 (F7): the lantern moment's own voice, raised (a glass knock and the flame swelling) and
+    // lowered (the flame settling)
+    case lanternUp = "lantern_up", lanternDown = "lantern_down"
 
     static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall,
                                    .ambThroat, .ambBailey, .ambValley, .ambRiver]
@@ -79,6 +82,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         // D2 0g: the rendered variants keep their first file's gaps; the toll at most one every 0.9 s (D2 part 2).
         case .knockLow: return 0.08
         case .lanternHigh, .lanternRaise: return 0.25
+        case .lanternUp, .lanternDown: return 0.1
         case .toll: return 0.9
         // D1: a fall and a crack are rare; the grunts share one throttle (`throttleKey`): at most one every 0.5 s.
         case .manFall, .wallCrack: return 0.25
@@ -103,6 +107,8 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     var voices: Int {
         switch self {
         case .horn, .gate, .wallBreak, .parchment, .doorCreak, .doorLatch: return 1
+        // D2: one lantern raise or lowering at a time.
+        case .lanternUp, .lanternDown: return 1
         // Step 0b: the dawn verdict's tolls (`DawnVerdict`, the bell at rate 0.55 as the toll's stand-in) ring into each
         // other's tails; one voice would cut a ringing bell.
         case .bow, .arrowHit, .dissolve, .coin, .step1, .step2, .step3, .bell: return 3
@@ -219,8 +225,10 @@ extension FeedbackCue {
         case .coinsBack: return SoundPlay(id: .coinsBack, volume: 0.55)
         // Step 0b, the cue contract: stand-ins from the files that ship (the table at the top of Core/Feedback.swift
         // says who calls each and why this file; lane D swaps the real sounds in behind them in D1 and D2).
-        case .lanternUp: return SoundPlay(id: .tap, volume: 0.55, rate: 1.15)
-        case .lanternDown: return SoundPlay(id: .tap, volume: 0.4, rate: 0.8)
+        // D2 part 7 (F7): the lantern moment's own files. lantern_up at 0.42 (-20.7 dBFS; law 4's 0.55 puts the file at
+        // -18.4, over step 1's band), soft 0.5; lantern_down at 0.4 (-20.5), no haptic. Lane B's B1 calls them.
+        case .lanternUp: return SoundPlay(id: .lanternUp, volume: 0.42)
+        case .lanternDown: return SoundPlay(id: .lanternDown, volume: 0.4)
         // D2 0g: the pane's and the bubble's close play the tap rendered at 0.85 of its pitch (law 4's "r 0.85"), the
         // board set the knock rendered at 0.62 (law 4's "knock 0.4 r 0.62"), all at rate 1; the open and the press play
         // the three taps in rotation. D2 0f: every step 1 cue at least 3 dB over every bed (-21.5 dBFS or more), raised
