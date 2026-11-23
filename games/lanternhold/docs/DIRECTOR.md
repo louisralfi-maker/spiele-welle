@@ -1473,3 +1473,6 @@ schneller geht."
     1.6 s on (0.45, 0, 0.25, 1) with a stepped pixel edge; the step in goes through the lantern (the mask closes on
     the flame by 0.60 s, the hall rises from black 0.70 to 1.30 s, a pane at the start comes at 1.55 s); the title's
     beds keep their levels and stop at the black. Round lh-rnd-15 is green on 7f68847b.
+  - Rounds lh-rnd-14 and lh-rnd-15 are green on 7f68847b (23.11., 04:34): the join with steps E1b, B2, A1b and D2
+    is pushed as origin claude/lh-round. The count board's near tap passed; its one failure (lh-rnd-12) did not
+    repeat. The head with step C1 and the mend (14034f3c) stays local until its own rounds are green.
