@@ -1,0 +1,35 @@
+m01-c: a touch on the title: the lord raises the lantern, the picture closes on the flame, the hall rises from black, then the name entry comes
+real time; as fast as the frames come
+the tap was sent without waiting at +0.079 s (point 134.6, 437.0; interface orientation 3 (the app's)); the runner answered at +0.499 s; no effect check
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene after: frame:170 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:224.71
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.240 s  
+02  +0.474 s  
+03  +0.631 s  
+04  +0.803 s  
+05  +0.925 s  
+06  +1.026 s  
+07  +1.163 s  
+08  +1.533 s  
+09  +1.934 s  
+10  +2.427 s  
+11  +3.017 s  
+12  +3.359 s  
+13  +3.529 s  
+14  +3.708 s  
+15  +3.860 s  
+16  +4.036 s  
+17  +4.194 s  
+18  +4.353 s  
+19  +4.532 s  
+20  +4.695 s  
+21  +4.853 s  
+22  +5.171 s  
+23  +5.357 s  
+24  +5.538 s  
+25  +5.705 s  
+26  +5.891 s  
+mean spacing 0.226 s over 25 gaps

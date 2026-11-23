@@ -1,0 +1,1 @@
+the step's beat (hitches it did not count, its longest gap, wall seconds to the card): lost:1.377 longest:0.508 wall:2.934
