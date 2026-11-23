@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM01TheFirstSeconds]' passed (90.921 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM01TheStepInUnderReduceMotion]' passed (29.511 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testTheFirstLight]' passed (17.657 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testTheTitlesStates]' passed (54.951 seconds).
+exit=0
+screenshots: 198
