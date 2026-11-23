@@ -1574,3 +1574,18 @@ schneller geht."
     LookAround, Title, Count, Town, People, Audience; all five film classes). The join with B3 is on origin at
     a4b55979. This is also the joined film round wave A's plan asks for before tf-lh-5. Usage 67 % (stop at 80 %).
     Step B3b (the lantern's loose ends) goes out now on lane B, base a4b55979, labels lh-rb-20 to 23.
+  - 23.11. 14:34: step B3b came back built but red: lane B 1d86f734 (the hall's moment on the one driver, the
+    light following the glass, no dead site lantern over a standing work, VoiceOver held in the dawn wait, a tap
+    on Saul's bubble does its deed). Rounds lh-rb-20, 21 and 23 green; lh-rb-22 failed one case,
+    `CountUITests.testTheGuardsBoard` (39.8 s against about 31 s on a green run): the old test made four queries
+    and a note between the near tap's coin and the hold while the tapped board's own 3.0 s wait ran
+    (`PayCount.tapWait`), and the camera was still panning 64 px at the near tap. No review and no gate ran (the
+    script stops at a red builder). The director mended the test (79049e55, no game code: wait for a still
+    camera, hold as soon as the coin is seen, the note carries the tap-to-coin time) and sent round lh-rb-24
+    (build; Touch, Lord, Hall, Count; the one case three more times). Sheets looked at: the hall's block comes
+    and goes in thirds, nothing cuts; with full motion no lantern stands over the new palisade or house; under
+    Reduce Motion one frame shows the dark lantern fading with the scaffold over the new palisade (the brief's
+    own form: kept, a phone check); Saul's bubble does the deed, and his answer swaps text in place (B4, with
+    B3's P8). A possible real finding for B4, to be filmed first: the camera's lead flips when the lord turns to
+    a board, so the world slides about 64 px under the finger for about a second while the board stands.
+    Nothing of lane B is pushed yet; next: lh-rb-24's result, then the push, review and gate, the join.
