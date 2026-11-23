@@ -164,8 +164,9 @@ struct PaneDim: View {
     let tapped: @MainActor () -> Void
 
     var body: some View {
-        // C1 gate (C1-2, F7): the safe area is ignored last. With `.contentShape` after `.ignoresSafeArea()` the
-        // shape took the safe-area frame, and taps in the left inset never reached the dim (lh-rc-7, lh-rc-8).
+        // C1 gate (C1-2, F7): the safe area is ignored last, so the tap shape is the whole screen's. Taps at x 0.05,
+        // y 0.55 still never arrived after it (lh-rc-10): that point lies on the Dynamic Island's band in landscape
+        // (FilmPanesUITests p04-h, p04-i).
         Color.black.opacity(amount)
             .contentShape(Rectangle())
             .onTapGesture { tapped() }

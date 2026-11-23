@@ -1,3 +1,4 @@
+import ObjectiveC
 import UIKit
 import XCTest
 
@@ -165,10 +166,11 @@ final class FilmPanesUITests: XCTestCase {
             }
             film.pause(0.8)
             if round == 0 {
-                // lh-rc-7: four taps at x 0.05 (44 pt, inside the left safe-area inset) never reached the dim. Here the
-                // taps fall inside the safe area left of the sheet (g, x 0.16 = 140 pt; the sheet begins at 227 pt),
-                // then in the inset again (h); the probe's count is noted after each, and since the C1 gate (C1-2:
-                // the dim ignores the safe area last) both must reach it.
+                // lh-rc-7, lh-rc-10: taps at x 0.05, y 0.55 (44 pt, inside the left safe-area inset) never reached the
+                // dim. That point lies on the Dynamic Island's band in landscape (portrait y 11 to 48 pt, x 138 to 264
+                // pt). Here the taps fall inside the safe area left of the sheet (g, x 0.16 = 140 pt; the sheet begins
+                // at 227 pt; they must reach it), then in the inset beside the island (h, x 0.05, y 0.15) and on it
+                // (i, x 0.05, y 0.55); those two counts are noted as evidence, not as a gate.
                 let probe = film.element(app, "pane-glint")
                 let start = (probe.value as? String) ?? "none"
                 film.tappingAt("g", app, taps: 4, framesPerTap: 3, after: 2, what: "taps on the dim left of the sheet "
@@ -177,19 +179,24 @@ final class FilmPanesUITests: XCTestCase {
                 film.pause(0.5)
                 let middle = (probe.value as? String) ?? "none"
                 film.tappingAt("h", app, taps: 2, framesPerTap: 3, after: 1, what: "taps on the dim in the left inset "
-                               + "(x 0.05)", at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.55)))
+                               + "beside the island (x 0.05, y 0.15)",
+                               at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.15)))
+                film.pause(0.5)
+                let beside = (probe.value as? String) ?? "none"
+                film.tappingAt("i", app, taps: 2, framesPerTap: 3, after: 1, what: "taps on the dim in the left inset "
+                               + "on the island's band (x 0.05, y 0.55)",
+                               at: window.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.55)))
                 film.pause(0.5)
                 let end = (probe.value as? String) ?? "none"
                 film.note("p04-g-probe", "taps on the dim that reached it (OverlayView's glint count): before \(start), "
-                          + "after the four at x 0.16 \(middle), after the two at x 0.05 \(end); the window's frame "
-                          + "\(window.frame)")
+                          + "after the four at x 0.16 \(middle), after the two at x 0.05 y 0.15 \(beside), after the "
+                          + "two at x 0.05 y 0.55 \(end); the window's frame \(window.frame)")
                 film.pause(0.8)
                 XCTAssertTrue(sheet.exists, "p04: a tap beside the pause sheet does not close it")
-                if let a = Int(start), let b = Int(middle), let c = Int(end) {
+                if let a = Int(start), let b = Int(middle) {
                     XCTAssertEqual(b - a, 4, "p04: the four taps on the dim at x 0.16 reach it")
-                    XCTAssertEqual(c - b, 2, "p04: the two taps on the dim in the left inset (x 0.05) reach it")
                 } else {
-                    XCTFail("p04: the probe pane-glint has no count (\(start), \(middle), \(end))")
+                    XCTFail("p04: the probe pane-glint has no count (\(start), \(middle))")
                 }
             }
             film.tapBurst("b\(round)", app, count: 8, what: "Resume: the sheet goes (0.15 s ease-in, in place)",
@@ -241,10 +248,10 @@ final class FilmPanesUITests: XCTestCase {
         app.terminate()
     }
 
-    /// p06 (C1 gate, F2 and C1-4): the hall's answer plaques under a quick tap (the film's tap lifts after 0.05 s):
-    /// `-GWScreen petition` (the herald's card, AudienceUITests' sample), then a tap on the first choice. The amber
-    /// fill holds for its whole 0.15 s sweep from touch-down, so the frames right after the tap show it whole under the
-    /// finger, then it goes back (0.10 s).
+    /// p06 (C1 gate, F2 and C1-4): the hall's answer plaques. `-GWScreen petition` (the herald's card, AudienceUITests'
+    /// sample), then a quick tap on the first choice (b: the film's tap lifts after 0.05 s; the answer replaces the
+    /// card's face on the lift, C3's hold is not there yet) and, on a fresh launch, a press held 0.8 s (c: frames while
+    /// the finger is down show the amber fill under it).
     func testP06TheHallsChoiceUnderAQuickTap() {
         let film = FilmReel(self, "p06")
         let app = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWScreen", "petition"])
@@ -266,5 +273,97 @@ final class FilmPanesUITests: XCTestCase {
                       + "it from the left in 0.15 s and holds that long, then goes back in 0.10 s",
                       at: choice.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)))
         app.terminate()
+
+        // c: a press held 0.8 s on the first choice of a fresh card; frames while the finger is down (H5: amber under
+        // the finger on touch-down, before the answer is given on the lift).
+        let again = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWScreen", "petition"])
+        let first = film.element(again, "audience-choice-0")
+        guard first.waitForExistence(timeout: 30) else {
+            XCTFail("p06: no first choice on the second launch")
+            return
+        }
+        film.pause(1.5)
+        let shot0 = XCUIScreen.main.screenshot()
+        let started = Date()
+        let sent = holdWithoutWaiting(first.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)), again,
+                                      seconds: 0.8)
+        var lines = ["p06-c: a press held 0.8 s on the first choice: amber fills it from the left in 0.15 s under the "
+                     + "finger and stays while it is down; the answer comes on the lift",
+                     String(format: "the press was sent without waiting at +%.3f s (%@)",
+                            Date().timeIntervalSince(started), sent.text),
+                     "launch: " + film.arguments.joined(separator: " "), "",
+                     "frame  seconds since the burst began", "00  -0.010 s  before the press"]
+        film.keep(shot0, "p06-c-00")
+        if !sent.ok {
+            first.press(forDuration: 0.8)
+        }
+        for index in 1...10 {
+            let shot = XCUIScreen.main.screenshot()
+            let at = Date().timeIntervalSince(started)
+            film.keep(shot, String(format: "p06-c-%02ld", index))
+            lines.append(String(format: "%02ld  %+.3f s", index, at))
+        }
+        film.note("p06-c-times", lines.joined(separator: "\n"))
+        again.terminate()
+    }
+
+    /// A touch at `coordinate` held for `seconds`, sent through the test runner's own event record without waiting
+    /// (FilmKit's `sendWithoutWaiting`, with the lift later), so frames can be shot while the finger is down. Every
+    /// class and method is looked up first; when one is missing nothing is sent and the answer says which.
+    private func holdWithoutWaiting(_ coordinate: XCUICoordinate, _ app: XCUIApplication, seconds: Double)
+        -> (ok: Bool, text: String) {
+        typealias Alloc = @convention(c) (AnyClass, Selector) -> Unmanaged<AnyObject>
+        typealias RecordInit = @convention(c) (AnyObject, Selector, NSString, Int) -> Unmanaged<AnyObject>
+        typealias PathInit = @convention(c) (AnyObject, Selector, CGPoint, Double) -> Unmanaged<AnyObject>
+        typealias TakesDouble = @convention(c) (AnyObject, Selector, Double) -> Void
+        typealias TakesObject = @convention(c) (AnyObject, Selector, AnyObject) -> Void
+        typealias Send = @convention(c) (AnyObject, Selector, AnyObject, AnyObject) -> Void
+        typealias GetInt = @convention(c) (AnyObject, Selector) -> Int
+        guard let recordClass = NSClassFromString("XCSynthesizedEventRecord") else { return (false, "no record class") }
+        guard let pathClass = NSClassFromString("XCPointerEventPath") else { return (false, "no path class") }
+        let allocName = NSSelectorFromString("alloc")
+        let recordInitName = NSSelectorFromString("initWithName:interfaceOrientation:")
+        let addName = NSSelectorFromString("addPointerEventPath:")
+        let pathInitName = NSSelectorFromString("initForTouchAtPoint:offset:")
+        let liftName = NSSelectorFromString("liftUpAtOffset:")
+        let synthesizerName = NSSelectorFromString("eventSynthesizer")
+        let sendName = NSSelectorFromString("synthesizeEvent:completion:")
+        let orientationName = NSSelectorFromString("interfaceOrientation")
+        guard let recordAlloc = class_getClassMethod(recordClass, allocName),
+              let pathAlloc = class_getClassMethod(pathClass, allocName),
+              let recordInit = class_getInstanceMethod(recordClass, recordInitName),
+              let add = class_getInstanceMethod(recordClass, addName),
+              let pathInit = class_getInstanceMethod(pathClass, pathInitName),
+              let lift = class_getInstanceMethod(pathClass, liftName) else { return (false, "a record method is missing") }
+        let device = XCUIDevice.shared
+        guard device.responds(to: synthesizerName),
+              let synthesizer = device.perform(synthesizerName)?.takeUnretainedValue() else {
+            return (false, "no event synthesizer")
+        }
+        guard let synthesizerObject = synthesizer as? NSObject, synthesizerObject.responds(to: sendName),
+              let synthesizerClass = object_getClass(synthesizerObject),
+              let send = class_getInstanceMethod(synthesizerClass, sendName) else {
+            return (false, "the synthesizer cannot send")
+        }
+        var orientation = UIInterfaceOrientation.landscapeRight.rawValue
+        if let appClass = object_getClass(app), let getter = class_getInstanceMethod(appClass, orientationName) {
+            let read = unsafeBitCast(method_getImplementation(getter), to: GetInt.self)(app, orientationName)
+            if (1...4).contains(read) { orientation = read }
+        }
+        let point = coordinate.screenPoint
+        let rawRecord = unsafeBitCast(method_getImplementation(recordAlloc), to: Alloc.self)(recordClass, allocName)
+            .takeUnretainedValue()
+        let record = unsafeBitCast(method_getImplementation(recordInit), to: RecordInit.self)(
+            rawRecord, recordInitName, "film hold" as NSString, orientation).takeUnretainedValue()
+        let rawPath = unsafeBitCast(method_getImplementation(pathAlloc), to: Alloc.self)(pathClass, allocName)
+            .takeUnretainedValue()
+        let path = unsafeBitCast(method_getImplementation(pathInit), to: PathInit.self)(rawPath, pathInitName, point, 0)
+            .takeUnretainedValue()
+        unsafeBitCast(method_getImplementation(lift), to: TakesDouble.self)(path, liftName, seconds)
+        unsafeBitCast(method_getImplementation(add), to: TakesObject.self)(record, addName, path)
+        let done: @Sendable @convention(block) () -> Void = {}
+        unsafeBitCast(method_getImplementation(send), to: Send.self)(synthesizer, sendName, record, done as AnyObject)
+        return (true, String(format: "point %.1f, %.1f; interface orientation %ld; lift after %.2f s", point.x, point.y,
+                             orientation, seconds))
     }
 }
