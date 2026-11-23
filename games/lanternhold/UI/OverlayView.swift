@@ -32,7 +32,9 @@ struct OverlayView: View {
             }
             if model.overlay == .audience {
                 // M3: the hall stays in view (a light veil only); the card opens when the petitioner has walked up.
-                PaneDim(amount: OverlayView.hallVeil) { tappedBeside() }
+                // C1 gate (C1-9, F5): the veil takes the taps in silence. The audience card has no plaque that glints
+                // (C3's), and before the petitioner stands no card at all: a tick there is a sound with nothing to see.
+                PaneDim(amount: OverlayView.hallVeil) {}
                     .lhPaneDim()
                     .zIndex(0)
             }
@@ -101,7 +103,7 @@ struct OverlayView: View {
         }
     }
 
-    /// A tap on the dim or the veil: the pane stays; its main plaque glints, with the softest tick (law 2; H14).
+    /// A tap on the dim: the pane stays; its main plaque glints, with the softest tick (law 2; H14).
     private func tappedBeside() {
         glint &+= 1
         model.feedback.play(PaneShown.besideCue)
@@ -162,10 +164,12 @@ struct PaneDim: View {
     let tapped: @MainActor () -> Void
 
     var body: some View {
+        // C1 gate (C1-2, F7): the safe area is ignored last. With `.contentShape` after `.ignoresSafeArea()` the
+        // shape took the safe-area frame, and taps in the left inset never reached the dim (lh-rc-7, lh-rc-8).
         Color.black.opacity(amount)
-            .ignoresSafeArea()
             .contentShape(Rectangle())
             .onTapGesture { tapped() }
             .accessibilityHidden(true)
+            .ignoresSafeArea()
     }
 }

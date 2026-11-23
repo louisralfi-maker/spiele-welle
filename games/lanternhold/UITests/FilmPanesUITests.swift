@@ -166,7 +166,8 @@ final class FilmPanesUITests: XCTestCase {
             if round == 0 {
                 // lh-rc-7: four taps at x 0.05 (44 pt, inside the left safe-area inset) never reached the dim. Here the
                 // taps fall inside the safe area left of the sheet (g, x 0.16 = 140 pt; the sheet begins at 227 pt),
-                // then in the inset again (h); the probe's count is noted after each, as evidence, not as a gate.
+                // then in the inset again (h); the probe's count is noted after each, and since the C1 gate (C1-2:
+                // the dim ignores the safe area last) both must reach it.
                 let probe = film.element(app, "pane-glint")
                 let start = (probe.value as? String) ?? "none"
                 film.tappingAt("g", app, taps: 4, framesPerTap: 3, after: 2, what: "taps on the dim left of the sheet "
@@ -183,6 +184,12 @@ final class FilmPanesUITests: XCTestCase {
                           + "\(window.frame)")
                 film.pause(0.8)
                 XCTAssertTrue(sheet.exists, "p04: a tap beside the pause sheet does not close it")
+                if let a = Int(start), let b = Int(middle), let c = Int(end) {
+                    XCTAssertEqual(b - a, 4, "p04: the four taps on the dim at x 0.16 reach it")
+                    XCTAssertEqual(c - b, 2, "p04: the two taps on the dim in the left inset (x 0.05) reach it")
+                } else {
+                    XCTFail("p04: the probe pane-glint has no count (\(start), \(middle), \(end))")
+                }
             }
             film.tapBurst("b\(round)", app, count: 8, what: "Resume: the sheet goes (0.15 s ease-in, in place)",
                           at: resume.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !sheet.exists }
