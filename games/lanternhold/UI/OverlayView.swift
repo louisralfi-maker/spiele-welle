@@ -1,3 +1,4 @@
+import QuartzCore
 import SwiftUI
 
 /// What covers the world (DESIGN.md "Screens"; navigation is the model's state machine, no NavigationStack): the
@@ -93,6 +94,15 @@ struct OverlayView: View {
                 .allowsHitTesting(false)
                 .accessibilityIdentifier("pane-glint")
                 .accessibilityValue(Text(verbatim: "\(glint)"))
+            // Polish C2, part 5 (C1's F3): the gear's probe, the moments the lantern went down, the pause was set and
+            // the sheet appeared (FilmPanesUITests p04 notes it).
+            Text(verbatim: PaneProbe.shared.text)
+                .font(.system(size: 2))
+                .foregroundStyle(Color.clear)
+                .frame(width: 2, height: 2)
+                .allowsHitTesting(false)
+                .accessibilityIdentifier("pane-probe")
+                .accessibilityValue(Text(verbatim: PaneProbe.shared.text))
             #endif
         }
         .environment(\.lhPaneGlint, glint)
@@ -103,6 +113,9 @@ struct OverlayView: View {
         .onChange(of: shown) { old, new in
             if let cue = PaneShown.cue(from: old, to: new) { model.feedback.play(cue) }
         }
+        #if DEBUG
+        .onAppear { PaneProbe.shared.watch(model) }
+        #endif
     }
 
     /// A tap on the dim: the pane stays; its main plaque glints, with the softest tick (law 2; H14).
@@ -182,3 +195,78 @@ struct PaneDim: View {
             .ignoresSafeArea()
     }
 }
+
+#if DEBUG
+/// Polish C2, part 5 (C1's F3: after the gear's tap the world stood bare 0.2 to 0.4 s before the pause sheet began,
+/// film p04 a0 to a2). A Debug probe, read through `pane-probe`: the moment the lantern moment went (the model's
+/// `lanternMoment` about to change to nil), the moment the pause was set (`overlay` about to change to `.pause`, i.e.
+/// `setOverlay(.pause)` running), the sheet's `onAppear`, and when the main thread was free after it; in ms from the
+/// lantern's going. Observation's change callback runs at the property's willSet, so the first two are the model's own
+/// moments without a line in the model's file.
+@MainActor
+@Observable
+final class PaneProbe {
+    static let shared = PaneProbe()
+    private(set) var text = "none"
+    @ObservationIgnored private var watching: ObjectIdentifier?
+    @ObservationIgnored private var lanternDownAt: Double?
+    @ObservationIgnored private var pauseSetAt: Double?
+    @ObservationIgnored private var appearedAt: Double?
+
+    func watch(_ model: GameModel) {
+        guard watching != ObjectIdentifier(model) else { return }
+        watching = ObjectIdentifier(model)
+        watchLantern(model)
+        watchOverlay(model)
+    }
+
+    private func watchLantern(_ model: GameModel) {
+        withObservationTracking {
+            _ = model.lanternMoment
+        } onChange: {
+            let now = CACurrentMediaTime()
+            Task { @MainActor in
+                let probe = PaneProbe.shared
+                if model.lanternMoment == nil {
+                    probe.lanternDownAt = now
+                    probe.pauseSetAt = nil
+                    probe.appearedAt = nil
+                }
+                probe.watchLantern(model)
+            }
+        }
+    }
+
+    private func watchOverlay(_ model: GameModel) {
+        withObservationTracking {
+            _ = model.overlay
+        } onChange: {
+            let now = CACurrentMediaTime()
+            Task { @MainActor in
+                let probe = PaneProbe.shared
+                if model.overlay == .pause { probe.pauseSetAt = now }
+                probe.watchOverlay(model)
+            }
+        }
+    }
+
+    /// The pause sheet appeared; the main thread's next turn says whether a long frame followed.
+    func sheetAppeared() {
+        let now = CACurrentMediaTime()
+        appearedAt = now
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                PaneProbe.shared.note(free: CACurrentMediaTime())
+            }
+        }
+    }
+
+    private func note(free: Double) {
+        func ms(_ time: Double?) -> String {
+            guard let time, let base = lanternDownAt ?? pauseSetAt else { return "none" }
+            return String(Int(((time - base) * 1000).rounded()))
+        }
+        text = "down:\(lanternDownAt == nil ? "none" : "0") set:\(ms(pauseSetAt)) appear:\(ms(appearedAt)) free:\(ms(free))"
+    }
+}
+#endif

@@ -244,6 +244,10 @@ struct PauseSheetView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("pause-sheet")
+        #if DEBUG
+        // Polish C2, part 5: the gear's probe (`PaneProbe`).
+        .onAppear { PaneProbe.shared.sheetAppeared() }
+        #endif
     }
 
     /// A swap inside the pane (law 2, M16: the confirmations cut before): the face goes at the normal token's out
