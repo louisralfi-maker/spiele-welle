@@ -507,7 +507,8 @@ final class NightOfferModelTests: XCTestCase {
                       + "\(AudienceRules.queue(state, catalog: .standard).count)")
         game.talk(to: "brannock")
         XCTAssertEqual(game.talkBubble?.textKey, NightOffer.lineKey, "the first touch: his offer")
-        XCTAssertTrue(game.talkedToday(state).contains(NightOffer.heardKey), "heard: his mark goes")
+        XCTAssertTrue(game.talkedToday(state).contains(NightOffer.heardKey), "heard (E1b: his mark stays, the offer "
+                      + "stands)")
         XCTAssertTrue(game.nightOfferStands, "it still stands")
         game.talk(to: "brannock")
         XCTAssertFalse(game.driver?.playsDusk ?? true, "a touch at once (a double tap) only hears him")
@@ -519,7 +520,17 @@ final class NightOfferModelTests: XCTestCase {
         XCTAssertNil(game.talkBubble, "the bubble closes as the dusk begins")
         XCTAssertFalse(game.nightOfferStands, "the offer is gone once the night is called")
         XCTAssertFalse(game.canCallTheNight, "the pause sheet has nothing more to call")
-        var seconds = 0.0
+        // E1b gate M1: the call itself takes his mark, not the hour. In the dusk's first frame the realm's rule still
+        // stands (the hour below 17:30), so only the talk log's `calledKey` keeps him unmarked.
+        XCTAssertTrue(game.talkedToday(state).contains(NightOffer.calledKey), "the night called: the talk log notes it")
+        game.advance(by: 1.0 / 60)
+        let dusk = try XCTUnwrap(game.driver?.state)
+        let balance = try XCTUnwrap(game.driver?.balance)
+        XCTAssertLessThan(dusk.hour, NightOffer.untilHour, "the dusk's first frame")
+        XCTAssertTrue(NightOffer.stands(dusk, balance: balance), "the realm's rule alone would still offer")
+        XCTAssertFalse(NightOffer.marks(dusk, balance: balance, talked: game.talkedToday(dusk)),
+                       "the night called: his mark is gone at once")
+        var seconds = 1.0 / 60
         while game.hornNight == nil && seconds < 8 {
             game.advance(by: 1.0 / 60)
             seconds += 1.0 / 60
