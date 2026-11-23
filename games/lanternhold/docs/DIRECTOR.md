@@ -1495,3 +1495,6 @@ schneller geht."
   - Round lh-rnd-19 on a1817c58 is green (23.11., 06:44; the build): the join with E2 compiles. Step E2b (the
     dawn card's loose ends: no card on a continued launch, one owner of the tolls, no warning triangle on
     Brannock's line) went out from a1817c58 in lane E at 06:45, code lens only. Usage 56 %.
+  - Round lh-rnd-21 on a1817c58 is green (23.11., 07:14): the six UI classes that read the report after a dawn
+    (ads, endings, mid chapter, yard, proof, the deals' film) pass with the card's 0.6 s wait. E2's open point
+    L6 is closed.
