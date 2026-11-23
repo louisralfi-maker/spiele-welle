@@ -143,8 +143,9 @@ struct WorldSceneView: UIViewRepresentable {
 
     func updateUIView(_ uiView: NativeScaleMTKView, context: Context) {
         // LANE-C: C2 (the first five seconds): built under the title once the game is ready, the world draws nothing
-        // until the touch on the title (`EnvironmentValues.lhWorldStill`, set by the root).
-        uiView.isPaused = context.environment.lhWorldStill
+        // until the black of the step in (`EnvironmentValues.lhWorldStill`, set by the root). Written only when it flips
+        // (`MTKView.lhApplyWorldStill`), so a pause set elsewhere outlives SwiftUI's updates.
+        uiView.lhApplyWorldStill(context.environment.lhWorldStill)
         // LANE-C end
     }
 }

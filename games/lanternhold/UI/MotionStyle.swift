@@ -1,3 +1,5 @@
+import MetalKit
+import ObjectiveC
 import SwiftUI
 
 // The SwiftUI side of the motion vocabulary (polish audit, law 1 and the pane part of law 2; fix step 0a). Every
@@ -102,12 +104,28 @@ private struct LHWorldStillKey: EnvironmentKey {
 
 extension EnvironmentValues {
     /// Polish C2: the hall's view is built under the title once the game is ready, draws its first frames there, and
-    /// then its Metal view draws nothing while this is true (until the touch on the title): a world drawn under the
+    /// then its Metal view draws nothing while this is true (until the black of the step in, 0.60 s after the touch): a world drawn under the
     /// animated title held the main thread on the runner and a touch on the title waited about 2.5 s (rounds
     /// lh-rc-13, lh-rc-14).
     var lhWorldStill: Bool {
         get { self[LHWorldStillKey.self] }
         set { self[LHWorldStillKey.self] = newValue }
+    }
+}
+
+/// Polish C2 gate (M3): the last `lhWorldStill` written to a Metal view, kept on the view itself.
+private enum WorldStillLatch {
+    nonisolated(unsafe) static var key: UInt8 = 0
+}
+
+extension MTKView {
+    /// Polish C2 gate (M3): sets `isPaused` from the root's `lhWorldStill` only when that value flips, so SwiftUI's
+    /// next update never undoes a pause another part of the game set on the view.
+    func lhApplyWorldStill(_ still: Bool) {
+        let last = objc_getAssociatedObject(self, &WorldStillLatch.key) as? Bool
+        guard last != still else { return }
+        objc_setAssociatedObject(self, &WorldStillLatch.key, still, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        isPaused = still
     }
 }
 
