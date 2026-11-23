@@ -774,9 +774,43 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(two.map { $0.cue }, [.dawnToll, .dawnToll])
         XCTAssertEqual(two.map { $0.delay }, [0, DawnVerdict.tollGap])
         XCTAssertEqual(DawnVerdict.cues(fallen: 9).count, 3, "at most three tolls")
-        XCTAssertGreaterThanOrEqual(DawnVerdict.tollGap, SoundID.bell.minimumInterval,
-                                    "the stand-in bell's throttle lets every toll through")
-        XCTAssertGreaterThanOrEqual(SoundID.bell.voices, 3, "the tolls ring into each other's tails")
+        // Polish D2 part 2 rewrote these lines (the stand-in was the bell, 2.1 s apart): the toll's own file, at most one
+        // every 0.9 s in the hub, spaced 1.0 s by the verdict; three voices ring into each other's tails.
+        XCTAssertEqual(SoundID.toll.minimumInterval, 0.9)
+        XCTAssertEqual(DawnVerdict.tollGap, 1.0)
+        XCTAssertGreaterThanOrEqual(DawnVerdict.tollGap, SoundID.toll.minimumInterval, "every toll gets through")
+        XCTAssertEqual(DawnVerdict.cues(fallen: 3).map { $0.delay }, [0, 1, 2])
+        XCTAssertGreaterThanOrEqual(SoundID.toll.voices, 3, "the tolls ring into each other's tails")
+    }
+
+    /// Polish D2 part 2 (F6): a held night and a lost one do not sound alike. The toll's spacing (at most one every
+    /// 0.9 s), its own low damped file at step 3's level and length, one heavy with the first toll; the held night's
+    /// bell as made with success; the dawn gate as made.
+    func testTheDawnHeldAndLostSoundApart() throws {
+        var gate = FeedbackGate()
+        let times = [1.0, 1.5, 1.9, 2.4, 2.8, 3.8]
+        let heard = times.map { gate.answer(.dawnToll, soundOn: true, hapticsOn: true, now: $0) }
+        XCTAssertEqual(heard.map { $0.sound?.id }, [.toll, nil, .toll, nil, .toll, .toll], "at most one every 0.9 s")
+        XCTAssertEqual(heard.map { $0.haptic }, [.heavy, nil, nil, nil, nil, nil], "one heavy with the first toll")
+        XCTAssertTrue(heard.allSatisfy { $0.sound == nil || $0.duck == .triumph })
+        XCTAssertTrue(heard.allSatisfy { !$0.jitter }, "step 3 is never randomised")
+        var verdict = FeedbackGate()
+        for (cue, delay) in DawnVerdict.cues(fallen: 3) {
+            XCTAssertEqual(verdict.answer(cue, soundOn: true, hapticsOn: true, now: 50 + delay).sound?.id, .toll,
+                           "the verdict's tolls all sound")
+        }
+        let toll = AnswerSize.level(fileRMS: try Self.fileRMS(.toll), volume: FeedbackCue.dawnToll.sound?.volume ?? 0)
+        XCTAssertTrue(AnswerSize.triumph.band.contains(toll), "the toll at \(toll) dBFS")
+        let seconds = Double(try Self.samples(.toll).count) / 22050
+        XCTAssertTrue(AnswerSize.triumph.length.contains(seconds), "\(seconds) s")
+        XCTAssertEqual(seconds, 1.4, accuracy: 0.01)
+        var held = FeedbackGate()
+        let bell = held.answer(.dawnHeld, soundOn: true, hapticsOn: true, now: 1)
+        XCTAssertEqual(bell.sound, SoundPlay(id: .bell, volume: 0.5))
+        XCTAssertEqual(bell.haptic, .success)
+        XCTAssertEqual(held.answer(.dawnGate, soundOn: true, hapticsOn: true, now: 2).sound, SoundPlay(id: .gate, volume: 0.6))
+        XCTAssertNil(FeedbackCue.dawnGate.haptic)
+        XCTAssertNotEqual(FeedbackCue.dawnHeld.sound?.id, FeedbackCue.dawnToll.sound?.id)
     }
 
     @MainActor

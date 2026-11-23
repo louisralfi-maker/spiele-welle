@@ -281,11 +281,13 @@ struct FeedbackThinner: Sendable, Equatable {
 }
 
 /// Step 0b: the dawn verdict as it lands (E2 calls it): a held night rings the bell once; a night that cost men tolls
-/// once per fallen man, at most `maxTolls`, `tollGap` apart (the stand-in is the bell, throttled to one every 2 s; D2's
-/// own toll keeps the gap).
+/// once per fallen man, at most `maxTolls`, `tollGap` apart. D2 part 2: the toll is its own file (the bell rendered low
+/// and damped, 1.4 s), at most one every 0.9 s in the hub (`SoundID.toll.minimumInterval`); the verdict spaces them
+/// 1.0 s, so a toll a little late on the main thread is never thrown away. A held night: the bell at 0.5, success. A
+/// lost one: one to three tolls, the first with a heavy. Both after the dawn gate (`dawnGate`, the gate at 0.6).
 enum DawnVerdict {
     static let maxTolls = 3
-    static let tollGap = 2.1
+    static let tollGap = 1.0
 
     /// The verdict's cue for a night that cost `fallen` men.
     static func cue(fallen: Int) -> FeedbackCue {

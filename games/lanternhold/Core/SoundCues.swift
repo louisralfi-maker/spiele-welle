@@ -348,6 +348,8 @@ extension FeedbackCue {
     /// The same cue's haptic comes at most this often (seconds of real time).
     var hapticGap: Double {
         switch self {
+        // D2 part 2 (F6): one heavy with the first toll of a dawn, the next tolls (one a second) sound alone.
+        case .dawnToll: return 3
         case .coin: return 0.25
         case .wallHit: return 0.3
         case .wallBroken, .hearthHit: return 0.6
