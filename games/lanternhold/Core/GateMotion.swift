@@ -12,8 +12,9 @@ import Foundation
 /// it, by opacity at law 1's quick tempo.
 ///
 /// Picture only: the simulation, the bots and the tuning read nothing here, and nothing is saved. The clock is the
-/// picture's wall clock (the model's running seconds, which go on while the realm's clock holds at the dawn), so the
-/// same time gives the same rows at any frame rate. After a load, a continued launch or a change of stage the gate
+/// picture's wall clock (the model's running seconds, which go on while the realm's clock holds at the dawn), each
+/// frame's step capped at `longestStep`, so the same time gives the same rows at 60 and at 120 frames a second and a
+/// stalled frame never makes the gate jump. After a load, a continued launch or a change of stage the gate
 /// stands in its target state at once, with no travel on the first frame.
 struct GateMotion: Sendable, Equatable {
     /// Opening: 0.8 s (the brief; the fix lane's "about 0.8 s"), on law 1's ease-out curve: heaved up, it settles at
@@ -61,13 +62,21 @@ struct GateMotion: Sendable, Equatable {
         static let open = Look(share: 1, reduced: false)
     }
 
+    /// A frame longer than this (a stall: the dawn's own frame with its save, a hitch) moves the gate by this much
+    /// only, so its first visible frame after a stall jumps a few rows at most (round lh-ra-20's m10-c 09: the dawn
+    /// frame's stall put the first frame of the opening at about 0.8 of the way). Three frames at 60 a second (a
+    /// device at 20 frames a second still sees the travel in real time), so 60 and 120 frames a second give the same
+    /// travel at the same time.
+    static let longestStep = 0.05
+
     /// The rule's target as last noted (true: open); nil while there is no gate to move (rubble, none) or before the
     /// first note.
     private(set) var target: Bool?
-    /// The share the current travel started from, when, how long it takes and in which form.
+    /// The share the current travel started from, how long it takes, how much of it is done (seconds, each note's
+    /// step capped at `longestStep`) and in which form.
     private(set) var from = 0.0
-    private(set) var startedAt = 0.0
     private(set) var seconds = 0.0
+    private(set) var travelled = 0.0
     private(set) var reduced = false
     /// The time of the last note: the frame's look is read at it.
     private(set) var now = 0.0
@@ -82,7 +91,9 @@ struct GateMotion: Sendable, Equatable {
     /// still follows its target (a dawn still begins its opening there), and on the first frame back it stands.
     @discardableResult
     mutating func note(open wanted: Bool?, time: Double, reduceMotion: Bool, seen onStage: Bool = true) -> Change {
-        let current = share(at: time)
+        let step = min(GateMotion.longestStep, max(0, time - now))
+        if seconds > 0 { travelled = min(seconds, travelled + step) }
+        let current = share
         let back = onStage && !seen
         now = time
         seen = onStage
@@ -91,7 +102,7 @@ struct GateMotion: Sendable, Equatable {
             return .none
         }
         guard let was = target, let standing = current, !back else {
-            stand(wanted, at: time)
+            stand(wanted)
             return .none
         }
         guard wanted != was else { return .none }
@@ -100,45 +111,42 @@ struct GateMotion: Sendable, Equatable {
             : (wanted ? GateMotion.openSeconds : GateMotion.closeSeconds)
         target = wanted
         from = standing
-        startedAt = time
+        travelled = 0
         reduced = reduceMotion
         seconds = full * abs(to - standing)
         return wanted ? .opens : .closes
     }
 
     /// Stands in `open` at once.
-    private mutating func stand(_ open: Bool, at time: Double) {
+    private mutating func stand(_ open: Bool) {
         target = open
         from = open ? 1 : 0
-        startedAt = time
         seconds = 0
+        travelled = 0
     }
 
-    /// The share at `time` (0 shut ... 1 open), nil with no gate.
-    func share(at time: Double) -> Double? {
+    /// The share at the last note (0 shut ... 1 open), nil with no gate.
+    var share: Double? {
         guard let target else { return nil }
         let to = target ? 1.0 : 0.0
         guard seconds > 0 else { return to }
         let curve = reduced ? GateMotion.reducedCurve : (target ? GateMotion.openCurve : GateMotion.closeCurve)
-        let progress = curve.value((time - startedAt) / seconds)
+        let progress = curve.value(travelled / seconds)
         guard progress < 1 else { return to }
         return from + (to - from) * progress
     }
 
-    /// The gateway at `time`, nil with no gate.
-    func look(at time: Double) -> Look? {
-        share(at: time).map { Look(share: $0, reduced: reduced) }
-    }
+    /// The gateway at the last note (the frame being drawn), nil with no gate.
+    var look: Look? { share.map { Look(share: $0, reduced: reduced) } }
 
-    /// The gateway at the last note (the frame being drawn).
-    var look: Look? { look(at: now) }
+    /// True while a travel runs.
+    var isMoving: Bool { target != nil && seconds > 0 && travelled < seconds }
 
-    /// True while a travel runs at `time`.
-    func isMoving(at time: Double) -> Bool {
-        target != nil && seconds > 0 && time < startedAt + seconds
-    }
+    /// The seconds of travel left.
+    var remaining: Double { target == nil ? 0 : max(0, seconds - travelled) }
 
-    /// When the gate stands open: the end of its opening (in the past once it stands), nil while its target is shut or
-    /// there is no gate. The dawn card counts its wait from here (`GameModel.gateStandsOpenAt`).
-    var standsOpenAt: Double? { target == true ? startedAt + seconds : nil }
+    /// When the gate stands open, from the last note: its time plus the opening's time left (the note's own time once
+    /// it stands), nil while its target is shut or there is no gate. The dawn card counts its wait from here
+    /// (`GameModel.gateStandsOpenAt`).
+    var standsOpenAt: Double? { target == true ? now + remaining : nil }
 }

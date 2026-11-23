@@ -84,12 +84,13 @@ final class DawnCardModelTests: XCTestCase {
 
     // LANE-A: A5 (the gate moves: the card's 0.6 s count from the gate standing open, `gateStandsOpenAt`, which is the
     // end of its opening, GateMotion.openSeconds after the dawn, or GateMotion.reducedSeconds under Reduce Motion; the
-    // dawn itself when no gate moves. The two tests below were E2's pins of the card 0.6 s after the dawn's own frame;
-    // rewritten to wait through the gate's opening first. The tests after them are A5's own.)
-    /// Advances in steps of at most 0.25 s until the clock reaches `time` (the card still waiting all the way).
+    // dawn itself when no gate moves. The first two tests and the last one of this block were E2's pins of the card
+    // 0.6 s after the dawn's own frame, rewritten to wait through the gate's opening first; the others are A5's own.)
+    /// Advances in frames of 1/60 s (the gate's travel takes at most `GateMotion.longestStep` a frame) until the
+    /// clock reaches `time` (the card still waiting all the way).
     private func advance(_ game: GameModel, until time: Double) {
         while game.clock.elapsed < time - 1e-9 {
-            game.advance(by: min(0.25, time - game.clock.elapsed))
+            game.advance(by: min(1.0 / 60, time - game.clock.elapsed))
             XCTAssertTrue(game.dawnCardWaits, "the card waits while the gate opens")
             XCTAssertNil(game.overlay)
         }
@@ -174,7 +175,7 @@ final class DawnCardModelTests: XCTestCase {
         let dawnAt = game.clock.elapsed
         let gate = game.effects.gate
         XCTAssertEqual(gate.target, true, "the gate's target is open at the dawn")
-        XCTAssertTrue(gate.isMoving(at: dawnAt), "it travels")
+        XCTAssertTrue(gate.isMoving, "it travels")
         XCTAssertEqual(gate.look?.rows, 0, "no row up in the dawn's frame")
         XCTAssertEqual(gate.standsOpenAt ?? 0, dawnAt + GateMotion.openSeconds, accuracy: 1e-9)
         XCTAssertEqual(game.gateStandsOpenAt(dawnAt: dawnAt), dawnAt + GateMotion.openSeconds, accuracy: 1e-9)
@@ -234,8 +235,10 @@ final class DawnCardModelTests: XCTestCase {
         for _ in 0..<8 { game.advance(by: 0.25) }
         XCTAssertEqual(count(.dawnGate, game), 1)
     }
-    // LANE-A end
 
+    /// (A5: was E2's pin of the card 0.75 s after the return; the gate's 0.8 s now comes first, so the card comes
+    /// within `GateMotion.openSeconds + GameModel.dawnCardDelay` of the return. The gate's motion does not run in the
+    /// background either: the model's clock stands there.)
     func testTheCardComesAfterAPauseOfTheApp() throws {
         let game = try atTheDawn()
         game.setActive(false)
@@ -244,10 +247,15 @@ final class DawnCardModelTests: XCTestCase {
         XCTAssertNil(game.overlay)
         for _ in 0..<8 { game.advance(by: 0.25) }
         XCTAssertTrue(game.dawnCardWaits, "nothing runs in the background: the card still waits")
+        XCTAssertEqual(game.effects.gate.look?.rows, 0, "nor does the gate rise there")
         game.setActive(true)
-        for _ in 0..<3 { game.advance(by: 0.25) }
+        let back = game.clock.elapsed
+        advance(game, until: back + GateMotion.openSeconds + GameModel.dawnCardDelay - 0.05)
+        XCTAssertNil(game.overlay, "not before the gate's 0.8 s and the 0.6 s wait")
+        game.advance(by: 0.05)
         XCTAssertNotNil(game.reportCard, "back from the background, the card comes")
     }
+    // LANE-A end
 
     /// Polish E2b (M2; the audit's director's call 18): a continued launch on a dawn save (the save is always the
     /// dawn snapshot) starts the day as build 429 did: no card, no wait, none of the three dawn cues, so no ads' gate

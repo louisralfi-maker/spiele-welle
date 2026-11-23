@@ -45,9 +45,13 @@ final class GateMotionTests: XCTestCase {
     // MARK: - The travel
 
     func testTheOpeningRisesInWholeRowsNeverBackAndEndsAtTheFullHeight() {
+        var started = GateMotion()
+        started.note(open: false, time: 9, reduceMotion: false)
+        XCTAssertEqual(started.note(open: true, time: 10, reduceMotion: false), .opens)
+        XCTAssertEqual(started.standsOpenAt ?? 0, 10 + GateMotion.openSeconds, accuracy: 1e-9, "open 0.8 s on")
         let (gate, frames) = run(rate: 60, seconds: 1.0)
         XCTAssertEqual(frames[0].look.rows, 0, "no row up in the change's frame")
-        XCTAssertEqual(gate.standsOpenAt ?? 0, 10 + GateMotion.openSeconds, accuracy: 1e-9)
+        XCTAssertEqual(gate.standsOpenAt ?? 0, frames.last!.t, accuracy: 1e-9, "once it stands: the note's own time")
         var last = 0
         var steps = Set<Int>()
         for frame in frames {
@@ -112,17 +116,19 @@ final class GateMotionTests: XCTestCase {
         XCTAssertEqual(gate.note(open: false, time: 1.3, reduceMotion: false), .closes, "creatures came near")
         XCTAssertEqual(gate.look?.rows, standing.rows, "it goes on from the row where it stands, no jump")
         let rest = GateMotion.closeSeconds * standing.share
-        XCTAssertTrue(gate.isMoving(at: 1.3 + rest - 0.01), "the rest of the way takes its share of the 0.6 s")
-        XCTAssertFalse(gate.isMoving(at: 1.3 + rest + 1e-6))
+        XCTAssertEqual(gate.remaining, rest, accuracy: 1e-9, "the rest of the way takes its share of the 0.6 s")
         var last = standing.rows
         var t = 1.3
+        var landed: Double?
         while t < 1.3 + rest + 0.1 {
             t += 1.0 / 60
             gate.note(open: false, time: t, reduceMotion: false)
             XCTAssertLessThanOrEqual(gate.look!.rows, last, "down from there, never up")
             last = gate.look!.rows
+            if landed == nil && !gate.isMoving { landed = t }
         }
         XCTAssertEqual(last, 0)
+        XCTAssertEqual(landed ?? 0, 1.3 + rest, accuracy: 1.0 / 60 + 1e-9, "landed after its share of the time")
         // And round again: from the row where it stands, up.
         gate.note(open: true, time: t, reduceMotion: false)
         gate.note(open: true, time: t + 0.2, reduceMotion: false)
@@ -137,13 +143,13 @@ final class GateMotionTests: XCTestCase {
         XCTAssertNil(gate.look, "nothing noted yet: the frame draws the rule")
         XCTAssertEqual(gate.note(open: true, time: 50, reduceMotion: false), .none)
         XCTAssertEqual(gate.look, .open, "open at once")
-        XCTAssertFalse(gate.isMoving(at: 50))
+        XCTAssertFalse(gate.isMoving)
         var shut = GameMotionSupport.fresh()
         XCTAssertEqual(shut.note(open: false, time: 50, reduceMotion: false), .none)
         XCTAssertEqual(shut.look, .shut)
         // Off the world stage the gate follows its target (a dawn still begins its opening there) ...
         XCTAssertEqual(shut.note(open: true, time: 51, reduceMotion: false, seen: false), .opens)
-        XCTAssertTrue(shut.isMoving(at: 51.1))
+        XCTAssertTrue(shut.isMoving)
         // ... and on the first frame back it stands in its target.
         XCTAssertEqual(shut.note(open: true, time: 51.1, reduceMotion: false, seen: true), .none)
         XCTAssertEqual(shut.look, .open, "back on the world stage: open at once, no travel on the first frame")
@@ -179,8 +185,11 @@ final class GateMotionTests: XCTestCase {
     }
 
     func testUnderReduceMotionNoRowTravelsOnlyTheOpacityOverFifteenHundredths() {
-        let (gate, frames) = run(rate: 60, seconds: 0.4, reduceMotion: true)
-        XCTAssertEqual(gate.standsOpenAt ?? 0, 10 + GateMotion.reducedSeconds, accuracy: 1e-9)
+        var started = GateMotion()
+        started.note(open: false, time: 9, reduceMotion: true)
+        started.note(open: true, time: 10, reduceMotion: true)
+        XCTAssertEqual(started.standsOpenAt ?? 0, 10 + GateMotion.reducedSeconds, accuracy: 1e-9, "open 0.15 s on")
+        let (_, frames) = run(rate: 60, seconds: 0.4, reduceMotion: true)
         var lastOpen: Float = 0
         for frame in frames {
             XCTAssertEqual(frame.look.rows, 0, "no shifted row in any frame (t \(frame.t))")
@@ -201,6 +210,18 @@ final class GateMotionTests: XCTestCase {
         }
     }
 
+    func testAStalledFrameMovesTheGateByTheLongestStepOnly() {
+        XCTAssertEqual(GateMotion.longestStep, 0.05)
+        var gate = GateMotion()
+        gate.note(open: false, time: 0, reduceMotion: false)
+        gate.note(open: true, time: 1, reduceMotion: false)
+        gate.note(open: true, time: 1.3, reduceMotion: false)
+        XCTAssertEqual(gate.travelled, GateMotion.longestStep, accuracy: 1e-12, "a 0.3 s frame moves it 0.05 s on")
+        XCTAssertLessThanOrEqual(gate.look!.rows, 7, "a few rows, not most of the way")
+        XCTAssertEqual(gate.standsOpenAt ?? 0, 1.3 + GateMotion.openSeconds - GateMotion.longestStep, accuracy: 1e-9,
+                       "its open moment moves on with the lost time")
+    }
+
     // MARK: - The frame
 
     /// The model's effects with the gate opening since `start` and noted at `at`.
@@ -211,7 +232,11 @@ final class GateMotionTests: XCTestCase {
         let day = GameFrameSupport.demoDay()
         XCTAssertEqual(effects.stepGate(day, balance: balance, time: start, reduceMotion: reduceMotion, seen: true),
                        .opens)
-        effects.stepGate(day, balance: balance, time: at, reduceMotion: reduceMotion, seen: true)
+        var t = start
+        while t < at - 1e-9 {
+            t = min(at, t + 1.0 / 60)
+            effects.stepGate(day, balance: balance, time: t, reduceMotion: reduceMotion, seen: true)
+        }
         return effects
     }
 
