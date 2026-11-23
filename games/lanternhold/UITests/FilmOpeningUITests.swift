@@ -279,59 +279,31 @@ final class FilmOpeningUITests: XCTestCase {
     }
 
     // LANE-B: B1
-    /// Polish B1 (the lantern instrument; the realm slowed to a quarter by m04's launch): m04-c2, under the lantern
-    /// (the marks visible) a tap on a marked thing lowers it and its deed begins in the same touch; m04-f, an errand to
-    /// a person begun, the lantern raised on the way by a tap on the walking lord (the errand kept, the world still),
-    /// lowered by a tap on the empty world: he walks on, arrives and the talk opens.
+    /// Polish B1 (the lantern instrument; the realm slowed to a quarter by m04's launch): m04-f, an errand to a person
+    /// begun, the lantern raised on the way by a tap on the walking lord (the errand kept, the world still), lowered by
+    /// a tap on the empty world: he walks on, arrives and the talk opens. Then m04-c2, away from the hall's door (by it,
+    /// round lh-rb-10, no mark stood with or without the lantern): a still with the marks before the raise
+    /// (`m04-c2-pre`), and under the lantern (the marks still shown, frame 00) a tap on the hall's door lowers it and
+    /// its deed begins in the same touch.
     private func b1DeedAndErrand(_ film: FilmReel, _ app: XCUIApplication) {
         let moment = film.element(app, "lantern-moment")
         let bubble = film.element(app, "talk-bubble")
         let lord = film.element(app, "touch-lord")
         waitForStill(app, timeout: 8)
         waitForCamera(app, timeout: 6)
-        guard openLantern(app) else {
-            film.note("m04-c2-miss", "the lantern did not rise for c2; scene: \(film.scene(app))")
-            XCTFail("B1: no lantern for the deed under it")
-            return
-        }
-        film.pause(1.0)
-        // The marked thing: a person with a word first (Mother Hesper carries the day's mark on day 1), else the hall's
-        // door, else a site.
+        // m04-f: a person in view (Mother Hesper first), a step away from her, the errand back to her.
         let people = app.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH %@", "touch-talk-")).allElementsBoundByIndex
             .filter { $0.exists && app.frame.insetBy(dx: 30, dy: 0).contains(CGPoint(x: $0.frame.midX, y: $0.frame.midY)) }
-        let hesper = people.first { $0.identifier == "touch-talk-hesper" } ?? people.first
-        let door = film.element(app, "touch-door-hall")
-        guard let target = hesper ?? (door.exists ? door : nil) else {
-            film.note("m04-c2-miss", "no marked thing in view under the lantern; scene: \(film.scene(app))")
-            XCTFail("B1: nothing to tap under the lantern")
-            return
-        }
-        let id = target.identifier
-        film.tapBurst("c2", app, count: 20, what: "under the lantern (the marks shown) a tap on \(id): the lantern "
-                      + "lowers and the deed begins in the same touch",
-                      at: target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
-            !moment.exists && (self.sceneField(app, "errand:") != "none" || bubble.exists)
-        }
-        film.note("m04-c2-scene", "tap \(sceneField(app, "tap:") ?? "?") errand \(sceneField(app, "errand:") ?? "?"); "
-                  + film.scene(app))
-        // m04-f: the errand that survives the moment, with a person (the talk opens on arrival).
-        guard id.hasPrefix("touch-talk-") else {
-            film.note("m04-f-miss", "no person for the errand; scene: \(film.scene(app))")
+        guard let chosen = people.first(where: { $0.identifier == "touch-talk-hesper" }) ?? people.first,
+              lord.exists else {
+            film.note("m04-f-miss", "no person in view for the errand; scene: \(film.scene(app))")
             XCTFail("B1: no person to walk to for m04-f")
             return
         }
-        _ = bubble.waitForExistence(timeout: 20)
-        closeBubble(app, timeout: 2)
-        waitForStill(app, timeout: 20)
-        waitForCamera(app, timeout: 8)
-        // A step away from her (about 65 game px, the other way), so the errand back to her is a walk.
+        let id = chosen.identifier
         let person = film.element(app, id)
-        guard lord.exists, person.exists else {
-            XCTFail("B1: the lord or \(id) left the view before m04-f")
-            return
-        }
-        // Three of his element's widths (44 pt, about 66 game px) the other way, below the walk line (a walk).
+        // Three of his element's widths (44 pt, about 66 game px) away from her, below the walk line (a walk).
         let away: CGFloat = person.frame.midX <= lord.frame.midX ? 1 : -1
         lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5 + 3 * away, dy: 1.45)).tap()
         waitForStill(app, timeout: 30)
@@ -367,6 +339,35 @@ final class FilmOpeningUITests: XCTestCase {
         let talked = bubble.waitForExistence(timeout: 20)
         film.note("m04-f-after", "the talk opened \(talked); " + film.scene(app))
         XCTAssertTrue(talked, "B1 m04-f: after the lowering he arrives and the talk opens")
+        closeBubble(app, timeout: 2)
+        // m04-c2: a tap on a marked thing under the lantern (the hall's door, else a person in view).
+        waitForStill(app, timeout: 20)
+        waitForCamera(app, timeout: 8)
+        film.pause(1.0)
+        film.keep(XCUIScreen.main.screenshot(), "m04-c2-pre")
+        film.note("m04-c2-pre", "the marks before the raise; " + film.scene(app))
+        guard openLantern(app) else {
+            film.note("m04-c2-miss", "the lantern did not rise for c2; scene: \(film.scene(app))")
+            XCTFail("B1: no lantern for the deed under it")
+            return
+        }
+        film.pause(1.0)
+        let door = film.element(app, "touch-door-hall")
+        let target = door.exists ? door : person
+        guard target.exists else {
+            film.note("m04-c2-miss", "no thing in view under the lantern; scene: \(film.scene(app))")
+            XCTFail("B1: nothing to tap under the lantern")
+            return
+        }
+        let thing = target.identifier
+        film.tapBurst("c2", app, count: 20, what: "under the lantern (the marks shown) a tap on \(thing): the lantern "
+                      + "lowers and the deed begins in the same touch",
+                      at: target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) {
+            !moment.exists && (self.sceneField(app, "errand:") != "none" || bubble.exists)
+        }
+        film.note("m04-c2-scene", "tap \(sceneField(app, "tap:") ?? "?") errand \(sceneField(app, "errand:") ?? "?"); "
+                  + film.scene(app))
+        XCTAssertEqual(sceneField(app, "tap:"), thing, "B1 m04-c2: the tap under the lantern did the thing's deed")
     }
     // LANE-B end
 
