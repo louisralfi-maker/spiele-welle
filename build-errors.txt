@@ -1,0 +1,2 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/App/LanternholdApp.swift:179:105: error: main actor-isolated property 'lost' can not be referenced from a nonisolated context
