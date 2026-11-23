@@ -243,6 +243,65 @@ MANIFEST sha, through `artlock.sh`, budget 4 MB):
 | `crowd_up` / `crowd_down` (0.6 s), `straw_thud` (0.1 s) | new | an answer's mood; the drill |
 | `bell` 0.5 r 0.9; `gate` 0.6 r 1.05; `lantern` 0.35 r 1.45; `knock` 0.4 r 0.62; `coin_p01..07` | re-use | held night; dawn gate; Silas's lamp; board set; tax coins |
 
+### The director's calls after steps E1b, B2, A1b, D2 and C1 (23.11.)
+
+The newer word where it differs from the four laws above. Each group names its law. Nothing here has been seen or
+heard on a phone yet.
+
+Law 1 (motion), after A1b and C1:
+
+1. At the stop, the 2 px foot slide (A1b F8), the camera's landing step after the brake and after short taps (F2/P3)
+   and the legs on very short stops (P1) are accepted until a phone shows them. A braking cap for the camera and the
+   test's tolerance at the agreed number are riders for A7. The world's end (`Realm.walkEnd`) stops a drag dead: A7.
+2. An errand that starts at once (`stopWalking()` within 6 px of the thing) stops him dead from pace (P5): lane
+   B's, a rider in B1's part 0, else B4.
+3. A plaque's fill runs linear, 0.15 s in and 0.10 s back (law 2's 0.12 s is gone), and it holds the pressed look
+   0.15 s after touch-down even on an early lift, so a quick tap shows the whole fill once.
+4. A swap inside a pane is sequential: the old face goes in 0.15 s, the pane cuts its size while it is empty, the new
+   face comes in 0.25 s. Never two faces at once. Cross-fades left inside panes are mended in C3.
+5. The runner's frames stand 0.13 to 0.30 s apart and cannot catch a 0.10 s close. Such a close is proven by the code
+   and `MotionTests`, and checked on a phone.
+
+Law 2 (touch and panes), after B2 and C1:
+
+6. The count: the numbers stand in PAY.md's table and its rule 4 (B2). A ground tap away keeps the 2.0 s wait and
+   gives no warning (B2 F3). The guard after the seal stays 0.6 s (F7). The warning tick's weight (0.5 against the
+   home tick's 0.3) and a person beside the lord at an open board losing to his body are phone checks.
+7. Panes (C1): one dim at 0.40 that never closes a pane; the audience keeps its 0.08 veil, which takes taps in
+   silence. A tap beside a pane makes the main plaque's line glint for 0.25 s with a tick (`bubbleClose` as a
+   stand-in until lane D gives it its own). The pane cues play on the change of the pane shown; one pane straight to
+   another plays one `paneOpen`. A pane that stands at the first frame gets no come and no cue: C2.
+8. The Dynamic Island's band in landscape takes no touch; that is the system's, not the game's.
+9. Lane B's plaques use the Glass styles with no cue of their own (C1-7): into the briefs of B3 and B4.
+
+Law 3 (the thread), after E1b:
+
+10. The called dusk keeps its cubic ease (it is a time-lapse). The walkers' 58 px a frame in its first frames (F2) is
+    a phone check; a quadratic ease is one line in `Dusk.ease`. The dusk's frame time is clamped to 1/20 s in the
+    small step "one step path for the dusk", after E2.
+11. "Then the King comes." stays. Hesper's line on the far goal may come again, unmarked, on days 2 and 3. Her day-1
+    mark against the hall's four-mark cap is checked in the joined film round and on a phone. New words are English
+    only until the store pass.
+12. The end of the `LANE-E: E1b` block in `UI/HUDView.swift` sits between the `Text` and its two modifiers; B1's
+    part 6 moves the comment.
+
+Law 4 (answers and sounds), after D2:
+
+13. D2's numbers stand where they differ from the text above: the ground tap 0.55 (was 0.4); pane close and bubble
+    close 0.55 from `tap_low`; the board set `knock_low` 0.42; `lanternUp` 0.42 (the brief said 0.55); `lampLit` 0.5
+    (the brief said 0.35); the beds' ceiling -24.5 dBFS (was -24); the tax coins climb a semitone a coin up to +7 and
+    fall back after 1.5 s, their hand 0.3 to 0.7 (was 0.35 to 1); the toll at most one per 0.9 s, the verdict's gap
+    1.0 s, the heavy hand only with the first.
+14. The card pair answers as the pane pair, and of a card cue and a pane cue within 0.25 s only the first answers.
+    The sound folder's budget is 5,000,000 bytes (4,205,440 in 63 files).
+15. `buildDone` and `buildStood` are placed (hearing 900 px, the plot's x). A2 plays `buildStood` at its swap and
+    takes the thinner's `buildDone` out in the same commit.
+16. For a later step of lane D: the 13 old rates (L7; the defeat horn's 0.8 and the broken aura's bell 1.5 were
+    probably meant as pitches), a test of the latch path (L2), the trim computed anew per loop (L3), the glint's own
+    sound, and whether `paneClose` within 0.25 s after a `plaquePress` stays silent ("one touch, one tick"; decided
+    after the phone check of C1's F6). For C2: the title's beds sum to about -20.2 dBFS against the game's air under
+    -24.5, a dip of about 4 dB at the hand-over.
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged

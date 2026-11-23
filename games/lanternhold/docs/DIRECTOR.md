@@ -1441,3 +1441,26 @@ schneller geht."
     again as an alias of the pane cues, kills do not chain, a rate is not a pitch, the bed below every answer by
     numbers, budget 5,000,000 bytes until D3). Step D2 went out from a7af7075 with the brief
     `ci-out/director/polish/briefs/D2.md`.
+  - Steps E1b and B2 (23.11., 02:18): checked and merged locally into the join branch (416702de = a7af7075 + E1b
+    1393f57b + B2 ff1176b1). Round lh-rnd-11 failed in FilmDuskUITests (the test read the ribbon too late; the mend is
+    part 0 of step E2), lh-rnd-13 passed the film on 416702de, lh-rnd-12 failed in CountUITests.testTheGuardsBoard: a
+    near tap on the lord at the open guard's board raised the lantern. The touch and count files are the same bytes as
+    in lane B, where it passed, and the driver lands him exactly on the stand; the cause is open and is part 0 of step
+    B1.
+  - Steps A1b and D2 (23.11., 03:37): checked (A1b GREEN at 7590e23d, round lh-ra-8; D2 GREEN at fa7581bc, round lh-
+    rd-10) and merged locally into the join branch (7f68847b). The rounds lh-rnd-14 (build, the whole unit suite,
+    CountUITests and LordUITests, FilmDealsUITests) and lh-rnd-15 (FilmOpening, FilmDusk, FirstDay, Touch, Hall) test
+    that head. Origin's claude/lh-round stays at a7af7075 until a head is green in all its classes.
+  - Steps that went out (23.11.): E2, the dawn card, from 416702de (brief ci-out/director/polish/briefs/E2.md, labels
+    from lh-re-7); B1, one lantern instrument with the count's near tap as its part 0, from 7f68847b (brief B1.md,
+    labels from lh-rb-9); A2, a building's finish (dust, the swap at 0.12 s, a 1 px settle, buildStood once at the
+    swap), from 7f68847b (brief A2.md, labels from lh-ra-9).
+  - Step C1 (23.11., 03:47): checked, GREEN at c40c5309 (round lh-rc-11; the builder's whole unit suite ran on
+    c5c87499 in lh-rc-8). Every pane comes and goes one way, one dim at 0.40 that closes nothing, every button a glass
+    plaque with amber under the finger, the pause sheet's faces swap one after the other. 13 files, all lane C's, step
+    0a's or new. Merged locally into the join branch (93675026, a clean merge); round lh-rnd-16 (build, the whole unit
+    suite, AudienceUITests and FilmPanesUITests, FirstDay, Touch, Hall) tests it. Left open: after the gear's tap the
+    world stands bare 0.2 to 0.4 s before the pause sheet starts (F3, cause unproven, a rider for C2); a plaque that
+    closes its pane may give two answers (F6, a phone check); the Reduce Motion close is not on film.
+  - The director's calls after steps E1b, B2, A1b, D2 and C1 stand at the end of the four laws in ROUND.md (23.11.,
+    03:47). PAY.md's table and rule 4 carry B2's numbers. Usage at 03:47: 46 % of the week, the stop is 80 %.

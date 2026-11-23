@@ -42,8 +42,9 @@ What is ours:
    higher than the last, and a light tick in the hand. The count starts slowly and gets faster. The gold on the HUD
    runs down coin by coin with it.
 3. **Or tap.** Every tap sets one coin. Tapping and holding mix freely.
-4. **Let go early, and nothing is paid.** After two seconds without a touch the coins slide back into the purse with a
-   soft rustle and the board goes down. Nothing leaves the treasury before the board is full: a lord pays in full or
+4. **Let go early, and nothing is paid.** After a hold, two seconds without a touch and the coins slide back into the
+   purse with a soft rustle and the board goes down. A count by taps is given three seconds, and at two the coin that
+   rocks over the next hollow sinks back into his hand with one soft tick: the warning (step B2, 23.11.). Nothing leaves the treasury before the board is full: a lord pays in full or
    not at all. So there is no "are you sure" and no mistaken purchase.
 5. **The last coin** comes one short beat late. Then the seal: a deep sound, one heavy beat in the hand, the board snaps
    shut, the site lantern flares up warm, and the work starts in the same moment (the builders run in, the hammering
@@ -64,7 +65,12 @@ What is ours:
 | the clink | `coin`, each a small step higher, at most one octave in all |
 | the seal | `seal`, then `lantern`, then the work's own sound (`build_start`) |
 | the tick | a light impact per coin, growing from weak to strong; a heavy one at the seal |
-| the coins slide back | 2 s after the last touch, in 0.3 s |
+| the coins slide back, after a hold | 2.0 s after the last coin, in 0.3 s (a hold is a touch of 0.35 s or more that streamed) |
+| the coins slide back, after a tap | 3.0 s after the last coin; at 2.0 s the rocking coin sinks into his hand (0.2 s, one soft tick at 0.5; Reduce Motion: it is gone at once) |
+| a tap on the ground away from the board | he walks off; the coins slide back 2.0 s after the last coin, no warning |
+| an empty board | goes down after 5 s |
+| the board's reach toward the lord | 20 game px past its near edge while he stands at it or walks to it: a tap on him there is a coin, a hold on him streams nothing and its lift is one coin; at night with the lantern ready a hold raises the lantern |
+| after the seal | for 0.6 s a tap on the lord does nothing |
 
 - No music: the rising clink is one sound effect at a rising pitch, never a tune.
 - Reduce Motion: the coins appear in their hollows without a flight; the lantern lights without a flare.
