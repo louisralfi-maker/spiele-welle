@@ -1099,8 +1099,10 @@ final class LanternMomentTests: XCTestCase {
     }
 
     /// `LanternVeil`: the light comes in over 0.15 s in even steps (no ease) as the lantern goes up and leaves in 0.1 s
-    /// as it comes down; under Reduce Motion it is there and gone at once. Through the model it follows the moment.
-    func testTheLanternsLightComesAndGoesAndReduceMotionHasNoEase() throws {
+    /// as it comes down. Polish B1 (rewritten to pin the brief's rule; it was "under Reduce Motion there and gone at
+    /// once"): under Reduce Motion the moment comes and goes by opacity at law 1's quick tempo, the same 0.15 s in and
+    /// 0.10 s out, linear. Through the model it follows the moment.
+    func testTheLanternsLightComesAndGoesAndReduceMotionRampsAtQuick() throws {
         let step = 1.0 / 60
         var veil = LanternVeil()
         veil.step(step, raised: true, reduceMotion: false)
@@ -1113,11 +1115,17 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertGreaterThan(veil.dim, 0, "still going after 5 sixtieths")
         veil.step(step, raised: false, reduceMotion: false)
         XCTAssertEqual(veil.dim, 0, "gone in 0.1 s")
+        XCTAssertEqual(LanternVeil.reducedUpSeconds, MotionToken.quick.inSeconds, "Reduce Motion: law 1's quick in")
+        XCTAssertEqual(LanternVeil.reducedDownSeconds, MotionToken.quick.outSeconds, "and its quick out")
         var still = LanternVeil()
         still.step(step, raised: true, reduceMotion: true)
-        XCTAssertEqual(still.dim, 1, "Reduce Motion: at once")
+        XCTAssertEqual(still.dim, step / LanternVeil.reducedUpSeconds, accuracy: 1e-9, "Reduce Motion: even steps")
+        for _ in 1..<9 { still.step(step, raised: true, reduceMotion: true) }
+        XCTAssertEqual(still.dim, 1, "whole in 0.15 s")
+        for _ in 0..<5 { still.step(step, raised: false, reduceMotion: true) }
+        XCTAssertGreaterThan(still.dim, 0, "still going after 5 sixtieths")
         still.step(step, raised: false, reduceMotion: true)
-        XCTAssertEqual(still.dim, 0, "and gone at once")
+        XCTAssertEqual(still.dim, 0, "gone in 0.10 s")
         let game = try raised(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
         XCTAssertEqual(game.touch.veil.dim, 1, accuracy: 1e-9, "up with the moment")
         game.lowerLanternMoment()
@@ -1359,5 +1367,306 @@ final class LanternMomentTests: XCTestCase {
                 XCTAssertTrue(marks.contains { $0.tint == SIMD4<Float>(1, 1, 1, 1) }, "its white centre")
             }
         }
+    }
+
+    // MARK: - Polish B1: one lantern instrument
+
+    /// An empty patch of ground under the lantern: 12 game px below the walk line (the UI helpers' lowering spot,
+    /// `TouchSupport.emptyWorld`), where no thing, door, board, model or the lord answers.
+    private func emptyGround(_ game: GameModel) throws -> CGPoint {
+        let lord = game.stageLordX
+        for dx in [60.0, -60, 90, -90, 120, -120] {
+            let p = try screenPoint(game, x: lord + dx, lift: -12)
+            if game.thingAt(p, in: proPoints) == nil, game.townDoor(at: p, in: proPoints) == nil,
+               let place = game.stagePoint(p, in: proPoints), game.modelAt(place) == nil, !game.isOnLord(place) {
+                return p
+            }
+        }
+        return try XCTUnwrap(nil as CGPoint?, "empty ground in view")
+    }
+
+    /// One driver (M3 = H6, law 1): at every frame of the raise and of the lowering the dim's strength, the SwiftUI
+    /// layer's opacity (`MomentFade.light`) and the Metal block's alpha all come from `LanternVeil.light`: the dim and
+    /// the SwiftUI layer are the light itself, the block is the light in three steps; the lord's pose is the lift frame
+    /// 8 for the first 0.05 s and 9 after it, and on the way down 9, then 8 for the last 0.05 s, then his own frame.
+    /// After the lowering the block is drawn on until the light is gone.
+    func testOneDriverTakesEveryLayerOfTheMomentUpAndDown() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        run(game, seconds: 0.3)
+        let state = try XCTUnwrap(game.driver?.state)
+        let body = state.lordOrDefault.body
+        game.openLanternMoment()
+        var poses: [Int] = []
+        func check(_ name: String, raised: Bool) throws {
+            let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let light = game.touch.veil.light
+            XCTAssertEqual(MomentFade.shared.light, light, accuracy: 1e-12, "\(name): the SwiftUI layer reads the light")
+            if light > 0.001 {
+                XCTAssertEqual(try XCTUnwrap(game.lanternDimNow).strength, light, accuracy: 1e-12,
+                               "\(name): the dim reads the light")
+            } else {
+                XCTAssertNil(game.lanternDimNow, "\(name): no dim without light")
+            }
+            let stepped = light > 1e-9 ? (light * 3 - 1e-9).rounded(.up) / 3 : 0
+            let coins = frame.actors.filter { $0.sprite == .hudCoin }
+            if stepped > 0 {
+                let coin = try XCTUnwrap(coins.first, "\(name): the block is drawn while the light shows")
+                XCTAssertEqual(Double(coin.tint.w), stepped, accuracy: 1e-6, "\(name): the block's alpha in thirds")
+                XCTAssertTrue(coins.allSatisfy { abs(Double($0.tint.w) - stepped) < 1e-6 }, "\(name): one alpha")
+            } else {
+                XCTAssertTrue(coins.isEmpty, "\(name): no block once the light is gone")
+            }
+            let lord = try XCTUnwrap(frame.actors.first { $0.sprite == body }, "\(name): the lord is drawn")
+            let expected: Int?
+            if raised {
+                expected = light * LanternVeil.upSeconds < LanternVeil.poseHoldSeconds - 1e-9 ? 8 : 9
+            } else {
+                expected = light <= 1e-9 ? nil : (light * LanternVeil.downSeconds > LanternVeil.poseHoldSeconds + 1e-9
+                                                    ? 9 : 8)
+            }
+            if let expected {
+                XCTAssertEqual(lord.frame, expected, "\(name): the pose at light \(light)")
+                poses.append(expected)
+            } else {
+                XCTAssertNotEqual(lord.frame, 9, "\(name): his own frame once the light is gone")
+                XCTAssertNotEqual(lord.frame, 8, "\(name): his own frame once the light is gone")
+            }
+        }
+        for index in 0..<12 {
+            game.advance(by: 1.0 / 60)
+            try check("up \(index)", raised: true)
+        }
+        XCTAssertEqual(game.touch.veil.light, 1, "whole in 0.15 s")
+        XCTAssertEqual(poses.prefix(3), [8, 8, 9], "the lift frame for 0.05 s, then the raised frame")
+        poses = []
+        game.lowerLanternMoment()
+        XCTAssertNil(game.lanternMoment)
+        XCTAssertNotNil(game.momentShown, "the last block stays while the light leaves")
+        for index in 0..<8 {
+            game.advance(by: 1.0 / 60)
+            try check("down \(index)", raised: false)
+        }
+        XCTAssertEqual(poses, [9, 9, 8, 8, 8], "9, then the lift frame for the last 0.05 s")
+        XCTAssertNil(game.momentShown, "gone with the light")
+    }
+
+    /// Reduce Motion (law 1): the moment still comes and goes by opacity at the quick tempo (the light ramps), and the
+    /// pose swaps without the held frame: 9 from the first frame, his own frame from the lowering.
+    func testUnderReduceMotionTheMomentFadesAtQuickAndThePoseHasNoHeldFrame() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830",
+                          "GWReduceMotion": "YES"])
+        run(game, seconds: 0.3)
+        let body = try XCTUnwrap(game.driver?.state.lordOrDefault.body)
+        game.openLanternMoment()
+        game.advance(by: 1.0 / 60)
+        var frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertEqual(game.touch.veil.light, (1.0 / 60) / MotionToken.quick.inSeconds, accuracy: 1e-9,
+                       "an opacity ramp at quick, not a cut")
+        XCTAssertEqual(frame.actors.first { $0.sprite == body }?.frame, 9, "the raised frame at once")
+        run(game, seconds: 0.3)
+        game.lowerLanternMoment()
+        game.advance(by: 1.0 / 60)
+        frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertGreaterThan(game.touch.veil.light, 0, "the light leaves at quick")
+        XCTAssertNotNil(frame.actors.first { $0.sprite == .hudCoin }, "the block fades with it")
+        let pose = frame.actors.first { $0.sprite == body }?.frame
+        XCTAssertNotEqual(pose, 9, "his own frame at once")
+        XCTAssertNotEqual(pose, 8, "no held frame")
+    }
+
+    /// F7 (law 4 step 1): the raise plays `lanternUp` once and never the ground tap with it; every way down plays
+    /// `lanternDown` once: a tap on the empty world, a tap on a thing (its deed's own cue follows), the gear, the
+    /// lowering after the app came back from the background, a drag in the hall.
+    func testTheLanternSoundsUpAndDownOncePerWay() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        let hub = SilentFeedback()
+        game.feedback = hub
+        run(game, seconds: 0.3)
+        func count(_ cue: FeedbackCue, from: Int) -> Int { hub.played.dropFirst(from).filter { $0 == cue }.count }
+        // The raise by a tap on the lord.
+        var mark = hub.played.count
+        tapThrough(game, try lordPoint(game))
+        XCTAssertNotNil(game.lanternMoment, "the tap on the lord raised the lantern")
+        XCTAssertEqual(count(.lanternUp, from: mark), 1, "lanternUp once")
+        XCTAssertEqual(count(.touched, from: mark), 0, "and no ground tap with it")
+        XCTAssertEqual(count(.lanternDown, from: mark), 0)
+        // Down by a tap on the empty world.
+        run(game, seconds: 0.3)
+        mark = hub.played.count
+        tapThrough(game, try emptyGround(game))
+        XCTAssertNil(game.lanternMoment)
+        XCTAssertEqual(count(.lanternDown, from: mark), 1, "the empty world: lanternDown once")
+        XCTAssertEqual(count(.lanternUp, from: mark), 0)
+        // Down by a tap on a thing: lanternDown once, then the deed's own cue.
+        run(game, seconds: 0.3)
+        game.openLanternMoment()
+        run(game, seconds: 0.3)
+        let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" }, "the hall's door offers")
+        mark = hub.played.count
+        tapThrough(game, try thingPoint(game, door))
+        XCTAssertEqual(game.touch.errand?.id, door.id, "the deed began")
+        XCTAssertEqual(count(.lanternDown, from: mark), 1, "a thing: lanternDown once")
+        XCTAssertEqual(Array(hub.played.dropFirst(mark).prefix(2)), [.lanternDown, .touched],
+                       "the lowering first, then the deed's own cue")
+        // He stays out of the hall for the rest of the test.
+        game.cancelErrand()
+        game.stopWalking()
+        // Down by the gear.
+        run(game, seconds: 0.3)
+        game.openLanternMoment()
+        mark = hub.played.count
+        game.openPauseFromLantern()
+        XCTAssertEqual(count(.lanternDown, from: mark), 1, "the gear: lanternDown once")
+        game.resume()
+        // Raised by the background, lowered after the return.
+        run(game, seconds: 0.3)
+        mark = hub.played.count
+        game.pauseForBackground()
+        XCTAssertNotNil(game.lanternMoment)
+        XCTAssertEqual(count(.lanternUp, from: mark), 1, "the background's raise: lanternUp once")
+        XCTAssertEqual(count(.touched, from: mark), 0)
+        run(game, seconds: 0.3)
+        mark = hub.played.count
+        tapThrough(game, try emptyGround(game))
+        XCTAssertEqual(count(.lanternDown, from: mark), 1, "after the return: lanternDown once")
+        // A drag in the hall lowers it and walks: lanternDown once.
+        let hall = model(["GWDay": "3", "GWSeed": "2", "GWClock": "11", "GWStage": "hall", "GWHallX": "200"])
+        let hallHub = SilentFeedback()
+        hall.feedback = hallHub
+        run(hall, seconds: 0.3)
+        hall.openLanternMoment()
+        XCTAssertNotNil(hall.lanternMoment, "the lantern up in the hall")
+        let start = CGPoint(x: 400, y: 250)
+        let before = hallHub.played.count
+        hall.touchChanged(start: start, at: start, translation: .zero, in: proPoints)
+        drag(hall, from: start, dx: -40)
+        XCTAssertNil(hall.lanternMoment, "the hall's drag lowered it")
+        hall.touchEnded(at: CGPoint(x: 360, y: 250), translation: CGSize(width: -40, height: 0), in: proPoints)
+        XCTAssertEqual(hallHub.played.dropFirst(before).filter { $0 == .lanternDown }.count, 1,
+                       "the hall's drag: lanternDown once")
+    }
+
+    /// H8 and the refuter's missed point 1: the errand survives the moment. Raised on the way (by a tap on the lord or
+    /// by the background), the world stands and the errand stays; a tap on the empty world lowers it, he walks on and
+    /// does his deed (the hall's door: in he goes). A tap on another thing under the lantern replaces it.
+    func testTheErrandSurvivesTheLanternMoment() throws {
+        for background in [false, true] {
+            let name = background ? "background" : "tap"
+            let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+            run(game, seconds: 0.3)
+            let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" }, "the hall's door offers")
+            game.touchThing(door)
+            XCTAssertEqual(game.touch.errand?.id, door.id, "\(name): the errand began")
+            XCTAssertNotNil(game.driver?.travelTarget, "\(name): he walks")
+            run(game, seconds: 0.25)
+            let x = try XCTUnwrap(game.driver?.state.king.x)
+            if background {
+                game.pauseForBackground()
+            } else {
+                game.openLanternMoment()
+            }
+            XCTAssertNotNil(game.lanternMoment, "\(name): the lantern is up")
+            XCTAssertEqual(game.touch.errand?.id, door.id, "\(name): the raise keeps the errand")
+            run(game, seconds: 1)
+            XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.x), x, accuracy: 0.01, "\(name): the world stands")
+            XCTAssertEqual(game.touch.errand?.id, door.id, "\(name): it waits under the lantern")
+            tapThrough(game, try emptyGround(game))
+            XCTAssertNil(game.lanternMoment, "\(name): lowered")
+            XCTAssertEqual(game.touch.lastTap, "lowered", "\(name): the empty world only lowers")
+            XCTAssertEqual(game.touch.errand?.id, door.id, "\(name): the kept errand goes on")
+            run(game, seconds: 20) { game.stageChange != nil || game.stage == .hall }
+            XCTAssertTrue(game.stageChange != nil || game.stage == .hall,
+                          "\(name): he arrived and did his deed (the hall's door)")
+        }
+        // A tap on another thing under the lantern replaces the kept errand.
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        run(game, seconds: 0.3)
+        let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" })
+        game.touchThing(door)
+        run(game, seconds: 0.25)
+        game.openLanternMoment()
+        run(game, seconds: 0.3)
+        var other: (TouchThing, CGPoint)?
+        for thing in game.touch.things where thing.id != door.id {
+            let p = try thingPoint(game, thing)
+            guard p.x > 20, p.x < proPoints.width - 20, game.thingAt(p, in: proPoints)?.id == thing.id,
+                  let place = game.stagePoint(p, in: proPoints), !game.isOnLordsBody(place), !game.isOnLord(place)
+            else { continue }
+            other = (thing, p)
+            break
+        }
+        let (thing, p) = try XCTUnwrap(other, "another thing in view")
+        tapThrough(game, p)
+        XCTAssertNil(game.lanternMoment, "lowered")
+        XCTAssertNotEqual(game.touch.errand?.id, door.id, "the kept errand is replaced")
+        XCTAssertTrue(game.touch.errand?.id == thing.id || game.touch.count?.thing == thing.id
+                      || game.touch.lastTap == thing.id,
+                      "by the new thing's deed (\(thing.id)): errand \(game.touch.errand?.id ?? "none")")
+    }
+
+    /// PAY.md 4: a count is still cut at the raise, and the walk to its board goes with it: he stands, and after the
+    /// lowering nothing comes back and nothing is paid. A kept errand whose aim is gone when the lantern comes down
+    /// ends quietly: he stops, nothing opens.
+    func testTheRaiseStillCutsACountAndAVanishedAimEndsQuietly() throws {
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+                          "GWGold": "200"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" }, "the gate offers")
+        game.touchThing(gate)
+        XCTAssertEqual(game.touch.count?.thing, gate.id, "the board came")
+        run(game, seconds: 0.2)
+        if game.touch.errand?.id == gate.id {
+            game.openLanternMoment()
+            XCTAssertNil(game.touch.errand, "the walk to the cut board goes with it")
+            XCTAssertNil(game.driver?.travelTarget, "he stands")
+        } else {
+            game.openLanternMoment()
+        }
+        XCTAssertEqual(game.touch.countLast, "cutOff:\(gate.id)", "the raise cuts the count (PAY.md 4)")
+        XCTAssertNotEqual(game.touch.count?.isOpen, true)
+        run(game, seconds: 0.5)
+        tapThrough(game, try emptyGround(game))
+        run(game, seconds: 3)
+        XCTAssertNotEqual(game.touch.count?.isOpen, true, "no board comes back")
+        XCTAssertEqual(game.driver?.state.gold, 200, "nothing paid")
+        // A vanished aim: the kept errand's thing is no longer offered when the lantern comes down.
+        let other = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        run(other, seconds: 0.3)
+        let door = try XCTUnwrap(other.touch.things.first { $0.id == "touch-door-hall" })
+        other.touchThing(door)
+        run(other, seconds: 0.25)
+        other.openLanternMoment()
+        // The aim goes (simulated: the errand now names a thing the world no longer lists).
+        other.touch.errand?.id = "touch-plot-gone"
+        run(other, seconds: 0.3)
+        XCTAssertEqual(other.touch.errand?.id, "touch-plot-gone", "under the lantern the errand waits")
+        let x = try XCTUnwrap(other.driver?.state.king.x)
+        tapThrough(other, try emptyGround(other))
+        XCTAssertNil(other.touch.errand, "its aim gone, the errand ends")
+        XCTAssertNil(other.driver?.travelTarget, "he stops")
+        run(other, seconds: 1)
+        XCTAssertEqual(try XCTUnwrap(other.driver?.state.king.x), x, accuracy: 1, "he stands where he was")
+        XCTAssertNil(other.stageChange, "nothing opens")
+        XCTAssertNil(other.overlay)
+    }
+
+    /// The refuter's missed point 2 (the step-5 ruling, H1's cause): the marks stay visible under the lantern, never
+    /// dimmed, so the player sees which tap does a deed; VoiceOver reaches the marked things as without it.
+    func testTheMarksStayUnderTheLantern() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
+        run(game, seconds: 0.3)
+        let markSprites: Set<SpriteID> = [.tapTalk, .tapThrone, .tapDoor, .tapRecruit, .tapLight, .tapBuild, .tapRepair]
+        var frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let before = frame.actors.filter { markSprites.contains($0.sprite) }
+        XCTAssertFalse(before.isEmpty, "marks on the walked world")
+        game.openLanternMoment()
+        run(game, seconds: 0.3)
+        frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let under = frame.actors.filter { markSprites.contains($0.sprite) }
+        XCTAssertEqual(Set(under.map(\.sprite)), Set(before.map(\.sprite)), "the same marks under the lantern")
+        XCTAssertTrue(under.allSatisfy { $0.dimRule == .kept }, "never dimmed by its light")
+        game.setTouchViewSize(proPoints)
+        game.refreshTouchSpots()
+        XCTAssertTrue(game.touchSpots.contains { $0.id == "touch-door-hall" }, "VoiceOver reaches the door")
     }
 }
