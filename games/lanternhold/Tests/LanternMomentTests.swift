@@ -1612,20 +1612,20 @@ final class LanternMomentTests: XCTestCase {
     /// lowering nothing comes back and nothing is paid. A kept errand whose aim is gone when the lantern comes down
     /// ends quietly: he stops, nothing opens.
     func testTheRaiseStillCutsACountAndAVanishedAimEndsQuietly() throws {
-        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1240",
+        // Polish B3 (part 5, B1's L4): the lord starts 140 px west of the gate, so in 0.2 s he is still on his way to
+        // its board and the test meets one state (the walk is cut with the count), not one of two.
+        let game = model(["GWStage": "world", "GWSeed": "2", "GWDay": "3", "GWClock": "10", "GWCameraX": "1160",
                           "GWGold": "200"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let gate = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-0" }, "the gate offers")
         game.touchThing(gate)
         XCTAssertEqual(game.touch.count?.thing, gate.id, "the board came")
         run(game, seconds: 0.2)
-        if game.touch.errand?.id == gate.id {
-            game.openLanternMoment()
-            XCTAssertNil(game.touch.errand, "the walk to the cut board goes with it")
-            XCTAssertNil(game.driver?.travelTarget, "he stands")
-        } else {
-            game.openLanternMoment()
-        }
+        XCTAssertEqual(game.touch.errand?.id, gate.id, "he is on his way to the board")
+        XCTAssertNotNil(game.driver?.travelTarget, "walking")
+        game.openLanternMoment()
+        XCTAssertNil(game.touch.errand, "the walk to the cut board goes with it")
+        XCTAssertNil(game.driver?.travelTarget, "he stands")
         XCTAssertEqual(game.touch.countLast, "cutOff:\(gate.id)", "the raise cuts the count (PAY.md 4)")
         XCTAssertNotEqual(game.touch.count?.isOpen, true)
         run(game, seconds: 0.5)
