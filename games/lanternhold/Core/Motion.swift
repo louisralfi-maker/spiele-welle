@@ -251,7 +251,7 @@ struct Presence: Sendable, Equatable {
     }
 }
 
-// MARK: - The first five seconds (polish C2: thing 8, M8, M9, F2)
+// MARK: - The first five seconds (polish C2: thing 8, M8, M9, F2; C2b: the reveal reads as one swell)
 
 /// The title's tempos (polish C2; ROUND.md thing 8, the director's brief C2). The title's reveal is the one stage beat
 /// with its own tempo and curve (the director's call on thing 8's open point): nothing else uses `revealCurve` or
@@ -281,18 +281,52 @@ enum TitleTempo {
     /// 1.6 s on the cubic Bézier (0.45, 0, 0.25, 1), ease-in-out (the director's call on thing 8).
     static let revealSeconds = 1.6
     static let revealCurve = MotionCurve(0.45, 0, 0.25, 1)
-    /// The mask's long-axis radius in whole game px: from 116 (the glow's reach) to 340, past every corner of the
-    /// whole 520 x 201 picture (315 is the least that covers it, `TitleMask.coversPicture`; the phone's 437 px window
-    /// needs 281), so taking the mask away changes no pixel.
-    static let revealFrom = 116
-    static let revealTo = 340
+    /// The mask's long-axis radius at the reveal's start, in whole game px: the glow's opaque reach at the breath's
+    /// high step (`lanternGlow6`: every pixel nearer the flame than 82.4 game px on the mask's axes is drawn; its
+    /// dithered outer ring thins out from there to 93.1), so on the swell's first frame the mask opens nothing the
+    /// glow does not cover, the ring stays over the night, and the stepped edge rises under it while it goes out; the
+    /// light grows out of the glow instead of a larger window replacing it (polish C2b, P3; was 116; the C2b gate,
+    /// F2: was 93, the ring's outermost pixel, where the picture showed through the ring's gaps to a hard edge on the
+    /// first frame). The swell starts on that step. Its end is no constant: the least radius that covers the device's
+    /// window (`TitleMask.endRadius`), so the whole swell, its settle included, is on the screen (C2b, P4; was 340,
+    /// past the 281 the window needs).
+    static let revealFrom = 82
+    /// At the reveal's start the glow (its step 6 and the flame over it) stays drawn over the picture and goes out by
+    /// opacity alone at law 1's quick tempo (0.15 s, the leave curve), while the stepped edge takes over (C2b, P3).
+    static let glowOutSeconds = MotionToken.quick.inSeconds
+    /// A touch while the swell runs finishes it from where it stands over law 1's normal tempo (0.25 s), on the enter
+    /// curve (ease-out), and the step into the game begins after it (C2b, P6).
+    static let finishSeconds = MotionToken.normal.inSeconds
 
-    /// The mask's radius `seconds` after the reveal began: whole game px, never shrinking. Reduce Motion: the picture
-    /// stands at once.
-    static func revealRadius(at seconds: Double, mode: MotionMode) -> Int {
-        guard !mode.reduceMotion else { return revealTo }
-        let share = revealCurve.value(seconds / revealSeconds)
-        return Int((Double(revealFrom) + Double(revealTo - revealFrom) * share).rounded())
+    /// When the reveal ends, measured from its start: at 1.6 s, or 0.25 s after a touch during the swell. A touch in
+    /// the swell's last 0.25 s never lengthens it.
+    static func revealEnds(touchedAt touch: Double?) -> Double {
+        guard let touch else { return revealSeconds }
+        return min(revealSeconds, max(0, touch) + finishSeconds)
+    }
+
+    /// The mask's radius `seconds` after the reveal began, from `revealFrom` to `end` (the window's covering radius):
+    /// whole game px, never shrinking. After a touch at `touchedAt` (seconds into the swell) the rest of the way runs
+    /// from where it stood in `finishSeconds`, ease-out, unless the swell would end sooner on its own. Reduce Motion:
+    /// the picture stands at once.
+    static func revealRadius(at seconds: Double, to end: Int, touchedAt touch: Double? = nil,
+                             mode: MotionMode) -> Int {
+        guard !mode.reduceMotion else { return max(end, revealFrom) }
+        let span = Double(max(end, revealFrom) - revealFrom)
+        var share = revealCurve.value(seconds / revealSeconds)
+        if let touch, revealEnds(touchedAt: touch) < revealSeconds, seconds > max(0, touch) {
+            let start = max(0, touch)
+            let from = revealCurve.value(start / revealSeconds)
+            share = max(share, from + (1 - from) * MotionCurve.enter.value((seconds - start) / finishSeconds))
+        }
+        return revealFrom + Int((span * share).rounded())
+    }
+
+    /// The glow's opacity over the picture `seconds` after the reveal began: 1 at its start, 0 from 0.15 s on, never
+    /// growing back. Reduce Motion: none (the picture stands at once).
+    static func glowOpacity(at seconds: Double, mode: MotionMode) -> Double {
+        guard !mode.reduceMotion else { return 0 }
+        return 1 - MotionCurve.leave.value(seconds / glowOutSeconds)
     }
 }
 
@@ -333,10 +367,105 @@ enum TitleMask {
         return runs
     }
 
+    /// The runs of `radius`, built once per whole-px radius and kept (polish C2b, L5: the reveal and the close read
+    /// them every frame; the radius changes far less often).
+    static func rows(radius: Int) -> [Run] {
+        TitleMaskStore.shared.rows(radius) { runs(radius: radius) }
+    }
+
+    /// How many radii `rows(radius:)` has built so far (the tests' pin that a radius is built once).
+    static var rowsBuilt: Int { TitleMaskStore.shared.built }
+
     /// Whether the mask at `radius` opens every pixel of the whole picture (then taking it away changes nothing).
     static func coversPicture(radius: Int) -> Bool {
-        let rows = runs(radius: radius)
-        return rows.count == pictureHeight && rows.allSatisfy { $0.from == 0 && $0.to == pictureWidth }
+        coversWindow(radius: radius, from: 0, to: pictureWidth)
+    }
+
+    /// Whether the mask at `radius` opens every pixel of picture columns `from ..< to` in every row (the window the
+    /// device shows; its corners are the last pixels to open).
+    static func coversWindow(radius: Int, from: Int, to: Int) -> Bool {
+        let open = rows(radius: radius)
+        return open.count == pictureHeight && open.allSatisfy { $0.from <= from && $0.to >= to }
+    }
+
+    /// Whether pixel (`x`, `y`) of the picture is open at `radius`.
+    static func opens(x: Int, y: Int, radius: Int) -> Bool {
+        rows(radius: radius).contains { $0.y == y && $0.from <= x && x < $0.to }
+    }
+
+    /// The picture's columns the device shows, as whole pixels (a pixel the screen's edge cuts counts): from the
+    /// window's edges in game px of the picture (`TitleLayout.visible(in:)`). A size not laid out yet: the picture.
+    static func windowPixels(visibleFrom: Double, visibleTo: Double) -> (from: Int, to: Int) {
+        guard visibleFrom.isFinite, visibleTo.isFinite, visibleTo > visibleFrom else { return (0, pictureWidth) }
+        let width = Double(pictureWidth)
+        let from = Int(min(width, max(0, visibleFrom + 1e-6)).rounded(.down))
+        let to = Int(min(width, max(0, visibleTo - 1e-6)).rounded(.up))
+        return to > from ? (from, to) : (0, pictureWidth)
+    }
+
+    /// The reveal's end and the close's start (polish C2b, P4): the least whole long-axis radius whose mask opens
+    /// every pixel of the window the device shows, its farthest corner from the flame included. No constant: computed
+    /// from the view's size (281 on the iPhone 17 Pro and on the mini, 252 on a 667 pt wide phone; the whole picture
+    /// would need 315). Kept per window.
+    static func endRadius(visibleFrom: Double, visibleTo: Double) -> Int {
+        let window = windowPixels(visibleFrom: visibleFrom, visibleTo: visibleTo)
+        return TitleMaskStore.shared.end(window.from, window.to) {
+            // Rows nest as the radius grows (TitleStepInTests), so the least covering radius is found by halving.
+            var low = 1
+            var high = pictureWidth
+            while low < high {
+                let middle = (low + high) / 2
+                if coversWindow(radius: middle, from: window.from, to: window.to) {
+                    high = middle
+                } else {
+                    low = middle + 1
+                }
+            }
+            return low
+        }
+    }
+}
+
+/// The mask's kept rows and ends (polish C2b, L5). A shape's `path(in:)` may run off the main actor, so a lock guards
+/// the two small tables instead of an actor.
+private final class TitleMaskStore: @unchecked Sendable {
+    static let shared = TitleMaskStore()
+    private let lock = NSLock()
+    private var kept: [Int: [TitleMask.Run]] = [:]
+    private var ends: [Int: Int] = [:]
+    private var count = 0
+
+    /// How many radii have been built.
+    var built: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return count
+    }
+
+    func rows(_ radius: Int, make: () -> [TitleMask.Run]) -> [TitleMask.Run] {
+        lock.lock()
+        defer { lock.unlock() }
+        if let hit = kept[radius] { return hit }
+        let made = make()
+        kept[radius] = made
+        count += 1
+        return made
+    }
+
+    func end(_ from: Int, _ to: Int, make: () -> Int) -> Int {
+        let key = from * 10_000 + to
+        lock.lock()
+        if let hit = ends[key] {
+            lock.unlock()
+            return hit
+        }
+        lock.unlock()
+        // Made outside the lock: making it reads `rows`, which takes the lock itself.
+        let made = make()
+        lock.lock()
+        ends[key] = made
+        lock.unlock()
+        return made
     }
 }
 
@@ -372,6 +501,24 @@ enum StepInPicture: Equatable, Sendable {
 /// lantern, the picture closes in on the flame, the flame stands alone, and out of the black the hall rises; a pane the
 /// game holds at its start comes after. A pure timeline: time in, the one picture out.
 enum StepIn {
+    // Before the touch (polish C2b, P5): the hall is warm before the light opens.
+
+    /// The hall's view, built under the title once the game is ready, draws its first, heavy frames for 0.5 s and then
+    /// stands still (`worldWarm`) until the step's black (C2's L6, named here and read at the one place, the root).
+    static let hallWarmSeconds = 0.5
+    /// The reveal waits for that still hall, so the heaviest work of the launch falls into the breathing wait (the
+    /// light is the progress bar, TITLE.md) and never into the swell. The wait never hangs: 2.0 s after the warm-up
+    /// (`RenderWarmup`) ended the reveal starts whatever the hall did, also when no hall is mounted under the title.
+    static let revealCeilingSeconds = 2.0
+
+    /// Whether the title's reveal may start: the game ready (the model made, the renderer warm) and the hall warm and
+    /// still, or `revealCeilingSeconds` passed since the warm-up ended.
+    static func revealMayStart(gameReady: Bool, hallWarm: Bool, sinceWarmedUp seconds: Double) -> Bool {
+        gameReady && (hallWarm || seconds >= revealCeilingSeconds)
+    }
+
+    // From the touch.
+
     /// The lord raises the lantern: three frames, 0.1 s each (as before).
     static let raiseFrames = 3
     static let raiseFrameSeconds = 0.1
@@ -415,14 +562,24 @@ enum StepIn {
     /// a pane the game holds at its start comes `paneDelay` later; it does not stand.
     static let panesAtWithoutTitle = paneDelay
 
-    /// Whether a pane may stand `seconds` after the touch (or after the first frame without the title).
-    static func panesOpen(at seconds: Double, mode: MotionMode, title: Bool) -> Bool {
-        seconds >= (title ? panesAt(mode) : panesAtWithoutTitle)
+    /// What the root does during the step, in order (polish C2b, L2: the app runs this very list, the tests pin it).
+    enum Phase: String, Sendable, CaseIterable {
+        /// The mask begins to close (the probe's mark only).
+        case close
+        /// The title's beds stop and the hall's view draws again.
+        case black
+        /// The title leaves the tree.
+        case gone
+        /// The cover goes: the hall is whole and the world takes touches.
+        case whole
+        /// A pane the game holds at its start may come.
+        case panes
     }
 
-    /// Whether the world takes a touch `seconds` after the touch on the title: only once the hall is whole.
-    static func takesTouches(at seconds: Double, mode: MotionMode) -> Bool {
-        seconds >= hallWholeAt(mode)
+    /// Each phase with its second after the touch.
+    static func phases(_ mode: MotionMode) -> [(phase: Phase, at: Double)] {
+        [(.close, closeFrom), (.black, blackAt), (.gone, riseFrom), (.whole, hallWholeAt(mode)),
+         (.panes, panesAt(mode))]
     }
 
     /// The lord's frame `seconds` after the touch: 0 before it, then 1, 2, 3, and 3 held (the lantern up).
@@ -431,15 +588,23 @@ enum StepIn {
         return min(raiseFrames, Int(seconds / raiseFrameSeconds) + 1)
     }
 
-    /// The mask's long radius `seconds` after the touch: the whole picture's 340 until 0.15 s, then closing, ease-in,
-    /// in whole game px, to 0 at 0.60 s.
-    static func closingRadius(at seconds: Double) -> Int {
+    /// The mask's long radius `seconds` after the touch: `end` (the window's covering radius, where the reveal
+    /// stopped) until 0.15 s, then closing, ease-in, in whole game px, to 0 at 0.60 s. The whole 0.45 s are on the
+    /// screen: its first step already closes a corner of the window (polish C2b, P4).
+    static func closingRadius(at seconds: Double, from end: Int) -> Int {
         let share = MotionCurve.leave.value((seconds - closeFrom) / closeSeconds)
-        return Int((Double(TitleTempo.revealTo) * (1 - share)).rounded())
+        return Int((Double(end) * (1 - share)).rounded())
     }
 
-    /// The one picture `seconds` after the touch.
-    static func picture(at seconds: Double, mode: MotionMode) -> StepInPicture {
+    /// The hall's opacity `seconds` after the touch: 0 until 0.70 s, then rising, ease-out, to 1 when it is whole.
+    static func hallOpacity(at seconds: Double, mode: MotionMode) -> Double {
+        if seconds < riseFrom { return 0 }
+        if seconds >= hallWholeAt(mode) { return 1 }
+        return MotionCurve.enter.value((seconds - riseFrom) / riseSeconds(mode))
+    }
+
+    /// The one picture `seconds` after the touch, with the mask closing from `end`.
+    static func picture(at seconds: Double, mode: MotionMode, end: Int) -> StepInPicture {
         let lord = lordFrame(at: seconds)
         if seconds < blackAt {
             if mode.reduceMotion {
@@ -447,11 +612,10 @@ enum StepIn {
                 return .title(radius: nil, lordFrame: lord, opacity: 1 - fade)
             }
             return seconds < closeFrom ? .title(radius: nil, lordFrame: lord, opacity: 1)
-                : .title(radius: closingRadius(at: seconds), lordFrame: lord, opacity: 1)
+                : .title(radius: closingRadius(at: seconds, from: end), lordFrame: lord, opacity: 1)
         }
         if seconds < riseFrom { return mode.reduceMotion ? .black : .flame }
-        if seconds >= hallWholeAt(mode) { return .hall(opacity: 1) }
-        let opacity = MotionCurve.enter.value((seconds - riseFrom) / riseSeconds(mode))
+        let opacity = hallOpacity(at: seconds, mode: mode)
         return opacity > 0 ? .hall(opacity: opacity) : .black
     }
 }
@@ -468,6 +632,8 @@ struct BeatClock: Sendable, Equatable {
     /// Seconds of hitches the beat did not count, and the longest gap between two readings.
     private(set) var lost = 0.0
     private(set) var longestGap = 0.0
+    /// The beat's seconds where the longest gap ended (polish C2b: where in the beat the hitch fell, for the probes).
+    private(set) var longestAt = 0.0
 
     init(start: Double) {
         self.start = start
@@ -478,9 +644,12 @@ struct BeatClock: Sendable, Equatable {
     mutating func elapsed(at now: Double) -> Double {
         if now > last {
             let gap = now - last
-            longestGap = max(longestGap, gap)
             if gap > BeatClock.longestFrame { lost += gap - BeatClock.longestFrame }
             last = now
+            if gap > longestGap {
+                longestGap = gap
+                longestAt = max(0, last - start - lost)
+            }
         }
         return max(0, last - start - lost)
     }

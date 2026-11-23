@@ -42,8 +42,9 @@ final class FilmOpeningUITests: XCTestCase {
                       at: title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)))
         film.note("m01-c-probe", "the step's beat (hitches it did not count, its longest gap, wall seconds to the "
                   + "card): " + ((film.element(app, "stepin-probe").value as? String) ?? "none"))
+        // TitleUITests: a touch before the picture stands is kept and starts the game when the reveal ends; touch
+        // again only while the title still stands (the first never reached it).
         // LANE-C end
-        // TitleUITests: a touch before the game is ready only skips ahead; touch again while it stands.
         var extra = 0
         while title.exists && extra < 6 {
             extra += 1

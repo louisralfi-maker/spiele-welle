@@ -1,3 +1,4 @@
+import QuartzCore
 import SwiftUI
 
 @main
@@ -55,15 +56,27 @@ struct RootView: View {
     /// Polish C2 (C1-10): no pane stands before the hall is whole; a pane the game holds at its start comes 0.25 s
     /// after it (`StepIn.panesAt`), with its own come and one `paneOpen` (`OverlayView`, `AdLayer`).
     @State private var panesHeld = true
-    /// Polish C2: the hall's view built under the title has drawn its first frames (the heavy first one falls at the
-    /// reveal's start, which the beat's clock waits out); from then on it draws nothing until the step's black.
+    /// Polish C2: the hall's view built under the title has drawn its first frames (`StepIn.hallWarmSeconds`); from
+    /// then on it draws nothing until the step's black. Polish C2b (P5): the title's reveal waits for it, so those
+    /// heavy frames fall into the breathing wait and not into the swell.
     @State private var worldWarm = false
+    /// Polish C2b (P5): seconds since the warm-up ended, set once `StepIn.revealCeilingSeconds` have passed: then the
+    /// reveal starts whatever the hall did (a scene that mounts no hall under the title still reveals).
+    @State private var sinceWarmedUp = 0.0
     /// Polish C2 gate (P1, M2): the hall's view draws again from the black of the step (0.60 s), not from the touch,
     /// so its first draw or a wait for a drawable falls on the flame alone on black, never into the closing mask
     /// (lh-rc-18: the close stalled 0.5 to 1.0 s on the runner while the hall drew under the opaque title).
     @State private var hallLive = false
     /// Polish C2 (Debug): the step's probe, the hitches its beat did not count (`stepin-probe`, noted by the film).
     @State private var stepProbe = "none"
+    /// Polish C2b (part 5): the start pane has been built once, unseen, under the title (`paneWarmed`).
+    @State private var paneWarmed = false
+    #if DEBUG
+    /// Polish C2b (Debug): when the warm-up ended, the hall was mounted and the hall stood warm (the launch's marks).
+    @State private var warmUpEndedAt: Date? = nil
+    @State private var hallMountedAt: Date? = nil
+    @State private var hallWarmAt: Date? = nil
+    #endif
 
     var body: some View {
         if MetalContext.shared == nil {
@@ -106,10 +119,33 @@ struct RootView: View {
                             guard !titleDone && stepBeat == nil else { return }
                             model.setActive(false)
                             // lh-rc-17: paused from its first frame, the hall drew its first, heavy frames at the touch
-                            // (2.2 s of the step lost on the runner); now they fall here, under the title.
+                            // (2.2 s of the step lost on the runner); now they fall here, under the title, and before
+                            // its reveal (polish C2b, P5).
+                            #if DEBUG
+                            hallMountedAt = Date()
+                            #endif
                             Task { @MainActor in
-                                try? await Task.sleep(nanoseconds: 500_000_000)
+                                try? await Task.sleep(nanoseconds: UInt64(StepIn.hallWarmSeconds * 1_000_000_000))
                                 worldWarm = true
+                                #if DEBUG
+                                hallWarmAt = Date()
+                                #endif
+                            }
+                        }
+                }
+                if let model, gameMounted, !titleDone, stepBeat == nil, !paneWarmed, model.overlay == .lordEntry {
+                    // Polish C2b (part 5): the pane a new realm holds at its start is built once, unseen, under the
+                    // title as the hall is, before the light opens, so its first build (the name field, the portraits)
+                    // falls into the breathing wait and the card comes 0.25 s after the hall is whole (lh-rc-20: its
+                    // first build took 0.17 s after the panes were let go, 0.23 s with its first frame).
+                    LordEntryView(model: model)
+                        .opacity(0)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                        .onAppear {
+                            Task { @MainActor in
+                                try? await Task.sleep(nanoseconds: 100_000_000)
+                                paneWarmed = true
                             }
                         }
                 }
@@ -126,7 +162,11 @@ struct RootView: View {
                     .accessibilityValue(Text(verbatim: stepProbe))
                 #endif
                 if !titleDone {
-                    TitleView(ready: RenderWarmup.titleReady(modelMade: model != nil, warmedUp: warmedUp),
+                    // Polish C2b (P5): the light opens once the game is ready and the hall under it warm and still
+                    // (or the ceiling passed); until then the flame breathes.
+                    TitleView(ready: StepIn.revealMayStart(
+                                gameReady: RenderWarmup.titleReady(modelMade: model != nil, warmedUp: warmedUp),
+                                hallWarm: worldWarm, sinceWarmedUp: sinceWarmedUp),
                               reduceMotionArgument: args.reduceMotion, cues: titleCues) { beat in
                         stepIn(beat)
                     }
@@ -140,6 +180,13 @@ struct RootView: View {
                     Task { @MainActor in
                         await RenderWarmup.prepare()
                         warmedUp = true
+                        #if DEBUG
+                        warmUpEndedAt = Date()
+                        #endif
+                        // Polish C2b (P5): the wait for the warm hall never hangs.
+                        let warmAt = Date()
+                        try? await Task.sleep(nanoseconds: UInt64(StepIn.revealCeilingSeconds * 1_000_000_000))
+                        sinceWarmedUp = Date().timeIntervalSince(warmAt)
                     }
                 }
                 let made = GameModel(args: args, kind: RootView.kind(of: args.scene))
@@ -201,30 +248,65 @@ struct RootView: View {
         Task { @MainActor in
             #if DEBUG
             // Debug: the wall seconds and the beat's uncounted hitches at each phase (`stepin-probe`).
-            var marks: [String] = []
+            var marks = [String(format: "task %.3f/%.3f", Date().timeIntervalSince(start), beat.lost)]
+            var wholeWall: Double? = nil
+            StepProbe.shared.reset()
             #endif
-            let phases: [(name: String, at: Double)] = [("task", 0), ("close", StepIn.closeFrom),
-                                                        ("black", StepIn.blackAt), ("gone", StepIn.riseFrom),
-                                                        ("whole", StepIn.hallWholeAt(mode)),
-                                                        ("panes", StepIn.panesAt(mode))]
-            for phase in phases {
-                await beat.wait(until: phase.at)
-                switch phase.name {
-                case "black":
+            // Polish C2b (L2): the phases are `StepIn`'s list, which the tests pin.
+            for (phase, at) in StepIn.phases(mode) {
+                await beat.wait(until: at)
+                switch phase {
+                case .close: break
+                case .black:
                     titleCues.black()
                     hallLive = true
-                case "gone": titleDone = true
-                case "whole": hallWhole = true
-                case "panes": panesHeld = false
-                default: break
+                case .gone: titleDone = true
+                case .whole: hallWhole = true
+                case .panes: panesHeld = false
                 }
                 #if DEBUG
-                marks.append(String(format: "%@ %.3f/%.3f", phase.name, Date().timeIntervalSince(start), beat.lost))
+                marks.append(String(format: "%@ %.3f/%.3f", phase.rawValue, Date().timeIntervalSince(start), beat.lost))
+                if phase == .whole { wholeWall = Date().timeIntervalSince(start) }
                 #endif
             }
             #if DEBUG
-            stepProbe = String(format: "lost:%.3f longest:%.3f wall:%.3f; wall/lost at ", beat.lost, beat.longestGap,
-                               Date().timeIntervalSince(start)) + marks.joined(separator: ", ")
+            let head = String(format: "lost:%.3f longest:%.3f wall:%.3f; wall/lost at ", beat.lost, beat.longestGap,
+                              Date().timeIntervalSince(start))
+            // Polish C2b (Debug): the launch before the touch, in seconds after the warm-up ended: the hall mounted,
+            // the hall warm, and what opened the light (the warm hall, or the ceiling 2.0 s after the warm-up).
+            var launch = "launch: none; "
+            if let warmUpEndedAt {
+                func after(_ date: Date?) -> String {
+                    date.map { String(format: "%.3f", $0.timeIntervalSince(warmUpEndedAt)) } ?? "none"
+                }
+                let warm = hallWarmAt.map { $0.timeIntervalSince(warmUpEndedAt) } ?? .infinity
+                launch = "launch after the warm-up: hall mounted " + after(hallMountedAt) + ", hall warm "
+                    + after(hallWarmAt) + ", light opened by "
+                    + (warm < StepIn.revealCeilingSeconds ? "the warm hall" : "the ceiling") + "; "
+            }
+            // Polish C2b (part 5): the start pane's first drawn frame (its onAppear, then the main thread's next turn),
+            // waited for at most 3 s after the panes were let go; "none" when the game held no pane at its start.
+            let probe = StepProbe.shared
+            let deadline = Date().addingTimeInterval(3)
+            while (probe.paneFree == nil || probe.paneShown == nil) && Date() < deadline {
+                try? await Task.sleep(nanoseconds: 8_000_000)
+            }
+            func wall(_ date: Date?) -> String {
+                date.map { String(format: "%.3f", $0.timeIntervalSince(start)) } ?? "none"
+            }
+            marks.append("card-init " + wall(probe.paneInit))
+            marks.append("card-appear " + wall(probe.paneAppeared))
+            marks.append("card-free " + wall(probe.paneFree))
+            if let free = probe.paneFree, let wholeWall {
+                marks.append(String(format: "whole-to-card %.3f", free.timeIntervalSince(start) - wholeWall))
+            }
+            // The C2b gate (F1): the second display-link tick after the appear, the first frame that can hold the
+            // card's pixels (the film saw the card later than its main-thread turn).
+            marks.append("card-shown " + wall(probe.paneShown))
+            if let shown = probe.paneShown, let wholeWall {
+                marks.append(String(format: "whole-to-shown %.3f", shown.timeIntervalSince(start) - wholeWall))
+            }
+            stepProbe = launch + head + marks.joined(separator: ", ")
             #endif
         }
     }
@@ -239,6 +321,78 @@ struct RootView: View {
     }
 }
 
+#if DEBUG
+/// Polish C2b, part 5 (Debug): the start pane's first drawn frame for the step's probe (`stepin-probe`): the moment
+/// the pane appeared and when the main thread was free after it (its first frame committed), as `PaneProbe` does for
+/// the pause sheet. The pane at the start of a new realm is the name card (`LordEntryView`).
+@MainActor
+final class StepProbe {
+    static let shared = StepProbe()
+    private(set) var paneInit: Date?
+    private(set) var paneAppeared: Date?
+    private(set) var paneFree: Date?
+    /// The C2b gate (F1): the second display-link tick after the appear. The appear's commit has gone out with the
+    /// first tick's frame at the latest, so this is the first frame on which the card can stand (a main-thread turn
+    /// alone, `paneFree`, can come before that commit is drawn).
+    fileprivate(set) var paneShown: Date?
+    private var ticker: StepProbeTicker?
+
+    /// A new step into the game: forget an earlier pane.
+    func reset() {
+        paneInit = nil
+        paneAppeared = nil
+        paneFree = nil
+        paneShown = nil
+        ticker?.stop()
+        ticker = nil
+    }
+
+    /// The start pane's view was made (its parent's body ran); the first time after a reset counts.
+    func paneMade() {
+        if paneInit == nil { paneInit = Date() }
+    }
+
+    /// The start pane appeared; the main thread's next turn says when its first frame was done.
+    func paneAppear() {
+        guard paneAppeared == nil else { return }
+        paneAppeared = Date()
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                StepProbe.shared.paneFree = Date()
+            }
+        }
+        let ticker = StepProbeTicker()
+        self.ticker = ticker
+        ticker.start()
+    }
+}
+
+/// The C2b gate (F1, Debug): counts the display's frames after the start pane appeared and marks the second.
+@MainActor
+private final class StepProbeTicker: NSObject {
+    private var link: CADisplayLink?
+    private var ticks = 0
+
+    func start() {
+        let link = CADisplayLink(target: self, selector: #selector(tick(_:)))
+        link.add(to: .main, forMode: .common)
+        self.link = link
+    }
+
+    func stop() {
+        link?.invalidate()
+        link = nil
+    }
+
+    @objc private func tick(_ link: CADisplayLink) {
+        ticks += 1
+        guard ticks >= 2 else { return }
+        stop()
+        if StepProbe.shared.paneShown == nil { StepProbe.shared.paneShown = Date() }
+    }
+}
+#endif
+
 /// The cover over the hall during the step into the game (polish C2, M8): black under the title, then black at 1
 /// minus the hall's opacity of `StepIn`'s timeline on the beat's clock, so the hall rises from black as its root's
 /// opacity would on a black ground, and no picture of the title crosses it. It takes every touch until the hall is
@@ -251,7 +405,7 @@ struct StepInCover: View {
         Group {
             if let beat {
                 TimelineView(.animation) { timeline in
-                    Color.black.opacity(1 - StepIn.picture(at: beat.elapsed(timeline.date), mode: mode).hallOpacity)
+                    Color.black.opacity(1 - StepIn.hallOpacity(at: beat.elapsed(timeline.date), mode: mode))
                 }
             } else {
                 Color.black

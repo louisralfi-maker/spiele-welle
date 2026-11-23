@@ -29,6 +29,10 @@ struct LordEntryView: View {
         let draft = model.lordDraft
         _name = State(initialValue: draft?.name ?? "")
         _form = State(initialValue: draft?.form ?? .lord)
+        #if DEBUG
+        // Polish C2b, part 5: when the start pane was made, for the step's probe (`StepProbe`).
+        StepProbe.shared.paneMade()
+        #endif
     }
 
     var body: some View {
@@ -44,6 +48,10 @@ struct LordEntryView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("lord-entry-root")
+        #if DEBUG
+        // Polish C2b, part 5: the start pane's first drawn frame for the step's probe (`StepProbe`).
+        .onAppear { StepProbe.shared.paneAppear() }
+        #endif
     }
 
     @ViewBuilder private var content: some View {
