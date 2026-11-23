@@ -281,10 +281,15 @@ enum TitleTempo {
     /// 1.6 s on the cubic Bézier (0.45, 0, 0.25, 1), ease-in-out (the director's call on thing 8).
     static let revealSeconds = 1.6
     static let revealCurve = MotionCurve(0.45, 0, 0.25, 1)
-    /// The mask's long-axis radius at the reveal's start, in whole game px (116, the glow's reach). Its end is no
-    /// constant: the least radius that covers the device's window (`TitleMask.endRadius`), so the whole swell, its
-    /// settle included, is on the screen (polish C2b, P4; was 340, past the 281 the window needs).
-    static let revealFrom = 116
+    /// The mask's long-axis radius at the reveal's start, in whole game px: the glow's own reach at the breath's high
+    /// step (`lanternGlow6`: its outermost pixel lies 93.1 game px from the flame on the mask's axes), so the light
+    /// grows out of the glow instead of a larger window replacing it (polish C2b, P3; was 116). The swell starts on
+    /// that step. Its end is no constant: the least radius that covers the device's window (`TitleMask.endRadius`),
+    /// so the whole swell, its settle included, is on the screen (C2b, P4; was 340, past the 281 the window needs).
+    static let revealFrom = 93
+    /// At the reveal's start the glow (its step 6 and the flame over it) stays drawn over the picture and goes out by
+    /// opacity alone at law 1's quick tempo (0.15 s, the leave curve), while the stepped edge takes over (C2b, P3).
+    static let glowOutSeconds = MotionToken.quick.inSeconds
 
     /// The mask's radius `seconds` after the reveal began, from `revealFrom` to `end` (the window's covering radius):
     /// whole game px, never shrinking. Reduce Motion: the picture stands at once.
@@ -293,6 +298,13 @@ enum TitleTempo {
         let span = Double(max(end, revealFrom) - revealFrom)
         let share = revealCurve.value(seconds / revealSeconds)
         return revealFrom + Int((span * share).rounded())
+    }
+
+    /// The glow's opacity over the picture `seconds` after the reveal began: 1 at its start, 0 from 0.15 s on, never
+    /// growing back. Reduce Motion: none (the picture stands at once).
+    static func glowOpacity(at seconds: Double, mode: MotionMode) -> Double {
+        guard !mode.reduceMotion else { return 0 }
+        return 1 - MotionCurve.leave.value(seconds / glowOutSeconds)
     }
 }
 

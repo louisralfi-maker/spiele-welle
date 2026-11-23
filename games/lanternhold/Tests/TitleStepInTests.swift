@@ -1,4 +1,5 @@
 import CoreGraphics
+import UIKit
 import XCTest
 @testable import Lanternhold
 
@@ -63,6 +64,65 @@ final class TitleStepInTests: XCTestCase {
         XCTAssertLessThan(middle, 0.85)
         XCTAssertEqual(TitleTempo.revealRadius(at: 0, to: end, mode: reduced), end,
                        "Reduce Motion: the picture stands at once")
+    }
+
+    /// The glow's reach on the mask's axes: the farthest drawn pixel of the breath's high step (`lanternGlow6`, drawn
+    /// over the window from picture x 41) from the flame, as `TitleMask` measures a pixel (its centre).
+    private func glowReach() throws -> Double {
+        let name = "lanternGlow\(TitleTempo.breathSteps.high)"
+        let image = try XCTUnwrap(TitleArt.shared.image(name)?.cgImage, "the glow's PNG")
+        let width = image.width
+        let height = image.height
+        let context = try XCTUnwrap(CGContext(data: nil, width: width, height: height, bitsPerComponent: 8,
+                                              bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
+                                              bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        let pixels = try XCTUnwrap(context.data).assumingMemoryBound(to: UInt8.self)
+        let row = context.bytesPerRow
+        let flameX = Double(TitleMask.flameX) - Double(TitleLayout.glowFrame.minX)
+        var reach = 0.0
+        for y in 0..<height {
+            for x in 0..<width where pixels[y * row + x * 4 + 3] > 0 {
+                let dx = Double(x) + 0.5 - flameX
+                let dy = (Double(y) + 0.5 - Double(TitleMask.flameY)) / TitleMask.shortAxis
+                reach = max(reach, (dx * dx + dy * dy).squareRoot())
+            }
+        }
+        return reach
+    }
+
+    /// Polish C2b (P3): the light grows out of the glow. The swell starts at the glow's own reach on its high step
+    /// (within a game px of the farthest drawn pixel of `lanternGlow6`; was 116, a hard window larger than the glow);
+    /// the glow stays over the picture and goes out by opacity alone in 0.15 s, never back, at most a quarter of its
+    /// light per 1/60 s frame; through the swell's first 0.3 s the lit radius never moves more than 8 game px in a
+    /// frame, even a frame the beat's clock counts at its longest (0.05 s). Reduce Motion: no glow, the picture at once.
+    func testTheLightGrowsOutOfTheGlow() throws {
+        let reach = try glowReach()
+        XCTAssertGreaterThan(reach, 80, "the glow's rings were found")
+        XCTAssertLessThan(abs(Double(TitleTempo.revealFrom) - reach), 1, "the swell starts at the glow's reach \(reach)")
+        XCTAssertEqual(TitleTempo.glowOpacity(at: 0, mode: full), 1)
+        XCTAssertEqual(TitleTempo.glowOpacity(at: 0.15, mode: full), 0)
+        XCTAssertEqual(TitleTempo.glowOpacity(at: 1.0, mode: full), 0)
+        var last = 1.0
+        for step in 0...300 {
+            let opacity = TitleTempo.glowOpacity(at: Double(step) / 1000, mode: full)
+            XCTAssertLessThanOrEqual(opacity, last, "never back at \(step) ms")
+            last = opacity
+        }
+        for frame in 0...12 {
+            let t = Double(frame) / 60
+            let drop = TitleTempo.glowOpacity(at: t, mode: full) - TitleTempo.glowOpacity(at: t + 1.0 / 60, mode: full)
+            XCTAssertLessThanOrEqual(drop, 0.25, "a soft step at frame \(frame)")
+        }
+        for end in [252, 281] {
+            for step in 0...300 {
+                let t = Double(step) / 1000
+                let now = TitleTempo.revealRadius(at: t, to: end, mode: full)
+                let next = TitleTempo.revealRadius(at: t + BeatClock.longestFrame, to: end, mode: full)
+                XCTAssertLessThanOrEqual(next - now, 8, "end \(end): the lit radius at \(step) ms")
+            }
+        }
+        XCTAssertEqual(TitleTempo.glowOpacity(at: 0, mode: reduced), 0, "Reduce Motion: no glow over the picture")
     }
 
     /// The mask is whole game px rows; at 315 it opens every pixel of the whole 520 x 201 picture (the old 300 left

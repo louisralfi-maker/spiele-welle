@@ -32,6 +32,8 @@ enum TitleLayout {
     static let flame = CGPoint(x: 259, y: 76)
     /// The house's lantern (`lantern0` ... `lantern7`, 13 x 18) on the beacon.
     static let beacon = CGRect(x: 253, y: 66, width: 13, height: 18)
+    /// The lantern's glow (`lanternGlow1` ... `lanternGlow7`, 437 x 201, transparent outside its rings) over the window.
+    static let glowFrame = CGRect(x: 41, y: 0, width: 437, height: 201)
     /// The lettering's box and each letter's box, L A N T E R N H O L D.
     static let lettering = CGRect(x: 143, y: 19, width: 232, height: 40)
     static let letters: [CGRect] = [
@@ -252,21 +254,35 @@ struct TitleView: View {
                         picture(scale: scale, t: t, lordFrame: 0)
                         lettering(scale: scale)
                     } else if revealing {
-                        let radius = holdHalf ? (TitleTempo.revealFrom + end) / 2 : revealBeat.map {
-                            TitleTempo.revealRadius(at: $0.elapsed(now), to: end, mode: mode)
-                        } ?? TitleTempo.revealFrom
-                        picture(scale: scale, t: t, lordFrame: 0)
-                            .mask(alignment: .topLeading) { TitleMaskShape(radius: radius) }
-                        lettering(scale: scale)
+                        let elapsed = revealBeat.map { $0.elapsed(now) } ?? 0
+                        let radius = holdHalf ? (TitleTempo.revealFrom + end) / 2
+                            : TitleTempo.revealRadius(at: elapsed, to: end, mode: mode)
+                        // Polish C2b (P3): the lettering lies inside the light as well (it catches the light last), so
+                        // nothing appears outside the glow at the swell's first frame.
+                        ZStack(alignment: .topLeading) {
+                            picture(scale: scale, t: t, lordFrame: 0)
+                            lettering(scale: scale)
+                        }
+                        .mask(alignment: .topLeading) { TitleMaskShape(radius: radius) }
+                        // Polish C2b (P3): the light grows out of the glow. The swell starts at the glow's own reach
+                        // on its high step; the rings and the flame stay drawn over the picture and go out by opacity
+                        // at quick while the stepped edge takes over.
+                        let glow = holdHalf ? 0 : TitleTempo.glowOpacity(at: elapsed, mode: mode)
+                        if glow > 0 {
+                            ZStack(alignment: .topLeading) {
+                                sprite("lanternGlow\(TitleTempo.breathSteps.high)", TitleLayout.glowFrame, scale)
+                                flame(scale: scale, t: t)
+                            }
+                            .compositingGroup()
+                            .opacity(glow)
+                        }
                     } else {
                         // The loading: the house's lantern catching, step by step, with its glow; while the game is
                         // still made the glow breathes between its steps 6 and 5 (polish C2, M9).
                         let shownStep = step < TitleTempo.catchSteps ? step
                             : TitleTempo.breathStep(since: caughtAt.map { now.timeIntervalSince($0) } ?? 0, mode: mode)
                         if shownStep > 0 {
-                            sprite("lanternGlow\(shownStep)", CGRect(x: TitleLayout.windowX, y: 0,
-                                                                    width: TitleLayout.windowWidth,
-                                                                    height: TitleLayout.picture.height), scale)
+                            sprite("lanternGlow\(shownStep)", TitleLayout.glowFrame, scale)
                         }
                         sprite("lantern\(shownStep)", TitleLayout.beacon, scale)
                     }
@@ -435,12 +451,17 @@ struct TitleView: View {
             cues.lanternStep()
             if TitleView.hold == "loading" && next == 3 { return }
         }
-        caughtAt = Date()
+        let caught = Date()
+        caughtAt = caught
         while !gameReady { try? await Task.sleep(nanoseconds: 50_000_000) }
         if TitleView.hold == "half" {
             holdHalf = true
             revealing = true
             return
+        }
+        // Polish C2b (P3): the swell starts on the breath's high step, whose glow it grows out of (at most 0.35 s on).
+        while TitleTempo.breathStep(since: Date().timeIntervalSince(caught), mode: mode) != TitleTempo.breathSteps.high {
+            try? await Task.sleep(nanoseconds: 8_000_000)
         }
         await reveal()
         if TitleView.hold == "lit" { return }
