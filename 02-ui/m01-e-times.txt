@@ -1,0 +1,33 @@
+m01-e: Begin on the name entry: it goes, the prologue's first slide comes
+real time; as fast as the frames come
+the tap was sent without waiting at +2.425 s (point 156.0, 547.0; interface orientation 3 (the app's)); the runner answered at +2.725 s; its effect holds
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene after: frame:290 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:224.71
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +2.672 s  
+02  +2.825 s  
+03  +3.053 s  
+04  +3.221 s  
+05  +3.403 s  
+06  +3.574 s  
+07  +3.726 s  
+08  +3.911 s  
+09  +4.215 s  
+10  +4.899 s  
+11  +5.271 s  
+12  +5.562 s  
+13  +5.867 s  
+14  +6.203 s  
+15  +6.575 s  
+16  +6.889 s  
+17  +7.249 s  
+18  +7.502 s  
+19  +7.787 s  
+20  +8.097 s  
+21  +8.383 s  
+22  +8.657 s  
+23  +8.938 s  
+24  +9.357 s  
+mean spacing 0.291 s over 23 gaps

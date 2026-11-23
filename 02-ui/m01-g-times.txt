@@ -1,0 +1,41 @@
+m01-g: Skip: the prologue goes, day 1 comes (the step into the world)
+real time; as fast as the frames come
+the tap was sent without waiting at +0.332 s (point 37.7, 771.0; interface orientation 3 (the app's)); the runner answered at +0.653 s; its effect holds
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene after: frame:940 ready day:1 hour:6.59 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:224.71
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.802 s  
+02  +1.256 s  
+03  +1.535 s  
+04  +1.765 s  
+05  +2.016 s  
+06  +2.205 s  
+07  +2.442 s  
+08  +2.722 s  
+09  +2.923 s  
+10  +3.130 s  
+11  +3.332 s  
+12  +3.530 s  
+13  +3.765 s  
+14  +3.956 s  
+15  +4.157 s  
+16  +4.368 s  
+17  +4.553 s  
+18  +4.793 s  
+19  +4.991 s  
+20  +5.191 s  
+21  +5.387 s  
+22  +5.568 s  
+23  +5.754 s  
+24  +5.963 s  
+25  +6.158 s  
+26  +6.352 s  
+27  +6.561 s  
+28  +6.787 s  
+29  +6.959 s  
+30  +7.154 s  
+31  +7.309 s  
+32  +7.498 s  
+mean spacing 0.216 s over 31 gaps
