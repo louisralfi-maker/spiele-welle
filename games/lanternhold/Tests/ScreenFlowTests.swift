@@ -134,6 +134,9 @@ final class GameScreensTests: XCTestCase {
         let first = model(["GWScreen": "defeat"])
         XCTAssertNil(try XCTUnwrap(first.defeatInfo).secondChanceFrom, "the first second chance is free")
         first.takeSecondChance()
+        // LANE-E: E2 (the dawn card comes 0.6 s after the gate stands open: `GameModel.dawnCardDelay`)
+        for _ in 0..<3 { first.advance(by: 0.25) }
+        // LANE-E end
         first.continueReport()
         first.openPause()
         first.setSound(false)
@@ -237,6 +240,10 @@ final class GameScreensTests: XCTestCase {
         XCTAssertNil(info.secondChanceFrom, "the first second chance is free to take")
         XCTAssertEqual(info.replayDay, 1)
         chance.takeSecondChance()
+        // LANE-E: E2 (the dawn comes at once; its card 0.6 s after the gate stands open: `GameModel.dawnCardDelay`)
+        XCTAssertTrue(chance.dawnCardWaits, "the card waits for the open gate")
+        for _ in 0..<3 { chance.advance(by: 0.25) }
+        // LANE-E end
         let report = try XCTUnwrap(chance.reportCard, "dawn comes at once and its report follows")
         XCTAssertTrue(report.banners.contains(.secondChance))
         XCTAssertEqual(chance.driver?.state.defeated, false)
@@ -334,6 +341,9 @@ final class GameScreensTests: XCTestCase {
                                             to: CourtLeaver.hallDoor)]
         chance.takeSecondChance()
         XCTAssertTrue(chance.court.leavers.isEmpty, "the second chance's dawn starts the court afresh too")
+        // LANE-E: E2 (the card 0.6 s after the gate stands open: `GameModel.dawnCardDelay`)
+        for _ in 0..<3 { chance.advance(by: 0.25) }
+        // LANE-E end
         XCTAssertNotNil(chance.reportCard, "and its report still follows")
     }
 

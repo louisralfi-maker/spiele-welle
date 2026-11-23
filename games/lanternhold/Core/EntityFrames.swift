@@ -138,21 +138,29 @@ enum EntityFrames {
     // MARK: - The layer
 
     /// Everything the simulation adds to the frame of `state` seen by `camera`.
-    static func layer(state s: GameState, balance: Balance, scene: PlaceholderScene, camera: Camera,
+    static func layer(state real: GameState, balance: Balance, scene: PlaceholderScene, camera: Camera,
                       pixelScale: PixelScale, options: FrameOptions, animTime: Double,
                       effects: BattleEffects = BattleEffects(), drill: YardLook.Drill? = nil) -> EntityLayer {
         var layer = EntityLayer()
-        var props = PropList()
+        // Polish step A2 ("it stands", `BattleEffects.stand`): a work that finished less than 0.12 s ago is drawn as
+        // it stood (the scaffold over the old picture); from the swap its structure settles 1 px, a wall turned
+        // damaged or rubble drops 1 px for 0.05 s; under Reduce Motion the scaffold goes over the new sprite by
+        // opacity. The simulation's state is untouched: only the picture reads `drawn`.
+        let s = effects.drawn(real)
         let ambient = AmbientRamp.sample(at: s.hour, look: options.look)
         let isDay = DayClock.phase(at: s.hour) == .day
         let battleLights = Battle.lightSources(s, balance: balance)
         let layouts = (0..<Realm.lines.count).map { lineLayout($0, state: s, balance: balance) }
 
-        defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
-                     look: options.look, props: &props)
-        beacon(s, look: options.look, props: &props)
-        courtyard(s, balance: balance, props: &props, drill: drill, reduceMotion: options.reduceMotion)
-        town(s, look: options.look, props: &props)
+        var props = structures(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
+                               look: options.look, drill: drill, reduceMotion: options.reduceMotion,
+                               shifts: effects.shifts(reduceMotion: options.reduceMotion))
+        for fade in effects.fades() {
+            var old = s
+            old.plots[fade.plot] = fade.before
+            guard let site = EntityFrames.work(plot: fade.plot, state: old, balance: balance) else { continue }
+            scaffold(&props, centre: site.centre, width: site.width, y: site.y, alpha: fade.alpha)
+        }
         let townDay = TownLife.Context(reduceMotion: options.reduceMotion,
                                       hearth: max(0, min(1, s.hearth / max(1, balance.hearthStrength))))
         if options.look == .two { TownLife.props(s, context: townDay, props: &props) }
@@ -229,24 +237,88 @@ enum EntityFrames {
     struct PropList {
         var props: [Prop] = []
         var lights: [LightSource] = []
+        /// Polish step A2: the plot whose structure is being added (-1: none), the whole game px each plot's
+        /// structure is drawn off its place (`BattleEffects.shifts`: + up), and where each plot's work stands (its
+        /// scaffold's centre, width and foot), as `scaffold` found it.
+        var plot = -1
+        var shifts: [Int: Double] = [:]
+        var works: [Int: (centre: Double, width: Double, y: Double)] = [:]
 
         mutating func add(_ sprite: SpriteID, x: Double, y: Double = 0, z: Int, frame: Int = 0, flipped: Bool = false,
                           shade: Float = 1, alpha: Float = 1, emissive: [EmissivePart] = [], masks: [GlassMask] = [],
                           lights: [LightSource] = [], isLit: Bool = true) {
-            props.append(Prop(id: EntityFrames.propIDBase + props.count, sprite: sprite, plane: .world, x: x, y: y,
-                              z: z, shade: shade, flipped: flipped, region: WorldLayout.worldRegion(x: x),
+            let lift = plot >= 0 ? shifts[plot] ?? 0 : 0
+            props.append(Prop(id: EntityFrames.propIDBase + props.count, sprite: sprite, plane: .world, x: x,
+                              y: y + lift, z: z, shade: shade, flipped: flipped, region: WorldLayout.worldRegion(x: x),
                               emissive: emissive, masks: masks, isLit: isLit, frame: frame, alpha: alpha))
             self.lights.append(contentsOf: lights)
         }
     }
 
-    /// Scaffolding over a build `width` wide centred at `centre` (tiles of 24 px side by side).
-    static func scaffold(_ props: inout PropList, centre: Double, width: Double, y: Double = 0) {
+    /// Scaffolding over a build `width` wide centred at `centre` (tiles of 24 px side by side). Step A2: `alpha` for
+    /// Reduce Motion's fade; the plot being drawn remembers where its work stands.
+    static func scaffold(_ props: inout PropList, centre: Double, width: Double, y: Double = 0, alpha: Float = 1) {
         let tile = Double(SpriteID.scaffold.size.width)
         let count = max(1, Int((width / tile).rounded(.up)))
         let left = (centre - Double(count) * tile / 2).rounded(.down)
+        if props.plot >= 0 { props.works[props.plot] = (centre: centre, width: width, y: y) }
         for k in 0..<count {
-            props.add(.scaffold, x: left + Double(k) * tile, y: y, z: 4)
+            props.add(.scaffold, x: left + Double(k) * tile, y: y, z: 4, alpha: alpha)
+        }
+    }
+
+    /// The buildings of the realm as props (the defence lines, the beacon, the courtyard, the town), each plot's
+    /// structure drawn `shifts` whole px off its place (step A2).
+    static func structures(_ s: GameState, balance: Balance, layouts: [LineLayout], battleLights: [LightSource],
+                           isDay: Bool, look: LookVersion, drill: YardLook.Drill?, reduceMotion: Bool,
+                           shifts: [Int: Double] = [:]) -> PropList {
+        var props = PropList()
+        props.shifts = shifts
+        defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
+                     look: look, props: &props)
+        props.plot = Realm.beaconPlot
+        beacon(s, look: look, props: &props)
+        props.plot = -1
+        courtyard(s, balance: balance, props: &props, drill: drill, reduceMotion: reduceMotion)
+        town(s, look: look, props: &props)
+        return props
+    }
+
+    /// Step A2: where the work on `plot` stands in `s` (its scaffold's centre, width and foot, world game px), nil
+    /// when the plot has no job: what every kind of work draws through `scaffold`.
+    static func work(plot: Int, state s: GameState, balance: Balance) -> (centre: Double, width: Double, y: Double)? {
+        guard s.plots.indices.contains(plot), s.plots[plot].job != nil else { return nil }
+        let layouts = (0..<Realm.lines.count).map { lineLayout($0, state: s, balance: balance) }
+        let props = structures(s, balance: balance, layouts: layouts, battleLights: [], isDay: true, look: .two,
+                               drill: nil, reduceMotion: true)
+        return props.works[plot]
+    }
+
+    /// Step A2's gate: where a finished work's dust lies (`BattleEffects.stand`): its scaffold's span (`work`, from the
+    /// realm before the event), and for a line's wall also the end piece of the new tier's anchor that appears with it
+    /// (round lh-ra-15's film: the palisade's door piece right of the scaffold stood outside the dust).
+    static func standSpan(plot: Int, before old: GameState, after item: BuildItem?,
+                          balance: Balance) -> (centre: Double, width: Double, y: Double)? {
+        guard var span = work(plot: plot, state: old, balance: balance) else { return nil }
+        guard let line = Realm.lines.firstIndex(where: { $0.wall == plot }), let item,
+              let reach = anchorReach(item) else { return span }
+        let left = lineLayout(line, state: old, balance: balance).wallLeft
+        let low = min(span.centre - span.width / 2, left)
+        let high = max(span.centre + span.width / 2, left + reach)
+        span.centre = (low + high) / 2
+        span.width = high - low
+        return span
+    }
+
+    /// How far right of the wall's left a tier's anchor (`wallAnchor`, look 2, its canvas at the wall's left minus
+    /// `SceneLayout.look2OldWallInset`) stands above the ground: the art's last opaque column over its 8 px drop
+    /// (palisadeAnchor 58, stoneWallAnchor 83, bastionAnchor 90) + 1 - 28.
+    static func anchorReach(_ item: BuildItem) -> Double? {
+        switch item {
+        case .palisade: return 31
+        case .stoneWall: return 56
+        case .bastion: return 63
+        default: return nil
         }
     }
 
@@ -396,17 +468,24 @@ enum EntityFrames {
                                      props: inout PropList) {
         for (index, layout) in layouts.enumerated() {
             let slots = Realm.lines[index]
+            // Step A2: each plot's props are tagged with it (its settle and its jolt, where its work stands).
+            props.plot = slots.wall
             if index == 0 {
                 gate(s, balance: balance, isDay: isDay, props: &props)
             } else {
                 wall(s, plot: slots.wall, layout: layout, balance: balance, look: look, props: &props)
+                props.plot = slots.tower
                 tower(s, plot: slots.tower, layout: layout, props: &props)
             }
             for plot in slots.braziers {
+                props.plot = plot
                 brazier(s, plot: plot, battleLights: battleLights, props: &props)
             }
+            props.plot = slots.engine
             engine(s, plot: slots.engine, layout: layout, balance: balance, props: &props)
+            props.plot = slots.trap
             trap(s, plot: slots.trap, props: &props)
+            props.plot = -1
         }
         // The torches burning on every standing wall, where the battle's torch lights are. Line 1's burn on the castle
         // front's wall walk among its archers, beside its painted brackets and braziers: no post of their own there.
@@ -598,6 +677,7 @@ enum EntityFrames {
                                        radius: SceneLayout.barracksWindowPool.radius),
                            windowLight(barracksLeft + 24, 15, radius: 10), windowLight(barracksLeft + 42, 15, radius: 10)])
         let smithy = s.plots[Realm.smithyPlot]
+        props.plot = Realm.smithyPlot
         if let item = smithy.item {
             let master = item == .masterSmithy
             let forgeSeed: UInt64 = 0x534D_4954
@@ -614,6 +694,7 @@ enum EntityFrames {
             scaffold(&props, centre: smithyLeft + width / 2, width: width)
         }
         let lodge = s.plots[Realm.lodgePlot]
+        props.plot = Realm.lodgePlot
         if let item = lodge.item {
             let big = item == .bigLodge
             let sprite: SpriteID = big ? .bigLodge : .lodge
@@ -627,6 +708,7 @@ enum EntityFrames {
             let width = Double((job.target == .bigLodge ? SpriteID.bigLodge : SpriteID.lodge).size.width)
             scaffold(&props, centre: lodgeCentre, width: width)
         }
+        props.plot = -1
         yardProps(s, balance: balance, props: &props, drill: drill, reduceMotion: reduceMotion)
     }
 
@@ -735,6 +817,7 @@ enum EntityFrames {
         for (index, spec) in WorldLayout.townPlots.enumerated() where index < Realm.townPlots.count {
             let plot = s.plots[Realm.townPlots[index]]
             let centre = (spec.start + spec.end) / 2
+            props.plot = Realm.townPlots[index]
             switch plot.item {
             case .house?:
                 let sprite = cottages[houseIndex % cottages.count]
@@ -781,6 +864,7 @@ enum EntityFrames {
                 scaffold(&props, centre: centre, width: Double(townSprite(job.target).size.width))
             }
         }
+        props.plot = -1
     }
 
     /// The sprite a town item is drawn with (its width sets the scaffolding).
@@ -1623,11 +1707,13 @@ enum EntityFrames {
 
         // Effect particles: sparks and shards.
         effectParticles(effects, animTime: animTime, budget: maxEffectParticles - shed,
-                        reduceMotion: reduceMotion) { sprite, frame, x, y, flipped, tint, emissive, lit in
+                        reduceMotion: reduceMotion, cameraX: view.camera.x) { sprite, frame, x, y, flipped, tint, emissive, lit in
             // b3-horde step 4 (the director's first law): the fall's flakes take the small ones' cap and veil, grey
             // soot by the fires, never cream sparks
             var cap: Float = 0
-            if sprite == .sootFlake {
+            // (polish A2: the standing's dust motes are flakes tinted brighter than painted, `standDustTint`; they are
+            // stone dust in the day's light, not the small ones' soot, so they keep the world's cap and no veil)
+            if sprite == .sootFlake && tint.x <= 1 {
                 let veil = HordeLook.veil(x: x, bankEdge: s.bankEdge)
                 cap = look == .two ? HordeLook.pack(cap: HordeLook.litCap, veil: veil) : HordeLook.litCap
             }
@@ -1716,14 +1802,15 @@ enum EntityFrames {
 
     /// The particles of the running effects, at most `maxEffectParticles`.
     private static func effectParticles(_ effects: BattleEffects, animTime: Double, budget: Int = maxEffectParticles,
-                                        reduceMotion: Bool = false,
+                                        reduceMotion: Bool = false, cameraX: Double = 0,
                                         add: (SpriteID, Int, Double, Double, Bool, SIMD4<Float>, Bool, Bool) -> Void) {
         var budget = budget
         let teal = SIMD4<Float>(0.75, 1.0, 1.0, 1)
         let ember = SIMD4<Float>(1.0, 0.7, 0.4, 1)
         let soot = SIMD4<Float>(0.5, 0.45, 0.6, 1)
         for effect in effects.items.reversed() {
-            let age = effect.age(at: animTime)
+            // Step A2: the standings' dust runs on the standings' clock (the driver's seconds).
+            let age = effect.age(at: effect.kind == .standDust ? effects.standClock : animTime)
             guard age < 1 else { continue }
             func unit(_ k: Int, _ salt: Int64) -> Double {
                 Double(SeededRandom.hash(effect.seed, Int64(k) &* 31 &+ salt) >> 11) * 0x1.0p-53
@@ -1773,6 +1860,47 @@ enum EntityFrames {
                     let x = effect.x + side * (20 + 30 * age)
                     let y = max(0, effect.y + 18 * age * (0.6 + unit(k, 6)) - 26 * age * age)
                     add(.shard, k % 2, x, y, side < 0, SIMD4<Float>(0.8, 0.76, 0.72, 1), false, true)
+                }
+            case .standDust:
+                // Step A2: dust spread over the work's whole width at its foot from the event; it grows (eased out) to
+                // its fullest at the swap, 0.12 s, and covers the foot as the new sprite stands, then drifts outward and
+                // up and thins to nothing by 1.1 s. The broken wall's shards are soot-black: on round lh-ra-10's film
+                // they did not read at all on the day's ground, so the dust is made of existing pictures tinted to pale
+                // stone dust (no new art): round puffs (the chimney's `smokePuff`) and two motes over them (the grey
+                // `sootFlake`, `BattleEffects.standDustTint`), a shade each. The gate of A2 (A2-P1, M1, M2; round
+                // lh-ra-13's film: 3 to 5 puffs of 2 px at the swap left most of the foot open): one puff per 4.5 px,
+                // their size from the rise only, so all reach the largest frame (5 px) in the swap's frame and overlap
+                // into one band, every other one 3 px higher; held low (1 or 4 px) until the swap; after it only their
+                // drift and alpha change, so the cover (area x alpha) peaks at the swap. The keep's dust stands on the
+                // mistBand plane: placed with the camera as that plane moves.
+                let seconds = max(0, effects.standClock - effect.start)
+                let peak = BattleEffects.standSwap
+                let rise = Motion.enter(min(1, seconds / peak))
+                let after = max(0, seconds - peak)
+                let thin = Float(1 - min(1, after / max(0.01, effect.lifetime - peak)))
+                let centre = effect.plane == .world ? effect.x : effect.x + cameraX * (1 - effect.plane.parallax)
+                let count = BattleEffects.standDustCount(width: effect.width)
+                let puffs = BattleEffects.standPuffCount(width: effect.width)
+                let size = min(CastleSmoke.sizes - 1, Int((rise * Double(CastleSmoke.sizes - 1)).rounded()))
+                for k in 0..<puffs {
+                    guard spend() else { return }
+                    let side = (Double(k) + 0.5 + (unit(k, 11) - 0.5) * 0.2) / Double(puffs) - 0.5
+                    let x = centre + side * effect.width + (side < 0 ? -1 : 1) * after * (4 + 5 * unit(k, 12))
+                    let y = effect.y + rise * Double(1 + 3 * (k % 2)) + after * (3 + 4 * unit(k, 14))
+                    let shade = Float(0.92 + 0.12 * unit(k, 15))
+                    let tint = BattleEffects.standPuffTint * shade
+                    add(.smokePuff, size, x.rounded(), y.rounded(), false, SIMD4<Float>(tint.x, tint.y, tint.z, thin),
+                        false, true)
+                }
+                for k in 0..<(count - puffs) {
+                    guard spend() else { return }
+                    let side = (Double(k) + unit(k, 5)) / Double(count - puffs) - 0.5
+                    let x = centre + side * effect.width + (side < 0 ? -1 : 1) * after * (6 + 8 * unit(k, 7))
+                    let y = effect.y + rise * (2 + 7 * unit(k, 6)) + after * (2 + 5 * unit(k, 8))
+                    let shade = Float(0.85 + 0.3 * unit(k, 10))
+                    let tint = BattleEffects.standDustTint * shade
+                    add(.sootFlake, Int(unit(k, 9) * Double(HordeLook.flakeShapes)) % HordeLook.flakeShapes,
+                        x.rounded(), y.rounded(), side < 0, SIMD4<Float>(tint.x, tint.y, tint.z, thin), false, true)
                 }
             case .fall:
                 // b3-horde: the fall strip and its orphan thread are drawn with the creatures; here the puff. Step 3

@@ -517,9 +517,29 @@ final class CountUITests: XCTestCase {
         }
         touchThing(gate)
         XCTAssertTrue(waitForField(app, "count:touch-plot-0:0\(hollows)", timeout: 3), "\(name): the board comes up")
-        waitForStill(app)
-        XCTAssertTrue(waitForField(app, ":there", timeout: 4), "\(name): he stands beside the board")
-        pause(0.2)
+        // The join after polish B1 (Part 0's cause holds for every test that taps after this helper): the empty board
+        // goes by itself `PayCount.emptyWait` (5.0 s) after he stands at it, and the old wait for a still lord (his x
+        // unchanged for 0.8 s, polled) spent a good part of that before the caller's first tap. So no wait for
+        // stillness: `:there` says he stands, a short pause lets the camera settle.
+        XCTAssertTrue(waitForField(app, ":there", timeout: 15), "\(name): he stands beside the board")
+        pause(0.3)
+        // A slow runner can still have spent the wait. Then the board is left to go and a second one is opened with
+        // him already standing there (ready at once). Never under the freeze `back`: it holds a board that was let go
+        // at half its slide for good, so no second board comes.
+        let idle = sceneField(app, "cidle:").flatMap { Double($0) } ?? 0
+        let freezeAt = args.firstIndex(of: "-GWCountFreeze").map { $0 + 1 } ?? args.count
+        let holdsLetGo = freezeAt < args.count && args[freezeAt] == "back"
+        if idle > 2.0 && !holdsLetGo {
+            XCTAssertTrue(waitForField(app, "count:none", timeout: PayCountWaits.empty + 4),
+                          "\(name): the waited board goes by itself")
+            if let again = waitForThing(app, "touch-plot-0", timeout: 3) { touchThing(again) }
+            XCTAssertTrue(waitForField(app, "count:touch-plot-0:0\(hollows):there", timeout: 3),
+                          "\(name): the second board, he already stands at it")
+            pause(0.3)
+            note("\(name)-second-board", "the first board had waited \(idle) s when the helper looked")
+        } else if idle > 2.0 {
+            note("\(name)-late-board", "the board had waited \(idle) s when the helper looked; no second board here")
+        }
         return app
     }
 

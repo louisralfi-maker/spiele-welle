@@ -19,6 +19,14 @@ final class FarGoalTests: XCTestCase {
         XCTAssertEqual(FarGoal.hornTotal(night: 7), FarGoal.lastNight)
     }
 
+    /// Polish E2 (part 5): the dawn card's head says the night that ended as the ribbon said it the evening before.
+    func testTheDawnCardsHeadSaysTheNightAsTheRibbonDid() {
+        XCTAssertEqual(FarGoal.reportLine(night: 1), "Night 1 of 20", "the ribbon said it before night 1")
+        XCTAssertEqual(FarGoal.reportLine(night: 1), FarGoal.hornLine(night: 1))
+        XCTAssertEqual(FarGoal.reportLine(night: 20), "Night 20 of 20")
+        XCTAssertEqual(FarGoal.reportLine(night: 21), "Night 21 is over", "past the run: the card's old words")
+    }
+
     /// N is the game's own rule, never a loose number: the night the chapter ends on is the Lightless King's night.
     func testNIsTheLightlessKingsNight() {
         XCTAssertEqual(FarGoal.lastNight, ReportCard.finaleNight, "the night `endChapterIfFinale` ends the chapter on")

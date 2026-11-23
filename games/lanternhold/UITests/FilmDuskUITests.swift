@@ -6,7 +6,8 @@ import XCTest
 /// carries his mark (a); the first touch opens his offer (b); the second touch calls the night and the dusk plays in
 /// 4.0 s to the horn (c), the night's first frames (d). Then the pause sheet's route in a second launch: "Sound the
 /// horn" and its confirmation play the same dusk (e) and the night (f). E1b: between the touches his line is closed and
-/// he keeps his mark (s); the ribbon reads "Night 1 of 20"; Hesper's far goal on day 1 after her greeting (i, k, j).
+/// he keeps his mark (s); the ribbon reads "Night 1 of 20" (its own test since E2 part 0, r); Hesper's far goal on day 1
+/// after her greeting (i, k, j).
 /// Frames `m13-<letter>-<nn>`, notes `m13-<letter>-times`.
 @MainActor
 final class FilmDuskUITests: XCTestCase {
@@ -81,11 +82,10 @@ final class FilmDuskUITests: XCTestCase {
             if !result.ok { word.tap() }
         })
         let held = film.wait(6) { horn.exists || self.hour(film.scene(app)) >= 19.0 }
-        let ribbon = horn.waitForExistence(timeout: 3) ? horn.label : "(no ribbon)"
         film.note("m13-c-path", "the word: \(sent); held: \(held); scene: \(film.scene(app))")
-        // E1b (the far goal, R10): the ribbon's second line counts the run's nights.
-        film.note("m13-c-ribbon", "the horn's ribbon: \(ribbon)")
-        XCTAssertTrue(ribbon.contains("Night 1 of 20"), "the ribbon reads Night 1 of 20: \(ribbon)")
+        // Polish E2 part 0: the ribbon's words are read in `testM13TheRibbonReadsTheNight`, with nothing between the
+        // call and the read. Read here, after the burst, they raced the runner's frame speed: the ribbon stands 3.6 s
+        // and burst c ended up to 2.3 s after the horn (join round lh-rnd-11 read "(no ribbon)" with it on screen).
         // E1b gate M1: the call taking his mark is pinned in NightOfferModelTests (the dusk's first frame); here,
         // after the horn, every talk mark is gone by the day-only rule.
         XCTAssertFalse(marks(film.scene(app)).contains("brannock"), "after the horn: no talk mark")
@@ -126,6 +126,39 @@ final class FilmDuskUITests: XCTestCase {
                    before: false, every: 0.5)
         film.note("m13-route-end", film.scene(second))
         second.terminate()
+    }
+
+    /// Polish E2 part 0 (E1b's far goal, R10): the horn's ribbon reads "Night 1 of 20". The night is called by the pause
+    /// sheet's route and the ribbon is looked for at once, its identifier and its words in one query, so no frame and no
+    /// scene read stands between the call and the read: the 3.6 s the ribbon stands (`GameModel.hornBannerSeconds`) are
+    /// no race with how fast a runner shoots or reads. The hour and the talk marks after it do not run out (the night
+    /// lasts 132 s), so they are read after it.
+    func testM13TheRibbonReadsTheNight() {
+        let film = FilmReel(self, "m13")
+        let app = film.launch(launch)
+        guard film.ready(app) else {
+            XCTFail("m13 r: the scene never stood")
+            return
+        }
+        waitForStill(app, timeout: 4)
+        XCTAssertTrue(openLantern(app), "the lantern rises")
+        let gear = film.element(app, "hud-pause")
+        XCTAssertTrue(gear.waitForExistence(timeout: 4), "the gear")
+        gear.tap()
+        let call = film.element(app, "pause-horn")
+        XCTAssertTrue(call.waitForExistence(timeout: 6), "Sound the horn")
+        call.tap()
+        let confirm = film.element(app, "pause-horn-confirm")
+        XCTAssertTrue(confirm.waitForExistence(timeout: 6), "the confirmation")
+        let ribbon = app.descendants(matching: .any).matching(identifier: "horn-banner")
+            .matching(NSPredicate(format: "label CONTAINS %@", "Night 1 of 20")).firstMatch
+        confirm.tap()
+        let read = ribbon.waitForExistence(timeout: 14)
+        film.note("m13-r-ribbon", "the ribbon with Night 1 of 20 found: \(read); scene after: \(film.scene(app))")
+        XCTAssertTrue(read, "the ribbon reads Night 1 of 20")
+        XCTAssertTrue(film.wait(6) { self.hour(film.scene(app)) >= 19.0 }, "night: \(film.scene(app))")
+        XCTAssertFalse(marks(film.scene(app)).contains("brannock"), "after the horn: no talk mark")
+        app.terminate()
     }
 
     /// E1b (the far goal said twice, R10): day 1, Mother Hesper in the great hall carries the mark of an unheard line

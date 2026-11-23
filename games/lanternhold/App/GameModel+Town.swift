@@ -148,8 +148,10 @@ extension GameModel {
     /// and what holds it without being one, Marek's card first (`AdDirector.holdWorld`; also the consent form, an ad on
     /// screen, the slides, the table). No door under the finger, no knock, no door for VoiceOver. The lantern moment
     /// holds the world too, but a tap lowers it before a door is asked, so it leaves the doors as they were.
+    /// Polish E2: and while the dawn card waits for the open gate (`dawnCardWaits`), which holds the world as the card
+    /// will.
     var doorsHeld: Bool {
-        overlay != nil || slides.coversWorld || tableOpen || adsHoldWorld?() == true
+        overlay != nil || dawnCardWaits || slides.coversWorld || tableOpen || adsHoldWorld?() == true
     }
 
     /// Build 3 join (L6b): whether the world stands still now: everything that holds the doors, and the lantern moment.

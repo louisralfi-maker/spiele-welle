@@ -1,3 +1,5 @@
+import MetalKit
+import ObjectiveC
 import SwiftUI
 
 // The SwiftUI side of the motion vocabulary (polish audit, law 1 and the pane part of law 2; fix step 0a). Every
@@ -82,7 +84,57 @@ extension EnvironmentValues {
     }
 }
 
+private struct LHPanesHeldKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    /// Polish C2 (C1-10): while true no pane stands (the hall is still rising from the title, or the first frame of a
+    /// launch without it has just come). Set once at the root (`RootView`); `OverlayView` and `AdLayer` read it, so a
+    /// pane the game holds at its start comes with its own come and one `paneOpen` when it turns false.
+    var lhPanesHeld: Bool {
+        get { self[LHPanesHeldKey.self] }
+        set { self[LHPanesHeldKey.self] = newValue }
+    }
+}
+
+private struct LHWorldStillKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    /// Polish C2: the hall's view is built under the title once the game is ready, draws its first frames there, and
+    /// then its Metal view draws nothing while this is true (until the black of the step in, 0.60 s after the touch): a world drawn under the
+    /// animated title held the main thread on the runner and a touch on the title waited about 2.5 s (rounds
+    /// lh-rc-13, lh-rc-14).
+    var lhWorldStill: Bool {
+        get { self[LHWorldStillKey.self] }
+        set { self[LHWorldStillKey.self] = newValue }
+    }
+}
+
+/// Polish C2 gate (M3): the last `lhWorldStill` written to a Metal view, kept on the view itself.
+private enum WorldStillLatch {
+    nonisolated(unsafe) static var key: UInt8 = 0
+}
+
+extension MTKView {
+    /// Polish C2 gate (M3): sets `isPaused` from the root's `lhWorldStill` only when that value flips, so SwiftUI's
+    /// next update never undoes a pause another part of the game set on the view.
+    func lhApplyWorldStill(_ still: Bool) {
+        let last = objc_getAssociatedObject(self, &WorldStillLatch.key) as? Bool
+        guard last != still else { return }
+        objc_setAssociatedObject(self, &WorldStillLatch.key, still, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        isPaused = still
+    }
+}
+
 extension View {
+    /// Polish C2: holds every pane below until `held` turns false (`EnvironmentValues.lhPanesHeld`).
+    func lhPanesHeld(_ held: Bool) -> some View {
+        environment(\.lhPanesHeld, held)
+    }
+
     /// Sets the game's Reduce Motion for every `.lhPane()` below.
     func lhReduceMotion(_ on: Bool) -> some View {
         environment(\.lhReduceMotion, on)

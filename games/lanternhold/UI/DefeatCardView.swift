@@ -215,9 +215,10 @@ struct DarkeningTown: View {
 
 /// The pause sheet (DESIGN.md "Screens"; `pause-sheet`, `pause-resume`, `pause-horn`, `pause-horn-confirm`,
 /// `pause-horn-cancel`, `pause-sound`, `pause-haptics`, `pause-restart`, `pause-restart-confirm`,
-/// `pause-restart-cancel`): resume, by day "Sound the horn" after a confirmation (the day plays on to dusk at once),
-/// the sound and haptics switches (kept in the save; sound and haptics play from M6), and restarting the chapter after a
-/// confirmation. On the dark of the desk, as the defeat card is.
+/// `pause-restart-cancel`): resume, by day "Sound the horn" after a confirmation (polish E1: the day is played to the
+/// horn in 4.0 s, the called dusk), the sound and haptics switches (kept in the save; sound and haptics play from M6),
+/// and restarting the chapter after a confirmation. Each confirmation comes as a swap inside the sheet, one face after
+/// the other (polish C1, `swap`). On the dark of the desk, as the defeat card is.
 @MainActor
 struct PauseSheetView: View {
     let model: GameModel
@@ -244,6 +245,10 @@ struct PauseSheetView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("pause-sheet")
+        #if DEBUG
+        // Polish C2, part 5: the gear's probe (`PaneProbe`).
+        .onAppear { PaneProbe.shared.sheetAppeared() }
+        #endif
     }
 
     /// A swap inside the pane (law 2, M16: the confirmations cut before): the face goes at the normal token's out
@@ -359,7 +364,8 @@ struct PauseSheetView: View {
                     }
                     .buttonStyle(GoldButtonStyle())
                     .accessibilityIdentifier("pause-resume")
-                    // M2b review: by day the night can be called at once (day 1 left minutes with nothing to do).
+                    // M2b review: by day the night can be called without waiting for the dusk (day 1 left minutes
+                    // with nothing to do); the confirmation then comes as a swap, one face after the other (C1).
                     if model.canCallTheNight {
                         Button {
                             swap { callingTheNight = true }
