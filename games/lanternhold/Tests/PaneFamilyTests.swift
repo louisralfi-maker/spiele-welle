@@ -55,6 +55,8 @@ final class PaneFamilyTests: XCTestCase {
         XCTAssertNil(GlassPlaqueMotion.sweep(pressed: true, mode: .reduced), "Reduce Motion: the fill at once")
         XCTAssertNil(GlassPlaqueMotion.sweep(pressed: false, mode: .reduced))
         XCTAssertEqual(GlassPlaqueMotion.glintSeconds, 0.25, accuracy: 1e-12, "law 2: the glint lasts 0.25 s")
+        XCTAssertEqual(GlassPlaqueMotion.held, 0.15, accuracy: 1e-12,
+                       "C1 gate F2: a quick tap's look holds for the whole sweep")
     }
 
     // MARK: The pane cues

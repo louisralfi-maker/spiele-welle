@@ -435,9 +435,15 @@ struct GlassPlaqueBody<Label: View>: View {
     @Environment(\.lhPlaqueFeedback) private var feedback
     @Environment(\.lhPaneGlint) private var glint
     @State private var glintLight = 0.0
+    /// The press's look held after touch-down (C1 gate, F2): a quick tap lifts the finger before the sweep has run, so
+    /// the look stays pressed until the sweep's 0.15 s have passed, and every tap shows one whole fill, then goes back.
+    @State private var held = false
+    /// Counts the presses, so only the latest one lets its hold go.
+    @State private var presses = 0
 
     var body: some View {
-        let pressed = isPressed && isEnabled
+        let down = isPressed && isEnabled
+        let pressed = down || held
         let mode = MotionStyle.mode(game: gameReduceMotion, system: systemReduceMotion)
         // Stage-3-interface (round lh-s3-3's 45): the skins lie behind the words, sized to them; as siblings in a
         // ZStack the resizable skins took all the room offered and the report's Continue filled half the card.
@@ -462,8 +468,16 @@ struct GlassPlaqueBody<Label: View>: View {
             }
         .animation(GlassPlaqueMotion.sweep(pressed: pressed, mode: mode), value: pressed)
         .contentShape(Rectangle())
-        .onChange(of: pressed) { _, now in
-            if now && haptics { feedback?.pressed() }
+        .onChange(of: down) { _, now in
+            guard now else { return }
+            if haptics { feedback?.pressed() }
+            held = true
+            presses &+= 1
+            let press = presses
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: UInt64(GlassPlaqueMotion.held * 1_000_000_000))
+                if presses == press { held = false }
+            }
         }
         .onChange(of: glint) { _, _ in
             guard glints else { return }
@@ -510,6 +524,10 @@ enum GlassPlaqueMotion {
         guard !mode.reduceMotion else { return nil }
         return .linear(duration: pressed ? MotionToken.quick.inSeconds : MotionToken.quick.outSeconds)
     }
+
+    /// How long the press's look holds after touch-down even when the finger has already lifted: the sweep's own
+    /// time (the quick token's in), so a quick tap shows the whole fill once (C1 gate, F2).
+    static var held: Double { MotionToken.quick.inSeconds }
 
     /// The glint of the main plaque's line on a tap beside its pane: up at the quick token's in, down at its out,
     /// 0.25 s in all (law 2: "glints the main plaque's brass line for 0.25 s").
