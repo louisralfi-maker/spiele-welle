@@ -421,6 +421,34 @@ Law 4 (answers and sounds), after D2:
     - Left: the 0.15 s handover and the settle's ease are not on moving film (the runner's frames stand 0.24 s
       apart); the 2.0 s ceiling path is unit-pinned only; the unseen card pre-build is checked only on the runner.
 
+25. **After step B3 (no words on the walk; one presence).** Verified GREEN at 7a6794c3 (round lh-rb-19 ALL PASSED on
+    the gate's head; the lane's full UI classes ran on the builder's 5076d0fa in lh-rb-17 and lh-rb-18). Joined
+    locally as a4b55979; rounds lh-rnd-28, 29 and 30 test the join. What the director saw on the sheets: the audit's
+    walk carries the plate "Talk to Tamsin" over the roofs in every frame; B3's walk carries no word, and Tamsin's
+    own mark stands over her, pressed, until he arrives. On the day-3 walk no mark blinks. The purse figure comes and
+    goes translucent. Saul's bubble carries his offer with "Take him on" in italic under it. Thing 3 is done as far
+    as a runner can show.
+    - The director's call on Saul's deed line: a tap on his bubble while the deed waits does the deed (it says the
+      second touch in words, so it is also a place to touch). Step B3b.
+    - Lane D's table row for `bubbleClose` (`Core/Feedback.swift:17`) names the wrong place: the cue is played once
+      from `stepPresence`, so also beside `paneOpen` when a card closes a bubble, at the horn and at dawn. Step D3
+      corrects the row and listens whether the two stack (the 0.25 s drop rule).
+    - The 0.5 s under the title before `lhWorldStill` is true (L1): step C3 gives the root a title signal.
+    - The hall's rim emissives stay at full colour for the 0.10 s a mark takes to go (L4/P9): lane A's `HallFrames`,
+      a rider for step A4.
+    - Into B3b: a slip that can start during a turn or a brief stop (L2/P6); the staying mark's step from pressed to
+      plain in one frame at arrival (P7); the same speaker's next line swapping text and plate in one frame (P8); the
+      deed reading `touch` unobserved (L3); the dead `ErrandSlip` fields and the per-frame arrays (L5); two purse
+      figures overlapping while the lantern moves during a tick (P5).
+    - Not on film (P4): a five-thing swap of the marks, a mood arrow's coming, a Reduce Motion burst, the bubble's
+      rise (runner frames stand 0.29 s apart, the rise takes 0.15 s). Unit-pinned; a phone decides.
+    - Phone checks: the bubble rising, not popping; the marks on a walk past many things; the arrows; the teaching
+      slips leaving when the lord starts; leaving at the title with a saved realm and coming back (no lantern sound);
+      the moment a talk errand arrives (mark out, bubble in; P3); the walking row's glide with two groups.
+    - The lesson: a change that makes things start at alpha 0 can empty another test's proof (the gate's M2 in
+      `Tests/PaySignTests.swift`: an absence test that could no longer fail). The unit suite on the join catches
+      failures, not emptied proofs; a reviewer has to look for them.
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged

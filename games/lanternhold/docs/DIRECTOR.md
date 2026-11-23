@@ -1560,3 +1560,9 @@ schneller geht."
   - 23.11. 11:30: round lh-rnd-27 is green on 92ffe894 (build; Title + FilmOpening; the whole unit suite), so the
     join with C2b is on origin at exactly 92ffe894. Lane C is idle. Still out: B3 (lane B); its join round also runs
     the title and opening-film classes, because B3 was built on C2's root and the join now holds C2b's.
+  - 23.11. 11:47: step B3 (no words on the walk; one presence) verified GREEN at 7a6794c3 and joined locally as
+    a4b55979 (a clean merge; `UITests/FilmOpeningUITests.swift` auto-merged). Three rounds went out at 11:42 on
+    a4b55979: lh-rnd-28 (build; Touch, Lord, LookAround, Title; the whole unit suite), lh-rnd-29 (build; FilmOpening,
+    FilmDeals, Count; the collector's touch test) and lh-rnd-30 (build; FilmNight, FilmDusk, FilmPanes; Town, People,
+    Audience). Together they are also the joined film round wave A's plan asks for before tf-lh-5. The calls are
+    ROUND.md point 25. All five lanes are idle. Usage 66 % (stop at 80 %). Next join label lh-rnd-31.
