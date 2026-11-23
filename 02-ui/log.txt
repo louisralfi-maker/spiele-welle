@@ -1,0 +1,20 @@
+Test Case '-[LanternholdUITests.FilmDealsUITests testM05APurchase]' passed (151.513 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM06TheHall]' passed (123.397 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM07TheTaxesOnFoot]' passed (70.170 seconds).
+Test Case '-[LanternholdUITests.FilmDealsUITests testM11TheDrillYard]' passed (120.709 seconds).
+Test Case '-[LanternholdUITests.ProofUITests testEndingReplayedAtLaunch]' passed (68.615 seconds).
+Test Case '-[LanternholdUITests.ProofUITests testGoogleAdsPathWithTestUnits]' passed (134.627 seconds).
+Test Case '-[LanternholdUITests.ProofUITests testNoFillDefeatAndReport]' passed (86.637 seconds).
+Test Case '-[LanternholdUITests.ProofUITests testSecondLaunchWithoutArguments]' passed (74.570 seconds).
+Test Case '-[LanternholdUITests.YardUITests testANightWithTheKettle]' passed (15.773 seconds).
+Test Case '-[LanternholdUITests.YardUITests testDayFourTheYardIsPaidAtItsCounter]' passed (38.879 seconds).
+Test Case '-[LanternholdUITests.YardUITests testMareksCartByTheBackGate]' passed (14.423 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheDawnCardNamesTheTrained]' passed (16.897 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheDrillAsAFilmstrip]' passed (28.745 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheFlightSlowed]' passed (37.005 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheGateRockAtTiersTwoAndThree]' passed (26.538 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheNoonDrill]' passed (13.172 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheNoonDrillWithTheKettle]' passed (12.062 seconds).
+Test Case '-[LanternholdUITests.YardUITests testTheYardAtDusk]' passed (11.918 seconds).
+exit=0
+screenshots: 822

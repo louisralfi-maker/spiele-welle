@@ -1,0 +1,38 @@
+m05-f: slowed: a hold of 3 s on the gate; frames start after the finger lifted (the coins still flying, the seal, or the coins going home)
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the cause (slowed: a hold of 3 s on the gate; frames start after the finger lifted (the coins still flying, the seal, or the coins going home)) was sent at +0.163 s and returned at +4.172 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200 -GWTimeScale 0.25
+scene before: frame:1210 ready day:3 hour:10.56 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:notes cam:1106 tap:touch-plot-0 hint:off0 count:touch-plot-0:4/9:there:warned last:letGo:touch-plot-0 lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:1260.00 kf:6 kd:1 kcx:1106.36
+scene after: frame:1720 ready day:3 hour:10.85 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:110 hud:none cam:1106 tap:count hint:off0 count:none last:paid:touch-plot-0 lanterns:1 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:1260.00 kf:7 kd:1 kcx:1106.36
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +4.481 s  
+02  +5.003 s  
+03  +5.249 s  
+04  +5.625 s  
+05  +5.973 s  
+06  +6.334 s  
+07  +6.631 s  
+08  +6.879 s  
+09  +7.228 s  
+10  +7.461 s  
+11  +7.802 s  
+12  +8.132 s  
+13  +8.494 s  
+14  +8.810 s  
+15  +9.060 s  
+16  +9.620 s  
+17  +10.050 s  
+18  +10.407 s  
+19  +10.749 s  
+20  +11.063 s  
+21  +11.410 s  
+22  +11.750 s  
+23  +12.055 s  
+24  +12.322 s  
+25  +12.640 s  
+26  +12.959 s  
+27  +13.228 s  
+28  +13.537 s  
+mean spacing 0.335 s over 27 gaps

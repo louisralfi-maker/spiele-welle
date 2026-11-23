@@ -1,0 +1,38 @@
+m06-a: a touch on the hall's door: he walks to it, the door, the dark, inside
+real time; as fast as the frames come (a rolling burst)
+the cause (a touch on the hall's door: he walks to it, the door, the dark, inside) was sent at +0.000 s and returned at +0.781 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +3.999 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+
+frame  seconds since the burst began  (scene where read)
+01  +1.096 s  
+02  +1.606 s  day:3 hour:10.53 alive:0 seen:0 shots:0 kx:1873 stage:world lx:1873 gold:91 hud:none cam:1624 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+03  +2.616 s  
+04  +3.016 s  day:3 hour:10.64 alive:0 seen:0 shots:0 kx:1830 stage:world lx:1830 gold:91 hud:none cam:1612 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+05  +3.506 s  
+06  +3.848 s  day:3 hour:10.71 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:68 gold:91 hud:none cam:0 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+07  +4.206 s  
+08  +4.421 s  
+09  +4.568 s  
+10  +4.784 s  
+11  +5.119 s  
+12  +5.400 s  
+13  +5.729 s  
+14  +6.014 s  
+15  +6.290 s  
+16  +6.794 s  
+17  +7.117 s  
+18  +7.391 s  
+19  +7.711 s  
+20  +8.276 s  
+21  +8.626 s  
+22  +8.936 s  
+23  +9.174 s  
+24  +9.631 s  
+25  +10.012 s  
+26  +10.382 s  
+27  +10.590 s  
+28  +10.844 s  
+29  +11.154 s  
+30  +11.582 s  day:3 hour:11.32 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:68 gold:91 hud:none cam:0 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.362 s over 29 gaps

@@ -1,0 +1,56 @@
+m07-c: Saul the collector on his round: the chandler's household bows, its coins hop into his strongbox; the condition: the state lists her coins in his hand
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +7.232 s (8 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWTown collector -GWHappiness 66 -GWCameraX 2580
+
+frame  seconds since the burst began  (scene where read)
+01  +2.375 s  
+02  +2.543 s  day:2 hour:6.56 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+03  +2.917 s  
+04  +3.101 s  day:2 hour:6.61 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+05  +3.491 s  
+06  +3.676 s  day:2 hour:6.67 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+07  +4.017 s  
+08  +4.179 s  day:2 hour:6.70 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+09  +4.471 s  
+10  +4.633 s  day:2 hour:6.73 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+11  +4.967 s  
+12  +5.140 s  day:2 hour:6.78 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+13  +5.460 s  
+14  +5.607 s  day:2 hour:6.81 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+15  +5.908 s  
+16  +6.068 s  day:2 hour:6.86 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+17  +6.371 s  
+18  +6.540 s  day:2 hour:6.89 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+19  +6.900 s  
+20  +7.095 s  day:2 hour:6.94 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+21  +7.422 s  
+22  +7.586 s  
+23  +7.756 s  
+24  +7.949 s  
+25  +8.101 s  
+26  +8.251 s  
+27  +8.396 s  
+28  +8.556 s  
+29  +8.708 s  
+30  +8.895 s  
+31  +9.045 s  
+32  +9.195 s  
+33  +9.318 s  
+34  +9.437 s  
+35  +9.591 s  
+36  +9.757 s  
+37  +9.930 s  
+38  +10.082 s  
+39  +10.243 s  
+40  +10.391 s  
+41  +10.545 s  
+42  +10.700 s  
+43  +10.853 s  
+44  +11.040 s  
+45  +11.180 s  
+46  +11.304 s  
+47  +11.467 s  
+48  +11.624 s  day:2 hour:7.32 alive:0 seen:0 shots:0 kx:2580 stage:world lx:2580 gold:21 hud:none cam:2362 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.197 s over 47 gaps
