@@ -173,27 +173,23 @@ struct RootView: View {
         model?.setActive(true)
         let mode = stepInMode
         Task { @MainActor in
+            // Debug: the wall seconds and the beat's uncounted hitches at each phase (`stepin-probe`).
             var marks: [String] = []
-            func mark(_ name: String) {
-                #if DEBUG
-                marks.append(String(format: "%@ %.3f/%.3f", name, Date().timeIntervalSince(start), beat.lost))
-                #endif
+            let phases: [(name: String, at: Double)] = [("task", 0), ("close", StepIn.closeFrom),
+                                                        ("black", StepIn.blackAt), ("gone", StepIn.riseFrom),
+                                                        ("whole", StepIn.hallWholeAt(mode)),
+                                                        ("panes", StepIn.panesAt(mode))]
+            for phase in phases {
+                await beat.wait(until: phase.at)
+                switch phase.name {
+                case "black": titleCues.black()
+                case "gone": titleDone = true
+                case "whole": hallWhole = true
+                case "panes": panesHeld = false
+                default: break
+                }
+                marks.append(String(format: "%@ %.3f/%.3f", phase.name, Date().timeIntervalSince(start), beat.lost))
             }
-            mark("task")
-            await beat.wait(until: StepIn.closeFrom)
-            mark("close")
-            await beat.wait(until: StepIn.blackAt)
-            titleCues.black()
-            mark("black")
-            await beat.wait(until: StepIn.riseFrom)
-            titleDone = true
-            mark("gone")
-            await beat.wait(until: StepIn.hallWholeAt(mode))
-            hallWhole = true
-            mark("whole")
-            await beat.wait(until: StepIn.panesAt(mode))
-            panesHeld = false
-            mark("panes")
             #if DEBUG
             stepProbe = String(format: "lost:%.3f longest:%.3f wall:%.3f; wall/lost at ", beat.lost, beat.longestGap,
                                Date().timeIntervalSince(start)) + marks.joined(separator: ", ")
