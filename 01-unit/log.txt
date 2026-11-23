@@ -1,0 +1,28 @@
+2026-11-23 05:12:44.466342+0000 Lanternhold[17550:63686] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-23 05:12:45.263027+0000 Lanternhold[17550:64348] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 05:12:45.263049+0000 Lanternhold[17550:64356] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 05:12:45.264275+0000 Lanternhold[17550:64356] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 05:12:45.264321+0000 Lanternhold[17550:64353] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 05:12:45.743634+0000 Lanternhold[17550:64353] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-23 05:12:45.875905+0000 Lanternhold[17550:64353] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.DawnCardModelTests testAHeldNightRingsTheBellOnceAndNoToll]' passed (0.125 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testFiveFallenTollThreeTimesOneSecondApart]' passed (0.078 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testOneFallenTollsOnce]' passed (0.069 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheCardComesAfterAPauseOfTheApp]' passed (0.545 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheCardComesAfterLoadingADawnSave]' passed (0.103 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheCardComesSixTenthsOfASecondAfterTheGateWithTheInputClosed]' passed (0.479 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheGatesCuePlaysOnceAtTheDawn]' passed (0.472 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testTheTollsStopWhenTheCardIsClosed]' passed (0.081 seconds).
+Test Case '-[LanternholdTests.DawnCardModelTests testUnderReduceMotionTheWaitIsTheSame]' passed (0.441 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testAfterNightTwentyTheKingsBannerComesFirst]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testARealNightBecomesTheCard]' passed (0.064 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testASecondChanceBringsADawnWithItsBanner]' passed (0.181 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testNothingOwedReadsCalm]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testOneDoorAndTheTownsLineAfterYesterday]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheFinaleQuotesTheSpeech]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheHearthAndTheUnlocksAreWorded]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheLineForwardTakesTheFirstThatApplies]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheRowSaysWhatTheDoorsOweTodayWithYesterdayInTheDetail]' passed (0.098 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheSampleShowsAWallLostAFallenArcherAndAnUnlock]' passed (0.001 seconds).
+exit=0
+screenshots: 0
