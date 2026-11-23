@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// A court member's line in a bubble over his head (DESIGN.md "Talking"; M3 step 3): who speaks, the name and the
 /// line as Story.xcstrings keys, and where his head is on screen (x as a share of the screen's width, the head's top as
@@ -293,9 +294,17 @@ extension GameModel {
     /// The speech bubble (the action button beside a court member): his next line of today over his head; he stops
     /// and turns to the king while it shows.
     func talk(to who: String) {
+        // Polish E1 (law 3.3): once the day's work is done Brannock offers the horn, and a second touch on him while
+        // that line stands is the word.
+        if who == NightOffer.speaker, overlay == nil, nightOfferTakesTouch {
+            offerTheHorn()
+            return
+        }
         guard overlay == nil, let state = driver?.state, DayClock.phase(at: state.hour) == .day,
               let line = CourtTalk.line(who, state: state, lines: .standard, log: talkLog) else { return }
         talkLog.note(who, day: state.day)
+        // E1b gate F1: Hesper's far goal heard (her mark rests on this note, her greeting comes first on day 1).
+        if line.id == FarGoal.lineID { talkLog.note(FarGoal.heardKey, day: state.day) }
         let height = Double(Speakers.speaker(who)?.body.sprite.size.height ?? 30)
         if stage == .hall {
             // The hall stage: the speaker as the hall draws him, the bubble over his head on the hall's framing.
@@ -311,6 +320,12 @@ extension GameModel {
             feedback.play(.cardOpened)
             return
         }
+        openWorldBubble(who, textKey: line.text, state: state)
+    }
+
+    /// The bubble over a speaker in the world: he stops and turns to the lord while it shows.
+    private func openWorldBubble(_ who: String, textKey: String, state: GameState) {
+        let height = Double(Speakers.speaker(who)?.body.sprite.size.height ?? 30)
         let figure = CourtFrames.figures(state: state, catalog: .standard, scene: court, animTime: animationTime)
             .first { $0.who == who }
         court.talking = who
@@ -326,8 +341,51 @@ extension GameModel {
             headY = (ground - height * Double(pixelScale.scale)) / Double(max(1, pixelScale.physicalHeight))
         }
         talkBubble = TalkBubble(who: who, nameKey: Speakers.nameKey(who, day: state.day, flags: state.flags),
-                                textKey: line.text, anchorX: anchorX, headY: headY)
+                                textKey: textKey, anchorX: anchorX, headY: headY)
         feedback.play(.cardOpened)
+    }
+
+    /// Polish E1 (law 3.3; critic-run R1, the collector's two-touch pattern): Brannock's offer of the horn. The first
+    /// touch opens his line ("Say the word and I sound the horn"), and the offer counts as heard (E1b: his mark stays
+    /// while the offer stands, until the night is called, `NightOffer.calledKey`). A touch on him while that very line
+    /// stands, once it has stood `NightOffer.wordAfter`, is the word: the night is
+    /// called and the dusk plays. A touch on the bubble closes it, walking away closes it, and the next touch on him
+    /// only says the line again; a touch sooner than the beat does nothing, so a double tap never ends the day.
+    func offerTheHorn() {
+        guard let state = driver?.state else { return }
+        if nightOfferBubbleOpen {
+            guard clock.elapsed - nightOfferShownAt >= NightOffer.wordAfter, soundTheNight() else { return }
+            // E1 gate (P2, law 4): the word has its own answer at once, the audience's answer sound (an existing cue).
+            feedback.play(.choiceMade)
+            return
+        }
+        talkLog.note(NightOffer.heardKey, day: state.day)
+        nightOfferShownAt = clock.elapsed
+        openWorldBubble(NightOffer.speaker, textKey: NightOffer.lineKey, state: state)
+        // E1 gate (H1, P12): VoiceOver hears the line that announces the deed before a second activation can end the
+        // day (the bubble itself is not read out when it opens).
+        if UIAccessibility.isVoiceOverRunning {
+            UIAccessibility.post(notification: .announcement, argument: story(NightOffer.lineKey))
+        }
+    }
+
+    /// E1 gate: Brannock's offer bubble stands over him (his offer was the last thing he said and he still faces the
+    /// lord).
+    var nightOfferBubbleOpen: Bool {
+        guard let bubble = talkBubble else { return false }
+        return bubble.who == NightOffer.speaker && bubble.textKey == NightOffer.lineKey
+            && court.talking == NightOffer.speaker
+    }
+
+    /// E1 gate: a touch on Brannock goes to the offer. While his offer bubble stands the word is honoured as long as
+    /// the night can still be called, even if the offer lapsed meanwhile (17:30 passed, a coin made something payable:
+    /// M3, P8), since his line promised it. Otherwise the offer must stand, and an answer line of his own that is
+    /// still unheard today (his talk mark's reason, `touch.hinted`) is said first; the next touch brings the offer
+    /// (P3).
+    var nightOfferTakesTouch: Bool {
+        if nightOfferBubbleOpen { return canCallTheNight }
+        guard nightOfferStands, let state = driver?.state else { return false }
+        return talkedToday(state).contains(NightOffer.speaker) || !touch.hinted.contains(NightOffer.speaker)
     }
 
     /// Closes the bubble (a tap on it, walking away, a card opening, the horn).

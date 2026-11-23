@@ -702,17 +702,30 @@ def build_start():
 
 
 def build_done():
+    """A building or a wall tier stands (F4, polish step D2, law 4's step 3): the two knocks of timber set home as
+    before, under them a low body at 70 Hz (tau 0.25 s, a 4 ms attack) that lands in the chest, then a gravel tail of
+    0.6 s (small stones and the scaffold's dust settling, `debris`); 1.1 s, a low body and a bright top, never
+    randomised. Was 0.95 s with a soft 98 Hz hum, quieter than the seal before it."""
     rng = Rng(22)
-    x = zeros(secs(0.95))
+    x = zeros(secs(1.1))
     for t, f, g in ((0.0, 150, 1.0), (0.11, 132, 0.9)):
         n = secs(0.25)
         knock = [a + 0.5 * b for a, b in zip(grain(n, f, 0.06), grain(n, f * 3.1, 0.025))]
         hit = biquad([rng.bipolar() * math.exp(-i / (0.008 * SR)) for i in range(n)], "bp", 900, 1.2)
         add_into(x, [k + 0.8 * h for k, h in zip(knock, hit)], secs(t), g)
-    add_into(x, grain(secs(0.7), 98, 0.22), secs(0.2), 0.6)
-    dust = mul(biquad(noise(secs(0.5), rng), "bp", 1600, 0.7), decay(secs(0.5), 0.12, attack=0.05))
-    add_into(x, dust, secs(0.22), 0.12)
-    return fade(normalize(reverb(x, wet=0.2, size=0.8)), 0.001, 0.08)
+    n = secs(0.9)
+    body = mul(sine(n, lambda t: 70 + 22 * max(0.0, 1.0 - t / 0.05)), decay(n, 0.25, attack=0.004))
+    add_into(x, body, secs(0.11), 1.25)
+    thud = lowpass([rng.bipolar() * math.exp(-i / (0.06 * SR)) for i in range(secs(0.3))], 380)
+    add_into(x, thud, secs(0.11), 0.9)
+    # The gravel tail: stones trickling off the new work and the dust after them, thinning out over 0.6 s.
+    debris(x, rng, 0.16, 0.76, 22, 0.32)
+    n = secs(0.62)
+    grit = highpass(biquad(noise(n, rng), "bp", 2400, 0.8), 900)
+    env = [min(1.0, i / (0.04 * SR)) * math.exp(-i / (0.2 * SR)) for i in range(n)]
+    add_into(x, mul(grit, env), secs(0.16), 0.16)
+    x = reverb(x, wet=0.18, size=0.8)
+    return fade(normalize(soft(lowpass(x, 6000), 1.3)), 0.001, 0.12)
 
 
 def lantern():
@@ -865,10 +878,15 @@ def wall_hit():
 
 
 def wall_break():
+    """A breach (F10, polish step D1): the old fall of stone and its rumble, now on a sub thud, a body blow falling
+    from 80 to 55 Hz (tau 0.3 s) with a 4 ms attack, so the wall's fall lands in the chest before the debris. 1.52 s
+    (was 1.7; law 4's step 4 is 1.5 to 3 s): the 0.18 s of rumble tail pay for D1's new files inside the 4 MB budget."""
     rng = Rng(72)
-    x = zeros(secs(1.7))
+    x = zeros(secs(1.52))
     n = secs(1.2)
     add_into(x, grain(n, 55, 0.35), 0, 1.0)
+    sub = mul(sine(n, lambda t: 55 + 25 * max(0.0, 1.0 - t / 0.08)), decay(n, 0.3, attack=0.004))
+    add_into(x, sub, 0, 1.6)
     rumble = lowpass(lowpass(noise(secs(1.6), rng), 220), 220)
     add_into(x, mul(rumble, decay(secs(1.6), 0.45, attack=0.03)), 0, 5.0)
     add_into(x, lowpass([rng.bipolar() * math.exp(-i / (0.12 * SR)) for i in range(n)], 900), 0, 1.2)
@@ -911,12 +929,54 @@ def step(seed, cutoff):
     return fade(normalize(x), 0.002, 0.04)
 
 
+def resample(x, ratio):
+    """`x` at `ratio` of its pitch (polish step D2, law 4 0g: a player's rate stretches time and keeps the pitch, so a
+    higher or lower sound is its own file): read `ratio` samples a sample, linear between them; higher is shorter."""
+    n = int((len(x) - 1) / ratio)
+    out = []
+    for i in range(n):
+        t = i * ratio
+        j = int(t)
+        f = t - j
+        out.append(x[j] * (1.0 - f) + x[min(len(x) - 1, j + 1)] * f)
+    return out
+
+
+def rms_db(x):
+    """The whole signal's RMS in dBFS (inventory.md's measure of a file)."""
+    return 10 * math.log10(max(1e-18, sum(v * v for v in x) / max(1, len(x))))
+
+
+def to_rms(x, target, peak=0.89):
+    """`x` brought to a whole RMS of `target` dBFS, its peaks rounded under `peak` by a soft limiter (tanh) where the
+    gain would push them over: three passes, so the RMS lands within a few hundredths of a dB."""
+    y = list(x)
+    for _ in range(3):
+        g = 10 ** ((target - rms_db(y)) / 20)
+        y = [v * g for v in y]
+        if max(abs(v) for v in y) > peak:
+            y = [peak * math.tanh(v / peak) for v in y]
+    return y
+
+
+# Polish step D2 (law 4 0g and its step 8): the lord's step in three variants within +-4 % of pitch, rendered from one
+# footfall (step_2's packed-earth scuff), played in rotation, never the same twice in a row; all three at one whole RMS,
+# so the step at volume 0.5 sits near -21 dBFS (the 25 Hz high pass after it takes about 0.8 dB), at least 3 dB over
+# every bed (0f). Were two files of two footfalls, at -18.4 and -16.2 dBFS RMS.
+STEP_RMS = -14.2
+STEP_PITCHES = (1.0, 1.035, 1.0 / 1.035)
+
+
+def step_variant(k):
+    return fade(to_rms(resample(step(92, 750), STEP_PITCHES[k]), STEP_RMS), 0.0, 0.03)
+
+
 def step_1():
-    return step(91, 900)
+    return step_variant(0)
 
 
 def step_2():
-    return step(92, 750)
+    return step_variant(1)
 
 
 def parchment():

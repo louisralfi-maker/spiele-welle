@@ -708,6 +708,9 @@ struct FrameOptions: Sendable, Equatable {
     /// b3-wind: build 3 step 6 (the director's call S5): false leaves the chimney smoke out of the frame, so a test can
     /// render the backdrop behind each puff. The game never sets it.
     var drawsSmoke = true
+    /// Polish step A1: the lord's gait from the driver (`SimDriver.gait`): his walk frame by the distance this walk has
+    /// come, the holds after a stop and through a turn. Nil (a frame built without the driver): by his x, as before.
+    var lordGait: LordGait? = nil
 
     /// The pixel scale these options give on a screen.
     func pixelScale(physicalWidth: Int, physicalHeight: Int) -> PixelScale {

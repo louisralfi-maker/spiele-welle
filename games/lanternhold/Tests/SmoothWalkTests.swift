@@ -670,4 +670,328 @@ final class SmoothWalkTests: XCTestCase {
         XCTAssertEqual(EmissiveBands.mask(night, reducedEffects: true) & EmissiveBands.bit(.keepMist), 0,
                        "under the thermal cut the keep's mist is not drawn, so not read")
     }
+
+    // MARK: Polish step A1: the camera and the far layers with the walk's start and brake
+
+    /// One walk through the driver as the game steps it (`GameModel.advanceGame`: the camera frames after every sim
+    /// step): the lead settled by an earlier walk the same way, then a tap `distance` px on at `pace`, until he stands
+    /// and three seconds more. Every step's lord move, camera move, the remaining gap before the step and the planes'
+    /// device offsets.
+    private func steppedWalk(distance: Double, pace: Double, reduceMotion: Bool = false)
+        -> [(lord: Double, camera: Double, gap: Double, ramping: Bool, planes: [Int])] {
+        var s = GameState.newRealm(seed: 6)
+        s.hour = 10
+        s.king.x = 2700
+        s.king.facing = distance > 0 ? 1 : -1
+        var driver = SimDriver(state: s, balance: .standard)
+        let pixelScale = PixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        var camera = Camera(focusX: 2700, pixelScale: pixelScale)
+        camera.presetLead(facing: s.king.facing, lordX: 2700)
+        var events: [SimEvent] = []
+        let target = 2700 + distance
+        driver.travel(to: target, speed: pace)
+        var rows: [(lord: Double, camera: Double, gap: Double, ramping: Bool, planes: [Int])] = []
+        var after = 0
+        var steps = 0
+        while after < 180 && steps < 3000 {
+            let x = driver.state.king.x
+            let left = camera.x
+            let gap = abs(target - x)
+            driver.advance(by: SimDriver.step, events: &events)
+            camera.frame(CameraFraming.input(driver.state, camera: camera), dt: SimDriver.step,
+                         reduceMotion: reduceMotion)
+            let planes = [Plane.far, .mid, .near, .world].map { plane -> Int in
+                let offset = camera.offset(for: plane, scale: 6)
+                return offset.whole * 6 + offset.deviceShift
+            }
+            rows.append((driver.state.king.x - x, camera.x - left, gap,
+                         Double(steps + 1) * SimDriver.step <= FigureMotion.startSeconds + SimDriver.step, planes))
+            if driver.travelTarget == nil { after += 1 }
+            steps += 1
+        }
+        XCTAssertEqual(driver.state.king.x, target, "he stands on the spot")
+        return rows
+    }
+
+    /// The camera stays calm through the walk's start and brake (Louis once saw roofs jitter while walking): no camera
+    /// step through the ramp, the brake and the settle after it is larger than the lord's own step at his pace, the
+    /// camera never steps back (before A1 the follow ran about 1.7 px past the goal after every stop and slid back),
+    /// and no far plane steps back by a device pixel. East and west, at a walk and at a run; under Reduce Motion the
+    /// camera moves with the lord step for step.
+    func testTheCameraAndTheFarPlanesStayCalmThroughTheStartAndTheBrake() {
+        for (distance, pace) in [(90.0, 36.0), (-90.0, 36.0), (200.0, 80.0), (12.0, 36.0)] {
+            let label = "\(distance) px at \(pace)"
+            let way = distance > 0 ? 1.0 : -1.0
+            let full = pace * SimDriver.step
+            let rows = steppedWalk(distance: distance, pace: pace)
+            var lastPlanes = rows.first?.planes ?? []
+            var brakeSeen = false
+            for (index, row) in rows.enumerated() {
+                XCTAssertGreaterThanOrEqual(row.camera * way, -1e-9, "\(label): the camera never steps back (\(index))")
+                XCTAssertGreaterThanOrEqual(row.lord * way, -1e-12, "\(label): nor does he")
+                // The gate (A1-C4): through the ramp and the brake no camera step is larger than the lord's own step
+                // (within a thousandth of a game px: the first brake step still carries the catch-up's 0.0003 px).
+                if row.ramping {
+                    XCTAssertLessThanOrEqual(abs(row.camera), abs(row.lord) + 0.001, "\(label): ramp step \(index)")
+                }
+                if abs(distance) > 60 && row.gap < FigureMotion.brakePixels {
+                    brakeSeen = true
+                }
+                if brakeSeen {
+                    XCTAssertLessThanOrEqual(abs(row.camera), abs(row.lord) + 0.001,
+                                             "\(label): brake or settle step \(index)")
+                }
+                for (plane, (now, before)) in zip(["far", "mid", "near", "world"], zip(row.planes, lastPlanes)) {
+                    XCTAssertGreaterThanOrEqual(Double(now - before) * way, 0, "\(label): the \(plane) plane at \(index)")
+                }
+                lastPlanes = row.planes
+            }
+            XCTAssertTrue(brakeSeen || abs(distance) <= 60, label)
+            // Between the ramp and the brake the follow catches up its lag as it always did (about 1.11 × his step;
+            // the bound is the director's reading of "no step larger than his own" for the catch-up).
+            XCTAssertLessThanOrEqual(rows.map { abs($0.camera) }.max() ?? 0, full * 1.12, "\(label): never races")
+        }
+        let still = steppedWalk(distance: 90, pace: 36, reduceMotion: true)
+        for (index, row) in still.enumerated() {
+            XCTAssertEqual(row.camera, row.lord, accuracy: 1e-9, "Reduce Motion: with the lord, step \(index)")
+        }
+    }
+
+    /// The gate (A1-C1, F1), with step A1b: a drag let go brakes now (4 px from his pace), so the picture eases with
+    /// him over at least four ever smaller steps, the first at least half the last step at pace, never stepping back,
+    /// and settles on its goal. A goal that still stops dead (an errand at once, here the hall's follow fed a dead stop)
+    /// is eased past and back as the gate built it (`FigureMotion.cameraDeadStopSpeed`). A second tap that turns him:
+    /// the camera's step in the turn keeps its way and is no dead stop.
+    func testADeadStopOrATurnNeverStopsThePictureInOneFrame() {
+        let pixelScale = PixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        func eases(_ steps: [Double], stop: Int, way: Double, _ label: String) {
+            let before = steps[stop - 1] * way
+            XCTAssertGreaterThan(before, 0.5, "\(label): at pace")
+            XCTAssertGreaterThanOrEqual(steps[stop] * way, 0.5 * before, "\(label): the first step after the stop")
+            for index in stop..<(stop + 4) {
+                XCTAssertGreaterThan(steps[index] * way, 0, "\(label): on at \(index - stop)")
+                XCTAssertLessThan(steps[index] * way, steps[index - 1] * way + 1e-9,
+                                  "\(label): easing at \(index - stop)")
+            }
+        }
+        // The world: a drag at a walk (east, west) and at a run, let go after 2 s.
+        for offset in [20.0, -20.0, 60.0] {
+            var s = GameState.newRealm(seed: 6)
+            s.hour = 10
+            s.king.x = 2700
+            s.king.facing = offset > 0 ? 1 : -1
+            var driver = SimDriver(state: s, balance: .standard)
+            var camera = Camera(focusX: 2700, pixelScale: pixelScale)
+            camera.presetLead(facing: s.king.facing, lordX: 2700)
+            var events: [SimEvent] = []
+            driver.setDrag(offset: offset)
+            var steps: [Double] = []
+            for index in 0..<240 {
+                if index == 120 { driver.setDrag(offset: nil) }
+                let left = camera.x
+                driver.advance(by: SimDriver.step, events: &events)
+                camera.frame(CameraFraming.input(driver.state, camera: camera), dt: SimDriver.step)
+                steps.append(camera.x - left)
+            }
+            let label = "drag \(offset)"
+            eases(steps, stop: 120, way: offset > 0 ? 1 : -1, label)
+            for (index, step) in steps.enumerated() {
+                XCTAssertGreaterThanOrEqual(step * (offset > 0 ? 1 : -1), -1e-12, "\(label): never back (\(index))")
+            }
+            let goal = CameraFraming.goal(lordX: driver.state.king.x, lead: camera.lead, danger: camera.danger)
+            XCTAssertEqual(camera.x, goal - camera.viewWidth / 2, accuracy: 0.05, "\(label): settled on its goal")
+        }
+        // The hall's camera (`Camera.follow` straight on the walker): a walk at 36 that stops in one step.
+        var view = Camera(focusX: 200, viewWidth: 200, worldWidth: 600)
+        var x = 200.0
+        var hallSteps: [Double] = []
+        for index in 0..<180 {
+            let speed = index < 90 ? 36.0 : 0
+            x += speed * SimDriver.step
+            let left = view.x
+            view.follow(targetX: x, targetVelocity: speed, dt: SimDriver.step)
+            hallSteps.append(view.x - left)
+        }
+        eases(hallSteps, stop: 90, way: 1, "the hall")
+        XCTAssertEqual(view.x, x - 100, accuracy: 0.05, "the hall: settled on him")
+        // A turn: a tap 90 px east at a walk, then after a second a tap west of him.
+        var s = GameState.newRealm(seed: 6)
+        s.hour = 10
+        s.king.x = 2700
+        s.king.facing = 1
+        var driver = SimDriver(state: s, balance: .standard)
+        var camera = Camera(focusX: 2700, pixelScale: pixelScale)
+        camera.presetLead(facing: 1, lordX: 2700)
+        var events: [SimEvent] = []
+        driver.travel(to: 2790, speed: 36)
+        var turn: (lord: Double, camera: Double, before: Double)?
+        var lastCamera = 0.0
+        for index in 0..<120 {
+            if index == 60 { driver.travel(to: 2650, speed: 36) }
+            let x = driver.state.king.x
+            let left = camera.x
+            driver.advance(by: SimDriver.step, events: &events)
+            camera.frame(CameraFraming.input(driver.state, camera: camera), dt: SimDriver.step)
+            if index == 60 { turn = (driver.state.king.x - x, camera.x - left, lastCamera) }
+            lastCamera = camera.x - left
+        }
+        XCTAssertNotNil(turn, "the turn was stepped")
+        let step = turn
+        XCTAssertEqual(step?.lord ?? 1, 0, accuracy: 1e-12, "he stands turned in the turn's step")
+        XCTAssertGreaterThan(step?.before ?? 0, 0.5, "the camera walked with him")
+        XCTAssertGreaterThan(step?.camera ?? 0, 0.1 * (step?.before ?? 0), "the turn's camera step keeps its way")
+    }
+
+    // MARK: Step A1b: the camera lands without a snap
+
+    /// After he stands (the step that lands him, `landing`): the camera's steps never reverse and never grow, a step of
+    /// more than a hundredth of a px is followed by one at least half its size (an ease, never a fall to nothing), the
+    /// step after the landing is no smaller than the landing step less his own last step and a tenth of a px (the stop
+    /// is never harder than his own brake's), and it comes to rest exactly on its goal.
+    private func assertLands(_ camera: [Double], lord: [Double], landing: Int, way: Double, settled: Bool,
+                             _ label: String) {
+        for (index, step) in camera.enumerated() {
+            XCTAssertGreaterThanOrEqual(step * way, -1e-12, "\(label): never back (\(index))")
+        }
+        let after = Array(camera[(landing + 1)...]).map { $0 * way }
+        let moving = after.prefix { $0 > 0 }
+        XCTAssertTrue(after.dropFirst(moving.count).allSatisfy { $0 == 0 }, "\(label): at rest it stays")
+        let landed = camera[landing] * way
+        let own = lord[landing] * way
+        if let first = moving.first {
+            XCTAssertLessThanOrEqual(first, landed + 0.002, "\(label): never grows at the landing")
+            XCTAssertGreaterThanOrEqual(first, landed - own - 0.1, "\(label): no harder stop than his own brake")
+        } else {
+            XCTAssertLessThanOrEqual(landed, own + 0.1, "\(label): it stopped with him")
+        }
+        let steps = Array(moving)
+        for index in steps.indices.dropFirst() {
+            XCTAssertLessThanOrEqual(steps[index], steps[index - 1] + 0.002, "\(label): grows at \(index)")
+            if steps[index - 1] > 0.01 {
+                XCTAssertGreaterThanOrEqual(steps[index], 0.5 * steps[index - 1], "\(label): falls at \(index)")
+            }
+        }
+        // The A1b gate (F3): the last step before rest is invisible too (a hundredth of a game px), so an ease that
+        // ended in a snap onto the goal would fail here.
+        if let last = steps.last {
+            XCTAssertLessThanOrEqual(last, 0.01, "\(label): the last step before rest")
+        }
+        XCTAssertTrue(settled, "\(label): at rest on its goal")
+        XCTAssertLessThan(steps.count, 240, "\(label): at rest within 4 s")
+    }
+
+    /// Step A1b (the camera lands without a snap; the gate's own finding): short and long tap runs at the walk, the
+    /// hurry and the run, east and west, a drag let go early and late, the hall's walker, and a goal that jumps (the
+    /// throne seating). Before, after a short run at a run the camera glided on after he stood and stopped in one frame
+    /// (80 px/s, 20 px: 0.70, 0.12, 0 px a step).
+    func testTheCameraLandsWithoutASnap() {
+        let pixelScale = PixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        func world(_ start: (inout SimDriver) -> Void, release: Int? = nil, facing: Int, _ label: String) {
+            var s = GameState.newRealm(seed: 6)
+            s.hour = 10
+            s.king.x = 2700
+            s.king.facing = facing
+            var driver = SimDriver(state: s, balance: .standard)
+            var camera = Camera(focusX: 2700, pixelScale: pixelScale)
+            camera.presetLead(facing: facing, lordX: 2700)
+            var events: [SimEvent] = []
+            start(&driver)
+            var cameraSteps: [Double] = []
+            var lordSteps: [Double] = []
+            var landing: Int?
+            for index in 0..<600 {
+                if index == release { driver.setDrag(offset: nil) }
+                let x = driver.state.king.x
+                let left = camera.x
+                driver.advance(by: SimDriver.step, events: &events)
+                camera.frame(CameraFraming.input(driver.state, camera: camera), dt: SimDriver.step)
+                cameraSteps.append(camera.x - left)
+                lordSteps.append(driver.state.king.x - x)
+                let walking = driver.travelTarget != nil || driver.dragPace != nil || driver.dragStop != nil
+                if landing == nil && !walking && (release == nil || index >= release!) { landing = index }
+            }
+            guard let landing else { return XCTFail("\(label): he never stood") }
+            let goal = CameraFraming.goal(lordX: driver.state.king.x, lead: camera.lead, danger: camera.danger)
+            let settled = abs(camera.x - (goal - camera.viewWidth / 2)) < 0.05
+            assertLands(cameraSteps, lord: lordSteps, landing: landing, way: Double(facing), settled: settled, label)
+        }
+        for pace in [Balance.standard.kingWalkSpeed, TouchRules.hurrySpeed, Balance.standard.kingRunSpeed] {
+            for distance in [3.0, 10, 20, 45, 80, 150, -20, -45] {
+                world({ $0.travel(to: 2700 + distance, speed: pace) }, facing: distance > 0 ? 1 : -1,
+                      "a tap \(distance) px at \(pace)")
+            }
+        }
+        for offset in [20.0, -20, 60, -60] {
+            for release in [3, 10, 30, 120] {
+                world({ $0.setDrag(offset: offset) }, release: release, facing: offset > 0 ? 1 : -1,
+                      "a drag \(offset) let go at step \(release)")
+            }
+        }
+        // The hall's walker: the camera follows his own travel of each step (`HallWalker.stepVelocity`).
+        for (drag, walk) in [(20.0, nil), (60.0, nil), (nil, (12.0, 36.0)), (nil, (12.0, 80.0)), (nil, (40.0, 80.0))]
+            as [(Double?, (Double, Double)?)] {
+            var walker = HallWalker(x: 200, facing: 1)
+            var view = Camera(focusX: 200, viewWidth: Double(2622) / 7, worldWidth: HallLayout.width)
+            if let drag { walker.setDrag(offset: drag, deadZone: 6, runDistance: 40) }
+            if let walk { walker.walk(to: 200 + walk.0, speed: walk.1) }
+            var cameraSteps: [Double] = []
+            var lordSteps: [Double] = []
+            var landing: Int?
+            for index in 0..<600 {
+                if drag != nil && index == 90 { walker.setDrag(offset: nil, deadZone: 6, runDistance: 40) }
+                let x = walker.x
+                let left = view.x
+                walker.step(dt: SimDriver.step)
+                view.follow(targetX: walker.x, targetVelocity: walker.stepVelocity, dt: SimDriver.step)
+                cameraSteps.append(view.x - left)
+                lordSteps.append(walker.x - x)
+                if landing == nil && walker.velocity == 0 && (drag == nil || index >= 90) { landing = index }
+            }
+            let label = "the hall, \(drag.map { "drag \($0)" } ?? "walk \(walk!.0) px at \(walk!.1)")"
+            guard let landing else { XCTFail("\(label): he never stood"); continue }
+            assertLands(cameraSteps, lord: lordSteps, landing: landing, way: 1,
+                        settled: abs(view.x - (walker.x - view.viewWidth / 2)) < 0.05, label)
+        }
+        // A goal that jumps (the throne seating sets him down under the card): the camera glides there, its steps rise
+        // to one peak and then only fall, never back, and it comes to rest on the goal.
+        func glides(_ steps: [Double], _ label: String) {
+            let moving = Array(steps.prefix { $0 > 0 })
+            XCTAssertGreaterThan(moving.count, 10, "\(label): a glide")
+            XCTAssertTrue(steps.dropFirst(moving.count).allSatisfy { $0 == 0 }, "\(label): at rest it stays")
+            let peak = moving.indices.max { moving[$0] < moving[$1] } ?? 0
+            for index in moving.indices.dropFirst() {
+                if index <= peak {
+                    XCTAssertGreaterThanOrEqual(moving[index], moving[index - 1] - 0.002, "\(label): rising at \(index)")
+                } else {
+                    XCTAssertLessThanOrEqual(moving[index], moving[index - 1] + 0.002, "\(label): falling at \(index)")
+                    if moving[index - 1] > 0.01 {
+                        XCTAssertGreaterThanOrEqual(moving[index], 0.5 * moving[index - 1], "\(label): eases at \(index)")
+                    }
+                }
+            }
+            // The A1b gate (F3): the last step before rest is at most a hundredth of a game px (no snap at the end).
+            XCTAssertLessThanOrEqual(moving.last ?? 0, 0.01, "\(label): the last step before rest")
+            XCTAssertLessThan(moving.count, 300, "\(label): at rest within 5 s")
+        }
+        var hall = Camera(focusX: 380, viewWidth: Double(2622) / 7, worldWidth: HallLayout.width)
+        hall = Camera(focusX: 300, viewWidth: hall.viewWidth, worldWidth: HallLayout.width)
+        var hallSteps: [Double] = []
+        for _ in 0..<400 {
+            let left = hall.x
+            hall.follow(targetX: 340, targetVelocity: 0, dt: SimDriver.step)
+            hallSteps.append(hall.x - left)
+        }
+        glides(hallSteps, "the hall's goal 40 px on")
+        XCTAssertEqual(hall.x, 340 - hall.viewWidth / 2, accuracy: 1e-9)
+        var camera = Camera(focusX: 2700, pixelScale: pixelScale)
+        camera.reframe(CameraFraming.Input(lordX: 2700, velocity: 0, facing: 1, danger: 0))
+        var worldSteps: [Double] = []
+        for _ in 0..<400 {
+            let left = camera.x
+            camera.frame(CameraFraming.Input(lordX: 2740, velocity: 0, facing: 1, danger: 0), dt: SimDriver.step)
+            worldSteps.append(camera.x - left)
+        }
+        glides(worldSteps, "the world's goal jumping 40 px")
+        XCTAssertEqual(camera.focusX, 2740, accuracy: 1e-9)
+    }
 }

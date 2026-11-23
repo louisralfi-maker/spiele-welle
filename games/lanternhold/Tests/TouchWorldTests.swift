@@ -325,9 +325,17 @@ final class TouchWorldTests: XCTestCase {
         game.touchChanged(start: CGPoint(x: 400, y: 300), at: CGPoint(x: 380, y: 300),
                           translation: CGSize(width: -20, height: 0), in: proPoints)
         XCTAssertNil(game.driver?.travelTarget, "the drag took over")
+        // LANE-A: A1b
+        // Polish step A1b (a drag walks like a tap): the drag sets his walk, the driver's steps turn and start him.
+        XCTAssertLessThan(try XCTUnwrap(game.driver?.dragPace), 0, "walking toward the drag")
+        run(game, seconds: 0.4)
         XCTAssertLessThan(try XCTUnwrap(game.driver?.state.king.velocity), 0, "walking toward the drag")
+        let lifted = try XCTUnwrap(game.driver?.state.king.x)
         game.touchEnded(at: CGPoint(x: 380, y: 300), translation: CGSize(width: -20, height: 0), in: proPoints)
+        run(game, seconds: 0.4)
         XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.velocity), 0, "the finger lifts: he stops")
+        XCTAssertLessThanOrEqual(lifted - (try XCTUnwrap(game.driver?.state.king.x)), 4 + 1e-9, "after the brake")
+        // LANE-A end
     }
 
     func testASecondTapMakesHimRun() throws {
@@ -510,10 +518,18 @@ final class TouchWorldTests: XCTestCase {
         // The scene goes inactive during a drag: the finger is forgotten and he stops.
         game.touchChanged(start: CGPoint(x: 500, y: 300), at: CGPoint(x: 470, y: 300),
                           translation: CGSize(width: -30, height: 0), in: proPoints)
+        // LANE-A: A1b
+        // Polish step A1b (a drag walks like a tap): the drag sets his walk, the driver's steps start him, and the
+        // forgotten finger lets go: the brake, then he stands.
+        XCTAssertLessThan(try XCTUnwrap(game.driver?.dragPace), 0, "walking toward the drag")
+        run(game, seconds: 0.4)
         XCTAssertLessThan(try XCTUnwrap(game.driver?.state.king.velocity), 0, "walking toward the drag")
         game.resetTouch()
         XCTAssertNil(game.touch.down)
         XCTAssertFalse(game.touch.dragging)
+        XCTAssertNil(game.driver?.dragPace, "the finger is forgotten")
+        run(game, seconds: 0.4)
+        // LANE-A end
         XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.velocity), 0, "he stops")
 
         // A card opens under a finger.

@@ -77,8 +77,14 @@ struct PlaneOffset: Sendable, Equatable {
 /// kept inside the world; `x`, and with it every plane, actor and touch, shows the slid view. Without a pan `x` is
 /// `baseX`.
 struct Camera: Sendable, Equatable {
-    /// Spring stiffness of the follow (rad/s): settles in about a second.
-    static let followOmega = 6.0
+    /// Spring stiffness of the follow (rad/s): settles in about a second (`Motion.followOmega`, the settle token).
+    static let followOmega = Motion.followOmega
+    /// Step A1b: the follow comes to rest on a goal that stands once less than this is left (game px; 0.006 device px).
+    static let restGap = 0.001
+    /// Step A1b: a goal that moves more than this in one framing step jumped (the throne seating sets the lord down
+    /// under the card): its move is not fed forward, so the camera glides there from where it is and lands without a
+    /// snap. A walk moves the goal at most about 4 game px a step (a run, the lead's swing on a turn, the danger lead).
+    static let goalJumpPixels = 8.0
 
     /// World x at the left screen edge: the follow's edge slid by the look-around's pan, inside the world.
     var x: Double {
@@ -102,6 +108,11 @@ struct Camera: Sendable, Equatable {
     private(set) var dangerVelocity: Double = 0
     /// World-3: the last framing goal (its change per step is fed forward to the follow); nil after a jump.
     private(set) var lastGoal: Double?
+    // LANE-A: A1
+    /// Polish step A1 (the gate, A1-C1): the goal's velocity fed forward in the last follow step, so a goal that stops
+    /// from pace in one step (a drag let go, the hall's walker) is told from one that braked onto its spot.
+    private(set) var lastFeed: Double = 0
+    // LANE-A end
 
     /// A camera centred on `focusX`, clamped to the world.
     init(focusX: Double, viewWidth: Double, worldWidth: Double = WorldLayout.width) {
@@ -164,8 +175,41 @@ struct Camera: Sendable, Equatable {
         let omega = Camera.followOmega
         let spring = omega * omega * (goal - baseX - feedVelocity * dt)
         let damping = 2 * omega * (feedVelocity - velocity)
+        // LANE-A: A1
+        let behind = goal - baseX
+        // LANE-A end
         velocity += (spring + damping) * dt
+        // Polish step A1 (the walk's start and brake): the follow never runs past a goal that stands or moves on the
+        // same way, so a stop never slides the picture back (the spring's overshoot was about 1.7 game px after every
+        // stop). A goal that comes toward the camera (a turn) is followed back as before. A goal that stopped dead from
+        // pace in this step (`FigureMotion.cameraDeadStopSpeed`) is eased past and back as before, so the picture never
+        // stops in one frame (the gate, A1-C1).
+        let stoppedDead = feedVelocity == 0 && abs(lastFeed) > FigureMotion.cameraDeadStopSpeed
+        // Step A1b (the camera lands without a snap): toward a goal that stands or moves on the same way, the camera is
+        // never faster than the goal plus ω × the gap left (a critically damped approach), so on a goal that stands it
+        // eases on exponentially (each step about 0.9 of the one before at 60 Hz), never passes it and never stops from
+        // a speed in one frame; before, the guard below caught it on the goal at full speed (up to 5.7 device px a
+        // frame after a short tap run, then 0).
+        if !stoppedDead && behind != 0 && velocity * behind > 0 && feedVelocity * behind >= 0 {
+            let cap = abs(feedVelocity) + omega * abs(behind)
+            if abs(velocity) > cap { velocity = behind > 0 ? cap : -cap }
+        }
         baseX += velocity * dt
+        // LANE-A: A1
+        let ahead = goal - baseX
+        if !stoppedDead
+            && ((behind != 0 && ahead * behind < 0 && feedVelocity * behind >= 0)
+                || (behind == 0 && feedVelocity == 0 && ahead != 0)) {
+            baseX = goal
+            velocity = feedVelocity
+        }
+        // Step A1b: on a goal that stands, the ease ends within a thousandth of a game px (no visible last step).
+        if !stoppedDead && feedVelocity == 0 && abs(goal - baseX) < Camera.restGap && velocity * (goal - baseX) >= 0 {
+            baseX = goal
+            velocity = 0
+        }
+        lastFeed = feedVelocity
+        // LANE-A end
         if baseX < 0 {
             baseX = 0
             velocity = max(0, velocity)
@@ -210,7 +254,7 @@ struct Camera: Sendable, Equatable {
         let goal = CameraFraming.goal(lordX: input.lordX, lead: lead, danger: danger)
         var goalVelocity = input.velocity
         if let last = lastGoal, step > 0 {
-            goalVelocity = (goal - last) / step
+            goalVelocity = abs(goal - last) > Camera.goalJumpPixels ? 0 : (goal - last) / step
         }
         lastGoal = goal
         follow(targetX: goal, targetVelocity: goalVelocity, dt: step, reduceMotion: reduceMotion)
