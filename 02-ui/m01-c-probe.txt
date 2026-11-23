@@ -1,0 +1,1 @@
+the step's beat (hitches it did not count, its longest gap, wall seconds to the card): lost:0.523 longest:0.492 wall:2.076; wall/lost at task 0.045/0.000, close 0.158/0.000, black 1.050/0.442, gone 1.144/0.442, whole 1.826/0.523, panes 2.076/0.523

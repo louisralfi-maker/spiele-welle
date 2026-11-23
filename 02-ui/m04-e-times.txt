@@ -1,0 +1,26 @@
+m04-e: at night a touch on the dim lowers it
+real time; as fast as the frames come
+the cause (at night a touch on the dim lowers it) was sent at +0.144 s and returned at +0.846 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWStage world -GWNight 2 -GWSeed 2 -GWHour 22 -GWCameraX 2600
+scene before: frame:690 ready day:2 hour:22.55 alive:9 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:30 hud:moment cam:2382 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:2600.00 kf:6 kd:-1 kcx:2381.50 lantern:ready
+scene after: frame:920 ready day:2 hour:22.85 alive:9 seen:0 lit:0 shots:0 aim:0 kx:2600 lord:lord stage:world lx:2600 errand:none door:1830 gold:30 hud:none cam:2382 tap:lowered hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:2600.00 kf:7 kd:-1 kcx:2381.50 lantern:ready
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.019 s  
+02  +1.335 s  
+03  +1.563 s  
+04  +1.829 s  
+05  +2.026 s  
+06  +2.243 s  
+07  +2.457 s  
+08  +2.683 s  
+09  +2.872 s  
+10  +3.056 s  
+11  +3.281 s  
+12  +3.500 s  
+13  +3.736 s  
+14  +3.947 s  
+15  +4.158 s  
+16  +4.310 s  
+mean spacing 0.219 s over 15 gaps

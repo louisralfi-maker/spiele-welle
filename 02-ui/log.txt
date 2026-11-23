@@ -1,0 +1,12 @@
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1bTheStopTheDragAndTheCamera]' passed (141.391 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1TheWalkSlowed]' passed (86.223 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM01TheFirstSeconds]' passed (78.126 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM01TheStepInUnderReduceMotion]' passed (22.382 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM02TheFirstSteps]' passed (46.665 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM03ATalk]' passed (32.164 seconds).
+Test Case '-[LanternholdUITests.FilmOpeningUITests testM04TheLanternMoment]' passed (72.853 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testLeavingAtTheTitleRaisesNothing]' passed (27.173 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testTheFirstLight]' passed (19.641 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testTheTitlesStates]' passed (65.098 seconds).
+exit=0
+screenshots: 691
