@@ -331,6 +331,17 @@ struct SimDriver: Sendable {
     /// The finger lets go of a walking drag: the brake from where he is, on to `dragStop` (4 px from his pace, less from
     /// a pace still ramping), exactly, with no creep; he stands at once when he was not walking.
     private mutating func letGo() {
+        if isPaused && (dragPace != nil || dragStop != nil) {
+            // The A1b gate (F1, P7): a card, the lantern, a slide, the table or the end card takes the finger while the
+            // world stands still. The drag's walk ends there, as before A1b (the card covers that moment), so no brake
+            // waits under the card and the raised lantern finds him standing.
+            dragPace = nil
+            dragStop = nil
+            dragDriven = nil
+            state.king.velocity = 0
+            gait.halt()
+            return
+        }
         guard dragPace != nil else {
             // As before A1b (a card, a slide, the lantern lift the finger for him), unless the brake is under way.
             if bot == nil && walker == nil && dragStop == nil { state.king.velocity = 0 }

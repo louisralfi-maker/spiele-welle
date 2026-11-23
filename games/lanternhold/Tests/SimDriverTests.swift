@@ -593,4 +593,99 @@ final class SimDriverTests: XCTestCase {
             XCTAssertEqual(speed, 36 * Motion.enter(Double(index) * dt / 0.12), accuracy: 1e-9, "step \(index)")
         }
     }
+
+    /// The A1b gate (F1, P7): a card, the lantern, a slide or the end card takes the finger while the world stands
+    /// still (`isPaused` first, then `setDrag(nil)`): the drag's walk ends there, held or in its brake, as before A1b, so
+    /// the raised lantern finds him standing and no brake waits under the card. The hall's walker the same under a card.
+    func testACardTakingTheFingerEndsTheDragsWalk() {
+        // The brake under way when the card comes (the touch let go a step before the card paused the world).
+        var braking = standing()
+        _ = dragged(&braking, offset: 60, steps: 40)
+        braking.setDrag(offset: nil)
+        XCTAssertNotNil(braking.dragStop, "the brake waits")
+        braking.isPaused = true
+        braking.setDrag(offset: nil)
+        XCTAssertEqual(braking.state.king.velocity, 0, "the card: he stands")
+        XCTAssertNil(braking.dragStop)
+        XCTAssertNil(braking.dragPace)
+        XCTAssertEqual(braking.gait.brakeDistance, 0)
+        braking.isPaused = false
+        let x = braking.state.king.x
+        for _ in 0..<30 { step(&braking) }
+        XCTAssertEqual(braking.state.king.x, x, "no drift when the card closes")
+        // A drag still held when the card comes (the dawn report).
+        var held = standing()
+        _ = dragged(&held, offset: 20, steps: 30)
+        held.isPaused = true
+        held.setDrag(offset: nil)
+        XCTAssertEqual(held.state.king.velocity, 0, "the card: he stands")
+        XCTAssertNil(held.dragPace)
+        held.isPaused = false
+        let heldX = held.state.king.x
+        for _ in 0..<30 { step(&held) }
+        XCTAssertEqual(held.state.king.x, heldX, "no walk on when the card closes")
+        // Not paused, a let go still brakes (the rule of part 2 holds).
+        var free = standing()
+        _ = dragged(&free, offset: 20, steps: 30)
+        free.setDrag(offset: nil)
+        XCTAssertGreaterThan(free.state.king.velocity, 0, "let go: the brake")
+        // The hall: the walker rests under a card; a drag or its brake ends there.
+        let dt = 1.0 / 60
+        for release in [false, true] {
+            var walker = HallWalker(x: 200, facing: 1)
+            walker.setDrag(offset: 60, deadZone: 6, runDistance: 40)
+            for _ in 0..<40 { walker.step(dt: dt) }
+            if release { walker.setDrag(offset: nil, deadZone: 6, runDistance: 40) }
+            XCTAssertGreaterThan(walker.velocity, 0)
+            walker.rest(dt: dt)
+            XCTAssertEqual(walker.velocity, 0, "the hall's card (released \(release)): he stands")
+            XCTAssertEqual(walker.gait.frame, FigureMotion.lordIdleFrame)
+            let restX = walker.x
+            for _ in 0..<30 { walker.step(dt: dt) }
+            XCTAssertEqual(walker.x, restX, "the hall (released \(release)): no walk on after the card")
+        }
+    }
+
+    /// The A1b gate (P4): a drag toward the hall floor's end brakes onto it (the tap's brake over the last 4 px, exactly
+    /// on the end), never stops dead from pace; he stands there while the finger holds and turns away from it.
+    func testTheHallsWalkerBrakesOntoTheFloorsEnd() {
+        let dt = 1.0 / 60
+        let end = HallLayout.walkRange.upperBound
+        for offset in [20.0, 60.0] {
+            var walker = HallWalker(x: end - 60, facing: 1)
+            walker.setDrag(offset: offset, deadZone: 6, runDistance: 40)
+            var xs: [Double] = []
+            var frames: [Int] = []
+            for _ in 0..<300 {
+                walker.step(dt: dt)
+                xs.append(walker.x)
+                frames.append(walker.gait.frame)
+            }
+            let label = "drag \(offset) to the floor's end"
+            XCTAssertEqual(walker.x, end, "\(label): on the end exactly")
+            XCTAssertEqual(walker.velocity, 0)
+            guard let landing = xs.firstIndex(where: { $0 == end }), landing >= 4 else {
+                XCTFail("\(label): he never walked")
+                continue
+            }
+            var previous = end - 60
+            var speeds: [Double] = []
+            for x in xs {
+                XCTAssertGreaterThanOrEqual(x - previous, 0, "\(label): never back")
+                speeds.append((x - previous) / dt)
+                previous = x
+            }
+            XCTAssertLessThanOrEqual(speeds[landing], FigureMotion.cameraDeadStopSpeed,
+                                     "\(label): the landing step is the brake's last, no dead stop (\(speeds[landing]))")
+            XCTAssertGreaterThan(speeds[landing - 1], speeds[landing], "\(label): slowing into it")
+            XCTAssertTrue(speeds[(landing + 1)...].allSatisfy { $0 == 0 }, "\(label): he stands while the finger holds")
+            XCTAssertEqual(frames[landing], FigureMotion.lordIdleFrame, "\(label): the landing step stands")
+            XCTAssertTrue(FigureMotion.lordClosedFrames.contains(frames[landing - 1]),
+                          "\(label): legs closed before the standing pose \(frames[(landing - 4)...landing])")
+            // He turns away from the end with the finger.
+            walker.setDrag(offset: -20, deadZone: 6, runDistance: 40)
+            for _ in 0..<30 { walker.step(dt: dt) }
+            XCTAssertLessThan(walker.velocity, 0, "\(label): back from the end")
+        }
+    }
 }

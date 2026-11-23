@@ -103,7 +103,19 @@ struct HallWalker: Sendable, Equatable {
         }
         driven = nil
         var landing: Double?
-        if let spot = target ?? stop {
+        // The A1b gate (P4): a drag toward the floor's end brakes onto it once the end is within his brake's way (the
+        // tap's brake, landing exactly on the end), and he stands there while the finger holds; before, the clamp
+        // stopped him dead from pace.
+        var edge: Double?
+        if target == nil && stop == nil, let want = dragPace {
+            let way = want > 0 ? 1 : -1
+            let end = way > 0 ? HallLayout.walkRange.upperBound : HallLayout.walkRange.lowerBound
+            let gap = abs(end - x)
+            if gap < 1e-9 || (gait.direction == way && velocity * want > 0 && gap <= gait.brakeDistance + 1e-9) {
+                edge = end
+            }
+        }
+        if let spot = target ?? stop ?? edge {
             let gap = spot - x
             if gap == 0 || (gait.direction == 0 && abs(gap) < 0.5) {
                 velocity = 0
@@ -111,8 +123,8 @@ struct HallWalker: Sendable, Equatable {
                 stop = nil
                 gait.halt()
             } else {
-                let move = gait.travel(x: x, target: spot, want: target != nil ? walkPace : stopPace,
-                                       current: velocity, dt: dt)
+                let want = target != nil ? walkPace : stop != nil ? stopPace : abs(dragPace ?? stopPace)
+                let move = gait.travel(x: x, target: spot, want: want, current: velocity, dt: dt)
                 velocity = move.velocity
                 if let turn = move.facing { facing = turn }
                 if move.lands { landing = spot }
@@ -149,7 +161,7 @@ struct HallWalker: Sendable, Equatable {
         if velocity != 0 && (target == nil) { driven = velocity }
         let walked = abs(x - before)
         stepVelocity = (x - before) / dt
-        let spot = target ?? stop
+        let spot = target ?? stop ?? edge
         gait.note(moved: walked, dt: dt, left: spot.map { abs($0 - x) }, landed: landed)
         return walked
     }
@@ -158,6 +170,15 @@ struct HallWalker: Sendable, Equatable {
     mutating func rest(dt: Double) {
         guard dt > 0 else { return }
         stepVelocity = 0
+        if dragPace != nil || stop != nil {
+            // The A1b gate (F1, P7): a card took the finger in the middle of a drag or its brake: the drag's walk ends
+            // there, as in the world, so no brake waits under the card.
+            dragPace = nil
+            stop = nil
+            driven = nil
+            velocity = 0
+            gait.halt()
+        }
         gait.note(moved: 0, dt: dt)
     }
 }
