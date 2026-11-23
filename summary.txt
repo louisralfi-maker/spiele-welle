@@ -1,0 +1,12 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 36cf1374
+source: claude/lh-r-a
+02:58:56 build starts (Lanternhold)
+simulator: EED6FB0A-E273-43C6-B5DE-3DF739543042 (iPhone 17 Pro, iOS 26.5)
+03:02:15 simulator up
+03:02:41 project generated
+03:06:33 PASS build
+03:08:20 FAIL unit LanternholdTests/StandingTests LanternholdTests/SoundMixTests LanternholdTests/EntityFramesTests LanternholdTests/SimDriverTests (exit 65), see 01-unit/log.txt
+FAILED: 1
