@@ -1,0 +1,12 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 9e953fa1
+source: claude/lh-r-b
+14:26:51 build starts (Lanternhold)
+simulator: EED6FB0A-E273-43C6-B5DE-3DF739543042 (iPhone 17 Pro, iOS 26.5)
+14:28:55 simulator up
+14:29:33 project generated
+14:35:53 PASS build
+14:41:48 PASS ui LanternholdUITests/TouchUITests/testATapOnSaulsBubbleTakesHimOn LanternholdUITests/TownUITests/testTheCollectorIsTakenOnByTouch
+ALL PASSED

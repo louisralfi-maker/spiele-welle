@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.TouchUITests testATapOnSaulsBubbleTakesHimOn]' passed (49.787 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (213.319 seconds).
+exit=0
+screenshots: 6
