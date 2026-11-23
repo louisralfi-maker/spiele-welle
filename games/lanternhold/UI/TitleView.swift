@@ -54,12 +54,28 @@ enum TitleLayout {
         ("titleSentryA", CGRect(x: 223, y: 119, width: 7, height: 14)),
         ("titleSentryB", CGRect(x: 321, y: 119, width: 7, height: 14)),
     ]
-    // Polish C2: the reveal's numbers (116 to 340 game px over 1.6 s, its curve, the stepped mask) are `TitleTempo`'s
-    // and `TitleMask`'s in Core/Motion.swift; the step into the game is `StepIn`'s.
+    // Polish C2: the reveal's numbers (its start, 1.6 s, its curve, the stepped mask) are `TitleTempo`'s and
+    // `TitleMask`'s in Core/Motion.swift; the step into the game is `StepIn`'s. Polish C2b: the swell's end is computed
+    // from the window the view shows (`visible(in:)`, `TitleMask.endRadius`).
     /// The slow sway (game px at its peak, period 40 s): the castle and the light are the pivot.
     static let drift: [String: CGFloat] = ["sky": -3, "far": -2, "rock": -1, "castle": 0, "fog": 8]
     /// The launch's colour, the night's darkest (`#0A1124`).
     static let night = Color(red: 10 / 255, green: 17 / 255, blue: 36 / 255)
+
+    /// The picture's left edge on the screen for a view of `size`, in points: the window (x 41 ... 477) centred.
+    static func left(in size: CGSize) -> CGFloat {
+        let scale = size.height / picture.height
+        return (size.width - windowWidth * scale) / 2 - windowX * scale
+    }
+
+    /// The picture's columns a view of `size` shows, in game px (polish C2b, P4: the mask's end covers them). A size
+    /// not laid out yet: the whole picture.
+    static func visible(in size: CGSize) -> (from: Double, to: Double) {
+        let scale = size.height / picture.height
+        guard scale > 0, size.width > 0 else { return (0, Double(picture.width)) }
+        let left = left(in: size)
+        return (Double(-left / scale), Double((size.width - left) / scale))
+    }
 }
 
 /// The title's PNGs, nearest neighbour, read once from Resources/Title.
@@ -187,7 +203,8 @@ struct TitleView: View {
     /// Polish C2: the reveal's beat, and when the sixth step was reached (the breath's clock).
     @State private var revealBeat: BeatBox? = nil
     @State private var caughtAt: Date? = nil
-    @State private var holdRadius: Int? = nil
+    /// `-GWTitleHold half`: the mask stands halfway between its start and the window's end.
+    @State private var holdHalf = false
     @State private var lit: Set<Int> = []
     @State private var started = false
     /// Polish C2: the beat of the step into the game, from the touch (t = 0 of `StepIn`).
@@ -220,20 +237,23 @@ struct TitleView: View {
         let mode = self.mode
         GeometryReader { geometry in
             let scale = geometry.size.height / TitleLayout.picture.height
-            let left = (geometry.size.width - TitleLayout.windowWidth * scale) / 2 - TitleLayout.windowX * scale
+            let left = TitleLayout.left(in: geometry.size)
+            // Polish C2b (P4): the swell ends, and the close starts, at the least radius that covers this window.
+            let window = TitleLayout.visible(in: geometry.size)
+            let end = TitleMask.endRadius(visibleFrom: window.from, visibleTo: window.to)
             // Under Reduce Motion nothing moves until the step into the game, which fades by the clock.
             TimelineView(.animation(paused: mode.reduceMotion && stepBeat == nil)) { timeline in
                 let now = timeline.date
                 let t = now.timeIntervalSince(shown)
                 ZStack(alignment: .topLeading) {
                     if let stepBeat {
-                        stepIn(StepIn.picture(at: stepBeat.elapsed(now), mode: mode), scale: scale, t: t)
+                        stepIn(StepIn.picture(at: stepBeat.elapsed(now), mode: mode, end: end), scale: scale, t: t)
                     } else if revealDone {
                         picture(scale: scale, t: t, lordFrame: 0)
                         lettering(scale: scale)
                     } else if revealing {
-                        let radius = holdRadius ?? revealBeat.map {
-                            TitleTempo.revealRadius(at: $0.elapsed(now), mode: mode)
+                        let radius = holdHalf ? (TitleTempo.revealFrom + end) / 2 : revealBeat.map {
+                            TitleTempo.revealRadius(at: $0.elapsed(now), to: end, mode: mode)
                         } ?? TitleTempo.revealFrom
                         picture(scale: scale, t: t, lordFrame: 0)
                             .mask(alignment: .topLeading) { TitleMaskShape(radius: radius) }
@@ -418,7 +438,7 @@ struct TitleView: View {
         caughtAt = Date()
         while !gameReady { try? await Task.sleep(nanoseconds: 50_000_000) }
         if TitleView.hold == "half" {
-            holdRadius = (TitleTempo.revealFrom + TitleTempo.revealTo) / 2
+            holdHalf = true
             revealing = true
             return
         }

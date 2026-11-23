@@ -281,18 +281,18 @@ enum TitleTempo {
     /// 1.6 s on the cubic Bézier (0.45, 0, 0.25, 1), ease-in-out (the director's call on thing 8).
     static let revealSeconds = 1.6
     static let revealCurve = MotionCurve(0.45, 0, 0.25, 1)
-    /// The mask's long-axis radius in whole game px: from 116 (the glow's reach) to 340, past every corner of the
-    /// whole 520 x 201 picture (315 is the least that covers it, `TitleMask.coversPicture`; the phone's 437 px window
-    /// needs 281), so taking the mask away changes no pixel.
+    /// The mask's long-axis radius at the reveal's start, in whole game px (116, the glow's reach). Its end is no
+    /// constant: the least radius that covers the device's window (`TitleMask.endRadius`), so the whole swell, its
+    /// settle included, is on the screen (polish C2b, P4; was 340, past the 281 the window needs).
     static let revealFrom = 116
-    static let revealTo = 340
 
-    /// The mask's radius `seconds` after the reveal began: whole game px, never shrinking. Reduce Motion: the picture
-    /// stands at once.
-    static func revealRadius(at seconds: Double, mode: MotionMode) -> Int {
-        guard !mode.reduceMotion else { return revealTo }
+    /// The mask's radius `seconds` after the reveal began, from `revealFrom` to `end` (the window's covering radius):
+    /// whole game px, never shrinking. Reduce Motion: the picture stands at once.
+    static func revealRadius(at seconds: Double, to end: Int, mode: MotionMode) -> Int {
+        guard !mode.reduceMotion else { return max(end, revealFrom) }
+        let span = Double(max(end, revealFrom) - revealFrom)
         let share = revealCurve.value(seconds / revealSeconds)
-        return Int((Double(revealFrom) + Double(revealTo - revealFrom) * share).rounded())
+        return revealFrom + Int((span * share).rounded())
     }
 }
 
@@ -344,17 +344,61 @@ enum TitleMask {
 
     /// Whether the mask at `radius` opens every pixel of the whole picture (then taking it away changes nothing).
     static func coversPicture(radius: Int) -> Bool {
+        coversWindow(radius: radius, from: 0, to: pictureWidth)
+    }
+
+    /// Whether the mask at `radius` opens every pixel of picture columns `from ..< to` in every row (the window the
+    /// device shows; its corners are the last pixels to open).
+    static func coversWindow(radius: Int, from: Int, to: Int) -> Bool {
         let open = rows(radius: radius)
-        return open.count == pictureHeight && open.allSatisfy { $0.from == 0 && $0.to == pictureWidth }
+        return open.count == pictureHeight && open.allSatisfy { $0.from <= from && $0.to >= to }
+    }
+
+    /// Whether pixel (`x`, `y`) of the picture is open at `radius`.
+    static func opens(x: Int, y: Int, radius: Int) -> Bool {
+        rows(radius: radius).contains { $0.y == y && $0.from <= x && x < $0.to }
+    }
+
+    /// The picture's columns the device shows, as whole pixels (a pixel the screen's edge cuts counts): from the
+    /// window's edges in game px of the picture (`TitleLayout.visible(in:)`). A size not laid out yet: the picture.
+    static func windowPixels(visibleFrom: Double, visibleTo: Double) -> (from: Int, to: Int) {
+        guard visibleFrom.isFinite, visibleTo.isFinite, visibleTo > visibleFrom else { return (0, pictureWidth) }
+        let width = Double(pictureWidth)
+        let from = Int(min(width, max(0, visibleFrom + 1e-6)).rounded(.down))
+        let to = Int(min(width, max(0, visibleTo - 1e-6)).rounded(.up))
+        return to > from ? (from, to) : (0, pictureWidth)
+    }
+
+    /// The reveal's end and the close's start (polish C2b, P4): the least whole long-axis radius whose mask opens
+    /// every pixel of the window the device shows, its farthest corner from the flame included. No constant: computed
+    /// from the view's size (281 on the iPhone 17 Pro and on the mini, 252 on a 667 pt wide phone; the whole picture
+    /// would need 315). Kept per window.
+    static func endRadius(visibleFrom: Double, visibleTo: Double) -> Int {
+        let window = windowPixels(visibleFrom: visibleFrom, visibleTo: visibleTo)
+        return TitleMaskStore.shared.end(window.from, window.to) {
+            // Rows nest as the radius grows (TitleStepInTests), so the least covering radius is found by halving.
+            var low = 1
+            var high = pictureWidth
+            while low < high {
+                let middle = (low + high) / 2
+                if coversWindow(radius: middle, from: window.from, to: window.to) {
+                    high = middle
+                } else {
+                    low = middle + 1
+                }
+            }
+            return low
+        }
     }
 }
 
-/// The mask's kept rows (polish C2b, L5). A shape's `path(in:)` may run off the main actor, so a lock guards the small
-/// table instead of an actor.
+/// The mask's kept rows and ends (polish C2b, L5). A shape's `path(in:)` may run off the main actor, so a lock guards
+/// the two small tables instead of an actor.
 private final class TitleMaskStore: @unchecked Sendable {
     static let shared = TitleMaskStore()
     private let lock = NSLock()
     private var kept: [Int: [TitleMask.Run]] = [:]
+    private var ends: [Int: Int] = [:]
     private var count = 0
 
     /// How many radii have been built.
@@ -371,6 +415,22 @@ private final class TitleMaskStore: @unchecked Sendable {
         let made = make()
         kept[radius] = made
         count += 1
+        return made
+    }
+
+    func end(_ from: Int, _ to: Int, make: () -> Int) -> Int {
+        let key = from * 10_000 + to
+        lock.lock()
+        if let hit = ends[key] {
+            lock.unlock()
+            return hit
+        }
+        lock.unlock()
+        // Made outside the lock: making it reads `rows`, which takes the lock itself.
+        let made = make()
+        lock.lock()
+        ends[key] = made
+        lock.unlock()
         return made
     }
 }
@@ -476,15 +536,23 @@ enum StepIn {
         return min(raiseFrames, Int(seconds / raiseFrameSeconds) + 1)
     }
 
-    /// The mask's long radius `seconds` after the touch: the whole picture's 340 until 0.15 s, then closing, ease-in,
-    /// in whole game px, to 0 at 0.60 s.
-    static func closingRadius(at seconds: Double) -> Int {
+    /// The mask's long radius `seconds` after the touch: `end` (the window's covering radius, where the reveal
+    /// stopped) until 0.15 s, then closing, ease-in, in whole game px, to 0 at 0.60 s. The whole 0.45 s are on the
+    /// screen: its first step already closes a corner of the window (polish C2b, P4).
+    static func closingRadius(at seconds: Double, from end: Int) -> Int {
         let share = MotionCurve.leave.value((seconds - closeFrom) / closeSeconds)
-        return Int((Double(TitleTempo.revealTo) * (1 - share)).rounded())
+        return Int((Double(end) * (1 - share)).rounded())
     }
 
-    /// The one picture `seconds` after the touch.
-    static func picture(at seconds: Double, mode: MotionMode) -> StepInPicture {
+    /// The hall's opacity `seconds` after the touch: 0 until 0.70 s, then rising, ease-out, to 1 when it is whole.
+    static func hallOpacity(at seconds: Double, mode: MotionMode) -> Double {
+        if seconds < riseFrom { return 0 }
+        if seconds >= hallWholeAt(mode) { return 1 }
+        return MotionCurve.enter.value((seconds - riseFrom) / riseSeconds(mode))
+    }
+
+    /// The one picture `seconds` after the touch, with the mask closing from `end`.
+    static func picture(at seconds: Double, mode: MotionMode, end: Int) -> StepInPicture {
         let lord = lordFrame(at: seconds)
         if seconds < blackAt {
             if mode.reduceMotion {
@@ -492,11 +560,10 @@ enum StepIn {
                 return .title(radius: nil, lordFrame: lord, opacity: 1 - fade)
             }
             return seconds < closeFrom ? .title(radius: nil, lordFrame: lord, opacity: 1)
-                : .title(radius: closingRadius(at: seconds), lordFrame: lord, opacity: 1)
+                : .title(radius: closingRadius(at: seconds, from: end), lordFrame: lord, opacity: 1)
         }
         if seconds < riseFrom { return mode.reduceMotion ? .black : .flame }
-        if seconds >= hallWholeAt(mode) { return .hall(opacity: 1) }
-        let opacity = MotionCurve.enter.value((seconds - riseFrom) / riseSeconds(mode))
+        let opacity = hallOpacity(at: seconds, mode: mode)
         return opacity > 0 ? .hall(opacity: opacity) : .black
     }
 }

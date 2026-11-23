@@ -348,7 +348,8 @@ final class MotionTests: XCTestCase {
     // MARK: The title's tempos (polish C2)
 
     /// The title's reveal is the one stage beat with its own tempo and curve (the director's call on thing 8): 1.6 s on
-    /// (0.45, 0, 0.25, 1), 116 to 340 game px. The wait breathes 0.5 s / 0.35 s. The step into the game: the raise
+    /// (0.45, 0, 0.25, 1), from 116 game px to the window's covering radius (polish C2b, P4: no constant end, was 340;
+    /// `TitleStepInTests` pins it). The wait breathes 0.5 s / 0.35 s. The step into the game: the raise
     /// 3 x 0.1 s, the close from 0.15 s over 0.45 s on the leave curve, the flame 0.10 s, the hall over the slow token
     /// (0.25 s under Reduce Motion) and the pane the normal token later.
     func testTheTitlesTemposArePinned() {
@@ -363,7 +364,6 @@ final class MotionTests: XCTestCase {
         XCTAssertNotEqual(TitleTempo.revealCurve, MotionCurve.enter)
         XCTAssertNotEqual(TitleTempo.revealCurve, MotionCurve.leave)
         XCTAssertEqual(TitleTempo.revealFrom, 116)
-        XCTAssertEqual(TitleTempo.revealTo, 340)
         XCTAssertEqual(StepIn.raiseFrames, 3)
         XCTAssertEqual(StepIn.raiseFrameSeconds, 0.1)
         XCTAssertEqual(StepIn.closeFrom, 0.15)

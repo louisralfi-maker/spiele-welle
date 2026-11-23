@@ -248,7 +248,7 @@ struct StepInCover: View {
         Group {
             if let beat {
                 TimelineView(.animation) { timeline in
-                    Color.black.opacity(1 - StepIn.picture(at: beat.elapsed(timeline.date), mode: mode).hallOpacity)
+                    Color.black.opacity(1 - StepIn.hallOpacity(at: beat.elapsed(timeline.date), mode: mode))
                 }
             } else {
                 Color.black

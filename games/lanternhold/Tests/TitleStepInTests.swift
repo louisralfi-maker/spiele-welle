@@ -1,3 +1,4 @@
+import CoreGraphics
 import XCTest
 @testable import Lanternhold
 
@@ -39,31 +40,37 @@ final class TitleStepInTests: XCTestCase {
 
     // MARK: The reveal (M9)
 
-    /// One calm swell: 116 to 340 game px over 1.6 s on (0.45, 0, 0.25, 1), whole px, never shrinking, less than a
-    /// third of the way at 0.3 s (the old ease-out had 40 % of the radius by then). Reduce Motion: at once.
+    /// One calm swell: from its start to the window's end (281 game px on the iPhone 17 Pro) over 1.6 s on
+    /// (0.45, 0, 0.25, 1), whole px, never shrinking, less than a third of the way at 0.3 s (the old ease-out had 40 %
+    /// of the radius by then). Reduce Motion: at once. Polish C2b (P4): the end is the window's (was 340).
     func testTheRevealIsOneCalmSwellInWholePixels() {
-        XCTAssertEqual(TitleTempo.revealRadius(at: 0, mode: full), 116)
-        XCTAssertEqual(TitleTempo.revealRadius(at: 1.6, mode: full), 340)
-        XCTAssertEqual(TitleTempo.revealRadius(at: 2.5, mode: full), 340)
+        let from = TitleTempo.revealFrom
+        let end = 281
+        let way = Double(end - from)
+        XCTAssertEqual(TitleTempo.revealRadius(at: 0, to: end, mode: full), from)
+        XCTAssertEqual(TitleTempo.revealRadius(at: 1.6, to: end, mode: full), end)
+        XCTAssertEqual(TitleTempo.revealRadius(at: 2.5, to: end, mode: full), end)
         var last = 0
         for step in 0...1600 {
-            let radius = TitleTempo.revealRadius(at: Double(step) / 1000, mode: full)
+            let radius = TitleTempo.revealRadius(at: Double(step) / 1000, to: end, mode: full)
             XCTAssertGreaterThanOrEqual(radius, last, "never shrinking at \(step) ms")
             last = radius
         }
-        let early = Double(TitleTempo.revealRadius(at: 0.3, mode: full) - 116) / 224
+        let early = Double(TitleTempo.revealRadius(at: 0.3, to: end, mode: full) - from) / way
         XCTAssertLessThan(early, 1.0 / 3, "a calm start, not a burst")
-        let middle = Double(TitleTempo.revealRadius(at: 0.8, mode: full) - 116) / 224
+        let middle = Double(TitleTempo.revealRadius(at: 0.8, to: end, mode: full) - from) / way
         XCTAssertGreaterThan(middle, 0.35, "the swell carries through the middle")
         XCTAssertLessThan(middle, 0.85)
-        XCTAssertEqual(TitleTempo.revealRadius(at: 0, mode: reduced), 340, "Reduce Motion: the picture stands at once")
+        XCTAssertEqual(TitleTempo.revealRadius(at: 0, to: end, mode: reduced), end,
+                       "Reduce Motion: the picture stands at once")
     }
 
-    /// The mask is whole game px rows, and at 340 it opens every pixel of the whole 520 x 201 picture, so taking it
-    /// away changes no pixel. The bound is real: the old 300 left the corners closed; 315 is the least that covers.
+    /// The mask is whole game px rows; at 315 it opens every pixel of the whole 520 x 201 picture (the old 300 left
+    /// the corners closed). Polish C2b (P4): the swell ends at the window's covering radius, 281 for picture x 41 ..< 478
+    /// (the widest phone's 437 px of 201), so taking the mask away changes no pixel on the screen.
     func testTheMaskIsSteppedAndEndsBeyondEveryCorner() {
         XCTAssertTrue(TitleMask.runs(radius: 0).isEmpty, "radius 0: nothing but the flame drawn over it")
-        XCTAssertTrue(TitleMask.coversPicture(radius: TitleTempo.revealTo))
+        XCTAssertTrue(TitleMask.coversPicture(radius: 315))
         XCTAssertFalse(TitleMask.coversPicture(radius: 300), "the old reveal's end left the corners dark")
         let least = (100...400).first { TitleMask.coversPicture(radius: $0) }
         XCTAssertEqual(least, 315, "the whole picture's half diagonal on the mask's axes")
@@ -73,6 +80,7 @@ final class TitleStepInTests: XCTestCase {
             return rows.count == TitleMask.pictureHeight && rows.allSatisfy { $0.from <= 41 && $0.to >= 478 }
         }
         XCTAssertEqual(window, 281)
+        XCTAssertEqual(TitleMask.endRadius(visibleFrom: 41, visibleTo: 478), 281, "the swell's end is that radius")
         // Rows nest as the radius grows and each is symmetric round the flame's x (259, the left edge of its pixel,
         // as the old ellipse was placed).
         var previous = TitleMask.runs(radius: 1)
@@ -91,6 +99,44 @@ final class TitleStepInTests: XCTestCase {
             }
             previous = rows
         }
+    }
+
+    /// Polish C2b (P4): the swell's end is the least whole radius that covers the window the device shows, computed
+    /// from the view's size (`TitleLayout.visible(in:)`, the very path of the view). At the iPhone 17 Pro's window
+    /// (874 x 402 pt) and the mini's (812 x 375 pt) the reveal's last frame covers every corner and the radius one step
+    /// earlier does not cover all four; the close starts there and its first step already hides a corner. A narrower
+    /// window (667 x 375 pt) ends sooner.
+    func testTheWholeSwellIsOnTheScreen() {
+        let sizes: [(name: String, size: CGSize, end: Int)] = [("17 Pro", CGSize(width: 874, height: 402), 281),
+                                                               ("mini", CGSize(width: 812, height: 375), 281),
+                                                               ("667 pt", CGSize(width: 667, height: 375), 252)]
+        for (name, size, expected) in sizes {
+            let visible = TitleLayout.visible(in: size)
+            let window = TitleMask.windowPixels(visibleFrom: visible.from, visibleTo: visible.to)
+            let end = TitleMask.endRadius(visibleFrom: visible.from, visibleTo: visible.to)
+            XCTAssertEqual(end, expected, name)
+            let bottom = TitleMask.pictureHeight - 1
+            let corners = [(window.from, 0), (window.to - 1, 0), (window.from, bottom), (window.to - 1, bottom)]
+            func coversCorners(_ radius: Int) -> Bool {
+                corners.allSatisfy { TitleMask.opens(x: $0.0, y: $0.1, radius: radius) }
+            }
+            let last = TitleTempo.revealRadius(at: TitleTempo.revealSeconds, to: end, mode: full)
+            XCTAssertEqual(last, end, name)
+            XCTAssertTrue(TitleMask.coversWindow(radius: last, from: window.from, to: window.to), name)
+            XCTAssertTrue(coversCorners(last), "\(name): the last frame covers every corner")
+            let before = (0...1600).map { TitleTempo.revealRadius(at: Double($0) / 1000, to: end, mode: full) }
+                .last { $0 < end }
+            XCTAssertNotNil(before, name)
+            XCTAssertFalse(coversCorners(before ?? end), "\(name): one step earlier a corner is still dark")
+            XCTAssertFalse(TitleMask.coversWindow(radius: end - 1, from: window.from, to: window.to), "the least")
+            XCTAssertEqual(StepIn.closingRadius(at: StepIn.closeFrom, from: end), end, name)
+            let first = (150...600).map { StepIn.closingRadius(at: Double($0) / 1000, from: end) }.first { $0 < end }
+            XCTAssertNotNil(first, name)
+            XCTAssertFalse(coversCorners(first ?? end), "\(name): the close's first step hides a corner")
+        }
+        // A view not laid out yet: the whole picture's way, never a crash.
+        XCTAssertEqual(TitleLayout.visible(in: .zero).to, 520)
+        XCTAssertEqual(TitleMask.endRadius(visibleFrom: .nan, visibleTo: .infinity), 315)
     }
 
     // MARK: The step into the game (M8)
@@ -113,7 +159,7 @@ final class TitleStepInTests: XCTestCase {
         var lastLord = 0
         var t = -0.2
         while t <= 2.5 {
-            let shot = StepIn.picture(at: t, mode: full)
+            let shot = StepIn.picture(at: t, mode: full, end: 281)
             XCTAssertGreaterThanOrEqual(order(shot), lastOrder, "never back at \(t)")
             lastOrder = order(shot)
             XCTAssertFalse(shot.titleOpacity > 0 && shot.hallOpacity > 0, "two pictures at \(t)")
@@ -144,24 +190,24 @@ final class TitleStepInTests: XCTestCase {
             }
             t += 0.0005
         }
-        XCTAssertEqual(StepIn.picture(at: -0.1, mode: full), .title(radius: nil, lordFrame: 0, opacity: 1))
-        XCTAssertEqual(StepIn.picture(at: 0.05, mode: full), .title(radius: nil, lordFrame: 1, opacity: 1))
-        XCTAssertEqual(StepIn.picture(at: 0.15, mode: full), .title(radius: 340, lordFrame: 2, opacity: 1))
-        XCTAssertEqual(StepIn.picture(at: 0.25, mode: full).titleOpacity, 1)
-        if case let .title(radius, lord, _) = StepIn.picture(at: 0.35, mode: full) {
+        XCTAssertEqual(StepIn.picture(at: -0.1, mode: full, end: 281), .title(radius: nil, lordFrame: 0, opacity: 1))
+        XCTAssertEqual(StepIn.picture(at: 0.05, mode: full, end: 281), .title(radius: nil, lordFrame: 1, opacity: 1))
+        XCTAssertEqual(StepIn.picture(at: 0.15, mode: full, end: 281), .title(radius: 281, lordFrame: 2, opacity: 1))
+        XCTAssertEqual(StepIn.picture(at: 0.25, mode: full, end: 281).titleOpacity, 1)
+        if case let .title(radius, lord, _) = StepIn.picture(at: 0.35, mode: full, end: 281) {
             XCTAssertEqual(lord, 3, "the lantern up")
-            XCTAssertLessThan(radius ?? 340, 340, "closing")
+            XCTAssertLessThan(radius ?? 281, 281, "closing")
             XCTAssertGreaterThan(radius ?? 0, 100, "ease-in: slow at first")
         } else {
             XCTFail("the title at 0.35 s")
         }
-        if case let .title(radius, _, _) = StepIn.picture(at: 0.5999, mode: full) {
-            XCTAssertLessThanOrEqual(radius ?? 340, 1, "closed on the flame")
+        if case let .title(radius, _, _) = StepIn.picture(at: 0.5999, mode: full, end: 281) {
+            XCTAssertLessThanOrEqual(radius ?? 281, 1, "closed on the flame")
         }
-        XCTAssertEqual(StepIn.picture(at: 0.65, mode: full), .flame)
-        XCTAssertEqual(StepIn.picture(at: 0.70, mode: full), .black)
-        XCTAssertEqual(StepIn.picture(at: 1.30, mode: full), .hall(opacity: 1))
-        XCTAssertEqual(StepIn.picture(at: 9, mode: full), .hall(opacity: 1))
+        XCTAssertEqual(StepIn.picture(at: 0.65, mode: full, end: 281), .flame)
+        XCTAssertEqual(StepIn.picture(at: 0.70, mode: full, end: 281), .black)
+        XCTAssertEqual(StepIn.picture(at: 1.30, mode: full, end: 281), .hall(opacity: 1))
+        XCTAssertEqual(StepIn.picture(at: 9, mode: full, end: 281), .hall(opacity: 1))
         XCTAssertEqual(StepIn.lordFrame(at: 0), 1)
         XCTAssertEqual(StepIn.lordFrame(at: 0.1), 2)
         XCTAssertEqual(StepIn.lordFrame(at: 0.2), 3)
@@ -175,7 +221,7 @@ final class TitleStepInTests: XCTestCase {
         var lastTitle = 1.0
         var t = -0.1
         while t <= 2.0 {
-            let shot = StepIn.picture(at: t, mode: reduced)
+            let shot = StepIn.picture(at: t, mode: reduced, end: 281)
             XCTAssertGreaterThanOrEqual(order(shot), lastOrder)
             lastOrder = order(shot)
             XCTAssertNotEqual(shot, .flame, "no flame alone under Reduce Motion")
@@ -188,10 +234,10 @@ final class TitleStepInTests: XCTestCase {
             }
             t += 0.0005
         }
-        XCTAssertEqual(StepIn.picture(at: 0.65, mode: reduced), .black)
+        XCTAssertEqual(StepIn.picture(at: 0.65, mode: reduced, end: 281), .black)
         XCTAssertEqual(StepIn.hallWholeAt(reduced), 0.95, accuracy: 1e-9)
-        XCTAssertEqual(StepIn.picture(at: 0.95, mode: reduced), .hall(opacity: 1))
-        XCTAssertLessThan(StepIn.picture(at: 0.90, mode: reduced).hallOpacity, 1)
+        XCTAssertEqual(StepIn.picture(at: 0.95, mode: reduced, end: 281), .hall(opacity: 1))
+        XCTAssertLessThan(StepIn.picture(at: 0.90, mode: reduced, end: 281).hallOpacity, 1)
         XCTAssertEqual(StepIn.blackAt, 0.60, accuracy: 1e-9, "the same black in both forms")
     }
 
@@ -212,7 +258,7 @@ final class TitleStepInTests: XCTestCase {
         XCTAssertEqual(after - before, BeatClock.longestFrame, accuracy: 1e-9, "a hitch of 1.1 s counts 0.05 s")
         XCTAssertEqual(clock.elapsed(at: t - 0.5), after, "an earlier reading changes nothing")
         XCTAssertEqual(clock.lost, 1.05, accuracy: 1e-9)
-        if case let .title(radius, lord, _) = StepIn.picture(at: after, mode: full) {
+        if case let .title(radius, lord, _) = StepIn.picture(at: after, mode: full, end: 281) {
             XCTAssertEqual(lord, 3)
             XCTAssertNotNil(radius, "after the hitch the mask goes on closing from where it stood")
         } else {
@@ -237,10 +283,10 @@ final class TitleStepInTests: XCTestCase {
             let at = Dictionary(uniqueKeysWithValues: phases.map { ($0.phase.rawValue, $0.at) })
             let whole = at["whole"] ?? -1
             XCTAssertEqual(whole, mode.reduceMotion ? 0.95 : 1.30, accuracy: 1e-9)
-            XCTAssertEqual(StepIn.picture(at: whole, mode: mode), .hall(opacity: 1), "whole at \(whole)")
-            XCTAssertLessThan(StepIn.picture(at: whole - 0.001, mode: mode).hallOpacity, 1, "not before")
+            XCTAssertEqual(StepIn.picture(at: whole, mode: mode, end: 281), .hall(opacity: 1), "whole at \(whole)")
+            XCTAssertLessThan(StepIn.picture(at: whole - 0.001, mode: mode, end: 281).hallOpacity, 1, "not before")
             XCTAssertEqual(at["black"] ?? -1, 0.60, accuracy: 1e-9, "the beds stop at the same black in both forms")
-            XCTAssertEqual(StepIn.picture(at: at["gone"] ?? -1, mode: mode).titleOpacity, 0,
+            XCTAssertEqual(StepIn.picture(at: at["gone"] ?? -1, mode: mode, end: 281).titleOpacity, 0,
                            "the title leaves the tree once nothing of it shows")
             XCTAssertEqual((at["panes"] ?? -1) - whole, 0.25, accuracy: 1e-9)
         }
@@ -282,7 +328,7 @@ final class TitleStepInTests: XCTestCase {
                     opens.append(t)
                 }
                 if now != nil && title {
-                    XCTAssertEqual(StepIn.picture(at: t, mode: mode), .hall(opacity: 1), "no pane before the hall is whole")
+                    XCTAssertEqual(StepIn.picture(at: t, mode: mode, end: 281), .hall(opacity: 1), "no pane before the hall is whole")
                 }
                 shown = now
                 t += 1.0 / 60
