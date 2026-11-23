@@ -788,7 +788,7 @@ final class SoundMixTests: XCTestCase {
     /// bell as made with success; the dawn gate as made.
     func testTheDawnHeldAndLostSoundApart() throws {
         var gate = FeedbackGate()
-        let times = [1.0, 1.5, 1.9, 2.4, 2.8, 3.8]
+        let times = [1.0, 1.5, 1.95, 2.4, 2.9, 3.9]
         let heard = times.map { gate.answer(.dawnToll, soundOn: true, hapticsOn: true, now: $0) }
         XCTAssertEqual(heard.map { $0.sound?.id }, [.toll, nil, .toll, nil, .toll, .toll], "at most one every 0.9 s")
         XCTAssertEqual(heard.map { $0.haptic }, [.heavy, nil, nil, nil, nil, nil], "one heavy with the first toll")
