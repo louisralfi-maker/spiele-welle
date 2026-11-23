@@ -1,0 +1,45 @@
+a5-a: the horn at 19:00 and line 1's gate falling (A5: 0.6 s, ease-in, in whole rows), frames as fast as they come
+real time; as fast as the frames come
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 18.0 -GWStage world -GWCameraX 1330
+scene before: frame:360 ready day:3 hour:18.86 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1330 lord:lord stage:world lx:1330 errand:none door:1830 gold:91 hud:none cam:1133 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:1330.00 kf:6 kd:-1 kcx:1132.50
+scene after: frame:830 ready day:3 hour:19.57 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1330 lord:lord stage:world lx:1330 errand:none door:1830 gold:91 hud:none cam:1133 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:1330.00 kf:6 kd:-1 kcx:1132.50 lantern:ready
+
+frame  seconds since the burst began  (scene where read)
+01  +0.444 s  
+02  +0.665 s  
+03  +0.882 s  
+04  +1.067 s  
+05  +1.257 s  
+06  +1.486 s  
+07  +1.700 s  
+08  +2.003 s  
+09  +2.290 s  
+10  +2.504 s  
+11  +2.710 s  
+12  +2.887 s  
+13  +3.067 s  
+14  +3.293 s  
+15  +3.515 s  
+16  +3.708 s  
+17  +4.001 s  
+18  +4.210 s  
+19  +4.421 s  
+20  +4.634 s  
+21  +4.918 s  
+22  +5.129 s  
+23  +5.419 s  
+24  +5.719 s  
+25  +5.984 s  
+26  +6.212 s  
+27  +6.441 s  
+28  +6.671 s  
+29  +6.898 s  
+30  +7.171 s  
+31  +7.371 s  
+32  +7.631 s  
+33  +7.813 s  
+34  +8.034 s  
+35  +8.248 s  
+36  +8.407 s  
+mean spacing 0.228 s over 35 gaps
