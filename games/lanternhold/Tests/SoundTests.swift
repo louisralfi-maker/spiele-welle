@@ -27,9 +27,10 @@ final class SoundTests: XCTestCase {
         XCTAssertEqual(FeedbackCue.brazierLit.sound?.id, .lantern)
         XCTAssertEqual(FeedbackCue.step.sound?.id, .step1)
         XCTAssertEqual(FeedbackCue.audienceOpened.sound?.id, .parchment)
-        // Polish D1: the old card pair is quiet in the hub; the panes' own pair plays the tap.
+        // Polish D2 0a rewrote this line (D1 had the old card pair silent): the card pair answers as the pane pair.
         XCTAssertEqual(FeedbackCue.paneOpen.sound?.id, .tap)
-        XCTAssertNil(FeedbackCue.cardOpened.sound)
+        XCTAssertEqual(FeedbackCue.cardOpened.sound, FeedbackCue.paneOpen.sound)
+        XCTAssertEqual(FeedbackCue.cardClosed.sound, FeedbackCue.paneClose.sound)
         XCTAssertEqual(FeedbackCue.manFell.sound?.id, .manFall)
         XCTAssertEqual(FeedbackCue.manHit.sound?.id, FeedbackCue.soldierGrunts ? .grunt1 : .arrowHit)
         XCTAssertEqual(FeedbackCue.wallCracked.sound?.id, .wallCrack)
@@ -43,16 +44,20 @@ final class SoundTests: XCTestCase {
             XCTAssertTrue((0.5...2).contains(sound.rate), "\(cue)")
         }
         let used = Set(FeedbackCue.allCases.compactMap { $0.sound?.id })
-        // The count's clink steps are played by `FeedbackHub.countCoin` (build 3, b3-count), not by a cue; step_2 and
-        // grunt_2 are their first file's partners in turn (`FeedbackGate`).
-        let partners: Set<SoundID> = FeedbackCue.soldierGrunts ? [.step2, .grunt2] : [.step2, .grunt1, .grunt2]
+        // The count's clink steps are played by `FeedbackHub.countCoin` (build 3, b3-count), not by a cue (and by the tax
+        // coins' chain in the gate, D2); step_2, step_3, tap_2, tap_3 and grunt_2 are their first file's partners in turn
+        // (`FeedbackGate`; D2 0g added the taps' and the third step).
+        let turns: Set<SoundID> = [.step2, .step3, .tap2, .tap3]
+        let partners: Set<SoundID> = turns.union(FeedbackCue.soldierGrunts ? [.grunt2] : [.grunt1, .grunt2])
         for id in SoundID.allCases where !id.isLoop && !partners.contains(id) && !SoundID.coinSteps.contains(id) {
             XCTAssertTrue(used.contains(id), "\(id.rawValue) is played by some cue")
         }
     }
 
     func testTheHaptics() {
-        XCTAssertEqual(FeedbackCue.buildDone.haptic, .light)
+        // Polish D2 rewrote this line (it was light): a building standing is law 4's step 3, success then light.
+        XCTAssertEqual(FeedbackCue.buildDone.haptic, .success)
+        XCTAssertEqual(FeedbackCue.buildDone.hapticEchoKind, .light)
         XCTAssertEqual(FeedbackCue.coin.haptic, .soft)
         XCTAssertEqual(FeedbackCue.wallHit.haptic, .medium)
         XCTAssertEqual(FeedbackCue.wallBroken.haptic, .heavy)
@@ -223,6 +228,48 @@ final class SoundTests: XCTestCase {
         XCTAssertEqual(FeedbackCue.wallCracked.answerSize, .triumph)
     }
 
+    /// Polish D2 part 5 (F17): Silas lights a street lamp: the watch hears it at the hour the town's lamps say, at the
+    /// lamp's glass, once; never in unrest or with the hearth out; heard one screen far through the thinner.
+    func testTheWatchHearsALampLit() throws {
+        let first = try XCTUnwrap(TownLamps.litHour(0), "a lamp is lit in the evening")
+        let glass = TownLamps.glassX(try XCTUnwrap(TownLamps.posts.first))
+        var watch = SoundWatch()
+        var s = GameState.newRealm(seed: 3)
+        s.happiness = 50
+        s.hour = first - 0.05
+        _ = watch.cues(s, balance: .standard, moving: false)
+        s.hour = first + 0.01
+        let lit = watch.cues(s, balance: .standard, moving: false).filter { $0.cue == .lampLit }
+        XCTAssertEqual(lit.count, 1)
+        XCTAssertEqual(lit.first?.x, glass)
+        s.hour = first + 0.02
+        XCTAssertTrue(watch.cues(s, balance: .standard, moving: false).filter { $0.cue == .lampLit }.isEmpty, "once")
+        var unrest = SoundWatch()
+        var u = GameState.newRealm(seed: 3)
+        u.happiness = 5
+        u.hour = first - 0.05
+        _ = unrest.cues(u, balance: .standard, moving: false)
+        u.hour = first + 0.01
+        XCTAssertTrue(unrest.cues(u, balance: .standard, moving: false).filter { $0.cue == .lampLit }.isEmpty,
+                      "nobody lights them in unrest")
+        var dark = SoundWatch()
+        var d = GameState.newRealm(seed: 3)
+        d.happiness = 50
+        d.hearth = 0
+        d.hour = first - 0.05
+        _ = dark.cues(d, balance: .standard, moving: false)
+        d.hour = first + 0.01
+        XCTAssertTrue(dark.cues(d, balance: .standard, moving: false).filter { $0.cue == .lampLit }.isEmpty,
+                      "nothing to light them with")
+        XCTAssertTrue(FeedbackCue.lampLit.isPositional)
+        XCTAssertEqual(FeedbackCue.lampLit.hearing, 440)
+        XCTAssertEqual(FeedbackCue.lampLit.sound, SoundPlay(id: .lanternHigh, volume: 0.5))
+        XCTAssertNil(FeedbackCue.lampLit.haptic)
+        var thinner = FeedbackThinner()
+        XCTAssertEqual(thinner.cues(for: [], extra: lit, time: 1, listenerX: glass - 300), [.lampLit], "near: heard")
+        XCTAssertEqual(thinner.cues(for: [], extra: lit, time: 2, listenerX: glass - 700), [], "two screens off: not")
+    }
+
     func testTheGateShutsAtNightfall() {
         var watch = SoundWatch()
         var s = GameState.newRealm(seed: 3)
@@ -276,7 +323,8 @@ final class SoundTests: XCTestCase {
         // Step 0b (law 4's one duck rule): the screen duck no longer sits inside the beds; it rides beside them
         // (`ducks`) and the ear hears the bed at half once the hub's follower has caught up.
         let ducked = AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0, ducked: true)
-        XCTAssertEqual(ducked.heard(.ambDay), noon.day / 2, accuracy: 1e-9)
+        // D2 0f rewrote this line: what is heard is the bed under its ceiling (`bed`), halved by the screen duck.
+        XCTAssertEqual(ducked.heard(.ambDay), noon.bed(.ambDay) / 2, accuracy: 1e-9)
         XCTAssertEqual(ducked.day, noon.day, accuracy: 1e-9, "the bed itself is not multiplied")
         XCTAssertTrue(ducked.ducks.screen)
         XCTAssertEqual(SoundPlace.at(x: WorldLayout.throneX, inAudience: false), .hall)
@@ -376,9 +424,9 @@ final class SoundTests: XCTestCase {
     }
 
     /// Step 0b: every cue, the contract's too, plays a file that is in the app and in MANIFEST.txt; the two mood cues
-    /// stay silent (their crowd sounds are D4's). Polish D1 retired four on purpose, named here: `cardOpened` and
-    /// `cardClosed` (quiet in the hub; lane C's `paneOpen` / `paneClose` answer the overlay), `creatureHit` (`hit`
-    /// plays the blow) and `soldierFell` (`manFell` plays the fall at the man's place).
+    /// stay silent (their crowd sounds are D4's). Polish D1 retired two on purpose, named here: `creatureHit` (`hit`
+    /// plays the blow) and `soldierFell` (`manFell` plays the fall at the man's place). D2 0a rewrote the set: the card
+    /// pair (D1 had it silent too) answers as the pane pair.
     func testEveryCuePlaysAFileThatShipsAndIsInTheManifest() throws {
         let folder = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         let manifestURL = folder.appendingPathComponent("Resources/Sound/MANIFEST.txt")
@@ -396,7 +444,7 @@ final class SoundTests: XCTestCase {
             XCTAssertEqual(parts.count, 3, line)
             XCTAssertEqual(parts.last?.count, 64, "\(id.rawValue): a sha256")
         }
-        let retired: Set<FeedbackCue> = [.cardOpened, .cardClosed, .creatureHit, .soldierFell]
+        let retired: Set<FeedbackCue> = [.creatureHit, .soldierFell]
         let silentOnPurpose: Set<FeedbackCue> = Set([.happinessUp, .happinessDown]).union(retired)
         for cue in retired {
             XCTAssertNil(cue.sound, "\(cue) is retired")
@@ -419,6 +467,62 @@ final class SoundTests: XCTestCase {
         }
     }
 
+    /// Polish D2: the step's new and re-made files, each behind its cue, at a length and a level inside its step's
+    /// bands (inventory.md's measure: the file's whole RMS + 20 log10 of the cue's volume).
+    func testTheNewFilesHaveTheirLengthAndLevel() throws {
+        let made: [(cue: FeedbackCue, id: SoundID)] = [
+            (.lanternUp, .lanternUp), (.lanternDown, .lanternDown), (.boardSet, .knockLow), (.paneClose, .tapLow),
+            (.bubbleClose, .tapLow), (.lampLit, .lanternHigh), (.dawnToll, .toll), (.buildDone, .buildDone),
+            (.buildStood, .buildDone), (.touched, .tap2), (.touched, .tap3), (.step, .step1), (.step, .step2),
+            (.step, .step3),
+        ]
+        for (cue, id) in made {
+            let size = try XCTUnwrap(cue.answerSize, "\(cue)")
+            let sound = try XCTUnwrap(cue.sound, "\(cue)")
+            let family = sound.id == .tap ? SoundID.taps : sound.id == .step1 ? SoundID.steps : [sound.id]
+            XCTAssertTrue(family.contains(id), "\(cue) plays \(id.rawValue)")
+            XCTAssertEqual(sound.rate, 1, "\(cue): played as made")
+            let (seconds, rms) = try Self.measure(id)
+            // 5 ms either way: a file cut at a band's end (0.3 s, 0.45 s, 1.4 s) is its sample count over 22.05 kHz.
+            let lengths = size.length.lowerBound - 0.005 ... size.length.upperBound + 0.005
+            XCTAssertTrue(lengths.contains(seconds), "\(id.rawValue): \(seconds) s for step \(size.rawValue)")
+            let level = rms + 20 * log10(sound.volume)
+            XCTAssertTrue(size.band.contains(level), "\(cue) (\(id.rawValue)) at \(level) dBFS for step \(size.rawValue)")
+        }
+        // The night raise's rendered lantern (not on the ladder): as long as the lantern at 1.3 of its pitch.
+        let raise = try Self.measure(.lanternRaise).seconds
+        XCTAssertEqual(raise, try Self.measure(.lantern).seconds / 1.3, accuracy: 0.01)
+    }
+
+    /// A wav's length (seconds) and whole RMS (dBFS), read from the app's bundle (D2).
+    private static func measure(_ id: SoundID) throws -> (seconds: Double, rms: Double) {
+        let url = try XCTUnwrap(Bundle.main.url(forResource: id.rawValue, withExtension: "wav", subdirectory: "Sound")
+            ?? Bundle.main.url(forResource: id.rawValue, withExtension: "wav"), id.rawValue)
+        let data = try Data(contentsOf: url)
+        var offset = 12
+        while offset + 8 <= data.count {
+            let tag = String(decoding: data[offset..<offset + 4], as: UTF8.self)
+            let size = Int(data[offset + 4]) | Int(data[offset + 5]) << 8 | Int(data[offset + 6]) << 16
+                | Int(data[offset + 7]) << 24
+            if tag == "data" {
+                let end = min(data.count, offset + 8 + size)
+                var sum = 0.0
+                var n = 0
+                var i = offset + 8
+                while i + 1 < end {
+                    let v = Double(Int16(bitPattern: UInt16(data[i]) | UInt16(data[i + 1]) << 8)) / 32768
+                    sum += v * v
+                    n += 1
+                    i += 2
+                }
+                return (Double(n) / 22050, 10 * log10(max(1e-18, sum / Double(max(1, n)))))
+            }
+            offset += 8 + size + (size & 1)
+        }
+        XCTFail("\(id.rawValue) has no data chunk")
+        return (0, -120)
+    }
+
     func testEveryFileIsInTheAppAndSmall() throws {
         var total = 0
         for id in SoundID.allCases {
@@ -437,9 +541,31 @@ final class SoundTests: XCTestCase {
             XCTAssertEqual(rate, 22050, id.rawValue)
             XCTAssertEqual(bits, 16, id.rawValue)
         }
-        // Stage-3-interface (M12) added the four places' beds (1.1 MB): the budget is 4 MB now. Polish D1's four new files
-        // (man_fall, grunt_1, grunt_2, wall_crack) fit because the re-made wall_break is 1.52 s instead of 1.7 s.
-        XCTAssertLessThan(total, 4_000_000, "all sounds together stay under 4 MB")
+        // Polish D2 0b rewrote the budget (it was 4,000,000 over the SoundID files only): the director's call after D1
+        // is 5,000,000 bytes for every wav in Resources/Sound, every file counted (WindSound's two as well), until D3 has
+        // re-made the beds. The folder is summed where the sources are, and the app's own wav files as well.
+        XCTAssertLessThan(total, 5_000_000, "the SoundID files alone")
+        let folder = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Resources/Sound")
+        let manager = FileManager.default
+        let sources = ((try? manager.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)) ?? [])
+            .filter { $0.pathExtension == "wav" }
+        var shipped: [String: URL] = [:]
+        for url in (Bundle.main.urls(forResourcesWithExtension: "wav", subdirectory: nil) ?? [])
+            + (Bundle.main.urls(forResourcesWithExtension: "wav", subdirectory: "Sound") ?? []) {
+            shipped[url.lastPathComponent] = url
+        }
+        let names = Set(SoundID.allCases.map { $0.rawValue + ".wav" } + WindSound.files.map { $0 + ".wav" })
+        for (label, files) in [("the folder", sources), ("the app", Array(shipped.values))] where !files.isEmpty {
+            var sum = 0
+            for url in files {
+                sum += try Data(contentsOf: url).count
+            }
+            XCTAssertTrue(names.isSubset(of: Set(files.map { $0.lastPathComponent })), "\(label) holds every sound")
+            XCTAssertGreaterThanOrEqual(sum, total, label)
+            XCTAssertLessThan(sum, 5_000_000, "every wav in \(label) together stays under 5,000,000 bytes (\(sum))")
+        }
+        XCTAssertFalse(shipped.isEmpty, "the app's wav files are found")
         for id in [SoundID.manFall, .grunt1, .grunt2, .wallCrack, .wallBreak] {
             let url = Bundle.main.url(forResource: id.rawValue, withExtension: "wav", subdirectory: "Sound")
                 ?? Bundle.main.url(forResource: id.rawValue, withExtension: "wav")

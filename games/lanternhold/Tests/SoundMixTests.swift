@@ -36,20 +36,27 @@ final class SoundMixTests: XCTestCase {
 
     /// The law's stand-ins as it names them, and every chosen stand-in inside its step's band (inventory.md's measure:
     /// the file's whole RMS + 20 log10 volume). The law's own numbers stand where that measure reads them outside.
+    /// Polish D2 0g rewrote the stand-ins' lines (a rate is not a pitch): every higher or lower variant law 4 names is a
+    /// rendered file played at rate 1; the bell and the gate at dawn play as made.
     func testTheContractsStandInsSitOnTheirStep() throws {
         XCTAssertEqual(FeedbackCue.paneOpen.sound, SoundPlay(id: .tap, volume: 0.55))
-        XCTAssertEqual(FeedbackCue.paneClose.sound, SoundPlay(id: .tap, volume: 0.45, rate: 0.85))
-        XCTAssertEqual(FeedbackCue.bubbleClose.sound, SoundPlay(id: .tap, volume: 0.3, rate: 0.85))
-        XCTAssertEqual(FeedbackCue.lanternUp.sound?.volume, 0.55)
-        XCTAssertEqual(FeedbackCue.lanternDown.sound?.volume, 0.4)
-        XCTAssertEqual(FeedbackCue.boardSet.sound, SoundPlay(id: .knock, volume: 0.4, rate: 0.62))
-        XCTAssertEqual(FeedbackCue.dawnGate.sound, SoundPlay(id: .gate, volume: 0.6, rate: 1.05))
-        XCTAssertEqual(FeedbackCue.dawnHeld.sound, SoundPlay(id: .bell, volume: 0.5, rate: 0.9))
-        XCTAssertEqual(FeedbackCue.dawnToll.sound?.id, .bell)
-        XCTAssertEqual(FeedbackCue.dawnToll.sound?.rate, 0.55)
-        XCTAssertEqual(FeedbackCue.lanternRaised.sound, SoundPlay(id: .lantern, volume: 0.8, rate: 1.3),
-                       "the night raise keeps lantern.wav at rate 1.3")
-        let lawOutsideTheMeasure: Set<FeedbackCue> = [.bubbleClose, .dawnGate, .dawnHeld, .dawnToll]
+        XCTAssertEqual(FeedbackCue.paneClose.sound?.id, .tapLow)
+        XCTAssertEqual(FeedbackCue.bubbleClose.sound?.id, .tapLow)
+        // D2 part 7: the lantern moment's own files (lantern_up at 0.42 to stay inside step 1's band).
+        XCTAssertEqual(FeedbackCue.lanternUp.sound, SoundPlay(id: .lanternUp, volume: 0.42))
+        XCTAssertEqual(FeedbackCue.lanternDown.sound, SoundPlay(id: .lanternDown, volume: 0.4))
+        XCTAssertEqual(FeedbackCue.boardSet.sound?.id, .knockLow)
+        XCTAssertEqual(FeedbackCue.dawnGate.sound, SoundPlay(id: .gate, volume: 0.6))
+        XCTAssertEqual(FeedbackCue.dawnHeld.sound, SoundPlay(id: .bell, volume: 0.5))
+        XCTAssertEqual(FeedbackCue.dawnToll.sound?.id, .toll)
+        XCTAssertEqual(FeedbackCue.lanternRaised.sound, SoundPlay(id: .lanternRaise, volume: 0.8),
+                       "the night raise plays the lantern rendered 1.3 higher")
+        for cue in Self.contract {
+            XCTAssertEqual(cue.sound?.rate, 1, "\(cue) plays its file at rate 1 (D2 0g)")
+        }
+        // The law's own numbers stand where the whole-file measure reads a long bell or gate tail quieter than its
+        // strike (D2 0g keeps "the bell at 0.5" and "the gate at 0.6").
+        let lawOutsideTheMeasure: Set<FeedbackCue> = [.dawnGate, .dawnHeld]
         for cue in Self.contract where !lawOutsideTheMeasure.contains(cue) {
             let sound = try XCTUnwrap(cue.sound)
             let size = try XCTUnwrap(cue.answerSize)
@@ -151,8 +158,10 @@ final class SoundMixTests: XCTestCase {
         // at once); a cue that is not positional plays as made, never panned (0b's L4; it was panned to -0.7).
         XCTAssertNotNil(SoundSpace.place(.hit, x: lord + blow + 1, listenerX: lord), "just beyond its hearing: heard")
         XCTAssertNil(SoundSpace.place(.hit, x: lord + blow * 1.5, listenerX: lord), "at 1.5 x its hearing: not played")
-        XCTAssertEqual(SoundSpace.place(.buildStood, x: lord - 3000, listenerX: lord)?.gain, 1)
-        XCTAssertEqual(SoundSpace.place(.buildStood, x: lord - 3000, listenerX: lord)?.pan, 0)
+        // D2 gate M1 rewrote these two lines: a building standing became positional, so a cue that is not (the horn)
+        // shows a cue played as made (they used `buildStood`).
+        XCTAssertEqual(SoundSpace.place(.horn, x: lord - 3000, listenerX: lord)?.gain, 1)
+        XCTAssertEqual(SoundSpace.place(.horn, x: lord - 3000, listenerX: lord)?.pan, 0)
         XCTAssertTrue(FeedbackCue.hit.isPositional && FeedbackCue.manHit.isPositional)
     }
 
@@ -266,12 +275,11 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(BedDucks(hornIn: -0.1).depth, 0.3, "the horn's duck holds while it sounds")
         XCTAssertEqual(BedDucks(hornIn: -1.29).depth, 0.3, "until its first tone ends")
         XCTAssertEqual(BedDucks(hornIn: -1.31).depth, 1)
-        XCTAssertTrue(BedDucks.battleNear([1200, 1790], listenerX: 1500))
-        XCTAssertFalse(BedDucks.battleNear([1199, 1801], listenerX: 1500), "only within 300 px")
         let mix = AmbienceMix.target(hour: 22, rain: 0, place: .outside, fire: 0, ducked: true,
                                      ducks: BedDucks(battleNear: true), x: 900)
         XCTAssertEqual(mix.ducks.depth, 0.5, accuracy: 1e-12)
-        XCTAssertEqual(mix.heard(.ambNight), mix.night * 0.5, accuracy: 1e-12)
+        // D2 0f rewrote this line: the bed heard is the one under the ceiling (`bed`), halved.
+        XCTAssertEqual(mix.heard(.ambNight), mix.bed(.ambNight) * 0.5, accuracy: 1e-12)
     }
 
     /// Polish D1, the battle duck: a blow, a fall, a crack or a kill heard within 300 px of the lord keeps the beds at
@@ -359,6 +367,64 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(nearCrack.duck, .triumph)
     }
 
+    /// Polish D2 part 1 (F4): a building stands: build_done re-made (two knocks, a 70 Hz body, a gravel tail, 1.1 s)
+    /// at step 3's level, success then light 0.12 s later, the beds x 0.7 for 0.7 s, never randomised; `buildDone` and
+    /// `buildStood` give the same answer.
+    func testABuildingStandsAtItsSize() throws {
+        for cue in [FeedbackCue.buildDone, .buildStood] {
+            XCTAssertEqual(cue.sound, SoundPlay(id: .buildDone, volume: 0.9), "\(cue)")
+            XCTAssertEqual(cue.answerSize, .triumph)
+            XCTAssertEqual(cue.haptic, .success)
+            var gate = FeedbackGate()
+            let answer = gate.answer(cue, soundOn: true, hapticsOn: true, now: 1)
+            XCTAssertEqual(answer.haptic, .success)
+            XCTAssertEqual(answer.echo, 0.12)
+            XCTAssertEqual(answer.echoHaptic, .light)
+            XCTAssertEqual(answer.duck, .triumph, "the beds x 0.7 for 0.7 s")
+            XCTAssertFalse(answer.jitter)
+        }
+        XCTAssertNil(FeedbackCue.wallBroken.hapticEchoKind, "the breach echoes its heavy")
+        let level = AnswerSize.level(fileRMS: try Self.fileRMS(.buildDone), volume: 0.9)
+        XCTAssertTrue(AnswerSize.triumph.band.contains(level), "build_done at \(level) dBFS")
+        let seal = AnswerSize.level(fileRMS: try Self.fileRMS(.sealLow), volume: FeedbackCue.countSeal.sound?.volume ?? 0)
+        XCTAssertGreaterThan(level, seal, "it stands louder than the seal before it")
+        let seconds = Double(try Self.samples(.buildDone).count) / 22050
+        XCTAssertEqual(seconds, 1.1, accuracy: 0.01)
+        XCTAssertTrue(AnswerSize.triumph.length.contains(seconds))
+    }
+
+    /// D2 gate M1 (law 3.1, D1 gate M5): a building standing is heard from its plot. The thinner gives the
+    /// simulation's `buildDone` the plot's x; within 900 px it has its full answer, beyond it only the faded sound (no
+    /// haptic, no echo, no duck), and past 1350 px nothing.
+    func testABuildingFarOffIsOnlyHeardFaded() throws {
+        for cue in [FeedbackCue.buildDone, .buildStood] {
+            XCTAssertTrue(cue.isPositional, "\(cue)")
+            XCTAssertEqual(cue.hearing, 900, "\(cue)")
+        }
+        let plot = try XCTUnwrap(Realm.plots.indices.first { Realm.plots[$0].x < 1000 })
+        let x = Realm.plots[plot].x
+        XCTAssertEqual(FeedbackThinner.cue(for: .buildDone(plot: plot))?.x, x)
+        var thinner = FeedbackThinner()
+        let near = thinner.placedCues(for: [.buildDone(plot: plot)], extra: [], time: 1, listenerX: x + 100)
+        XCTAssertEqual(near.map(\.cue), [.buildDone])
+        XCTAssertEqual(near.first?.x, x)
+        let gone = thinner.placedCues(for: [.buildDone(plot: plot)], extra: [], time: 5, listenerX: x + 2000)
+        XCTAssertTrue(gone.isEmpty, "a wall finishing two screens behind the town is not heard")
+        let edge = try XCTUnwrap(SoundSpace.place(.buildDone, x: x, listenerX: x + 1000))
+        XCTAssertLessThan(edge.gain, 0.35, "beyond its hearing: faded")
+        XCTAssertFalse(SoundSpace.near(distance: 1000, hearing: FeedbackCue.buildDone.hearing))
+        var gate = FeedbackGate()
+        let far = gate.answer(.buildDone, soundOn: true, hapticsOn: true, now: 10, near: false)
+        XCTAssertNotNil(far.sound, "heard, faded")
+        XCTAssertNil(far.haptic, "no success in the hand for a building out of hearing")
+        XCTAssertNil(far.echo)
+        XCTAssertNil(far.duck, "the beds do not dip for it")
+        let close = gate.answer(.buildDone, soundOn: true, hapticsOn: true, now: 20, near: true)
+        XCTAssertEqual(close.haptic, .success)
+        XCTAssertEqual(close.echoHaptic, .light)
+        XCTAssertEqual(close.duck, .triumph)
+    }
+
     /// Polish D1: a man struck grunts at most once every 0.5 s, grunt_1 and grunt_2 in turn among those that play.
     func testTheGruntsKeepHalfASecondApart() {
         guard FeedbackCue.soldierGrunts else { return }
@@ -381,25 +447,73 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(press.sound?.id, .tap)
         let open = gate.answer(.paneOpen, soundOn: true, hapticsOn: true, now: 1.016)
         XCTAssertNil(open.haptic, "the press's tick stands for the pane")
-        XCTAssertEqual(open.sound?.id, .tap, "the pane's sound plays (inside tap.wav's throttle too)")
+        // D2 0g rewrote this line: the taps turn, so the pane plays the press's next tap.
+        XCTAssertEqual(open.sound?.id, .tap2, "the pane's sound plays (inside the taps' throttle too), the next tap")
         let close = gate.answer(.paneClose, soundOn: true, hapticsOn: true, now: 1.25)
         XCTAssertNil(close.haptic, "0.25 s after the press: still one touch")
         XCTAssertNotNil(close.sound)
         XCTAssertEqual(gate.answer(.paneOpen, soundOn: true, hapticsOn: true, now: 1.6).haptic, .soft, "later: its own")
         var bare = FeedbackGate()
         XCTAssertEqual(bare.answer(.paneOpen, soundOn: true, hapticsOn: true, now: 3).haptic, .soft, "no press: its own")
-        XCTAssertNil(bare.answer(.lanternUp, soundOn: true, hapticsOn: true, now: 3.01).sound, "tap's throttle holds")
+        // D2 rewrote this line (the lantern has its own file now): the taps' throttle holds for the press.
+        XCTAssertNil(bare.answer(.plaquePress, soundOn: true, hapticsOn: true, now: 3.01).sound, "tap's throttle holds")
         var haptics = FeedbackGate()
         _ = haptics.answer(.plaquePress, soundOn: true, hapticsOn: false, now: 1)
         XCTAssertNil(haptics.answer(.paneClose, soundOn: true, hapticsOn: true, now: 1.1).haptic,
                      "a press with Haptics off still makes it one touch")
     }
 
-    /// Polish D1: the old card pair, `creatureHit` and `soldierFell` are silent in sound and hand.
+    /// Polish D2 0g: the tap and the step, the two most repeated cues, turn through three rendered files each, within
+    /// +-4 % of pitch, never the same one twice in a row, at rate 1 and with no rate jitter (a rate stretches time and
+    /// keeps the pitch); a throttled one does not turn the order; the rendered lower and higher variants are pitched
+    /// (their zero crossings come at their pitch's ratio).
+    func testTheTapAndTheStepTurnThroughThreeRenderedFiles() throws {
+        var gate = FeedbackGate()
+        var taps: [SoundID] = []
+        for (k, cue) in [FeedbackCue.touched, .paneOpen, .plaquePress, .touched, .touched, .cardOpened, .touched]
+            .enumerated() {
+            let answer = gate.answer(cue, soundOn: true, hapticsOn: true, now: 10 + Double(k) * 0.3)
+            let sound = try XCTUnwrap(answer.sound, "\(cue)")
+            XCTAssertEqual(sound.rate, 1, "\(cue)")
+            XCTAssertFalse(answer.jitter, "\(cue): the files vary, no rate jitter")
+            taps.append(sound.id)
+        }
+        XCTAssertEqual(taps, [.tap, .tap2, .tap3, .tap, .tap2, .tap3, .tap])
+        XCTAssertNil(gate.answer(.touched, soundOn: true, hapticsOn: true, now: 11.82).sound, "throttled")
+        XCTAssertEqual(gate.answer(.touched, soundOn: true, hapticsOn: true, now: 12.5).sound?.id, .tap2,
+                       "a throttled tap does not turn the order")
+        var steps: [SoundID] = []
+        for k in 0..<7 {
+            let answer = gate.answer(.step, soundOn: true, hapticsOn: true, now: 20 + Double(k) * 0.3)
+            steps.append(try XCTUnwrap(answer.sound?.id))
+            XCTAssertFalse(answer.jitter)
+            XCTAssertNil(answer.haptic, "law 4: none for steps")
+        }
+        XCTAssertEqual(steps, [.step1, .step2, .step3, .step1, .step2, .step3, .step1])
+        for (a, b) in zip(steps, steps.dropFirst()) { XCTAssertNotEqual(a, b, "never the same step twice in a row") }
+        XCTAssertNil(gate.answer(.step, soundOn: true, hapticsOn: true, now: 21.85).sound, "the steps' 0.12 s holds")
+        for family in [SoundID.taps, SoundID.steps] {
+            XCTAssertEqual(Set(family.map(\.throttleKey)).count, 1, "one throttle for a family")
+            XCTAssertTrue(family.allSatisfy { !$0.varies })
+        }
+        XCTAssertEqual(SoundID.tapLow.throttleKey, SoundID.tap.throttleKey)
+        // Pitched, not stretched: the zero crossings per second scale with the pitch.
+        for (base, variant, ratio) in [(SoundID.tap, SoundID.tap2, 1.035), (.tap, .tap3, 1 / 1.035), (.tap, .tapLow, 0.85),
+                                       (.knock, .knockLow, 0.62)] {
+            let a = try Self.samples(base)
+            let b = try Self.samples(variant)
+            let n = min(a.count, Int(Double(b.count) * ratio))
+            let measured = Self.crossings(Array(b.prefix(Int(Double(n) / ratio)))) / Self.crossings(Array(a.prefix(n)))
+            XCTAssertEqual(measured, ratio, accuracy: 0.04, "\(variant.rawValue) at \(ratio) of \(base.rawValue)'s pitch")
+        }
+    }
+
+    /// Polish D1: `creatureHit` and `soldierFell` are silent in sound and hand. D2 0a rewrote this test: the old card
+    /// pair (D1 had it silent too) is no longer retired; it answers as the pane pair (`testTheCardPairIsAnAliasOfThePanes`).
     @MainActor
     func testTheRetiredCuesAreSilentInSoundAndHand() {
         var gate = FeedbackGate()
-        for (k, cue) in [FeedbackCue.cardOpened, .cardClosed, .creatureHit, .soldierFell].enumerated() {
+        for (k, cue) in [FeedbackCue.creatureHit, .soldierFell].enumerated() {
             let answer = gate.answer(cue, soundOn: true, hapticsOn: true, now: Double(k))
             XCTAssertNil(answer.sound, "\(cue)")
             XCTAssertNil(answer.haptic, "\(cue)")
@@ -409,26 +523,74 @@ final class SoundMixTests: XCTestCase {
         silent.play(.cardOpened)
         silent.play(.cardClosed)
         XCTAssertEqual(silent.played, [.cardOpened, .cardClosed], "the call sites still reach the hub")
-        XCTAssertTrue(silent.felt.isEmpty, "no tick in the hand")
+        XCTAssertEqual(silent.felt, [.soft, .soft], "the card pair has the pane pair's hand")
         XCTAssertNil(FeedbackThinner.cue(for: .soldierFell(name: "Aldo")))
     }
 
-    /// Polish D1 gate M2 rewrote this test (it pinned the chain's rates): the kills' chain is not built, since a
-    /// player's rate stretches time and keeps the pitch. Every kill plays dissolve as made at rate 1, near or at the
-    /// edge, and varies a little like any step 2 answer. `AnswerChain` keeps its own rates and caps for pitched files.
-    func testKillsPlayAsMadeTheChainIsNotBuilt() {
+    /// Polish D2 0a (the director's call after D1): `cardOpened` answers as `paneOpen` and `cardClosed` as `paneClose`;
+    /// of a card cue and a pane cue within 0.25 s only the first answers and the other is dropped whole (no sound, no
+    /// haptic, no throttle spent), in all four orders of the pairs; a card cue alone answers; after a plaque press the
+    /// card cue gives its sound and no haptic.
+    func testTheCardPairIsAnAliasOfThePanes() {
+        XCTAssertEqual(FeedbackCue.cardOpened.paneAlias, .paneOpen)
+        XCTAssertEqual(FeedbackCue.cardClosed.paneAlias, .paneClose)
+        XCTAssertNil(FeedbackCue.paneOpen.paneAlias)
+        for (card, pane) in [(FeedbackCue.cardOpened, FeedbackCue.paneOpen), (.cardClosed, .paneClose),
+                             (.cardOpened, .paneClose), (.cardClosed, .paneOpen)] {
+            XCTAssertEqual(card.sound, card.paneAlias?.sound, "\(card)")
+            XCTAssertEqual(card.haptic, card.paneAlias?.haptic, "\(card)")
+            XCTAssertEqual(card.hapticStrength, card.paneAlias?.hapticStrength, "\(card)")
+            XCTAssertEqual(card.answerSize, .touch)
+            for cardFirst in [true, false] {
+                var gate = FeedbackGate()
+                let first = gate.answer(cardFirst ? card : pane, soundOn: true, hapticsOn: true, now: 1)
+                let second = gate.answer(cardFirst ? pane : card, soundOn: true, hapticsOn: true, now: 1.2)
+                XCTAssertNotNil(first.sound, "\(card) \(pane) card first \(cardFirst): the first answers")
+                XCTAssertEqual(first.haptic, .soft)
+                XCTAssertNil(second.sound, "\(card) \(pane) card first \(cardFirst): one answer")
+                XCTAssertNil(second.haptic)
+                XCTAssertNil(second.duck)
+                // Past 0.25 s after the first, the other kind answers on its own again.
+                let later = gate.answer(cardFirst ? pane : card, soundOn: true, hapticsOn: true, now: 1.26)
+                XCTAssertNotNil(later.sound, "past 0.25 s the other answers on its own")
+            }
+        }
+        var alone = FeedbackGate()
+        let open = alone.answer(.cardOpened, soundOn: true, hapticsOn: true, now: 3)
+        XCTAssertNotNil(open.sound, "a card cue alone answers")
+        XCTAssertEqual(open.haptic, .soft)
+        XCTAssertEqual(open.hapticStrength, 0.4)
+        let close = alone.answer(.cardClosed, soundOn: true, hapticsOn: true, now: 4)
+        XCTAssertEqual(close.sound?.id, FeedbackCue.paneClose.sound?.id)
+        XCTAssertEqual(close.haptic, .soft)
+        XCTAssertEqual(alone.answer(.cardOpened, soundOn: true, hapticsOn: true, now: 4.2).haptic, .soft,
+                       "two card cues are not the alias rule's pair")
+        var pressed = FeedbackGate()
+        _ = pressed.answer(.plaquePress, soundOn: true, hapticsOn: true, now: 5)
+        let after = pressed.answer(.cardClosed, soundOn: true, hapticsOn: true, now: 5.016)
+        XCTAssertNotNil(after.sound, "after a press the card cue plays its sound")
+        XCTAssertNil(after.haptic, "and no haptic: one touch, one tick")
+        // The real call sites (a bubble opening, a slide turned) with no pane cue around keep their answer.
+        var bubble = FeedbackGate()
+        XCTAssertNotNil(bubble.answer(.cardOpened, soundOn: true, hapticsOn: false, now: 7).sound)
+        XCTAssertNil(bubble.answer(.cardOpened, soundOn: false, hapticsOn: true, now: 8).sound, "Sound off: silent")
+    }
+
+    /// Polish D1 gate M2 rewrote this test (it pinned the chain's rates); D2 0c renamed it: kills do not chain (the
+    /// director's call after D1). Every kill plays dissolve as made at rate 1, near or at the edge, and varies a little
+    /// like any step 2 answer. `AnswerChain` is for the coins.
+    func testKillsDoNotChain() {
         var gate = FeedbackGate()
         for k in 0..<10 {
             let answer = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: Double(k) * 0.3)
             XCTAssertEqual(answer.sound?.id, .dissolve)
             XCTAssertEqual(answer.sound?.rate, 1, "kill \(k): no stretched chain")
             XCTAssertTrue(answer.jitter, "step 2: +-4 %")
-            XCTAssertNil(answer.haptic, "the chain's hand is not built either")
+            XCTAssertNil(answer.haptic, "no chain, no growing hand")
         }
         let far = gate.answer(.creatureDissolved, soundOn: true, hapticsOn: true, now: 3.2, near: false)
         XCTAssertEqual(far.sound?.rate, 1, "at the edge: as made")
         XCTAssertEqual(FeedbackCue.creatureDissolved.answerSize, .deed)
-        XCTAssertEqual(AnswerChain.killCap, 7, "the law's cap waits for pitched files")
     }
 
     /// 0b's L2: after a shallower duck the beds come back over 1.2 s from it, not at the pace a deeper duck before it
@@ -476,16 +638,19 @@ final class SoundMixTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(level, size.band.lowerBound - 0.1, "\(cue) at \(level) dBFS")
             XCTAssertLessThanOrEqual(level, size.band.upperBound + 0.1, "\(cue) at \(level) dBFS")
         }
+        // D2 0d: a man's fall at rate 1, as made; its "x 0.7" is the step 3 duck of the beds.
+        XCTAssertEqual(FeedbackCue.manFell.sound?.rate, 1)
+        XCTAssertEqual(AnswerSize.triumph.bedDuck, 0.7)
         if FeedbackCue.soldierGrunts {
             let other = AnswerSize.level(fileRMS: try Self.fileRMS(.grunt2), volume: FeedbackCue.manHit.sound?.volume ?? 0)
             XCTAssertTrue(AnswerSize.deed.band.contains(other), "grunt_2 at \(other) dBFS")
         }
         // The night bed in the gorge (no fire): amb_night and amb_throat as the mix plays them, summed by power,
-        // under the battle duck.
+        // under the battle duck. D2 0f rewrote this line: as played, under the ceiling (`bed`).
         let mix = AmbienceMix.target(hour: 23, rain: 0, place: .outside, fire: 0, x: 900)
         var power = 0.0
         for id in [SoundID.ambNight, .ambThroat] {
-            power += pow(10, AnswerSize.level(fileRMS: try Self.fileRMS(id), volume: mix.level(id)) / 10)
+            power += pow(10, AnswerSize.level(fileRMS: try Self.fileRMS(id), volume: mix.bed(id)) / 10)
         }
         let bed = 10 * log10(power)
         let ducked = bed + 20 * log10(BedDucks.battleDepth)
@@ -497,6 +662,82 @@ final class SoundMixTests: XCTestCase {
         let fade = SoundSpace.gain(distance: 100, hearing: FeedbackCue.hit.hearing)
         let away = try XCTUnwrap(levels[.hit]) + 20 * log10(fade)
         XCTAssertGreaterThanOrEqual(away - ducked, 3, "a blow 100 px away at \(away) over \(ducked)")
+    }
+
+    /// Polish D2 0f (the director's call after D1): the bed is the quietest thing, by numbers. At every place and hour
+    /// (and in every rain and beside every fire), the beds that play together sum to at most -24 dBFS undecked (file
+    /// RMS + 20 log10 volume, summed by power), lowered all together (their balance holds), and every step 1 cue sits
+    /// inside its band at least 3 dB over that sum. The beds' RMS numbers in the code are the files'. After it, the
+    /// first blow of a skirmish clears the bed without the duck.
+    func testTheBedIsTheQuietestThingByNumbers() throws {
+        var rms: [SoundID: Double] = [:]
+        for id in SoundID.loops {
+            rms[id] = try Self.fileRMS(id)
+            XCTAssertEqual(AmbienceMix.bedRMS(id), try XCTUnwrap(rms[id]), accuracy: 0.1, "\(id.rawValue)'s RMS")
+        }
+        XCTAssertLessThanOrEqual(AmbienceMix.bedCeiling, -24)
+        // Every step 1 cue, each file of a family it turns through.
+        var touchLevels: [(cue: FeedbackCue, level: Double)] = []
+        for cue in FeedbackCue.allCases where cue.answerSize == .touch {
+            let sound = try XCTUnwrap(cue.sound, "\(cue)")
+            let files = sound.id == .tap ? SoundID.taps : sound.id == .step1 ? SoundID.steps : [sound.id]
+            for id in files {
+                let level = AnswerSize.level(fileRMS: try Self.fileRMS(id), volume: sound.volume)
+                XCTAssertTrue(AnswerSize.touch.band.contains(level), "\(cue) (\(id.rawValue)) at \(level) dBFS")
+                touchLevels.append((cue, level))
+            }
+        }
+        XCTAssertTrue(touchLevels.contains(where: { $0.cue == .touched }))
+        XCTAssertTrue(touchLevels.contains(where: { $0.cue == .step }))
+        let quietest = try XCTUnwrap(touchLevels.map(\.level).min())
+        let loops = SoundID.loops
+        let bedFiles = try loops.map { try XCTUnwrap(rms[$0]) }
+        var loudest = -120.0
+        var cells = 0
+        var over: [String] = []
+        var unbalanced = 0
+        for place in SoundPlace.allCases {
+            for x in stride(from: 0.0, through: 3900, by: 30) {
+                for hour in stride(from: 0.0, to: 24, by: 0.5) {
+                    for rain in [0.0, 0.5, 1] {
+                        for fire in [0.0, 0.5, 1] {
+                            let mix = AmbienceMix.target(hour: hour, rain: rain, place: place, fire: fire, x: x)
+                            let trim = mix.trim
+                            var power = 0.0
+                            for (k, id) in loops.enumerated() {
+                                let volume = mix.level(id) * trim
+                                if volume > 0 { power += volume * volume * pow(10, bedFiles[k] / 10) }
+                            }
+                            let sum = power > 0 ? 10 * log10(power) : -120
+                            loudest = max(loudest, sum)
+                            cells += 1
+                            if (sum > -24 || quietest - sum < 3) && over.count < 5 {
+                                over.append("\(place) x \(x) hour \(hour) rain \(rain) fire \(fire): \(sum)")
+                            }
+                            // Lowered together: the beds keep their balance.
+                            if trim < 1, mix.day > 0, mix.night > 0,
+                               abs(mix.bed(.ambDay) / mix.bed(.ambNight) - mix.day / mix.night) > 1e-9 {
+                                unbalanced += 1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        XCTAssertEqual(over, [], "every bed sum at most -24 dBFS and every step 1 cue (\(quietest)) 3 dB over it")
+        XCTAssertEqual(unbalanced, 0)
+        let gorge = AmbienceMix.target(hour: 23, rain: 0, place: .outside, fire: 1, x: 900)
+        XCTAssertLessThan(gorge.trim, 1, "the night gorge beside a fire is lowered")
+        XCTAssertEqual(gorge.bed(.ambThroat), gorge.throat * gorge.trim, accuracy: 1e-12)
+        XCTAssertGreaterThan(cells, 100_000)
+        XCTAssertEqual(loudest, AmbienceMix.bedCeiling, accuracy: 0.1, "the ceiling is reached somewhere")
+        // Where the beds were quiet already they are left alone (the town by day).
+        let town = AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0, x: 3000)
+        XCTAssertEqual(town.trim, 1)
+        XCTAssertEqual(town.bed(.ambValley), town.valley)
+        // The first blow of a skirmish (a creature struck at the lord's feet) clears the undecked bed by 3 dB or more.
+        let blow = AnswerSize.level(fileRMS: try Self.fileRMS(.creatureHit), volume: FeedbackCue.hit.sound?.volume ?? 0)
+        XCTAssertGreaterThanOrEqual(blow - loudest, 3, "a blow at \(blow) over the bed at \(loudest), undecked")
     }
 
     func testTheBedsDuckAtQuickAndComeBackOverTheSettleTime() {
@@ -544,7 +785,6 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(AnswerChain.rate(step: 12), 2, accuracy: 1e-12)
         XCTAssertEqual(AnswerChain.countCap, 12)
         XCTAssertEqual(AnswerChain.taxCap, 7)
-        XCTAssertEqual(AnswerChain.killCap, 7)
         var chain = AnswerChain(cap: AnswerChain.taxCap)
         var steps: [Int] = []
         for k in 0..<10 { steps.append(chain.next(at: Double(k) * 0.3)) }
@@ -571,9 +811,125 @@ final class SoundMixTests: XCTestCase {
         XCTAssertEqual(two.map { $0.cue }, [.dawnToll, .dawnToll])
         XCTAssertEqual(two.map { $0.delay }, [0, DawnVerdict.tollGap])
         XCTAssertEqual(DawnVerdict.cues(fallen: 9).count, 3, "at most three tolls")
-        XCTAssertGreaterThanOrEqual(DawnVerdict.tollGap, SoundID.bell.minimumInterval,
-                                    "the stand-in bell's throttle lets every toll through")
-        XCTAssertGreaterThanOrEqual(SoundID.bell.voices, 3, "the tolls ring into each other's tails")
+        // Polish D2 part 2 rewrote these lines (the stand-in was the bell, 2.1 s apart): the toll's own file, at most one
+        // every 0.9 s in the hub, spaced 1.0 s by the verdict; three voices ring into each other's tails.
+        XCTAssertEqual(SoundID.toll.minimumInterval, 0.9)
+        XCTAssertEqual(DawnVerdict.tollGap, 1.0)
+        XCTAssertGreaterThanOrEqual(DawnVerdict.tollGap, SoundID.toll.minimumInterval, "every toll gets through")
+        XCTAssertEqual(DawnVerdict.cues(fallen: 3).map { $0.delay }, [0, 1, 2])
+        XCTAssertGreaterThanOrEqual(SoundID.toll.voices, 3, "the tolls ring into each other's tails")
+    }
+
+    /// Polish D2 part 6 (F18): the hall door's creak at 1.0, and the beds wait for the latch: from the creak, the place
+    /// the beds had before it holds (with each frame's ducks) until the creak ends or 0.35 s after it starts, whichever
+    /// is sooner; then the new place's beds come in as before.
+    func testTheHallBedWaitsForTheLatch() throws {
+        XCTAssertEqual(FeedbackCue.doorOpened.sound, SoundPlay(id: .doorCreak, volume: 1))
+        let creak = Double(try Self.samples(.doorCreak).count) / 22050
+        XCTAssertEqual(BedLatch.creakSeconds, creak, accuracy: 0.01, "the creak's length is the file's")
+        XCTAssertEqual(BedLatch.hold, min(creak, 0.35), accuracy: 0.01)
+        let outside = AmbienceMix.target(hour: 12, rain: 0, place: .castle, fire: 0, x: 1830)
+        let hall = AmbienceMix.target(hour: 12, rain: 0, place: .hall, fire: 0, x: 1830)
+        XCTAssertGreaterThan(hall.hall, outside.hall)
+        var latch = BedLatch()
+        XCTAssertEqual(latch.mix(outside, now: 0.9), outside, "no creak, no hold")
+        latch.creak(at: 1, before: outside)
+        let early = latch.mix(hall, now: 1.1)
+        XCTAssertEqual(early.hall, outside.hall, "the hall bed waits")
+        XCTAssertEqual(early.bailey, outside.bailey, "the courtyard's bed holds")
+        var duckedHall = hall
+        duckedHall.ducks.screen = true
+        XCTAssertTrue(latch.mix(duckedHall, now: 1.2).ducks.screen, "the frame's ducks still apply")
+        XCTAssertEqual(latch.mix(hall, now: 1.34).hall, outside.hall)
+        XCTAssertEqual(latch.mix(hall, now: 1.36), hall, "at the latch the hall's beds come in")
+        XCTAssertEqual(latch.mix(hall, now: 1.5), hall)
+        // A creak with no mix before it holds nothing; a clock that went back lets go.
+        var bare = BedLatch()
+        bare.creak(at: 1, before: nil)
+        XCTAssertEqual(bare.mix(hall, now: 1.1), hall)
+        var back = BedLatch()
+        back.creak(at: 5, before: outside)
+        XCTAssertEqual(back.mix(hall, now: 2), hall)
+        // A second creak while holding keeps the first place.
+        var twice = BedLatch()
+        twice.creak(at: 1, before: outside)
+        twice.creak(at: 1.2, before: hall)
+        XCTAssertEqual(twice.mix(hall, now: 1.5).hall, outside.hall)
+        XCTAssertEqual(twice.mix(hall, now: 1.56), hall)
+    }
+
+    /// Polish D2 part 3 (F12): the coins coming in (the taxes landing, `SoundWatch`'s `coin` on a rising purse) climb like
+    /// the count's: +1 semitone a coin with the pitched coin files, capped at +7, back to the root after 1.5 s, the hand
+    /// soft growing 0.3 to 0.7, never varied; the last landing (`taxesCounted`) keeps coins.wav and success.
+    func testTheTaxCoinsClimb() throws {
+        var gate = FeedbackGate()
+        var ids: [SoundID?] = []
+        var strengths: [Double] = []
+        var hands: [HapticKind?] = []
+        for k in 0..<10 {
+            let answer = gate.answer(.coin, soundOn: true, hapticsOn: true, now: 1 + Double(k) * 0.12)
+            ids.append(answer.sound?.id)
+            strengths.append(answer.hapticStrength)
+            hands.append(answer.haptic)
+            XCTAssertEqual(answer.sound?.rate, 1)
+            XCTAssertEqual(answer.sound?.volume, 0.6)
+            XCTAssertFalse(answer.jitter, "a chained coin is never varied")
+        }
+        XCTAssertEqual(ids, [.coin, .coinP01, .coinP02, .coinP03, .coinP04, .coinP05, .coinP06, .coinP07, .coinP07, .coinP07],
+                       "capped at +7")
+        XCTAssertEqual(strengths.first ?? 0, 0.3, accuracy: 1e-12)
+        XCTAssertEqual(strengths[7], 0.7, accuracy: 1e-12)
+        for (a, b) in zip(strengths, strengths.dropFirst()) { XCTAssertGreaterThanOrEqual(b, a - 1e-12) }
+        // The haptic keeps its gap (0.25 s); the strength it comes with is the chain's.
+        XCTAssertEqual(hands, [.soft, nil, nil, .soft, nil, nil, .soft, nil, nil, .soft])
+        let reset = gate.answer(.coin, soundOn: true, hapticsOn: true, now: 1 + 9 * 0.12 + 1.5)
+        XCTAssertEqual(reset.sound?.id, .coin, "1.5 s without a coin: back to the root")
+        XCTAssertEqual(reset.hapticStrength, 0.3, accuracy: 1e-12)
+        XCTAssertEqual(gate.answer(.coin, soundOn: true, hapticsOn: true, now: 1 + 9 * 0.12 + 1.62).sound?.id, .coinP01)
+        // With Sound off the hand still grows along the chain.
+        var quiet = FeedbackGate()
+        var last = 0.0
+        for k in 0..<4 { last = quiet.answer(.coin, soundOn: false, hapticsOn: true, now: Double(k) * 0.3).hapticStrength }
+        XCTAssertEqual(last, 0.3 + 0.4 * 3 / 7, accuracy: 1e-12)
+        // Every chained file is in the app at step 2's level.
+        for id in SoundID.coinSteps.prefix(AnswerChain.taxCap + 1) {
+            let level = AnswerSize.level(fileRMS: try Self.fileRMS(id), volume: 0.6)
+            XCTAssertTrue(AnswerSize.deed.band.contains(level), "\(id.rawValue) at \(level) dBFS")
+        }
+        XCTAssertEqual(FeedbackCue.taxesCounted.sound?.id, .coins)
+        XCTAssertEqual(FeedbackCue.taxesCounted.haptic, .success)
+        var thinner = FeedbackThinner()
+        XCTAssertEqual(thinner.cues(for: [], extra: [(.taxesCounted, nil), (.coin, nil)], time: 1, listenerX: 600),
+                       [.taxesCounted], "the last landing is the counted coins, not a coin as well")
+    }
+
+    /// Polish D2 part 2 (F6): a held night and a lost one do not sound alike. The toll's spacing (at most one every
+    /// 0.9 s), its own low damped file at step 3's level and length, one heavy with the first toll; the held night's
+    /// bell as made with success; the dawn gate as made.
+    func testTheDawnHeldAndLostSoundApart() throws {
+        var gate = FeedbackGate()
+        let times = [1.0, 1.5, 1.95, 2.4, 2.9, 3.9]
+        let heard = times.map { gate.answer(.dawnToll, soundOn: true, hapticsOn: true, now: $0) }
+        XCTAssertEqual(heard.map { $0.sound?.id }, [.toll, nil, .toll, nil, .toll, .toll], "at most one every 0.9 s")
+        XCTAssertEqual(heard.map { $0.haptic }, [.heavy, nil, nil, nil, nil, nil], "one heavy with the first toll")
+        XCTAssertTrue(heard.allSatisfy { $0.sound == nil || $0.duck == .triumph })
+        XCTAssertTrue(heard.allSatisfy { !$0.jitter }, "step 3 is never randomised")
+        var verdict = FeedbackGate()
+        for (cue, delay) in DawnVerdict.cues(fallen: 3) {
+            XCTAssertEqual(verdict.answer(cue, soundOn: true, hapticsOn: true, now: 50 + delay).sound?.id, .toll,
+                           "the verdict's tolls all sound")
+        }
+        let toll = AnswerSize.level(fileRMS: try Self.fileRMS(.toll), volume: FeedbackCue.dawnToll.sound?.volume ?? 0)
+        XCTAssertTrue(AnswerSize.triumph.band.contains(toll), "the toll at \(toll) dBFS")
+        let seconds = Double(try Self.samples(.toll).count) / 22050
+        XCTAssertEqual(seconds, 1.4, accuracy: 0.01, "the toll is 1.4 s, step 3's longest")
+        var held = FeedbackGate()
+        let bell = held.answer(.dawnHeld, soundOn: true, hapticsOn: true, now: 1)
+        XCTAssertEqual(bell.sound, SoundPlay(id: .bell, volume: 0.5))
+        XCTAssertEqual(bell.haptic, .success)
+        XCTAssertEqual(held.answer(.dawnGate, soundOn: true, hapticsOn: true, now: 2).sound, SoundPlay(id: .gate, volume: 0.6))
+        XCTAssertNil(FeedbackCue.dawnGate.haptic)
+        XCTAssertNotEqual(FeedbackCue.dawnHeld.sound?.id, FeedbackCue.dawnToll.sound?.id)
     }
 
     @MainActor
@@ -601,6 +957,47 @@ final class SoundMixTests: XCTestCase {
         func countTick(strength: Double) {}
         func countWarm() {}
         func ambience(_ mix: AmbienceMix) {}
+    }
+
+    /// A wav's samples (16 bit PCM mono), read from the app's bundle (D2).
+    private static func samples(_ id: SoundID) throws -> [Int16] {
+        let url = try XCTUnwrap(Bundle.main.url(forResource: id.rawValue, withExtension: "wav", subdirectory: "Sound")
+            ?? Bundle.main.url(forResource: id.rawValue, withExtension: "wav"), id.rawValue)
+        let data = try Data(contentsOf: url)
+        var offset = 12
+        while offset + 8 <= data.count {
+            let tag = String(decoding: data[offset..<offset + 4], as: UTF8.self)
+            let size = Int(data[offset + 4]) | Int(data[offset + 5]) << 8 | Int(data[offset + 6]) << 16
+                | Int(data[offset + 7]) << 24
+            if tag == "data" {
+                let end = min(data.count, offset + 8 + size)
+                var out: [Int16] = []
+                out.reserveCapacity(max(0, (end - offset - 8) / 2))
+                var i = offset + 8
+                while i + 1 < end {
+                    out.append(Int16(bitPattern: UInt16(data[i]) | UInt16(data[i + 1]) << 8))
+                    i += 2
+                }
+                return out
+            }
+            offset += 8 + size + (size & 1)
+        }
+        XCTFail("\(id.rawValue) has no data chunk")
+        return []
+    }
+
+    /// Sign changes per second among the samples louder than 2 % of the peak (D2: a rendered pitch's proof).
+    private static func crossings(_ x: [Int16]) -> Double {
+        let peak = x.map { abs(Int($0)) }.max() ?? 0
+        let floor = Double(peak) * 0.02
+        var count = 0
+        var last = 0
+        for v in x where abs(Double(v)) >= floor {
+            let sign = v > 0 ? 1 : -1
+            if last != 0 && sign != last { count += 1 }
+            last = sign
+        }
+        return Double(count) / (Double(max(1, x.count)) / 22050)
     }
 
     /// A wav's whole RMS in dBFS (16 bit PCM mono, as `tools/soundsynth.py` writes them), read from the app's bundle.
