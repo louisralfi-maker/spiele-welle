@@ -1,0 +1,42 @@
+m08-a: Silas Moth lights the first street lantern by the postern (TownLamps: it takes the flame at 17:58); the condition: the hour 17.975
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +2.559 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 17.5 -GWStage world -GWCameraX 2300
+
+frame  seconds since the burst began  (scene where read)
+01  +0.353 s  
+02  +0.590 s  day:3 hour:17.82 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+03  +1.025 s  
+04  +1.250 s  day:3 hour:17.88 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+05  +1.509 s  
+06  +1.714 s  day:3 hour:17.93 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+07  +1.994 s  
+08  +2.139 s  day:3 hour:17.95 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+09  +2.323 s  
+10  +2.509 s  day:3 hour:17.98 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:strip cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+11  +2.733 s  
+12  +3.043 s  
+13  +3.367 s  
+14  +3.550 s  
+15  +3.746 s  
+16  +3.898 s  
+17  +4.054 s  
+18  +4.324 s  
+19  +4.571 s  
+20  +4.831 s  
+21  +5.163 s  
+22  +5.451 s  
+23  +5.629 s  
+24  +5.829 s  
+25  +6.085 s  
+26  +6.436 s  
+27  +6.687 s  
+28  +6.955 s  
+29  +7.230 s  
+30  +7.522 s  
+31  +7.832 s  
+32  +7.988 s  
+33  +8.210 s  
+34  +8.473 s  day:3 hour:18.48 alive:0 seen:0 shots:0 kx:2300 stage:world lx:2300 gold:91 hud:none cam:2103 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.246 s over 33 gaps
