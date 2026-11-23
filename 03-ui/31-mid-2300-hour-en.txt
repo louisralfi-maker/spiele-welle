@@ -1,0 +1,1 @@
+31-mid-2300: taken at frame:2410 ready day:12 hour:23.90 alive:13 seen:5 lit:5 shots:4 aim:1 kx:654 lord:lord stage:world lx:654 errand:none door:1830 gold:93 hud:none cam:376 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:none drill:none kv:0.00 kxf:654.00 kf:6 kd:-1 kcx:375.50 lantern:ready

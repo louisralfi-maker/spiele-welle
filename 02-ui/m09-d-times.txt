@@ -1,0 +1,26 @@
+m09-d: slowed: the horde comes into view
+slowed: -GWTimeScale 0.25; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +34.533 s (132 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWNight 1 -GWSeed 1 -GWCameraX 1330 -GWHour 23 -GWTimeScale 0.25
+
+frame  seconds since the burst began  (scene where read)
+01  +33.239 s  
+02  +33.471 s  day:1 hour:23.76 alive:14 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+03  +33.817 s  
+04  +34.032 s  day:1 hour:23.77 alive:14 seen:0 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+05  +34.274 s  
+06  +34.461 s  day:1 hour:23.79 alive:14 seen:1 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready  <- the condition holds
+07  +34.717 s  
+08  +34.905 s  
+09  +35.055 s  
+10  +35.215 s  
+11  +35.381 s  
+12  +35.532 s  
+13  +35.749 s  
+14  +35.915 s  
+15  +36.089 s  
+16  +36.275 s  
+17  +36.540 s  
+18  +36.805 s  day:1 hour:23.83 alive:14 seen:1 shots:0 kx:1330 stage:world lx:1330 gold:21 hud:none cam:1133 tap:none count:none last:none lanterns:0 yard:none drill:none lantern:ready
+mean spacing 0.210 s over 17 gaps

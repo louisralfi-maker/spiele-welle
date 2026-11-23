@@ -1,0 +1,13 @@
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13HesperSaysTheFarGoalOnDayOne]' passed (53.018 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheDuskUnderReduceMotionInTheTown]' passed (35.750 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheEndOfAnEmptyDay]' passed (73.042 seconds).
+Test Case '-[LanternholdUITests.FilmDuskUITests testM13TheRibbonReadsTheNight]' passed (26.730 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testA5TheDawnUnderReduceMotion]' passed (21.760 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testA5TheHornsGateFalls]' passed (24.163 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM08DuskAndTheHorn]' passed (45.124 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM09TheFirstAttack]' passed (103.132 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawn]' passed (29.042 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawnCardWaitsForTheGate]' passed (22.416 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM12AnAdOfferAndTheEndCard]' passed (97.782 seconds).
+exit=0
+screenshots: 703

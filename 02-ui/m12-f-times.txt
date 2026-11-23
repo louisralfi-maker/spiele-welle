@@ -1,0 +1,29 @@
+m12-f: Hold the realm: the card goes, the realm runs on
+real time; as fast as the frames come
+the tap was sent without waiting at +0.195 s (point 110.7, 365.5; interface orientation 3 (the app's)); the runner answered at +0.513 s; its effect holds
+launch: -GWReset YES -GWSeed 1 -GWSkipOnboarding YES -GWLordName Oswin -GWSlides ending2 -GWLord lord
+scene after: frame:510 ready day:1 hour:6.38 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:224.71
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.444 s  
+02  +0.864 s  
+03  +1.286 s  
+04  +1.509 s  
+05  +1.652 s  
+06  +1.824 s  
+07  +1.960 s  
+08  +2.105 s  
+09  +2.272 s  
+10  +2.491 s  
+11  +2.675 s  
+12  +2.864 s  
+13  +3.100 s  
+14  +3.264 s  
+15  +3.567 s  
+16  +3.738 s  
+17  +4.018 s  
+18  +4.201 s  
+19  +4.375 s  
+20  +4.627 s  
+mean spacing 0.220 s over 19 gaps
