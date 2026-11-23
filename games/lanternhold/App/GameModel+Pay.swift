@@ -128,6 +128,15 @@ struct CountLantern: Sendable, Equatable {
 extension GameModel {
     /// The lord stands this far beside the board's edge to pay.
     static let countStandGap = 10.0
+    /// Polish B2 (H2): the open board's touch area reaches this far past its edge toward the lord (his middle stands
+    /// `countStandGap` out, his body 8 px either side of it), so every tap between the board and his far side is a coin.
+    static let countNearReach = countStandGap + 10
+    /// Polish B2 (H2): for this long after the seal a tap on the lord's body does nothing (the last fast taps meant for
+    /// the board); then the lantern can be raised again.
+    static let countSealGuard = 0.6
+    /// Polish B2 (H9): the soft tick in the hand as the rocking coin sinks home at the warning (law 4, step 1: soft
+    /// 0.3 to 0.5; the top of the band, above a coin coming home at `countHomeTick`).
+    static let countWarnTick = 0.5
     /// Step 2 (H3): the board's place is searched this far either way from beside its thing; a door is this wide
     /// either side of its middle.
     static let countBoardSearch = 40
@@ -358,9 +367,19 @@ extension GameModel {
     func countDown(at point: CGPoint, in size: CGSize) -> Bool {
         guard kind == .world, stage == .world, overlay == nil, stageChange == nil, lanternMoment == nil,
               driver?.bot == nil, let place = stagePoint(point, in: size) else { return false }
-        if let thing = countBoardThing(place) {
+        // Polish B2 (H2): beside an open board at night a hold on the lord still raises the lantern (the touch is his,
+        // `touchChanged`; its lift, if the hold raised nothing, is a coin in `tap(at:)`).
+        if countLordHold(place) { return false }
+        // Polish B2 (H2): the open board takes its widened area and the lord's body; for `countSealGuard` after the
+        // seal his body takes nothing (no new board for the site under him either).
+        switch countKeepsTap(place) {
+        case .coin(let thing)?:
             pressCount(thing)
             return true
+        case .nothing?:
+            return false
+        case nil:
+            break
         }
         // A town door is not bought: the lift knocks (`tap(at:)`, the taxes on foot), though the house's area covers it.
         if stage != .hall, townDoor(at: point, in: size) != nil { return false }
@@ -390,8 +409,62 @@ extension GameModel {
         let half = max(Double(board.layout.width) / 2, place.minimum / 2)
         // Step 6 (R1): over a counter's cap the models stand (a touch there is theirs: the swap, `modelArea`).
         let top = board.counter ? board.top : board.top + 14
-        guard abs(place.x - board.x) <= half, place.lift >= -TouchRules.footRoom, place.lift <= top else { return nil }
+        // Polish B2 (H2): the area reaches `countNearReach` past the edge on the lord's side (where he stands to pay).
+        let lordSide: Double = board.stand >= board.x ? 1 : -1
+        let left = board.x - half - (lordSide < 0 ? GameModel.countNearReach : 0)
+        let right = board.x + half + (lordSide > 0 ? GameModel.countNearReach : 0)
+        guard place.x >= left, place.x <= right, place.lift >= -TouchRules.footRoom, place.lift <= top else {
+            return nil
+        }
         return touch.things.first { $0.id == count.thing }
+    }
+
+    /// Polish B2 (H2): what a touch at `place` is while a count holds the lord's taps.
+    enum CountTapKeep {
+        /// A coin on the open count's thing.
+        case coin(TouchThing)
+        /// Nothing (the lord's body just after a seal).
+        case nothing
+    }
+
+    /// Polish B2 (H2, thing 7 of the polish audit): while a count is open, and for `countSealGuard` after its seal, the
+    /// lord takes no tap. On the open board's area (widened toward him) and on his body the touch is a coin; on his body
+    /// after the seal it is nothing; nil where the count does not hold the touch (the ground away from the board leaves
+    /// the count as before).
+    func countKeepsTap(_ place: (x: Double, lift: Double, minimum: Double)) -> CountTapKeep? {
+        guard stage == .world, let count = touch.count else { return nil }
+        if count.isOpen {
+            if let thing = countBoardThing(place) { return .coin(thing) }
+            // B2 gate (H-1): his body is the count's only while he stands at its board or walks to it; walked away
+            // (a tap on the ground), a tap on him is his again (the lantern moment), never a coin flying after him.
+            guard countHoldsLord(count), isOnLordsBody(place) || isOnLord(place) else { return nil }
+            guard let thing = touch.things.first(where: { $0.id == count.thing }) else { return nil }
+            return .coin(thing)
+        }
+        guard let since = count.sinceSeal, since < GameModel.countSealGuard,
+              isOnLordsBody(place) || isOnLord(place) else { return nil }
+        return .nothing
+    }
+
+    /// Polish B2 (H2): true for a touch on the lord beside an open board, off the board's own planks: the touch is his
+    /// as before the fix, so a hold on him never streams coins; at night with the lantern ready the hold raises it
+    /// (`stepTouch`), and a lift before the hold raised anything is one coin (`tap(at:)`). B2 gate (F5): at every hour,
+    /// not only while `LanternRaise.canRaise` (by day the thumb resting on him streamed and could seal the purchase).
+    func countLordHold(_ place: (x: Double, lift: Double, minimum: Double)) -> Bool {
+        guard stage == .world, let count = touch.count, count.isOpen, let board = touch.countBoard,
+              countHoldsLord(count), isOnLord(place) else { return false }
+        let half = max(Double(board.layout.width) / 2, place.minimum / 2)
+        let top = board.counter ? board.top : board.top + 14
+        let onPlanks = abs(place.x - board.x) <= half && place.lift >= -TouchRules.footRoom && place.lift <= top
+        return !onPlanks
+    }
+
+    /// B2 gate (H-1): the open count holds the lord's body only while he stands at its board (stopped up to
+    /// `TouchRules.arrival` off his stand, 2 px to spare; also while the board still rises) or walks there for it.
+    func countHoldsLord(_ count: PayCount) -> Bool {
+        guard let board = touch.countBoard else { return false }
+        if abs(stageLordX - board.stand) <= TouchRules.arrival + 2 { return true }
+        return !count.ready && touch.errand?.id == count.thing
     }
 
     /// A press on the open board's thing (or its chosen model: step 5): the hold.
@@ -820,6 +893,9 @@ extension GameModel {
                                    strength: PayCount.strength(index: index, count: count.coins.count))
             case .home:
                 feedback.countTick(strength: GameModel.countHomeTick)
+            case .warn:
+                // Polish B2 (H9): the rocking coin sinks back into his hand; one soft tick (the Haptics switch).
+                feedback.countTick(strength: GameModel.countWarnTick)
             case .seal:
                 let sealed = sealOrder(count.offer)
                 if sealed.done {
@@ -913,6 +989,8 @@ extension GameModel {
             // `there`: he stands beside the board (never the word `ready`, which the UI tests wait for at launch).
             let state = count.result?.rawValue ?? (count.ready ? "there" : "open")
             word = "\(count.thing):\(count.placed)/\(count.coins.count):\(state)"
+            // Polish B2 (H9): the warning stands (the rocking coin sank home; the coins go at `PayCount.tapWait`).
+            if count.sinkShare != nil { word += ":warned" }
         }
         let lit = touch.countLanterns.filter { $0.outAt == nil }.count
         var text = "\(word) last:\(touch.countLast) lanterns:\(lit)"
@@ -1186,7 +1264,18 @@ extension GameModel {
                 let otherTop = top - Double(above.y) - Double((otherSize.height - otherCoin.height) / 2)
                 rock = min(rock, otherTop - Double(otherCoin.height) - 2)
             }
-            put(hollow.coin.sprite, PayBoardLayout.face(of: next), x, max(rock, inHollow))
+            // Polish B2 (H9): at the warning the rocking coin sinks back into the lord's hand on the coins' own way
+            // home (`countHome`, `PayCount.sinkSeconds`); under Reduce Motion it is gone at once (a plain swap).
+            if let sink = count.sinkShare {
+                if !reduceMotion, sink < 1 {
+                    homing.append((coin: hollow.coin, face: PayBoardLayout.face(of: next), share: sink, x: x,
+                                   lift: max(rock, inHollow)))
+                }
+            } else if !count.sunk {
+                // B2 gate (F4): a touch takes the warning back, yet the sunk coin stays in his hand until the next coin
+                // leaves it (never back over its hollow for the frames before).
+                put(hollow.coin.sprite, PayBoardLayout.face(of: next), x, max(rock, inHollow))
+            }
         }
         // The seal: the lid comes down (2 px high, then a pixel past its rest, then home: M4), with its battens across
         // its planks and its iron hasp; it slides out from under the cap.
