@@ -1469,3 +1469,7 @@ schneller geht."
     (local only): `Motion` holds the follow's stiffness, `Camera` reads it; C1's test of the tap beside a pane reads
     the bubble close's own level. Round lh-rnd-17 went out on it at 04:04. Step C2's brief is written; it goes out
     when the mended head builds. Usage at 04:04: 48 % of the week, the stop is 80 %.
+  - Step C2 (the first five seconds) went out at 04:18 from the mended join head 14034f3c. Its calls: the reveal runs
+    1.6 s on (0.45, 0, 0.25, 1) with a stepped pixel edge; the step in goes through the lantern (the mask closes on
+    the flame by 0.60 s, the hall rises from black 0.70 to 1.30 s, a pane at the start comes at 1.55 s); the title's
+    beds keep their levels and stop at the black. Round lh-rnd-15 is green on 7f68847b.
