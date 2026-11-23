@@ -511,6 +511,20 @@ Law 4 (answers and sounds), after D2:
     - Phone check: the door against the gate sound, the travel at 60 and 120 frames a second, the dawn's 1.6 s until
       the card by feel, the Reduce Motion fade (no film frame catches it).
 
+28. **After the join of step A5 (join head 84afc2d3 on origin; rounds lh-rnd-34, 35 and 37 ALL PASSED, lh-rnd-36 FAILED 1).**
+    The join is 151ca052 plus a `--no-ff` merge of lane A's 76c7faa1; its tree equals lane A's.
+    - Green on the join: the whole unit suite (lh-rnd-34); ui Yard, Proof, Endings (lh-rnd-35); ui Town and 16 of the
+      17 tests of Touch, Lord, Hall and Count (lh-rnd-36); `TouchUITests.testTouchTheWorld` alone (lh-rnd-37).
+    - The one red test in lh-rnd-36 was the runner, not the gate: in `theFront()` (day 3 at 10:00) each element read
+      took 1 to 3 s instead of 0.03 to 0.2 s, the loop over the nine touch elements ran 106 s (green runs: 3 to
+      20 s; the re-run: 15 s), and 108 s after ready the horn takes the plots' elements away. The read at index 7 then
+      found only `touch-lord`.
+    - Rider of B4 (lane B's `UITests/TouchUITests.swift`): `theFront()` must not be able to reach the horn. It starts
+      earlier in the day (e.g. `-GWClock 7`) or reads each element's identifier, label and frame once into values
+      before it asserts. No change to what it proves.
+    - Lesson for sending: three rounds at once on the join are fine, but the long step with many launches goes alone
+      in its round; a red test is first read in `xcodebuild.log.gz` by its time stamps before anything is mended.
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged

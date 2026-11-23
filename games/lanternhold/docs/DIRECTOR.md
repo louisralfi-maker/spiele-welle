@@ -1616,3 +1616,8 @@ schneller geht."
     its last row lands on the gate sound's hit; the dawn card comes 1.6 s after the dawn. The director's calls
     are ROUND.md point 27 (the second chance's dawn, the stall line and the save pin ride with A3; the horn's
     gate sound with D3; the wooden gate's look is a phone check). Usage 76 %. The join follows.
+  - 23.11. 21:55: step A5 (the gate moves) is joined and on origin: `claude/lh-round` = 84afc2d3 (151ca052 plus the
+    merge of lane A's 76c7faa1). Rounds on the join: lh-rnd-34 (whole unit suite), lh-rnd-35 (ui Yard, Proof,
+    Endings) and lh-rnd-37 green; lh-rnd-36 had one red test (`testTouchTheWorld`), read as the runner's slowness and
+    green alone in lh-rnd-37 (ROUND.md point 28, with B4's rider). Not in build 554; it comes with the next build
+    (tf-lh-6), which waits for Louis' phone feedback.
