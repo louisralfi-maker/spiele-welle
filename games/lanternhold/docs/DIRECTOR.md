@@ -1557,3 +1557,6 @@ schneller geht."
   - 23.11. 10:44: round lh-rnd-26 is green on ff79492b (build; FilmDeals + Count; the whole unit suite), so the
     join with A2b is on origin at exactly ff79492b. The count class passed again on the join (the second green run
     of the helper's mend). Local join 92ffe894 (with C2b) waits for round lh-rnd-27. Still out: B3 (lane B).
+  - 23.11. 11:30: round lh-rnd-27 is green on 92ffe894 (build; Title + FilmOpening; the whole unit suite), so the
+    join with C2b is on origin at exactly 92ffe894. Lane C is idle. Still out: B3 (lane B); its join round also runs
+    the title and opening-film classes, because B3 was built on C2's root and the join now holds C2b's.
