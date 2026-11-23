@@ -1,0 +1,25 @@
+m01-h: the first 8 s of day 1 after burst g (a fresh install's onboarding), one frame every 0.5 s
+real time; one frame every 0.50 s
+no cause: the burst only watches
+launch: -GWTitle YES -GWReset YES -GWSeed 1 -GWPrologue YES
+scene before: frame:1000 ready day:1 hour:6.54 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:224.71
+scene after: frame:1450 ready day:1 hour:7.18 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:7 kd:1 kcx:224.71
+
+frame  seconds since the burst began  (scene where read)
+01  +0.193 s  
+02  +0.767 s  
+03  +1.166 s  
+04  +1.655 s  
+05  +2.140 s  
+06  +2.646 s  
+07  +3.160 s  
+08  +3.679 s  
+09  +4.174 s  
+10  +4.632 s  
+11  +5.128 s  
+12  +5.632 s  
+13  +6.188 s  
+14  +6.691 s  
+15  +7.222 s  
+16  +7.668 s  
+mean spacing 0.498 s over 15 gaps
