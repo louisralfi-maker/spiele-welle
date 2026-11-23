@@ -1750,4 +1750,57 @@ final class LanternMomentTests: XCTestCase {
         }
         XCTAssertEqual(reduced.groups(happiness: 50).first?.alpha ?? 0, 1, accuracy: 1e-9)
     }
+
+    /// Polish B3 gate (M3, P2): when one group of the walking row comes or goes beside another, the group that stays
+    /// glides to its new place over several frames (never the whole way in one) and ends where the old block puts it;
+    /// with every group whole the row is the old block; under Reduce Motion the slot is held while the other shows.
+    func testTheWalkingRowGlidesWhenAGroupComesOrGoes() throws {
+        let step = 1.0 / 60
+        func left(_ block: HUDKit.Block, _ sign: SpriteID) -> Double? {
+            guard let piece = block.pieces.first(where: { $0.sprite == sign }) else { return nil }
+            return Double(piece.x) - Double(block.width) / 2
+        }
+        func glides(_ places: [Double], _ what: String) {
+            let moves = zip(places, places.dropFirst()).map { abs($1 - $0) }
+            let total = abs((places.last ?? 0) - (places.first ?? 0))
+            XCTAssertGreaterThan(total, 0, what + ": it moves")
+            XCTAssertGreaterThanOrEqual(moves.filter { $0 > 0 }.count, 3, what + ": over several frames")
+            XCTAssertLessThan(moves.max() ?? 0, total, what + ": never the whole way in one frame")
+        }
+        let both = LordNotes.block(purse: 21, happiness: 50, mood: true, crowd: nil)
+        // The purse goes while the face stays.
+        var show = LordNotesShow()
+        for _ in 0..<10 { show.step(step, purse: 21, mood: true, crowd: nil, mode: .full) }
+        XCTAssertEqual(show.block(happiness: 50), both, "whole, the old block")
+        var faceAt = [try XCTUnwrap(left(show.block(happiness: 50), .hudFace))]
+        for _ in 0..<8 {
+            show.step(step, purse: nil, mood: true, crowd: nil, mode: .full)
+            faceAt.append(try XCTUnwrap(left(show.block(happiness: 50), .hudFace)))
+        }
+        let faceAlone = LordNotes.block(purse: nil, happiness: 50, mood: true, crowd: nil)
+        XCTAssertEqual(faceAt.last, left(faceAlone, .hudFace), "the face ends where it stands alone")
+        glides(faceAt, "the face as the purse goes")
+        // The face comes while the purse stands.
+        var coming = LordNotesShow()
+        for _ in 0..<10 { coming.step(step, purse: 21, mood: nil, crowd: nil, mode: .full) }
+        var purseAt = [try XCTUnwrap(left(coming.block(happiness: 50), .hudCoin))]
+        for _ in 0..<10 {
+            coming.step(step, purse: 21, mood: true, crowd: nil, mode: .full)
+            purseAt.append(try XCTUnwrap(left(coming.block(happiness: 50), .hudCoin)))
+        }
+        XCTAssertEqual(purseAt.last, left(both, .hudCoin), "the purse ends where the old block puts it")
+        glides(purseAt, "the purse as the face comes")
+        // Reduce Motion: no glide; the face keeps its slot while the purse still shows.
+        var still = LordNotesShow()
+        for _ in 0..<10 { still.step(step, purse: 21, mood: true, crowd: nil, mode: .reduced) }
+        let held = left(still.block(happiness: 50), .hudFace)
+        var seen = 0
+        for _ in 0..<8 {
+            still.step(step, purse: nil, mood: true, crowd: nil, mode: .reduced)
+            guard still.groups(happiness: 50).count == 2 else { continue }
+            seen += 1
+            XCTAssertEqual(left(still.block(happiness: 50), .hudFace), held, "Reduce Motion: the slot is held")
+        }
+        XCTAssertGreaterThan(seen, 0, "the purse fades under Reduce Motion too")
+    }
 }

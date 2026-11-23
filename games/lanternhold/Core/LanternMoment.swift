@@ -289,6 +289,8 @@ struct LordNotesShow: Sendable, Equatable {
     var lastPurse: Int?
     var lastMood: Bool?
     var lastCrowd: Bool?
+    /// B3 gate (M3, P2): Reduce Motion as the last step had it (the row then holds each group's slot until it is gone).
+    var still = false
 
     /// One group on screen: its pieces, its share and its rise (whole game px below its place).
     struct Group: Sendable, Equatable {
@@ -303,6 +305,7 @@ struct LordNotesShow: Sendable, Equatable {
         if let wantedPurse { lastPurse = wantedPurse }
         if let wantedMood { lastMood = wantedMood }
         if let wantedCrowd { lastCrowd = wantedCrowd }
+        still = mode.reduceMotion
         purse.step(seconds, shown: wantedPurse != nil, mode: mode)
         mood.step(seconds, shown: wantedMood != nil, mode: mode)
         crowd.step(seconds, shown: wantedCrowd != nil, mode: mode)
@@ -328,19 +331,36 @@ struct LordNotesShow: Sendable, Equatable {
 
     /// The walking row as one block, laid out as `LordNotes.block` lays it, each piece carrying its group's share and
     /// rise (`HUDKitActors.placed` draws them; the world and the hall alike). Empty when every group is gone.
+    /// B3 gate (M3, P2): each group's slot (its width and the space after it) counts at its weight (`slotWeights`), so
+    /// when one group comes or goes beside another the one that stays glides to its new place in whole px over the
+    /// other's 0.15 s or 0.10 s instead of jumping in one frame; with every group at one share it is `HUDKit.row`.
     func block(happiness: Int) -> HUDKit.Block {
         let list = groups(happiness: happiness)
         guard !list.isEmpty else { return HUDKit.Block() }
-        return HUDKit.row(list.map { group in
-            var block = group.block
-            block.pieces = block.pieces.map { piece in
+        let weights = LordNotesShow.slotWeights(list.map(\.alpha), still: still)
+        var row = HUDKit.Block()
+        var run = 0.0
+        for (group, weight) in zip(list, weights) {
+            row.pieces += group.block.shifted(Int(run.rounded()), 0).map { piece in
                 var faded = piece
                 faded.alpha = group.alpha
                 faded.drop = group.rise
                 return faded
             }
-            return block
-        })
+            run += Double(group.block.width + HUDKit.space) * weight
+        }
+        row.width = max(0, Int(run.rounded()) - HUDKit.space)
+        row.height = HUDKit.rowHeight
+        return row
+    }
+
+    /// B3 gate (M3, P2): each group's slot weight: its share over the largest share in the row, so a group alone, or
+    /// groups coming or going together, keep their places (weight 1); under Reduce Motion every slot is held whole
+    /// until its group is gone (no glide; the still form).
+    static func slotWeights(_ alphas: [Double], still: Bool) -> [Double] {
+        let top = alphas.max() ?? 0
+        guard !still, top > 0 else { return alphas.map { _ in 1 } }
+        return alphas.map { $0 / top }
     }
 }
 
