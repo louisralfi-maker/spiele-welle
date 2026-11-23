@@ -101,9 +101,10 @@ private struct LHWorldStillKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    /// Polish C2: the hall's view is built under the title once the game is ready, and its Metal view draws nothing
-    /// while this is true (until the touch on the title): a world drawn under the animated title held the main thread
-    /// on the runner and a touch on the title waited about 2.5 s (rounds lh-rc-13, lh-rc-14).
+    /// Polish C2: the hall's view is built under the title once the game is ready, draws its first frames there, and
+    /// then its Metal view draws nothing while this is true (until the touch on the title): a world drawn under the
+    /// animated title held the main thread on the runner and a touch on the title waited about 2.5 s (rounds
+    /// lh-rc-13, lh-rc-14).
     var lhWorldStill: Bool {
         get { self[LHWorldStillKey.self] }
         set { self[LHWorldStillKey.self] = newValue }

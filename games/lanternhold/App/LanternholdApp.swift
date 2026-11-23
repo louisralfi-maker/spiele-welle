@@ -55,6 +55,9 @@ struct RootView: View {
     /// Polish C2 (C1-10): no pane stands before the hall is whole; a pane the game holds at its start comes 0.25 s
     /// after it (`StepIn.panesAt`), with its own come and one `paneOpen` (`OverlayView`, `AdLayer`).
     @State private var panesHeld = true
+    /// Polish C2: the hall's view built under the title has drawn its first frames (the heavy first one falls at the
+    /// reveal's start, which the beat's clock waits out); from then on it draws nothing until the touch.
+    @State private var worldWarm = false
     /// Polish C2 (Debug): the step's probe, the hitches its beat did not count (`stepin-probe`, noted by the film).
     @State private var stepProbe = "none"
 
@@ -90,13 +93,20 @@ struct RootView: View {
                         .lhReduceMotion(model.reduceMotion)
                         .lhPlaqueFeedback(plaqueFeedback)
                         .lhPanesHeld(panesHeld)
-                        .environment(\.lhWorldStill, !titleDone && stepBeat == nil)
+                        .environment(\.lhWorldStill, worldWarm && !titleDone && stepBeat == nil)
                         .overlay { TableDebugLayer(model: model) }
                         // Under the title and its cover the hall says nothing to VoiceOver (and a UI test's snapshot
                         // after a touch on the title stays small: lh-rc-16 lost about 0.9 s of the step to it).
                         .accessibilityHidden(!hallWhole)
                         .onAppear {
-                            if !titleDone && stepBeat == nil { model.setActive(false) }
+                            guard !titleDone && stepBeat == nil else { return }
+                            model.setActive(false)
+                            // lh-rc-17: paused from its first frame, the hall drew its first, heavy frames at the touch
+                            // (2.2 s of the step lost on the runner); now they fall here, under the title.
+                            Task { @MainActor in
+                                try? await Task.sleep(nanoseconds: 500_000_000)
+                                worldWarm = true
+                            }
                         }
                 }
                 if gameMounted && !hallWhole {
