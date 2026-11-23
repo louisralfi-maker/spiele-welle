@@ -127,7 +127,7 @@ Where two laws touch, the numbers below are the agreed ones. Reduce Motion (RM) 
 | quick | 0.15 s | 0.10 s | touch answers, the lantern moment, marks, the bubble, the purse figure, pressed states |
 | normal | 0.25 s | 0.15 s | panes and cards, the hall's dark and bright halves, swaps inside a pane |
 | slow | 0.6 s | - | stage beats: a building standing, the title closing on the flame, the hall rising, the end card |
-| settle | 1.2 s | - | camera (as now), ambience, ducks returning, the dawn card's wait |
+| settle | 1.2 s | - | camera (as now), ambience, ducks returning |
 
 - Curves: ease-out cubic (0, 0, 0.58, 1) for what enters or answers; ease-in (0.42, 0, 1, 1) for what leaves; a
   critically damped spring for what follows. Linear only for flicker, the time of day, and the lantern veil (HUD.md
@@ -306,6 +306,16 @@ Law 4 (answers and sounds), after D2:
     `Camera.followOmega` reads it. Steps A1b and C1 each closed step 0a's leftover from their own side, and the join
     did not compile (round lh-rnd-16, mended in 14034f3c). A leftover names one owner. A tap beside a pane takes the
     bubble close's level, whatever lane D sets; no test of lane C pins a number of lane D.
+
+18. **After step E2 (law 3, the dawn card).** The card's wait is law 3's 0.6 s after the gate stands open, on the
+    model's clock (`dawnCardDelay`); it is not the settle tempo's 1.2 s, and law 1's table no longer lists it
+    there. A continued launch brings no dawn card, no verdict cue and no ads' gate: the save is always the dawn
+    snapshot, so "after a dawn save" would mean every launch (step E2b takes E2's replay out). The line forward
+    keeps its order: an unlock first, then Brannock's first-night line, then the full houses; the hounds' line
+    does not reach the card while the middle line unlocks on day 3, and that is accepted. The tolls have one
+    owner, lane D's `DawnVerdict`; the model reads its delays (E2b). Brannock's line on the card carries the
+    horn's glyph or none, never the warning triangle (E2b). A brief names the narrow case exactly, or what must
+    not happen.
 
 ## THE FIX LANES
 

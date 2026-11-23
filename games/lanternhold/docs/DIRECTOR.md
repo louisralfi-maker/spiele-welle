@@ -1482,3 +1482,13 @@ schneller geht."
     The game keeps its rule; the test's timing is at fault. The guard's test is mended in lane B; the helper
     `launchAtTheBoard` is not yet (a rider for B1's verification, else B3). The director's call: no repeat round;
     14034f3c stays local and origin stays 7f68847b until a join head with B1's mend is green in the count class.
+  - Step E2 (the dawn card) is verified green at 461f60ba (23.11., 06:43; rounds lh-re-11 and lh-re-12) and
+    merged into the local join: `claude/lh-round` a1817c58 = 14034f3c + E2, clean, not pushed. The card comes
+    0.6 s after the gate stands open, says "Owed today" with yesterday beside it, carries at most one line
+    forward and the head "Night 2 of 20"; the verdict is heard (`dawnHeld`, or `dawnToll` per fallen man, at
+    most three, 1.0 s apart). The director's calls: no dawn card on a continued launch (E2 replayed it at every
+    launch, with its tolls and the ads' gate; the brief's loose "after loading a dawn save" made that); the line
+    forward keeps its order; one owner of the toll gap, lane D's `DawnVerdict`; Brannock's line loses the
+    warning triangle. A small step E2b (brief `briefs/E2b.md`) does the three; the join head does not go to
+    TestFlight before it is in. Rounds on a1817c58: lh-rnd-19 (build), lh-rnd-20 (the whole unit suite, the
+    dawn's films, the first day, the town), lh-rnd-21 (the six classes that read the report). Usage 56 %.
