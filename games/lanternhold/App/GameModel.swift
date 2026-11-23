@@ -83,9 +83,9 @@ final class GameModel {
     nonisolated static let nightLead = 60.0
     /// The horn banner shows this many real seconds.
     static let hornBannerSeconds = 3.6
-    /// Polish E2 (ROUND.md law 3.6): the dawn card comes this many real seconds (the model's clock, not game time) after
-    /// the gate stands open (`gateStandsOpenAt`), so the open gate is seen first. The same under Reduce Motion: it is a
-    /// wait, not a motion.
+    /// Polish E2 (ROUND.md law 3.6): the dawn card comes this many real seconds (the model's clock, not game time)
+    /// after the gate stands open (`gateStandsOpenAt`), so the open gate is seen first. The same under Reduce Motion:
+    /// it is a wait, not a motion.
     static let dawnCardDelay = 0.6
     /// Polish E2 (the audit's F6, law 4 step 3): a night that cost lives tolls once per fallen man, at most
     /// `DawnVerdict.maxTolls`, this far apart (the hub lets one toll through per 0.9 s once D2's toll plays).

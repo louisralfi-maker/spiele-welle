@@ -121,7 +121,8 @@ struct ReportCard: Sendable, Equatable {
     enum Forward: Sendable, Equatable {
         /// Something opens today: the key lines themselves are the line forward (nothing is added).
         case unlock
-        /// Tonight is the first night of a kind of creature, said in the captain's own line (`lineKey`, Story.xcstrings).
+        /// Tonight is the first night of a kind of creature, said in the captain's own line (`lineKey`,
+        /// Story.xcstrings).
         case firstNight(CreatureKind, lineKey: String)
         /// The houses are full ("Houses full: build a house", moved here from the People row's detail).
         case housesFull
@@ -214,7 +215,8 @@ struct ReportCard: Sendable, Equatable {
             report.day = 10
             report.night = 9
             report.fallen = [FallenSoldier(name: "Ivo", kind: .guardsman), FallenSoldier(name: "Maren", kind: .archer),
-                             FallenSoldier(name: "Bertil", kind: .guardsman), FallenSoldier(name: "Wren", kind: .archer)]
+                             FallenSoldier(name: "Bertil", kind: .guardsman),
+                             FallenSoldier(name: "Wren", kind: .archer)]
             report.wallsLost = ["l2.wall"]
             report.creaturesStopped = 58
             report.happinessChanges = [HappinessChange(reason: .tavern, delta: 1),

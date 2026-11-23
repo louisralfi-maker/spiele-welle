@@ -172,7 +172,7 @@ struct ReportCardView: View {
     private var realmColumn: some View {
         VStack(alignment: .leading, spacing: 5) {
             SectionTitle(text: String(localized: "The valley"))
-            // Polish E2 (R3 fix 1): what the doors owe today, with yesterday's gold in the detail (`ReportCard.owedDetail`).
+            // Polish E2 (R3 fix 1): what the doors owe today, yesterday's gold in the detail (`ReportCard.owedDetail`).
             ReportRow(label: String(localized: "Owed today"), detail: card.owedDetail) {
                 if card.owedToday > 0 {
                     GoldAmount(amount: card.owedToday, size: 14)
