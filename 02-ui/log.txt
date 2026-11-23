@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (159.759 seconds).
+exit=0
+screenshots: 3

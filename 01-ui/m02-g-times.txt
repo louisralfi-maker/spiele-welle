@@ -1,0 +1,49 @@
+m02-g: a second tap at 95 % at once: on east through the gate
+real time; as fast as the frames come
+the tap was sent without waiting at +0.081 s (point 24.1, 830.3; interface orientation 3 (the app's)); the runner answered at +0.367 s; no effect check
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1100
+scene after: frame:1180 ready day:3 hour:11.69 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1501 lord:lord stage:world lx:1501 errand:none door:1830 gold:91 hud:none cam:1258 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector drill:none kv:36.00 kxf:1501.14 kf:3 kd:1 kcx:1257.92
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.227 s  
+02  +0.377 s  
+03  +0.517 s  
+04  +0.674 s  
+05  +0.823 s  
+06  +0.967 s  
+07  +1.129 s  
+08  +1.408 s  
+09  +1.553 s  
+10  +1.689 s  
+11  +1.843 s  
+12  +1.974 s  
+13  +2.105 s  
+14  +2.242 s  
+15  +2.391 s  
+16  +2.544 s  
+17  +2.683 s  
+18  +2.834 s  
+19  +3.030 s  
+20  +3.169 s  
+21  +3.314 s  
+22  +3.454 s  
+23  +3.592 s  
+24  +3.736 s  
+25  +3.876 s  
+26  +4.016 s  
+27  +4.154 s  
+28  +4.300 s  
+29  +4.447 s  
+30  +4.595 s  
+31  +4.736 s  
+32  +4.881 s  
+33  +5.023 s  
+34  +5.178 s  
+35  +5.317 s  
+36  +5.452 s  
+37  +5.590 s  
+38  +5.750 s  
+39  +5.908 s  
+40  +6.049 s  
+mean spacing 0.149 s over 39 gaps

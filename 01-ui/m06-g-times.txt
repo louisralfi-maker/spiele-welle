@@ -1,0 +1,58 @@
+m06-g: a touch on the realm strip (world x 1600) under the lantern: he walks out by the door into the bailey
+real time; as fast as the frames come (a rolling burst)
+the cause (a touch on the realm strip (world x 1600) under the lantern: he walks out by the door into the bailey) was sent at +0.000 s and returned at +1.694 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +6.516 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+
+frame  seconds since the burst began  (scene where read)
+01  +1.829 s  
+02  +2.019 s  day:3 hour:12.68 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:383 gold:91 hud:none cam:198 tap:moment count:none last:none lanterns:0 yard:none drill:none
+03  +2.258 s  
+04  +2.472 s  day:3 hour:12.72 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:340 gold:91 hud:none cam:153 tap:moment count:none last:none lanterns:0 yard:none drill:none
+05  +2.684 s  
+06  +2.840 s  day:3 hour:12.75 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:313 gold:91 hud:none cam:126 tap:moment count:none last:none lanterns:0 yard:none drill:none
+07  +3.042 s  
+08  +3.192 s  day:3 hour:12.78 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:281 gold:91 hud:none cam:94 tap:moment count:none last:none lanterns:0 yard:none drill:none
+09  +3.375 s  
+10  +3.502 s  day:3 hour:12.79 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:272 gold:91 hud:none cam:85 tap:moment count:none last:none lanterns:0 yard:none drill:none
+11  +3.665 s  
+12  +3.786 s  day:3 hour:12.82 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:242 gold:91 hud:none cam:54 tap:moment count:none last:none lanterns:0 yard:none drill:none
+13  +3.964 s  
+14  +4.083 s  day:3 hour:12.85 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:214 gold:91 hud:none cam:26 tap:moment count:none last:none lanterns:0 yard:none drill:none
+15  +4.257 s  
+16  +4.376 s  day:3 hour:12.87 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:201 gold:91 hud:none cam:14 tap:moment count:none last:none lanterns:0 yard:none drill:none
+17  +4.551 s  
+18  +4.668 s  day:3 hour:12.90 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:172 gold:91 hud:none cam:0 tap:moment count:none last:none lanterns:0 yard:none drill:none
+19  +4.853 s  
+20  +4.973 s  day:3 hour:12.93 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:144 gold:91 hud:none cam:0 tap:moment count:none last:none lanterns:0 yard:none drill:none
+21  +5.148 s  
+22  +5.269 s  day:3 hour:12.95 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:126 gold:91 hud:none cam:0 tap:moment count:none last:none lanterns:0 yard:none drill:none
+23  +5.434 s  
+24  +5.554 s  day:3 hour:12.97 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:98 gold:91 hud:none cam:0 tap:moment count:none last:none lanterns:0 yard:none drill:none
+25  +5.713 s  
+26  +5.835 s  day:3 hour:13.00 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:74 gold:91 hud:none cam:0 tap:moment count:none last:none lanterns:0 yard:none drill:none
+27  +6.008 s  
+28  +6.129 s  day:3 hour:13.02 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:68 gold:91 hud:none cam:0 tap:moment count:none last:none lanterns:0 yard:none drill:none
+29  +6.311 s  
+30  +6.459 s  day:3 hour:13.04 alive:0 seen:0 shots:0 kx:1830 stage:world lx:1830 gold:91 hud:none cam:1612 tap:moment count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+31  +6.645 s  
+32  +6.781 s  
+33  +6.915 s  
+34  +7.043 s  
+35  +7.190 s  
+36  +7.336 s  
+37  +7.476 s  
+38  +7.621 s  
+39  +7.760 s  
+40  +7.901 s  
+41  +8.039 s  
+42  +8.237 s  
+43  +8.390 s  
+44  +8.525 s  
+45  +8.650 s  
+46  +8.776 s  
+47  +8.902 s  
+48  +9.026 s  
+49  +9.152 s  
+50  +9.281 s  day:3 hour:13.29 alive:0 seen:0 shots:0 kx:1600 stage:world lx:1600 gold:91 hud:strip cam:1350 tap:moment count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.152 s over 49 gaps

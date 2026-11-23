@@ -1,0 +1,25 @@
+m04-c: a touch on the empty world under the lantern, low at the left below the walk line: the lantern lowers, the interface goes, nothing begins
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the tap was sent without waiting at +0.094 s (point 28.1, 69.9; interface orientation 3 (the app's)); the runner answered at +0.378 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830 -GWTimeScale 0.25
+scene after: frame:1560 ready day:1 hour:9.35 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:none cam:1612 tap:lowered hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1830.00 kf:7 kd:1 kcx:1611.50
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.228 s  
+02  +0.386 s  
+03  +0.563 s  
+04  +0.707 s  
+05  +0.840 s  
+06  +0.972 s  
+07  +1.101 s  
+08  +1.230 s  
+09  +1.361 s  
+10  +1.486 s  
+11  +1.611 s  
+12  +1.742 s  
+13  +1.871 s  
+14  +2.007 s  
+15  +2.131 s  
+16  +2.257 s  
+mean spacing 0.135 s over 15 gaps
