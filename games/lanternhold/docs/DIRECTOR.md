@@ -1599,3 +1599,7 @@ schneller geht."
     origin at 9e953fa1. Joined locally as 151ca052 (not pushed); rounds lh-rnd-31 (build, whole unit suite), 32
     (Touch, Lord, Hall, Count) and 33 (FilmOpening, FilmDeals, Town; LookAround, Title, FilmPanes) went out. The
     director's calls are point 26 of ROUND.md. Usage 73 %.
+  - 23.11. 17:02: rounds lh-rnd-31 to 33 are green on the join 151ca052 (whole unit suite; Touch, Lord, Hall,
+    Count; FilmOpening, FilmDeals, Town; LookAround, Title, FilmPanes); `claude/lh-round` is on origin at
+    151ca052. Wave A is complete (0a to B3b). Next: the TestFlight round tf-lh-5 from that head, then wave B
+    (A5 first). Usage 73 %, the stop stands at 80 %.
