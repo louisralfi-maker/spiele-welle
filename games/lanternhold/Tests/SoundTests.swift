@@ -438,9 +438,31 @@ final class SoundTests: XCTestCase {
             XCTAssertEqual(rate, 22050, id.rawValue)
             XCTAssertEqual(bits, 16, id.rawValue)
         }
-        // Stage-3-interface (M12) added the four places' beds (1.1 MB): the budget is 4 MB now. Polish D1's four new files
-        // (man_fall, grunt_1, grunt_2, wall_crack) fit because the re-made wall_break is 1.52 s instead of 1.7 s.
-        XCTAssertLessThan(total, 4_000_000, "all sounds together stay under 4 MB")
+        // Polish D2 0b rewrote the budget (it was 4,000,000 over the SoundID files only): the director's call after D1
+        // is 5,000,000 bytes for every wav in Resources/Sound, every file counted (WindSound's two as well), until D3 has
+        // re-made the beds. The folder is summed where the sources are, and the app's own wav files as well.
+        XCTAssertLessThan(total, 5_000_000, "the SoundID files alone")
+        let folder = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Resources/Sound")
+        let manager = FileManager.default
+        let sources = ((try? manager.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)) ?? [])
+            .filter { $0.pathExtension == "wav" }
+        var shipped: [String: URL] = [:]
+        for url in (Bundle.main.urls(forResourcesWithExtension: "wav", subdirectory: nil) ?? [])
+            + (Bundle.main.urls(forResourcesWithExtension: "wav", subdirectory: "Sound") ?? []) {
+            shipped[url.lastPathComponent] = url
+        }
+        let names = Set(SoundID.allCases.map { $0.rawValue + ".wav" } + WindSound.files.map { $0 + ".wav" })
+        for (label, files) in [("the folder", sources), ("the app", Array(shipped.values))] where !files.isEmpty {
+            var sum = 0
+            for url in files {
+                sum += try Data(contentsOf: url).count
+            }
+            XCTAssertTrue(names.isSubset(of: Set(files.map { $0.lastPathComponent })), "\(label) holds every sound")
+            XCTAssertGreaterThanOrEqual(sum, total, label)
+            XCTAssertLessThan(sum, 5_000_000, "every wav in \(label) together stays under 5,000,000 bytes (\(sum))")
+        }
+        XCTAssertFalse(shipped.isEmpty, "the app's wav files are found")
         for id in [SoundID.manFall, .grunt1, .grunt2, .wallCrack, .wallBreak] {
             let url = Bundle.main.url(forResource: id.rawValue, withExtension: "wav", subdirectory: "Sound")
                 ?? Bundle.main.url(forResource: id.rawValue, withExtension: "wav")
