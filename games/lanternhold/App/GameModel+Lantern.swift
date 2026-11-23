@@ -245,6 +245,9 @@ extension GameModel {
     /// call.
     func stepLanternHUD() {
         guard kind == .world, let game = driver else { return }
+        // LANE-E: E2 (nothing comes by itself while the dawn card waits: the open gate is seen clean, then the card)
+        guard !dawnCardWaits else { return }
+        // LANE-E end
         let state = game.state
         let visible = overlay == nil && stageChange == nil && lanternMoment == nil && game.bot == nil && !isShowcase
         // Build 3, the count: the coins on the board are shown as gone from the purse (HUD.md 3: the gold runs down coin

@@ -193,8 +193,9 @@ struct ReportCard: Sendable, Equatable {
 
     /// Polish E2's proof stills (`-GWScreen report` with `-GWReportSample <name>`, Debug builds; the launch's `-GWDay`
     /// should be the sample's day, so today's doors come from a real ledger): `held` (day 3, nobody fell, the hounds'
-    /// first night tonight), `giant` (day 10, four fallen, the Ash Giant tonight, the longest line forward and a long
-    /// town line), `houses` (day 4, the houses full), `unrest` (day 6, nothing owed). Nil for any other name.
+    /// first night tonight), `giant` (day 10, two fallen, the Ash Giant tonight: the longest line forward, and a long
+    /// town line), `giantmany` (the same with four fallen), `houses` (day 4, the houses full), `unrest` (day 6,
+    /// nothing owed). Nil for any other name.
     static func proofSample(_ name: String) -> DawnReport? {
         var report = sampleReport()
         report.unlocked = []
@@ -211,12 +212,14 @@ struct ReportCard: Sendable, Equatable {
             report.happinessAfter = 62
             report.town = .paidInFull(day: 2, gold: 31)
             report.town?.kept = 18
-        case "giant":
+        case "giant", "giantmany":
             report.day = 10
             report.night = 9
-            report.fallen = [FallenSoldier(name: "Ivo", kind: .guardsman), FallenSoldier(name: "Maren", kind: .archer),
-                             FallenSoldier(name: "Bertil", kind: .guardsman),
-                             FallenSoldier(name: "Wren", kind: .archer)]
+            report.fallen = [FallenSoldier(name: "Ivo", kind: .guardsman), FallenSoldier(name: "Maren", kind: .archer)]
+            if name == "giantmany" {
+                report.fallen += [FallenSoldier(name: "Bertil", kind: .guardsman),
+                                  FallenSoldier(name: "Wren", kind: .archer)]
+            }
             report.wallsLost = ["l2.wall"]
             report.creaturesStopped = 58
             report.happinessChanges = [HappinessChange(reason: .tavern, delta: 1),

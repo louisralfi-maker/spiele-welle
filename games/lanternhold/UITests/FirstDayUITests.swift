@@ -257,11 +257,11 @@ final class FirstDayUITests: XCTestCase {
 
     // MARK: - Helpers
 
-    // LANE-E: E2 (the dawn card's proof stills: a held night with the hounds' line, four fallen with the giant's line,
-    // the houses full, nothing owed, and the longest line at the small phone and at 6.1 inch)
+    // LANE-E: E2 (the dawn card's proof stills: a held night with the hounds' line, the giant's line with two and with
+    // four fallen, the houses full, nothing owed, and the longest line at the small phone and at 6.1 inch)
     /// Polish E2: the dawn card's samples (`-GWReportSample`, `ReportCard.proofSample`) over a realm of the same day;
     /// `-GWReportFrame` lays the card out as on the small phone (iPhone SE, 667 x 375 pt) or at 6.1 inch with its
-    /// safe area (750 x 369 pt), its edge drawn red. Saves `46b` ... `46h-report-<what>-<lang>`.
+    /// safe area (750 x 369 pt), its edge drawn red. Saves `46b` ... `46j-report-<what>-<lang>`.
     func testReportStills() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let shots: [(name: String, sample: String?, day: String, frame: String?, forward: String?)] = [
@@ -272,6 +272,8 @@ final class FirstDayUITests: XCTestCase {
             ("46f-report-giant-small", "giant", "10", "667x375", "Something big tonight"),
             ("46g-report-giant-61", "giant", "10", "750x369", "Something big tonight"),
             ("46h-report-sample-small", nil, "8", "667x375", nil),
+            ("46i-report-giant-many", "giantmany", "10", nil, "Something big tonight"),
+            ("46j-report-held-small", "held", "3", "667x375", "Hounds come soon"),
         ]
         for shot in shots {
             let app = XCUIApplication()
