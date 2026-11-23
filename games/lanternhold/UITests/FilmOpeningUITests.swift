@@ -316,7 +316,12 @@ final class FilmOpeningUITests: XCTestCase {
         let begun = film.wait(3) { self.sceneField(app, "errand:") == id }
         film.pause(1.2)
         let walking = sceneField(app, "lx:")
-        lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62)).tap()
+        // The tap on the walking lord goes without waiting (a plain tap returned up to 1.9 s late and landed 17 px
+        // behind him, round lh-rb-11): its frames are m04-f0.
+        film.tapBurst("f0", app, count: 6, what: "a tap on the lord walking to \(id): the lantern rises, the world "
+                      + "stands, the errand stays", at: lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))) {
+            moment.exists
+        }
         let raised = moment.waitForExistence(timeout: 3)
         let kept = sceneField(app, "errand:")
         film.pause(1.0)
