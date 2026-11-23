@@ -1,0 +1,33 @@
+m11-a: a touch on the yard's site: its counter comes up, he steps to it
+real time; as fast as the frames come
+the tap was sent without waiting at +0.319 s (point 86.0, 149.0; interface orientation 3 (the app's)); the runner answered at +0.615 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWDay 4 -GWClock 10 -GWCameraX 1600 -GWGold 200
+scene after: frame:540 ready day:4 hour:10.87 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1491 lord:lord stage:world lx:1491 errand:none door:1830 gold:200 hud:none cam:1208 tap:touch-yard hint:off0 count:touch-yard:0/7:there last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector,seren,tamsin drill:none kv:0.00 kxf:1491.00 kf:7 kd:-1 kcx:1207.90
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.484 s  
+02  +0.768 s  
+03  +0.958 s  
+04  +1.160 s  
+05  +1.334 s  
+06  +1.507 s  
+07  +1.767 s  
+08  +1.933 s  
+09  +2.113 s  
+10  +2.311 s  
+11  +2.478 s  
+12  +2.651 s  
+13  +2.853 s  
+14  +3.040 s  
+15  +3.208 s  
+16  +3.403 s  
+17  +3.581 s  
+18  +3.849 s  
+19  +4.029 s  
+20  +4.188 s  
+21  +4.369 s  
+22  +4.572 s  
+23  +4.748 s  
+24  +4.963 s  
+mean spacing 0.195 s over 23 gaps

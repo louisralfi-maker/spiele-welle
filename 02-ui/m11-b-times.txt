@@ -1,0 +1,38 @@
+m11-b: a hold of 2.2 s pays the yard; frames start after the finger lifted: the seal, the counter going, the site lantern
+real time; as fast as the frames come
+the cause (a hold of 2.2 s pays the yard; frames start after the finger lifted: the seal, the counter going, the site lantern) was sent at +0.121 s and returned at +3.164 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 2 -GWStage world -GWDay 4 -GWClock 10 -GWCameraX 1600 -GWGold 200
+scene before: frame:670 ready day:4 hour:11.12 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1491 lord:lord stage:world lx:1491 errand:none door:1830 gold:200 hud:none cam:1208 tap:touch-yard hint:off0 count:touch-yard:0/7:there last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector,seren,tamsin drill:none kv:0.00 kxf:1491.00 kf:6 kd:-1 kcx:1207.90
+scene after: frame:1110 ready day:4 hour:11.79 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1491 lord:lord stage:world lx:1491 errand:none door:1830 gold:130 hud:none cam:1208 tap:touch-yard hint:off0 count:none last:paid:touch-yard lanterns:1 models:4:ballista,catapult;10:ballista,catapult yard:1+2,t:0/7,d:0 offer:none dusk:none talkmarks:brannock,collector,seren,tamsin drill:none kv:0.00 kxf:1491.00 kf:6 kd:-1 kcx:1207.90
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +3.336 s  
+02  +3.490 s  
+03  +3.702 s  
+04  +3.944 s  
+05  +4.136 s  
+06  +4.290 s  
+07  +4.496 s  
+08  +4.653 s  
+09  +4.844 s  
+10  +5.027 s  
+11  +5.187 s  
+12  +5.348 s  
+13  +5.510 s  
+14  +5.678 s  
+15  +5.842 s  
+16  +6.059 s  
+17  +6.240 s  
+18  +6.407 s  
+19  +6.568 s  
+20  +6.735 s  
+21  +6.890 s  
+22  +7.101 s  
+23  +7.268 s  
+24  +7.430 s  
+25  +7.619 s  
+26  +7.810 s  
+27  +7.986 s  
+28  +8.198 s  
+mean spacing 0.180 s over 27 gaps
