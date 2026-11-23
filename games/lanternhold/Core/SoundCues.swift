@@ -1105,7 +1105,8 @@ struct AmbienceMix: Sendable, Equatable {
 /// Reads sound cues off the realm's state from frame to frame (DESIGN.md "Sound and haptics"): gold won (a coin) or
 /// paid, a wall or palisade hit (and cracked below half, once a wall and night), a creature hit (and the arrow or
 /// bolt that hit it), a soldier hit and a soldier fallen (each at his place), the gate shutting at nightfall, a street
-/// lamp lit by Silas (D2, at its post), the lord's steps while he walks. It only looks at the state the simulation made; the simulation never reads it.
+/// lamp lit by Silas (D2, at its post), the lord's steps while he walks. It only looks at the state the simulation made;
+/// the simulation never reads it.
 ///
 /// Polish step D1: the blows play the cue contract's cues with their x, `hit` (a creature), `manHit` (a soldier) and
 /// `manFell` (a soldier gone with a new name on tonight's fallen), so the old `creatureHit` and the simulation's
