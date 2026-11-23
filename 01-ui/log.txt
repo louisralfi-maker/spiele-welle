@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.FilmDealsUITests testM05APurchase]' passed (100.255 seconds).
+exit=0
+screenshots: 138

@@ -1,0 +1,38 @@
+m05-f: slowed: a hold of 3 s on the gate; frames start after the finger lifted (the coins still flying, the seal, or the coins going home)
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the cause (slowed: a hold of 3 s on the gate; frames start after the finger lifted (the coins still flying, the seal, or the coins going home)) was sent at +0.053 s and returned at +4.845 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200 -GWTimeScale 0.25
+scene before: frame:1020 ready day:3 hour:10.42 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:notes cam:1106 tap:touch-plot-0 hint:off0 count:none last:letGo:touch-plot-0 lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+scene after: frame:1590 ready day:3 hour:10.63 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:110 hud:none cam:1106 tap:count hint:off0 count:none last:paid:touch-plot-0 lanterns:1 models:4:ballista,catapult;10:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +5.024 s  
+02  +5.195 s  
+03  +5.336 s  
+04  +5.510 s  
+05  +5.683 s  
+06  +5.968 s  
+07  +6.114 s  
+08  +6.317 s  
+09  +6.449 s  
+10  +6.647 s  
+11  +6.804 s  
+12  +6.944 s  
+13  +7.076 s  
+14  +7.230 s  
+15  +7.382 s  
+16  +7.609 s  
+17  +7.886 s  
+18  +8.178 s  
+19  +8.437 s  
+20  +8.666 s  
+21  +8.853 s  
+22  +9.007 s  
+23  +9.176 s  
+24  +9.508 s  
+25  +9.743 s  
+26  +9.915 s  
+27  +10.073 s  
+28  +10.205 s  
+mean spacing 0.192 s over 27 gaps
