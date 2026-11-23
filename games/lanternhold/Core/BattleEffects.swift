@@ -253,6 +253,14 @@ extension BattleEffects {
         min(12, max(8, Int((width / 3).rounded())))
     }
 
+    /// Of them, the round puffs (`smokePuff`): one per 9 px, 3 to 5; the rest are motes.
+    static func standPuffCount(width: Double) -> Int {
+        min(5, max(3, Int((width / 9).rounded())))
+    }
+
+    /// The puffs' white body times this is the same pale stone dust (its underside a shade darker).
+    static let standPuffTint = SIMD3<Float>(0.74, 0.69, 0.6)
+
     /// The flakes' grey (0x5E6170) times this is a pale warm stone dust (about 0xB4AAA0); every mote 0.85 to 1.15 of
     /// it. Above 1, so the drawing tells the dust's flakes from the small ones' soot (`EntityFrames.effectParticles`).
     static let standDustTint = SIMD3<Float>(1.92, 1.76, 1.43)

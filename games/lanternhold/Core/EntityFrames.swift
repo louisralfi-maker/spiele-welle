@@ -1837,9 +1837,11 @@ enum EntityFrames {
                 // Step A2: dust motes spread over the work's whole width at its foot from the event; they rise (eased
                 // out) to their fullest at the swap, 0.12 s, over the foot as the new sprite stands, then drift outward
                 // and up and thin to nothing by 1.1 s. The broken wall's shards are soot-black: on round lh-ra-10's film
-                // they did not read at all on the day's ground, so the motes are the existing grey flakes
-                // (`SpriteID.sootFlake`, no new art) tinted to pale stone dust (`BattleEffects.standDustTint`, a shade
-                // each). The keep's dust stands on the mistBand plane: placed with the camera as that plane moves.
+                // they did not read at all on the day's ground, so the dust is made of existing pictures tinted to pale
+                // stone dust (no new art): a few round puffs (the chimney's `smokePuff`, growing from 2 to 5 px) and
+                // motes between them (the grey `sootFlake`, `BattleEffects.standDustTint`), a shade each (round
+                // lh-ra-12: the motes alone read as a few specks). The keep's dust stands on the mistBand plane: placed
+                // with the camera as that plane moves.
                 let seconds = max(0, effects.standClock - effect.start)
                 let peak = BattleEffects.standSwap
                 let rise = Motion.enter(min(1, seconds / peak))
@@ -1847,9 +1849,21 @@ enum EntityFrames {
                 let thin = Float(1 - min(1, after / max(0.01, effect.lifetime - peak)))
                 let centre = effect.plane == .world ? effect.x : effect.x + cameraX * (1 - effect.plane.parallax)
                 let count = BattleEffects.standDustCount(width: effect.width)
-                for k in 0..<count {
+                let puffs = BattleEffects.standPuffCount(width: effect.width)
+                for k in 0..<puffs {
                     guard spend() else { return }
-                    let side = (Double(k) + unit(k, 5)) / Double(count) - 0.5
+                    let side = (Double(k) + unit(k, 11)) / Double(puffs) - 0.5
+                    let x = centre + side * effect.width * 0.9 + (side < 0 ? -1 : 1) * after * (4 + 5 * unit(k, 12))
+                    let y = effect.y + rise * (1 + 3 * unit(k, 13)) + after * (3 + 4 * unit(k, 14))
+                    let size = min(CastleSmoke.sizes - 1, Int(rise * 2.4) + Int(after * 5))
+                    let shade = Float(0.9 + 0.2 * unit(k, 15))
+                    let tint = BattleEffects.standPuffTint * shade
+                    add(.smokePuff, size, x.rounded(), y.rounded(), false, SIMD4<Float>(tint.x, tint.y, tint.z, thin),
+                        false, true)
+                }
+                for k in 0..<(count - puffs) {
+                    guard spend() else { return }
+                    let side = (Double(k) + unit(k, 5)) / Double(count - puffs) - 0.5
                     let x = centre + side * effect.width + (side < 0 ? -1 : 1) * after * (6 + 8 * unit(k, 7))
                     let y = effect.y + rise * (2 + 7 * unit(k, 6)) + after * (2 + 5 * unit(k, 8))
                     let shade = Float(0.85 + 0.3 * unit(k, 10))

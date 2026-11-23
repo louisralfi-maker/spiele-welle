@@ -61,10 +61,11 @@ final class StandingTests: XCTestCase {
                                   options: opts, animTime: 1.5, effects: effects).props
     }
 
-    /// The dust's motes in a frame (the standing's flakes: tinted above 1).
+    /// The dust in a frame: its puffs (no other actor is a smoke puff; the chimneys' are the scene's) and its motes
+    /// (the flakes tinted above 1).
     private func shards(_ s: GameState, effects: BattleEffects, focus: Double) -> [ActorInstance] {
         GameFrameSupport.frame(s, focus: focus, effects: effects).layer.actors.filter {
-            $0.sprite == .sootFlake && $0.tint.x > 1
+            $0.sprite == .smokePuff || ($0.sprite == .sootFlake && $0.tint.x > 1)
         }
     }
 
@@ -176,7 +177,9 @@ final class StandingTests: XCTestCase {
         let peak = shards(after, effects: effects, focus: focus)
         XCTAssertEqual(peak.count, count)
         XCTAssertTrue(peak.allSatisfy { $0.tint.w == 1 }, "fullest at the swap")
-        XCTAssertTrue(lifts(peak).allSatisfy { $0 >= 2 * scale && $0 <= 9 * scale }, "risen over the foot: \(lifts(peak))")
+        XCTAssertTrue(lifts(peak).allSatisfy { $0 >= 1 * scale && $0 <= 9 * scale }, "risen over the foot: \(lifts(peak))")
+        XCTAssertEqual(peak.filter { $0.sprite == .smokePuff }.count, BattleEffects.standPuffCount(width: 36),
+                       "round puffs among the motes")
         let left = camera.deviceX(worldX: dust.x - 18 - 2, scale: scale, mode: .smooth)
         let right = camera.deviceX(worldX: dust.x + 18 + 2, scale: scale, mode: .smooth)
         let anchors = peak.map { Int($0.rect.x + $0.rect.z / 2) }
