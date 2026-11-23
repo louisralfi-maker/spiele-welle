@@ -1544,3 +1544,7 @@ schneller geht."
     Title + FilmOpening, ALL PASSED. With lh-rnd-25 (Lord, Ads, Slides, FilmPanes, FilmNight, FirstDay) the merged
     head is tested; the join went to origin at exactly 4a42da26. The count class last ran green on f254c4e8
     (lh-rnd-23) and runs again in the joined round before tf-lh-5. Still out: A2b (lane A), C2b (lane C), B3 (lane B).
+  - 23.11. 09:38: step A2b (the standing's dust reads as dust) verified GREEN at ab486753 (lh-ra-19) and joined
+    locally as ff79492b on top of 4a42da26; the director's calls are ROUND.md point 23. Round lh-rnd-26 went out on
+    ff79492b (build, FilmDeals + Count, the whole unit suite); the join is pushed when it is green. Lane A is idle
+    (its next steps A5 and A3 belong to wave B). Still out: C2b (lane C), B3 (lane B). Usage 63 %.

@@ -385,6 +385,22 @@ Law 4 (answers and sounds), after D2:
     lane D keeps or drops it in D3. Phone check: a real cold launch of a saved realm (the title, then the day with
     no card and no interstitial).
 
+23. **After step A2b (the standing's dust reads as dust).** Verified GREEN at ab486753 (round lh-ra-19; the gate
+    mended the tone, the thinning and the gaps). The director looked at both sheets: at the wall the row of white
+    balls is three to four uneven grey lumps, dark under light, with a ragged top, which hold together and climb as
+    they thin; it reads as dust. At the house the dust is a grey-taupe band along the foot, told apart from the lit
+    plaster but quiet at whole-scene size. The director's calls:
+    - The town's dust stays as it is; the tone rule (no channel above the lit plaster) stays. The standing is marked
+      by the sound, the settle and the echo; the dust is the small part. A phone decides: if it is too little there,
+      the town's dust gets a higher alpha in step A3 (which shares the effect budget), nothing else.
+    - The big house changing its shape above the dust in one frame is by design.
+    - Works over 72 px (field 66 %, market and tavern 59 % cover, the open part at the corners) are accepted for now;
+      step A3 films one 90 px work, and if its corners read bare the piece cap for works over 72 px goes up there.
+    - Puffs touching side by side on wide works and a stacked puff up to 5 px higher: accepted (the picture, not the
+      brief's wording, is the measure).
+    - Left: a pin that the puffs form 3 to 5 groups (low); the burst's first 0.12 s at real speed and the keep's
+      dust (phone).
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged
