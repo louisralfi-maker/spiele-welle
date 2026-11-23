@@ -1,0 +1,24 @@
+m02-v: a tap at 66 %, slowed: the stop closes the stride
+slowed: -GWTimeScale 0.25; frames back to back, the scene read after each
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500 -GWTimeScale 0.25
+the cause at +0.000 s: point 24.1, 576.8; interface orientation 3 (the app's)
+frame  seconds since the burst began  scene
+00  -0.010 s  before: hour:9.31 kv:0.00 kxf:1500.00 kf:7 kd:1 kcx:1238.14
+01  +0.536 s  hour:9.32 kv:0.00 kxf:1500.00 kf:7 kd:1 kcx:1238.14
+02  +1.143 s  hour:9.33 kv:36.00 kxf:1504.07 kf:1 kd:1 kcx:1248.16
+03  +1.660 s  hour:9.34 kv:36.00 kxf:1508.87 kf:2 kd:1 kcx:1265.83
+04  +2.097 s  hour:9.35 kv:36.00 kxf:1511.87 kf:2 kd:1 kcx:1276.38
+05  +2.575 s  hour:9.36 kv:36.00 kxf:1517.27 kf:4 kd:1 kcx:1292.79
+06  +3.019 s  hour:9.37 kv:36.00 kxf:1520.87 kf:5 kd:1 kcx:1302.25
+07  +3.451 s  hour:9.38 kv:24.66 kxf:1525.20 kf:5 kd:1 kcx:1312.35
+08  +3.841 s  hour:9.39 kv:13.00 kxf:1526.36 kf:5 kd:1 kcx:1315.01
+09  +4.334 s  hour:9.39 kv:6.72 kxf:1526.64 kf:5 kd:1 kcx:1315.66
+10  +4.921 s  hour:9.41 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.83
+11  +5.378 s  hour:9.42 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.84
+12  +5.825 s  hour:9.43 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.85
+13  +6.232 s  hour:9.44 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.85
+14  +6.688 s  hour:9.45 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.85
+15  +7.147 s  hour:9.46 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.86
+16  +7.549 s  hour:9.47 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.86
+17  +7.971 s  hour:9.47 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.86
+18  +8.391 s  hour:9.48 kv:0.00 kxf:1526.67 kf:6 kd:1 kcx:1315.86

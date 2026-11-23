@@ -1,0 +1,30 @@
+m04-b: a drag 40 % of the width to the left, held 0.8 s, let go: frames start after the finger lifted (the glide home, the signs coming back)
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the cause (a drag 40 % of the width to the left, held 0.8 s, let go: frames start after the finger lifted (the glide home, the signs coming back)) was sent at +0.112 s and returned at +2.487 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830 -GWTimeScale 0.25
+scene before: frame:1080 ready day:1 hour:9.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:moment cam:1612 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:1611.50
+scene after: frame:1450 ready day:1 hour:9.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:moment cam:1612 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:1611.50
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +2.740 s  
+02  +3.032 s  
+03  +3.224 s  
+04  +3.394 s  
+05  +3.559 s  
+06  +3.769 s  
+07  +3.950 s  
+08  +4.155 s  
+09  +4.312 s  
+10  +4.502 s  
+11  +4.685 s  
+12  +4.853 s  
+13  +5.017 s  
+14  +5.198 s  
+15  +5.374 s  
+16  +5.563 s  
+17  +5.759 s  
+18  +5.969 s  
+19  +6.175 s  
+20  +6.365 s  
+mean spacing 0.191 s over 19 gaps

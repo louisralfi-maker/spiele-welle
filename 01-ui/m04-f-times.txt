@@ -1,0 +1,40 @@
+m04-f: a tap on the empty world lowers the lantern raised on the way to touch-talk-pip: he walks on, arrives and the talk opens
+slowed: -GWTimeScale 0.25; one frame every 0.35 s
+the cause (a tap on the empty world lowers the lantern raised on the way to touch-talk-pip: he walks on, arrives and the talk opens) was sent at +0.130 s and returned at +0.857 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830 -GWTimeScale 0.25
+scene before: frame:2760 ready day:1 hour:9.69 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1876 lord:lord stage:world lx:1876 errand:touch-talk-pip door:1830 gold:44 hud:moment cam:1625 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1876.33 kf:4 kd:-1 kcx:1625.40
+scene after: frame:3260 ready day:1 hour:9.90 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1785 lord:lord stage:world lx:1785 errand:touch-talk-pip door:1830 gold:44 hud:none cam:1598 tap:lowered hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:-36.00 kxf:1785.13 kf:3 kd:-1 kcx:1598.04
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the cause
+01  +1.081 s  
+02  +1.278 s  
+03  +1.487 s  
+04  +1.714 s  
+05  +1.977 s  
+06  +2.190 s  
+07  +2.457 s  
+08  +2.703 s  
+09  +3.045 s  
+10  +3.377 s  
+11  +3.745 s  
+12  +4.075 s  
+13  +4.437 s  
+14  +4.753 s  
+15  +5.210 s  
+16  +5.601 s  
+17  +5.835 s  
+18  +6.169 s  
+19  +6.524 s  
+20  +7.894 s  
+21  +8.693 s  
+22  +9.182 s  
+23  +9.733 s  
+24  +10.046 s  
+25  +10.286 s  
+26  +10.544 s  
+27  +10.731 s  
+28  +10.930 s  
+29  +11.171 s  
+30  +11.368 s  
+mean spacing 0.355 s over 29 gaps
