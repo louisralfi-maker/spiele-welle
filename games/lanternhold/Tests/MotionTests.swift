@@ -344,4 +344,40 @@ final class MotionTests: XCTestCase {
                            "a part of a game px at \(step)")
         }
     }
+
+    // MARK: The title's tempos (polish C2)
+
+    /// The title's reveal is the one stage beat with its own tempo and curve (the director's call on thing 8): 1.6 s on
+    /// (0.45, 0, 0.25, 1), 116 to 340 game px. The wait breathes 0.5 s / 0.35 s. The step into the game: the raise
+    /// 3 x 0.1 s, the close from 0.15 s over 0.45 s on the leave curve, the flame 0.10 s, the hall over the slow token
+    /// (0.25 s under Reduce Motion) and the pane the normal token later.
+    func testTheTitlesTemposArePinned() {
+        XCTAssertEqual(TitleTempo.catchSteps, 6)
+        XCTAssertEqual(TitleTempo.catchStepSeconds, 0.2)
+        XCTAssertEqual(TitleTempo.breathSteps.high, 6)
+        XCTAssertEqual(TitleTempo.breathSteps.low, 5)
+        XCTAssertEqual(TitleTempo.breathHighSeconds, 0.5)
+        XCTAssertEqual(TitleTempo.breathLowSeconds, 0.35)
+        XCTAssertEqual(TitleTempo.revealSeconds, 1.6)
+        XCTAssertEqual(TitleTempo.revealCurve, MotionCurve(0.45, 0, 0.25, 1))
+        XCTAssertNotEqual(TitleTempo.revealCurve, MotionCurve.enter)
+        XCTAssertNotEqual(TitleTempo.revealCurve, MotionCurve.leave)
+        XCTAssertEqual(TitleTempo.revealFrom, 116)
+        XCTAssertEqual(TitleTempo.revealTo, 340)
+        XCTAssertEqual(StepIn.raiseFrames, 3)
+        XCTAssertEqual(StepIn.raiseFrameSeconds, 0.1)
+        XCTAssertEqual(StepIn.closeFrom, 0.15)
+        XCTAssertEqual(StepIn.closeSeconds, 0.45)
+        XCTAssertEqual(StepIn.flameSeconds, 0.10)
+        XCTAssertEqual(StepIn.blackAt, 0.60, accuracy: 1e-12)
+        XCTAssertEqual(StepIn.riseFrom, 0.70, accuracy: 1e-12)
+        XCTAssertEqual(StepIn.riseSeconds(.full), MotionToken.slow.inSeconds)
+        XCTAssertEqual(StepIn.riseSeconds(.reduced), 0.25)
+        XCTAssertEqual(StepIn.reducedFadeSeconds, MotionToken.quick.inSeconds)
+        XCTAssertEqual(StepIn.paneDelay, MotionToken.normal.inSeconds)
+        XCTAssertEqual(StepIn.hallWholeAt(.full), 1.30, accuracy: 1e-12)
+        XCTAssertEqual(StepIn.panesAt(.full), 1.55, accuracy: 1e-12)
+        XCTAssertEqual(StepIn.hallWholeAt(.reduced), 0.95, accuracy: 1e-12)
+        XCTAssertEqual(StepIn.panesAt(.reduced), 1.20, accuracy: 1e-12)
+    }
 }

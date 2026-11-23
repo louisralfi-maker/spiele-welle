@@ -165,6 +165,10 @@ final class FilmPanesUITests: XCTestCase {
                 return
             }
             film.pause(0.8)
+            // Polish C2, part 5 (C1's F3): the gear's probe, in ms from the lantern's going: the pause set, the sheet's
+            // onAppear, the main thread free after it (`PaneProbe`). Evidence, not a gate.
+            film.note("p04-a\(round)-probe", "the gear's probe (ms from the lantern moment's going): "
+                      + ((film.element(app, "pane-probe").value as? String) ?? "none"))
             if round == 0 {
                 // lh-rc-7, lh-rc-10: taps at x 0.05, y 0.55 (44 pt, inside the left safe-area inset) never reached the
                 // dim. That point lies on the Dynamic Island's band in landscape (portrait y 11 to 48 pt, x 138 to 264
@@ -365,5 +369,46 @@ final class FilmPanesUITests: XCTestCase {
         unsafeBitCast(method_getImplementation(send), to: Send.self)(synthesizer, sendName, record, done as AnyObject)
         return (true, String(format: "point %.1f, %.1f; interface orientation %ld; lift after %.2f s", point.x, point.y,
                              orientation, seconds))
+    }
+
+    /// p07 (polish C2, part 5): taps beside Marek's card (the touch layer stays hit-enabled while no overlay is set,
+    /// and his card is no overlay) never reach the world: the lord does not walk, no errand starts, the last tap the
+    /// world took and the count stay as they were, the card stands, and every tap reached the dim behind it.
+    func testP07ATapBesideMareksCardNeverReachesTheWorld() {
+        let film = FilmReel(self, "p07")
+        let app = film.launch(merchant)
+        let card = film.element(app, "merchant-card")
+        guard card.waitForExistence(timeout: 90) else {
+            XCTFail("p07: Marek's card did not open")
+            return
+        }
+        film.pause(1.5)
+        let probe = film.element(app, "merchant-glint")
+        let window = app.windows.firstMatch
+        let fields = ["lx:", "errand:", "tap:", "count:", "stage:"]
+        let before = fields.map { sceneField(app, $0) ?? "missing" }
+        let startGlint = (probe.value as? String) ?? "none"
+        film.keep(XCUIScreen.main.screenshot(), "p07-a-01")
+        // Beside the card on both sides, high and low (the ground below the walk line too); none on the Dynamic
+        // Island's band (x 0.05, the system's, ROUND.md law 2 point 8).
+        let points: [(Double, Double)] = [(0.15, 0.6), (0.12, 0.92), (0.88, 0.92), (0.9, 0.25)]
+        for (x, y) in points {
+            window.coordinate(withNormalizedOffset: CGVector(dx: x, dy: y)).tap()
+            film.pause(0.4)
+        }
+        film.pause(1.5)
+        film.keep(XCUIScreen.main.screenshot(), "p07-a-02")
+        let after = fields.map { sceneField(app, $0) ?? "missing" }
+        let endGlint = (probe.value as? String) ?? "none"
+        film.note("p07-a-times", "taps beside Marek's card at \(points); scene fields \(fields) before \(before), after "
+                  + "\(after); the dim's taps (merchant-glint) before \(startGlint), after \(endGlint)")
+        XCTAssertTrue(card.exists, "p07: Marek's card stands")
+        XCTAssertEqual(after, before, "p07: no tap beside Marek's card reached the world")
+        if let a = Int(startGlint), let b = Int(endGlint) {
+            XCTAssertEqual(b - a, points.count, "p07: every tap beside the card reached its dim")
+        } else {
+            XCTFail("p07: the probe merchant-glint has no count (\(startGlint), \(endGlint))")
+        }
+        app.terminate()
     }
 }
