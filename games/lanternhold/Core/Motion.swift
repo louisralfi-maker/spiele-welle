@@ -251,7 +251,7 @@ struct Presence: Sendable, Equatable {
     }
 }
 
-// MARK: - The first five seconds (polish C2: thing 8, M8, M9, F2)
+// MARK: - The first five seconds (polish C2: thing 8, M8, M9, F2; C2b: the reveal reads as one swell)
 
 /// The title's tempos (polish C2; ROUND.md thing 8, the director's brief C2). The title's reveal is the one stage beat
 /// with its own tempo and curve (the director's call on thing 8's open point): nothing else uses `revealCurve` or

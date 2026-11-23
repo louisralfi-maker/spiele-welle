@@ -439,7 +439,8 @@ final class TitleStepInTests: XCTestCase {
                     opens.append(t)
                 }
                 if now != nil && title {
-                    XCTAssertEqual(StepIn.picture(at: t, mode: mode, end: 281), .hall(opacity: 1), "no pane before the hall is whole")
+                    XCTAssertEqual(StepIn.picture(at: t, mode: mode, end: 281), .hall(opacity: 1),
+                                   "no pane before the hall is whole")
                 }
                 shown = now
                 t += 1.0 / 60
