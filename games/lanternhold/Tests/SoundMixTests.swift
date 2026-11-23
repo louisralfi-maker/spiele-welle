@@ -653,7 +653,8 @@ final class SoundMixTests: XCTestCase {
                 touchLevels.append((cue, level))
             }
         }
-        XCTAssertTrue(touchLevels.contains { $0.cue == .touched } && touchLevels.contains { $0.cue == .step })
+        XCTAssertTrue(touchLevels.contains(where: { $0.cue == .touched }))
+        XCTAssertTrue(touchLevels.contains(where: { $0.cue == .step }))
         let quietest = try XCTUnwrap(touchLevels.map(\.level).min())
         let loops = SoundID.loops
         let bedFiles = try loops.map { try XCTUnwrap(rms[$0]) }

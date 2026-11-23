@@ -3,28 +3,42 @@ import Foundation
 // MARK: - The cue contract (polish step 0b, polish-audit.md law 4 "The ladder of answers, and the sounds")
 //
 // The other lanes call these cues in their own steps; lane D swaps the real sounds in behind them (D1, D2) without a
-// caller changing. Until then each plays a stand-in from the files that ship. Size = the step on law 4's ladder
-// (`AnswerSize`: 1 touch, 2 deed done, 3 small triumph or loss, 4 the realm turns); level = effective dBFS (file RMS +
-// 20 log10 volume, inventory.md's measure). "Law" marks a stand-in law 4 names; the others are chosen here.
+// caller changing. Size = the step on law 4's ladder (`AnswerSize`: 1 touch, 2 deed done, 3 small triumph or loss, 4
+// the realm turns); level = effective dBFS (file RMS + 20 log10 volume, inventory.md's measure). Every file plays at
+// rate 1 (D2 0g: a player's rate stretches time and keeps the pitch, so a lower or higher sound is its own file).
+// "Law" marks a number law 4 names; the others are chosen here (D2's report says why).
 //
-// | cue          | caller (lane, step)                          | size | stand-in file | vol  | rate | level | haptic        |
-// |--------------|----------------------------------------------|------|---------------|------|------|-------|---------------|
-// | lanternUp    | B1 (raise); C2 (the title's touch)           | 1    | tap (law vol) | 0.55 | 1.15 | -21.2 | soft 0.5      |
-// | lanternDown  | B1 (lower)                                   | 1    | tap (law vol) | 0.40 | 0.80 | -24.0 | none          |
-// | paneOpen     | C1 (OverlayView, the overlay's change)       | 1    | tap (law)     | 0.55 | 1.00 | -21.2 | soft 0.4      |
-// | paneClose    | C1 (OverlayView, the overlay's change)       | 1    | tap (law)     | 0.45 | 0.85 | -22.9 | soft 0.3      |
-// | bubbleClose  | B3 (LANE-B block in closeTalk, Court.swift)  | 1    | tap (law)     | 0.30 | 0.85 | -26.5 | none          |
-// | plaquePress  | C1 (GlassPlaqueStyle on press); B4 plaques   | 1    | tap           | 0.42 | 1.20 | -23.5 | selection     |
-// | boardSet     | B (GameModel+Pay, the board rises), D2       | 1    | knock (law)   | 0.40 | 0.62 | -22.8 | soft 0.3      |
-// | hit(x)       | D1 SoundWatch (a creature's hp drop); A3     | 2    | creature_hit  | 0.95 | 1.00 | -17.4 | none          |
-// | manHit(x)    | D1 SoundWatch (a soldier's hp drop); A3      | 2    | grunt_1 / _2  | 0.55 | 1.00 | -18.0 | none          |
-// | dawnGate     | A5 (the portcullis slides up), D2            | 2    | gate (law)    | 0.60 | 1.05 | -23.2 | none          |
-// | buildStood   | A2 (the swap at the dust's peak), D2         | 3    | build_done    | 0.90 | 1.00 | -15.3 | success       |
-// | manFell(x)   | D1 SoundWatch (a new name on tonight's fallen)| 3   | man_fall      | 0.70 | 1.00 | -14.4 | heavy         |
-// | wallCracked  | D1 SoundWatch (a wall below half, once/night)| 3    | wall_crack    | 0.95 | 1.00 | -15.4 | medium        |
-// | dawnHeld     | E2 (the card lands, no man lost)             | 3    | bell (law)    | 0.50 | 0.90 | -23.3 | success       |
-// | dawnToll     | E2 (once per fallen man, at most 3)          | 3    | bell (law)    | 0.50 | 0.55 | -23.3 | heavy         |
+// | cue          | caller (lane, step)                          | size | file (D2)          | vol  | level | haptic          |
+// |--------------|----------------------------------------------|------|--------------------|------|-------|-----------------|
+// | lanternUp    | B1 (raise); C2 (the title's touch)           | 1    | lantern_up         | 0.42 | -20.7 | soft 0.5        |
+// | lanternDown  | B1 (lower)                                   | 1    | lantern_down (law) | 0.40 | -20.5 | none            |
+// | paneOpen     | C1 (OverlayView, the overlay's change)       | 1    | tap x3 (law)       | 0.55 | -21.2 | soft 0.4        |
+// | paneClose    | C1 (OverlayView, the overlay's change)       | 1    | tap_low            | 0.55 | -21.2 | soft 0.3        |
+// | bubbleClose  | B3 (LANE-B block in closeTalk, Court.swift)  | 1    | tap_low            | 0.55 | -21.2 | none            |
+// | plaquePress  | C1 (GlassPlaqueStyle on press); B4 plaques   | 1    | tap x3             | 0.55 | -21.2 | selection       |
+// | boardSet     | B (GameModel+Pay, the board rises)           | 1    | knock_low          | 0.42 | -21.1 | soft 0.3        |
+// | hit(x)       | D1 SoundWatch (a creature's hp drop); A3     | 2    | creature_hit       | 0.95 | -17.4 | none            |
+// | manHit(x)    | D1 SoundWatch (a soldier's hp drop); A3      | 2    | grunt_1 / _2       | 0.55 | -18.0 | none            |
+// | dawnGate     | A5 (the portcullis slides up)                | 2    | gate (law)         | 0.60 | -23.2 | none            |
+// | buildStood   | A2 (the swap at the dust's peak)             | 3    | build_done         | 0.90 | -13.9 | success, light  |
+// | manFell(x)   | D1 SoundWatch (a new name on tonight's fallen)| 3   | man_fall           | 0.70 | -14.4 | heavy           |
+// | wallCracked  | D1 SoundWatch (a wall below half, once/night)| 3    | wall_crack         | 0.95 | -15.4 | medium          |
+// | dawnHeld     | E2 (the card lands, no man lost)             | 3    | bell (law)         | 0.50 | -23.3 | success         |
+// | dawnToll     | E2 (once per fallen man, at most 3)          | 3    | toll               | 0.65 | -15.0 | heavy (1st)     |
+// | lampLit(x)   | D2 SoundWatch (Silas lights a street lamp)   | 2    | lantern_high       | 0.50 | -19.5 | none            |
 //
+// - D2, cues made before the contract and now on the ladder: `touched` (the ground tap, step 1: tap x3 0.55, -21.2,
+//   light), `step` (step 1: step_1/2/3 in turn 0.5, -21.1 to -21.3, none), `coin` (step 2: the coin's chain, below),
+//   `buildDone` (step 3: as `buildStood`). `lanternRaised` (the night raise) plays lantern_raise 0.8 (-17.1);
+//   `doorOpened` the creak at 1.0 (-22.5).
+// - D2 0g: "tap x3" is the tap and its two rendered variants (+3.5 %, -3.4 %), "step_1/2/3" the step's; the gate turns
+//   them, never the same one twice in a row. `tap_low` is the tap at 0.85 of its pitch, `knock_low` the knock at 0.62,
+//   `lantern_high` the lantern at 1.45, `lantern_raise` at 1.3, `toll` the bell rendered low and damped.
+// - D2 part 3: a coin coming in (`coin`, the taxes landing and every other gold won) climbs like the count's: the
+//   pitched coin files (`coin`, `coin_p01` ... `coin_p07`), +1 semitone a coin, capped at +7, back to the root after
+//   1.5 s, at 0.6 (-19.7 to -20.0), the hand soft growing 0.3 to 0.7 (`FeedbackGate`, `AnswerChain.taxCap`). The last
+//   landing stays `taxesCounted` (coins.wav, success).
+// - D2 part 6: the hall door's creak holds the beds' place until the latch (`BedLatch`: the creak's end or 0.35 s).
 // - A position rides on the play call, `FeedbackHub.play(_:at:listenerX:)` (law 4's fall-off and pan, `SoundSpace`);
 //   the dawn verdict's outcome rides on its two cases (`DawnVerdict.cues(fallen:)` picks and spaces them).
 // - D1, the night's other blows on the ladder (not new cues; their files stay): arrowHit step 2 arrow_hit 0.75
@@ -47,8 +61,8 @@ import Foundation
 // - D2 0d (the director's call): `man_fall` plays at rate 1, as made; law 4's "x 0.7" beside it is the step 3 duck of
 //   the beds (x 0.7 for 0.7 s), which comes with every step 3 answer.
 // - Steps 3 and 4 are never randomised (`AnswerSize.jitters`) and set off the answer ducks in the hub (`BedDucks`).
-// - The law's own numbers stand where its measure disagrees: the bubble close (-26.5), the dawn's bells and the dawn
-//   gate (whole-file RMS reads a long bell or gate tail quieter than its strike). D2 judges them by ear.
+// - The law's own numbers stand where its measure disagrees: the held night's bell and the dawn gate (whole-file RMS
+//   reads a long bell or gate tail quieter than its strike). Nobody has heard them yet: the phone judges.
 // - D1 retired `soldierFell` (the thinner maps the event to nothing; `SoundWatch` plays `manFell` at the man's x) and
 //   `creatureHit` (`SoundWatch` plays `hit`): both cues stay as cases and are silent. The card pair is not retired: it
 //   answers as the pane pair (D2 0a, below). D2 part 1: `buildDone` and
@@ -57,8 +71,9 @@ import Foundation
 //   take the earlier call out (the thinner's `buildDone` from the simulation's event) in the same step.
 // - Old calls a new cue retires, in the caller's step (they share a file and its throttle, so the one called first in
 //   a frame would swallow the other and both haptics would fire):
-//   - B1: `lanternUp` replaces `play(.touched)` on the raise (`GameModel+Lantern.swift`, `openLanternMoment`); both
-//     play tap.wav under its 0.06 s throttle.
+//   - B1: `lanternUp` replaces `play(.touched)` on the raise (`GameModel+Lantern.swift`, `openLanternMoment`). Since
+//     D2 they no longer share a file (lantern_up is its own), so a raise that kept both would answer twice, a tap and
+//     the lantern, with a light and a soft haptic.
 //   - C1: `paneOpen` / `paneClose`, played from `OverlayView` on the overlay's change. D2 0a (the director's call
 //     after D1): the old pair `cardOpened` / `cardClosed` is an alias of them, not silent: `cardOpened` answers as
 //     `paneOpen` and `cardClosed` as `paneClose` (the same sound, the same hand, the same one-touch-one-tick rule after
