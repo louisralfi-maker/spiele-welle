@@ -1,0 +1,25 @@
+m04-a: a tap on the lord: the lantern rises, the world stills, the interface comes
+slowed: -GWTimeScale 0.25; as fast as the frames come
+the tap was sent without waiting at +0.227 s (point 74.8, 437.0; interface orientation 3 (the app's)); the runner answered at +0.528 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1830 -GWTimeScale 0.25
+scene after: frame:910 ready day:1 hour:9.28 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:world lx:1830 errand:none door:1830 gold:44 hud:moment cam:1612 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:1611.50
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.550 s  
+02  +0.820 s  
+03  +1.063 s  
+04  +1.230 s  
+05  +1.411 s  
+06  +1.608 s  
+07  +1.810 s  
+08  +2.007 s  
+09  +2.210 s  
+10  +2.391 s  
+11  +2.642 s  
+12  +2.832 s  
+13  +3.048 s  
+14  +3.234 s  
+15  +3.414 s  
+16  +3.678 s  
+mean spacing 0.209 s over 15 gaps
