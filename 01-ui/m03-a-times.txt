@@ -1,0 +1,37 @@
+m03-a: a touch on Tamsin: he walks to her, the speech bubble opens
+real time; as fast as the frames come
+the tap was sent without waiting at +0.529 s (point 95.0, 613.0; interface orientation 3 (the app's)); the runner answered at +0.840 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 2120
+scene after: frame:780 ready day:3 hour:11.47 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2196 lord:lord stage:world lx:2196 errand:none door:1830 gold:91 hud:none cam:2041 tap:touch-talk-tamsin hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:2196.00 kf:6 kd:1 kcx:2041.11
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.789 s  
+02  +1.038 s  
+03  +1.280 s  
+04  +1.585 s  
+05  +1.856 s  
+06  +2.118 s  
+07  +2.432 s  
+08  +2.659 s  
+09  +2.995 s  
+10  +3.184 s  
+11  +3.472 s  
+12  +3.760 s  
+13  +4.061 s  
+14  +4.454 s  
+15  +4.741 s  
+16  +4.993 s  
+17  +5.250 s  
+18  +5.611 s  
+19  +5.875 s  
+20  +6.096 s  
+21  +6.323 s  
+22  +6.553 s  
+23  +6.777 s  
+24  +7.009 s  
+25  +7.237 s  
+26  +7.566 s  
+27  +7.839 s  
+28  +8.187 s  
+mean spacing 0.274 s over 27 gaps

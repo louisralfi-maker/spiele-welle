@@ -1,0 +1,53 @@
+m02-e: a tap on the ground at 95 % of the width: a long walk east past the courtyard's things (the marks as he passes them)
+real time; as fast as the frames come
+the tap was sent without waiting at +0.135 s (point 24.1, 830.3; interface orientation 3 (the app's)); the runner answered at +0.426 s; no effect check
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWSeed 1 -GWClock 9 -GWStage world -GWCameraX 1500
+scene after: frame:2870 ready day:1 hour:13.46 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1579 lord:lord stage:world lx:1579 errand:none door:1830 gold:44 hud:none cam:1392 tap:ground hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1578.83 kf:6 kd:1 kcx:1392.33
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.346 s  
+02  +0.610 s  
+03  +1.005 s  
+04  +1.261 s  
+05  +1.563 s  
+06  +1.839 s  
+07  +2.080 s  
+08  +2.339 s  
+09  +2.606 s  
+10  +2.798 s  
+11  +2.976 s  
+12  +3.192 s  
+13  +3.484 s  
+14  +3.750 s  
+15  +4.040 s  
+16  +4.232 s  
+17  +4.438 s  
+18  +4.641 s  
+19  +4.908 s  
+20  +5.148 s  
+21  +5.362 s  
+22  +5.538 s  
+23  +5.729 s  
+24  +5.936 s  
+25  +6.189 s  
+26  +6.596 s  
+27  +6.820 s  
+28  +7.064 s  
+29  +7.288 s  
+30  +7.540 s  
+31  +7.816 s  
+32  +8.087 s  
+33  +8.318 s  
+34  +8.517 s  
+35  +8.751 s  
+36  +9.019 s  
+37  +9.324 s  
+38  +9.644 s  
+39  +10.020 s  
+40  +10.303 s  
+41  +10.590 s  
+42  +10.854 s  
+43  +11.109 s  
+44  +11.354 s  
+mean spacing 0.256 s over 43 gaps

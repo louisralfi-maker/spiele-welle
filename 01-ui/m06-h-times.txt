@@ -1,0 +1,26 @@
+m06-h: the launch of -GWScreen table until the table stands (the screen as it comes)
+real time; as fast as the frames come (a rolling burst)
+no cause: the burst watches until the condition
+the condition held at +0.914 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWScreen table
+
+frame  seconds since the burst began  (scene where read)
+01  +0.261 s  
+02  +0.540 s  day:2 hour:9.00 alive:0 seen:0 shots:0 kx:1314 stage:world lx:1314 gold:70 hud:strip cam:1128 tap:none count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+03  +1.140 s  
+04  +1.372 s  
+05  +1.726 s  
+06  +2.148 s  
+07  +2.512 s  
+08  +2.763 s  
+09  +2.995 s  
+10  +3.295 s  
+11  +3.700 s  
+12  +4.053 s  
+13  +4.404 s  
+14  +4.725 s  
+15  +4.985 s  
+16  +5.296 s  
+17  +5.579 s  
+18  +5.881 s  day:2 hour:9.00 alive:0 seen:0 shots:0 kx:1314 stage:world lx:1314 gold:70 hud:none cam:1128 tap:none count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.331 s over 17 gaps

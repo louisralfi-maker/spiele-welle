@@ -1,0 +1,1 @@
+the talk opened true; frame:3690 ready day:1 hour:10.11 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1713 lord:lord stage:world lx:1713 errand:none door:1830 gold:60 hud:none cam:1542 tap:lowered hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1712.60 kf:6 kd:-1 kcx:1541.82
