@@ -1,0 +1,2 @@
+p06-a: the herald's card before the tap; choice 0 at (64.0, 326.0, 218.0, 52.0)
+launch: -GWReset YES -GWSkipOnboarding YES -GWScreen petition

@@ -1,0 +1,10 @@
+Test Case '-[LanternholdUITests.FilmNightUITests testM08DuskAndTheHorn]' passed (64.407 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM09TheFirstAttack]' passed (108.775 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawn]' passed (31.278 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM10TheDawnCardWaitsForTheGate]' passed (22.018 seconds).
+Test Case '-[LanternholdUITests.FilmNightUITests testM12AnAdOfferAndTheEndCard]' passed (75.687 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (231.879 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testReportStills]' passed (177.906 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (63.679 seconds).
+exit=0
+screenshots: 527

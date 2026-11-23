@@ -1,0 +1,1 @@
+taps on the dim that reached it (OverlayView's glint count): before 0, after the four at x 0.16 4, after the two at x 0.05 y 0.15 6, after the two at x 0.05 y 0.55 6; the window's frame (0.0, 0.0, 874.0, 402.0)

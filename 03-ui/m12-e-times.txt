@@ -1,0 +1,33 @@
+m12-e: Skip on the Shuttered Lantern's first slide: the slides go, the end card comes
+real time; as fast as the frames come
+the tap was sent without waiting at +0.268 s (point 37.7, 771.0; interface orientation 3 (the app's)); the runner answered at +0.566 s; its effect holds
+launch: -GWReset YES -GWSeed 1 -GWSkipOnboarding YES -GWLordName Oswin -GWSlides ending2 -GWLord lord
+scene after: frame:200 ready day:1 hour:6.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:6 kd:1 kcx:224.71
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.503 s  
+02  +0.739 s  
+03  +1.018 s  
+04  +1.300 s  
+05  +1.535 s  
+06  +1.758 s  
+07  +1.961 s  
+08  +2.156 s  
+09  +2.353 s  
+10  +2.553 s  
+11  +2.785 s  
+12  +2.999 s  
+13  +3.204 s  
+14  +3.405 s  
+15  +3.610 s  
+16  +3.835 s  
+17  +4.072 s  
+18  +4.275 s  
+19  +4.473 s  
+20  +4.678 s  
+21  +4.883 s  
+22  +5.078 s  
+23  +5.282 s  
+24  +5.479 s  
+mean spacing 0.216 s over 23 gaps
