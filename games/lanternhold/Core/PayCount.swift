@@ -74,6 +74,9 @@ enum PayBeat: Sendable, Equatable {
     case short
     /// The coins start sliding back into the purse (let go, cut off, or after the short blink).
     case slideBack
+    /// Polish B2 (H9): a count by taps has waited `warnAfter` untouched: the rocking coin sinks back into the lord's
+    /// hand, one soft tick in the hand tells it; `tapWait` untouched, the coins go home.
+    case warn
     /// The board is down: the count is over.
     case gone
 }
@@ -169,6 +172,17 @@ struct PayCount: Sendable, Equatable {
     /// critic's H5: the rocking coin is the whole lesson, and 2 s were too short to read it and reach).
     static let slideAfter = 2.0
     static let emptyWait = 5.0
+    /// Polish B2 (H9, the director's call of 22.11.): a count whose last touch was a tap waits `tapWait` (a hold keeps
+    /// `slideAfter`, an empty board `emptyWait`); at `warnAfter` the rocking coin sinks back into the lord's hand in
+    /// `sinkSeconds` (the coins' own way home, `slideSeconds`), one soft tick in the hand.
+    static let tapWait = 3.0
+    static let warnAfter = 2.0
+    /// A press that set at most this many coins counts as a tap for the wait (a hold streams more).
+    static let tapCoins = 1
+    /// B2 gate (M-1, F2): a press shorter than this counts as a tap for the wait whatever it set (the game's tap/hold
+    /// line, the lantern's hold charge); a slow thumb tap lets a second coin go at about 0.18 s.
+    static let tapPress = LanternRaise.holdSeconds
+    static let sinkSeconds = slideSeconds
     /// Going back, the coins leave one by one, the last laid first, `homeGap` apart (step 4, the director's call 2:
     /// 0.07 s, so they never bunch); each flies home to the lord's belt in `slideSeconds`, shrinking to a pixel, and the
     /// purse takes it as it arrives.
@@ -280,6 +294,14 @@ struct PayCount: Sendable, Equatable {
     private(set) var pressPlaced = 0
     /// The last second a finger was on it.
     private(set) var lastTouch: Double
+    /// Polish B2 (H9): the last touch was a tap (a tap, or a press that set at most `tapCoins`), not a hold that streamed.
+    private(set) var lastByTap = false
+    /// Polish B2 (H9): the second the warning came (the rocking coin sinking home), nil while none stands.
+    private(set) var warnedAt: Double?
+    /// B2 gate (F4): the rocking coin sank into his hand at the warning and stays there until the next coin leaves it.
+    private(set) var sunk = false
+    /// B2 gate (M-1): the second the press now down began.
+    private(set) var pressAt: Double
     /// Taps waiting for a coin (while he walks, or between two coins).
     private(set) var queued = 0
     /// The lord stands at the board (the coins wait while he walks there), and since when.
@@ -310,6 +332,7 @@ struct PayCount: Sendable, Equatable {
         self.flights = flights
         self.time = time
         lastTouch = time
+        pressAt = time
         self.holding = holding
         if holding { due = coins.count == 1 ? PayCount.firstCoin + PayCount.lastBeat : PayCount.firstCoin }
     }
@@ -358,6 +381,13 @@ struct PayCount: Sendable, Equatable {
         guard let start = homeStart else { return nil }
         guard time >= start else { return 0 }
         return min(1, (time - start) / returnSeconds)
+    }
+
+    /// Polish B2 (H9): the rocking coin sinking back into the lord's hand after the warning: 0 just warned ... 1 in
+    /// his hand (nil while no warning stands; the count still open).
+    var sinkShare: Double? {
+        guard let warnedAt, result == nil else { return nil }
+        return min(1, max(0, (time - warnedAt) / PayCount.sinkSeconds))
     }
 
     /// Coin `index` on its way home: 0 still in its hollow ... 1 home in the purse (nil while the coins lie, or for a
@@ -431,7 +461,9 @@ struct PayCount: Sendable, Equatable {
         guard result == nil, sealAt == nil, !pendingShort else { return }
         holding = true
         pressPlaced = 0
+        pressAt = time
         lastTouch = time
+        warnedAt = nil
         if launched.count < coins.count { due = time + nextDelay(fresh: true) }
     }
 
@@ -441,6 +473,10 @@ struct PayCount: Sendable, Equatable {
         holding = false
         due = nil
         lastTouch = time
+        // Polish B2 (H9): a press that set one coin was a quick touch (a held coin leaves the hand a flight before its
+        // moment, so even a 0.05 s touch lets one go: round lh-rb-2); one that streamed two or more was a hold.
+        // B2 gate (M-1): and any press shorter than `tapPress` was a tap, though a slow thumb let a second coin go.
+        if pressPlaced > 0 { lastByTap = pressPlaced <= PayCount.tapCoins || time - pressAt < PayCount.tapPress }
         if tap && pressPlaced == 0 { self.tap() }
         pressPlaced = 0
     }
@@ -451,6 +487,15 @@ struct PayCount: Sendable, Equatable {
         guard result == nil, sealAt == nil, !pendingShort, launched.count + queued < coins.count else { return }
         queued += 1
         lastTouch = time
+        lastByTap = true
+        warnedAt = nil
+    }
+
+    /// B2 gate (F3): a tap on the ground sent the lord away from the open board: the wait is a hold's again
+    /// (`slideAfter` after the last touch) and gives no warning, as before the polish.
+    mutating func walkAway() {
+        guard result == nil else { return }
+        lastByTap = false
     }
 
     /// VoiceOver's double tap: the whole price at once when he stands there.
@@ -458,6 +503,7 @@ struct PayCount: Sendable, Equatable {
         guard result == nil else { return }
         atOnce = true
         lastTouch = time
+        warnedAt = nil
     }
 
     /// The lord stands at the board: the coins may come.
@@ -541,9 +587,21 @@ struct PayCount: Sendable, Equatable {
                 resultAt = seal
                 beats.append(.seal)
             }
-            let wait = placed == 0 ? PayCount.emptyWait : PayCount.slideAfter
-            if result == nil, sealAt == nil, !holding, queued == 0, !atOnce, !pendingShort, launched.count == placed,
-               time - max(lastTouch, readyAt ?? time) >= wait {
+            // Polish B2 (H9): a tap count waits `tapWait` and warns at `warnAfter`; a hold and an empty board as before.
+            let wait = placed == 0 ? PayCount.emptyWait : lastByTap ? PayCount.tapWait : PayCount.slideAfter
+            let quiet = result == nil && sealAt == nil && !holding && queued == 0 && !atOnce && !pendingShort
+                && launched.count == placed
+            let idle = time - max(lastTouch, readyAt ?? time)
+            if quiet, placed > 0, lastByTap, idle >= PayCount.warnAfter {
+                if warnedAt == nil {
+                    warnedAt = time - (idle - PayCount.warnAfter)
+                    sunk = true
+                    beats.append(.warn)
+                }
+            } else {
+                warnedAt = nil
+            }
+            if quiet, idle >= wait {
                 beats.append(finish(.letGo))
             }
         } else {
@@ -602,6 +660,7 @@ struct PayCount: Sendable, Equatable {
         launched.append(moment)
         arrivals.append(max(moment, arrival))
         lastTouch = time
+        sunk = false
         if launched.count == coins.count {
             holding = false
             due = nil
@@ -633,6 +692,7 @@ struct PayCount: Sendable, Equatable {
         result = end
         resultAt = time
         sealAt = nil
+        sunk = false
         holding = false
         due = nil
         queued = 0

@@ -264,6 +264,11 @@ extension GameModel {
             if purse.shown == nil { purse.shown = purse.target }
             purse.lastTick = clock.elapsed
         }
+        // B2 gate (F1): the figure stays while the board is open (a tap count waits 3.0 s, longer than the linger) and
+        // lingers only once the count has ended; it never blinks out between two slow coins.
+        if visible, touch.count?.isOpen == true, purse.shown != nil {
+            purse.lastTick = clock.elapsed
+        }
         notes.update(happiness: state.happiness, people: state.citizens, clock: clock.elapsed, visible: visible)
         // Fix round 2 (the critic's high 5): the call's strip waits while the first minute's hint slip stands.
         let calling = stripCall.update(strip, hour: state.hour, clock: clock.elapsed, allowed: visible,

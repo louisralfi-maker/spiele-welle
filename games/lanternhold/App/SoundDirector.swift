@@ -26,7 +26,7 @@ final class SoundDirector: FeedbackHub {
     private var voices: [SoundID: [AVAudioPlayer]] = [:]
     private var loops: [SoundID: AVAudioPlayer] = [:]
     private var levels: [SoundID: Double] = [:]
-    /// Step 0b: the throttles, the steps' alternation and the no-jitter rule (`FeedbackGate`, pure).
+    /// Step 0b: the throttles, the taps' and steps' rotation and the no-jitter rule (`FeedbackGate`, pure).
     private var gate = FeedbackGate()
     private var lastAmbience: Double?
     /// After a loop could not start (an interruption, a call), it is tried again from this time on.
@@ -39,6 +39,11 @@ final class SoundDirector: FeedbackHub {
     private var answer4At: Double?
     /// Step 0b: the title's beds stand (`startTitleBeds`) since this time.
     private var titleSince: Double?
+    /// D1: the battle duck's caller, from the placed blows (`FightNear`).
+    private var fight = FightNear()
+    /// D2 part 6: the beds wait for the hall door's latch (`BedLatch`); the last mix the game asked for before a creak.
+    private var latch = BedLatch()
+    private var lastMix: AmbienceMix?
 
     private let lightImpact: UIImpactFeedbackGenerator
     private let softImpact: UIImpactFeedbackGenerator
@@ -71,26 +76,46 @@ final class SoundDirector: FeedbackHub {
     // MARK: - FeedbackHub
 
     func play(_ cue: FeedbackCue) {
-        sound(cue, gain: 1, pan: 0)
+        sound(cue, gain: 1, pan: 0, near: true)
     }
 
-    // Step 0b: law 4's space; the arithmetic is `SoundSpace` (Core), applied here.
+    // Step 0b: law 4's space; the arithmetic is `SoundSpace` (Core), applied here. D1: every placed blow tells the
+    // battle duck where the fight is, heard or not.
     func play(_ cue: FeedbackCue, at x: Double, listenerX: Double) {
+        let now = CACurrentMediaTime()
+        fight.note(cue, distance: x - listenerX, now: now)
         guard let place = SoundSpace.place(cue, x: x, listenerX: listenerX) else { return }
-        sound(cue, gain: place.gain, pan: place.pan)
+        let near = !cue.isPositional || SoundSpace.near(distance: x - listenerX, hearing: cue.hearing)
+        sound(cue, gain: place.gain, pan: place.pan, near: near)
     }
 
-    private func sound(_ cue: FeedbackCue, gain: Double, pan: Double) {
+    private func sound(_ cue: FeedbackCue, gain: Double, pan: Double, near: Bool) {
         let now = CACurrentMediaTime()
-        let answer = gate.answer(cue, soundOn: soundOn, hapticsOn: hapticsOn, now: now)
-        if let haptic = answer.haptic { fire(haptic, strength: answer.hapticStrength) }
-        // Step 0b: an answer of step 3 or 4 ducks the beds (`BedDucks`; no cue made before the ladder has a size).
-        switch cue.answerSize {
+        let answer = gate.answer(cue, soundOn: soundOn, hapticsOn: hapticsOn, now: now, near: near)
+        if let haptic = answer.haptic {
+            fire(haptic, strength: answer.hapticStrength)
+            // D1, law 4's step 4: the same haptic again (the breach: heavy, then heavy 0.12 s later). D2: or the echo's
+            // own (a building standing: success, then light).
+            if let echo = answer.echo {
+                let strength = answer.hapticStrength
+                let second = answer.echoHaptic ?? haptic
+                Task { [weak self] in
+                    try? await Task.sleep(nanoseconds: UInt64(echo * 1_000_000_000))
+                    guard let self, self.hapticsOn else { return }
+                    self.fire(second, strength: strength)
+                }
+            }
+        }
+        guard let sound = answer.sound, let player = voice(sound.id) else { return }
+        // D2 part 6: the hall door's creak holds the beds' place until the latch.
+        if cue == .doorOpened { latch.creak(at: now, before: lastMix) }
+        // Step 0b, D1 (0b's L1): an answer of step 3 or 4 ducks the beds only when its sound really plays (not when
+        // it was throttled away, Sound is off, or its file is missing).
+        switch answer.duck {
         case .triumph?: answer3At = now
         case .realm?: answer4At = now
         default: break
         }
-        guard let sound = answer.sound, let player = voice(sound.id) else { return }
         let jitter = answer.jitter ? Double.random(in: 0.96...1.04) : 1
         player.volume = Float(max(0, min(1, sound.volume * gain)))
         player.pan = Float(max(-1, min(1, pan)))
@@ -137,20 +162,26 @@ final class SoundDirector: FeedbackHub {
     }
     // end b3-count
 
-    func ambience(_ mix: AmbienceMix) {
+    func ambience(_ asked: AmbienceMix) {
         let now = CACurrentMediaTime()
+        // D2 part 6: through a door's creak the beds keep the place they had before it (`BedLatch`).
+        let mix = latch.mix(asked, now: now)
+        lastMix = asked
         let dt = min(0.25, max(0, now - (lastAmbience ?? now)))
         lastAmbience = now
         // Step 0b, law 4's one duck rule: the deepest active duck wins (`BedDucks.depth`), followed on this clock and
         // laid over the crossfaded beds (the place, day and weather keep their 1.2 s crossfade).
         var ducks = mix.ducks
+        // D1: the battle duck, x 0.6 while a fight is within 300 px of the lord (the deepest duck still wins).
+        if !ducks.battleNear { ducks.battleNear = fight.near(at: now) }
         if ducks.answer3Age == nil, let at = answer3At { ducks.answer3Age = now - at }
         if ducks.answer4Age == nil, let at = answer4At { ducks.answer4Age = now - at }
         let ducked = duck.step(toward: ducks.depth, dt: dt)
         for id in SoundID.loops {
             // Under the title its beds are its own (`startTitleBeds`); the other loops rest.
             if titleSince != nil && AmbienceMix.titleBeds.contains(where: { $0.id == id }) { continue }
-            let target = soundOn && titleSince == nil ? mix.level(id) : 0
+            // D2 0f: the beds under their ceiling (`AmbienceMix.bed`): together never louder than -24.5 dBFS undecked.
+            let target = soundOn && titleSince == nil ? mix.bed(id) : 0
             let level = AmbienceMix.approach(levels[id] ?? 0, target, dt: dt)
             levels[id] = level
             let heard = level * ducked

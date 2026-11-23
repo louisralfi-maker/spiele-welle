@@ -225,12 +225,27 @@ struct SimDriver: Sendable {
         var fromHour: Double
         var elapsed = 0.0
 
-        /// The clock's hour the dusk wants now: linear (law 1: the time of day is linear) from the call to the horn's
-        /// minute over 4.0 s less the last minute.
+        /// The clock's hour the dusk wants now: from the call to the horn's minute over 4.0 s less the last minute,
+        /// eased out (polish E1b, the director's call after E1 in law 3.3: the called dusk runs fast through the
+        /// afternoon and slow into the horn, so the sky answers the touch within a second; from 11:00 the clock passes
+        /// 16:00 about 1.1 s after the word). The day's own pace runs under the whole ramp and only the hours beyond it
+        /// are eased, so the clock never falls below the day's pace (the frame's own steps would run ahead of a slower
+        /// target and bring the horn early) and the ramp hands over to the last minute at exactly that pace
+        /// (`duskLastMinute`). Called later than 18:40 the day's own pace alone reaches the horn's minute: the dusk
+        /// cannot slow the day, so there it takes less than 4.0 s (as before E1b).
         var targetHour: Double {
             let ramp = max(1e-9, SimDriver.duskSeconds - SimDriver.duskLastMinute)
-            let share = min(1, max(0, elapsed / ramp))
-            return fromHour + (SimDriver.hornCallHour - fromHour) * share
+            let run = min(ramp, max(0, elapsed))
+            let extra = max(0, SimDriver.hornCallHour - fromHour - ramp / DayClock.secondsPerHour)
+            return fromHour + run / DayClock.secondsPerHour + extra * Dusk.ease(run / ramp)
+        }
+
+        /// Ease-out cubic, 1 - (1 - u)^3 (law 1's curve for what answers): it starts at three times the mean pace and
+        /// ends with none left over the day's own. Not `Motion.enter`: that Bézier (0, 0, 0.58, 1) starts at only 1.7
+        /// times the mean, so from 11:00 the clock would pass 16:00 at about 1.7 s, past the 1.2 s the call asks.
+        static func ease(_ u: Double) -> Double {
+            let rest = 1 - min(1, max(0, u))
+            return 1 - rest * rest * rest
         }
 
         /// How far the dusk is (0 ... 1 of its 4.0 s).
@@ -249,7 +264,7 @@ struct SimDriver: Sendable {
 
     /// The player sounds the horn by day (Brannock's offer, the pause sheet): the dusk is played, not cut. From now
     /// on `playDusk` steps the realm on in its own 1/60 s steps, as many each frame as bring the clock to the horn's
-    /// minute in 4.0 s (the sky, the lamps, the builders and the town's evening run as at any dusk); the last minute
+    /// minute in 4.0 s (eased out, `Dusk.ease`) (the sky, the lamps, the builders and the town's evening run as at any dusk); the last minute
     /// runs at the day's pace and the horn sounds by itself. The lord stops where he is (he may walk again). False when
     /// it is not day, the horn is a minute off, the realm fell, or a dusk is already played.
     @discardableResult

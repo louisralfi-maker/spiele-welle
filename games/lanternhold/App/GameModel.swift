@@ -555,9 +555,11 @@ final class GameModel {
 
     /// The frame's cues, thinned (`FeedbackThinner`), to the feedback hub.
     private func playCues(_ frameEvents: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], state: GameState) {
-        for cue in thinner.cues(for: frameEvents, extra: extra, time: clock.elapsed, listenerX: state.king.x) {
-            feedback.play(cue)
+        // LANE-D: D1 (law 4's space: every positional cue with its x, faded and panned by the hub)
+        for placed in thinner.placedCues(for: frameEvents, extra: extra, time: clock.elapsed, listenerX: state.king.x) {
+            feedback.play(placed: placed, listenerX: state.king.x)
         }
+        // LANE-D end
     }
 
     /// Where the listener is for the ambience (DESIGN.md "Sound and haptics"): the great hall while the lord is on
@@ -970,8 +972,9 @@ final class GameModel {
 
     /// Polish E1: the night is called (the pause sheet, Brannock's word), one call for both: the driver plays the dusk
     /// (`SimDriver.callTheNight`). What the horn closes closes now: a count is cut (it pays nothing, PAY.md 4), the
-    /// bubble and the errand end; the offer counts as answered. The lord may walk on; a card, a pane or the lantern
-    /// moment opened during the dusk holds the world, and the dusk waits with it. False when nothing was called.
+    /// bubble and the errand end; the offer counts as answered and Brannock's standing mark goes (E1b). The lord may
+    /// walk on; a card, a pane or the lantern moment opened during the dusk holds the world, and the dusk waits with
+    /// it. False when nothing was called.
     @discardableResult
     func soundTheNight() -> Bool {
         guard var game = driver else { return false }
@@ -982,6 +985,7 @@ final class GameModel {
         closeTalk()
         cancelErrand()
         talkLog.note(NightOffer.heardKey, day: game.state.day)
+        talkLog.note(NightOffer.calledKey, day: game.state.day)
         refreshHUD()
         return true
     }
@@ -1465,6 +1469,9 @@ final class GameModel {
         // Polish E1: Brannock's offer (none, stands, heard) and the played dusk's share.
         let offer = nightOfferStands ? (talkedToday(state).contains(NightOffer.heardKey) ? "heard" : "stands") : "none"
         text += " offer:\(offer) dusk:" + (duskShare.map { String(format: "%.2f", $0) } ?? "none")
+        // Polish E1b: who carries a talk mark now (Brannock's standing offer, Hesper's far goal on day 1).
+        let talkMarks = touch.things.filter { $0.kind == .talk && $0.marked }.compactMap(\.who).sorted()
+        text += " talkmarks:" + (talkMarks.isEmpty ? "none" : talkMarks.joined(separator: ","))
         // b3-yard step 4 (E4): where the drilling archer and guard stand in their rounds (the slowed strip's frames).
         text += " drill:" + (Yard.drilling(state, balance: game.balance)
             ? YardLook.drillWord(archerTime: yardDrillClock.time, guardTime: state.simTime) : "none")

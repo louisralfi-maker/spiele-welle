@@ -5,7 +5,9 @@ import XCTest
 /// Polish step 0b, the gate's M1: the real hub's paths run once in the unit host. `SoundDirector.allowed` only gates
 /// the app's install, so the test builds the director directly and drives every new path (every cue, the placed play
 /// near and far, the duck follower over real frames, a step 3 answer's duck, the title's beds and their hand-over,
-/// Sound and Haptics off and on). It checks that nothing traps or hangs; what is heard is judged on a phone.
+/// Sound and Haptics off and on; polish D1's placed blows, kills in a row, grunts, fall, crack, breach echo, battle
+/// duck and one touch, one tick; polish D2's alias pair, rotations, coin chain, build echo, dawn, lamp, lantern and the
+/// hall door's latch). It checks that nothing traps or hangs; what is heard is judged on a phone.
 final class SoundDirectorTests: XCTestCase {
     @MainActor
     func testTheRealHubRunsEveryNewPath() {
@@ -38,7 +40,75 @@ final class SoundDirectorTests: XCTestCase {
         director.stopTitleBeds()
         frames(5, ducked: true)
 
+        // Polish D1: the night's new paths: the placed play near, at the edge and past it; kills in a row; the grunts;
+        // a man's fall and a wall's crack; the breach's echo haptic (a Task 0.12 s later) and step-4 duck; the battle
+        // duck from a near blow; one touch, one tick; the retired cues.
+        for k in 0..<12 {
+            director.play(.creatureDissolved, at: 1500 + Double(k * 10), listenerX: 1500)
+            director.play(.hit, at: 1500 - Double(k * 40), listenerX: 1500)
+            director.play(.manHit, at: 1520, listenerX: 1500)
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        director.play(placed: (cue: .manFell, x: 1300), listenerX: 1500)
+        director.play(placed: (cue: .wallCracked, x: 940), listenerX: 1500)
+        // D1 gate M5: a crack at the edge of hearing (beyond 900 px): the faded sound only.
+        director.play(placed: (cue: .wallCracked, x: 2700), listenerX: 1500)
+        director.play(placed: (cue: .horn, x: 400), listenerX: 1500)
+        director.play(placed: (cue: .manFell, x: nil), listenerX: 1500)
+        director.play(.wallBroken)
+        frames(20, ducked: false)
+        director.play(.plaquePress)
+        director.play(.paneOpen)
+        director.play(.paneClose)
+        for cue in [FeedbackCue.cardOpened, .cardClosed, .creatureHit, .soldierFell] { director.play(cue) }
+        director.hapticsOn = false
+        director.play(.wallBroken)
+        director.hapticsOn = true
+        frames(12, ducked: false)
+
+        // Polish D2: the card pair as the panes (one answer of the two within 0.25 s, a card alone), the taps' and the
+        // steps' rotation, the tax coins' chain, a building's success and light echo, the dawn's gate, bell and tolls,
+        // Silas's lamp near and far, the lantern up and down, the night raise, the board set and the bubble close, and
+        // the hall door's creak with the beds held until the latch over real frames.
+        director.play(.cardOpened)
+        director.play(.paneOpen)
+        RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        director.play(.paneClose)
+        director.play(.cardClosed)
+        RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        director.play(.cardOpened)
+        for _ in 0..<4 {
+            director.play(.touched)
+            director.play(.step)
+            RunLoop.current.run(until: Date().addingTimeInterval(0.13))
+        }
+        for _ in 0..<10 {
+            director.play(.coin)
+            RunLoop.current.run(until: Date().addingTimeInterval(0.12))
+        }
+        director.play(.buildDone)
+        director.play(.buildStood)
+        frames(15, ducked: false)
+        director.play(.dawnGate)
+        director.play(.dawnHeld)
+        for (cue, _) in DawnVerdict.cues(fallen: 3) { director.play(cue) }
+        director.play(placed: (cue: .lampLit, x: 1600), listenerX: 1500)
+        director.play(placed: (cue: .lampLit, x: 2100), listenerX: 1500)
+        director.play(placed: (cue: .lampLit, x: 4000), listenerX: 1500)
+        director.play(.lanternUp)
+        director.play(.lanternDown)
+        director.play(.lanternRaised)
+        director.play(.boardSet)
+        director.play(.bubbleClose)
+        frames(3, ducked: false)
+        director.play(.doorOpened)
+        for _ in 0..<30 {
+            director.ambience(AmbienceMix.target(hour: 12, rain: 0, place: .hall, fire: 0, x: 1830))
+            RunLoop.current.run(until: Date().addingTimeInterval(1.0 / 60))
+        }
+
         director.soundOn = false
+        director.play(.manFell)
         director.play(.dawnHeld)
         frames(3, ducked: false)
         director.soundOn = true

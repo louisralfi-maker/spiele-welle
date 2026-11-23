@@ -1,10 +1,11 @@
 /// Brannock offers the horn (the polish audit's thing 6, step E1; law 3.3, "the thread of the run": when the day is
 /// done, the world offers its end; critic-run R1). On days 1 to 3, from 09:00 to 17:30, once nothing the purse can pay
-/// is left, no deal waits and no coins wait in the town, Brannock carries his talk mark again and his line says the
-/// day may end: "Nothing more to build today. Say the word and I sound the horn." A second touch on him while that line
-/// stands calls the night (`SimDriver.callTheNight`, the dusk played in 4.0 s). Pure: derived from the realm's state
-/// every frame, nothing is saved. Whether the line was heard today is the talk log's (UI state, never saved:
-/// `heardKey`).
+/// is left, no deal waits and no coins wait in the town, Brannock carries his talk mark again (for as long as the offer
+/// stands, until the night is called: polish E1b) and his line says the day may end: "Nothing more to build today. Say
+/// the word and I sound the horn." A second touch on him while that line stands calls the night
+/// (`SimDriver.callTheNight`, the dusk played in 4.0 s). Pure: derived from the realm's state every frame, nothing is
+/// saved. Whether the line was heard or the night called today is the talk log's (UI state, never saved: `heardKey`,
+/// `calledKey`).
 enum NightOffer {
     /// Who offers the horn.
     static let speaker = "brannock"
@@ -13,6 +14,9 @@ enum NightOffer {
     /// The talk log's note that the offer was heard today (or answered: the night was called). Not a speaker id, so it
     /// never shifts anyone's lines (`TalkLog`, `GameModel.talkedToday`).
     static let heardKey = "brannock.horn"
+    /// Polish E1b (the director's call after E1, law 3.3: the standing offer): the talk log's note that the night was
+    /// called today (Brannock's word or the pause sheet). Until then his mark stands, heard or not.
+    static let calledKey = "brannock.horn.called"
     /// Law 3.3: the first three days (the player learns the day; later days have work enough).
     static let days = 1...3
     /// Law 3.3: from 09:00 (the morning's work first) to 17:30 (after that the horn comes by itself soon enough).
@@ -63,8 +67,10 @@ enum NightOffer {
         !AudienceRules.queue(s, catalog: .standard).isEmpty
     }
 
-    /// Brannock carries his talk mark for the offer: it stands and he was not heard saying it today.
+    /// Brannock carries his talk mark for the offer for as long as it stands, heard or not, until the night is called
+    /// (polish E1b, the director's call: an offer, not a line heard once; so the one mark left in the world always
+    /// says where the day goes on).
     static func marks(_ s: GameState, balance: Balance, talked: Set<String>) -> Bool {
-        !talked.contains(heardKey) && stands(s, balance: balance)
+        !talked.contains(calledKey) && stands(s, balance: balance)
     }
 }
