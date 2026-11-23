@@ -153,7 +153,10 @@ final class NightOfferTests: XCTestCase {
         XCTAssertTrue(NightOffer.stands(walking, balance: balance), "he is back (the purse spent): the offer stands")
     }
 
-    func testBrannockCarriesTheMarkWhileTheOfferIsUnheard() throws {
+    /// E1b (the director's call: the standing offer) rewrote this test (E1: "the offer heard: the mark goes"): the
+    /// offer is an offer, not a line heard once, so his mark stays while it stands, heard or not, until the night is
+    /// called.
+    func testBrannockKeepsTheMarkWhileTheOfferStandsUntilTheNightIsCalled() throws {
         let figure = try brannock()
         let s = doneDay()
         func mark(_ state: GameState, _ talked: Set<String>) -> Bool? {
@@ -161,7 +164,12 @@ final class NightOfferTests: XCTestCase {
                 .first { $0.id == "touch-talk-brannock" }?.marked
         }
         XCTAssertEqual(mark(s, ["brannock"]), true, "heard today, but the offer is new: marked")
-        XCTAssertEqual(mark(s, ["brannock", NightOffer.heardKey]), false, "the offer heard: the mark goes")
+        XCTAssertEqual(mark(s, ["brannock", NightOffer.heardKey]), true,
+                       "the offer heard and his bubble closed: it still stands, the mark stays")
+        XCTAssertEqual(mark(s, ["brannock", NightOffer.heardKey, NightOffer.calledKey]), false,
+                       "the night called: the mark goes")
+        XCTAssertFalse(NightOffer.marks(s, balance: balance, talked: [NightOffer.calledKey]))
+        XCTAssertTrue(NightOffer.marks(s, balance: balance, talked: [NightOffer.heardKey]))
         // E1 gate (P3): an answer line of his own still unheard keeps the mark after the offer was heard; his own line
         // comes first (`GameModel.nightOfferTakesTouch`), the offer after it.
         XCTAssertEqual(mark(s, [NightOffer.heardKey]), true, "his own line still unheard: the mark stays for it")
@@ -194,14 +202,150 @@ final class NightOfferTests: XCTestCase {
             }
             XCTAssertTrue(heard, "the horn (dt \(dt))")
             XCTAssertEqual(t, 4.0, accuracy: dt + 0.03, "the dusk takes 4.0 s (dt \(dt))")
-            // The time of day runs linearly over the dusk (law 1): halfway through the quick part, half the hours.
+            // E1b rewrote this check (E1: linear, half the hours halfway): the hours above the day's own pace are eased
+            // out, so halfway through the quick part the day's pace has run 1.9 s and seven eighths of the rest are gone.
             let ramp = SimDriver.duskSeconds - SimDriver.duskLastMinute
-            let expected = 11 + (SimDriver.hornCallHour - 11) * (1.9 / ramp)
+            let extra = SimDriver.hornCallHour - 11 - ramp / DayClock.secondsPerHour
+            let expected = 11 + 1.9 / DayClock.secondsPerHour + extra * 0.875
             XCTAssertEqual(try XCTUnwrap(halfway), expected, accuracy: 0.05 + 8 * dt / ramp, "dt \(dt)")
             XCTAssertNil(driver.dusk, "the dusk ends at the horn")
             XCTAssertFalse(driver.playsDusk)
             XCTAssertGreaterThanOrEqual(driver.state.hour, 19)
         }
+    }
+
+    /// Polish E1b (the director's call after E1: the called dusk eases out, so the sky answers the touch): from 11:00
+    /// the clock passes 16:00 within 1.2 s of the call (about 1.1 s), and slows into the horn's minute.
+    func testTheCalledDuskAnswersTheTouchWithinASecond() throws {
+        for dt in [1.0 / 60, 1.0 / 20] {
+            var driver = SimDriver(state: doneDay(hour: 11), balance: balance)
+            XCTAssertTrue(driver.callTheNight())
+            var events: [SimEvent] = []
+            var t = 0.0
+            var passed: Double?
+            var atHalf: Double?
+            var lastSecond: (from: Double, to: Double)?
+            while !horn(events) && t < 10 {
+                events.removeAll(keepingCapacity: true)
+                let before = driver.state.hour
+                driver.advance(by: dt, events: &events)
+                driver.playDusk(seconds: dt, events: &events)
+                t += dt
+                if passed == nil && driver.state.hour >= 16 { passed = t }
+                if atHalf == nil && t >= 0.5 - 1e-9 { atHalf = driver.state.hour }
+                if t > 2.8 - 1e-9 && t <= 3.8 + 1e-9 {
+                    lastSecond = (lastSecond?.from ?? before, driver.state.hour)
+                }
+            }
+            let at16 = try XCTUnwrap(passed, "dt \(dt)")
+            XCTAssertLessThanOrEqual(at16, 1.2 + 1e-9, "16:00 within 1.2 s of the word (dt \(dt))")
+            XCTAssertGreaterThanOrEqual(at16, 0.9, "not a cut (dt \(dt))")
+            XCTAssertGreaterThan(try XCTUnwrap(atHalf), 13.5, "half a second in, the afternoon is under way (dt \(dt))")
+            // It slows into the horn: the ramp's last second moves the clock far less than its first.
+            let slow = try XCTUnwrap(lastSecond)
+            XCTAssertLessThan(slow.to - slow.from, 0.4, "the last second of the ramp, slowing (dt \(dt))")
+            XCTAssertEqual(t, 4.0, accuracy: dt + 0.03, "4.0 s to the horn (dt \(dt))")
+        }
+    }
+
+    /// Polish E1b: 4.0 s of driver time from any hour (no cap on the pace): 06:00 (the pause sheet's earliest), 09:00,
+    /// 11:00 and 17:30, at 60 and at 20 frames a second.
+    func testTheDuskTakesFourSecondsFromAnyHour() throws {
+        for hour in [6.0, 9, 11, 17.5] {
+            for dt in [1.0 / 60, 1.0 / 20] {
+                var driver = SimDriver(state: doneDay(hour: hour), balance: balance)
+                XCTAssertTrue(driver.callTheNight(), "\(hour)")
+                var events: [SimEvent] = []
+                var t = 0.0
+                while !horn(events) && t < 10 {
+                    events.removeAll(keepingCapacity: true)
+                    driver.advance(by: dt, events: &events)
+                    driver.playDusk(seconds: dt, events: &events)
+                    t += dt
+                    if !horn(events) { XCTAssertLessThan(driver.state.hour, 19, "no horn before its time") }
+                }
+                XCTAssertTrue(horn(events), "the horn from \(hour) (dt \(dt))")
+                XCTAssertEqual(t, 4.0, accuracy: dt + 0.03, "4.0 s from \(hour) (dt \(dt))")
+                XCTAssertNil(driver.dusk)
+            }
+        }
+    }
+
+    /// Polish E1b (E1's L4: nobody had measured the dusk's cost): the extra steps of the eased dusk, timed on a full
+    /// day 2 (the town, the collector hired and out on his round, a brazier being built), called at 11:00 after a
+    /// natural morning and at 06:15 (the pause sheet's early case). One warm-up dusk first (the first run in the process
+    /// pays its caches), then three timed runs of each from the same state. Reports the microseconds per step, the
+    /// first frames (median of the runs) and the worst frame at 60 frames a second (attachment `dusk-cost`, and the log
+    /// line `E1B-DUSK-COST`). The director's bar: the first frames take about 75 steps; above 4 ms for them the
+    /// quadratic ease would be used instead. A Debug build (-Onone), as every runner test.
+    func testTheDuskCostPerStepOnAFullDayTwo() throws {
+        func dayTwo(callingAt callHour: Double) throws -> (driver: SimDriver, plot: Int) {
+            var start = dawnDay(hour: 6.25, hire: true)
+            start.gold = 200
+            let plot = try XCTUnwrap(Realm.brazierPlots.first { plot in
+                plot < start.plots.count && start.isUnlocked(plot: plot)
+                    && Build.options(start, plot: plot, balance: balance).contains { $0.item == .brazier }
+            })
+            var ignored: [SimEvent] = []
+            _ = Build.order(&start, plot: plot, item: .brazier, balance: balance, events: &ignored)
+            start.gold = 9
+            var driver = SimDriver(state: start, balance: balance)
+            var events: [SimEvent] = []
+            while driver.state.hour < callHour {
+                events.removeAll(keepingCapacity: true)
+                driver.advance(by: 1.0 / 60, events: &events)
+            }
+            return (driver, plot)
+        }
+        /// One timed dusk: each frame's steps and nanoseconds.
+        func timed(_ base: SimDriver) -> [(steps: Int, nanos: UInt64)] {
+            var driver = base
+            XCTAssertTrue(driver.callTheNight())
+            var events: [SimEvent] = []
+            var frames: [(steps: Int, nanos: UInt64)] = []
+            while !horn(events) && frames.count < 600 {
+                events.removeAll(keepingCapacity: true)
+                let begin = DispatchTime.now().uptimeNanoseconds
+                let before = driver.steps
+                driver.advance(by: 1.0 / 60, events: &events)
+                driver.playDusk(seconds: 1.0 / 60, events: &events)
+                frames.append((driver.steps - before, DispatchTime.now().uptimeNanoseconds - begin))
+            }
+            XCTAssertTrue(horn(events), "the horn")
+            return frames
+        }
+        func ms(_ nanos: UInt64) -> String { String(format: "%.2f", Double(nanos) / 1e6) }
+        _ = timed(try dayTwo(callingAt: 11).driver)
+        var lines: [String] = []
+        for callHour in [11.0, 6.25] {
+            let (base, plot) = try dayTwo(callingAt: callHour)
+            let town = base.state.town?.today
+            let runs = (0..<3).map { _ in timed(base) }
+            let steps = runs[0].reduce(0) { $0 + $1.steps }
+            let nanos = runs.flatMap { $0 }.reduce(UInt64(0)) { $0 + $1.nanos }
+            let perStep = Double(nanos) / Double(3 * max(1, steps)) / 1000
+            var firsts: [String] = []
+            for index in 0..<min(6, runs[0].count) {
+                let times = runs.map { $0[index].nanos }.sorted()
+                firsts.append("\(runs[0][index].steps) steps \(ms(times[1])) ms")
+            }
+            let worst = runs.map { run in run.max { $0.nanos < $1.nanos }! }
+            let worstText = worst.map { "\($0.steps) steps \(ms($0.nanos)) ms" }.joined(separator: " / ")
+            if callHour == 11 {
+                XCTAssertEqual(Double(runs[0][0].steps), 74, accuracy: 3, "about 75 steps in the first frame from 11:00")
+            }
+            lines.append("E1B-DUSK-COST call \(callHour) day \(base.state.day) collectorOut "
+                         + "\(String(describing: town?.collectorOut)) back \(String(describing: town?.collectorBack)) "
+                         + "job \(base.state.plots[plot].job != nil): \(runs[0].count) frames, \(steps) steps, "
+                         + String(format: "%.1f", perStep) + " us per step (Debug build); first frames (median of 3): "
+                         + firsts.joined(separator: ", ") + "; worst frame of each run: " + worstText)
+        }
+        let text = lines.joined(separator: "\n")
+        print(text)
+        let attachment = XCTAttachment(string: text)
+        attachment.name = "dusk-cost"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     func testThePlayedDuskEndsExactlyAsADuskThatCameByItself() throws {
@@ -363,7 +507,8 @@ final class NightOfferModelTests: XCTestCase {
                       + "\(AudienceRules.queue(state, catalog: .standard).count)")
         game.talk(to: "brannock")
         XCTAssertEqual(game.talkBubble?.textKey, NightOffer.lineKey, "the first touch: his offer")
-        XCTAssertTrue(game.talkedToday(state).contains(NightOffer.heardKey), "heard: his mark goes")
+        XCTAssertTrue(game.talkedToday(state).contains(NightOffer.heardKey), "heard (E1b: his mark stays, the offer "
+                      + "stands)")
         XCTAssertTrue(game.nightOfferStands, "it still stands")
         game.talk(to: "brannock")
         XCTAssertFalse(game.driver?.playsDusk ?? true, "a touch at once (a double tap) only hears him")
@@ -375,7 +520,17 @@ final class NightOfferModelTests: XCTestCase {
         XCTAssertNil(game.talkBubble, "the bubble closes as the dusk begins")
         XCTAssertFalse(game.nightOfferStands, "the offer is gone once the night is called")
         XCTAssertFalse(game.canCallTheNight, "the pause sheet has nothing more to call")
-        var seconds = 0.0
+        // E1b gate M1: the call itself takes his mark, not the hour. In the dusk's first frame the realm's rule still
+        // stands (the hour below 17:30), so only the talk log's `calledKey` keeps him unmarked.
+        XCTAssertTrue(game.talkedToday(state).contains(NightOffer.calledKey), "the night called: the talk log notes it")
+        game.advance(by: 1.0 / 60)
+        let dusk = try XCTUnwrap(game.driver?.state)
+        let balance = try XCTUnwrap(game.driver?.balance)
+        XCTAssertLessThan(dusk.hour, NightOffer.untilHour, "the dusk's first frame")
+        XCTAssertTrue(NightOffer.stands(dusk, balance: balance), "the realm's rule alone would still offer")
+        XCTAssertFalse(NightOffer.marks(dusk, balance: balance, talked: game.talkedToday(dusk)),
+                       "the night called: his mark is gone at once")
+        var seconds = 1.0 / 60
         while game.hornNight == nil && seconds < 8 {
             game.advance(by: 1.0 / 60)
             seconds += 1.0 / 60

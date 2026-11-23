@@ -28,7 +28,7 @@ FIRST MINUTES
 1. [check] On the title screen, touch the screen to begin. A new game asks for the lord's name (any name, or keep "Robin") and lord or lady; tap "Begin".
 2. [check] Touch a person or a thing and the lord walks there and does what it offers: build at a marked plot in front of the gate, talk to someone, sit on the throne in the great hall. Touch the ground or drag to walk. The strip at the top centre shows the whole realm; tap a point to travel there.
 3. The first day starts with 60 gold: a brazier, a stake pit or archers are affordable. In the great hall, sit on the throne: a petitioner's letter offers two or three choices; "Counsel" shows the chancellor's advice.
-4. At 19:00 a horn sounds and the first night begins (a few small creatures). To get there at once, open the pause menu (top left) and choose "Sound the horn". [check]
+4. At 19:00 a horn sounds and the first night begins (a few small creatures). To get there sooner, open the pause menu (top left) and choose "Sound the horn": the evening then plays out in about four seconds up to the horn. On days 1 to 3, once nothing is left to buy, Brannock (the captain, by the barracks) offers the same; touch him twice. [check]
 5. At dawn a report sums up the night, the taxes and the town's mood. "Continue" starts the next day.
 
 ADS (Google AdMob; no banners)

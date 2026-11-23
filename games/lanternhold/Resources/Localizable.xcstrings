@@ -1369,6 +1369,18 @@
         }
       }
     },
+    "Night %lld of %lld" : {
+      "comment" : "Horn banner at 19:00, second line, while the night lies inside the run: night n of the N nights the chapter asks for (polish E1b). English only for now.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Night %1$lld of %2$lld"
+          }
+        }
+      }
+    },
     "Night %lld is over" : {
       "comment" : "Dawn report subtitle.",
       "localizations" : {

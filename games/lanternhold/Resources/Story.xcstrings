@@ -2713,6 +2713,18 @@
         }
       }
     },
+    "line.hesper_far_goal" : {
+      "comment" : "Court talk: hesper. Polish E1b: the run's far goal, said on days 1-3 (marked on day 1, first among her lines; on days 2-3 after her newer lines). English only for now.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Great Beacon went dark this autumn, heir of the house. The Flame gives us twenty nights. Then the King comes."
+          }
+        }
+      }
+    },
     "line.hesper_first" : {
       "comment" : "Court talk: hesper.",
       "extractionState" : "manual",
