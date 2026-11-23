@@ -165,7 +165,14 @@ struct RootView: View {
             // The world behind the title stays still when the app comes back to the front (GameView sets it running).
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .active, !titleDone, stepBeat == nil, let model else { return }
-                Task { @MainActor in model.setActive(false) }
+                Task { @MainActor in
+                    model.setActive(false)
+                    // Polish C2 gate (M1): the hall's own scene-phase handler runs under the title too; the background
+                    // raised its lantern moment there (or the pause sheet, before its first frames). Nothing of the
+                    // game stands up under the title: the realm comes back as it was, held only by the title.
+                    model.lowerLanternMoment()
+                    model.resume()
+                }
             }
         }
     }

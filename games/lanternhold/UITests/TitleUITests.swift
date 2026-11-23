@@ -75,6 +75,40 @@ final class TitleUITests: XCTestCase {
         app.terminate()
     }
 
+    /// Polish C2 gate (M1): leaving the app while the title stands raises nothing of the game under it. The hall of a
+    /// realm that asks for no name is built under the title; its scene-phase handler raised the lantern moment there on
+    /// the background (or the pause sheet), and it then stood over the hall after the step in.
+    func testLeavingAtTheTitleRaisesNothing() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWTitle", "YES", "-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWSeed", "1"]
+        app.launch()
+        let title = app.descendants(matching: .any).matching(identifier: "title-root").firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 30), "the title stands first")
+        // The game ready, the hall's first frames drawn under the title, the picture standing.
+        RunLoop.current.run(until: Date().addingTimeInterval(6))
+        XCUIDevice.shared.press(.home)
+        RunLoop.current.run(until: Date().addingTimeInterval(2))
+        app.activate()
+        XCTAssertTrue(title.waitForExistence(timeout: 10), "the title stands again")
+        RunLoop.current.run(until: Date().addingTimeInterval(1))
+        title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
+        // One touch only: a second one landing on the hall could raise the lantern itself. Touch again only if the
+        // title still stands 3 s later (the first never reached it; the title goes 0.70 s after a touch).
+        RunLoop.current.run(until: Date().addingTimeInterval(3))
+        if title.exists { title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap() }
+        let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: title)
+        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 10), .completed, "the touch starts the game")
+        // The hall is whole at 1.30 s and a held pane comes at 1.55 s; wait past both.
+        RunLoop.current.run(until: Date().addingTimeInterval(2.5))
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "lantern-moment").firstMatch.exists,
+                       "no lantern moment raised under the title")
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "pause-sheet").firstMatch.exists,
+                       "no pause sheet set under the title")
+        attach(XCUIScreen.main.screenshot(), "00f-title-after-home-\(language)")
+        app.terminate()
+    }
+
     private func attach(_ screenshot: XCUIScreenshot, _ name: String) {
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name
