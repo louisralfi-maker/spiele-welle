@@ -1,0 +1,42 @@
+m06-a: a touch on the hall's door: he walks to it, the door, the dark, inside
+real time; as fast as the frames come (a rolling burst)
+the cause (a touch on the hall's door: he walks to it, the door, the dark, inside) was sent at +0.000 s and returned at +0.718 s; quiescence wait skipped for the cause: XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:isPreEvent: (v), XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:usingActivity:isPreEvent: (v)
+the condition held at +3.749 s (0 earlier frames dropped from the ring)
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX hallDoor+80
+
+frame  seconds since the burst began  (scene where read)
+01  +1.038 s  
+02  +1.347 s  day:3 hour:10.51 alive:0 seen:0 shots:0 kx:1884 stage:world lx:1884 gold:91 hud:none cam:1628 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+03  +1.694 s  
+04  +1.993 s  day:3 hour:10.57 alive:0 seen:0 shots:0 kx:1857 stage:world lx:1857 gold:91 hud:none cam:1619 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+05  +2.296 s  
+06  +2.539 s  day:3 hour:10.60 alive:0 seen:0 shots:0 kx:1843 stage:world lx:1843 gold:91 hud:none cam:1616 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+07  +2.880 s  
+08  +3.120 s  day:3 hour:10.65 alive:0 seen:0 shots:0 kx:1830 stage:world lx:1830 gold:91 hud:none cam:1611 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+09  +3.470 s  
+10  +3.667 s  day:3 hour:10.70 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:68 gold:91 hud:none cam:0 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none  <- the condition holds
+11  +3.956 s  
+12  +4.154 s  
+13  +4.404 s  
+14  +4.564 s  
+15  +4.727 s  
+16  +4.877 s  
+17  +5.025 s  
+18  +5.181 s  
+19  +5.357 s  
+20  +5.536 s  
+21  +5.698 s  
+22  +5.865 s  
+23  +6.034 s  
+24  +6.198 s  
+25  +6.390 s  
+26  +6.583 s  
+27  +6.754 s  
+28  +6.942 s  
+29  +7.121 s  
+30  +7.278 s  
+31  +7.438 s  
+32  +7.606 s  
+33  +7.791 s  
+34  +7.952 s  day:3 hour:11.06 alive:0 seen:0 shots:0 kx:1830 stage:hall lx:68 gold:91 hud:none cam:0 tap:touch-door-hall count:none last:none lanterns:0 yard:none drill:none
+mean spacing 0.210 s over 33 gaps

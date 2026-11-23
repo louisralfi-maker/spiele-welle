@@ -1,0 +1,26 @@
+p04-g: taps on the dim left of the sheet (x 0.16): it stays, Resume's line glints (0.15 s up, 0.10 s down) after each
+real time; 3 frames after each tap as fast as they come, then 2 more
+tap 1 at +0.000 s: sent without waiting
+tap 2 at +0.587 s: sent without waiting
+tap 3 at +1.222 s: sent without waiting
+tap 4 at +1.829 s: sent without waiting
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWWeather clear
+scene after: frame:600 ready day:2 hour:9.69 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:none cam:1128 tap:moment hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none drill:none
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the first tap
+01  +0.238 s  first frame after tap 1
+02  +0.419 s  
+03  +0.587 s  
+04  +0.814 s  first frame after tap 2
+05  +1.054 s  
+06  +1.222 s  
+07  +1.505 s  first frame after tap 3
+08  +1.671 s  
+09  +1.829 s  
+10  +2.087 s  first frame after tap 4
+11  +2.246 s  
+12  +2.478 s  
+13  +2.615 s  
+14  +2.755 s  
+mean spacing 0.194 s over 13 gaps
