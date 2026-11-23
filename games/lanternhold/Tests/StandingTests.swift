@@ -61,8 +61,11 @@ final class StandingTests: XCTestCase {
                                   options: opts, animTime: 1.5, effects: effects).props
     }
 
+    /// The dust's motes in a frame (the standing's flakes: tinted above 1).
     private func shards(_ s: GameState, effects: BattleEffects, focus: Double) -> [ActorInstance] {
-        GameFrameSupport.frame(s, focus: focus, effects: effects).layer.actors.filter { $0.sprite == .shard }
+        GameFrameSupport.frame(s, focus: focus, effects: effects).layer.actors.filter {
+            $0.sprite == .sootFlake && $0.tint.x > 1
+        }
     }
 
     // MARK: - Part 1: the old picture, the swap, the settle
@@ -144,8 +147,8 @@ final class StandingTests: XCTestCase {
 
     // MARK: - The dust
 
-    /// The dust starts at the event at the work's foot over its whole width (the broken wall's shards and colour),
-    /// is fullest at the swap (every particle in, at full alpha, risen 2 to 9 px over the foot), then thins and is gone
+    /// The dust starts at the event at the work's foot over its whole width (the existing grey flakes tinted to pale
+    /// stone dust: the broken wall's soot shards did not read on the day's ground), is fullest at the swap (every particle in, at full alpha, risen 2 to 9 px over the foot), then thins and is gone
     /// by 1.1 s. Its own kind (`standDust`); the broken wall's dust stays as it was.
     func testTheDustRisesOverTheWorksWidthAndPeaksAtTheSwap() throws {
         let plot = Realm.lines[1].wall
@@ -174,9 +177,9 @@ final class StandingTests: XCTestCase {
         XCTAssertEqual(peak.count, count)
         XCTAssertTrue(peak.allSatisfy { $0.tint.w == 1 }, "fullest at the swap")
         XCTAssertTrue(lifts(peak).allSatisfy { $0 >= 2 * scale && $0 <= 9 * scale }, "risen over the foot: \(lifts(peak))")
-        let left = camera.deviceX(worldX: dust.x - 18 - 1, scale: scale, mode: .smooth)
-        let right = camera.deviceX(worldX: dust.x + 18 + 1, scale: scale, mode: .smooth)
-        let anchors = peak.map { Int($0.rect.x) + 2 * scale }
+        let left = camera.deviceX(worldX: dust.x - 18 - 2, scale: scale, mode: .smooth)
+        let right = camera.deviceX(worldX: dust.x + 18 + 2, scale: scale, mode: .smooth)
+        let anchors = peak.map { Int($0.rect.x + $0.rect.z / 2) }
         XCTAssertTrue(anchors.allSatisfy { $0 >= left && $0 <= right }, "over the work's width")
         XCTAssertGreaterThan((anchors.max() ?? 0) - (anchors.min() ?? 0), 20 * scale, "spread over it, not a puff")
         run(&effects, to: 0.6, state: after)

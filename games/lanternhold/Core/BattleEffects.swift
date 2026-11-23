@@ -248,10 +248,14 @@ extension BattleEffects {
     static let keepDustWidth = 120.0
     static let keepDustY = 70.0
 
-    /// The dust's particles for a work `width` wide: one per 5 px, 6 to 12 (two works at once fit the frame's 24).
+    /// The dust's motes for a work `width` wide: one per 3 px, 8 to 12 (two works at once fit the frame's 24).
     static func standDustCount(width: Double) -> Int {
-        min(12, max(6, Int((width / 5).rounded())))
+        min(12, max(8, Int((width / 3).rounded())))
     }
+
+    /// The flakes' grey (0x5E6170) times this is a pale warm stone dust (about 0xB4AAA0); every mote 0.85 to 1.15 of
+    /// it. Above 1, so the drawing tells the dust's flakes from the small ones' soot (`EntityFrames.effectParticles`).
+    static let standDustTint = SIMD3<Float>(1.92, 1.76, 1.43)
 
     /// One frame of the buildings' finishes (`GameModel.advanceGame`, every frame, before the frame is drawn): the
     /// standings' clock runs on by `seconds` (the driver's seconds), every `buildDone` of the frame's `events` gets

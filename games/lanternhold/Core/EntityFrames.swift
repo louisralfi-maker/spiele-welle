@@ -1683,7 +1683,9 @@ enum EntityFrames {
             // b3-horde step 4 (the director's first law): the fall's flakes take the small ones' cap and veil, grey
             // soot by the fires, never cream sparks
             var cap: Float = 0
-            if sprite == .sootFlake {
+            // (polish A2: the standing's dust motes are flakes tinted brighter than painted, `standDustTint`; they are
+            // stone dust in the day's light, not the small ones' soot, so they keep the world's cap and no veil)
+            if sprite == .sootFlake && tint.x <= 1 {
                 let veil = HordeLook.veil(x: x, bankEdge: s.bankEdge)
                 cap = look == .two ? HordeLook.pack(cap: HordeLook.litCap, veil: veil) : HordeLook.litCap
             }
@@ -1832,10 +1834,12 @@ enum EntityFrames {
                     add(.shard, k % 2, x, y, side < 0, SIMD4<Float>(0.8, 0.76, 0.72, 1), false, true)
                 }
             case .standDust:
-                // Step A2: the broken wall's dust particles (the same shards, the same colour), spread over the work's
-                // whole width at its foot from the event; they rise (eased out) to their fullest at the swap, 0.12 s,
-                // covering the foot as the new sprite stands, then drift outward and up and thin to nothing by 1.1 s.
-                // The keep's dust stands on the mistBand plane: placed with the camera as that plane moves.
+                // Step A2: dust motes spread over the work's whole width at its foot from the event; they rise (eased
+                // out) to their fullest at the swap, 0.12 s, over the foot as the new sprite stands, then drift outward
+                // and up and thin to nothing by 1.1 s. The broken wall's shards are soot-black: on round lh-ra-10's film
+                // they did not read at all on the day's ground, so the motes are the existing grey flakes
+                // (`SpriteID.sootFlake`, no new art) tinted to pale stone dust (`BattleEffects.standDustTint`, a shade
+                // each). The keep's dust stands on the mistBand plane: placed with the camera as that plane moves.
                 let seconds = max(0, effects.standClock - effect.start)
                 let peak = BattleEffects.standSwap
                 let rise = Motion.enter(min(1, seconds / peak))
@@ -1848,8 +1852,10 @@ enum EntityFrames {
                     let side = (Double(k) + unit(k, 5)) / Double(count) - 0.5
                     let x = centre + side * effect.width + (side < 0 ? -1 : 1) * after * (6 + 8 * unit(k, 7))
                     let y = effect.y + rise * (2 + 7 * unit(k, 6)) + after * (2 + 5 * unit(k, 8))
-                    add(.shard, k % 2, x.rounded(), y.rounded(), side < 0, SIMD4<Float>(0.8, 0.76, 0.72, thin), false,
-                        true)
+                    let shade = Float(0.85 + 0.3 * unit(k, 10))
+                    let tint = BattleEffects.standDustTint * shade
+                    add(.sootFlake, Int(unit(k, 9) * Double(HordeLook.flakeShapes)) % HordeLook.flakeShapes,
+                        x.rounded(), y.rounded(), side < 0, SIMD4<Float>(tint.x, tint.y, tint.z, thin), false, true)
                 }
             case .fall:
                 // b3-horde: the fall strip and its orphan thread are drawn with the creatures; here the puff. Step 3
