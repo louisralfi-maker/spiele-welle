@@ -1,0 +1,1 @@
+scene: frame:280 ready day:1 hour:8.41 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1180 lord:lord stage:world lx:1180 errand:none door:1830 gold:44 hud:none cam:970 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none drill:none kv:0.00 kxf:1180.00 kf:6 kd:1 kcx:969.53
