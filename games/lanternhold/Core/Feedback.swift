@@ -120,6 +120,9 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     case buildStood, manFell, dawnHeld, dawnToll
     // Polish step D1: a wall falls below half (`SoundWatch`, once a wall and night; positional)
     case wallCracked
+    // Polish step D2 (F17): Silas lights a street lamp (`SoundWatch` sees it in the town's lamps by the hour;
+    // positional, heard one screen far)
+    case lampLit
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").
@@ -130,6 +133,8 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
         case .hit, .manHit: return true
         // D1: a man's fall and a wall's crack are heard from where they happen, panned, and fade over a wide reach.
         case .manFell, .wallCracked: return true
+        // D2: a street lamp taking the flame is heard from its post, panned.
+        case .lampLit: return true
         default: return false
         }
     }
@@ -149,6 +154,8 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
         // D1: a step 3 loss carries about two screens (a screen is about 440 px): from the courtyard and the hall's
         // door over the walls (640 ... 1300), faded out by 1350 px.
         case .manFell, .wallCracked: return 900
+        // D2 (F17): a lamp lit is heard one screen far (about 440 px), faded out by 660 px.
+        case .lampLit: return 440
         default: return .infinity
         }
     }
@@ -169,7 +176,7 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
         case .wallHit: return 0.3
         case .creatureHit, .hit, .manHit: return 0.35
         case .wallCracked: return 0.3
-        case .gate: return 0.5
+        case .gate, .lampLit: return 0.5
         default: return 0
         }
     }
@@ -221,7 +228,7 @@ struct FeedbackThinner: Sendable, Equatable {
         switch cue {
         case .defeat, .kingSlain, .beaconLit, .horn, .firstLight, .taxesCounted: return 0
         case .wallBroken, .soldierFell, .kingAuraBroken, .hearthHit, .stomp, .gate, .manFell, .wallCracked: return 1
-        case .buildOrdered, .buildDone, .recruited, .patched, .brazierLit, .coin, .paid, .buildStood: return 2
+        case .buildOrdered, .buildDone, .recruited, .patched, .brazierLit, .coin, .paid, .buildStood, .lampLit: return 2
         case .ballista, .catapult, .glancedOff, .wallHit: return 3
         default: return 4
         }

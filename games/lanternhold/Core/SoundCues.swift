@@ -246,6 +246,9 @@ extension FeedbackCue {
         case .wallCracked: return SoundPlay(id: .wallCrack, volume: 0.95)
         // D2 0g: a held night rings the bell as made (law 4's "r 0.9" is too close to matter); a lost one tolls its own
         // file, the bell rendered low and damped (law 4's "bell at rate 0.55" meant a lower bell), at -15.0 dBFS.
+        // D2 part 5 (F17): Silas lights a street lamp: the lantern rendered 1.45 higher and shorter (law 4's "lantern
+        // 0.35 r 1.45"), at 0.5 for law 4's step 2 (-19.5 dBFS; the law's 0.35 gives -22.6, under the step's band).
+        case .lampLit: return SoundPlay(id: .lanternHigh, volume: 0.5)
         case .dawnHeld: return SoundPlay(id: .bell, volume: 0.5)
         case .dawnToll: return SoundPlay(id: .toll, volume: 0.65)
         }
@@ -319,8 +322,8 @@ extension FeedbackCue {
         // D2 0f: the ground tap and the step are law 4's step 1 too (they sit 3 dB over every bed).
         case .touched, .step: return .touch
         case .hit, .manHit, .dawnGate: return .deed
-        // D2 part 3: a coin coming in is law 4's step 2 (a coin of the count or the taxes).
-        case .coin: return .deed
+        // D2 part 3: a coin coming in is law 4's step 2 (a coin of the count or the taxes); part 5: a lamp lit.
+        case .coin, .lampLit: return .deed
         case .arrowHit, .wallHit, .creatureDissolved: return .deed
         case .buildStood, .manFell, .dawnHeld, .dawnToll: return .triumph
         // D2 part 1: the simulation's `buildDone` answers as `buildStood` (step 3: never randomised, the beds x 0.7 for
@@ -1050,8 +1053,8 @@ struct AmbienceMix: Sendable, Equatable {
 
 /// Reads sound cues off the realm's state from frame to frame (DESIGN.md "Sound and haptics"): gold won (a coin) or
 /// paid, a wall or palisade hit (and cracked below half, once a wall and night), a creature hit (and the arrow or
-/// bolt that hit it), a soldier hit and a soldier fallen (each at his place), the gate shutting at nightfall, the
-/// lord's steps while he walks. It only looks at the state the simulation made; the simulation never reads it.
+/// bolt that hit it), a soldier hit and a soldier fallen (each at his place), the gate shutting at nightfall, a street
+/// lamp lit by Silas (D2, at its post), the lord's steps while he walks. It only looks at the state the simulation made; the simulation never reads it.
 ///
 /// Polish step D1: the blows play the cue contract's cues with their x, `hit` (a creature), `manHit` (a soldier) and
 /// `manFell` (a soldier gone with a new name on tonight's fallen), so the old `creatureHit` and the simulation's
@@ -1145,6 +1148,15 @@ struct SoundWatch: Sendable, Equatable {
             }
         }
         if s.day == day && hour < 20 && s.hour >= 20 { found.append((.gate, nil)) }
+        // D2 (F17): Silas lights a street lamp at the hour the town's lamps say (`TownLamps.litHour`), when anyone
+        // lights them (no unrest, a fire in the hearth), at its glass.
+        if s.day == day && hour < s.hour,
+           TownLamps.works(s, hearth: s.hearth / max(1, balance.hearthStrength)) {
+            for (index, post) in TownLamps.posts.enumerated() {
+                guard let lit = TownLamps.litHour(index), hour < lit, s.hour >= lit else { continue }
+                found.append((.lampLit, TownLamps.glassX(post)))
+            }
+        }
         let dx = abs(s.king.x - kingX)
         if moving && dx > 0 && dx < SoundWatch.jump {
             let stride = abs(s.king.velocity) > (balance.kingWalkSpeed + balance.kingRunSpeed) / 2

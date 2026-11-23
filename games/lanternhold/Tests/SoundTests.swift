@@ -228,6 +228,48 @@ final class SoundTests: XCTestCase {
         XCTAssertEqual(FeedbackCue.wallCracked.answerSize, .triumph)
     }
 
+    /// Polish D2 part 5 (F17): Silas lights a street lamp: the watch hears it at the hour the town's lamps say, at the
+    /// lamp's glass, once; never in unrest or with the hearth out; heard one screen far through the thinner.
+    func testTheWatchHearsALampLit() throws {
+        let first = try XCTUnwrap(TownLamps.litHour(0), "a lamp is lit in the evening")
+        let glass = TownLamps.glassX(try XCTUnwrap(TownLamps.posts.first))
+        var watch = SoundWatch()
+        var s = GameState.newRealm(seed: 3)
+        s.happiness = 50
+        s.hour = first - 0.05
+        _ = watch.cues(s, balance: .standard, moving: false)
+        s.hour = first + 0.01
+        let lit = watch.cues(s, balance: .standard, moving: false).filter { $0.cue == .lampLit }
+        XCTAssertEqual(lit.count, 1)
+        XCTAssertEqual(lit.first?.x, glass)
+        s.hour = first + 0.02
+        XCTAssertTrue(watch.cues(s, balance: .standard, moving: false).filter { $0.cue == .lampLit }.isEmpty, "once")
+        var unrest = SoundWatch()
+        var u = GameState.newRealm(seed: 3)
+        u.happiness = 5
+        u.hour = first - 0.05
+        _ = unrest.cues(u, balance: .standard, moving: false)
+        u.hour = first + 0.01
+        XCTAssertTrue(unrest.cues(u, balance: .standard, moving: false).filter { $0.cue == .lampLit }.isEmpty,
+                      "nobody lights them in unrest")
+        var dark = SoundWatch()
+        var d = GameState.newRealm(seed: 3)
+        d.happiness = 50
+        d.hearth = 0
+        d.hour = first - 0.05
+        _ = dark.cues(d, balance: .standard, moving: false)
+        d.hour = first + 0.01
+        XCTAssertTrue(dark.cues(d, balance: .standard, moving: false).filter { $0.cue == .lampLit }.isEmpty,
+                      "nothing to light them with")
+        XCTAssertTrue(FeedbackCue.lampLit.isPositional)
+        XCTAssertEqual(FeedbackCue.lampLit.hearing, 440)
+        XCTAssertEqual(FeedbackCue.lampLit.sound, SoundPlay(id: .lanternHigh, volume: 0.5))
+        XCTAssertNil(FeedbackCue.lampLit.haptic)
+        var thinner = FeedbackThinner()
+        XCTAssertEqual(thinner.cues(for: [], extra: lit, time: 1, listenerX: glass - 300), [.lampLit], "near: heard")
+        XCTAssertEqual(thinner.cues(for: [], extra: lit, time: 2, listenerX: glass - 700), [], "two screens off: not")
+    }
+
     func testTheGateShutsAtNightfall() {
         var watch = SoundWatch()
         var s = GameState.newRealm(seed: 3)
