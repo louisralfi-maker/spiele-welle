@@ -333,6 +333,9 @@ final class AdDirectorTests: XCTestCase {
         XCTAssertEqual(GameModel.secondChanceGap, AdPacing.secondChanceGap, "the defeat card reads the same rule")
         ads.takeSecondChance()
         XCTAssertEqual(stub.rewardedShown, 1)
+        // LANE-E: E2 (the dawn's card comes 0.6 s after the gate stands open: `GameModel.dawnCardDelay`)
+        for _ in 0..<3 { game.advance(by: 0.25) }
+        // LANE-E end
         guard case .report(let dawn)? = game.overlay else { return XCTFail("the dawn's report follows") }
         XCTAssertFalse(dawn.held, "the report says a second chance brought the dawn")
         XCTAssertEqual(game.adPacing.lastSecondChanceNight, info.night)

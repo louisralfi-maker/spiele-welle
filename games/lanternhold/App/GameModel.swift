@@ -83,6 +83,13 @@ final class GameModel {
     nonisolated static let nightLead = 60.0
     /// The horn banner shows this many real seconds.
     static let hornBannerSeconds = 3.6
+    /// Polish E2 (ROUND.md law 3.6): the dawn card comes this many real seconds (the model's clock, not game time)
+    /// after the gate stands open (`gateStandsOpenAt`), so the open gate is seen first. The same under Reduce Motion:
+    /// it is a wait, not a motion.
+    static let dawnCardDelay = 0.6
+    /// Polish E2 (the audit's F6, law 4 step 3): a night that cost lives tolls once per fallen man, at most
+    /// `DawnVerdict.maxTolls`, this far apart (the hub lets one toll through per 0.9 s once D2's toll plays).
+    static let dawnTollGap = 1.0
     /// A second chance once per five nights in the chapter, once per ten in endless (DESIGN.md "Losing a night"; the
     /// rule is `AdPacing.secondChanceFrom`).
     static let secondChanceGap = AdPacing.secondChanceGap
@@ -140,6 +147,11 @@ final class GameModel {
     /// The last drawn frame's rain (0 ... 1, look 2's `Weather`): the rain loop follows it.
     @ObservationIgnored private var lastRain = 0.0
     @ObservationIgnored private var hornUntil = 0.0
+    /// Polish E2 (law 3.6): the dawn card waiting for the open gate, and when it comes (the model's real clock,
+    /// `clock.elapsed`); the verdict's tolls still to ring under the card (their times on the same clock). UI state,
+    /// never saved.
+    @ObservationIgnored private var dawnCardDue: (report: DawnReport, at: Double)?
+    @ObservationIgnored private var dawnTollsDue: [Double] = []
     /// The feedback hub: silent in tests and UI test launches; the app installs `SoundDirector` (`installFeedback`).
     @ObservationIgnored var feedback: any FeedbackHub = SilentFeedback()
     /// Creature bodies in the last drawn frame (the scene value's `seen:`, so UI tests catch the fight in view).
@@ -345,6 +357,8 @@ final class GameModel {
         }
         // Panels lane: a realm saved at the finale's dawn that never chose how to go on gets its ending again.
         resumeChapterEndAtLaunch()
+        // Polish E2: a realm saved at its dawn gets that dawn's card again (the save is the dawn snapshot).
+        resumeDawnCardAtLaunch()
         // The lantern moment (stage-3-interface): the purse and the notes start from the realm as it is.
         resetLanternHUD()
         refreshHUD()
@@ -402,6 +416,9 @@ final class GameModel {
         // Build 3 (PAY.md 4): the background cuts a count off; it pays nothing.
         cutCount()
         guard kind == .world, overlay == nil, !isShowcase, driver?.state.defeated == false else { return }
+        // Polish E2: the dawn card's wait holds the world already; it goes on when the app comes back (the model's
+        // clock does not run in the background) and the card comes.
+        guard !dawnCardWaits else { return }
         // Build 2 review, core-state-3 and app-ui-4: the slides already hold the world and come back as they were; a
         // lantern moment raised behind them would stand over a running world once they end.
         guard !slides.coversWorld else { return }
@@ -473,6 +490,8 @@ final class GameModel {
             playCues([], extra: heard, state: game.state)
         }
         feedback.ambience(ambienceMix(game.state, balance: game.balance))
+        // Polish E2: the dawn card after its wait, and the verdict's tolls under it (real seconds, the world held).
+        stepDawnCard()
         // Under a card the camera still settles on the king (the audience seats him on the throne).
         if stepped == 0, game.isPaused, var follow = camera {
             follow.frame(CameraFraming.input(game.state, camera: follow, moving: false), dt: seconds,
@@ -526,8 +545,12 @@ final class GameModel {
             switch event {
             case .dawn:
                 writeSave()
+                // Polish E2 (F6): the gate opens at this dawn, so its cue plays here, once. Lane A's step A5 (the
+                // portcullis slides up) moves this call onto its motion.
+                feedback.play(.dawnGate)
+                // Polish E2 (law 3.6): the card waits until 0.6 s after the gate stands open (`awaitDawnCard`).
                 if let report = state.lastReport, overlay != .defeat {
-                    setOverlay(.report(report))
+                    awaitDawnCard(report)
                 }
             case .defeat:
                 setOverlay(.defeat)
@@ -647,7 +670,8 @@ final class GameModel {
     /// autoplay and a walk the realm strip started. In the game it sets the simulation's king intent.
     func setDrag(offset: Double?) {
         if kind == .world {
-            guard overlay == nil else { return }
+            // Polish E2: no drag walks him while the dawn card waits (the input is closed as under the card).
+            guard overlay == nil, !dawnCardWaits else { return }
             // The hall stage: inside, the drag walks the lord in the hall.
             if stage == .hall || stageChange != nil {
                 hallDrag(offset: offset)
@@ -680,7 +704,7 @@ final class GameModel {
 
     /// Does what `target` offers, where the lord stands (touch the world: when he arrives at the thing).
     func perform(_ target: KingTarget) {
-        guard kind == .world, var game = driver, overlay == nil else { return }
+        guard kind == .world, var game = driver, overlay == nil, !dawnCardWaits else { return }
         switch target {
         case .build(let plot):
             let anchor = KingTargets.anchorX(target, state: game.state, balance: game.balance)
@@ -728,7 +752,7 @@ final class GameModel {
 
     /// A tap on the realm strip at `fraction` of its width: the king runs there (DESIGN.md "Controls").
     func travel(toFraction fraction: Double) {
-        guard kind == .world, overlay == nil, driver != nil else { return }
+        guard kind == .world, overlay == nil, !dawnCardWaits, driver != nil else { return }
         cancelErrand()
         // The hall stage: from inside, the lord goes out by the door and on to that point.
         if stage == .hall {
@@ -738,6 +762,81 @@ final class GameModel {
         }
         driver?.travel(to: RealmStrip.worldX(fraction: fraction))
         refreshHUD()
+    }
+
+    // MARK: - Polish E2: the dawn card waits for the open gate (ROUND.md thing 10, law 3.6)
+
+    /// True while the dawn card waits for the open gate: the world stands still as under the card and no touch is
+    /// taken (the first thing that takes a touch after the night is the card).
+    var dawnCardWaits: Bool { dawnCardDue != nil }
+
+    /// `-GWReportSample <name>` with `-GWScreen report`: one of the step's proof samples (Debug builds only).
+    static var proofReport: DawnReport? {
+        #if DEBUG
+        return UserDefaults.standard.string(forKey: "GWReportSample").flatMap { ReportCard.proofSample($0) }
+        #else
+        return nil
+        #endif
+    }
+
+    /// The moment the gate stands open at this dawn, on the model's real clock (`clock.elapsed`; `dawnAt` is the clock
+    /// in the frame of `.dawn`). The one place lane A's step A5 (the portcullis slides up) changes: until then the
+    /// gate is open in the frame of `.dawn` itself.
+    func gateStandsOpenAt(dawnAt: Double) -> Double {
+        dawnAt
+    }
+
+    /// The dawn came: the world stands still as under the card (the realm's clock holds; the wall-time picture lives
+    /// on), the finger and a count are let go, a bubble closes, and the card comes `dawnCardDelay` after the gate
+    /// stands open (`stepDawnCard`).
+    func awaitDawnCard(_ report: DawnReport) {
+        dawnCardDue = (report: report, at: gateStandsOpenAt(dawnAt: clock.elapsed) + GameModel.dawnCardDelay)
+        cutCount()
+        resetTouch()
+        closeTalk()
+        if lanternMoment != nil { lanternMoment = nil }
+        driver?.setDrag(offset: nil)
+        driver?.isPaused = worldHeld
+        refreshHUD()
+    }
+
+    /// Each frame: the waiting card comes when its time is up; under the card the tolls still due ring on time.
+    private func stepDawnCard() {
+        let now = clock.elapsed
+        if let due = dawnCardDue, now >= due.at - 1e-9 {
+            dawnCardDue = nil
+            if overlay != .defeat { landDawnCard(due.report) } else { driver?.isPaused = worldHeld }
+        }
+        guard !dawnTollsDue.isEmpty else { return }
+        guard case .report? = overlay else {
+            dawnTollsDue.removeAll()
+            return
+        }
+        while let next = dawnTollsDue.first, now >= next - 1e-9 {
+            dawnTollsDue.removeFirst()
+            feedback.play(.dawnToll)
+        }
+    }
+
+    /// The card lands, and with it the night's verdict for ear and hand (the cues' haptics come through the hub): a
+    /// night nobody fell plays `dawnHeld` once; one with fallen tolls once per fallen man (the soldiers the report
+    /// names), at most `DawnVerdict.maxTolls`, `dawnTollGap` apart, and no `dawnHeld`.
+    private func landDawnCard(_ report: DawnReport) {
+        setOverlay(.report(report))
+        let fallen = report.fallen.count
+        feedback.play(DawnVerdict.cue(fallen: fallen))
+        let tolls = fallen > 0 ? min(DawnVerdict.maxTolls, fallen) : 0
+        dawnTollsDue = tolls > 1 ? (1..<tolls).map { clock.elapsed + Double($0) * GameModel.dawnTollGap } : []
+    }
+
+    /// A launch on a realm saved at its dawn (the save always holds the dawn snapshot) brings that dawn's card again,
+    /// after the same wait; a launch with debug arguments, a realm that fell, the name entry and the finale's ending
+    /// (`resumeChapterEndAtLaunch`) do not.
+    private func resumeDawnCardAtLaunch() {
+        guard kind == .world, !args.hasArguments, overlay == nil, !slides.coversWorld, let state = driver?.state,
+              !state.defeated, let report = state.lastReport, report.day == state.day,
+              abs(state.hour - ClockEvent.dawnReport.hour) < 0.05 else { return }
+        awaitDawnCard(report)
     }
 
     // MARK: - The screens (DESIGN.md "Screens")
@@ -753,6 +852,8 @@ final class GameModel {
         // The lantern moment (stage-3-interface) goes down under any card.
         if next != nil && lanternMoment != nil { lanternMoment = nil }
         if overlay != next { overlay = next }
+        // Polish E2: the verdict's tolls that have not rung stop when the card is closed.
+        if case .report? = next {} else { dawnTollsDue.removeAll() }
         driver?.isPaused = worldHeld
         if next != nil { driver?.setDrag(offset: nil) }
         refreshHUD()
@@ -875,7 +976,9 @@ final class GameModel {
 
     var reportCard: ReportCard? {
         guard case .report(let report)? = overlay else { return nil }
-        return ReportCard.make(report, flags: driver?.state.flags ?? [])
+        // Polish E2: today's ledger (the doors that owe) and the creatures' first nights (the line forward).
+        return ReportCard.make(report, flags: driver?.state.flags ?? [], today: driver?.state.town?.today,
+                               balance: driver?.balance ?? .standard)
     }
 
     /// The dawn report's Continue: the day begins (after the ads' gate, `adGate`: an interstitial may come first, over
@@ -936,7 +1039,9 @@ final class GameModel {
     }
 
     func openPause() {
-        guard kind == .world, overlay == nil || overlay?.isCard == true || overlay == .audience else { return }
+        guard kind == .world, overlay == nil || overlay?.isCard == true || overlay == .audience, !dawnCardWaits else {
+            return
+        }
         if overlay == .audience { leaveAudience(feedbackCue: false) }
         setOverlay(.pause)
     }
@@ -1047,6 +1152,9 @@ final class GameModel {
         shake = ScreenShake()
         watch.reset()
         hornNight = nil
+        // Polish E2: a jump in time ends a dawn card's wait and its tolls (the jump brings its own screen).
+        dawnCardDue = nil
+        dawnTollsDue.removeAll()
         closeTalk()
         talkLog = TalkLog()
         audience = nil
@@ -1062,7 +1170,8 @@ final class GameModel {
         guard kind == .world, var game = driver else { return }
         switch args.screen {
         case .report?:
-            setOverlay(.report(ReportCard.sampleReport()))
+            // Polish E2's proof stills: `-GWReportSample <name>` (`ReportCard.proofSample`, Debug builds).
+            setOverlay(.report(GameModel.proofReport ?? ReportCard.sampleReport()))
         case .finale?:
             // The sample's dawn quotes a speech (M3 fix, U1): the first one unless the realm brought its own.
             if Remembered.speechKey(flags: game.state.flags) == nil {
@@ -1443,6 +1552,8 @@ final class GameModel {
         if let front = dawnFront {
             text += " dawn:\(String(format: "%.2f", front))"
         }
+        // Polish E2: the dawn card waits for the open gate.
+        if dawnCardWaits { text += " card:waits" }
         // The hall stage: which stage shows, and inside the lord's place in the hall.
         text += " stage:\(stage.rawValue)"
         if stage == .hall, let walker = hall?.walker {

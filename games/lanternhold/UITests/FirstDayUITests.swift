@@ -169,7 +169,13 @@ final class FirstDayUITests: XCTestCase {
         XCTAssertTrue(report.waitForExistence(timeout: 150), "the dawn report opens")
         pause(0.6)
         attach(XCUIScreen.main.screenshot(), "45-report-\(language)")
-        XCTAssertTrue(app.staticTexts["16"].exists, "the first dawn's taxes: the chandler's 16 coins")
+        // LANE-E: E2 (R3: the row says what is owed today; yesterday's 16 coins moved into its detail)
+        let yesterday = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS %@", "Yesterday: 16")).firstMatch
+        XCTAssertTrue(yesterday.exists, "the first dawn's yesterday: the chandler's 16 coins")
+        XCTAssertTrue(element(app, "report-owed").exists, "the row Owed today")
+        note("45-report-owed", element(app, "report-owed").exists ? element(app, "report-owed").label : "no row")
+        // LANE-E end
         let proceed = element(app, "report-continue")
         checkTarget(proceed, "continue")
         proceed.tap()
@@ -250,6 +256,59 @@ final class FirstDayUITests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    // LANE-E: E2 (the dawn card's proof stills: a held night with the hounds' line, the giant's line with two and with
+    // four fallen, the houses full, nothing owed, and the longest line at the small phone and at 6.1 inch)
+    /// Polish E2: the dawn card's samples (`-GWReportSample`, `ReportCard.proofSample`) over a realm of the same day;
+    /// `-GWReportFrame` lays the card out as on the small phone (iPhone SE, 667 x 375 pt), at 6.1 inch with its safe
+    /// area (iPhone 12 to 14, 750 x 369 pt) or on the mini (712 x 354 pt), its edge drawn red. Saves `46b` ...
+    /// `46l-report-<what>-<lang>`.
+    func testReportStills() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let shots: [(name: String, sample: String?, day: String, frame: String?, forward: String?)] = [
+            ("46b-report-held", "held", "3", nil, "Hounds come soon"),
+            ("46c-report-giant", "giant", "10", nil, "Something big tonight"),
+            ("46d-report-houses", "houses", "4", nil, "Houses full"),
+            ("46e-report-nothing-owed", "unrest", "6", nil, nil),
+            ("46f-report-giant-small", "giant", "10", "667x375", "Something big tonight"),
+            ("46g-report-giant-61", "giant", "10", "750x369", "Something big tonight"),
+            ("46h-report-sample-small", nil, "8", "667x375", nil),
+            ("46i-report-giant-many", "giantmany", "10", nil, "Something big tonight"),
+            ("46j-report-held-small", "held", "3", "667x375", "Hounds come soon"),
+            ("46k-report-held-61", "held", "3", "750x369", "Hounds come soon"),
+            ("46l-report-giant-mini", "giant", "10", "712x354", "Something big tonight"),
+        ]
+        for shot in shots {
+            let app = XCUIApplication()
+            var arguments = ["-GWScreen", "report", "-GWDay", shot.day, "-GWCameraX", "1100"]
+            if let sample = shot.sample { arguments += ["-GWReportSample", sample] }
+            if let frame = shot.frame { arguments += ["-GWReportFrame", frame] }
+            app.launchArguments = arguments
+            app.launch()
+            guard waitUntilReady(app, name: shot.name) else {
+                app.terminate()
+                continue
+            }
+            XCTAssertTrue(element(app, "report-root").waitForExistence(timeout: 10), "\(shot.name): the card")
+            let owed = element(app, "report-owed")
+            XCTAssertTrue(owed.exists, "\(shot.name): the row Owed today")
+            let forward = element(app, "report-forward")
+            if let words = shot.forward {
+                XCTAssertTrue(forward.exists && forward.label.contains(words), "\(shot.name): the line forward")
+            } else if shot.sample != nil {
+                XCTAssertFalse(forward.exists, "\(shot.name): no line forward")
+            }
+            if shot.sample == "unrest" {
+                XCTAssertTrue(owed.label.contains("None"), "nothing owed reads None: \(owed.label)")
+            }
+            checkTarget(element(app, "report-continue"), "continue")
+            pause(0.6)
+            note(shot.name, "owed: \(owed.exists ? owed.label : "-") | forward: \(forward.exists ? forward.label : "-")")
+            attach(XCUIScreen.main.screenshot(), "\(shot.name)-\(language)")
+            app.terminate()
+        }
+    }
+    // LANE-E end
 
     private func waitUntilReady(_ app: XCUIApplication, name: String) -> Bool {
         let scene = element(app, "world-scene")

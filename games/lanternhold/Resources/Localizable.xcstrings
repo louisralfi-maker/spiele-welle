@@ -114,6 +114,18 @@
         }
       }
     },
+    "%lld doors" : {
+      "comment" : "Dawn report, the Owed today row's detail: how many of the town's places owe gold today (polish E2). English only for now.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld doors"
+          }
+        }
+      }
+    },
     "%lld gold" : {
       "comment" : "Touch the world: what a thing costs (VoiceOver value).",
       "localizations" : {
@@ -291,6 +303,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "+%lld Zufriedenheit jeden Morgen"
+          }
+        }
+      }
+    },
+    "1 door" : {
+      "comment" : "Dawn report, the Owed today row's detail: one place owes gold today (polish E2). English only for now.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 door"
           }
         }
       }
@@ -1593,6 +1617,18 @@
         }
       }
     },
+    "Owed today" : {
+      "comment" : "Dawn report row: the gold the town's doors owe today, collected on foot (polish E2; the row was Taxes). English only for now.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Owed today"
+          }
+        }
+      }
+    },
     "Palisade" : {
       "comment" : "Build item.",
       "localizations" : {
@@ -2713,6 +2749,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wird nicht vergessen"
+          }
+        }
+      }
+    },
+    "Yesterday: %lld" : {
+      "comment" : "Dawn report, the Owed today row's detail: the gold that reached the purse yesterday (polish E2). English only for now.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday: %lld"
           }
         }
       }
