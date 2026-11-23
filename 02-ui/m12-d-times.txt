@@ -1,0 +1,29 @@
+m12-d: Continue on a real dawn without the video: the stub's interstitial (it ends at once), the day
+real time; as fast as the frames come
+the tap was sent without waiting at +0.280 s (point 92.3, 671.0; interface orientation 3 (the app's)); the runner answered at +0.568 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWAdStub YES -GWNight 8 -GWBuild demo -GWHour 5.6 -GWCameraX 1100
+scene after: frame:550 ready day:9 hour:6.42 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1100 lord:lord stage:world lx:1100 errand:none door:1830 gold:34 hud:strip cam:882 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:collector drill:none kv:0.00 kxf:1100.00 kf:7 kd:-1 kcx:881.50
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.441 s  
+02  +0.633 s  
+03  +0.853 s  
+04  +1.045 s  
+05  +1.254 s  
+06  +1.465 s  
+07  +1.822 s  
+08  +2.176 s  
+09  +2.475 s  
+10  +2.801 s  
+11  +3.122 s  
+12  +3.701 s  
+13  +3.875 s  
+14  +4.081 s  
+15  +4.253 s  
+16  +4.461 s  
+17  +4.674 s  
+18  +4.846 s  
+19  +5.019 s  
+20  +5.207 s  
+mean spacing 0.251 s over 19 gaps
