@@ -21,8 +21,11 @@ final class FilmOpeningUITests: XCTestCase {
     func testM01TheFirstSeconds() {
         let film = FilmReel(self, "m01")
         let app = film.launch(["-GWTitle", "YES", "-GWReset", "YES", "-GWSeed", "1", "-GWPrologue", "YES"])
-        film.burst("a", app, count: 32, what: "the launch: from app.launch() returning, the loading and the title's "
-                   + "first light", before: false)
+        // LANE-C: C2 (the first five seconds): burst a runs 40 frames (was 32), so the breathing wait and the whole
+        // 1.6 s reveal fall inside it; burst c runs 26 frames as fast as they come (was 20), from the touch to past 0.5 s
+        // after the name card stands (the step in: 1.55 s to the card, 0.25 s its come).
+        film.burst("a", app, count: 40, what: "the launch: from app.launch() returning, the loading, the breathing wait "
+                   + "and the title's first light", before: false)
         film.burst("b", app, count: 12, what: "the title after burst a, one frame every 0.4 s", before: false,
                    every: 0.4)
         film.pause(1.5)
@@ -32,8 +35,10 @@ final class FilmOpeningUITests: XCTestCase {
             XCTFail("m01: no title to touch")
             return
         }
-        film.tapBurst("c", app, count: 20, what: "a touch on the title: it goes, the name entry comes",
+        film.tapBurst("c", app, count: 26, what: "a touch on the title: the lord raises the lantern, the picture closes "
+                      + "on the flame, the hall rises from black, then the name entry comes",
                       at: title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)))
+        // LANE-C end
         // TitleUITests: a touch before the game is ready only skips ahead; touch again while it stands.
         var extra = 0
         while title.exists && extra < 6 {
@@ -92,6 +97,30 @@ final class FilmOpeningUITests: XCTestCase {
                    + "frame every 0.5 s", before: false, every: 0.5)
         app.terminate()
     }
+
+    // LANE-C: C2 (the first five seconds): the step into the game under Reduce Motion.
+    /// m01-r: a fresh install with `-GWReduceMotion YES`: the title stands at once after the loading; a touch: the lord
+    /// raises the lantern, the title goes to black by opacity (no mask), the hall comes from black, the name entry.
+    func testM01TheStepInUnderReduceMotion() {
+        let film = FilmReel(self, "m01")
+        let app = film.launch(["-GWTitle", "YES", "-GWReset", "YES", "-GWSeed", "1", "-GWReduceMotion", "YES"])
+        let title = film.element(app, "title-root")
+        guard title.waitForExistence(timeout: 30) else {
+            film.note("m01-r-missing", "no title; scene: \(film.scene(app))")
+            XCTFail("m01-r: no title")
+            return
+        }
+        // The loading (1.2 s) and the game's warm-up (about 3 s in Debug on the runner); the picture then stands.
+        film.pause(8)
+        film.tapBurst("r", app, count: 22, what: "under Reduce Motion, a touch on the title: the lord raises the "
+                      + "lantern, the title goes to black by opacity, the hall comes from black, the name entry comes",
+                      at: title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)))
+        let entry = film.element(app, "lord-entry-root")
+        XCTAssertTrue(entry.waitForExistence(timeout: 20), "m01-r: the name entry after the title")
+        XCTAssertFalse(title.exists, "m01-r: the title is gone before the name entry stands")
+        app.terminate()
+    }
+    // LANE-C end
 
     /// m02: day 1 at 9:00 in the courtyard (1500): a tap on the ground to the right (he starts, walks, stops, the
     /// camera follows), one to the left (he turns), and a second tap while he walks.
