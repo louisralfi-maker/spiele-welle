@@ -281,12 +281,16 @@ enum TitleTempo {
     /// 1.6 s on the cubic Bézier (0.45, 0, 0.25, 1), ease-in-out (the director's call on thing 8).
     static let revealSeconds = 1.6
     static let revealCurve = MotionCurve(0.45, 0, 0.25, 1)
-    /// The mask's long-axis radius at the reveal's start, in whole game px: the glow's own reach at the breath's high
-    /// step (`lanternGlow6`: its outermost pixel lies 93.1 game px from the flame on the mask's axes), so the light
-    /// grows out of the glow instead of a larger window replacing it (polish C2b, P3; was 116). The swell starts on
-    /// that step. Its end is no constant: the least radius that covers the device's window (`TitleMask.endRadius`),
-    /// so the whole swell, its settle included, is on the screen (C2b, P4; was 340, past the 281 the window needs).
-    static let revealFrom = 93
+    /// The mask's long-axis radius at the reveal's start, in whole game px: the glow's opaque reach at the breath's
+    /// high step (`lanternGlow6`: every pixel nearer the flame than 82.4 game px on the mask's axes is drawn; its
+    /// dithered outer ring thins out from there to 93.1), so on the swell's first frame the mask opens nothing the
+    /// glow does not cover, the ring stays over the night, and the stepped edge rises under it while it goes out; the
+    /// light grows out of the glow instead of a larger window replacing it (polish C2b, P3; was 116; the C2b gate,
+    /// F2: was 93, the ring's outermost pixel, where the picture showed through the ring's gaps to a hard edge on the
+    /// first frame). The swell starts on that step. Its end is no constant: the least radius that covers the device's
+    /// window (`TitleMask.endRadius`), so the whole swell, its settle included, is on the screen (C2b, P4; was 340,
+    /// past the 281 the window needs).
+    static let revealFrom = 82
     /// At the reveal's start the glow (its step 6 and the flame over it) stays drawn over the picture and goes out by
     /// opacity alone at law 1's quick tempo (0.15 s, the leave curve), while the stepped edge takes over (C2b, P3).
     static let glowOutSeconds = MotionToken.quick.inSeconds

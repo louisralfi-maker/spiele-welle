@@ -79,9 +79,10 @@ final class TitleStepInTests: XCTestCase {
                        "Reduce Motion: the picture stands at once")
     }
 
-    /// The glow's reach on the mask's axes: the farthest drawn pixel of the breath's high step (`lanternGlow6`, drawn
-    /// over the window from picture x 41) from the flame, as `TitleMask` measures a pixel (its centre).
-    private func glowReach() throws -> Double {
+    /// The breath's high step (`lanternGlow6`, drawn over the picture from picture x 41) as a test of its pixels:
+    /// whether picture pixel (x, y) is drawn in the glow, and the farthest drawn pixel from the flame on the mask's axes,
+    /// as `TitleMask` measures a pixel (its centre).
+    private func glowPixels() throws -> (drawn: (Int, Int) -> Bool, reach: Double) {
         let name = "lanternGlow\(TitleTempo.breathSteps.high)"
         let image = try XCTUnwrap(TitleArt.shared.image(name)?.cgImage, "the glow's PNG")
         let width = image.width
@@ -92,27 +93,41 @@ final class TitleStepInTests: XCTestCase {
         context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
         let pixels = try XCTUnwrap(context.data).assumingMemoryBound(to: UInt8.self)
         let row = context.bytesPerRow
-        let flameX = Double(TitleMask.flameX) - Double(TitleLayout.glowFrame.minX)
+        let left = Int(TitleLayout.glowFrame.minX)
+        let top = Int(TitleLayout.glowFrame.minY)
+        let flameX = Double(TitleMask.flameX) - Double(left)
         var reach = 0.0
+        var drawn = Set<Int>()
         for y in 0..<height {
             for x in 0..<width where pixels[y * row + x * 4 + 3] > 0 {
+                drawn.insert((y + top) * 10_000 + x + left)
                 let dx = Double(x) + 0.5 - flameX
-                let dy = (Double(y) + 0.5 - Double(TitleMask.flameY)) / TitleMask.shortAxis
+                let dy = (Double(y) + 0.5 - Double(TitleMask.flameY - top)) / TitleMask.shortAxis
                 reach = max(reach, (dx * dx + dy * dy).squareRoot())
             }
         }
-        return reach
+        let set = drawn
+        return ({ x, y in set.contains(y * 10_000 + x) }, reach)
     }
 
-    /// Polish C2b (P3): the light grows out of the glow. The swell starts at the glow's own reach on its high step
-    /// (within a game px of the farthest drawn pixel of `lanternGlow6`; was 116, a hard window larger than the glow);
+    /// Polish C2b (P3): the light grows out of the glow. The swell starts at the glow's opaque reach on its high step
+    /// (the C2b gate, F2: every picture pixel the mask opens at `revealFrom` is drawn in `lanternGlow6`, so the first
+    /// frame shows the glow and nothing through its outer ring's gaps; one px more opens a gap; the ring beyond stays
+    /// over the night; was 93, the ring's outermost pixel, and 116 in C2, a hard window larger than the glow);
     /// the glow stays over the picture and goes out by opacity alone in 0.15 s, never back, at most a quarter of its
     /// light per 1/60 s frame; through the swell's first 0.3 s the lit radius never moves more than 8 game px in a
     /// frame, even a frame the beat's clock counts at its longest (0.05 s). Reduce Motion: no glow, the picture at once.
     func testTheLightGrowsOutOfTheGlow() throws {
-        let reach = try glowReach()
-        XCTAssertGreaterThan(reach, 80, "the glow's rings were found")
-        XCTAssertLessThan(abs(Double(TitleTempo.revealFrom) - reach), 1, "the swell starts at the glow's reach \(reach)")
+        let glow = try glowPixels()
+        XCTAssertGreaterThan(glow.reach, 80, "the glow's rings were found")
+        func gaps(_ radius: Int) -> Int {
+            TitleMask.runs(radius: radius).reduce(0) { count, run in
+                count + (run.from..<run.to).filter { !glow.drawn($0, run.y) }.count
+            }
+        }
+        XCTAssertEqual(gaps(TitleTempo.revealFrom), 0, "the first frame opens nothing the glow does not cover")
+        XCTAssertGreaterThan(gaps(TitleTempo.revealFrom + 1), 0, "the glow's opaque reach, not less")
+        XCTAssertGreaterThan(glow.reach, Double(TitleTempo.revealFrom) + 4, "the dithered ring lies beyond the start")
         XCTAssertEqual(TitleTempo.glowOpacity(at: 0, mode: full), 1)
         XCTAssertEqual(TitleTempo.glowOpacity(at: 0.15, mode: full), 0)
         XCTAssertEqual(TitleTempo.glowOpacity(at: 1.0, mode: full), 0)
