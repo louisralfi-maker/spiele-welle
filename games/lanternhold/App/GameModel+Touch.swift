@@ -151,6 +151,9 @@ extension GameModel {
             return
         }
         guard overlay == nil else { return }
+        // LANE-E: E2 (the dawn card's wait takes no finger, as the card will not: `GameModel.dawnCardWaits`)
+        guard !dawnCardWaits else { return }
+        // LANE-E end
         // Build 2 review, app-ui-1: a touch the system cancelled never ended; a new start point is a new touch.
         if let down = touch.down, down != start { resetTouch() }
         // Build 3, lane 5: the touch the scene's going inactive forgot stays forgotten until a new touch starts.
