@@ -40,6 +40,13 @@ extension GameModel {
             && driver?.state.defeated == false
     }
 
+    /// Polish B3b part 4 (E2's L2): the lord's VoiceOver element activated: the lantern moment, as a tap on him, and
+    /// like that tap nothing in the dawn card's wait (`worldTakesTouch`).
+    func activateLordElement() {
+        guard worldTakesTouch else { return }
+        openLanternMoment()
+    }
+
     /// A tap on the lord (or his VoiceOver element): he raises the lantern and the world stands still.
     func openLanternMoment() {
         guard canRaiseLanternMoment, lanternMoment == nil, let state = driver?.state,
@@ -358,16 +365,32 @@ extension GameModel {
         raiseHalo(&layer, state: state)
         // Polish B1 (M3): the pose is read from the one driver: the lift frame 8 for 0.05 s, then 9; on the way down 9,
         // then 8 for the last 0.05 s while he still stands (`LanternVeil.pose`).
-        guard let pose = lanternPose(state) else { return }
-        let lord = state.lordOrDefault
-        for index in layer.actors.indices
-        where layer.actors[index].sprite == lord.body || layer.actors[index].sprite == lord.glow {
-            layer.actors[index].frame = pose
+        let pose = lanternPose(state)
+        if let pose {
+            let lord = state.lordOrDefault
+            for index in layer.actors.indices
+            where layer.actors[index].sprite == lord.body || layer.actors[index].sprite == lord.glow {
+                layer.actors[index].frame = pose
+            }
         }
+        // Polish B3b part 2 (B1's L1): the glass light follows the light. Its strength goes from 1 to 1.45 and back with
+        // the driver's share; it stands where the drawn glass stands (frame 8 one row up, frame 9 two; `LanternGlass`),
+        // set from the glass's own place, so a night raise's lift is never added on top of it.
+        let light = touch.veil.light
+        guard pose != nil || light > 1e-9 else { return }
+        let strength = LanternGlass.intensity(light: light)
         for index in layer.lights.indices where isLordsLantern(layer.lights[index].source, state: state) {
-            layer.lights[index].source.intensity *= 1.45
-            layer.lights[index].source.y += LanternFlare.liftRows
+            layer.lights[index].source.intensity *= strength
+            if let pose { layer.lights[index].source.y = EntityFrames.kingGlass.dy + LanternGlass.liftRows(pose: pose) }
         }
+    }
+
+    /// Polish B3b part 1 (B1's M2): the lantern moment as the hall's frame is handed it, the outside's values for the
+    /// same driver (`HallLantern`).
+    var hallLantern: HallLantern {
+        guard stage == .hall, let scene = hall else { return HallLantern() }
+        return HallLantern(veil: touch.veil, raised: lanternMoment != nil, walking: scene.walker.gait.moving,
+                           reduceMotion: reduceMotion)
     }
 
     /// Polish B1: the moment drawn now: the raised one, or after the lowering the last one while its light leaves.
@@ -489,9 +512,15 @@ extension GameModel {
         // Build 3, lane 5 step 4 (critic H1): the lantern moment's block in the hall's own frame, at its place: centred
         // on its left edge (`HUDKitActors.actors` centres the block on `x`, the moment placed it inside the view) and
         // lifted by the moment's height over the head instead of the purse's.
-        if let show = lanternMoment, let blockX = show.blockX {
+        // Polish B3b part 1 (B1's M2): the block reads the one driver as outside, in the same three alpha steps
+        // (`LanternVeil.blockShare`), carried in its pieces' alpha; after the lowering the last block is drawn on until
+        // the light is gone (`momentShown`).
+        if let show = momentShown, let blockX = show.blockX, touch.veil.light > 1e-9 {
             let ground = HallLayout.lift(at: scene.walker.x) + Double(HUDKit.momentAbove - HUDKit.purseAbove)
-            return (show.block, blockX + Double(show.block.width) / 2, ground)
+            var block = show.block
+            let share = touch.veil.blockShare
+            for index in block.pieces.indices { block.pieces[index].alpha *= share }
+            return (block, blockX + Double(show.block.width) / 2, ground)
         }
         // Polish B3 (M2): the walking row by the presence rule in the hall too.
         let block = touch.notesShow.block(happiness: driver?.state.happiness ?? 0)

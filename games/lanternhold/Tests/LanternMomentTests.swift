@@ -1803,4 +1803,163 @@ final class LanternMomentTests: XCTestCase {
         }
         XCTAssertGreaterThan(seen, 0, "the purse fades under Reduce Motion too")
     }
+
+    // MARK: - Polish B3b: the hall's moment on the one driver; the glass light follows the light
+
+    /// Polish B3b part 1 (B1's M2): in the hall the moment looks and times exactly as outside. Two realms step the same
+    /// sixtieths from the same raise: at every frame of the raise and of the lowering (the driver's start, its middle
+    /// steps and its end) the hall's frame carries the same lord's pose and the same block alpha as the outside's frame
+    /// for the same driver value; after the light is gone, neither draws the pose or the block.
+    func testTheHallsMomentRunsOnTheOneDriverAsOutside() throws {
+        let world = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830", "GWFlickerTime": "1"])
+        let hall = model(["GWStage": "hall", "GWSeed": "1", "GWClock": "9", "GWHallX": "200", "GWFlickerTime": "1"])
+        run(world, seconds: 0.3)
+        run(hall, seconds: 0.3)
+        XCTAssertEqual(hall.stage, .hall)
+        let body = try XCTUnwrap(world.driver?.state.lordOrDefault.body)
+        world.openLanternMoment()
+        hall.openLanternMoment()
+        XCTAssertNotNil(world.lanternMoment, "the lantern up outside")
+        XCTAssertNotNil(hall.lanternMoment, "the lantern up in the hall")
+        var seenUp: [Int] = []
+        var seenDown: [Int] = []
+        var alphas: Set<Double> = []
+        func compare(_ name: String, raised: Bool) throws {
+            world.advance(by: 1.0 / 60)
+            hall.advance(by: 1.0 / 60)
+            let outside = world.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let inside = hall.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            let light = world.touch.veil.light
+            XCTAssertEqual(hall.touch.veil.light, light, accuracy: 1e-12, "\(name): one driver, the same value")
+            let outPose = try XCTUnwrap(outside.actors.first { $0.sprite == body }, "\(name): the lord outside").frame
+            let inPose = try XCTUnwrap(inside.actors.first { $0.sprite == body }, "\(name): the lord in the hall").frame
+            let lifted: (Int) -> Int? = { [8, 9].contains($0) ? $0 : nil }
+            XCTAssertEqual(lifted(inPose), lifted(outPose), "\(name): the same pose at light \(light)")
+            if let pose = lifted(outPose) { if raised { seenUp.append(pose) } else { seenDown.append(pose) } }
+            let outCoins = outside.actors.filter { $0.sprite == .hudCoin }.map { Double($0.tint.w) }
+            let inCoins = inside.actors.filter { $0.sprite == .hudCoin }.map { Double($0.tint.w) }
+            XCTAssertEqual(inCoins.isEmpty, outCoins.isEmpty, "\(name): the block drawn in both or in neither")
+            if let a = outCoins.first, let b = inCoins.first {
+                XCTAssertEqual(b, a, accuracy: 1e-6, "\(name): the same block alpha at light \(light)")
+                XCTAssertEqual(a, world.touch.veil.blockShare, accuracy: 1e-6, "\(name): the block in thirds")
+                XCTAssertTrue(inCoins.allSatisfy { abs($0 - b) < 1e-6 }, "\(name): one alpha in the hall")
+                if b > 1e-6 { alphas.insert((b * 3).rounded()) }
+            }
+        }
+        for index in 0..<12 { try compare("up \(index)", raised: true) }
+        XCTAssertEqual(world.touch.veil.light, 1, "whole in 0.15 s")
+        XCTAssertEqual(seenUp.prefix(3), [8, 8, 9], "the lift frame for 0.05 s, then the raised frame, in both")
+        world.lowerLanternMoment()
+        hall.lowerLanternMoment()
+        for index in 0..<8 { try compare("down \(index)", raised: false) }
+        XCTAssertEqual(seenDown, [9, 9, 8, 8, 8], "down as outside, in both")
+        XCTAssertEqual(alphas, [1, 2, 3], "the block's three alpha steps in the hall too")
+        XCTAssertNil(hall.momentShown, "gone with the light")
+    }
+
+    /// Polish B3b part 1, Reduce Motion: in the hall the pose is 9 at once and his own frame from the lowering, the light
+    /// ramps at quick, as outside.
+    func testTheHallsMomentUnderReduceMotionIsTheOutsidesForm() throws {
+        let hall = model(["GWStage": "hall", "GWSeed": "1", "GWClock": "9", "GWHallX": "200", "GWReduceMotion": "YES"])
+        run(hall, seconds: 0.3)
+        let body = try XCTUnwrap(hall.driver?.state.lordOrDefault.body)
+        hall.openLanternMoment()
+        hall.advance(by: 1.0 / 60)
+        var frame = hall.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertEqual(hall.touch.veil.light, (1.0 / 60) / MotionToken.quick.inSeconds, accuracy: 1e-9)
+        XCTAssertEqual(frame.actors.first { $0.sprite == body }?.frame, 9, "the raised frame at once")
+        run(hall, seconds: 0.3)
+        hall.lowerLanternMoment()
+        hall.advance(by: 1.0 / 60)
+        frame = hall.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        XCTAssertGreaterThan(hall.touch.veil.light, 0, "the light leaves at quick")
+        XCTAssertNotNil(frame.actors.first { $0.sprite == .hudCoin }, "the block fades with it")
+        let pose = frame.actors.first { $0.sprite == body }?.frame
+        XCTAssertNotEqual(pose, 9, "his own frame at once")
+        XCTAssertNotEqual(pose, 8, "no held frame")
+    }
+
+    /// Polish B3b part 2 (B1's L1): the glass light follows the light. The factor is 1 at the driver's 0 and 1.45 at its
+    /// 1, linear between; the light's rows equal the drawn glass's rows for each pose frame (read off `kingGlow.png` and
+    /// `ladyGlow.png`: the glass's bottom row over the foot is 23 in his own frame, 24 in frame 8, 25 in frame 9).
+    /// Through the moment outside (`lanternWorld` on a layer holding the lord and his glass light) the light stands on
+    /// the drawn frame's glass and its factor never falls on the way up nor rises on the way down.
+    func testTheGlassLightFollowsTheLight() throws {
+        XCTAssertEqual(LanternGlass.intensity(light: 0), 1)
+        XCTAssertEqual(LanternGlass.intensity(light: 1), 1.45, accuracy: 1e-12)
+        XCTAssertEqual(LanternGlass.intensity(light: 0.5), 1.225, accuracy: 1e-12)
+        let glassRow: [Int?: Double] = [nil: 23, 8: 24, 9: 25]
+        for pose in [nil, 8, 9] as [Int?] {
+            XCTAssertEqual(LanternGlass.liftRows(pose: pose), try XCTUnwrap(glassRow[pose]) - 23,
+                           "the light's row on the glass of frame \(String(describing: pose))")
+        }
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1830"])
+        run(game, seconds: 0.3)
+        let framing = try XCTUnwrap(game.touch.framing)
+        func layerNow() throws -> (pose: Int?, y: Double, factor: Double) {
+            let state = try XCTUnwrap(game.driver?.state)
+            var layer = EntityLayer()
+            layer.actors.append(ActorInstance(sprite: state.lordOrDefault.body, frame: 0, rect: .zero,
+                                              tint: SIMD4<Float>(1, 1, 1, 1), flipped: false, isEmissive: false,
+                                              isLit: true))
+            let x = state.king.x + EntityFrames.kingGlass.dx * Double(state.king.facing)
+            layer.lights.append((source: LightSource(kind: .lantern, x: x, y: EntityFrames.kingGlass.dy, radius: 40,
+                                                     intensity: 1), plane: .world))
+            game.lanternWorld(&layer, state: state, framing: framing)
+            let frame = layer.actors[0].frame
+            return ([8, 9].contains(frame) ? frame : nil, layer.lights[0].source.y, layer.lights[0].source.intensity)
+        }
+        game.openLanternMoment()
+        var factors: [Double] = []
+        var poses: Set<Int> = []
+        for _ in 0..<12 {
+            game.advance(by: 1.0 / 60)
+            let now = try layerNow()
+            XCTAssertEqual(now.y, EntityFrames.kingGlass.dy + LanternGlass.liftRows(pose: now.pose), accuracy: 1e-9,
+                           "up: the light on the glass of frame \(String(describing: now.pose))")
+            XCTAssertEqual(now.factor, LanternGlass.intensity(light: game.touch.veil.light), accuracy: 1e-9)
+            if let last = factors.last { XCTAssertGreaterThanOrEqual(now.factor, last - 1e-12, "never falls going up") }
+            factors.append(now.factor)
+            if let pose = now.pose { poses.insert(pose) }
+        }
+        XCTAssertEqual(factors.last ?? 0, 1.45, accuracy: 1e-9, "1.45 at the driver's 1")
+        XCTAssertLessThan(factors.first ?? 2, 1.2, "and not at once")
+        XCTAssertEqual(poses, [8, 9], "both lifted frames seen")
+        game.lowerLanternMoment()
+        factors = []
+        for _ in 0..<8 {
+            game.advance(by: 1.0 / 60)
+            let now = try layerNow()
+            XCTAssertEqual(now.y, EntityFrames.kingGlass.dy + LanternGlass.liftRows(pose: now.pose), accuracy: 1e-9,
+                           "down: the light on the glass of frame \(String(describing: now.pose))")
+            if let last = factors.last { XCTAssertLessThanOrEqual(now.factor, last + 1e-12, "never rises going down") }
+            factors.append(now.factor)
+        }
+        XCTAssertEqual(factors.last ?? 0, 1, accuracy: 1e-9, "1 once the light is gone")
+    }
+
+    /// Polish B3b part 2 in the hall: the lord's glass light stands one row up in frame 8 and two in frame 9 (whole
+    /// rows) and is 1.45 times as strong at the driver's 1, as outside.
+    func testTheHallsGlassLightFollowsTheLight() throws {
+        let hall = model(["GWStage": "hall", "GWSeed": "2", "GWClock": "10", "GWHallX": "250", "GWFlickerTime": "1"])
+        run(hall, seconds: 0.3)
+        func head() throws -> FrameLight {
+            let frame = hall.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+            return try XCTUnwrap(frame.lights.filter { $0.kind == .lantern }.max { $0.circle.z < $1.circle.z })
+        }
+        let base = try head()
+        hall.openLanternMoment()
+        XCTAssertNotNil(hall.lanternMoment)
+        var rise: [Int: Float] = [:]
+        for _ in 0..<12 {
+            hall.advance(by: 1.0 / 60)
+            let light = try head()
+            if let pose = hall.hallLantern.pose { rise[pose] = light.circle.y - base.circle.y }
+        }
+        let one = try XCTUnwrap(rise[8], "frame 8 seen")
+        let two = try XCTUnwrap(rise[9], "frame 9 seen")
+        XCTAssertNotEqual(one, 0, "frame 8 lifts the light")
+        XCTAssertEqual(two, 2 * one, accuracy: 0.01, "frame 9 two rows, frame 8 one")
+        XCTAssertEqual(Double(try head().circle.w / base.circle.w), 1.45, accuracy: 0.01, "1.45 at the driver's 1")
+    }
 }
