@@ -1570,3 +1570,7 @@ schneller geht."
     the glass light following the light, no dead site lantern over a new building, VoiceOver held in the dawn wait,
     and Saul's bubble doing the deed it says. B3's other small leftovers ride with B4 (point 25 says so now). B3b
     goes out when the join a4b55979 is green and on origin, and when the usage read then allows it (about +2 %).
+  - 23.11. 12:36: rounds lh-rnd-28, 29 and 30 are ALL PASSED on a4b55979 (build; the whole unit suite; Touch, Lord,
+    LookAround, Title, Count, Town, People, Audience; all five film classes). The join with B3 is on origin at
+    a4b55979. This is also the joined film round wave A's plan asks for before tf-lh-5. Usage 67 % (stop at 80 %).
+    Step B3b (the lantern's loose ends) goes out now on lane B, base a4b55979, labels lh-rb-20 to 23.
