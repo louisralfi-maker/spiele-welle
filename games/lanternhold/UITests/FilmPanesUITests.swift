@@ -4,7 +4,8 @@ import XCTest
 /// Polish C1's film (one pane family; `FilmReel` in FilmKit.swift): p01 Marek's card coming like every card (a), a
 /// tap on the dim beside it (b: the card stays, its gift plaque glints), "Not now" (c: it goes); p02 the same card
 /// under `-GWReduceMotion` going by opacity only; p03 the pause sheet with the Haptics switch on and off (stills: the
-/// plaques look the same) and the restart's confirmation coming as a swap inside the pane. Frames
+/// plaques look the same) and the restart's confirmation coming as a swap inside the pane; p04 the pause sheet coming
+/// and going and the dim's glint; p05 the pause sheet under Reduce Motion; p06 a hall choice under a quick tap. Frames
 /// `<moment>-<letter>-<nn>`, notes `<moment>-<letter>-times`.
 @MainActor
 final class FilmPanesUITests: XCTestCase {
@@ -195,6 +196,75 @@ final class FilmPanesUITests: XCTestCase {
                           at: resume.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !sheet.exists }
             film.pause(1.2)
         }
+        app.terminate()
+    }
+
+    /// p05 (C1 gate, F4): the pause sheet under `-GWReduceMotion`, coming from the gear (a0 to a2, opacity only at the
+    /// quick token, 0.15 s, no rise) and going by Resume (b0 to b2, 0.10 s), three times, so a partial frame can show
+    /// that the sheet fades in place. Evidence, not a gate: the frames come 0.13 to 0.30 s apart.
+    func testP05ThePauseSheetUnderReduceMotion() {
+        let film = FilmReel(self, "p05")
+        let app = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "2", "-GWSeed", "1",
+                               "-GWClock", "9", "-GWWeather", "clear", "-GWReduceMotion", "YES"])
+        guard film.ready(app) else {
+            XCTFail("p05: the scene never stood")
+            return
+        }
+        film.pause(1.0)
+        let sheet = film.element(app, "pause-sheet")
+        let resume = film.element(app, "pause-resume")
+        for round in 0..<3 {
+            guard openLantern(app) else {
+                film.note("p05-a\(round)-missing", "the lantern did not rise")
+                XCTFail("p05: the lantern did not rise (\(round))")
+                return
+            }
+            film.pause(0.5)
+            let gear = film.element(app, "hud-pause")
+            guard gear.exists else {
+                XCTFail("p05: no gear (\(round))")
+                return
+            }
+            film.tapBurst("a\(round)", app, count: 8, what: "the gear under Reduce Motion: the pause sheet comes by "
+                          + "opacity only (0.15 s), in place, the dim with it",
+                          at: gear.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { sheet.exists }
+            guard sheet.waitForExistence(timeout: 4) else {
+                XCTFail("p05: no pause sheet (\(round))")
+                return
+            }
+            film.pause(0.8)
+            film.tapBurst("b\(round)", app, count: 8, what: "Resume under Reduce Motion: the sheet goes by opacity only "
+                          + "(0.10 s), in place",
+                          at: resume.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))) { !sheet.exists }
+            film.pause(1.2)
+        }
+        app.terminate()
+    }
+
+    /// p06 (C1 gate, F2 and C1-4): the hall's answer plaques under a quick tap (the film's tap lifts after 0.05 s):
+    /// `-GWScreen petition` (the herald's card, AudienceUITests' sample), then a tap on the first choice. The amber
+    /// fill holds for its whole 0.15 s sweep from touch-down, so the frames right after the tap show it whole under the
+    /// finger, then it goes back (0.10 s).
+    func testP06TheHallsChoiceUnderAQuickTap() {
+        let film = FilmReel(self, "p06")
+        let app = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWScreen", "petition"])
+        let card = film.element(app, "audience-root")
+        guard card.waitForExistence(timeout: 30) else {
+            XCTFail("p06: the herald's card did not open")
+            return
+        }
+        film.pause(1.5)
+        let choice = film.element(app, "audience-choice-0")
+        guard choice.waitForExistence(timeout: 6) else {
+            XCTFail("p06: no first choice")
+            return
+        }
+        film.keep(XCUIScreen.main.screenshot(), "p06-a-00")
+        film.note("p06-a-times", "p06-a: the herald's card before the tap; choice 0 at \(choice.frame)\nlaunch: "
+                  + film.arguments.joined(separator: " "))
+        film.tapBurst("b", app, count: 10, what: "a quick tap (lifted after 0.05 s) on the first choice: amber fills "
+                      + "it from the left in 0.15 s and holds that long, then goes back in 0.10 s",
+                      at: choice.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)))
         app.terminate()
     }
 }
