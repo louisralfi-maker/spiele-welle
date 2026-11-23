@@ -14,6 +14,8 @@ struct GameView: View {
     let model: GameModel
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    /// Polish B3 (part 4): the root's word that the world stands still under the title (lane C's C2).
+    @Environment(\.lhWorldStill) private var worldStill
 
     var body: some View {
         ZStack {
@@ -91,12 +93,26 @@ struct GameView: View {
             UIApplication.shared.isIdleTimerDisabled = phase == .active
             if phase == .background {
                 model.saveNow()
-                model.pauseForBackground()
+                // Polish B3 (part 4): under the title the world stands still; leaving the app there raises no lantern
+                // moment and plays no cue (the root's lowering on return stays as a net).
+                if GameView.raisesMomentOnLeaving(background: true, worldStill: worldStill) {
+                    model.pauseForBackground()
+                }
             }
         }
         .onChange(of: systemReduceMotion) { _, on in
             model.setSystemReduceMotion(on)
         }
+    }
+}
+
+extension GameView {
+    /// Polish B3 (part 4, found at the join of C2 and B1): whether the hall's scene-phase handler raises the lantern
+    /// moment as the app leaves (HUD.md: the background raises it by itself): only when the app goes to the background
+    /// and the world is not standing still under the title (`lhWorldStill`); there it raises nothing, so neither
+    /// `lanternUp` nor, on return, `lanternDown` sounds at the title.
+    nonisolated static func raisesMomentOnLeaving(background: Bool, worldStill: Bool) -> Bool {
+        background && !worldStill
     }
 }
 
