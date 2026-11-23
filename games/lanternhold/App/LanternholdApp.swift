@@ -76,7 +76,8 @@ struct RootView: View {
             // The hall's view is built under the title and its black cover as soon as the game is ready (the
             // title's ready: the model made, the renderer warm), so building it never holds the step into the game
             // (round lh-rc-12: built at the touch, it held the main thread about a second on the runner and the
-            // closing mask was skipped); its world stands still (`setActive(false)`) until the touch.
+            // closing mask was skipped); its Metal view draws nothing (`lhWorldStill`) and its world stands still
+            // (`setActive(false)`) until the touch.
             ZStack {
                 // The first light: the night's darkest colour and the house's lantern while the game is made.
                 Color.black.ignoresSafeArea()
@@ -89,6 +90,7 @@ struct RootView: View {
                         .lhReduceMotion(model.reduceMotion)
                         .lhPlaqueFeedback(plaqueFeedback)
                         .lhPanesHeld(panesHeld)
+                        .environment(\.lhWorldStill, !titleDone && stepBeat == nil)
                         .overlay { TableDebugLayer(model: model) }
                         .onAppear {
                             if !titleDone && stepBeat == nil { model.setActive(false) }

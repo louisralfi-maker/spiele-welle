@@ -62,7 +62,15 @@ final class TitleUITests: XCTestCase {
         let entry = app.descendants(matching: .any).matching(identifier: "lord-entry-root").firstMatch
         XCTAssertTrue(entry.waitForExistence(timeout: 20), "a new realm asks for its lord after the title")
         XCTAssertFalse(title.exists, "the name card never stands with the title")
-        RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+        // Polish C2: the hall's view was built under the title with its drawing paused; after the touch it draws.
+        let scene = app.descendants(matching: .any).matching(identifier: "world-scene").firstMatch
+        let drawn = { () -> Int in
+            let value = (scene.value as? String) ?? ""
+            return value.split(separator: " ").first { $0.hasPrefix("frame:") }.flatMap { Int($0.dropFirst(6)) } ?? -1
+        }
+        let first = drawn()
+        RunLoop.current.run(until: Date().addingTimeInterval(1.5))
+        XCTAssertGreaterThan(drawn(), first, "the hall draws after the step in (frames \(first) then \(drawn()))")
         attach(XCUIScreen.main.screenshot(), "00e-title-name-entry-\(language)")
         app.terminate()
     }
