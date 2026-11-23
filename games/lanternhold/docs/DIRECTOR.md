@@ -1523,3 +1523,8 @@ schneller geht."
     start, the name card's true time). New riders: B3 (no lantern moment and no lantern cue under the title), D3
     (`lanternUp` over the title's beds; `DawnVerdict.cue(fallen:)`), E3 (the glyph pin, one comment). lh-rnd-22 and
     lh-rnd-23 still run. Usage 60 % (Fable 29 %).
+  - 23.11. 08:17: step C2b (the reveal reads as one swell) went out in lane C from 7dad35c3, player lens, labels from
+    lh-rc-20, at most three rounds: the hall is warm before the light opens (the reveal waits for `worldWarm`, with a
+    ceiling of 2.0 s), the mask's end radius is the least that covers the device's window, the light grows out of the
+    glow, a touch during the reveal finishes the swell in 0.25 s (the director's call on P6), the name card's true
+    time, C2's small leftovers. Rounds lh-rnd-24 and lh-rnd-25 run on the join 4a42da26. Usage 60 % (Fable 30 %).
