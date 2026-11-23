@@ -56,8 +56,12 @@ struct RootView: View {
     /// after it (`StepIn.panesAt`), with its own come and one `paneOpen` (`OverlayView`, `AdLayer`).
     @State private var panesHeld = true
     /// Polish C2: the hall's view built under the title has drawn its first frames (the heavy first one falls at the
-    /// reveal's start, which the beat's clock waits out); from then on it draws nothing until the touch.
+    /// reveal's start, which the beat's clock waits out); from then on it draws nothing until the step's black.
     @State private var worldWarm = false
+    /// Polish C2 gate (P1, M2): the hall's view draws again from the black of the step (0.60 s), not from the touch,
+    /// so its first draw or a wait for a drawable falls on the flame alone on black, never into the closing mask
+    /// (lh-rc-18: the close stalled 0.5 to 1.0 s on the runner while the hall drew under the opaque title).
+    @State private var hallLive = false
     /// Polish C2 (Debug): the step's probe, the hitches its beat did not count (`stepin-probe`, noted by the film).
     @State private var stepProbe = "none"
 
@@ -79,8 +83,8 @@ struct RootView: View {
             // The hall's view is built under the title and its black cover as soon as the game is ready (the
             // title's ready: the model made, the renderer warm), so building it never holds the step into the game
             // (round lh-rc-12: built at the touch, it held the main thread about a second on the runner and the
-            // closing mask was skipped); its Metal view draws nothing (`lhWorldStill`) and its world stands still
-            // (`setActive(false)`) until the touch.
+            // closing mask was skipped); its Metal view draws nothing (`lhWorldStill`) until the step's black (0.60 s) and
+            // its world stands still (`setActive(false)`) until the touch.
             ZStack {
                 // The first light: the night's darkest colour and the house's lantern while the game is made.
                 Color.black.ignoresSafeArea()
@@ -93,7 +97,7 @@ struct RootView: View {
                         .lhReduceMotion(model.reduceMotion)
                         .lhPlaqueFeedback(plaqueFeedback)
                         .lhPanesHeld(panesHeld)
-                        .environment(\.lhWorldStill, worldWarm && !titleDone && stepBeat == nil)
+                        .environment(\.lhWorldStill, worldWarm && !hallLive)
                         .overlay { TableDebugLayer(model: model) }
                         // Under the title and its cover the hall says nothing to VoiceOver (and a UI test's snapshot
                         // after a touch on the title stays small: lh-rc-16 lost about 0.9 s of the step to it).
@@ -188,8 +192,10 @@ struct RootView: View {
         model?.setActive(true)
         let mode = stepInMode
         Task { @MainActor in
+            #if DEBUG
             // Debug: the wall seconds and the beat's uncounted hitches at each phase (`stepin-probe`).
             var marks: [String] = []
+            #endif
             let phases: [(name: String, at: Double)] = [("task", 0), ("close", StepIn.closeFrom),
                                                         ("black", StepIn.blackAt), ("gone", StepIn.riseFrom),
                                                         ("whole", StepIn.hallWholeAt(mode)),
@@ -197,13 +203,17 @@ struct RootView: View {
             for phase in phases {
                 await beat.wait(until: phase.at)
                 switch phase.name {
-                case "black": titleCues.black()
+                case "black":
+                    titleCues.black()
+                    hallLive = true
                 case "gone": titleDone = true
                 case "whole": hallWhole = true
                 case "panes": panesHeld = false
                 default: break
                 }
+                #if DEBUG
                 marks.append(String(format: "%@ %.3f/%.3f", phase.name, Date().timeIntervalSince(start), beat.lost))
+                #endif
             }
             #if DEBUG
             stepProbe = String(format: "lost:%.3f longest:%.3f wall:%.3f; wall/lost at ", beat.lost, beat.longestGap,
