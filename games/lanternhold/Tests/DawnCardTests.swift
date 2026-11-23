@@ -5,18 +5,22 @@ import XCTest
 /// Polish E2 (ROUND.md thing 10, law 3.6; the audit's M7, R3, F6): the dawn card comes `GameModel.dawnCardDelay` after
 /// the gate stands open, with the input closed and the realm held in between; it comes after a pause of the app, never
 /// at a continued launch (E2b); the verdict lands for ear and hand through the hub (`dawnHeld` once, or a toll per
-/// fallen man, at most three, 1.0 s apart, stopped when the card closes); the gate's cue plays once at the dawn.
-/// A hub that remembers every cue that reached it, uncapped (a whole night's cues pass `SilentFeedback`'s 512), and
-/// the haptic each gives through the hub's own rule (`FeedbackGate`).
+/// fallen man, at most three, at lane D's `DawnVerdict` delays (E2b: its one owner), stopped when the card closes); the
+/// gate's cue plays once at the dawn.
+/// A hub that remembers every cue that reached it, uncapped (a whole night's cues pass `SilentFeedback`'s 512), the
+/// haptic each gives through the hub's own rule (`FeedbackGate`), and, when given a clock (`now`), when each came.
 @MainActor
 final class RecordingFeedback: FeedbackHub {
     var soundOn = true
     var hapticsOn = true
     private(set) var counts: [FeedbackCue: Int] = [:]
     private(set) var felt: [HapticKind] = []
+    var now: (@MainActor () -> Double)?
+    private(set) var heard: [(cue: FeedbackCue, at: Double)] = []
 
     func play(_ cue: FeedbackCue) {
         counts[cue, default: 0] += 1
+        if let now { heard.append((cue: cue, at: now())) }
         if let haptic = FeedbackGate.haptic(cue, hapticsOn: hapticsOn) { felt.append(haptic) }
     }
 
@@ -208,32 +212,35 @@ final class DawnCardModelTests: XCTestCase {
         XCTAssertEqual(count(.dawnHeld, game), 0, "no bell of a held night")
     }
 
-    func testFiveFallenTollThreeTimesOneSecondApart() throws {
-        let game = model(["GWDay": "2"])
-        var report = ReportCard.sampleReport()
-        report.fallen = ["Ivo", "Maren", "Bertil", "Wren", "Edda"].map { FallenSoldier(name: $0, kind: .archer) }
-        game.awaitDawnCard(report)
-        game.advance(by: 0.25)
-        game.advance(by: 0.25)
-        XCTAssertEqual(count(.dawnToll, game), 0)
-        game.advance(by: 0.1)
-        XCTAssertNotNil(game.reportCard, "the card at 0.6 s")
-        XCTAssertEqual(count(.dawnToll, game), 1, "the first toll as the card lands")
-        game.advance(by: 0.25)
-        game.advance(by: 0.25)
-        game.advance(by: 0.25)
-        game.advance(by: 0.2)
-        XCTAssertEqual(count(.dawnToll, game), 1, "0.95 s after it: still one")
-        game.advance(by: 0.05)
-        XCTAssertEqual(count(.dawnToll, game), 2, "1.0 s after it: the second")
-        for _ in 0..<3 { game.advance(by: 0.25) }
-        game.advance(by: 0.2)
-        XCTAssertEqual(count(.dawnToll, game), 2, "1.95 s: still two")
-        game.advance(by: 0.05)
-        XCTAssertEqual(count(.dawnToll, game), 3, "2.0 s: the third")
-        for _ in 0..<16 { game.advance(by: 0.25) }
-        XCTAssertEqual(count(.dawnToll, game), 3, "at most three, for five fallen")
-        XCTAssertEqual(count(.dawnHeld, game), 0)
+    /// Polish E2b (M3): the model's verdict is lane D's `DawnVerdict.cues(fallen:)`, cue for cue and delay for delay
+    /// after the card lands, so a change of lane D's numbers moves the model with it; no gap of the model's own. (Was
+    /// E2's pin of three tolls 1.0 s apart for five fallen, a number of its own; rewritten to read the verdict.)
+    func testTheVerdictRingsAtDawnVerdictsDelays() throws {
+        let step = 0.02
+        for fallen in [0, 1, 2, 3, 5] {
+            let game = model(["GWDay": "2"])
+            let hub = try XCTUnwrap(game.feedback as? RecordingFeedback)
+            hub.now = { [unowned game] in game.clock.elapsed }
+            var report = ReportCard.sampleReport()
+            report.fallen = ["Ivo", "Maren", "Bertil", "Wren", "Edda"].prefix(fallen)
+                .map { FallenSoldier(name: $0, kind: .archer) }
+            let expected = DawnVerdict.cues(fallen: fallen)
+            let last = expected.map { $0.delay }.max() ?? 0
+            let start = game.clock.elapsed
+            game.awaitDawnCard(report)
+            while game.clock.elapsed - start < GameModel.dawnCardDelay + last + 1.0 { game.advance(by: step) }
+            XCTAssertNotNil(game.reportCard, "\(fallen) fallen: the card stands")
+            let verdict = hub.heard.filter { $0.cue == .dawnToll || $0.cue == .dawnHeld }
+            XCTAssertEqual(verdict.map { $0.cue }, expected.map { $0.cue }, "\(fallen) fallen: the verdict's cues, in its order")
+            XCTAssertEqual(hub.count(.dawnToll), min(DawnVerdict.maxTolls, fallen), "\(fallen) fallen: the tolls")
+            guard let first = verdict.first, verdict.count == expected.count else { continue }
+            XCTAssertGreaterThanOrEqual(first.at - start, GameModel.dawnCardDelay - 1e-9, "the first as the card lands")
+            XCTAssertLessThan(first.at - start, GameModel.dawnCardDelay + step + 1e-6, "the first as the card lands")
+            for (heard, due) in zip(verdict, expected) {
+                XCTAssertEqual(heard.at - first.at, due.delay, accuracy: step + 1e-6,
+                               "\(fallen) fallen: \(heard.cue) at the verdict's delay \(due.delay)")
+            }
+        }
     }
 
     func testTheTollsStopWhenTheCardIsClosed() throws {
@@ -241,7 +248,11 @@ final class DawnCardModelTests: XCTestCase {
         var report = ReportCard.sampleReport()
         report.fallen = ["Ivo", "Maren", "Bertil", "Wren", "Edda"].map { FallenSoldier(name: $0, kind: .guardsman) }
         game.awaitDawnCard(report)
-        for _ in 0..<3 { game.advance(by: 0.25) }
+        // E2b: closed in the frame the card lands, so the pin holds whatever gap lane D's verdict sets.
+        game.advance(by: 0.25)
+        game.advance(by: 0.25)
+        game.advance(by: 0.1)
+        XCTAssertNotNil(game.reportCard, "the card at 0.6 s")
         XCTAssertEqual(count(.dawnToll, game), 1)
         game.continueReport()
         XCTAssertNil(game.overlay)
