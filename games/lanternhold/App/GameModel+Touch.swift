@@ -165,7 +165,8 @@ extension GameModel {
         }
         guard overlay == nil else { return }
         // LANE-E: E2 (the dawn card's wait takes no finger, as the card will not: `GameModel.dawnCardWaits`)
-        guard !dawnCardWaits else { return }
+        // Polish B3b part 4: decided by `TouchHold`, the one rule for the finger and VoiceOver alike.
+        guard worldTakesTouch else { return }
         // LANE-E end
         // Build 2 review, app-ui-1: a touch the system cancelled never ended; a new start point is a new touch.
         if let down = touch.down, down != start { resetTouch() }
@@ -538,8 +539,16 @@ extension GameModel {
         refreshTouchSlip()
     }
 
+    /// Polish B3b part 4 (E2's L2): the world takes a touch now (`TouchHold`): not in the dawn card's wait. The finger
+    /// (`touchChanged`) and every VoiceOver action (`touchSpot`, `walkScreen`, the lord's element) ask it.
+    var worldTakesTouch: Bool {
+        TouchHold.takesTouch(dawnCardWaits: dawnCardWaits)
+    }
+
     /// VoiceOver or Switch Control activated a thing's element: the same as a tap on it.
     func touchSpot(_ id: String) {
+        // Polish B3b part 4: held in the dawn card's wait, as a tap is.
+        guard worldTakesTouch else { return }
         // Build 3, lane 5 (no dead tap): VoiceOver's deed under the lantern lowers it first, as the finger's does.
         if lanternMoment != nil { lowerLanternMoment() }
         // Build 3, the count's step 5: a model's element pays its offer in one step (PAY.md section 2).
@@ -560,7 +569,10 @@ extension GameModel {
 
     /// `world-scene`'s custom actions "Walk left" and "Walk right": one screen that way.
     func walkScreen(_ direction: Int) {
-        guard kind == .world, overlay == nil, stageChange == nil, let framing = touch.framing else { return }
+        // Polish B3b part 4: held in the dawn card's wait, as a tap is (`worldTakesTouch`).
+        guard kind == .world, overlay == nil, stageChange == nil, worldTakesTouch, let framing = touch.framing else {
+            return
+        }
         cancelErrand()
         let width = framing.viewRight - framing.viewLeft
         walk(to: groundX(stageLordX + Double(direction.signum()) * width), run: false)
@@ -1005,6 +1017,10 @@ extension GameModel {
         let bubble = talkBubble != nil
         if touch.bubbleWas && !bubble { feedback.play(.bubbleClose) }
         touch.bubbleWas = bubble
+        // Polish B3b part 5 (B3's L3): the deed a bubble carries, published when it changes, so the bubble's view (which
+        // reads the errand, not observed) is drawn again the frame a deed comes or goes.
+        let deed = talkBubble.flatMap { collectorDeed($0) }
+        if WalkSigns.shared.bubbleDeed != deed { WalkSigns.shared.bubbleDeed = deed }
     }
 
     /// Polish B3: the lord stands (no walk of his own on the stage that shows).

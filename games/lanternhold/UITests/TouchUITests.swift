@@ -418,6 +418,51 @@ final class TouchUITests: XCTestCase {
 
     // MARK: - Helpers
 
+    /// Polish B3b part 5 (the director's call after B3): Saul's bubble says the deed ("Take him on" under his offer), so
+    /// a tap on the bubble does it: day 2 at 10:00 at his post, a touch on him, his offer in the bubble (59e, the bubble
+    /// at least 44 pt each way), a tap on the bubble: he is taken on and answers (59f). The second touch on him
+    /// (`TownUITests.testTheCollectorIsTakenOnByTouch`) stays as it is.
+    func testATapOnSaulsBubbleTakesHimOn() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "2", "-GWClock", "10",
+                               "-GWCameraX", "2230", "-GWTimeScale", "4"]
+        app.launch()
+        guard waitUntilReady(app, name: "saul-bubble") else { return }
+        let status = element(app, "town-status")
+        XCTAssertTrue(status.waitForExistence(timeout: 10))
+        XCTAssertTrue(((status.value as? String) ?? "").contains("collector:no"), "never taken on")
+        guard let saul = waitForThing(app, "touch-collector", timeout: 10) else {
+            XCTFail("no collector at his post")
+            app.terminate()
+            return
+        }
+        touchThing(saul)
+        let bubble = element(app, "talk-bubble")
+        XCTAssertTrue(bubble.waitForExistence(timeout: 10), "his offer in the bubble")
+        XCTAssertTrue(bubble.label.contains("One coin in eight"), "the offer (\(bubble.label))")
+        XCTAssertTrue(bubble.label.contains("Take him on"), "the deed's words in the bubble (\(bubble.label))")
+        pause(0.6)
+        checkTarget(bubble, "Saul's bubble")
+        attach(XCUIScreen.main.screenshot(), "59e-saul-bubble-before-\(language)")
+        XCTAssertTrue(((status.value as? String) ?? "").contains("collector:no"), "not yet taken on")
+        bubble.tap()
+        attach(XCUIScreen.main.screenshot(), "59f-saul-bubble-tapped-\(language)")
+        var hired = false
+        let started = Date()
+        while Date().timeIntervalSince(started) < 6 && !hired {
+            hired = ((status.value as? String) ?? "").contains("collector:hired")
+            if !hired { pause(0.2) }
+        }
+        XCTAssertTrue(hired, "a tap on his bubble took him on (\((status.value as? String) ?? ""))")
+        XCTAssertTrue(bubble.waitForExistence(timeout: 4) && bubble.label.contains("Dawn, then"),
+                      "his answer (\(bubble.label))")
+        XCTAssertFalse(bubble.label.contains("Take him on"), "no deed on his answer")
+        pause(0.4)
+        attach(XCUIScreen.main.screenshot(), "59g-saul-bubble-after-\(language)")
+        app.terminate()
+    }
+
     /// Step 4 (round lh-b3c-32): `thing`'s middle read once (the lord stands still, so it stays put), then tapped
     /// through the app's own coordinate, with no element query between the taps, until the scene says `until`; a tap
     /// that comes after an empty board's wait ran out brings the board again, and the next one sets its coin.

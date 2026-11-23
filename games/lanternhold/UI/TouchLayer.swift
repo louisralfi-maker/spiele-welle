@@ -61,7 +61,7 @@ struct TouchSpotsView: View {
                         .accessibilityHint(spot.id == "touch-lord" ? Text("Double tap to pause") : Text(verbatim: ""))
                         .accessibilityIdentifier(spot.id)
                         .accessibilityAction {
-                            if spot.id == "touch-lord" { model.openLanternMoment() } else { model.touchSpot(spot.id) }
+                            if spot.id == "touch-lord" { model.activateLordElement() } else { model.touchSpot(spot.id) }
                         }
                 }
             }
@@ -118,6 +118,9 @@ struct ErrandSlipView: View {
 final class WalkSigns {
     static let shared = WalkSigns()
     var lordWalks = false
+    /// Polish B3b part 5: the deed the talk bubble carries now (`GameModel.collectorDeed`), nil for none; the bubble's
+    /// view reads it so that it is drawn again when the deed comes or goes.
+    var bubbleDeed: String? = nil
 
     /// Polish B3: a teaching slip (the first minute's, the lord's hint) is drawn only while it is due, no card is open,
     /// the lantern is down and the lord stands.

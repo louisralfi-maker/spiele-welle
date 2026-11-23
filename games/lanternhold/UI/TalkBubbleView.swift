@@ -4,7 +4,7 @@ import SwiftUI
 /// night glass with his name in lantern gold and the line, its tail pointing down at him, following him on screen. A tap closes it
 /// (walking away closes it too, `GameModel.stepCourt`). Polish B3: it comes and goes by the presence rule (`GameView`:
 /// quick in rising 2 game px, quick out in place), and at Saul's post it carries the second touch's deed; while that
-/// deed waits a tap does not close it (B3 gate M1: like the slip it stays until the second touch, walking away or a card).
+/// deed waits a tap on it does the deed, as the second touch on him (polish B3b part 5).
 @MainActor
 struct TalkBubbleView: View {
     let bubble: TalkBubble
@@ -17,7 +17,9 @@ struct TalkBubbleView: View {
             let head = CGFloat(bubble.headY) * geometry.size.height
             let left = min(max(20, x - width / 2), geometry.size.width - width - 20)
             let tail = min(max(16, x - left), width - 16)
-            // Polish B3 gate (P1, M1): over Saul while the second touch waits, the deed that touch does.
+            // Polish B3 gate (P1, M1): over Saul while the second touch waits, the deed that touch does. Polish B3b part 5
+            // (B3's L3): read fresh from the model, and drawn again whenever the published deed changes.
+            let _ = WalkSigns.shared.bubbleDeed
             let deed = model.collectorDeed(bubble)
             VStack(spacing: 0) {
                 Button {
@@ -57,8 +59,14 @@ struct TalkBubbleView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                // B3 gate (M1): while the deed waits a tap keeps the bubble (`GameModel.tapTalkBubble`).
+                // Polish B3b part 5: while the deed waits a tap on the bubble does it (`GameModel.tapTalkBubble`), and
+                // VoiceOver offers the deed's own words as the bubble's action.
                 .accessibilityHint(deed == nil ? Text("Tap to close") : Text(verbatim: ""))
+                .accessibilityActions {
+                    if let deed {
+                        Button(deed) { model.tapTalkBubble(bubble) }
+                    }
+                }
                 .accessibilityIdentifier("talk-bubble")
                 GlassTail()
                     .offset(x: tail - width / 2)
