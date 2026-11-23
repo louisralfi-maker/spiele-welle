@@ -1476,3 +1476,9 @@ schneller geht."
   - Rounds lh-rnd-14 and lh-rnd-15 are green on 7f68847b (23.11., 04:34): the join with steps E1b, B2, A1b and D2
     is pushed as origin claude/lh-round. The count board's near tap passed; its one failure (lh-rnd-12) did not
     repeat. The head with step C1 and the mend (14034f3c) stays local until its own rounds are green.
+  - Round lh-rnd-18 on 14034f3c (23.11., 06:09): the build and the four film classes are green, the count class
+    failed in two tests (the guard's near tap, the let go). Lane B found the cause in step B1 (7cddb5be): an empty
+    board goes after its 5.0 s wait (`PayCount.emptyWait`), and on a slow runner the test taps later than that.
+    The game keeps its rule; the test's timing is at fault. The guard's test is mended in lane B; the helper
+    `launchAtTheBoard` is not yet (a rider for B1's verification, else B3). The director's call: no repeat round;
+    14034f3c stays local and origin stays 7f68847b until a join head with B1's mend is green in the count class.
