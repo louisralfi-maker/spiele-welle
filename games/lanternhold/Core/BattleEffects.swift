@@ -319,15 +319,17 @@ extension BattleEffects {
     static let standLightAlpha: ClosedRange<Float> = 0.66...0.84
 
     /// The dust's two tones (the puff's white body times this, then the hour's light; its underside row a value
-    /// darker in the art): a grey ground dust. Measured on round lh-ra-16's film (day 3, 14:48), the light tone's body
-    /// stays under the lit stone of the line's tower (176, 177, 175) and under the lit plaster of the town's house
-    /// (197, 151, 99); the darker tone is 15 % below it. A clump draws its darker pieces first, the lighter over them.
-    static let standDustLight = SIMD3<Float>(0.75, 0.74, 0.70)
+    /// darker in the art): a cool grey ground dust. Measured on round lh-ra-16's film (day 3, 14:48), the light tone's
+    /// body stays under the lit stone of the line's tower (176, 177, 175), at about (154, 159, 168), and under the lit
+    /// plaster of the town's house (197, 151, 99), at about (146, 121, 97); the darker tone is 15 % below it. A clump
+    /// draws its darker pieces first, the lighter over them. (The gate of A2b, P1: the warmer (0.75, 0.74, 0.70) came
+    /// out under the town's warm light in the lit plaster's own hue and value, and the house's dust was not seen.)
+    static let standDustLight = SIMD3<Float>(0.66, 0.68, 0.72)
     static let standDustDark: Float = 0.85
 
     /// The flakes' grey (0x5E6170) times this is the light tone of the puffs (`standDustLight`) for the motes. Above 1,
     /// so the drawing tells the dust's flakes from the small ones' soot (`EntityFrames.effectParticles`).
-    static let standDustTint = SIMD3<Float>(2.03, 1.95, 1.59)
+    static let standDustTint = SIMD3<Float>(1.79, 1.79, 1.64)
 
     /// At most one `.buildStood` this often (the standings' clock; the thinner's old gap for `.buildDone`), at the
     /// due standing nearest the listener: two works finishing together are answered once, with one haptic.
