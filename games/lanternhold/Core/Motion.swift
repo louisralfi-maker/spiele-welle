@@ -333,10 +333,45 @@ enum TitleMask {
         return runs
     }
 
+    /// The runs of `radius`, built once per whole-px radius and kept (polish C2b, L5: the reveal and the close read
+    /// them every frame; the radius changes far less often).
+    static func rows(radius: Int) -> [Run] {
+        TitleMaskStore.shared.rows(radius) { runs(radius: radius) }
+    }
+
+    /// How many radii `rows(radius:)` has built so far (the tests' pin that a radius is built once).
+    static var rowsBuilt: Int { TitleMaskStore.shared.built }
+
     /// Whether the mask at `radius` opens every pixel of the whole picture (then taking it away changes nothing).
     static func coversPicture(radius: Int) -> Bool {
-        let rows = runs(radius: radius)
-        return rows.count == pictureHeight && rows.allSatisfy { $0.from == 0 && $0.to == pictureWidth }
+        let open = rows(radius: radius)
+        return open.count == pictureHeight && open.allSatisfy { $0.from == 0 && $0.to == pictureWidth }
+    }
+}
+
+/// The mask's kept rows (polish C2b, L5). A shape's `path(in:)` may run off the main actor, so a lock guards the small
+/// table instead of an actor.
+private final class TitleMaskStore: @unchecked Sendable {
+    static let shared = TitleMaskStore()
+    private let lock = NSLock()
+    private var kept: [Int: [TitleMask.Run]] = [:]
+    private var count = 0
+
+    /// How many radii have been built.
+    var built: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return count
+    }
+
+    func rows(_ radius: Int, make: () -> [TitleMask.Run]) -> [TitleMask.Run] {
+        lock.lock()
+        defer { lock.unlock() }
+        if let hit = kept[radius] { return hit }
+        let made = make()
+        kept[radius] = made
+        count += 1
+        return made
     }
 }
 
@@ -415,14 +450,24 @@ enum StepIn {
     /// a pane the game holds at its start comes `paneDelay` later; it does not stand.
     static let panesAtWithoutTitle = paneDelay
 
-    /// Whether a pane may stand `seconds` after the touch (or after the first frame without the title).
-    static func panesOpen(at seconds: Double, mode: MotionMode, title: Bool) -> Bool {
-        seconds >= (title ? panesAt(mode) : panesAtWithoutTitle)
+    /// What the root does during the step, in order (polish C2b, L2: the app runs this very list, the tests pin it).
+    enum Phase: String, Sendable, CaseIterable {
+        /// The mask begins to close (the probe's mark only).
+        case close
+        /// The title's beds stop and the hall's view draws again.
+        case black
+        /// The title leaves the tree.
+        case gone
+        /// The cover goes: the hall is whole and the world takes touches.
+        case whole
+        /// A pane the game holds at its start may come.
+        case panes
     }
 
-    /// Whether the world takes a touch `seconds` after the touch on the title: only once the hall is whole.
-    static func takesTouches(at seconds: Double, mode: MotionMode) -> Bool {
-        seconds >= hallWholeAt(mode)
+    /// Each phase with its second after the touch.
+    static func phases(_ mode: MotionMode) -> [(phase: Phase, at: Double)] {
+        [(.close, closeFrom), (.black, blackAt), (.gone, riseFrom), (.whole, hallWholeAt(mode)),
+         (.panes, panesAt(mode))]
     }
 
     /// The lord's frame `seconds` after the touch: 0 before it, then 1, 2, 3, and 3 held (the lantern up).

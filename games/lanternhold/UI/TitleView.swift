@@ -154,14 +154,15 @@ final class BeatBox {
 }
 
 /// The title's mask (polish C2, M9): the open runs of `TitleMask` as whole game px rects, so the edge is stepped on the
-/// picture's own grid. The rect is the picture's frame (520 x 201 game px at its scale).
+/// picture's own grid. The rect is the picture's frame (520 x 201 game px at its scale). The runs of each radius are
+/// built once (polish C2b, L5).
 struct TitleMaskShape: Shape {
     let radius: Int
 
     func path(in rect: CGRect) -> Path {
         let scale = rect.height / CGFloat(TitleMask.pictureHeight)
         var path = Path()
-        for run in TitleMask.runs(radius: radius) {
+        for run in TitleMask.rows(radius: radius) {
             path.addRect(CGRect(x: rect.minX + CGFloat(run.from) * scale, y: rect.minY + CGFloat(run.y) * scale,
                                 width: CGFloat(run.to - run.from) * scale, height: scale))
         }

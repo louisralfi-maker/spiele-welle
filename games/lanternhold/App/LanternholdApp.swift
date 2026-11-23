@@ -201,25 +201,22 @@ struct RootView: View {
         Task { @MainActor in
             #if DEBUG
             // Debug: the wall seconds and the beat's uncounted hitches at each phase (`stepin-probe`).
-            var marks: [String] = []
+            var marks = [String(format: "task %.3f/%.3f", Date().timeIntervalSince(start), beat.lost)]
             #endif
-            let phases: [(name: String, at: Double)] = [("task", 0), ("close", StepIn.closeFrom),
-                                                        ("black", StepIn.blackAt), ("gone", StepIn.riseFrom),
-                                                        ("whole", StepIn.hallWholeAt(mode)),
-                                                        ("panes", StepIn.panesAt(mode))]
-            for phase in phases {
-                await beat.wait(until: phase.at)
-                switch phase.name {
-                case "black":
+            // Polish C2b (L2): the phases are `StepIn`'s list, which the tests pin.
+            for (phase, at) in StepIn.phases(mode) {
+                await beat.wait(until: at)
+                switch phase {
+                case .close: break
+                case .black:
                     titleCues.black()
                     hallLive = true
-                case "gone": titleDone = true
-                case "whole": hallWhole = true
-                case "panes": panesHeld = false
-                default: break
+                case .gone: titleDone = true
+                case .whole: hallWhole = true
+                case .panes: panesHeld = false
                 }
                 #if DEBUG
-                marks.append(String(format: "%@ %.3f/%.3f", phase.name, Date().timeIntervalSince(start), beat.lost))
+                marks.append(String(format: "%@ %.3f/%.3f", phase.rawValue, Date().timeIntervalSince(start), beat.lost))
                 #endif
             }
             #if DEBUG

@@ -222,12 +222,38 @@ final class TitleStepInTests: XCTestCase {
         XCTAssertEqual(fresh.elapsed(at: 4), 0, "never before its start")
     }
 
-    /// The world takes no touch before the hall is whole.
-    func testTheWorldTakesTouchesOnlyOnceTheHallIsWhole() {
-        XCTAssertFalse(StepIn.takesTouches(at: 1.29, mode: full))
-        XCTAssertTrue(StepIn.takesTouches(at: 1.30, mode: full))
-        XCTAssertFalse(StepIn.takesTouches(at: 0.94, mode: reduced))
-        XCTAssertTrue(StepIn.takesTouches(at: 0.95, mode: reduced))
+    /// Polish C2b (L2; this test pinned `StepIn.takesTouches`, which no app code called): the root runs `StepIn`'s
+    /// phases in this order and at these seconds. The world takes touches at "whole", the first moment the timeline
+    /// shows the hall whole (1.30 s, 0.95 s under Reduce Motion), never before; the beds stop at the black in both forms;
+    /// the title leaves the tree only once nothing of it shows; a held pane comes 0.25 s after the hall is whole.
+    func testTheRootRunsThePhasesInOrder() {
+        for mode in [full, reduced] {
+            let phases = StepIn.phases(mode)
+            XCTAssertEqual(phases.map { $0.phase }, [.close, .black, .gone, .whole, .panes], "\(mode)")
+            XCTAssertEqual(phases.map { $0.phase }, StepIn.Phase.allCases)
+            for (earlier, later) in zip(phases, phases.dropFirst()) {
+                XCTAssertLessThan(earlier.at, later.at, "\(earlier.phase) before \(later.phase)")
+            }
+            let at = Dictionary(uniqueKeysWithValues: phases.map { ($0.phase.rawValue, $0.at) })
+            let whole = at["whole"] ?? -1
+            XCTAssertEqual(whole, mode.reduceMotion ? 0.95 : 1.30, accuracy: 1e-9)
+            XCTAssertEqual(StepIn.picture(at: whole, mode: mode), .hall(opacity: 1), "whole at \(whole)")
+            XCTAssertLessThan(StepIn.picture(at: whole - 0.001, mode: mode).hallOpacity, 1, "not before")
+            XCTAssertEqual(at["black"] ?? -1, 0.60, accuracy: 1e-9, "the beds stop at the same black in both forms")
+            XCTAssertEqual(StepIn.picture(at: at["gone"] ?? -1, mode: mode).titleOpacity, 0,
+                           "the title leaves the tree once nothing of it shows")
+            XCTAssertEqual((at["panes"] ?? -1) - whole, 0.25, accuracy: 1e-9)
+        }
+    }
+
+    /// Polish C2b (L5): the mask's rows are built once per whole-px radius and are the runs themselves.
+    func testTheMaskRowsAreBuiltOncePerRadius() {
+        let radius = 197
+        XCTAssertEqual(TitleMask.rows(radius: radius), TitleMask.runs(radius: radius))
+        let built = TitleMask.rowsBuilt
+        for _ in 0..<50 { _ = TitleMask.rows(radius: radius) }
+        XCTAssertEqual(TitleMask.rowsBuilt, built, "a kept radius is not built again")
+        XCTAssertEqual(TitleMask.rows(radius: 0), [])
     }
 
     // MARK: The pane at the start (C1-10)
@@ -247,7 +273,10 @@ final class TitleStepInTests: XCTestCase {
             var opens: [Double] = []
             var t = 0.0
             while t < 3.0 {
-                let now = PaneShown.gated(pane, held: !StepIn.panesOpen(at: t, mode: mode, title: title))
+                // The root's hold: released at the phase "panes" after a title, `panesAtWithoutTitle` without one.
+                let release = title ? (StepIn.phases(mode).first { $0.phase == .panes }?.at ?? 0)
+                    : StepIn.panesAtWithoutTitle
+                let now = PaneShown.gated(pane, held: t < release)
                 if let cue = PaneShown.cue(from: shown, to: now) {
                     XCTAssertEqual(cue, .paneOpen)
                     opens.append(t)
