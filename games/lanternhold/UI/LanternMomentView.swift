@@ -11,9 +11,21 @@ final class MomentFade {
     static let shared = MomentFade()
 
     private(set) var clean = 0.0
+    /// Polish B1 (one driver): the lantern's light (`LanternVeil.light`, 0 ... 1), the SwiftUI layer's opacity, and the
+    /// last moment shown, which stays on screen (taking no touch, hidden from VoiceOver) while the light leaves.
+    private(set) var light = 0.0
+    private(set) var show: LanternMomentShow?
 
     func set(_ value: Double) {
         if value != clean { clean = value }
+    }
+
+    func setLight(_ value: Double) {
+        if value != light { light = value }
+    }
+
+    func setShow(_ value: LanternMomentShow?) {
+        if value != show { show = value }
     }
 }
 
@@ -63,6 +75,8 @@ enum LanternKitImages {
 struct LanternMomentView: View {
     let model: GameModel
     let show: LanternMomentShow
+    /// Polish B1: the lantern is down and the moment's light leaves: it shows, but takes no touch and says nothing.
+    var lowering = false
 
     var body: some View {
         // Build 3, lane 5 step 5 (the clean frame): while a finger holds the look-around's pan the town's banner and
@@ -91,7 +105,10 @@ struct LanternMomentView: View {
             }
         }
         .accessibilityAction(.escape) { model.lowerLanternMoment() }
-        .transition(model.reduceMotion ? .identity : .opacity)
+        // Polish B1 (M3, law 1 "one event, one driver"): no transition of its own; `GameView` gives it the lantern's
+        // light as its opacity. Going down it takes no touch and is no VoiceOver element.
+        .allowsHitTesting(!lowering)
+        .accessibilityHidden(lowering)
     }
 
     /// The moment's element over the whole screen (it takes no finger: the touch goes through to the world; VoiceOver's

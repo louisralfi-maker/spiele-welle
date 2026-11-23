@@ -186,7 +186,13 @@ final class CountUITests: XCTestCase {
 
     /// The guard's board beside the barracks: one big coin and four small (14), frozen with half of them laid (b3-yard:
     /// Marek's cart stands by the back gate now, no longer before the barracks). Polish B2 (H2): first a tap on the
-    /// lord's body toward the board, which is a coin, never the lantern.
+    /// lord's body toward the board, which is a coin, never the lantern. Polish B1 (Part 0, rounds lh-rnd-12 and
+    /// lh-rb-9): the near tap failed once in four, with the lord on his stand exactly and the camera at rest: the
+    /// empty board's own wait (`PayCount.emptyWait`, 5.0 s from his arrival, PAY.md) ran out on a slow runner before
+    /// the tap landed (the scene reads and the tap's latency before it took that long), so the board was gone and the
+    /// tap on him was his lantern, as the rules say. Now the first board brings him to his stand and goes by itself;
+    /// the second comes with him already standing there (ready at once), and the near tap follows at once, well inside
+    /// the wait. The scene's numbers stay in the messages.
     func testTheGuardsBoard() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
@@ -205,24 +211,39 @@ final class CountUITests: XCTestCase {
         guardsman.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).tap()
         XCTAssertTrue(waitForField(app, "count:touch-recruit-guard", timeout: 3), "the guard's board stands")
         waitForStill(app)
+        waitForCamera(app, timeout: 4)
         _ = waitForField(app, ":there", timeout: 4)
+        let lord = element(app, "touch-lord")
+        guard lord.waitForExistence(timeout: 3), let first = waitForThing(app, "touch-recruit-guard", timeout: 3) else {
+            XCTFail("the lord or the guard's half is missing")
+            return
+        }
+        let toward: CGFloat = first.frame.midX >= lord.frame.midX ? 1 : -1
+        // Polish B1 (Part 0): the first board, untouched, goes by itself; he stays on its stand.
+        XCTAssertTrue(waitForField(app, "count:none", timeout: PayCountWaits.empty + 4),
+                      "the empty board goes by itself; now: \(guardFacts(app))")
+        if let again = waitForThing(app, "touch-recruit-guard", timeout: 3) {
+            again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).tap()
+        }
+        XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:0/5:there", timeout: 3),
+                      "the second board: he already stands at it; now: \(guardFacts(app))")
         // Polish B2 (H2; added to pin the new rule): beside the open board the lord takes no tap. A tap on his body
         // 2 game px (4 pt) toward the board is the board's first coin; the lantern stays down.
-        let lord = element(app, "touch-lord")
-        if lord.waitForExistence(timeout: 3), let board = waitForThing(app, "touch-recruit-guard", timeout: 3) {
-            let toward: CGFloat = board.frame.midX >= lord.frame.midX ? 1 : -1
-            lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))
-                .withOffset(CGVector(dx: 4 * toward, dy: 0)).tap()
-            XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:1/5", timeout: 3), "the near tap is a coin")
-            XCTAssertNotEqual(sceneField(app, "hud:"), "moment", "no purse, strip or gear: the lantern stays down")
-        } else {
-            XCTFail("the lord or the guard's half is missing")
-        }
+        let before = sceneWords(app) + " lord element:\(lord.frame)"
+        lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62)).withOffset(CGVector(dx: 4 * toward, dy: 0))
+            .tap()
+        let coin = waitForField(app, "count:touch-recruit-guard:1/5", timeout: 3)
+        let after = guardFacts(app)
+        note("175n-count-guard-near-tap", "coin:\(coin) | before: \(before) | after: \(after)")
+        XCTAssertTrue(coin, "the near tap is a coin; before: \(before); after: \(after)")
+        XCTAssertNotEqual(sceneField(app, "hud:"), "moment",
+                          "no purse, strip or gear: the lantern stays down; before: \(before); after: \(after)")
         if let again = waitForThing(app, "touch-recruit-guard", timeout: 3) {
             again.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)).press(forDuration: 1.5)
         }
         pause(0.3)
-        XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:3/5", timeout: 3), "the hold counts on, frozen")
+        XCTAssertTrue(waitForField(app, "count:touch-recruit-guard:3/5", timeout: 3),
+                      "the hold counts on, frozen; now: \(guardFacts(app))")
         XCTAssertNotEqual(sceneField(app, "hud:"), "moment")
         attach(XCUIScreen.main.screenshot(), "175-count-guard-\(language)")
         note("175-count-guard-state", sceneField(app, "count:") ?? "?")
@@ -517,6 +538,29 @@ final class CountUITests: XCTestCase {
             return false
         }
         return true
+    }
+
+    /// Polish B1 (Part 0): the scene's numbers the guard's near tap depends on, read in one query: the lord's place
+    /// (`lx:`, `kxf:`) and speed (`kv:`), the camera (`cam:`, `kcx:`), the count (`count:`, how the last one ended
+    /// `last:`, the board's stand `cstand:`, whether it holds the lord's body `chold:`, how long it waited untouched
+    /// `cidle:`), the errand, the last tap and the lantern (`hud:`).
+    private func guardFacts(_ app: XCUIApplication) -> String {
+        sceneWords(app)
+    }
+
+    /// The scene's value in one query, cut to the words the near tap's messages need.
+    private func sceneWords(_ app: XCUIApplication) -> String {
+        let keys = ["lx:", "kxf:", "kv:", "cam:", "kcx:", "count:", "last:", "cstand:", "chold:", "cidle:", "errand:",
+                    "tap:", "hud:", "stage:"]
+        let words = ((element(app, "world-scene").value as? String) ?? "").split(separator: " ")
+        return keys.map { key in "\(key)\(words.first { $0.hasPrefix(key) }.map { String($0.dropFirst(key.count)) } ?? "?")" }
+            .joined(separator: " ")
+    }
+
+    /// Polish B1 (Part 0): the empty board's wait as PAY.md and `PayCount.emptyWait` give it (the UI tests do not
+    /// link the game's code).
+    private enum PayCountWaits {
+        static let empty: TimeInterval = 5.0
     }
 
     private func waitForField(_ app: XCUIApplication, _ text: String, timeout: TimeInterval) -> Bool {

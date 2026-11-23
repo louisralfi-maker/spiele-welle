@@ -349,9 +349,9 @@ struct HornBanner: View {
             // LANE-E: E1b (the far goal said twice, R10: "Night {n} of {N}" while the night lies inside the run;
             // past it, the Long Watch, the old wording)
             Text(inked: FarGoal.hornLine(night: night), .subheadline)
-            // LANE-E end
                 .font(Theme.italic(.subheadline))
                 .foregroundStyle(Theme.bone)
+            // LANE-E end
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)

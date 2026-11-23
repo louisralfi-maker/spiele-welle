@@ -57,15 +57,19 @@ struct GameView: View {
                     HornSlipView(anchor: slip)
                 }
                 // The lantern moment (stage-3-interface, HUD.md section 2): a tap on the lord stills the world.
-                // Fix lane G: it fades in over 0.16 s and out over 0.12 s (its own `.transition`); none under Reduce
-                // Motion. The ZStack only carries the animation, scoped to the moment.
-                ZStack {
-                    if let show = model.lanternMoment, model.overlay == nil {
-                        LanternMomentView(model: model, show: show)
-                    }
+                // Polish B1 (M3, law 1 "one event, one driver"): its opacity is the lantern's light (`LanternVeil`,
+                // 0.15 s up and 0.10 s down, linear, the same under Reduce Motion), the value the dim and the Metal
+                // block read; after the lowering the last moment stays until the light is gone.
+                // The B1 gate (M1 of the player's lens): a card opened from the moment (the gear) takes the lantern
+                // down with it; the layer then leaves with the light under the card's dim, as the Metal block does,
+                // instead of being cut in the card's first frame.
+                let fade = MomentFade.shared
+                let raisedShow = model.overlay == nil ? model.lanternMoment : nil
+                let leavingShow = model.lanternMoment == nil && fade.light > 0 ? fade.show : nil
+                if let show = raisedShow ?? leavingShow {
+                    LanternMomentView(model: model, show: show, lowering: raisedShow == nil)
+                        .opacity(fade.light)
                 }
-                .animation(model.reduceMotion ? nil : (model.lanternMoment != nil ? Animation.easeOut(duration: 0.16)
-                    : Animation.easeIn(duration: 0.12)), value: model.lanternMoment != nil)
                 OverlayView(model: model)
                 // The ads (Ads/AdViews.swift): Marek's card over the world.
                 AdLayer(model: model)

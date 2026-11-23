@@ -619,4 +619,26 @@ final class TouchWorldTests: XCTestCase {
         }
         XCTAssertGreaterThan(seen.count, 20, "the door moved on the screen while he walked")
     }
+
+    /// Polish B1 (rider 2): while Brannock's offer of the horn takes the touch, his element names the deed ("Sound the
+    /// horn"); otherwise it is a talk as for everyone.
+    func testBrannocksElementSaysSoundTheHornWhileHisOfferTakesTheTouch() throws {
+        let game = model(["GWHour": "11", "GWGold": "9", "GWStage": "world", "GWCameraX": "1540"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let state = try XCTUnwrap(game.driver?.state)
+        let him = try XCTUnwrap(game.touch.things.first { $0.id == "touch-talk-brannock" }, "Brannock in view")
+        XCTAssertTrue(game.nightOfferStands, "the day's work is done: his offer stands")
+        if game.nightOfferTakesTouch {
+            XCTAssertEqual(game.touchLabel(him, state: state), String(localized: "Sound the horn"))
+        } else {
+            XCTAssertTrue(game.touchLabel(him, state: state).hasPrefix("Talk to"), "his own line comes first")
+        }
+        let morning = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1540"])
+        _ = morning.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let early = try XCTUnwrap(morning.driver?.state)
+        if let brannock = morning.touch.things.first(where: { $0.id == "touch-talk-brannock" }),
+           !morning.nightOfferTakesTouch {
+            XCTAssertTrue(morning.touchLabel(brannock, state: early).hasPrefix("Talk to"), "a talk as for everyone")
+        }
+    }
 }
