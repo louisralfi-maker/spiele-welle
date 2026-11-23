@@ -173,17 +173,30 @@ struct RootView: View {
         model?.setActive(true)
         let mode = stepInMode
         Task { @MainActor in
+            var marks: [String] = []
+            func mark(_ name: String) {
+                #if DEBUG
+                marks.append(String(format: "%@ %.3f/%.3f", name, Date().timeIntervalSince(start), beat.lost))
+                #endif
+            }
+            mark("task")
+            await beat.wait(until: StepIn.closeFrom)
+            mark("close")
             await beat.wait(until: StepIn.blackAt)
             titleCues.black()
+            mark("black")
             await beat.wait(until: StepIn.riseFrom)
             titleDone = true
+            mark("gone")
             await beat.wait(until: StepIn.hallWholeAt(mode))
             hallWhole = true
+            mark("whole")
             await beat.wait(until: StepIn.panesAt(mode))
             panesHeld = false
+            mark("panes")
             #if DEBUG
-            stepProbe = String(format: "lost:%.3f longest:%.3f wall:%.3f", beat.lost, beat.longestGap,
-                               Date().timeIntervalSince(start))
+            stepProbe = String(format: "lost:%.3f longest:%.3f wall:%.3f; wall/lost at ", beat.lost, beat.longestGap,
+                               Date().timeIntervalSince(start)) + marks.joined(separator: ", ")
             #endif
         }
     }
