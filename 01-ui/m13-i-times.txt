@@ -1,0 +1,11 @@
+m13-i: E1b: day 1, Mother Hesper carries the mark of an unheard line
+real time; one frame every 0.50 s
+no cause: the burst only watches
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWClock 10 -GWStage hall -GWFlickerTime 2.5
+scene before: frame:300 ready day:1 hour:10.51 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:7 kd:1
+scene after: frame:350 ready day:1 hour:10.60 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:412 lx:412 errand:none gold:44 hud:none cam:225 tap:none hint:off0 count:none last:none lanterns:0 models:none yard:none offer:none dusk:none talkmarks:hesper drill:none kv:0.00 kxf:1830.00 kf:6 kd:1
+
+frame  seconds since the burst began  (scene where read)
+01  +0.324 s  
+02  +0.909 s  
+mean spacing 0.585 s over 1 gaps
