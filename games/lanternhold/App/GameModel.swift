@@ -485,6 +485,15 @@ final class GameModel {
             feedback.play(.buildStood, at: x, listenerX: game.state.king.x)
         }
         // LANE-A end
+        // LANE-A: A5 (the gate moves: line 1's gate follows the rule's target on the picture's wall clock, standing at
+        // once on the first frame back on the world stage; the dawn's gate cue starts with the door, once, in the frame
+        // the gate begins to rise at a dawn, and a dawn at which no gate moves plays none)
+        let gateChange = effects.stepGate(game.state, balance: game.balance, time: clock.elapsed,
+                                          reduceMotion: reduceMotion, seen: stage == .world)
+        if gateChange == .opens, events.contains(where: { if case .dawn = $0 { return true } else { return false } }) {
+            feedback.play(.dawnGate)
+        }
+        // LANE-A end
         // Town-2: the purse is heard as the player sees it (the coins in the air held back until they land).
         let heard = watch.cues(TownShow.heard(game.state, balance: game.balance), balance: game.balance,
                                moving: stepped > 0)
@@ -551,9 +560,9 @@ final class GameModel {
             switch event {
             case .dawn:
                 writeSave()
-                // Polish E2 (F6): the gate opens at this dawn, so its cue plays here, once. Lane A's step A5 (the
-                // portcullis slides up) moves this call onto its motion.
-                feedback.play(.dawnGate)
+                // LANE-A: A5 (the dawn's gate cue moved onto the gate's motion: `advanceGame` plays it in the frame the
+                // gate begins to rise at a dawn, `BattleEffects.stepGate`)
+                // LANE-A end
                 // Polish E2 (law 3.6): the card waits until 0.6 s after the gate stands open (`awaitDawnCard`).
                 if let report = state.lastReport, overlay != .defeat {
                     awaitDawnCard(report)
@@ -789,7 +798,11 @@ final class GameModel {
     /// in the frame of `.dawn`). The one place lane A's step A5 (the portcullis slides up) changes: until then the
     /// gate is open in the frame of `.dawn` itself.
     func gateStandsOpenAt(dawnAt: Double) -> Double {
-        dawnAt
+        // LANE-A: A5 (the moment the gate really stands open: the end of its opening, `GateMotion.standsOpenAt`, on
+        // the same clock; the dawn itself when no gate moves at this dawn: rubble, no gate, or shut while creatures
+        // are near)
+        max(dawnAt, effects.gate.standsOpenAt ?? dawnAt)
+        // LANE-A end
     }
 
     /// The dawn came: the world stands still as under the card (the realm's clock holds; the wall-time picture lives

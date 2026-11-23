@@ -82,6 +82,19 @@ final class DawnCardModelTests: XCTestCase {
         (game.feedback as? RecordingFeedback)?.count(cue) ?? -1
     }
 
+    // LANE-A: A5 (the gate moves: the card's 0.6 s count from the gate standing open, `gateStandsOpenAt`, which is the
+    // end of its opening, GateMotion.openSeconds after the dawn, or GateMotion.reducedSeconds under Reduce Motion; the
+    // dawn itself when no gate moves. The two tests below were E2's pins of the card 0.6 s after the dawn's own frame;
+    // rewritten to wait through the gate's opening first. The tests after them are A5's own.)
+    /// Advances in steps of at most 0.25 s until the clock reaches `time` (the card still waiting all the way).
+    private func advance(_ game: GameModel, until time: Double) {
+        while game.clock.elapsed < time - 1e-9 {
+            game.advance(by: min(0.25, time - game.clock.elapsed))
+            XCTAssertTrue(game.dawnCardWaits, "the card waits while the gate opens")
+            XCTAssertNil(game.overlay)
+        }
+    }
+
     func testTheCardComesSixTenthsOfASecondAfterTheGateWithTheInputClosed() throws {
         XCTAssertEqual(GameModel.dawnCardDelay, 0.6)
         let game = try atTheDawn()
@@ -102,6 +115,14 @@ final class DawnCardModelTests: XCTestCase {
         XCTAssertNil(game.overlay, "no pause sheet")
         XCTAssertNil(game.lanternMoment, "no lantern")
         XCTAssertNil(game.touch.errand, "no errand")
+
+        // A5: the gate rises first, over its opening's 0.8 s; the 0.6 s count from the moment it stands open.
+        let dawnAt = game.clock.elapsed
+        let open = game.gateStandsOpenAt(dawnAt: dawnAt)
+        XCTAssertEqual(open - dawnAt, GateMotion.openSeconds, accuracy: 1e-9,
+                       "the gate stands open 0.8 s after the dawn")
+        advance(game, until: open)
+        XCTAssertEqual(game.effects.gate.look?.rows, GateMotion.fullRows, "the gate stands open")
 
         game.advance(by: 0.25)
         game.advance(by: 0.25)
@@ -124,6 +145,8 @@ final class DawnCardModelTests: XCTestCase {
         XCTAssertEqual(game.touch.down, point, "after the card the finger is taken again")
     }
 
+    /// The card's wait is the same 0.6 s under Reduce Motion (a wait, not a motion); the gate's change before it is
+    /// opacity only, at law 1's quick 0.15 s.
     func testUnderReduceMotionTheWaitIsTheSame() throws {
         let game = model(["GWNight": "1", "GWSeed": "4", "GWCameraX": "1150", "GWReduceMotion": "YES"])
         var frames = 0
@@ -132,13 +155,86 @@ final class DawnCardModelTests: XCTestCase {
             frames += 1
         }
         XCTAssertTrue(game.dawnCardWaits)
+        let dawnAt = game.clock.elapsed
+        let open = game.gateStandsOpenAt(dawnAt: dawnAt)
+        XCTAssertEqual(open - dawnAt, GateMotion.reducedSeconds, accuracy: 1e-9, "the fade's 0.15 s")
+        advance(game, until: open)
         game.advance(by: 0.25)
         game.advance(by: 0.25)
         game.advance(by: 0.05)
-        XCTAssertNil(game.overlay, "a wait, not a motion: 0.55 s, no card")
+        XCTAssertNil(game.overlay, "a wait, not a motion: 0.55 s after the gate, no card")
         game.advance(by: 0.05)
-        XCTAssertNotNil(game.reportCard, "0.6 s: the card")
+        XCTAssertNotNil(game.reportCard, "0.6 s after the gate: the card")
     }
+
+    /// A5: at the dawn the gate begins to rise in the dawn's own frame (no row up yet), and the card is due
+    /// `dawnCardDelay` after `gateStandsOpenAt`, which reads the gate's motion: dawn + 0.8.
+    func testTheGateBeginsToRiseAtTheDawnAndTheCardIsDueAfterIt() throws {
+        let game = try atTheDawn()
+        let dawnAt = game.clock.elapsed
+        let gate = game.effects.gate
+        XCTAssertEqual(gate.target, true, "the gate's target is open at the dawn")
+        XCTAssertTrue(gate.isMoving(at: dawnAt), "it travels")
+        XCTAssertEqual(gate.look?.rows, 0, "no row up in the dawn's frame")
+        XCTAssertEqual(gate.standsOpenAt ?? 0, dawnAt + GateMotion.openSeconds, accuracy: 1e-9)
+        XCTAssertEqual(game.gateStandsOpenAt(dawnAt: dawnAt), dawnAt + GateMotion.openSeconds, accuracy: 1e-9)
+        XCTAssertEqual(count(.dawnGate, game), 1, "the gate's cue with the door's first frame")
+        advance(game, until: dawnAt + GateMotion.openSeconds + GameModel.dawnCardDelay - 0.05)
+        XCTAssertNil(game.overlay, "1.35 s after the dawn: no card")
+        game.advance(by: 0.05)
+        XCTAssertNotNil(game.reportCard, "1.4 s after the dawn (0.8 s gate, 0.6 s wait): the card")
+        XCTAssertEqual(count(.dawnGate, game), 1, "once")
+    }
+
+    /// A5: a dawn at which no gate moves (line 1 is rubble) plays no gate cue, and its card comes 0.6 s after the dawn
+    /// itself (`gateStandsOpenAt` gives the dawn).
+    func testADawnWithoutAGateNeitherWaitsForItNorPlaysItsCue() throws {
+        var state = GameState.newRealm(seed: 4, balance: .standard)
+        state.lord = LordIdentity(name: "Mira", form: .lady)
+        var bot = Autoplay.reference()
+        Sim.run(&state, untilHour: 5.9, balance: .standard, bot: &bot)
+        XCTAssertFalse(state.defeated)
+        let wall = Realm.lines[0].wall
+        XCTAssertNotNil(state.plots[wall].item, "the realm has its gate")
+        state.plots[wall].isRubble = true
+        try SaveStore(directory: directory).write(SaveGame(state: state))
+        let game = GameModel(args: DebugArgs(values: [:]), kind: .world, store: SaveStore(directory: directory))
+        let hub = RecordingFeedback()
+        game.feedback = hub
+        XCTAssertEqual(game.driver?.state.hour ?? 0, 5.9, accuracy: 0.02, "the night's last minutes")
+        var frames = 0
+        while !game.dawnCardWaits && game.overlay == nil && frames < 400 {
+            game.advance(by: 0.25)
+            frames += 1
+        }
+        XCTAssertTrue(game.dawnCardWaits, "the dawn came and the card waits")
+        let dawnAt = game.clock.elapsed
+        XCTAssertNil(game.effects.gate.standsOpenAt, "no gate to open")
+        XCTAssertEqual(game.gateStandsOpenAt(dawnAt: dawnAt), dawnAt, "the dawn itself")
+        XCTAssertEqual(hub.count(.dawnGate), 0, "no gate cue without a gate")
+        game.advance(by: 0.25)
+        game.advance(by: 0.25)
+        game.advance(by: 0.05)
+        XCTAssertNil(game.overlay, "0.55 s after the dawn: no card")
+        game.advance(by: 0.05)
+        XCTAssertNotNil(game.reportCard, "0.6 s after the dawn: the card")
+        XCTAssertEqual(hub.count(.dawnGate), 0)
+    }
+
+    /// A5: under Reduce Motion the gate's cue still plays once at the dawn (sound never changes under Reduce Motion).
+    func testUnderReduceMotionTheGatesCueStillPlaysOnce() throws {
+        let game = model(["GWNight": "1", "GWSeed": "4", "GWCameraX": "1150", "GWReduceMotion": "YES"])
+        var frames = 0
+        while !game.dawnCardWaits && game.overlay == nil && frames < 2000 {
+            game.advance(by: 0.25)
+            frames += 1
+        }
+        XCTAssertEqual(count(.dawnGate, game), 1)
+        XCTAssertEqual(game.effects.gate.look?.rows, 0, "no row travels under Reduce Motion")
+        for _ in 0..<8 { game.advance(by: 0.25) }
+        XCTAssertEqual(count(.dawnGate, game), 1)
+    }
+    // LANE-A end
 
     func testTheCardComesAfterAPauseOfTheApp() throws {
         let game = try atTheDawn()
