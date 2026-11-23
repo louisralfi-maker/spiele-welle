@@ -27,9 +27,10 @@ final class SoundTests: XCTestCase {
         XCTAssertEqual(FeedbackCue.brazierLit.sound?.id, .lantern)
         XCTAssertEqual(FeedbackCue.step.sound?.id, .step1)
         XCTAssertEqual(FeedbackCue.audienceOpened.sound?.id, .parchment)
-        // Polish D1: the old card pair is quiet in the hub; the panes' own pair plays the tap.
+        // Polish D2 0a rewrote this line (D1 had the old card pair silent): the card pair answers as the pane pair.
         XCTAssertEqual(FeedbackCue.paneOpen.sound?.id, .tap)
-        XCTAssertNil(FeedbackCue.cardOpened.sound)
+        XCTAssertEqual(FeedbackCue.cardOpened.sound, FeedbackCue.paneOpen.sound)
+        XCTAssertEqual(FeedbackCue.cardClosed.sound, FeedbackCue.paneClose.sound)
         XCTAssertEqual(FeedbackCue.manFell.sound?.id, .manFall)
         XCTAssertEqual(FeedbackCue.manHit.sound?.id, FeedbackCue.soldierGrunts ? .grunt1 : .arrowHit)
         XCTAssertEqual(FeedbackCue.wallCracked.sound?.id, .wallCrack)
@@ -376,9 +377,9 @@ final class SoundTests: XCTestCase {
     }
 
     /// Step 0b: every cue, the contract's too, plays a file that is in the app and in MANIFEST.txt; the two mood cues
-    /// stay silent (their crowd sounds are D4's). Polish D1 retired four on purpose, named here: `cardOpened` and
-    /// `cardClosed` (quiet in the hub; lane C's `paneOpen` / `paneClose` answer the overlay), `creatureHit` (`hit`
-    /// plays the blow) and `soldierFell` (`manFell` plays the fall at the man's place).
+    /// stay silent (their crowd sounds are D4's). Polish D1 retired two on purpose, named here: `creatureHit` (`hit`
+    /// plays the blow) and `soldierFell` (`manFell` plays the fall at the man's place). D2 0a rewrote the set: the card
+    /// pair (D1 had it silent too) answers as the pane pair.
     func testEveryCuePlaysAFileThatShipsAndIsInTheManifest() throws {
         let folder = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         let manifestURL = folder.appendingPathComponent("Resources/Sound/MANIFEST.txt")
@@ -396,7 +397,7 @@ final class SoundTests: XCTestCase {
             XCTAssertEqual(parts.count, 3, line)
             XCTAssertEqual(parts.last?.count, 64, "\(id.rawValue): a sha256")
         }
-        let retired: Set<FeedbackCue> = [.cardOpened, .cardClosed, .creatureHit, .soldierFell]
+        let retired: Set<FeedbackCue> = [.creatureHit, .soldierFell]
         let silentOnPurpose: Set<FeedbackCue> = Set([.happinessUp, .happinessDown]).union(retired)
         for cue in retired {
             XCTAssertNil(cue.sound, "\(cue) is retired")

@@ -42,22 +42,28 @@ import Foundation
 // - The law's own numbers stand where its measure disagrees: the bubble close (-26.5), the dawn's bells and the dawn
 //   gate (whole-file RMS reads a long bell or gate tail quieter than its strike). D2 judges them by ear.
 // - D1 retired `soldierFell` (the thinner maps the event to nothing; `SoundWatch` plays `manFell` at the man's x) and
-//   `creatureHit` (`SoundWatch` plays `hit`): both cues stay as cases and are silent. When A2 calls `buildStood`, the
+//   `creatureHit` (`SoundWatch` plays `hit`): both cues stay as cases and are silent. The card pair is not retired: it
+//   answers as the pane pair (D2 0a, below). When A2 calls `buildStood`, the
 //   simulation's `buildDone` goes quiet in the same step (D2), so nothing plays twice.
 // - Old calls a new cue retires, in the caller's step (they share a file and its throttle, so the one called first in
 //   a frame would swallow the other and both haptics would fire):
 //   - B1: `lanternUp` replaces `play(.touched)` on the raise (`GameModel+Lantern.swift`, `openLanternMoment`); both
 //     play tap.wav under its 0.06 s throttle.
-//   - C1: `paneOpen` / `paneClose`, played from `OverlayView` on the overlay's change, replace `cardOpened` /
-//     `cardClosed`, which D1 made quiet in the hub (no sound, no haptic; the cases stay, so no call site changes).
-//     One touch, one tick: a pane cue within 0.25 s after a `plaquePress` plays its sound and no haptic.
-//     The old pair's call sites (read at 696eec4a) and whether the overlay changes in the same deed:
-//       covered (the overlay changes, so C1's pane cue answers):
+//   - C1: `paneOpen` / `paneClose`, played from `OverlayView` on the overlay's change. D2 0a (the director's call
+//     after D1): the old pair `cardOpened` / `cardClosed` is an alias of them, not silent: `cardOpened` answers as
+//     `paneOpen` and `cardClosed` as `paneClose` (the same sound, the same hand, the same one-touch-one-tick rule after
+//     a `plaquePress`), and the hub lets through only ONE of a card cue and a pane cue within 0.25 s
+//     (`FeedbackGate.oneAnswer`): the first plays, the other is dropped whole (no sound, no haptic, no throttle spent).
+//     So a deed whose overlay changes answers once, and a deed whose overlay does not change keeps its answer. Later
+//     steps move each caller to a cue of its own (lane B's B3 the bubble); the pair retires when its last caller is gone.
+//     One touch, one tick: a pane cue (or a card cue) within 0.25 s after a `plaquePress` plays its sound and no haptic.
+//     The old pair's call sites (read at a7af7075) and whether the overlay changes in the same deed:
+//       the overlay changes (C1's pane cue comes too; the first of the two answers, the other is dropped):
 //         GameModel+Lord.swift confirmLord (cardClosed, overlay lordEntry -> nil)
 //         GameModel+Court.swift endAudience (cardClosed, audience -> nil)
 //         GameModel.swift openCard (cardOpened, nil -> build/recruit) and closeCard (cardClosed, card -> nil)
 //         Slides/GameModel+Endings.swift beginAgainNow (cardClosed, -> pause)
-//       silent now (no overlay change; the director decides who answers them):
+//       no overlay changes (the card cue is the deed's only answer):
 //         GameModel+Court.swift talk (cardOpened twice: the bubble opens, in the hall and in the world)
 //         GameModel+Touch.swift the bench's bubble (cardOpened)
 //         GameModel+Collector.swift Saul's bubble (cardOpened)

@@ -151,10 +151,12 @@ extension FeedbackCue {
         case .recruited: return SoundPlay(id: .seal, volume: 0.6)
         case .patched: return SoundPlay(id: .buildStart, volume: 0.6, rate: 1.1)
         case .brazierLit: return SoundPlay(id: .lantern, volume: 0.75)
-        // D1 (law 4, one touch, one tick): the old pair is quiet in the hub (no sound, no haptic); lane C plays
-        // `paneOpen` / `paneClose` from `OverlayView` on the overlay's change. The cases stay, so no call site changes;
-        // the call sites and whether the overlay changes with them are listed at the top of Core/Feedback.swift.
-        case .cardOpened, .cardClosed: return nil
+        // D2 0a (the director's call after D1): the old card pair is an alias of the pane pair, the same sound and the
+        // same hand; the gate lets only one of a card cue and a pane cue through within 0.25 s (`FeedbackGate`), so a
+        // deed whose overlay changes answers once and a deed whose overlay does not change keeps its answer. The call
+        // sites are listed at the top of Core/Feedback.swift; the pair retires when its last caller has a cue of its own.
+        case .cardOpened: return FeedbackCue.paneOpen.sound
+        case .cardClosed: return FeedbackCue.paneClose.sound
         case .refused: return SoundPlay(id: .decline, volume: 0.6)
         case .happinessUp, .happinessDown: return nil
         case .coin: return SoundPlay(id: .coin, volume: 0.55)
@@ -211,9 +213,22 @@ extension FeedbackCue {
     /// they come out again if they sound artificial). False: a man struck plays the arrow's body blow instead.
     static let soldierGrunts = true
 
+    /// D2 0a: the pane cue an old card cue answers as (`cardOpened` as `paneOpen`, `cardClosed` as `paneClose`); nil for
+    /// every other cue.
+    var paneAlias: FeedbackCue? {
+        switch self {
+        case .cardOpened: return .paneOpen
+        case .cardClosed: return .paneClose
+        default: return nil
+        }
+    }
+
     /// The haptic of a cue, nil for none.
     var haptic: HapticKind? {
         switch self {
+        // D2 0a: the card pair has the pane pair's hand.
+        case .cardOpened: return FeedbackCue.paneOpen.haptic
+        case .cardClosed: return FeedbackCue.paneClose.haptic
         case .buildDone: return .light
         case .coin: return .soft
         case .wallHit: return .medium
@@ -246,8 +261,8 @@ extension FeedbackCue {
     var hapticStrength: Double {
         switch self {
         case .lanternUp: return 0.5
-        case .paneOpen: return 0.4
-        case .paneClose, .boardSet: return 0.3
+        case .paneOpen, .cardOpened: return 0.4
+        case .paneClose, .cardClosed, .boardSet: return 0.3
         default: return haptic == .soft ? 0.6 : 1
         }
     }
@@ -257,6 +272,7 @@ extension FeedbackCue {
     var answerSize: AnswerSize? {
         switch self {
         case .lanternUp, .lanternDown, .paneOpen, .paneClose, .bubbleClose, .plaquePress, .boardSet: return .touch
+        case .cardOpened, .cardClosed: return .touch
         case .hit, .manHit, .dawnGate: return .deed
         case .arrowHit, .wallHit, .creatureDissolved: return .deed
         case .buildStood, .manFell, .dawnHeld, .dawnToll: return .triumph
@@ -368,18 +384,29 @@ struct FeedbackGate: Sendable, Equatable {
     /// D1: the grunts alternate; the last plaque press.
     private var gruntFlip = false
     private var pressAt: Double?
+    /// D2 0a: when a card cue and a pane cue last answered (the alias rule).
+    private var cardAt: Double?
+    private var paneAt: Double?
 
     /// At most one grunt every this many seconds (D1).
     static let gruntSpacing = 0.5
     /// One touch, one tick (law 4, the director's call of 22.11.): a pane cue this soon after a plaque press plays its
     /// sound and no haptic.
     static let oneTouch = 0.25
+    /// D2 0a, one answer: of a card cue and a pane cue this close together only the first answers; the other is dropped
+    /// whole (no sound, no haptic, no throttle spent).
+    static let oneAnswer = 0.25
 
     init() {}
 
     /// The pane cues the one-tick rule quiets in the hand.
     static func isPane(_ cue: FeedbackCue) -> Bool {
         cue == .paneOpen || cue == .paneClose
+    }
+
+    /// D2 0a: the old card pair, which answers as the pane pair.
+    static func isCard(_ cue: FeedbackCue) -> Bool {
+        cue.paneAlias != nil
     }
 
     /// The haptic a cue gives with the Haptics switch at `hapticsOn`, throttles aside: nil when the switch is off.
@@ -392,9 +419,21 @@ struct FeedbackGate: Sendable, Equatable {
     /// and never larger).
     mutating func answer(_ cue: FeedbackCue, soundOn: Bool, hapticsOn: Bool, now: Double, near: Bool = true) -> CueAnswer {
         var answer = CueAnswer(haptic: nil, hapticStrength: cue.hapticStrength, sound: nil, jitter: false)
-        // One touch, one tick: the press's own tick stands for the pane it opens or closes.
+        // D2 0a, one answer: a card cue and a pane cue within 0.25 s are one deed; the first answers, the other is
+        // dropped whole, before any throttle.
+        let card = FeedbackGate.isCard(cue)
+        let pane = FeedbackGate.isPane(cue)
+        func within(_ at: Double?) -> Bool {
+            guard let at else { return false }
+            return now >= at && now - at <= FeedbackGate.oneAnswer
+        }
+        if (card && within(paneAt)) || (pane && within(cardAt)) { return answer }
+        if card { cardAt = now }
+        if pane { paneAt = now }
+        // One touch, one tick: the press's own tick stands for the pane (or the card answering as one) it opens or
+        // closes.
         var afterPress = false
-        if FeedbackGate.isPane(cue), let at = pressAt, now >= at, now - at <= FeedbackGate.oneTouch { afterPress = true }
+        if card || pane, let at = pressAt, now >= at, now - at <= FeedbackGate.oneTouch { afterPress = true }
         if cue == .plaquePress { pressAt = now }
         if !afterPress, near, let haptic = FeedbackGate.haptic(cue, hapticsOn: hapticsOn),
            haptics.allow(cue.rawValue, gap: cue.hapticGap, now: now) {

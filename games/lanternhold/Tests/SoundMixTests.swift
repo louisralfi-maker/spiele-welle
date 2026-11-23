@@ -395,11 +395,12 @@ final class SoundMixTests: XCTestCase {
                      "a press with Haptics off still makes it one touch")
     }
 
-    /// Polish D1: the old card pair, `creatureHit` and `soldierFell` are silent in sound and hand.
+    /// Polish D1: `creatureHit` and `soldierFell` are silent in sound and hand. D2 0a rewrote this test: the old card
+    /// pair (D1 had it silent too) is no longer retired; it answers as the pane pair (`testTheCardPairIsAnAliasOfThePanes`).
     @MainActor
     func testTheRetiredCuesAreSilentInSoundAndHand() {
         var gate = FeedbackGate()
-        for (k, cue) in [FeedbackCue.cardOpened, .cardClosed, .creatureHit, .soldierFell].enumerated() {
+        for (k, cue) in [FeedbackCue.creatureHit, .soldierFell].enumerated() {
             let answer = gate.answer(cue, soundOn: true, hapticsOn: true, now: Double(k))
             XCTAssertNil(answer.sound, "\(cue)")
             XCTAssertNil(answer.haptic, "\(cue)")
@@ -409,8 +410,57 @@ final class SoundMixTests: XCTestCase {
         silent.play(.cardOpened)
         silent.play(.cardClosed)
         XCTAssertEqual(silent.played, [.cardOpened, .cardClosed], "the call sites still reach the hub")
-        XCTAssertTrue(silent.felt.isEmpty, "no tick in the hand")
+        XCTAssertEqual(silent.felt, [.soft, .soft], "the card pair has the pane pair's hand")
         XCTAssertNil(FeedbackThinner.cue(for: .soldierFell(name: "Aldo")))
+    }
+
+    /// Polish D2 0a (the director's call after D1): `cardOpened` answers as `paneOpen` and `cardClosed` as `paneClose`;
+    /// of a card cue and a pane cue within 0.25 s only the first answers and the other is dropped whole (no sound, no
+    /// haptic, no throttle spent), in all four orders of the pairs; a card cue alone answers; after a plaque press the
+    /// card cue gives its sound and no haptic.
+    func testTheCardPairIsAnAliasOfThePanes() {
+        XCTAssertEqual(FeedbackCue.cardOpened.paneAlias, .paneOpen)
+        XCTAssertEqual(FeedbackCue.cardClosed.paneAlias, .paneClose)
+        XCTAssertNil(FeedbackCue.paneOpen.paneAlias)
+        for (card, pane) in [(FeedbackCue.cardOpened, FeedbackCue.paneOpen), (.cardClosed, .paneClose),
+                             (.cardOpened, .paneClose), (.cardClosed, .paneOpen)] {
+            XCTAssertEqual(card.sound, card.paneAlias?.sound, "\(card)")
+            XCTAssertEqual(card.haptic, card.paneAlias?.haptic, "\(card)")
+            XCTAssertEqual(card.hapticStrength, card.paneAlias?.hapticStrength, "\(card)")
+            XCTAssertEqual(card.answerSize, .touch)
+            for cardFirst in [true, false] {
+                var gate = FeedbackGate()
+                let first = gate.answer(cardFirst ? card : pane, soundOn: true, hapticsOn: true, now: 1)
+                let second = gate.answer(cardFirst ? pane : card, soundOn: true, hapticsOn: true, now: 1.2)
+                XCTAssertNotNil(first.sound, "\(card) \(pane) card first \(cardFirst): the first answers")
+                XCTAssertEqual(first.haptic, .soft)
+                XCTAssertNil(second.sound, "\(card) \(pane) card first \(cardFirst): one answer")
+                XCTAssertNil(second.haptic)
+                XCTAssertNil(second.duck)
+                // Past 0.25 s after the first, the other kind answers on its own again.
+                let later = gate.answer(cardFirst ? pane : card, soundOn: true, hapticsOn: true, now: 1.26)
+                XCTAssertNotNil(later.sound, "past 0.25 s the other answers on its own")
+            }
+        }
+        var alone = FeedbackGate()
+        let open = alone.answer(.cardOpened, soundOn: true, hapticsOn: true, now: 3)
+        XCTAssertNotNil(open.sound, "a card cue alone answers")
+        XCTAssertEqual(open.haptic, .soft)
+        XCTAssertEqual(open.hapticStrength, 0.4)
+        let close = alone.answer(.cardClosed, soundOn: true, hapticsOn: true, now: 4)
+        XCTAssertEqual(close.sound?.id, FeedbackCue.paneClose.sound?.id)
+        XCTAssertEqual(close.haptic, .soft)
+        XCTAssertEqual(alone.answer(.cardOpened, soundOn: true, hapticsOn: true, now: 4.2).haptic, .soft,
+                       "two card cues are not the alias rule's pair")
+        var pressed = FeedbackGate()
+        _ = pressed.answer(.plaquePress, soundOn: true, hapticsOn: true, now: 5)
+        let after = pressed.answer(.cardClosed, soundOn: true, hapticsOn: true, now: 5.016)
+        XCTAssertNotNil(after.sound, "after a press the card cue plays its sound")
+        XCTAssertNil(after.haptic, "and no haptic: one touch, one tick")
+        // The real call sites (a bubble opening, a slide turned) with no pane cue around keep their answer.
+        var bubble = FeedbackGate()
+        XCTAssertNotNil(bubble.answer(.cardOpened, soundOn: true, hapticsOn: false, now: 7).sound)
+        XCTAssertNil(bubble.answer(.cardOpened, soundOn: false, hapticsOn: true, now: 8).sound, "Sound off: silent")
     }
 
     /// Polish D1 gate M2 rewrote this test (it pinned the chain's rates): the kills' chain is not built, since a
