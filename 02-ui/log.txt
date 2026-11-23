@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.FilmOpeningUITests testA1bTheStopTheDragAndTheCamera]' passed (165.247 seconds).
+exit=0
+screenshots: 169
