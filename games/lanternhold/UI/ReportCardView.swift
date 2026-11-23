@@ -125,8 +125,13 @@ struct ReportCardView: View {
                 // at 6.1 inch, round lh-re-8); none when nothing applies (an unlock is its own key line).
                 if let line = forwardLine {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        GlyphView(glyph: line.glyph)
-                            .foregroundStyle(NightGlass.lanternGold)
+                        // Polish E2b (P7): the captain's word carries no glyph (the warning triangle read as an
+                        // interface alert; the glyph set has no horn, the horn is words only): it starts at the
+                        // column.
+                        if let glyph = line.glyph {
+                            GlyphView(glyph: glyph)
+                                .foregroundStyle(NightGlass.lanternGold)
+                        }
                         Text(inked: line.text, .subheadline)
                             .font(Theme.serif(.subheadline))
                             .foregroundStyle(Theme.teal)
@@ -325,14 +330,14 @@ struct ReportCardView: View {
     }
 
     /// Polish E2: the line forward in words: the captain's own line for a first night ("“Hounds come soon …” —
-    /// Brannock"), or the houses full; nil for none and for an unlock (its key line stands already).
-    private var forwardLine: (glyph: PixelGlyph, text: String)? {
+    /// Brannock", no glyph: E2b), or the houses full; nil for none and for an unlock (its key line stands already).
+    private var forwardLine: (glyph: PixelGlyph?, text: String)? {
         switch card.forward {
         case .firstNight(_, let key)?:
             let name = Speakers.nameKey(ReportCard.firstNightSpeaker, day: card.day, flags: [])
                 .map { model.story($0) } ?? ""
             let quote = "\u{201C}\(model.story(key))\u{201D}"
-            return (.warning, name.isEmpty ? quote : "\(quote) \u{2014} \(name)")
+            return (nil, name.isEmpty ? quote : "\(quote) \u{2014} \(name)")
         case .housesFull?:
             return (.hammer, String(localized: "Houses full: build a house"))
         case .unlock?, nil:

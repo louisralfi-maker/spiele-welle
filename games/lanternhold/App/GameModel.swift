@@ -87,9 +87,6 @@ final class GameModel {
     /// after the gate stands open (`gateStandsOpenAt`), so the open gate is seen first. The same under Reduce Motion:
     /// it is a wait, not a motion.
     static let dawnCardDelay = 0.6
-    /// Polish E2 (the audit's F6, law 4 step 3): a night that cost lives tolls once per fallen man, at most
-    /// `DawnVerdict.maxTolls`, this far apart (the hub lets one toll through per 0.9 s once D2's toll plays).
-    static let dawnTollGap = 1.0
     /// A second chance once per five nights in the chapter, once per ten in endless (DESIGN.md "Losing a night"; the
     /// rule is `AdPacing.secondChanceFrom`).
     static let secondChanceGap = AdPacing.secondChanceGap
@@ -148,10 +145,10 @@ final class GameModel {
     @ObservationIgnored private var lastRain = 0.0
     @ObservationIgnored private var hornUntil = 0.0
     /// Polish E2 (law 3.6): the dawn card waiting for the open gate, and when it comes (the model's real clock,
-    /// `clock.elapsed`); the verdict's tolls still to ring under the card (their times on the same clock). UI state,
-    /// never saved.
+    /// `clock.elapsed`); the verdict's cues still to ring under the card (E2b: lane D's `DawnVerdict.cues`, each at the
+    /// card's landing plus its delay, on the same clock). UI state, never saved.
     @ObservationIgnored private var dawnCardDue: (report: DawnReport, at: Double)?
-    @ObservationIgnored private var dawnTollsDue: [Double] = []
+    @ObservationIgnored private var dawnTollsDue: [(cue: FeedbackCue, at: Double)] = []
     /// The feedback hub: silent in tests and UI test launches; the app installs `SoundDirector` (`installFeedback`).
     @ObservationIgnored var feedback: any FeedbackHub = SilentFeedback()
     /// Creature bodies in the last drawn frame (the scene value's `seen:`, so UI tests catch the fight in view).
@@ -357,8 +354,8 @@ final class GameModel {
         }
         // Panels lane: a realm saved at the finale's dawn that never chose how to go on gets its ending again.
         resumeChapterEndAtLaunch()
-        // Polish E2: a realm saved at its dawn gets that dawn's card again (the save is the dawn snapshot).
-        resumeDawnCardAtLaunch()
+        // Polish E2b (M2; the audit's director's call 18): a continued launch brings no dawn card, no verdict cue
+        // and no ads' gate. The save is always the dawn snapshot: a card "after a dawn save" would meet every launch.
         // The lantern moment (stage-3-interface): the purse and the notes start from the realm as it is.
         resetLanternHUD()
         refreshHUD()
@@ -821,31 +818,28 @@ final class GameModel {
             dawnTollsDue.removeAll()
             return
         }
-        while let next = dawnTollsDue.first, now >= next - 1e-9 {
+        while let next = dawnTollsDue.first, now >= next.at - 1e-9 {
             dawnTollsDue.removeFirst()
-            feedback.play(.dawnToll)
+            feedback.play(next.cue)
         }
     }
 
     /// The card lands, and with it the night's verdict for ear and hand (the cues' haptics come through the hub): a
     /// night nobody fell plays `dawnHeld` once; one with fallen tolls once per fallen man (the soldiers the report
-    /// names), at most `DawnVerdict.maxTolls`, `dawnTollGap` apart, and no `dawnHeld`.
+    /// names), at most `DawnVerdict.maxTolls`, and no `dawnHeld`. Polish E2b (M3): the verdict has one owner, lane D's
+    /// `DawnVerdict.cues(fallen:)`; the model plays each of its cues at the landing plus that cue's delay.
     private func landDawnCard(_ report: DawnReport) {
         setOverlay(.report(report))
-        let fallen = report.fallen.count
-        feedback.play(DawnVerdict.cue(fallen: fallen))
-        let tolls = fallen > 0 ? min(DawnVerdict.maxTolls, fallen) : 0
-        dawnTollsDue = tolls > 1 ? (1..<tolls).map { clock.elapsed + Double($0) * GameModel.dawnTollGap } : []
-    }
-
-    /// A launch on a realm saved at its dawn (the save always holds the dawn snapshot) brings that dawn's card again,
-    /// after the same wait; a launch with debug arguments, a realm that fell, the name entry and the finale's ending
-    /// (`resumeChapterEndAtLaunch`) do not.
-    private func resumeDawnCardAtLaunch() {
-        guard kind == .world, !args.hasArguments, overlay == nil, !slides.coversWorld, let state = driver?.state,
-              !state.defeated, let report = state.lastReport, report.day == state.day,
-              abs(state.hour - ClockEvent.dawnReport.hour) < 0.05 else { return }
-        awaitDawnCard(report)
+        let landed = clock.elapsed
+        var due: [(cue: FeedbackCue, at: Double)] = []
+        for verdict in DawnVerdict.cues(fallen: report.fallen.count) {
+            if verdict.delay <= 1e-9 {
+                feedback.play(verdict.cue)
+            } else {
+                due.append((cue: verdict.cue, at: landed + verdict.delay))
+            }
+        }
+        dawnTollsDue = due.sorted { $0.at < $1.at }
     }
 
     // MARK: - The screens (DESIGN.md "Screens")
