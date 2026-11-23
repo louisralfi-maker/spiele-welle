@@ -20,7 +20,7 @@ import Foundation
 // | hit(x)       | D1 SoundWatch (a creature's hp drop); A3     | 2    | creature_hit       | 0.95 | -17.4 | none            |
 // | manHit(x)    | D1 SoundWatch (a soldier's hp drop); A3      | 2    | grunt_1 / _2       | 0.55 | -18.0 | none            |
 // | dawnGate     | A5 (the portcullis slides up)                | 2    | gate (law)         | 0.60 | -23.2 | none            |
-// | buildStood   | A2 (the swap at the dust's peak)             | 3    | build_done         | 0.90 | -13.9 | success, light  |
+// | buildStood(x)| A2 (the swap at the dust's peak)             | 3    | build_done         | 0.90 | -13.9 | success, light  |
 // | manFell(x)   | D1 SoundWatch (a new name on tonight's fallen)| 3   | man_fall           | 0.70 | -14.4 | heavy           |
 // | wallCracked  | D1 SoundWatch (a wall below half, once/night)| 3    | wall_crack         | 0.95 | -15.4 | medium          |
 // | dawnHeld     | E2 (the card lands, no man lost)             | 3    | bell (law)         | 0.50 | -23.3 | success         |
@@ -68,7 +68,9 @@ import Foundation
 //   answers as the pane pair (D2 0a, below). D2 part 1: `buildDone` and
 //   `buildStood` give one answer (build_done 0.9, success then light 0.12 s later, the beds x 0.7 for 0.7 s); a caller
 //   plays one of them, never both for one building. Lane A's step A2 will play `buildStood` at its sprite swap and
-//   take the earlier call out (the thinner's `buildDone` from the simulation's event) in the same step.
+//   take the earlier call out (the thinner's `buildDone` from the simulation's event) in the same step. D2 gate M1:
+//   both are positional at the plot's x (hearing 900, like a fall): a building standing far off sounds faded, with no
+//   haptic and no duck (law 3.1, D1 gate M5); the thinner gives `buildDone` the plot's x (`Realm.plots[plot].x`).
 // - Old calls a new cue retires, in the caller's step (they share a file and its throttle, so the one called first in
 //   a frame would swallow the other and both haptics would fire):
 //   - B1: `lanternUp` replaces `play(.touched)` on the raise (`GameModel+Lantern.swift`, `openLanternMoment`). Since
@@ -150,6 +152,8 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
         case .manFell, .wallCracked: return true
         // D2: a street lamp taking the flame is heard from its post, panned.
         case .lampLit: return true
+        // D2 gate M1: a building standing is heard from its plot; far off it is faded, with no haptic and no duck.
+        case .buildDone, .buildStood: return true
         default: return false
         }
     }
@@ -169,6 +173,8 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
         // D1: a step 3 loss carries about two screens (a screen is about 440 px): from the courtyard and the hall's
         // door over the walls (640 ... 1300), faded out by 1350 px.
         case .manFell, .wallCracked: return 900
+        // D2 gate M1: a building standing carries as far as a fall (about two screens), faded out by 1350 px.
+        case .buildDone, .buildStood: return 900
         // D2 (F17): a lamp lit is heard one screen far (about 440 px), faded out by 660 px.
         case .lampLit: return 440
         default: return .infinity
@@ -227,7 +233,9 @@ struct FeedbackThinner: Sendable, Equatable {
         case .horn: return (.horn, nil)
         case .firstLight: return (.firstLight, nil)
         case .buildOrdered: return (.buildOrdered, nil)
-        case .buildDone: return (.buildDone, nil)
+        // D2 gate M1: at the plot's place, so a building finishing far from the lord gives no haptic and no duck.
+        case .buildDone(let plot):
+            return (.buildDone, Realm.plots.indices.contains(plot) ? Realm.plots[plot].x : nil)
         case .recruited: return (.recruited, nil)
         case .patched: return (.patched, nil)
         case .brazierLit: return (.brazierLit, nil)

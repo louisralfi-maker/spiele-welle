@@ -158,8 +158,10 @@ final class SoundMixTests: XCTestCase {
         // at once); a cue that is not positional plays as made, never panned (0b's L4; it was panned to -0.7).
         XCTAssertNotNil(SoundSpace.place(.hit, x: lord + blow + 1, listenerX: lord), "just beyond its hearing: heard")
         XCTAssertNil(SoundSpace.place(.hit, x: lord + blow * 1.5, listenerX: lord), "at 1.5 x its hearing: not played")
-        XCTAssertEqual(SoundSpace.place(.buildStood, x: lord - 3000, listenerX: lord)?.gain, 1)
-        XCTAssertEqual(SoundSpace.place(.buildStood, x: lord - 3000, listenerX: lord)?.pan, 0)
+        // D2 gate M1 rewrote these two lines: a building standing became positional, so a cue that is not (the horn)
+        // shows a cue played as made (they used `buildStood`).
+        XCTAssertEqual(SoundSpace.place(.horn, x: lord - 3000, listenerX: lord)?.gain, 1)
+        XCTAssertEqual(SoundSpace.place(.horn, x: lord - 3000, listenerX: lord)?.pan, 0)
         XCTAssertTrue(FeedbackCue.hit.isPositional && FeedbackCue.manHit.isPositional)
     }
 
@@ -389,6 +391,38 @@ final class SoundMixTests: XCTestCase {
         let seconds = Double(try Self.samples(.buildDone).count) / 22050
         XCTAssertEqual(seconds, 1.1, accuracy: 0.01)
         XCTAssertTrue(AnswerSize.triumph.length.contains(seconds))
+    }
+
+    /// D2 gate M1 (law 3.1, D1 gate M5): a building standing is heard from its plot. The thinner gives the
+    /// simulation's `buildDone` the plot's x; within 900 px it has its full answer, beyond it only the faded sound (no
+    /// haptic, no echo, no duck), and past 1350 px nothing.
+    func testABuildingFarOffIsOnlyHeardFaded() throws {
+        for cue in [FeedbackCue.buildDone, .buildStood] {
+            XCTAssertTrue(cue.isPositional, "\(cue)")
+            XCTAssertEqual(cue.hearing, 900, "\(cue)")
+        }
+        let plot = try XCTUnwrap(Realm.plots.indices.first { Realm.plots[$0].x < 1000 })
+        let x = Realm.plots[plot].x
+        XCTAssertEqual(FeedbackThinner.cue(for: .buildDone(plot: plot))?.x, x)
+        var thinner = FeedbackThinner()
+        let near = thinner.placedCues(for: [.buildDone(plot: plot)], extra: [], time: 1, listenerX: x + 100)
+        XCTAssertEqual(near.map(\.cue), [.buildDone])
+        XCTAssertEqual(near.first?.x, x)
+        let gone = thinner.placedCues(for: [.buildDone(plot: plot)], extra: [], time: 5, listenerX: x + 2000)
+        XCTAssertTrue(gone.isEmpty, "a wall finishing two screens behind the town is not heard")
+        let edge = try XCTUnwrap(SoundSpace.place(.buildDone, x: x, listenerX: x + 1000))
+        XCTAssertLessThan(edge.gain, 0.35, "beyond its hearing: faded")
+        XCTAssertFalse(SoundSpace.near(distance: 1000, hearing: FeedbackCue.buildDone.hearing))
+        var gate = FeedbackGate()
+        let far = gate.answer(.buildDone, soundOn: true, hapticsOn: true, now: 10, near: false)
+        XCTAssertNotNil(far.sound, "heard, faded")
+        XCTAssertNil(far.haptic, "no success in the hand for a building out of hearing")
+        XCTAssertNil(far.echo)
+        XCTAssertNil(far.duck, "the beds do not dip for it")
+        let close = gate.answer(.buildDone, soundOn: true, hapticsOn: true, now: 20, near: true)
+        XCTAssertEqual(close.haptic, .success)
+        XCTAssertEqual(close.echoHaptic, .light)
+        XCTAssertEqual(close.duck, .triumph)
     }
 
     /// Polish D1: a man struck grunts at most once every 0.5 s, grunt_1 and grunt_2 in turn among those that play.
