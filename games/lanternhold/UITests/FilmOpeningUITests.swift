@@ -175,6 +175,26 @@ final class FilmOpeningUITests: XCTestCase {
         // LANE-B end
         film.note("m02-scene-end", film.scene(app))
         app.terminate()
+        // LANE-B: B3 (the marks on a long walk, part 2)
+        // Day 3 (seed 2) before the gatehouse, where sites, walls and people carry marks: two taps at 95 %, a walk east
+        // from 1100 through the gate into the courtyard past more marked things than the four shown at once.
+        let front = film.launch(["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWWeather", "clear", "-GWDay", "3",
+                                 "-GWSeed", "2", "-GWClock", "10", "-GWStage", "world", "-GWCameraX", "1100"])
+        guard film.ready(front) else {
+            XCTFail("m02-f: the scene never stood")
+            return
+        }
+        film.pause(3)
+        waitForStill(front, timeout: 4)
+        waitForCamera(front, timeout: 4)
+        let field = film.element(front, "world-scene")
+        film.tapBurst("f", front, count: 40, what: "day 3 before the gatehouse: a tap at 95 %, the walk east past the "
+                      + "front's marked things", at: field.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.94)))
+        film.tapBurst("g", front, count: 40, what: "a second tap at 95 % at once: on east through the gate",
+                      at: field.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.94)))
+        film.note("m02-fg-scene-end", film.scene(front))
+        front.terminate()
+        // LANE-B end
     }
 
     /// m03: day 3 at 10:00 (seed 2), the lord at 2120 west of the kitchen: a touch on Tamsin (he walks to her, the

@@ -754,6 +754,9 @@ final class TouchWorldTests: XCTestCase {
 
     func testTheMarksAreDrawnAndTheSpotsPlaced() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1180"])
+        // Polish B3: the marks come at quick (0.15 s) from the first frame that lists them, so they are drawn once
+        // their coming has run.
+        run(game, seconds: 0.3)
         let frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let marks = frame.actors.filter { [.tapBuild, .tapRecruit, .tapDoor, .tapTalk].contains($0.sprite) }
         XCTAssertFalse(marks.isEmpty, "a mark over what offers something")

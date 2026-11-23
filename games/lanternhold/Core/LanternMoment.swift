@@ -32,6 +32,10 @@ enum HUDKit {
         var frame: Int
         var x: Int
         var y: Int
+        /// Polish B3 (the presence rule): the piece's share while its group comes or goes, and the whole game px it
+        /// stands below its place while it comes (`LordNotesShow`); 1 and 0 for everything else.
+        var alpha = 1.0
+        var drop = 0
     }
 
     /// A block of pieces and its size in game px.
@@ -45,7 +49,12 @@ enum HUDKit {
 
         /// The pieces moved by (dx, dy).
         func shifted(_ dx: Int, _ dy: Int) -> [Piece] {
-            pieces.map { Piece(sprite: $0.sprite, frame: $0.frame, x: $0.x + dx, y: $0.y + dy) }
+            pieces.map { piece in
+                var moved = piece
+                moved.x += dx
+                moved.y += dy
+                return moved
+            }
         }
     }
 
@@ -317,9 +326,21 @@ struct LordNotesShow: Sendable, Equatable {
         return list
     }
 
-    /// The row's width in game px (as `HUDKit.row` lays the groups).
-    static func width(_ groups: [Group]) -> Int {
-        HUDKit.row(groups.map(\.block)).width
+    /// The walking row as one block, laid out as `LordNotes.block` lays it, each piece carrying its group's share and
+    /// rise (`HUDKitActors.placed` draws them; the world and the hall alike). Empty when every group is gone.
+    func block(happiness: Int) -> HUDKit.Block {
+        let list = groups(happiness: happiness)
+        guard !list.isEmpty else { return HUDKit.Block() }
+        return HUDKit.row(list.map { group in
+            var block = group.block
+            block.pieces = block.pieces.map { piece in
+                var faded = piece
+                faded.alpha = group.alpha
+                faded.drop = group.rise
+                return faded
+            }
+            return block
+        })
     }
 }
 
@@ -417,27 +438,6 @@ enum HUDKitActors {
         return placed(block, left: left, top: top, framing: framing)
     }
 
-    /// Polish B3: the walking row by groups (`LordNotesShow`), laid out as `actors` lays one block over the lord at
-    /// `lordX`, each group at its own share (the actor's alpha) and standing its rise lower (whole game px).
-    static func walking(_ groups: [LordNotesShow.Group], lordX: Double, groundLift: Double,
-                        framing: TouchFraming) -> [ActorInstance] {
-        guard !groups.isEmpty else { return [] }
-        let width = Double(LordNotesShow.width(groups))
-        let viewLeft = framing.viewLeft.rounded(.up) + 2
-        let viewRight = framing.viewRight.rounded(.down) - 2
-        let left = min(max(lordX - width / 2, viewLeft), viewRight - width)
-        let top = groundLift + Double(HUDKit.lordHead + HUDKit.purseAbove + HUDKit.rowHeight)
-        var list: [ActorInstance] = []
-        var x = 0
-        for (index, group) in groups.enumerated() {
-            if index > 0 { x += HUDKit.space }
-            list += placed(group.block, left: left + Double(x), top: top - Double(group.rise), framing: framing,
-                           alpha: Float(min(1, group.alpha)))
-            x += group.block.width
-        }
-        return list
-    }
-
     /// Build 3, lane 5 step 4 (the step 2b critic's H1): the lantern moment's block (the purse and the day line) in the
     /// same frame as the world, so it can never trail the world during the look-around's pan. `left` is its left edge
     /// on the stage (game px, whole: placed when the moment opened, `LanternMomentShow.blockX`), never clamped to the
@@ -461,12 +461,13 @@ enum HUDKitActors {
         return block.pieces.map { piece in
             let size = piece.sprite.size
             let x = framing.deviceX(stageX: left + Double(piece.x))
-            let y = framing.deviceY(lift: top - Double(piece.y))
+            // Polish B3: a piece whose group comes stands its drop lower (whole game px) at its share.
+            let y = framing.deviceY(lift: top - Double(piece.y) - Double(piece.drop))
             var actor = ActorInstance(sprite: piece.sprite, frame: piece.frame,
                                       rect: SIMD4<Float>(Float(x), Float(y), Float(size.width) * scale,
                                                          Float(size.height) * scale),
-                                      tint: SIMD4<Float>(1, 1, 1, alpha), flipped: false, isEmissive: true,
-                                      isLit: true)
+                                      tint: SIMD4<Float>(1, 1, 1, alpha * Float(min(1, piece.alpha))),
+                                      flipped: false, isEmissive: true, isLit: true)
             actor.dimRule = rule
             return actor
         }

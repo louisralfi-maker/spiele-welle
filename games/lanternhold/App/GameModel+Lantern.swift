@@ -348,11 +348,11 @@ extension GameModel {
             }
         }
         // Polish B3 (M2): the walking row by its groups, each coming and going by the presence rule.
-        let groups = touch.notesShow.groups(happiness: state.happiness)
-        if !groups.isEmpty {
+        let block = touch.notesShow.block(happiness: state.happiness)
+        if !block.pieces.isEmpty {
             // Build 3, the count's step 2 (M2): the figure never touches a board standing by the lord.
-            let room = countPurseRoom(width: LordNotesShow.width(groups), lordX: state.king.x)
-            layer.actors += HUDKitActors.walking(groups, lordX: room.x, groundLift: room.ground, framing: framing)
+            let room = countPurseRoom(width: block.width, lordX: state.king.x)
+            layer.actors += HUDKitActors.actors(block, lordX: room.x, groundLift: room.ground, framing: framing)
         }
         if touch.lordHintOn && lanternMoment == nil { lordHintGlint(&layer, state: state, framing: framing) }
         raiseHalo(&layer, state: state)
@@ -493,7 +493,8 @@ extension GameModel {
             let ground = HallLayout.lift(at: scene.walker.x) + Double(HUDKit.momentAbove - HUDKit.purseAbove)
             return (show.block, blockX + Double(show.block.width) / 2, ground)
         }
-        let block = lordNotesBlock
+        // Polish B3 (M2): the walking row by the presence rule in the hall too.
+        let block = touch.notesShow.block(happiness: driver?.state.happiness ?? 0)
         guard !block.pieces.isEmpty else { return nil }
         return (block, scene.walker.x, HallLayout.lift(at: scene.walker.x))
     }

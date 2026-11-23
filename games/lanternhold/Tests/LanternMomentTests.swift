@@ -1698,7 +1698,7 @@ final class LanternMomentTests: XCTestCase {
 
     /// Polish B3 (M2; law 1 quick): the walking row's purse figure and the mood and people arrows come in 0.15 s rising
     /// 2 whole game px and go in 0.10 s in place, keeping the last value while they go; under Reduce Motion alpha only.
-    func testThePurseFigureAndTheArrowsComeAndGoByThePresenceRule() {
+    func testThePurseFigureAndTheArrowsComeAndGoByThePresenceRule() throws {
         var show = LordNotesShow()
         let step = 1.0 / 60
         XCTAssertTrue(show.groups(happiness: 50).isEmpty)
@@ -1724,19 +1724,24 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertEqual(going.count, 5, "it fades over 0.10 s, never in one frame")
         XCTAssertEqual(going, going.sorted(by: >))
         XCTAssertEqual(show.groups(happiness: 50).count, 1, "the face stays")
-        // The row's groups at their shares and rises, laid out as the old block.
+        // The row at its shares and rises, laid out as the old block (the world's and the hall's draw).
         let framing = TouchFraming(stage: .world, whole: 0, deviceShift: 0, scale: 6, groundY: 1000,
                                    physicalWidth: 2622, physicalHeight: 1206)
-        let whole = [LordNotesShow.Group(block: HUDKit.group(sign: .hudCoin, number: 21), alpha: 1, rise: 0)]
-        XCTAssertEqual(HUDKitActors.walking(whole, lordX: 200, groundLift: 0, framing: framing),
+        var whole = LordNotesShow()
+        for _ in 0..<9 { whole.step(step, purse: 21, mood: nil, crowd: nil, mode: .full) }
+        let wholeActors = HUDKitActors.actors(whole.block(happiness: 50), lordX: 200, groundLift: 0, framing: framing)
+        XCTAssertEqual(wholeActors,
                        HUDKitActors.actors(LordNotes.block(purse: 21, happiness: 50, mood: nil, crowd: nil),
                                            lordX: 200, groundLift: 0, framing: framing),
                        "whole, the row stands where the old block stood")
-        let low = [LordNotesShow.Group(block: HUDKit.group(sign: .hudCoin, number: 21), alpha: 0.4, rise: 2)]
-        let lowActors = HUDKitActors.walking(low, lordX: 200, groundLift: 0, framing: framing)
-        let wholeActors = HUDKitActors.walking(whole, lordX: 200, groundLift: 0, framing: framing)
+        var coming = LordNotesShow()
+        coming.step(step, purse: 21, mood: nil, crowd: nil, mode: .full)
+        let first = try XCTUnwrap(coming.groups(happiness: 50).first)
+        let lowActors = HUDKitActors.actors(coming.block(happiness: 50), lordX: 200, groundLift: 0, framing: framing)
+        XCTAssertEqual(first.rise, 2)
         XCTAssertEqual(lowActors.first?.rect.y ?? 0, (wholeActors.first?.rect.y ?? 0) + 12, "2 game px lower")
-        XCTAssertEqual(lowActors.first?.tint.w ?? 0, 0.4, accuracy: 1e-6, "at its share")
+        XCTAssertEqual(Double(lowActors.first?.tint.w ?? 0), first.alpha, accuracy: 1e-6, "at its share")
+        XCTAssertLessThan(first.alpha, 1)
         // Reduce Motion: alpha only.
         var reduced = LordNotesShow()
         for _ in 0..<9 {
