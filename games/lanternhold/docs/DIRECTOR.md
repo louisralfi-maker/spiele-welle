@@ -1464,3 +1464,8 @@ schneller geht."
     closes its pane may give two answers (F6, a phone check); the Reduce Motion close is not on film.
   - The director's calls after steps E1b, B2, A1b, D2 and C1 stand at the end of the four laws in ROUND.md (23.11.,
     03:47). PAY.md's table and rule 4 carry B2's numbers. Usage at 03:47: 46 % of the week, the stop is 80 %.
+  - The join 93675026 did not compile (round lh-rnd-16, 23.11.): steps A1b and C1 each closed step 0a's leftover
+    from their own side, `Camera` read `Motion` and `Motion` read `Camera`. Mended as 14034f3c in the join branch
+    (local only): `Motion` holds the follow's stiffness, `Camera` reads it; C1's test of the tap beside a pane reads
+    the bubble close's own level. Round lh-rnd-17 went out on it at 04:04. Step C2's brief is written; it goes out
+    when the mended head builds. Usage at 04:04: 48 % of the week, the stop is 80 %.

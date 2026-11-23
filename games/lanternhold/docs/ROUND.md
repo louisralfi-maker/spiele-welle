@@ -302,6 +302,11 @@ Law 4 (answers and sounds), after D2:
     after the phone check of C1's F6). For C2: the title's beds sum to about -20.2 dBFS against the game's air under
     -24.5, a dip of about 4 dB at the hand-over.
 
+17. **After the join (law 1 and law 4).** The follow's stiffness is written once, in `Motion.followOmega` (6.0);
+    `Camera.followOmega` reads it. Steps A1b and C1 each closed step 0a's leftover from their own side, and the join
+    did not compile (round lh-rnd-16, mended in 14034f3c). A leftover names one owner. A tap beside a pane takes the
+    bubble close's level, whatever lane D sets; no test of lane C pins a number of lane D.
+
 ## THE FIX LANES
 
 Five lanes in their own worktrees, one owner per file. A file another lane needs gets a block tagged
