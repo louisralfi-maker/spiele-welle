@@ -525,6 +525,9 @@ final class SoundMixTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(level, size.band.lowerBound - 0.1, "\(cue) at \(level) dBFS")
             XCTAssertLessThanOrEqual(level, size.band.upperBound + 0.1, "\(cue) at \(level) dBFS")
         }
+        // D2 0d: a man's fall at rate 1, as made; its "x 0.7" is the step 3 duck of the beds.
+        XCTAssertEqual(FeedbackCue.manFell.sound?.rate, 1)
+        XCTAssertEqual(AnswerSize.triumph.bedDuck, 0.7)
         if FeedbackCue.soldierGrunts {
             let other = AnswerSize.level(fileRMS: try Self.fileRMS(.grunt2), volume: FeedbackCue.manHit.sound?.volume ?? 0)
             XCTAssertTrue(AnswerSize.deed.band.contains(other), "grunt_2 at \(other) dBFS")

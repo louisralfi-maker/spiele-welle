@@ -200,7 +200,8 @@ extension FeedbackCue {
                 : SoundPlay(id: .arrowHit, volume: 0.75)
         case .dawnGate: return SoundPlay(id: .gate, volume: 0.6, rate: 1.05)
         case .buildStood: return SoundPlay(id: .buildDone, volume: 0.9)
-        // D1 (law 4, step 3): man_fall at -14.4 dBFS; the step's duck (beds x 0.7 for 0.7 s) comes with it.
+        // D1 (law 4, step 3): man_fall at -14.4 dBFS; the step's duck (beds x 0.7 for 0.7 s) comes with it. D2 0d (the
+        // director's call): at rate 1, as made; the law's "x 0.7" is that duck of the beds, not a rate.
         case .manFell: return SoundPlay(id: .manFall, volume: 0.7)
         // D1 (law 4, step 3): a wall below half splits at -15.4 dBFS.
         case .wallCracked: return SoundPlay(id: .wallCrack, volume: 0.95)

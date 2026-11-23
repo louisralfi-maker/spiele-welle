@@ -38,6 +38,8 @@ import Foundation
 //   the last 1.2 s ducks the beds x 0.6 (`FightNear`, `BedDucks.battleNear`); the deepest duck still wins.
 // - D1, the soldiers' grunts sit behind one switch, `FeedbackCue.soldierGrunts` (Louis, 22.11.: out again if they
 //   sound artificial); off, a man struck plays arrow_hit 0.75.
+// - D2 0d (the director's call): `man_fall` plays at rate 1, as made; law 4's "x 0.7" beside it is the step 3 duck of
+//   the beds (x 0.7 for 0.7 s), which comes with every step 3 answer.
 // - Steps 3 and 4 are never randomised (`AnswerSize.jitters`) and set off the answer ducks in the hub (`BedDucks`).
 // - The law's own numbers stand where its measure disagrees: the bubble close (-26.5), the dawn's bells and the dawn
 //   gate (whole-file RMS reads a long bell or gate tail quieter than its strike). D2 judges them by ear.
