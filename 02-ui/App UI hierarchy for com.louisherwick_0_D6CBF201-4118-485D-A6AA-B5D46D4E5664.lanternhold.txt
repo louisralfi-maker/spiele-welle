@@ -1,0 +1,20 @@
+Application, 0x114d52520, pid: 80760, label: 'Lanternhold' <App element pid: 80760>
+  Window (Main), 0x103b63af0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 80760, elementOrHash.elementID: 4378892000.3>
+    Other, 0x103b630e0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 80760, elementOrHash.elementID: 4377894848.4>
+      Other, 0x103b697f0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 80760, elementOrHash.elementID: 4377896832.5>
+        Other, 0x103b69ef0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 80760, elementOrHash.elementID: 4379053312.6>
+          Other, 0x103b69b80, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 80760, elementOrHash.elementID: 4379279120.7>
+            Other, 0x103b66120, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 80760, elementOrHash.elementID: 4379277232.8>
+              Other, 0x103b68350, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:3610 ready d... <AX element pid: 80760, elementOrHash.elementID: 4381549360.10>
+              Other, 0x103b572a0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 80760, elementOrHash.elementID: 4379253808.11>
+              Other, 0x1042bfdd0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 80760, elementOrHash.elementID: 4379254240.12>
+              Other, 0x1042b27a0, {{0.0, 0.0}, {1.0, 1.0}}, identifier: 'town-status', value: day:3 owing: paid:... <AX element pid: 80760, elementOrHash.elementID: 4379255024.13>
+              Other, 0x1042b2380, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 80760, elementOrHash.elementID: 4379256480.14>
+              Other, 0x1042b3930, {{437.0, 2.0}, {0.0, 4.0}} <AX element pid: 80760, elementOrHash.elementID: 4377985088.55>
+              Other, 0x103b63430, {{415.0, 290.0}, {44.0, 60.0}} <AX element pid: 80760, elementOrHash.elementID: 4379272384.17>
+                Button, 0x103b56f40, {{415.0, 290.0}, {44.0, 60.0}}, identifier: 'touch-lord', label: 'Robin, day 3, 91 gold, the town is glad, 16 people' <AX element pid: 80760, elementOrHash.elementID: 4379266864.30>
+              StaticText, 0x103b87790, {{436.2, 189.7}, {1.7, 2.7}}, identifier: 'pane-glint', label: '0', value: 0 <AX element pid: 80760, elementOrHash.elementID: 4379273488.18>
+              StaticText, 0x103b85c60, {{436.0, 189.7}, {2.0, 2.7}}, identifier: 'pane-probe', label: 'none', value: none <AX element pid: 80760, elementOrHash.elementID: 4379274592.19>
+              StaticText, 0x103b858f0, {{436.2, 189.7}, {1.7, 2.7}}, identifier: 'merchant-glint', label: '0', value: 0 <AX element pid: 80760, elementOrHash.elementID: 4379275696.20>
+              Other, 0x103b85580, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 80760, elementOrHash.elementID: 4379276800.21>
+            StaticText, 0x103b85210, {{436.0, 189.7}, {2.0, 2.7}}, identifier: 'stepin-probe', label: 'none', value: none <AX element pid: 80760, elementOrHash.elementID: 4379277664.9>

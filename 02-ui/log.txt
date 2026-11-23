@@ -1,0 +1,20 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (27.089 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (31.291 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (82.182 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (22.310 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (63.256 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (22.408 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (138.216 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (19.964 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' passed (27.905 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (22.844 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (58.932 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (116.250 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (268.689 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (84.899 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testATapOnSaulsBubbleTakesHimOn]' passed (22.943 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (151.168 seconds).
+<unknown>:0: error: -[LanternholdUITests.TouchUITests testTouchTheWorld] : Failed to get matching snapshot: No matches found for Element at index 7 from input {(
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' failed (155.318 seconds).
+exit=65
+screenshots: 85
