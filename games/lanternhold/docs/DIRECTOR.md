@@ -1566,3 +1566,7 @@ schneller geht."
     FilmDeals, Count; the collector's touch test) and lh-rnd-30 (build; FilmNight, FilmDusk, FilmPanes; Town, People,
     Audience). Together they are also the joined film round wave A's plan asks for before tf-lh-5. The calls are
     ROUND.md point 25. All five lanes are idle. Usage 66 % (stop at 80 %). Next join label lh-rnd-31.
+  - 23.11. 11:50: the brief for step B3b (the lantern's loose ends) is written: the hall's moment on the one driver,
+    the glass light following the light, no dead site lantern over a new building, VoiceOver held in the dawn wait,
+    and Saul's bubble doing the deed it says. B3's other small leftovers ride with B4 (point 25 says so now). B3b
+    goes out when the join a4b55979 is green and on origin, and when the usage read then allows it (about +2 %).

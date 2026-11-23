@@ -436,10 +436,11 @@ Law 4 (answers and sounds), after D2:
     - The 0.5 s under the title before `lhWorldStill` is true (L1): step C3 gives the root a title signal.
     - The hall's rim emissives stay at full colour for the 0.10 s a mark takes to go (L4/P9): lane A's `HallFrames`,
       a rider for step A4.
-    - Into B3b: a slip that can start during a turn or a brief stop (L2/P6); the staying mark's step from pressed to
-      plain in one frame at arrival (P7); the same speaker's next line swapping text and plate in one frame (P8); the
-      deed reading `touch` unobserved (L3); the dead `ErrandSlip` fields and the per-frame arrays (L5); two purse
-      figures overlapping while the lantern moves during a tick (P5).
+    - Into B3b with the deed: the deed line reading `touch` unobserved (L3). Riders for step B4, so that B3b stays
+      a focused step: a slip that can start during a turn or a brief stop (L2/P6); the staying mark's step from
+      pressed to plain in one frame at arrival (P7); the same speaker's next line swapping text and plate in one
+      frame (P8); the dead `ErrandSlip` fields and the per-frame arrays (L5); two purse figures overlapping while the
+      lantern moves during a tick (P5).
     - Not on film (P4): a five-thing swap of the marks, a mood arrow's coming, a Reduce Motion burst, the bubble's
       rise (runner frames stand 0.29 s apart, the rise takes 0.15 s). Unit-pinned; a phone decides.
     - Phone checks: the bubble rising, not popping; the marks on a walk past many things; the arrows; the teaching
