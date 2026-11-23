@@ -69,6 +69,10 @@ struct SimDriver: Sendable {
     private(set) var accumulator = SimDriver.startPhase
     /// Steps run so far.
     private(set) var steps = 0
+    /// Polish step A2 ("it stands", `BattleEffects.stand`): the plots as they stood when this frame began (taken in
+    /// `accumulate`, before the frame's steps and its played dusk), so a work that finishes in the frame is drawn as
+    /// it stood for 0.12 s more. Never saved; the simulation never reads it.
+    private(set) var framePlots: [PlotState] = []
     /// The realm at its last dawn (what the save writes).
     private(set) var dawnSnapshot: GameState
     /// The last three dawns (front lane hook, docs/lanes/front.md "front-2"): the fall wakes at one of them
@@ -99,6 +103,7 @@ struct SimDriver: Sendable {
     /// Adds real seconds (at most `maxCatchUp` at once); while stepping is not allowed nothing is kept (the accumulator
     /// rests at `startPhase`).
     mutating func accumulate(_ seconds: Double) {
+        framePlots = state.plots
         guard canStep else {
             accumulator = SimDriver.startPhase
             return
