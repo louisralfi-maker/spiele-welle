@@ -1554,3 +1554,6 @@ schneller geht."
     head is pushed when its round is green (origin stands at 4a42da26). Lane C is idle (its next step C3 belongs to
     wave B; new riders: the name card drawn visibly for one frame under the cover if a phone shows it late, the
     title's PNG decode off the main actor if the flame is seen to freeze). Still out: B3 (lane B). Usage 64 %.
+  - 23.11. 10:44: round lh-rnd-26 is green on ff79492b (build; FilmDeals + Count; the whole unit suite), so the
+    join with A2b is on origin at exactly ff79492b. The count class passed again on the join (the second green run
+    of the helper's mend). Local join 92ffe894 (with C2b) waits for round lh-rnd-27. Still out: B3 (lane B).
