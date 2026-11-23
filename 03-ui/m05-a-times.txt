@@ -1,0 +1,29 @@
+m05-a: a touch on the gate's site: its counter comes up, he steps to it
+real time; as fast as the frames come
+the tap was sent without waiting at +0.318 s (point 110.0, 564.3; interface orientation 3 (the app's)); the runner answered at +0.658 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWWeather clear -GWDay 3 -GWSeed 2 -GWClock 10 -GWStage world -GWCameraX 1240 -GWGold 200
+scene after: frame:580 ready day:3 hour:10.92 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1260 lord:lord stage:world lx:1260 errand:none door:1830 gold:200 hud:none cam:1106 tap:touch-plot-0 hint:off0 count:touch-plot-0:0/9:there last:none lanterns:0 models:4:ballista,catapult;10:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector drill:none kv:0.00 kxf:1260.00 kf:6 kd:1
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.530 s  
+02  +0.835 s  
+03  +1.068 s  
+04  +1.266 s  
+05  +1.474 s  
+06  +1.756 s  
+07  +1.963 s  
+08  +2.335 s  
+09  +2.626 s  
+10  +2.870 s  
+11  +3.171 s  
+12  +3.365 s  
+13  +3.569 s  
+14  +3.831 s  
+15  +4.003 s  
+16  +4.183 s  
+17  +4.388 s  
+18  +4.565 s  
+19  +4.816 s  
+20  +4.997 s  
+mean spacing 0.235 s over 19 gaps

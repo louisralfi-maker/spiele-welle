@@ -1,0 +1,25 @@
+m06-j: Back: the table goes
+real time; as fast as the frames come
+the tap was sent without waiting at +0.251 s (point 50.0, 768.0; interface orientation 3 (the app's)); the runner answered at +0.548 s; its effect holds
+launch: -GWReset YES -GWSkipOnboarding YES -GWDay 2 -GWSeed 1 -GWClock 9 -GWScreen table
+scene after: frame:840 ready day:2 hour:9.23 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1314 lord:lord stage:world lx:1314 errand:none door:1830 gold:70 hud:notes cam:1128 tap:none hint:off0 count:none last:none lanterns:0 models:4:ballista,catapult yard:none offer:none dusk:none talkmarks:brannock,collector,tamsin drill:none kv:0.00 kxf:1314.00 kf:6 kd:-1
+
+frame  seconds since the burst began  (scene where read)
+00  -0.010 s  before the tap
+01  +0.478 s  
+02  +0.693 s  
+03  +0.890 s  
+04  +1.069 s  
+05  +1.251 s  
+06  +1.428 s  
+07  +1.691 s  
+08  +1.877 s  
+09  +2.061 s  
+10  +2.235 s  
+11  +2.414 s  
+12  +2.575 s  
+13  +2.768 s  
+14  +2.944 s  
+15  +3.128 s  
+16  +3.298 s  
+mean spacing 0.188 s over 15 gaps

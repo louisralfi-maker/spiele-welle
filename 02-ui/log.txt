@@ -1,0 +1,21 @@
+Test Case '-[LanternholdUITests.CountUITests testABoardOfBars]' passed (38.245 seconds).
+Test Case '-[LanternholdUITests.CountUITests testAHeldCoinFlies]' passed (31.717 seconds).
+Test Case '-[LanternholdUITests.CountUITests testATappedCoinFlies]' passed (82.065 seconds).
+Test Case '-[LanternholdUITests.CountUITests testLetGoSendsTheCoinsHome]' passed (22.948 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheBarsBoardTakesTheWeightAndTheFarThrow]' passed (63.090 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCount]' passed (22.782 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheCountsFilmstrip]' passed (136.305 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheGlint]' passed (19.411 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:216: error: -[LanternholdUITests.CountUITests testTheGuardsBoard] : XCTAssertTrue failed - the near tap is a coin
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:217: error: -[LanternholdUITests.CountUITests testTheGuardsBoard] : XCTAssertNotEqual failed: ("Optional("moment")") is equal to ("Optional("moment")") - no purse, strip or gear: the lantern stays down
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/CountUITests.swift:225: error: -[LanternholdUITests.CountUITests testTheGuardsBoard] : XCTAssertTrue failed - the hold counts on, frozen
+Test Case '-[LanternholdUITests.CountUITests testTheGuardsBoard]' failed (31.966 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheLanternAtNight]' passed (20.260 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModels]' passed (48.185 seconds).
+Test Case '-[LanternholdUITests.CountUITests testTheModelsPictures]' passed (90.869 seconds).
+Test Suite 'CountUITests' failed at 2026-11-23 02:04:41.080.
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (70.514 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-23 02:05:51.607.
+Test Suite 'Selected tests' failed at 2026-11-23 02:05:51.608.
+exit=65
+screenshots: 49
