@@ -465,8 +465,9 @@ struct BeatClock: Sendable, Equatable {
     static let longestFrame = 0.05
     let start: Double
     private(set) var last: Double
-    /// Seconds of hitches the beat did not count.
+    /// Seconds of hitches the beat did not count, and the longest gap between two readings.
     private(set) var lost = 0.0
+    private(set) var longestGap = 0.0
 
     init(start: Double) {
         self.start = start
@@ -477,6 +478,7 @@ struct BeatClock: Sendable, Equatable {
     mutating func elapsed(at now: Double) -> Double {
         if now > last {
             let gap = now - last
+            longestGap = max(longestGap, gap)
             if gap > BeatClock.longestFrame { lost += gap - BeatClock.longestFrame }
             last = now
         }

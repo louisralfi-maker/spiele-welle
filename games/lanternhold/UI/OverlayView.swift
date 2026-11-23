@@ -229,8 +229,10 @@ final class PaneProbe {
                 let probe = PaneProbe.shared
                 if model.lanternMoment == nil {
                     probe.lanternDownAt = now
-                    probe.pauseSetAt = nil
-                    probe.appearedAt = nil
+                    // This task runs after the sheet's onAppear when both fall in one turn of the main thread: keep
+                    // what came after the lantern's going (lh-rc-13 lost it).
+                    if (probe.pauseSetAt ?? now) < now { probe.pauseSetAt = nil }
+                    if (probe.appearedAt ?? now) < now { probe.appearedAt = nil }
                 }
                 probe.watchLantern(model)
             }

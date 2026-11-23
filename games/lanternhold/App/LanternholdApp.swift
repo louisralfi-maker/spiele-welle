@@ -55,6 +55,8 @@ struct RootView: View {
     /// Polish C2 (C1-10): no pane stands before the hall is whole; a pane the game holds at its start comes 0.25 s
     /// after it (`StepIn.panesAt`), with its own come and one `paneOpen` (`OverlayView`, `AdLayer`).
     @State private var panesHeld = true
+    /// Polish C2 (Debug): the step's probe, the hitches its beat did not count (`stepin-probe`, noted by the film).
+    @State private var stepProbe = "none"
 
     var body: some View {
         if MetalContext.shared == nil {
@@ -95,6 +97,15 @@ struct RootView: View {
                 if gameMounted && !hallWhole {
                     StepInCover(beat: stepBeat, mode: stepInMode)
                 }
+                #if DEBUG
+                Text(verbatim: stepProbe)
+                    .font(.system(size: 2))
+                    .foregroundStyle(Color.clear)
+                    .frame(width: 2, height: 2)
+                    .allowsHitTesting(false)
+                    .accessibilityIdentifier("stepin-probe")
+                    .accessibilityValue(Text(verbatim: stepProbe))
+                #endif
                 if !titleDone {
                     TitleView(ready: RenderWarmup.titleReady(modelMade: model != nil, warmedUp: warmedUp),
                               reduceMotionArgument: args.reduceMotion, cues: titleCues) { beat in
@@ -157,6 +168,7 @@ struct RootView: View {
     /// timeline already shows what is under it, so none changes a pixel.
     private func stepIn(_ beat: BeatBox) {
         guard stepBeat == nil else { return }
+        let start = Date()
         stepBeat = beat
         model?.setActive(true)
         let mode = stepInMode
@@ -169,6 +181,10 @@ struct RootView: View {
             hallWhole = true
             await beat.wait(until: StepIn.panesAt(mode))
             panesHeld = false
+            #if DEBUG
+            stepProbe = String(format: "lost:%.3f longest:%.3f wall:%.3f", beat.lost, beat.longestGap,
+                               Date().timeIntervalSince(start))
+            #endif
         }
     }
 

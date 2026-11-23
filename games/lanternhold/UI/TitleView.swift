@@ -141,6 +141,10 @@ final class BeatBox {
         clock.elapsed(at: date.timeIntervalSinceReferenceDate)
     }
 
+    /// The hitches the beat did not count, and its longest gap (the step's Debug probe).
+    var lost: Double { clock.lost }
+    var longestGap: Double { clock.longestGap }
+
     /// Waits until the beat has run `seconds` (read every 8 ms, so the wait itself counts the frames it sees).
     func wait(until seconds: Double) async {
         while elapsed() < seconds {

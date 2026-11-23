@@ -38,6 +38,8 @@ final class FilmOpeningUITests: XCTestCase {
         film.tapBurst("c", app, count: 26, what: "a touch on the title: the lord raises the lantern, the picture closes "
                       + "on the flame, the hall rises from black, then the name entry comes",
                       at: title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)))
+        film.note("m01-c-probe", "the step's beat (hitches it did not count, its longest gap, wall seconds to the "
+                  + "card): " + ((film.element(app, "stepin-probe").value as? String) ?? "none"))
         // LANE-C end
         // TitleUITests: a touch before the game is ready only skips ahead; touch again while it stands.
         var extra = 0
@@ -118,6 +120,8 @@ final class FilmOpeningUITests: XCTestCase {
         let entry = film.element(app, "lord-entry-root")
         XCTAssertTrue(entry.waitForExistence(timeout: 20), "m01-r: the name entry after the title")
         XCTAssertFalse(title.exists, "m01-r: the title is gone before the name entry stands")
+        film.note("m01-r-probe", "the step's beat (hitches it did not count, its longest gap, wall seconds to the "
+                  + "card): " + ((film.element(app, "stepin-probe").value as? String) ?? "none"))
         app.terminate()
     }
     // LANE-C end
